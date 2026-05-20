@@ -45,7 +45,7 @@ namespace MTConnect.Adapters
 
                     foreach (var item in items)
                     {
-                        x.Add(item.Value);              
+                        x.Add(item.Value);
                     }
 
                     // Remove Items from Queue

@@ -24,6 +24,7 @@ namespace MTConnect.Shdr
         /// </summary>
         internal bool IsSent { get; set; }
 
+        /// <summary>The observation's primary value (<see cref="ValueKeys.Result"/>); the name <c>CDATA</c> mirrors the historical XML element it serialises to.</summary>
         public string CDATA
         {
             get => GetValue(ValueKeys.Result);
@@ -31,14 +32,17 @@ namespace MTConnect.Shdr
         }
 
 
+        /// <summary>Creates an empty SHDR data-item observation for builder-style population.</summary>
         public ShdrDataItem() { }
 
+        /// <summary>Creates an SHDR data-item observation scoped to a single DataItem key.</summary>
         public ShdrDataItem(string dataItemKey)
         {
             DataItemKey = dataItemKey;
             Timestamp = 0;
         }
 
+        /// <summary>Creates an SHDR data-item observation with the supplied DataItem key and value (rendered via <see cref="object.ToString"/>).</summary>
         public ShdrDataItem(string dataItemKey, object value)
         {
             DataItemKey = dataItemKey;
@@ -49,6 +53,7 @@ namespace MTConnect.Shdr
             Timestamp = 0;
         }
 
+        /// <summary>Creates an SHDR data-item observation with an explicit Unix-time <paramref name="timestamp"/> (milliseconds since epoch).</summary>
         public ShdrDataItem(string dataItemKey, object value, long timestamp)
         {
             DataItemKey = dataItemKey;
@@ -59,6 +64,7 @@ namespace MTConnect.Shdr
             Timestamp = timestamp;
         }
 
+        /// <summary>Creates an SHDR data-item observation with an explicit <paramref name="timestamp"/>; converted to Unix UTC time during construction.</summary>
         public ShdrDataItem(string dataItemKey, object value, DateTime timestamp)
         {
             DataItemKey = dataItemKey;
@@ -70,6 +76,7 @@ namespace MTConnect.Shdr
         }
 
 
+        /// <summary>Clones the supplied <see cref="IObservationInput"/> into an SHDR-flavoured data-item observation.</summary>
         public ShdrDataItem(IObservationInput observation)
         {
             if (observation != null)
@@ -114,7 +121,7 @@ namespace MTConnect.Shdr
                     {
                         return $"|{target}|{value}{resetTriggered}";
                     }
-                }     
+                }
             }
 
             return null;
@@ -127,7 +134,7 @@ namespace MTConnect.Shdr
                 var valueString = dataItem.GetValue(ValueKeys.Result);
                 if (valueString != null)
                 {
-                    var target = dataItem.DataItemKey;                  
+                    var target = dataItem.DataItemKey;
                     if (!string.IsNullOrEmpty(dataItem.DeviceKey)) target = $"{dataItem.DeviceKey}:{target}";
 
                     var value = valueString.Replace("|", @"\|").Trim();
@@ -155,6 +162,7 @@ namespace MTConnect.Shdr
             return "";
         }
 
+        /// <summary>Converts a batch of <see cref="ObservationInput"/> objects to a multi-line SHDR payload by wrapping each one as an <see cref="ShdrDataItem"/> and grouping by device and timestamp; returns <c>null</c> when the batch is empty.</summary>
         public static string ToString(IEnumerable<ObservationInput> observations)
         {
             if (!observations.IsNullOrEmpty())
@@ -280,7 +288,7 @@ namespace MTConnect.Shdr
                                 }
                             }
                         }
-                    }  
+                    }
                 }
 
                 // Convert list of lines to single string with new line terminator

@@ -25,19 +25,23 @@ namespace MTConnect.Shdr
         internal bool IsSent { get; set; }
 
 
+        /// <summary>Creates an empty SHDR table observation for builder-style population.</summary>
         public ShdrTable() { }
 
+        /// <summary>Creates an SHDR table observation scoped to a single DataItem key (no rows set).</summary>
         public ShdrTable(string dataItemKey)
         {
             DataItemKey = dataItemKey;
         }
 
+        /// <summary>Creates an SHDR table observation with the supplied DataItem key and table rows.</summary>
         public ShdrTable(string dataItemKey, IEnumerable<ITableEntry> entries)
         {
             DataItemKey = dataItemKey;
             Entries = entries;
         }
 
+        /// <summary>Creates an SHDR table observation with an explicit Unix-time <paramref name="timestamp"/> (milliseconds since epoch).</summary>
         public ShdrTable(string dataItemKey, IEnumerable<ITableEntry> entries, long timestamp)
         {
             DataItemKey = dataItemKey;
@@ -45,6 +49,7 @@ namespace MTConnect.Shdr
             Timestamp = timestamp;
         }
 
+        /// <summary>Creates an SHDR table observation with an explicit <paramref name="timestamp"/>; converted to Unix time during construction.</summary>
         public ShdrTable(string dataItemKey, IEnumerable<ITableEntry> entries, DateTime timestamp)
         {
             DataItemKey = dataItemKey;
@@ -52,6 +57,7 @@ namespace MTConnect.Shdr
             Timestamp = timestamp.ToUnixTime();
         }
 
+        /// <summary>Clones the supplied <see cref="TableObservationInput"/> into an SHDR-flavoured observation.</summary>
         public ShdrTable(TableObservationInput tableObservation)
         {
             if (tableObservation != null)

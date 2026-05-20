@@ -13,14 +13,19 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Adapters
 {
+    /// <summary>Delegate raised when an MTConnect agent opens a TCP connection to the SHDR adapter; <paramref name="id"/> is the per-connection identifier the listener assigns.</summary>
     public delegate void AgentConnectedHandler(string id, TcpClient client);
 
+    /// <summary>Delegate raised when an agent's TCP connection is closed or times out.</summary>
     public delegate void AgentDisconnectedHandler(string id);
 
+    /// <summary>Delegate raised for each PING received from or PONG sent to the agent identified by <paramref name="id"/>.</summary>
     public delegate void AgentResponseHandler(string id);
 
+    /// <summary>Delegate raised when the underlying <see cref="TcpListener"/> throws (port in use, socket error).</summary>
     public delegate void AgentListenerErrorHandler(Exception exception);
 
+    /// <summary>Delegate raised when the heartbeat loop for a specific agent connection throws; the connection is normally torn down afterwards.</summary>
     public delegate void AgentConnectionErrorHandler(string id, Exception exception);
 
 
@@ -44,19 +49,26 @@ namespace MTConnect.Adapters
         public int Heartbeat { get; set; }
 
 
+        /// <summary>Raised when a new agent TCP connection is accepted.</summary>
         public event AgentConnectedHandler ClientConnected;
 
+        /// <summary>Raised when an agent connection closes; the per-connection id is no longer valid afterwards.</summary>
         public event AgentDisconnectedHandler ClientDisconnected;
 
+        /// <summary>Raised for each SHDR PING received from a connected agent.</summary>
         public event AgentResponseHandler ClientPingReceived;
 
+        /// <summary>Raised after the listener writes the matching SHDR PONG back to the connected agent.</summary>
         public event AgentResponseHandler ClientPongSent;
 
+        /// <summary>Raised when the underlying <see cref="TcpListener"/> throws (typically a port-in-use or socket failure).</summary>
         public event AgentListenerErrorHandler ListenerErrorReceived;
 
+        /// <summary>Raised when an individual agent connection's heartbeat loop throws.</summary>
         public event AgentConnectionErrorHandler ConnectionErrorReceived;
 
 
+        /// <summary>Constructs the listener with the TCP <paramref name="port"/> to bind to and the heartbeat interval in milliseconds.</summary>
         public AgentClientConnectionListener(int port, int heartbeat)
         {
             Port = port;
@@ -64,25 +76,27 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>Starts the listener on a background task. The supplied <paramref name="cancel"/> token also triggers <see cref="Stop"/> when cancelled.</summary>
         public void Start(CancellationToken cancel)
         {
             _stop = new CancellationTokenSource();
             cancel.Register(() => { Stop(); });
 
-            _= Task.Run(() => ClientListener(_stop.Token));
+            _ = Task.Run(() => ClientListener(_stop.Token));
         }
 
+        /// <summary>Stops the listener, closes every connected agent socket, and clears the connection table.</summary>
         public void Stop()
         {
             if (_stop != null) _stop.Cancel();
 
             if (_listener != null)
             {
-                try 
-                { 
-                    _listener.Stop(); 
+                try
+                {
+                    _listener.Stop();
                 }
-                catch (SocketException ex) 
+                catch (SocketException ex)
                 {
                     if (ListenerErrorReceived != null) ListenerErrorReceived.Invoke(ex);
                 }
@@ -127,7 +141,7 @@ namespace MTConnect.Adapters
                         if (ClientConnected != null) ClientConnected.Invoke(clientId, client);
 
                         // Start new Ping / Pong Task
-                        _= Task.Run(() => HeartbeatConnection(clientId, client, cancel));
+                        _ = Task.Run(() => HeartbeatConnection(clientId, client, cancel));
                     }
                 }
                 catch (SocketException ex)

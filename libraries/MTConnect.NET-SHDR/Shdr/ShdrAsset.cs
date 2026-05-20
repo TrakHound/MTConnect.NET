@@ -14,9 +14,16 @@ namespace MTConnect.Shdr
     /// </summary>
     public class ShdrAsset
     {
+        /// <summary>The SHDR designator that introduces a multi-line asset publish (<c>@ASSET@|assetId|assetType|--multiline--...</c>).</summary>
         public const string AssetDesignator = "@ASSET@";
+
+        /// <summary>The SHDR designator that signals removal of a single asset by id (<c>@REMOVE_ASSET@|assetId</c>).</summary>
         public const string AssetRemoveDesignator = "@REMOVE_ASSET@";
+
+        /// <summary>The SHDR designator that signals removal of every asset of a given type (<c>@REMOVE_ALL_ASSETS@|assetType</c>).</summary>
         public const string AssetRemoveAllDesignator = "@REMOVE_ALL_ASSETS@";
+
+        /// <summary>The SHDR designator that updates an existing asset (<c>@UPDATE_ASSET@|assetId|...</c>).</summary>
         public const string AssetUpdateDesignator = "@UPDATE_ASSET@";
 
         private static readonly string AssetIdPattern = $"{AssetDesignator}\\|(.*)\\|.*\\|--multiline--";
@@ -119,8 +126,10 @@ namespace MTConnect.Shdr
         }
 
 
+        /// <summary>Creates an empty SHDR asset record for builder-style population.</summary>
         public ShdrAsset() { }
 
+        /// <summary>Creates an SHDR asset from its identifier, type, XML representation, and optional Unix-time <paramref name="timestamp"/>; the XML is parsed eagerly to populate <see cref="Asset"/>.</summary>
         public ShdrAsset(string assetId, string assetType, string xml, long timestamp = 0)
         {
             AssetId = assetId;
@@ -132,6 +141,7 @@ namespace MTConnect.Shdr
             Timestamp = timestamp;
         }
 
+        /// <summary>Creates an SHDR asset wrapping the supplied <see cref="IAsset"/>; populates the id, type, and timestamp from the asset.</summary>
         public ShdrAsset(IAsset asset)
         {
             if (asset != null)
@@ -150,8 +160,11 @@ namespace MTConnect.Shdr
         }
 
 
+        /// <summary>Serialises the asset using the multi-line SHDR encoding.</summary>
         public override string ToString() => ToString(true);
 
+        /// <summary>Serialises the asset to its SHDR textual form, optionally using the multi-line encoding that wraps the XML body between matching <c>--multiline--id</c> markers.</summary>
+        /// <param name="multiline">When true emits the multi-line form; when false produces a single-line representation suitable for compact log diffing.</param>
         public string ToString(bool multiline = false)
         {
             if (!string.IsNullOrEmpty(AssetId) && !string.IsNullOrEmpty(Xml))
@@ -240,6 +253,7 @@ namespace MTConnect.Shdr
 
         #region "Detect"
 
+        /// <summary>Returns true when <paramref name="input"/> begins with the <see cref="AssetDesignator"/> token (with or without a leading ISO timestamp).</summary>
         public static bool IsAssetLine(string input)
         {
             if (!string.IsNullOrEmpty(input))
@@ -265,6 +279,7 @@ namespace MTConnect.Shdr
             return false;
         }
 
+        /// <summary>Returns true when <paramref name="input"/> is an asset line that opens a multi-line block (the line ends with <c>--multiline--id</c>).</summary>
         public static bool IsAssetMultilineBegin(string input)
         {
             if (IsAssetLine(input))
@@ -290,6 +305,7 @@ namespace MTConnect.Shdr
         }
 
 
+        /// <summary>Returns true when <paramref name="input"/> closes the multi-line block whose opener carried the matching <paramref name="multilineId"/>.</summary>
         public static bool IsAssetMultilineEnd(string multilineId, string input)
         {
             if (!string.IsNullOrEmpty(input))
@@ -307,6 +323,7 @@ namespace MTConnect.Shdr
         }
 
 
+        /// <summary>Returns true when <paramref name="input"/> begins with the <see cref="AssetRemoveDesignator"/> token (with or without a leading timestamp).</summary>
         public static bool IsAssetRemove(string input)
         {
             if (!string.IsNullOrEmpty(input))
@@ -332,6 +349,7 @@ namespace MTConnect.Shdr
         }
 
 
+        /// <summary>Returns true when <paramref name="input"/> begins with the <see cref="AssetRemoveAllDesignator"/> token (with or without a leading timestamp).</summary>
         public static bool IsAssetRemoveAll(string input)
         {
             if (!string.IsNullOrEmpty(input))
@@ -357,6 +375,7 @@ namespace MTConnect.Shdr
         }
 
 
+        /// <summary>Returns true when <paramref name="input"/> begins with the <see cref="AssetUpdateDesignator"/> token (with or without a leading timestamp).</summary>
         public static bool IsAssetUpdate(string input)
         {
             if (!string.IsNullOrEmpty(input))
@@ -385,6 +404,7 @@ namespace MTConnect.Shdr
 
         #region "Read"
 
+        /// <summary>Parses the leading ISO timestamp segment of <paramref name="input"/> and returns it as Unix time (milliseconds since epoch); returns 0 when no timestamp is present.</summary>
         public static long ReadTimestamp(string input)
         {
             if (!string.IsNullOrEmpty(input))
@@ -400,6 +420,7 @@ namespace MTConnect.Shdr
             return 0;
         }
 
+        /// <summary>Extracts the asset id from a multi-line asset header (<c>@ASSET@|assetId|assetType|--multiline--id</c>); returns null when no match is found.</summary>
         public static string ReadAssetId(string input)
         {
             if (!string.IsNullOrEmpty(input))
@@ -428,6 +449,7 @@ namespace MTConnect.Shdr
             return null;
         }
 
+        /// <summary>Extracts the asset type from a multi-line asset header; returns null when no match is found.</summary>
         public static string ReadAssetType(string input)
         {
             if (!string.IsNullOrEmpty(input))
@@ -456,6 +478,7 @@ namespace MTConnect.Shdr
             return null;
         }
 
+        /// <summary>Extracts the multi-line block id that follows the <c>--multiline--</c> marker on an asset header; returns null when no match is found.</summary>
         public static string ReadAssetMultilineId(string input)
         {
             if (!string.IsNullOrEmpty(input))
@@ -484,6 +507,7 @@ namespace MTConnect.Shdr
             return null;
         }
 
+        /// <summary>Extracts the target asset id from a <c>@REMOVE_ASSET@|assetId</c> SHDR line; returns null when no match is found.</summary>
         public static string ReadRemoveAssetId(string input)
         {
             if (!string.IsNullOrEmpty(input))
@@ -510,6 +534,7 @@ namespace MTConnect.Shdr
             return null;
         }
 
+        /// <summary>Extracts the target asset type from a <c>@REMOVE_ALL_ASSETS@|type</c> SHDR line; returns null when no match is found.</summary>
         public static string ReadRemoveAllAssetType(string input)
         {
             if (!string.IsNullOrEmpty(input))
@@ -537,6 +562,7 @@ namespace MTConnect.Shdr
         }
 
 
+        /// <summary>Parses an SHDR asset-publish line back into an <see cref="ShdrAsset"/> instance, lifting any leading timestamp; returns null when <paramref name="input"/> does not match the expected layout.</summary>
         public static ShdrAsset FromString(string input)
         {
             if (!string.IsNullOrEmpty(input))
@@ -604,6 +630,7 @@ namespace MTConnect.Shdr
         #endregion
 
 
+        /// <summary>Formats a Unix-time <paramref name="timestamp"/> as the ISO 8601 string used in the SHDR timestamp field, honouring <paramref name="timeZoneInfo"/> when supplied or falling back to UTC. Returns an empty string when <paramref name="timestamp"/> is non-positive.</summary>
         protected static string GetTimestampString(long timestamp, TimeZoneInfo timeZoneInfo = null)
         {
             if (timestamp > 0)

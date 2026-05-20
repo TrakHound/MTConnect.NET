@@ -24,19 +24,24 @@ namespace MTConnect.Shdr
         internal bool IsSent { get; set; }
 
 
+        /// <summary>Creates an empty SHDR data-set observation for builder-style population.</summary>
         public ShdrDataSet() { }
 
+        /// <summary>Creates an SHDR data-set observation scoped to a single DataItem key (no entries set).</summary>
+        /// <param name="dataItemKey">The DataItem id or name the data-set applies to.</param>
         public ShdrDataSet(string dataItemKey)
         {
             DataItemKey = dataItemKey;
         }
 
+        /// <summary>Creates an SHDR data-set observation with the supplied DataItem key and entry set.</summary>
         public ShdrDataSet(string dataItemKey, IEnumerable<IDataSetEntry> entries)
         {
             DataItemKey = dataItemKey;
             Entries = entries;
         }
 
+        /// <summary>Creates an SHDR data-set observation with an explicit Unix-time <paramref name="timestamp"/> (milliseconds since epoch).</summary>
         public ShdrDataSet(string dataItemKey, IEnumerable<IDataSetEntry> entries, long timestamp)
         {
             DataItemKey = dataItemKey;
@@ -44,6 +49,7 @@ namespace MTConnect.Shdr
             Timestamp = timestamp;
         }
 
+        /// <summary>Creates an SHDR data-set observation with an explicit <paramref name="timestamp"/>; converted to Unix time during construction.</summary>
         public ShdrDataSet(string dataItemKey, IEnumerable<IDataSetEntry> entries, DateTime timestamp)
         {
             DataItemKey = dataItemKey;
@@ -51,6 +57,7 @@ namespace MTConnect.Shdr
             Timestamp = timestamp.ToUnixTime();
         }
 
+        /// <summary>Clones the supplied <see cref="DataSetObservationInput"/> into an SHDR-flavoured observation.</summary>
         public ShdrDataSet(DataSetObservationInput dataSetObservation)
         {
             if (dataSetObservation != null)

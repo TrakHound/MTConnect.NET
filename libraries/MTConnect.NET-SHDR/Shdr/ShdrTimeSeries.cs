@@ -24,8 +24,10 @@ namespace MTConnect.Shdr
         internal bool IsSent { get; set; }
 
 
+        /// <summary>Creates an empty SHDR time-series observation for builder-style population.</summary>
         public ShdrTimeSeries() { }
 
+        /// <summary>Creates an SHDR time-series observation with a DataItem key, sample vector, and sample rate (in Hz).</summary>
         public ShdrTimeSeries(string dataItemKey, IEnumerable<double> samples, double sampleRate)
         {
             DataItemKey = dataItemKey;
@@ -33,6 +35,7 @@ namespace MTConnect.Shdr
             SampleRate = sampleRate;
         }
 
+        /// <summary>Creates an SHDR time-series observation with an explicit Unix-time <paramref name="timestamp"/> (milliseconds since epoch).</summary>
         public ShdrTimeSeries(string dataItemKey, IEnumerable<double> samples, double sampleRate, long timestamp)
         {
             DataItemKey = dataItemKey;
@@ -41,6 +44,7 @@ namespace MTConnect.Shdr
             Timestamp = timestamp;
         }
 
+        /// <summary>Creates an SHDR time-series observation with an explicit <paramref name="timestamp"/>; converted to Unix time during construction.</summary>
         public ShdrTimeSeries(string dataItemKey, IEnumerable<double> samples, double sampleRate, DateTime timestamp)
         {
             DataItemKey = dataItemKey;
@@ -49,6 +53,7 @@ namespace MTConnect.Shdr
             Timestamp = timestamp.ToUnixTime();
         }
 
+        /// <summary>Clones the supplied <see cref="TimeSeriesObservationInput"/> into an SHDR-flavoured observation.</summary>
         public ShdrTimeSeries(TimeSeriesObservationInput timeSeriesObservation)
         {
             if (timeSeriesObservation != null)
