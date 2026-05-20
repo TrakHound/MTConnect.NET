@@ -12,26 +12,54 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Assets.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate that wraps a single asset of any
+    /// supported type in the cppagent-compatible shape. The cppagent
+    /// asset envelope keys each asset by its element name
+    /// (<c>CuttingTool</c>, <c>File</c>, <c>RawMaterial</c>), so this
+    /// container exposes one optional property per asset type and only
+    /// the property matching the wrapped asset is populated. Converts
+    /// to and from the strongly-typed <see cref="IAsset"/> model.
+    /// </summary>
     public class JsonAssetContainer
     {
         //[JsonPropertyName("ComponentConfigurationParameters")]
         //public List<JsonComponentConfigurationParametersAsset> ComponentConfigurationParameters { get; set; }
 
+        /// <summary>
+        /// The wrapped <c>CuttingTool</c> asset, when the container
+        /// holds one.
+        /// </summary>
         [JsonPropertyName("CuttingTool")]
         public JsonCuttingToolAsset CuttingTool { get; set; }
 
+        /// <summary>
+        /// The wrapped <c>File</c> asset, when the container holds one.
+        /// </summary>
         [JsonPropertyName("File")]
         public JsonFileAsset File { get; set; }
 
         //[JsonPropertyName("QIF")]
         //public List<JsonCuttingToolAsset> QIF { get; set; }
 
+        /// <summary>
+        /// The wrapped <c>RawMaterial</c> asset, when the container
+        /// holds one.
+        /// </summary>
         [JsonPropertyName("RawMaterial")]
         public JsonRawMaterialAsset RawMaterial { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonAssetContainer() { }
 
+        /// <summary>
+        /// Initializes the container from a strongly-typed
+        /// <see cref="IAsset"/>, dispatching to the appropriate typed
+        /// property by the asset's <c>TypeId</c> discriminator.
+        /// </summary>
         public JsonAssetContainer(IAsset asset)
         {
             if (asset != null)
@@ -54,6 +82,11 @@ namespace MTConnect.Assets.Json
         }
 
 
+        /// <summary>
+        /// Wraps the contained asset in a single-element
+        /// <see cref="AssetsResponseDocument"/>, returning <c>null</c>
+        /// when the container is empty.
+        /// </summary>
         public IAssetsResponseDocument ToAssetsDocument()
         {
             var asset = ToAsset();
@@ -73,6 +106,10 @@ namespace MTConnect.Assets.Json
             return null;
         }
 
+        /// <summary>
+        /// Returns the contained asset by inspecting the populated
+        /// property, returning <c>null</c> when none is populated.
+        /// </summary>
         public IAsset ToAsset()
         {
             if (CuttingTool != null)

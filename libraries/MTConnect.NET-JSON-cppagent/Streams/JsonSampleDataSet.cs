@@ -9,17 +9,40 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a SAMPLE observation carrying a
+    /// DATA_SET representation in the cppagent-compatible Streams shape.
+    /// The keyed entries are emitted as a JSON object on the
+    /// <c>value</c> property (via <see cref="JsonDataSetEntries"/>) and
+    /// the entry count is carried alongside.
+    /// </summary>
     public class JsonSampleDataSet : JsonObservation
     {
+        /// <summary>
+        /// The keyed entries of the data set, emitted as a JSON object
+        /// or as the <c>UNAVAILABLE</c> string sentinel.
+        /// </summary>
         [JsonPropertyName("value")]
         public JsonDataSetEntries Entries { get; set; }
 
+        /// <summary>
+        /// The number of entries in the data set.
+        /// </summary>
         [JsonPropertyName("count")]
         public long? Count { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonSampleDataSet() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed data-set
+        /// sample <see cref="IObservation"/>, optionally surfacing
+        /// category and instance-id. Emits an unavailable marker when
+        /// the source has no entries.
+        /// </summary>
         public JsonSampleDataSet(IObservation observation, bool categoryOutput = false, bool instanceIdOutput = false)
         {
             if (observation != null)
@@ -55,6 +78,11 @@ namespace MTConnect.Streams.Json
             }
         }
 
+        /// <summary>
+        /// Initializes the surrogate from a streaming
+        /// <see cref="IObservationOutput"/>, rehydrating the data-set
+        /// entries from the observation's value bag.
+        /// </summary>
         public JsonSampleDataSet(IObservationOutput observation)
         {
             if (observation != null)
@@ -90,6 +118,13 @@ namespace MTConnect.Streams.Json
             }
         }
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="ISampleDataSetObservation"/>, restoring the
+        /// data-item type from the supplied dictionary key, or emitting
+        /// the <c>UNAVAILABLE</c> result when the entries are marked
+        /// unavailable.
+        /// </summary>
         public ISampleDataSetObservation ToObservation(string type)
         {
             // Route construction through the typed factory so the runtime

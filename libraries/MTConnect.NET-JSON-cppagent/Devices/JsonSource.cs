@@ -6,23 +6,50 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a data-item <c>Source</c> in
+    /// the cppagent-compatible shape. Identifies the originating
+    /// component, data item, or composition that backs the data item,
+    /// optionally with a literal source value. Converts to and from the
+    /// strongly-typed <see cref="Source"/> model.
+    /// </summary>
     public class JsonSource
     {
+        /// <summary>
+        /// Reference to the <c>id</c> of the originating component.
+        /// </summary>
         [JsonPropertyName("componentId")]
         public string ComponentId { get; set; }
 
+        /// <summary>
+        /// Reference to the <c>id</c> of the originating data item.
+        /// </summary>
         [JsonPropertyName("dataItemId")]
         public string DataItemId { get; set; }
 
+        /// <summary>
+        /// Reference to the <c>id</c> of the originating composition.
+        /// </summary>
         [JsonPropertyName("compositionId")]
         public string CompositionId { get; set; }
 
+        /// <summary>
+        /// The literal source value, when the source is itself a
+        /// concrete identifier rather than a reference.
+        /// </summary>
         [JsonPropertyName("value")]
         public string Value { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonSource() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="ISource"/>.
+        /// </summary>
         public JsonSource(ISource source)
         {
             if (source != null)
@@ -35,6 +62,10 @@ namespace MTConnect.Devices.Json
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="ISource"/>.
+        /// </summary>
         public ISource ToSource()
         {
             var source = new Source();

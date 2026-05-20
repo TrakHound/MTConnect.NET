@@ -22,13 +22,33 @@ using System.Text.Json;
 
 namespace MTConnect.Formatters
 {
+    /// <summary>
+    /// HTTP entity formatter that serializes and deserializes individual
+    /// MTConnect entities (Device, Asset, Composition, DataItem) using the
+    /// cppagent-compatible JSON shape. Used by the PUT/POST entity-level
+    /// endpoints that operate on a single entity rather than a full
+    /// response document.
+    /// </summary>
     public class JsonHttpEntityFormatter : IEntityFormatter
     {
+        /// <summary>
+        /// The formatter identifier exposed to the agent's content-type
+        /// negotiation, distinguishing this formatter from the plain
+        /// MTConnect JSON formatter.
+        /// </summary>
         public virtual string Id => "JSON-cppagent";
 
+        /// <summary>
+        /// The HTTP <c>Content-Type</c> emitted by this formatter.
+        /// </summary>
         public virtual string ContentType => "application/json";
 
 
+        /// <summary>
+        /// Serializes a single device using the cppagent-compatible
+        /// <see cref="JsonDevice"/> surrogate, honouring the
+        /// <c>indentOutput</c> option.
+        /// </summary>
         public FormatWriteResult Format(IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (device != null)
@@ -45,16 +65,32 @@ namespace MTConnect.Formatters
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Single-observation serialization is not part of the cppagent
+        /// entity surface, so this overload always returns an error
+        /// result.
+        /// </summary>
         public FormatWriteResult Format(IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Bulk-observation serialization is not part of the cppagent
+        /// entity surface, so this overload always returns an error
+        /// result.
+        /// </summary>
         public FormatWriteResult Format(IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Serializes a single asset by wrapping it in a one-element
+        /// <see cref="JsonAssets"/> container and dispatching to the
+        /// appropriate cppagent asset surrogate
+        /// (<c>CuttingTool</c>, <c>File</c>, <c>RawMaterial</c>).
+        /// </summary>
         public FormatWriteResult Format(IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (asset != null)
@@ -65,7 +101,7 @@ namespace MTConnect.Formatters
                 {
                     case "CuttingTool":
                         assets.CuttingTools = new List<JsonCuttingToolAsset>();
-                        assets.CuttingTools.Add(new JsonCuttingToolAsset(asset as CuttingToolAsset)); 
+                        assets.CuttingTools.Add(new JsonCuttingToolAsset(asset as CuttingToolAsset));
                         break;
 
                     case "File":
@@ -84,9 +120,9 @@ namespace MTConnect.Formatters
                         assets.RawMaterials.Add(new JsonRawMaterialAsset(asset as RawMaterialAsset));
                         break;
 
-                    //default:
-                    //    bytes = JsonFunctions.ConvertBytes(asset);
-                    //    break;
+                        //default:
+                        //    bytes = JsonFunctions.ConvertBytes(asset);
+                        //    break;
                 }
 
                 var bytes = JsonFunctions.ConvertStream(assets);
@@ -100,6 +136,11 @@ namespace MTConnect.Formatters
         }
 
 
+        /// <summary>
+        /// Deserializes a single device from JSON via the
+        /// <see cref="JsonDeviceContainer"/> envelope and reconstructs the
+        /// strongly-typed model.
+        /// </summary>
         public FormatReadResult<IDevice> CreateDevice(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
@@ -119,6 +160,10 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IDevice>();
         }
 
+        /// <summary>
+        /// Component-level deserialization is not yet implemented for the
+        /// cppagent shape; the method always returns an empty result.
+        /// </summary>
         public FormatReadResult<IComponent> CreateComponent(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
@@ -138,6 +183,11 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IComponent>();
         }
 
+        /// <summary>
+        /// Deserializes a single composition from JSON via the
+        /// <see cref="JsonComposition"/> surrogate and reconstructs the
+        /// strongly-typed model.
+        /// </summary>
         public FormatReadResult<IComposition> CreateComposition(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
@@ -157,6 +207,11 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IComposition>();
         }
 
+        /// <summary>
+        /// Deserializes a single data item from JSON via the
+        /// <see cref="JsonDataItem"/> surrogate and reconstructs the
+        /// strongly-typed model.
+        /// </summary>
         public FormatReadResult<IDataItem> CreateDataItem(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
@@ -176,6 +231,14 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IDataItem>();
         }
 
+        /// <summary>
+        /// Deserializes a single asset from JSON, dispatching to the
+        /// appropriate cppagent asset surrogate
+        /// (<c>CuttingTool</c>, <c>File</c>, <c>QIFDocumentWrapper</c>,
+        /// <c>RawMaterial</c>) based on the supplied asset type
+        /// discriminator. Any deserialization exception is captured into
+        /// the <c>errors</c> list rather than propagated.
+        /// </summary>
         public FormatReadResult<IAsset> CreateAsset(string assetType, Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
@@ -202,7 +265,7 @@ namespace MTConnect.Formatters
                     {
                         switch (assetType)
                         {
-                            case "CuttingTool": 
+                            case "CuttingTool":
                                 asset = JsonSerializer.Deserialize<JsonCuttingToolAsset>(json).ToCuttingToolAsset();
                                 break;
 

@@ -12,20 +12,44 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a Configuration
+    /// <c>SolidModel.Scale</c> expressed as a data set in the
+    /// cppagent-compatible shape. The flat
+    /// <c>{"X": v, "Y": v, "Z": v}</c> PascalCase object encoding
+    /// matches the cppagent v2 DataSet convention. Converts to and from
+    /// the strongly-typed <see cref="ScaleDataSet"/> model.
+    /// </summary>
     public class JsonScaleDataSet
     {
+        /// <summary>
+        /// Scale factor along the X axis.
+        /// </summary>
         [JsonPropertyName("X")]
         public double X { get; set; }
 
+        /// <summary>
+        /// Scale factor along the Y axis.
+        /// </summary>
         [JsonPropertyName("Y")]
         public double Y { get; set; }
 
+        /// <summary>
+        /// Scale factor along the Z axis.
+        /// </summary>
         [JsonPropertyName("Z")]
         public double Z { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonScaleDataSet() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IScaleDataSet"/>.
+        /// </summary>
         public JsonScaleDataSet(IScaleDataSet dataSet)
         {
             if (dataSet != null)
@@ -37,6 +61,10 @@ namespace MTConnect.Devices.Json
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="IScaleDataSet"/>.
+        /// </summary>
         public IScaleDataSet ToScaleDataSet()
         {
             var dataSet = new ScaleDataSet();

@@ -11,8 +11,18 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
+    /// <summary>
+    /// cppagent-style JSON representation of the EVENT-category observations in a
+    /// stream. Every MTConnect event type is exposed as three typed collections —
+    /// one each for the VALUE, DATA_SET, and TABLE representations — so the
+    /// serialized object shape matches the C++ reference agent's output.
+    /// </summary>
     public class JsonEvents
     {
+        /// <summary>
+        /// Materializes every typed collection into a single flat list of
+        /// <see cref="IObservation"/>, restoring each observation's MTConnect type.
+        /// </summary>
         [JsonIgnore]
         public List<IObservation> Observations
         {
@@ -607,1469 +617,3229 @@ namespace MTConnect.Streams.Json
                 return l;
             }
         }
+        /// <summary>
+        /// The <c>ActivationCount</c> events reported with the scalar VALUE representation.
+        /// Accumulation of the number of times a function has attempted to, or is planned to attempt to, activate or be performed.
+        /// </summary>
         [JsonPropertyName("ActivationCount")]
         public IEnumerable<JsonEventValue> ActivationCount { get; set; }
 
+        /// <summary>
+        /// The <c>ActivationCount</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ActivationCountDataSet")]
         public IEnumerable<JsonEventDataSet> ActivationCountDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ActivationCount</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ActivationCountTable")]
         public IEnumerable<JsonEventTable> ActivationCountTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ActiveAxes</c> events reported with the scalar VALUE representation.
+        /// Set of axes currently associated with a Path or Controller.
+        /// </summary>
         [JsonPropertyName("ActiveAxes")]
         public IEnumerable<JsonEventValue> ActiveAxes { get; set; }
 
+        /// <summary>
+        /// The <c>ActiveAxes</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ActiveAxesDataSet")]
         public IEnumerable<JsonEventDataSet> ActiveAxesDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ActiveAxes</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ActiveAxesTable")]
         public IEnumerable<JsonEventTable> ActiveAxesTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ActivePowerSource</c> events reported with the scalar VALUE representation.
+        /// Active energy source for the Component.
+        /// </summary>
         [JsonPropertyName("ActivePowerSource")]
         public IEnumerable<JsonEventValue> ActivePowerSource { get; set; }
 
+        /// <summary>
+        /// The <c>ActivePowerSource</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ActivePowerSourceDataSet")]
         public IEnumerable<JsonEventDataSet> ActivePowerSourceDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ActivePowerSource</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ActivePowerSourceTable")]
         public IEnumerable<JsonEventTable> ActivePowerSourceTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ActuatorState</c> events reported with the scalar VALUE representation.
+        /// Operational state of an apparatus for moving or controlling a mechanism or system.
+        /// </summary>
         [JsonPropertyName("ActuatorState")]
         public IEnumerable<JsonEventValue> ActuatorState { get; set; }
 
+        /// <summary>
+        /// The <c>ActuatorState</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ActuatorStateDataSet")]
         public IEnumerable<JsonEventDataSet> ActuatorStateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ActuatorState</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ActuatorStateTable")]
         public IEnumerable<JsonEventTable> ActuatorStateTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>AdapterSoftwareVersion</c> events reported with the scalar VALUE representation.
+        /// Originator’s software version of the adapter.
+        /// </summary>
         [JsonPropertyName("AdapterSoftwareVersion")]
         public IEnumerable<JsonEventValue> AdapterSoftwareVersion { get; set; }
 
+        /// <summary>
+        /// The <c>AdapterSoftwareVersion</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AdapterSoftwareVersionDataSet")]
         public IEnumerable<JsonEventDataSet> AdapterSoftwareVersionDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AdapterSoftwareVersion</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AdapterSoftwareVersionTable")]
         public IEnumerable<JsonEventTable> AdapterSoftwareVersionTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>AdapterUri</c> events reported with the scalar VALUE representation.
+        /// URI of the adapter.
+        /// </summary>
         [JsonPropertyName("AdapterUri")]
         public IEnumerable<JsonEventValue> AdapterUri { get; set; }
 
+        /// <summary>
+        /// The <c>AdapterUri</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AdapterUriDataSet")]
         public IEnumerable<JsonEventDataSet> AdapterUriDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AdapterUri</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AdapterUriTable")]
         public IEnumerable<JsonEventTable> AdapterUriTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Alarm</c> events reported with the scalar VALUE representation.
+        /// **DEPRECATED:** Replaced with `CONDITION` category data items in Version 1.1.0.
+        /// </summary>
         [JsonPropertyName("Alarm")]
         public IEnumerable<JsonEventValue> Alarm { get; set; }
 
+        /// <summary>
+        /// The <c>Alarm</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AlarmDataSet")]
         public IEnumerable<JsonEventDataSet> AlarmDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Alarm</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AlarmTable")]
         public IEnumerable<JsonEventTable> AlarmTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>AlarmLimit</c> events reported with the scalar VALUE representation.
+        /// Set of limits used to trigger warning or alarm indicators.**DEPRECATED** in *Version 2.5*. Replaced by  `ALARM_LIMITS`.
+        /// </summary>
         [JsonPropertyName("AlarmLimit")]
         public IEnumerable<JsonEventValue> AlarmLimit { get; set; }
 
+        /// <summary>
+        /// The <c>AlarmLimit</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AlarmLimitDataSet")]
         public IEnumerable<JsonEventDataSet> AlarmLimitDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AlarmLimit</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AlarmLimitTable")]
         public IEnumerable<JsonEventTable> AlarmLimitTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>AlarmLimits</c> events reported with the scalar VALUE representation.
+        /// Set of limits used to trigger warning or alarm indicators.
+        /// </summary>
         [JsonPropertyName("AlarmLimits")]
         public IEnumerable<JsonEventValue> AlarmLimits { get; set; }
 
+        /// <summary>
+        /// The <c>AlarmLimits</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AlarmLimitsDataSet")]
         public IEnumerable<JsonEventDataSet> AlarmLimitsDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AlarmLimits</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AlarmLimitsTable")]
         public IEnumerable<JsonEventTable> AlarmLimitsTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Application</c> events reported with the scalar VALUE representation.
+        /// Application on a Component.
+        /// </summary>
         [JsonPropertyName("Application")]
         public IEnumerable<JsonEventValue> Application { get; set; }
 
+        /// <summary>
+        /// The <c>Application</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ApplicationDataSet")]
         public IEnumerable<JsonEventDataSet> ApplicationDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Application</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ApplicationTable")]
         public IEnumerable<JsonEventTable> ApplicationTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>AssetAdded</c> events reported with the scalar VALUE representation.
+        /// AssetId of the Asset that has been added.
+        /// </summary>
         [JsonPropertyName("AssetAdded")]
         public IEnumerable<JsonEventValue> AssetAdded { get; set; }
 
+        /// <summary>
+        /// The <c>AssetAdded</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AssetAddedDataSet")]
         public IEnumerable<JsonEventDataSet> AssetAddedDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AssetAdded</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AssetAddedTable")]
         public IEnumerable<JsonEventTable> AssetAddedTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>AssetChanged</c> events reported with the scalar VALUE representation.
+        /// AssetId of the Asset that has been changed.
+        /// </summary>
         [JsonPropertyName("AssetChanged")]
         public IEnumerable<JsonEventValue> AssetChanged { get; set; }
 
+        /// <summary>
+        /// The <c>AssetChanged</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AssetChangedDataSet")]
         public IEnumerable<JsonEventDataSet> AssetChangedDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AssetChanged</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AssetChangedTable")]
         public IEnumerable<JsonEventTable> AssetChangedTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>AssetCount</c> events reported with the scalar VALUE representation.
+        /// Data set of the number of Asset of a given type for a Device.
+        /// </summary>
         [JsonPropertyName("AssetCount")]
         public IEnumerable<JsonEventValue> AssetCount { get; set; }
 
+        /// <summary>
+        /// The <c>AssetCount</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AssetCountDataSet")]
         public IEnumerable<JsonEventDataSet> AssetCountDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AssetCount</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AssetCountTable")]
         public IEnumerable<JsonEventTable> AssetCountTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>AssetRemoved</c> events reported with the scalar VALUE representation.
+        /// AssetId of the Asset that has been removed.
+        /// </summary>
         [JsonPropertyName("AssetRemoved")]
         public IEnumerable<JsonEventValue> AssetRemoved { get; set; }
 
+        /// <summary>
+        /// The <c>AssetRemoved</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AssetRemovedDataSet")]
         public IEnumerable<JsonEventDataSet> AssetRemovedDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AssetRemoved</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AssetRemovedTable")]
         public IEnumerable<JsonEventTable> AssetRemovedTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>AssociatedAssetId</c> events reported with the scalar VALUE representation.
+        /// AssetId of the Assets associated with a Component.
+        /// </summary>
         [JsonPropertyName("AssociatedAssetId")]
         public IEnumerable<JsonEventValue> AssociatedAssetId { get; set; }
 
+        /// <summary>
+        /// The <c>AssociatedAssetId</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AssociatedAssetIdDataSet")]
         public IEnumerable<JsonEventDataSet> AssociatedAssetIdDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AssociatedAssetId</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AssociatedAssetIdTable")]
         public IEnumerable<JsonEventTable> AssociatedAssetIdTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Availability</c> events reported with the scalar VALUE representation.
+        /// Agent's ability to communicate with the data source.
+        /// </summary>
         [JsonPropertyName("Availability")]
         public IEnumerable<JsonEventValue> Availability { get; set; }
 
+        /// <summary>
+        /// The <c>Availability</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AvailabilityDataSet")]
         public IEnumerable<JsonEventDataSet> AvailabilityDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Availability</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AvailabilityTable")]
         public IEnumerable<JsonEventTable> AvailabilityTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>AxisCoupling</c> events reported with the scalar VALUE representation.
+        /// Describes the way the axes will be associated to each other.   This is used in conjunction with `COUPLED_AXES` to indicate the way they are interacting.
+        /// </summary>
         [JsonPropertyName("AxisCoupling")]
         public IEnumerable<JsonEventValue> AxisCoupling { get; set; }
 
+        /// <summary>
+        /// The <c>AxisCoupling</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AxisCouplingDataSet")]
         public IEnumerable<JsonEventDataSet> AxisCouplingDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AxisCoupling</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AxisCouplingTable")]
         public IEnumerable<JsonEventTable> AxisCouplingTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>AxisFeedrateOverride</c> events reported with the scalar VALUE representation.
+        /// Value of a signal or calculation issued to adjust the feedrate of an individual linear type axis.
+        /// </summary>
         [JsonPropertyName("AxisFeedrateOverride")]
         public IEnumerable<JsonEventValue> AxisFeedrateOverride { get; set; }
 
+        /// <summary>
+        /// The <c>AxisFeedrateOverride</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AxisFeedrateOverrideDataSet")]
         public IEnumerable<JsonEventDataSet> AxisFeedrateOverrideDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AxisFeedrateOverride</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AxisFeedrateOverrideTable")]
         public IEnumerable<JsonEventTable> AxisFeedrateOverrideTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>AxisInterlock</c> events reported with the scalar VALUE representation.
+        /// State of the axis lockout function when power has been removed and the axis is allowed to move freely.
+        /// </summary>
         [JsonPropertyName("AxisInterlock")]
         public IEnumerable<JsonEventValue> AxisInterlock { get; set; }
 
+        /// <summary>
+        /// The <c>AxisInterlock</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AxisInterlockDataSet")]
         public IEnumerable<JsonEventDataSet> AxisInterlockDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AxisInterlock</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AxisInterlockTable")]
         public IEnumerable<JsonEventTable> AxisInterlockTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>AxisState</c> events reported with the scalar VALUE representation.
+        /// State of a Linear or Rotary component representing an axis.
+        /// </summary>
         [JsonPropertyName("AxisState")]
         public IEnumerable<JsonEventValue> AxisState { get; set; }
 
+        /// <summary>
+        /// The <c>AxisState</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AxisStateDataSet")]
         public IEnumerable<JsonEventDataSet> AxisStateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AxisState</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AxisStateTable")]
         public IEnumerable<JsonEventTable> AxisStateTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>BatteryState</c> events reported with the scalar VALUE representation.
+        /// Present status of the battery.
+        /// </summary>
         [JsonPropertyName("BatteryState")]
         public IEnumerable<JsonEventValue> BatteryState { get; set; }
 
+        /// <summary>
+        /// The <c>BatteryState</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("BatteryStateDataSet")]
         public IEnumerable<JsonEventDataSet> BatteryStateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>BatteryState</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("BatteryStateTable")]
         public IEnumerable<JsonEventTable> BatteryStateTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>BindingState</c> events reported with the scalar VALUE representation.
+        /// State of the binding process when Component participates in a task as a collaborator
+        /// </summary>
         [JsonPropertyName("BindingState")]
         public IEnumerable<JsonEventValue> BindingState { get; set; }
 
+        /// <summary>
+        /// The <c>BindingState</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("BindingStateDataSet")]
         public IEnumerable<JsonEventDataSet> BindingStateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>BindingState</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("BindingStateTable")]
         public IEnumerable<JsonEventTable> BindingStateTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Block</c> events reported with the scalar VALUE representation.
+        /// Line of code or command being executed by a Controller entity.
+        /// </summary>
         [JsonPropertyName("Block")]
         public IEnumerable<JsonEventValue> Block { get; set; }
 
+        /// <summary>
+        /// The <c>Block</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("BlockDataSet")]
         public IEnumerable<JsonEventDataSet> BlockDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Block</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("BlockTable")]
         public IEnumerable<JsonEventTable> BlockTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>BlockCount</c> events reported with the scalar VALUE representation.
+        /// Total count of the number of blocks of program code that have been executed since execution started.
+        /// </summary>
         [JsonPropertyName("BlockCount")]
         public IEnumerable<JsonEventValue> BlockCount { get; set; }
 
+        /// <summary>
+        /// The <c>BlockCount</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("BlockCountDataSet")]
         public IEnumerable<JsonEventDataSet> BlockCountDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>BlockCount</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("BlockCountTable")]
         public IEnumerable<JsonEventTable> BlockCountTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>CharacteristicPersistentId</c> events reported with the scalar VALUE representation.
+        /// UUID of the characteristic.
+        /// </summary>
         [JsonPropertyName("CharacteristicPersistentId")]
         public IEnumerable<JsonEventValue> CharacteristicPersistentId { get; set; }
 
+        /// <summary>
+        /// The <c>CharacteristicPersistentId</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("CharacteristicPersistentIdDataSet")]
         public IEnumerable<JsonEventDataSet> CharacteristicPersistentIdDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>CharacteristicPersistentId</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("CharacteristicPersistentIdTable")]
         public IEnumerable<JsonEventTable> CharacteristicPersistentIdTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>CharacteristicStatus</c> events reported with the scalar VALUE representation.
+        /// Pass/fail result of the measurement.
+        /// </summary>
         [JsonPropertyName("CharacteristicStatus")]
         public IEnumerable<JsonEventValue> CharacteristicStatus { get; set; }
 
+        /// <summary>
+        /// The <c>CharacteristicStatus</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("CharacteristicStatusDataSet")]
         public IEnumerable<JsonEventDataSet> CharacteristicStatusDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>CharacteristicStatus</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("CharacteristicStatusTable")]
         public IEnumerable<JsonEventTable> CharacteristicStatusTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ChuckInterlock</c> events reported with the scalar VALUE representation.
+        /// State of an interlock function or control logic state intended to prevent the associated Chuck component from being operated.
+        /// </summary>
         [JsonPropertyName("ChuckInterlock")]
         public IEnumerable<JsonEventValue> ChuckInterlock { get; set; }
 
+        /// <summary>
+        /// The <c>ChuckInterlock</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ChuckInterlockDataSet")]
         public IEnumerable<JsonEventDataSet> ChuckInterlockDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ChuckInterlock</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ChuckInterlockTable")]
         public IEnumerable<JsonEventTable> ChuckInterlockTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ChuckState</c> events reported with the scalar VALUE representation.
+        /// Operating state of a mechanism that holds a part or stock material during a manufacturing process. It may also represent a mechanism that holds any other mechanism in place within a piece of equipment.
+        /// </summary>
         [JsonPropertyName("ChuckState")]
         public IEnumerable<JsonEventValue> ChuckState { get; set; }
 
+        /// <summary>
+        /// The <c>ChuckState</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ChuckStateDataSet")]
         public IEnumerable<JsonEventDataSet> ChuckStateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ChuckState</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ChuckStateTable")]
         public IEnumerable<JsonEventTable> ChuckStateTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ClockTime</c> events reported with the scalar VALUE representation.
+        /// Time provided by a timing device at a specific point in time.
+        /// </summary>
         [JsonPropertyName("ClockTime")]
         public IEnumerable<JsonEventValue> ClockTime { get; set; }
 
+        /// <summary>
+        /// The <c>ClockTime</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ClockTimeDataSet")]
         public IEnumerable<JsonEventDataSet> ClockTimeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ClockTime</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ClockTimeTable")]
         public IEnumerable<JsonEventTable> ClockTimeTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Code</c> events reported with the scalar VALUE representation.
+        /// Programmatic code being executed.**DEPRECATED** in *Version 1.1*.
+        /// </summary>
         [JsonPropertyName("Code")]
         public IEnumerable<JsonEventValue> Code { get; set; }
 
+        /// <summary>
+        /// The <c>Code</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("CodeDataSet")]
         public IEnumerable<JsonEventDataSet> CodeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Code</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("CodeTable")]
         public IEnumerable<JsonEventTable> CodeTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ComponentData</c> events reported with the scalar VALUE representation.
+        /// Event that represents a Component where the EntryDefinition identifies the Component and the CellDefinitions define the Component's observed DataItems.
+        /// </summary>
         [JsonPropertyName("ComponentData")]
         public IEnumerable<JsonEventValue> ComponentData { get; set; }
 
+        /// <summary>
+        /// The <c>ComponentData</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ComponentDataDataSet")]
         public IEnumerable<JsonEventDataSet> ComponentDataDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ComponentData</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ComponentDataTable")]
         public IEnumerable<JsonEventTable> ComponentDataTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>CompositionState</c> events reported with the scalar VALUE representation.
+        /// Operating state of a mechanism represented by a Composition entity.
+        /// </summary>
         [JsonPropertyName("CompositionState")]
         public IEnumerable<JsonEventValue> CompositionState { get; set; }
 
+        /// <summary>
+        /// The <c>CompositionState</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("CompositionStateDataSet")]
         public IEnumerable<JsonEventDataSet> CompositionStateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>CompositionState</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("CompositionStateTable")]
         public IEnumerable<JsonEventTable> CompositionStateTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ConnectionStatus</c> events reported with the scalar VALUE representation.
+        /// Status of the connection between an adapter and an agent.
+        /// </summary>
         [JsonPropertyName("ConnectionStatus")]
         public IEnumerable<JsonEventValue> ConnectionStatus { get; set; }
 
+        /// <summary>
+        /// The <c>ConnectionStatus</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ConnectionStatusDataSet")]
         public IEnumerable<JsonEventDataSet> ConnectionStatusDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ConnectionStatus</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ConnectionStatusTable")]
         public IEnumerable<JsonEventTable> ConnectionStatusTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ControlLimit</c> events reported with the scalar VALUE representation.
+        /// Set of limits used to indicate whether a process variable is stable and in control.**DEPRECATED** in *Version 2.5*. Replaced by `CONTROL_LIMITS`.
+        /// </summary>
         [JsonPropertyName("ControlLimit")]
         public IEnumerable<JsonEventValue> ControlLimit { get; set; }
 
+        /// <summary>
+        /// The <c>ControlLimit</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ControlLimitDataSet")]
         public IEnumerable<JsonEventDataSet> ControlLimitDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ControlLimit</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ControlLimitTable")]
         public IEnumerable<JsonEventTable> ControlLimitTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ControlLimits</c> events reported with the scalar VALUE representation.
+        /// Set of limits used to indicate whether a process variable is stable and in control.
+        /// </summary>
         [JsonPropertyName("ControlLimits")]
         public IEnumerable<JsonEventValue> ControlLimits { get; set; }
 
+        /// <summary>
+        /// The <c>ControlLimits</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ControlLimitsDataSet")]
         public IEnumerable<JsonEventDataSet> ControlLimitsDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ControlLimits</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ControlLimitsTable")]
         public IEnumerable<JsonEventTable> ControlLimitsTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ControllerMode</c> events reported with the scalar VALUE representation.
+        /// Current mode of the Controller component.
+        /// </summary>
         [JsonPropertyName("ControllerMode")]
         public IEnumerable<JsonEventValue> ControllerMode { get; set; }
 
+        /// <summary>
+        /// The <c>ControllerMode</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ControllerModeDataSet")]
         public IEnumerable<JsonEventDataSet> ControllerModeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ControllerMode</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ControllerModeTable")]
         public IEnumerable<JsonEventTable> ControllerModeTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ControllerModeOverride</c> events reported with the scalar VALUE representation.
+        /// Setting or operator selection that changes the behavior of a piece of equipment.
+        /// </summary>
         [JsonPropertyName("ControllerModeOverride")]
         public IEnumerable<JsonEventValue> ControllerModeOverride { get; set; }
 
+        /// <summary>
+        /// The <c>ControllerModeOverride</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ControllerModeOverrideDataSet")]
         public IEnumerable<JsonEventDataSet> ControllerModeOverrideDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ControllerModeOverride</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ControllerModeOverrideTable")]
         public IEnumerable<JsonEventTable> ControllerModeOverrideTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>CoupledAxes</c> events reported with the scalar VALUE representation.
+        /// Set of associated axes.
+        /// </summary>
         [JsonPropertyName("CoupledAxes")]
         public IEnumerable<JsonEventValue> CoupledAxes { get; set; }
 
+        /// <summary>
+        /// The <c>CoupledAxes</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("CoupledAxesDataSet")]
         public IEnumerable<JsonEventDataSet> CoupledAxesDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>CoupledAxes</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("CoupledAxesTable")]
         public IEnumerable<JsonEventTable> CoupledAxesTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>CycleCount</c> events reported with the scalar VALUE representation.
+        /// Accumulation of the number of times a cyclic function has attempted to, or is planned to attempt to execute.
+        /// </summary>
         [JsonPropertyName("CycleCount")]
         public IEnumerable<JsonEventValue> CycleCount { get; set; }
 
+        /// <summary>
+        /// The <c>CycleCount</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("CycleCountDataSet")]
         public IEnumerable<JsonEventDataSet> CycleCountDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>CycleCount</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("CycleCountTable")]
         public IEnumerable<JsonEventTable> CycleCountTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>DateCode</c> events reported with the scalar VALUE representation.
+        /// Time and date code associated with a material or other physical item.
+        /// </summary>
         [JsonPropertyName("DateCode")]
         public IEnumerable<JsonEventValue> DateCode { get; set; }
 
+        /// <summary>
+        /// The <c>DateCode</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DateCodeDataSet")]
         public IEnumerable<JsonEventDataSet> DateCodeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>DateCode</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DateCodeTable")]
         public IEnumerable<JsonEventTable> DateCodeTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>DeactivationCount</c> events reported with the scalar VALUE representation.
+        /// Accumulation of the number of times a function has attempted to, or is planned to attempt to, deactivate or cease.
+        /// </summary>
         [JsonPropertyName("DeactivationCount")]
         public IEnumerable<JsonEventValue> DeactivationCount { get; set; }
 
+        /// <summary>
+        /// The <c>DeactivationCount</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DeactivationCountDataSet")]
         public IEnumerable<JsonEventDataSet> DeactivationCountDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>DeactivationCount</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DeactivationCountTable")]
         public IEnumerable<JsonEventTable> DeactivationCountTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Depth</c> events reported with the scalar VALUE representation.
+        /// Dimension or distance as measured downwards from the top
+        /// </summary>
         [JsonPropertyName("Depth")]
         public IEnumerable<JsonEventValue> Depth { get; set; }
 
+        /// <summary>
+        /// The <c>Depth</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DepthDataSet")]
         public IEnumerable<JsonEventDataSet> DepthDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Depth</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DepthTable")]
         public IEnumerable<JsonEventTable> DepthTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>DeviceAdded</c> events reported with the scalar VALUE representation.
+        /// UUID of new device added to an MTConnect Agent.
+        /// </summary>
         [JsonPropertyName("DeviceAdded")]
         public IEnumerable<JsonEventValue> DeviceAdded { get; set; }
 
+        /// <summary>
+        /// The <c>DeviceAdded</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DeviceAddedDataSet")]
         public IEnumerable<JsonEventDataSet> DeviceAddedDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>DeviceAdded</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DeviceAddedTable")]
         public IEnumerable<JsonEventTable> DeviceAddedTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>DeviceChanged</c> events reported with the scalar VALUE representation.
+        /// UUID of the device whose metadata has changed.
+        /// </summary>
         [JsonPropertyName("DeviceChanged")]
         public IEnumerable<JsonEventValue> DeviceChanged { get; set; }
 
+        /// <summary>
+        /// The <c>DeviceChanged</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DeviceChangedDataSet")]
         public IEnumerable<JsonEventDataSet> DeviceChangedDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>DeviceChanged</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DeviceChangedTable")]
         public IEnumerable<JsonEventTable> DeviceChangedTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>DeviceRemoved</c> events reported with the scalar VALUE representation.
+        /// UUID of a device removed from an MTConnect Agent.
+        /// </summary>
         [JsonPropertyName("DeviceRemoved")]
         public IEnumerable<JsonEventValue> DeviceRemoved { get; set; }
 
+        /// <summary>
+        /// The <c>DeviceRemoved</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DeviceRemovedDataSet")]
         public IEnumerable<JsonEventDataSet> DeviceRemovedDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>DeviceRemoved</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DeviceRemovedTable")]
         public IEnumerable<JsonEventTable> DeviceRemovedTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>DeviceUuid</c> events reported with the scalar VALUE representation.
+        /// Identifier of another piece of equipment that is temporarily associated with a component of this piece of equipment to perform a particular function.
+        /// </summary>
         [JsonPropertyName("DeviceUuid")]
         public IEnumerable<JsonEventValue> DeviceUuid { get; set; }
 
+        /// <summary>
+        /// The <c>DeviceUuid</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DeviceUuidDataSet")]
         public IEnumerable<JsonEventDataSet> DeviceUuidDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>DeviceUuid</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DeviceUuidTable")]
         public IEnumerable<JsonEventTable> DeviceUuidTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Direction</c> events reported with the scalar VALUE representation.
+        /// Direction of motion.
+        /// </summary>
         [JsonPropertyName("Direction")]
         public IEnumerable<JsonEventValue> Direction { get; set; }
 
+        /// <summary>
+        /// The <c>Direction</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DirectionDataSet")]
         public IEnumerable<JsonEventDataSet> DirectionDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Direction</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DirectionTable")]
         public IEnumerable<JsonEventTable> DirectionTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>DoorState</c> events reported with the scalar VALUE representation.
+        /// Operational state of a Door component or composition element.
+        /// </summary>
         [JsonPropertyName("DoorState")]
         public IEnumerable<JsonEventValue> DoorState { get; set; }
 
+        /// <summary>
+        /// The <c>DoorState</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DoorStateDataSet")]
         public IEnumerable<JsonEventDataSet> DoorStateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>DoorState</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DoorStateTable")]
         public IEnumerable<JsonEventTable> DoorStateTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>EmergencyStop</c> events reported with the scalar VALUE representation.
+        /// State of the emergency stop signal for a piece of equipment, controller path, or any other component or subsystem of a piece of equipment.
+        /// </summary>
         [JsonPropertyName("EmergencyStop")]
         public IEnumerable<JsonEventValue> EmergencyStop { get; set; }
 
+        /// <summary>
+        /// The <c>EmergencyStop</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("EmergencyStopDataSet")]
         public IEnumerable<JsonEventDataSet> EmergencyStopDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>EmergencyStop</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("EmergencyStopTable")]
         public IEnumerable<JsonEventTable> EmergencyStopTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>EndOfBar</c> events reported with the scalar VALUE representation.
+        /// Indication of whether the end of a piece of bar stock being feed by a bar feeder has been reached.
+        /// </summary>
         [JsonPropertyName("EndOfBar")]
         public IEnumerable<JsonEventValue> EndOfBar { get; set; }
 
+        /// <summary>
+        /// The <c>EndOfBar</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("EndOfBarDataSet")]
         public IEnumerable<JsonEventDataSet> EndOfBarDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>EndOfBar</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("EndOfBarTable")]
         public IEnumerable<JsonEventTable> EndOfBarTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>EquipmentMode</c> events reported with the scalar VALUE representation.
+        /// Indication that a piece of equipment, or a sub-part of a piece of equipment, is performing specific types of activities.
+        /// </summary>
         [JsonPropertyName("EquipmentMode")]
         public IEnumerable<JsonEventValue> EquipmentMode { get; set; }
 
+        /// <summary>
+        /// The <c>EquipmentMode</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("EquipmentModeDataSet")]
         public IEnumerable<JsonEventDataSet> EquipmentModeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>EquipmentMode</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("EquipmentModeTable")]
         public IEnumerable<JsonEventTable> EquipmentModeTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Execution</c> events reported with the scalar VALUE representation.
+        /// Operating state of a Component.
+        /// </summary>
         [JsonPropertyName("Execution")]
         public IEnumerable<JsonEventValue> Execution { get; set; }
 
+        /// <summary>
+        /// The <c>Execution</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ExecutionDataSet")]
         public IEnumerable<JsonEventDataSet> ExecutionDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Execution</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ExecutionTable")]
         public IEnumerable<JsonEventTable> ExecutionTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>FeatureMeasurement</c> events reported with the scalar VALUE representation.
+        /// Assessing elements of a feature.
+        /// </summary>
         [JsonPropertyName("FeatureMeasurement")]
         public IEnumerable<JsonEventValue> FeatureMeasurement { get; set; }
 
+        /// <summary>
+        /// The <c>FeatureMeasurement</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("FeatureMeasurementDataSet")]
         public IEnumerable<JsonEventDataSet> FeatureMeasurementDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>FeatureMeasurement</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("FeatureMeasurementTable")]
         public IEnumerable<JsonEventTable> FeatureMeasurementTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Firmware</c> events reported with the scalar VALUE representation.
+        /// Embedded software of a Component.
+        /// </summary>
         [JsonPropertyName("Firmware")]
         public IEnumerable<JsonEventValue> Firmware { get; set; }
 
+        /// <summary>
+        /// The <c>Firmware</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("FirmwareDataSet")]
         public IEnumerable<JsonEventDataSet> FirmwareDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Firmware</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("FirmwareTable")]
         public IEnumerable<JsonEventTable> FirmwareTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>FixtureAssetId</c> events reported with the scalar VALUE representation.
+        /// AssetId of the Fixture that is associated with a Component
+        /// </summary>
         [JsonPropertyName("FixtureAssetId")]
         public IEnumerable<JsonEventValue> FixtureAssetId { get; set; }
 
+        /// <summary>
+        /// The <c>FixtureAssetId</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("FixtureAssetIdDataSet")]
         public IEnumerable<JsonEventDataSet> FixtureAssetIdDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>FixtureAssetId</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("FixtureAssetIdTable")]
         public IEnumerable<JsonEventTable> FixtureAssetIdTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>FixtureId</c> events reported with the scalar VALUE representation.
+        /// Identifier for the current workholding or part clamp in use by a piece of equipment.
+        /// </summary>
         [JsonPropertyName("FixtureId")]
         public IEnumerable<JsonEventValue> FixtureId { get; set; }
 
+        /// <summary>
+        /// The <c>FixtureId</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("FixtureIdDataSet")]
         public IEnumerable<JsonEventDataSet> FixtureIdDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>FixtureId</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("FixtureIdTable")]
         public IEnumerable<JsonEventTable> FixtureIdTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>FunctionalMode</c> events reported with the scalar VALUE representation.
+        /// Current intended production status of the Component.
+        /// </summary>
         [JsonPropertyName("FunctionalMode")]
         public IEnumerable<JsonEventValue> FunctionalMode { get; set; }
 
+        /// <summary>
+        /// The <c>FunctionalMode</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("FunctionalModeDataSet")]
         public IEnumerable<JsonEventDataSet> FunctionalModeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>FunctionalMode</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("FunctionalModeTable")]
         public IEnumerable<JsonEventTable> FunctionalModeTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Hardness</c> events reported with the scalar VALUE representation.
+        /// Hardness of a material.
+        /// </summary>
         [JsonPropertyName("Hardness")]
         public IEnumerable<JsonEventValue> Hardness { get; set; }
 
+        /// <summary>
+        /// The <c>Hardness</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("HardnessDataSet")]
         public IEnumerable<JsonEventDataSet> HardnessDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Hardness</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("HardnessTable")]
         public IEnumerable<JsonEventTable> HardnessTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Hardware</c> events reported with the scalar VALUE representation.
+        /// Hardware of a Component.
+        /// </summary>
         [JsonPropertyName("Hardware")]
         public IEnumerable<JsonEventValue> Hardware { get; set; }
 
+        /// <summary>
+        /// The <c>Hardware</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("HardwareDataSet")]
         public IEnumerable<JsonEventDataSet> HardwareDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Hardware</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("HardwareTable")]
         public IEnumerable<JsonEventTable> HardwareTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>HostName</c> events reported with the scalar VALUE representation.
+        /// Name of the host computer supplying data.
+        /// </summary>
         [JsonPropertyName("HostName")]
         public IEnumerable<JsonEventValue> HostName { get; set; }
 
+        /// <summary>
+        /// The <c>HostName</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("HostNameDataSet")]
         public IEnumerable<JsonEventDataSet> HostNameDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>HostName</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("HostNameTable")]
         public IEnumerable<JsonEventTable> HostNameTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>LeakDetect</c> events reported with the scalar VALUE representation.
+        /// Indication designating whether a leak has been detected.
+        /// </summary>
         [JsonPropertyName("LeakDetect")]
         public IEnumerable<JsonEventValue> LeakDetect { get; set; }
 
+        /// <summary>
+        /// The <c>LeakDetect</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("LeakDetectDataSet")]
         public IEnumerable<JsonEventDataSet> LeakDetectDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>LeakDetect</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("LeakDetectTable")]
         public IEnumerable<JsonEventTable> LeakDetectTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Library</c> events reported with the scalar VALUE representation.
+        /// Software library on a Component
+        /// </summary>
         [JsonPropertyName("Library")]
         public IEnumerable<JsonEventValue> Library { get; set; }
 
+        /// <summary>
+        /// The <c>Library</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("LibraryDataSet")]
         public IEnumerable<JsonEventDataSet> LibraryDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Library</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("LibraryTable")]
         public IEnumerable<JsonEventTable> LibraryTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Line</c> events reported with the scalar VALUE representation.
+        /// Current line of code being executed.**DEPRECATED** in *Version 1.4.0*.
+        /// </summary>
         [JsonPropertyName("Line")]
         public IEnumerable<JsonEventValue> Line { get; set; }
 
+        /// <summary>
+        /// The <c>Line</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("LineDataSet")]
         public IEnumerable<JsonEventDataSet> LineDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Line</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("LineTable")]
         public IEnumerable<JsonEventTable> LineTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>LineLabel</c> events reported with the scalar VALUE representation.
+        /// Identifier for a Block of code in a Program.
+        /// </summary>
         [JsonPropertyName("LineLabel")]
         public IEnumerable<JsonEventValue> LineLabel { get; set; }
 
+        /// <summary>
+        /// The <c>LineLabel</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("LineLabelDataSet")]
         public IEnumerable<JsonEventDataSet> LineLabelDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>LineLabel</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("LineLabelTable")]
         public IEnumerable<JsonEventTable> LineLabelTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>LineNumber</c> events reported with the scalar VALUE representation.
+        /// Position of a block of program code within a control program.
+        /// </summary>
         [JsonPropertyName("LineNumber")]
         public IEnumerable<JsonEventValue> LineNumber { get; set; }
 
+        /// <summary>
+        /// The <c>LineNumber</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("LineNumberDataSet")]
         public IEnumerable<JsonEventDataSet> LineNumberDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>LineNumber</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("LineNumberTable")]
         public IEnumerable<JsonEventTable> LineNumberTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>LoadCount</c> events reported with the scalar VALUE representation.
+        /// Accumulation of the number of times an operation has attempted to, or is planned to attempt to, load materials, parts, or other items.
+        /// </summary>
         [JsonPropertyName("LoadCount")]
         public IEnumerable<JsonEventValue> LoadCount { get; set; }
 
+        /// <summary>
+        /// The <c>LoadCount</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("LoadCountDataSet")]
         public IEnumerable<JsonEventDataSet> LoadCountDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>LoadCount</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("LoadCountTable")]
         public IEnumerable<JsonEventTable> LoadCountTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>LocationAddress</c> events reported with the scalar VALUE representation.
+        /// Structured information that allows the unambiguous determination of an object for purposes of identification and location. ISO 19160-4:2017
+        /// </summary>
         [JsonPropertyName("LocationAddress")]
         public IEnumerable<JsonEventValue> LocationAddress { get; set; }
 
+        /// <summary>
+        /// The <c>LocationAddress</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("LocationAddressDataSet")]
         public IEnumerable<JsonEventDataSet> LocationAddressDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>LocationAddress</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("LocationAddressTable")]
         public IEnumerable<JsonEventTable> LocationAddressTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>LocationNarrative</c> events reported with the scalar VALUE representation.
+        /// Textual description of the location of an object or activity.
+        /// </summary>
         [JsonPropertyName("LocationNarrative")]
         public IEnumerable<JsonEventValue> LocationNarrative { get; set; }
 
+        /// <summary>
+        /// The <c>LocationNarrative</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("LocationNarrativeDataSet")]
         public IEnumerable<JsonEventDataSet> LocationNarrativeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>LocationNarrative</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("LocationNarrativeTable")]
         public IEnumerable<JsonEventTable> LocationNarrativeTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>LocationSpatialGeographic</c> events reported with the scalar VALUE representation.
+        /// Absolute geographic location defined by two coordinates, longitude and latitude and an elevation.
+        /// </summary>
         [JsonPropertyName("LocationSpatialGeographic")]
         public IEnumerable<JsonEventValue> LocationSpatialGeographic { get; set; }
 
+        /// <summary>
+        /// The <c>LocationSpatialGeographic</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("LocationSpatialGeographicDataSet")]
         public IEnumerable<JsonEventDataSet> LocationSpatialGeographicDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>LocationSpatialGeographic</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("LocationSpatialGeographicTable")]
         public IEnumerable<JsonEventTable> LocationSpatialGeographicTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>LockState</c> events reported with the scalar VALUE representation.
+        /// State or operating mode of a Lock.
+        /// </summary>
         [JsonPropertyName("LockState")]
         public IEnumerable<JsonEventValue> LockState { get; set; }
 
+        /// <summary>
+        /// The <c>LockState</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("LockStateDataSet")]
         public IEnumerable<JsonEventDataSet> LockStateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>LockState</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("LockStateTable")]
         public IEnumerable<JsonEventTable> LockStateTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>MaintenanceList</c> events reported with the scalar VALUE representation.
+        /// Actions or activities to be performed in support of a piece of equipment.
+        /// </summary>
         [JsonPropertyName("MaintenanceList")]
         public IEnumerable<JsonEventValue> MaintenanceList { get; set; }
 
+        /// <summary>
+        /// The <c>MaintenanceList</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("MaintenanceListDataSet")]
         public IEnumerable<JsonEventDataSet> MaintenanceListDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>MaintenanceList</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("MaintenanceListTable")]
         public IEnumerable<JsonEventTable> MaintenanceListTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Material</c> events reported with the scalar VALUE representation.
+        /// Identifier of a material used or consumed in the manufacturing process
+        /// </summary>
         [JsonPropertyName("Material")]
         public IEnumerable<JsonEventValue> Material { get; set; }
 
+        /// <summary>
+        /// The <c>Material</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("MaterialDataSet")]
         public IEnumerable<JsonEventDataSet> MaterialDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Material</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("MaterialTable")]
         public IEnumerable<JsonEventTable> MaterialTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>MaterialLayer</c> events reported with the scalar VALUE representation.
+        /// Identifies the layers of material applied to a part or product as part of an additive manufacturing process.
+        /// </summary>
         [JsonPropertyName("MaterialLayer")]
         public IEnumerable<JsonEventValue> MaterialLayer { get; set; }
 
+        /// <summary>
+        /// The <c>MaterialLayer</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("MaterialLayerDataSet")]
         public IEnumerable<JsonEventDataSet> MaterialLayerDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>MaterialLayer</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("MaterialLayerTable")]
         public IEnumerable<JsonEventTable> MaterialLayerTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>MeasurementType</c> events reported with the scalar VALUE representation.
+        /// Class of measurement being performed. QIF 3:2018 Section 6.3
+        /// </summary>
         [JsonPropertyName("MeasurementType")]
         public IEnumerable<JsonEventValue> MeasurementType { get; set; }
 
+        /// <summary>
+        /// The <c>MeasurementType</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("MeasurementTypeDataSet")]
         public IEnumerable<JsonEventDataSet> MeasurementTypeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>MeasurementType</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("MeasurementTypeTable")]
         public IEnumerable<JsonEventTable> MeasurementTypeTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>MeasurementUnits</c> events reported with the scalar VALUE representation.
+        /// Engineering units of the measurement.
+        /// </summary>
         [JsonPropertyName("MeasurementUnits")]
         public IEnumerable<JsonEventValue> MeasurementUnits { get; set; }
 
+        /// <summary>
+        /// The <c>MeasurementUnits</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("MeasurementUnitsDataSet")]
         public IEnumerable<JsonEventDataSet> MeasurementUnitsDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>MeasurementUnits</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("MeasurementUnitsTable")]
         public IEnumerable<JsonEventTable> MeasurementUnitsTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>MeasurementValue</c> events reported with the scalar VALUE representation.
+        /// Measurement based on the measurement type.
+        /// </summary>
         [JsonPropertyName("MeasurementValue")]
         public IEnumerable<JsonEventValue> MeasurementValue { get; set; }
 
+        /// <summary>
+        /// The <c>MeasurementValue</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("MeasurementValueDataSet")]
         public IEnumerable<JsonEventDataSet> MeasurementValueDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>MeasurementValue</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("MeasurementValueTable")]
         public IEnumerable<JsonEventTable> MeasurementValueTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Message</c> events reported with the scalar VALUE representation.
+        /// Information to be transferred from a piece of equipment to a client software application.
+        /// </summary>
         [JsonPropertyName("Message")]
         public IEnumerable<JsonEventValue> Message { get; set; }
 
+        /// <summary>
+        /// The <c>Message</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("MessageDataSet")]
         public IEnumerable<JsonEventDataSet> MessageDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Message</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("MessageTable")]
         public IEnumerable<JsonEventTable> MessageTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>MTConnectVersion</c> events reported with the scalar VALUE representation.
+        /// Reference version of the MTConnect Standard supported by the adapter.
+        /// </summary>
         [JsonPropertyName("MTConnectVersion")]
         public IEnumerable<JsonEventValue> MTConnectVersion { get; set; }
 
+        /// <summary>
+        /// The <c>MTConnectVersion</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("MTConnectVersionDataSet")]
         public IEnumerable<JsonEventDataSet> MTConnectVersionDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>MTConnectVersion</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("MTConnectVersionTable")]
         public IEnumerable<JsonEventTable> MTConnectVersionTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Network</c> events reported with the scalar VALUE representation.
+        /// Network details of a Component.
+        /// </summary>
         [JsonPropertyName("Network")]
         public IEnumerable<JsonEventValue> Network { get; set; }
 
+        /// <summary>
+        /// The <c>Network</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("NetworkDataSet")]
         public IEnumerable<JsonEventDataSet> NetworkDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Network</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("NetworkTable")]
         public IEnumerable<JsonEventTable> NetworkTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>NetworkPort</c> events reported with the scalar VALUE representation.
+        /// Number of the TCP/IP or UDP/IP port for the connection endpoint.
+        /// </summary>
         [JsonPropertyName("NetworkPort")]
         public IEnumerable<JsonEventValue> NetworkPort { get; set; }
 
+        /// <summary>
+        /// The <c>NetworkPort</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("NetworkPortDataSet")]
         public IEnumerable<JsonEventDataSet> NetworkPortDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>NetworkPort</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("NetworkPortTable")]
         public IEnumerable<JsonEventTable> NetworkPortTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>OperatingMode</c> events reported with the scalar VALUE representation.
+        /// State of Component or Composition that describes the automatic or manual operation of the entity.
+        /// </summary>
         [JsonPropertyName("OperatingMode")]
         public IEnumerable<JsonEventValue> OperatingMode { get; set; }
 
+        /// <summary>
+        /// The <c>OperatingMode</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("OperatingModeDataSet")]
         public IEnumerable<JsonEventDataSet> OperatingModeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>OperatingMode</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("OperatingModeTable")]
         public IEnumerable<JsonEventTable> OperatingModeTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>OperatingSystem</c> events reported with the scalar VALUE representation.
+        /// Operating System (OS) of a Component.
+        /// </summary>
         [JsonPropertyName("OperatingSystem")]
         public IEnumerable<JsonEventValue> OperatingSystem { get; set; }
 
+        /// <summary>
+        /// The <c>OperatingSystem</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("OperatingSystemDataSet")]
         public IEnumerable<JsonEventDataSet> OperatingSystemDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>OperatingSystem</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("OperatingSystemTable")]
         public IEnumerable<JsonEventTable> OperatingSystemTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>OperatorId</c> events reported with the scalar VALUE representation.
+        /// Identifier of the person currently responsible for operating the piece of equipment.
+        /// </summary>
         [JsonPropertyName("OperatorId")]
         public IEnumerable<JsonEventValue> OperatorId { get; set; }
 
+        /// <summary>
+        /// The <c>OperatorId</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("OperatorIdDataSet")]
         public IEnumerable<JsonEventDataSet> OperatorIdDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>OperatorId</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("OperatorIdTable")]
         public IEnumerable<JsonEventTable> OperatorIdTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>PalletId</c> events reported with the scalar VALUE representation.
+        /// Identifier for a pallet.
+        /// </summary>
         [JsonPropertyName("PalletId")]
         public IEnumerable<JsonEventValue> PalletId { get; set; }
 
+        /// <summary>
+        /// The <c>PalletId</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PalletIdDataSet")]
         public IEnumerable<JsonEventDataSet> PalletIdDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PalletId</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PalletIdTable")]
         public IEnumerable<JsonEventTable> PalletIdTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>PartCount</c> events reported with the scalar VALUE representation.
+        /// Aggregate count of parts.
+        /// </summary>
         [JsonPropertyName("PartCount")]
         public IEnumerable<JsonEventValue> PartCount { get; set; }
 
+        /// <summary>
+        /// The <c>PartCount</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PartCountDataSet")]
         public IEnumerable<JsonEventDataSet> PartCountDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PartCount</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PartCountTable")]
         public IEnumerable<JsonEventTable> PartCountTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>PartCountType</c> events reported with the scalar VALUE representation.
+        /// Interpretation of `PART_COUNT`.
+        /// </summary>
         [JsonPropertyName("PartCountType")]
         public IEnumerable<JsonEventValue> PartCountType { get; set; }
 
+        /// <summary>
+        /// The <c>PartCountType</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PartCountTypeDataSet")]
         public IEnumerable<JsonEventDataSet> PartCountTypeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PartCountType</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PartCountTypeTable")]
         public IEnumerable<JsonEventTable> PartCountTypeTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>PartDetect</c> events reported with the scalar VALUE representation.
+        /// Indication designating whether a part or work piece has been detected or is present.
+        /// </summary>
         [JsonPropertyName("PartDetect")]
         public IEnumerable<JsonEventValue> PartDetect { get; set; }
 
+        /// <summary>
+        /// The <c>PartDetect</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PartDetectDataSet")]
         public IEnumerable<JsonEventDataSet> PartDetectDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PartDetect</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PartDetectTable")]
         public IEnumerable<JsonEventTable> PartDetectTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>PartGroupId</c> events reported with the scalar VALUE representation.
+        /// Identifier given to a collection of individual parts.
+        /// </summary>
         [JsonPropertyName("PartGroupId")]
         public IEnumerable<JsonEventValue> PartGroupId { get; set; }
 
+        /// <summary>
+        /// The <c>PartGroupId</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PartGroupIdDataSet")]
         public IEnumerable<JsonEventDataSet> PartGroupIdDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PartGroupId</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PartGroupIdTable")]
         public IEnumerable<JsonEventTable> PartGroupIdTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>PartId</c> events reported with the scalar VALUE representation.
+        /// Identifier of a part in a manufacturing operation.
+        /// </summary>
         [JsonPropertyName("PartId")]
         public IEnumerable<JsonEventValue> PartId { get; set; }
 
+        /// <summary>
+        /// The <c>PartId</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PartIdDataSet")]
         public IEnumerable<JsonEventDataSet> PartIdDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PartId</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PartIdTable")]
         public IEnumerable<JsonEventTable> PartIdTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>PartIndex</c> events reported with the scalar VALUE representation.
+        /// Sequence of a part in a group of parts.
+        /// </summary>
         [JsonPropertyName("PartIndex")]
         public IEnumerable<JsonEventValue> PartIndex { get; set; }
 
+        /// <summary>
+        /// The <c>PartIndex</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PartIndexDataSet")]
         public IEnumerable<JsonEventDataSet> PartIndexDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PartIndex</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PartIndexTable")]
         public IEnumerable<JsonEventTable> PartIndexTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>PartKindId</c> events reported with the scalar VALUE representation.
+        /// Identifier given to link the individual occurrence to a class of parts, typically distinguished by a particular part design.
+        /// </summary>
         [JsonPropertyName("PartKindId")]
         public IEnumerable<JsonEventValue> PartKindId { get; set; }
 
+        /// <summary>
+        /// The <c>PartKindId</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PartKindIdDataSet")]
         public IEnumerable<JsonEventDataSet> PartKindIdDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PartKindId</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PartKindIdTable")]
         public IEnumerable<JsonEventTable> PartKindIdTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>PartNumber</c> events reported with the scalar VALUE representation.
+        /// Identifier of a part or product moving through the manufacturing process.**DEPRECATED** in *Version 1.7*. `PART_NUMBER` is now a `subType` of `PART_KIND_ID`.
+        /// </summary>
         [JsonPropertyName("PartNumber")]
         public IEnumerable<JsonEventValue> PartNumber { get; set; }
 
+        /// <summary>
+        /// The <c>PartNumber</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PartNumberDataSet")]
         public IEnumerable<JsonEventDataSet> PartNumberDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PartNumber</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PartNumberTable")]
         public IEnumerable<JsonEventTable> PartNumberTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>PartProcessingState</c> events reported with the scalar VALUE representation.
+        /// Particular condition of the part occurrence at a specific time.
+        /// </summary>
         [JsonPropertyName("PartProcessingState")]
         public IEnumerable<JsonEventValue> PartProcessingState { get; set; }
 
+        /// <summary>
+        /// The <c>PartProcessingState</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PartProcessingStateDataSet")]
         public IEnumerable<JsonEventDataSet> PartProcessingStateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PartProcessingState</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PartProcessingStateTable")]
         public IEnumerable<JsonEventTable> PartProcessingStateTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>PartStatus</c> events reported with the scalar VALUE representation.
+        /// State or condition of a part.
+        /// </summary>
         [JsonPropertyName("PartStatus")]
         public IEnumerable<JsonEventValue> PartStatus { get; set; }
 
+        /// <summary>
+        /// The <c>PartStatus</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PartStatusDataSet")]
         public IEnumerable<JsonEventDataSet> PartStatusDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PartStatus</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PartStatusTable")]
         public IEnumerable<JsonEventTable> PartStatusTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>PartUniqueId</c> events reported with the scalar VALUE representation.
+        /// Identifier given to a distinguishable, individual part.
+        /// </summary>
         [JsonPropertyName("PartUniqueId")]
         public IEnumerable<JsonEventValue> PartUniqueId { get; set; }
 
+        /// <summary>
+        /// The <c>PartUniqueId</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PartUniqueIdDataSet")]
         public IEnumerable<JsonEventDataSet> PartUniqueIdDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PartUniqueId</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PartUniqueIdTable")]
         public IEnumerable<JsonEventTable> PartUniqueIdTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>PathFeedrateOverride</c> events reported with the scalar VALUE representation.
+        /// Value of a signal or calculation issued to adjust the feedrate for the axes associated with a Path component that may represent a single axis or the coordinated movement of multiple axes.
+        /// </summary>
         [JsonPropertyName("PathFeedrateOverride")]
         public IEnumerable<JsonEventValue> PathFeedrateOverride { get; set; }
 
+        /// <summary>
+        /// The <c>PathFeedrateOverride</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PathFeedrateOverrideDataSet")]
         public IEnumerable<JsonEventDataSet> PathFeedrateOverrideDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PathFeedrateOverride</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PathFeedrateOverrideTable")]
         public IEnumerable<JsonEventTable> PathFeedrateOverrideTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>PathMode</c> events reported with the scalar VALUE representation.
+        /// Describes the operational relationship between a Path entity and another Path entity for pieces of equipment comprised of multiple logical groupings of controlled axes or other logical operations.
+        /// </summary>
         [JsonPropertyName("PathMode")]
         public IEnumerable<JsonEventValue> PathMode { get; set; }
 
+        /// <summary>
+        /// The <c>PathMode</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PathModeDataSet")]
         public IEnumerable<JsonEventDataSet> PathModeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PathMode</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PathModeTable")]
         public IEnumerable<JsonEventTable> PathModeTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>PowerState</c> events reported with the scalar VALUE representation.
+        /// Indication of the status of the source of energy for an entity to allow it to perform its intended function or the state of an enabling signal providing permission for the entity to perform its functions.
+        /// </summary>
         [JsonPropertyName("PowerState")]
         public IEnumerable<JsonEventValue> PowerState { get; set; }
 
+        /// <summary>
+        /// The <c>PowerState</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PowerStateDataSet")]
         public IEnumerable<JsonEventDataSet> PowerStateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PowerState</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PowerStateTable")]
         public IEnumerable<JsonEventTable> PowerStateTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>PowerStatus</c> events reported with the scalar VALUE representation.
+        /// Status of the Component.**DEPRECATED** in *Version 1.1.0*.
+        /// </summary>
         [JsonPropertyName("PowerStatus")]
         public IEnumerable<JsonEventValue> PowerStatus { get; set; }
 
+        /// <summary>
+        /// The <c>PowerStatus</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PowerStatusDataSet")]
         public IEnumerable<JsonEventDataSet> PowerStatusDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PowerStatus</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PowerStatusTable")]
         public IEnumerable<JsonEventTable> PowerStatusTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ProcessAggregateId</c> events reported with the scalar VALUE representation.
+        /// Identifier given to link the individual occurrence to a group of related occurrences, such as a process step in a process plan.
+        /// </summary>
         [JsonPropertyName("ProcessAggregateId")]
         public IEnumerable<JsonEventValue> ProcessAggregateId { get; set; }
 
+        /// <summary>
+        /// The <c>ProcessAggregateId</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ProcessAggregateIdDataSet")]
         public IEnumerable<JsonEventDataSet> ProcessAggregateIdDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ProcessAggregateId</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ProcessAggregateIdTable")]
         public IEnumerable<JsonEventTable> ProcessAggregateIdTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ProcessKindId</c> events reported with the scalar VALUE representation.
+        /// Identifier given to link the individual occurrence to a class of processes or process definition.
+        /// </summary>
         [JsonPropertyName("ProcessKindId")]
         public IEnumerable<JsonEventValue> ProcessKindId { get; set; }
 
+        /// <summary>
+        /// The <c>ProcessKindId</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ProcessKindIdDataSet")]
         public IEnumerable<JsonEventDataSet> ProcessKindIdDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ProcessKindId</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ProcessKindIdTable")]
         public IEnumerable<JsonEventTable> ProcessKindIdTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ProcessOccurrenceId</c> events reported with the scalar VALUE representation.
+        /// Identifier of a process being executed by the device.
+        /// </summary>
         [JsonPropertyName("ProcessOccurrenceId")]
         public IEnumerable<JsonEventValue> ProcessOccurrenceId { get; set; }
 
+        /// <summary>
+        /// The <c>ProcessOccurrenceId</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ProcessOccurrenceIdDataSet")]
         public IEnumerable<JsonEventDataSet> ProcessOccurrenceIdDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ProcessOccurrenceId</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ProcessOccurrenceIdTable")]
         public IEnumerable<JsonEventTable> ProcessOccurrenceIdTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ProcessState</c> events reported with the scalar VALUE representation.
+        /// Particular condition of the process occurrence at a specific time.
+        /// </summary>
         [JsonPropertyName("ProcessState")]
         public IEnumerable<JsonEventValue> ProcessState { get; set; }
 
+        /// <summary>
+        /// The <c>ProcessState</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ProcessStateDataSet")]
         public IEnumerable<JsonEventDataSet> ProcessStateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ProcessState</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ProcessStateTable")]
         public IEnumerable<JsonEventTable> ProcessStateTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ProcessTime</c> events reported with the scalar VALUE representation.
+        /// Time and date associated with an activity or event.
+        /// </summary>
         [JsonPropertyName("ProcessTime")]
         public IEnumerable<JsonEventValue> ProcessTime { get; set; }
 
+        /// <summary>
+        /// The <c>ProcessTime</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ProcessTimeDataSet")]
         public IEnumerable<JsonEventDataSet> ProcessTimeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ProcessTime</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ProcessTimeTable")]
         public IEnumerable<JsonEventTable> ProcessTimeTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Program</c> events reported with the scalar VALUE representation.
+        /// Name of the logic or motion program being executed by the Controller component.
+        /// </summary>
         [JsonPropertyName("Program")]
         public IEnumerable<JsonEventValue> Program { get; set; }
 
+        /// <summary>
+        /// The <c>Program</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ProgramDataSet")]
         public IEnumerable<JsonEventDataSet> ProgramDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Program</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ProgramTable")]
         public IEnumerable<JsonEventTable> ProgramTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ProgramComment</c> events reported with the scalar VALUE representation.
+        /// Comment or non-executable statement in the control program.
+        /// </summary>
         [JsonPropertyName("ProgramComment")]
         public IEnumerable<JsonEventValue> ProgramComment { get; set; }
 
+        /// <summary>
+        /// The <c>ProgramComment</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ProgramCommentDataSet")]
         public IEnumerable<JsonEventDataSet> ProgramCommentDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ProgramComment</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ProgramCommentTable")]
         public IEnumerable<JsonEventTable> ProgramCommentTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ProgramEdit</c> events reported with the scalar VALUE representation.
+        /// Indication of the status of the Controller components program editing mode.A program may be edited while another is executed.
+        /// </summary>
         [JsonPropertyName("ProgramEdit")]
         public IEnumerable<JsonEventValue> ProgramEdit { get; set; }
 
+        /// <summary>
+        /// The <c>ProgramEdit</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ProgramEditDataSet")]
         public IEnumerable<JsonEventDataSet> ProgramEditDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ProgramEdit</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ProgramEditTable")]
         public IEnumerable<JsonEventTable> ProgramEditTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ProgramEditName</c> events reported with the scalar VALUE representation.
+        /// Name of the program being edited. This is used in conjunction with ProgramEdit when in `ACTIVE` state.
+        /// </summary>
         [JsonPropertyName("ProgramEditName")]
         public IEnumerable<JsonEventValue> ProgramEditName { get; set; }
 
+        /// <summary>
+        /// The <c>ProgramEditName</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ProgramEditNameDataSet")]
         public IEnumerable<JsonEventDataSet> ProgramEditNameDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ProgramEditName</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ProgramEditNameTable")]
         public IEnumerable<JsonEventTable> ProgramEditNameTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ProgramHeader</c> events reported with the scalar VALUE representation.
+        /// Non-executable header section of the control program.
+        /// </summary>
         [JsonPropertyName("ProgramHeader")]
         public IEnumerable<JsonEventValue> ProgramHeader { get; set; }
 
+        /// <summary>
+        /// The <c>ProgramHeader</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ProgramHeaderDataSet")]
         public IEnumerable<JsonEventDataSet> ProgramHeaderDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ProgramHeader</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ProgramHeaderTable")]
         public IEnumerable<JsonEventTable> ProgramHeaderTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ProgramLocation</c> events reported with the scalar VALUE representation.
+        /// URI for the source file associated with Program.
+        /// </summary>
         [JsonPropertyName("ProgramLocation")]
         public IEnumerable<JsonEventValue> ProgramLocation { get; set; }
 
+        /// <summary>
+        /// The <c>ProgramLocation</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ProgramLocationDataSet")]
         public IEnumerable<JsonEventDataSet> ProgramLocationDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ProgramLocation</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ProgramLocationTable")]
         public IEnumerable<JsonEventTable> ProgramLocationTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ProgramLocationType</c> events reported with the scalar VALUE representation.
+        /// Defines whether the logic or motion program defined by Program is being executed from the local memory of the controller or from an outside source.
+        /// </summary>
         [JsonPropertyName("ProgramLocationType")]
         public IEnumerable<JsonEventValue> ProgramLocationType { get; set; }
 
+        /// <summary>
+        /// The <c>ProgramLocationType</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ProgramLocationTypeDataSet")]
         public IEnumerable<JsonEventDataSet> ProgramLocationTypeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ProgramLocationType</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ProgramLocationTypeTable")]
         public IEnumerable<JsonEventTable> ProgramLocationTypeTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ProgramNestLevel</c> events reported with the scalar VALUE representation.
+        /// Indication of the nesting level within a control program that is associated with the code or instructions that is currently being executed.
+        /// </summary>
         [JsonPropertyName("ProgramNestLevel")]
         public IEnumerable<JsonEventValue> ProgramNestLevel { get; set; }
 
+        /// <summary>
+        /// The <c>ProgramNestLevel</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ProgramNestLevelDataSet")]
         public IEnumerable<JsonEventDataSet> ProgramNestLevelDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ProgramNestLevel</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ProgramNestLevelTable")]
         public IEnumerable<JsonEventTable> ProgramNestLevelTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>RotaryMode</c> events reported with the scalar VALUE representation.
+        /// Current operating mode for a Rotary type axis.
+        /// </summary>
         [JsonPropertyName("RotaryMode")]
         public IEnumerable<JsonEventValue> RotaryMode { get; set; }
 
+        /// <summary>
+        /// The <c>RotaryMode</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("RotaryModeDataSet")]
         public IEnumerable<JsonEventDataSet> RotaryModeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>RotaryMode</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("RotaryModeTable")]
         public IEnumerable<JsonEventTable> RotaryModeTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>RotaryVelocityOverride</c> events reported with the scalar VALUE representation.
+        /// Percentage change to the velocity of the programmed velocity for a Rotary axis.
+        /// </summary>
         [JsonPropertyName("RotaryVelocityOverride")]
         public IEnumerable<JsonEventValue> RotaryVelocityOverride { get; set; }
 
+        /// <summary>
+        /// The <c>RotaryVelocityOverride</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("RotaryVelocityOverrideDataSet")]
         public IEnumerable<JsonEventDataSet> RotaryVelocityOverrideDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>RotaryVelocityOverride</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("RotaryVelocityOverrideTable")]
         public IEnumerable<JsonEventTable> RotaryVelocityOverrideTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Rotation</c> events reported with the scalar VALUE representation.
+        /// Three space angular displacement of an object or coordinate system relative to a cartesian coordinate system.
+        /// </summary>
         [JsonPropertyName("Rotation")]
         public IEnumerable<JsonEventValue> Rotation { get; set; }
 
+        /// <summary>
+        /// The <c>Rotation</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("RotationDataSet")]
         public IEnumerable<JsonEventDataSet> RotationDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Rotation</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("RotationTable")]
         public IEnumerable<JsonEventTable> RotationTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>SensorAttachment</c> events reported with the scalar VALUE representation.
+        /// Attachment between a sensor and an entity.
+        /// </summary>
         [JsonPropertyName("SensorAttachment")]
         public IEnumerable<JsonEventValue> SensorAttachment { get; set; }
 
+        /// <summary>
+        /// The <c>SensorAttachment</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("SensorAttachmentDataSet")]
         public IEnumerable<JsonEventDataSet> SensorAttachmentDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>SensorAttachment</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("SensorAttachmentTable")]
         public IEnumerable<JsonEventTable> SensorAttachmentTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>SensorState</c> events reported with the scalar VALUE representation.
+        /// Detection result of a sensor.
+        /// </summary>
         [JsonPropertyName("SensorState")]
         public IEnumerable<JsonEventValue> SensorState { get; set; }
 
+        /// <summary>
+        /// The <c>SensorState</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("SensorStateDataSet")]
         public IEnumerable<JsonEventDataSet> SensorStateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>SensorState</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("SensorStateTable")]
         public IEnumerable<JsonEventTable> SensorStateTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>SerialNumber</c> events reported with the scalar VALUE representation.
+        /// Serial number associated with a Component, Asset, or Device.
+        /// </summary>
         [JsonPropertyName("SerialNumber")]
         public IEnumerable<JsonEventValue> SerialNumber { get; set; }
 
+        /// <summary>
+        /// The <c>SerialNumber</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("SerialNumberDataSet")]
         public IEnumerable<JsonEventDataSet> SerialNumberDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>SerialNumber</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("SerialNumberTable")]
         public IEnumerable<JsonEventTable> SerialNumberTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>SpecificationLimit</c> events reported with the scalar VALUE representation.
+        /// Set of limits defining a range of values designating acceptable performance for a variable.**DEPRECATED** in *Version 2.5*. Replaced by  `SPECIFICATION_LIMITS`.
+        /// </summary>
         [JsonPropertyName("SpecificationLimit")]
         public IEnumerable<JsonEventValue> SpecificationLimit { get; set; }
 
+        /// <summary>
+        /// The <c>SpecificationLimit</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("SpecificationLimitDataSet")]
         public IEnumerable<JsonEventDataSet> SpecificationLimitDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>SpecificationLimit</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("SpecificationLimitTable")]
         public IEnumerable<JsonEventTable> SpecificationLimitTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>SpecificationLimits</c> events reported with the scalar VALUE representation.
+        /// Set of limits defining a range of values designating acceptable performance for a variable.
+        /// </summary>
         [JsonPropertyName("SpecificationLimits")]
         public IEnumerable<JsonEventValue> SpecificationLimits { get; set; }
 
+        /// <summary>
+        /// The <c>SpecificationLimits</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("SpecificationLimitsDataSet")]
         public IEnumerable<JsonEventDataSet> SpecificationLimitsDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>SpecificationLimits</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("SpecificationLimitsTable")]
         public IEnumerable<JsonEventTable> SpecificationLimitsTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>SpindleInterlock</c> events reported with the scalar VALUE representation.
+        /// Indication of the status of the spindle for a piece of equipment when power has been removed and it is free to rotate.
+        /// </summary>
         [JsonPropertyName("SpindleInterlock")]
         public IEnumerable<JsonEventValue> SpindleInterlock { get; set; }
 
+        /// <summary>
+        /// The <c>SpindleInterlock</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("SpindleInterlockDataSet")]
         public IEnumerable<JsonEventDataSet> SpindleInterlockDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>SpindleInterlock</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("SpindleInterlockTable")]
         public IEnumerable<JsonEventTable> SpindleInterlockTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>SwingAngle</c> events reported with the scalar VALUE representation.
+        /// Angular range over which the object is designed to move about a fixed axis or pivot
+        /// </summary>
         [JsonPropertyName("SwingAngle")]
         public IEnumerable<JsonEventValue> SwingAngle { get; set; }
 
+        /// <summary>
+        /// The <c>SwingAngle</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("SwingAngleDataSet")]
         public IEnumerable<JsonEventDataSet> SwingAngleDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>SwingAngle</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("SwingAngleTable")]
         public IEnumerable<JsonEventTable> SwingAngleTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>SwingDiameter</c> events reported with the scalar VALUE representation.
+        /// Maximal linear width (diameter) of the area described by the object’s movement about an axis
+        /// </summary>
         [JsonPropertyName("SwingDiameter")]
         public IEnumerable<JsonEventValue> SwingDiameter { get; set; }
 
+        /// <summary>
+        /// The <c>SwingDiameter</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("SwingDiameterDataSet")]
         public IEnumerable<JsonEventDataSet> SwingDiameterDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>SwingDiameter</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("SwingDiameterTable")]
         public IEnumerable<JsonEventTable> SwingDiameterTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>SwingRadius</c> events reported with the scalar VALUE representation.
+        /// Maximal linear distance from the pivot or axis to the furthest point reached by the object’s swing
+        /// </summary>
         [JsonPropertyName("SwingRadius")]
         public IEnumerable<JsonEventValue> SwingRadius { get; set; }
 
+        /// <summary>
+        /// The <c>SwingRadius</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("SwingRadiusDataSet")]
         public IEnumerable<JsonEventDataSet> SwingRadiusDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>SwingRadius</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("SwingRadiusTable")]
         public IEnumerable<JsonEventTable> SwingRadiusTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>TaskAssetId</c> events reported with the scalar VALUE representation.
+        /// AssetId of the Task that the Component binds to
+        /// </summary>
         [JsonPropertyName("TaskAssetId")]
         public IEnumerable<JsonEventValue> TaskAssetId { get; set; }
 
+        /// <summary>
+        /// The <c>TaskAssetId</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("TaskAssetIdDataSet")]
         public IEnumerable<JsonEventDataSet> TaskAssetIdDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>TaskAssetId</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("TaskAssetIdTable")]
         public IEnumerable<JsonEventTable> TaskAssetIdTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Thickness</c> events reported with the scalar VALUE representation.
+        /// Dimension between two surfaces of an object, usually the dimension of smallest measure, for example an additive layer, or a depth of cut.
+        /// </summary>
         [JsonPropertyName("Thickness")]
         public IEnumerable<JsonEventValue> Thickness { get; set; }
 
+        /// <summary>
+        /// The <c>Thickness</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ThicknessDataSet")]
         public IEnumerable<JsonEventDataSet> ThicknessDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Thickness</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ThicknessTable")]
         public IEnumerable<JsonEventTable> ThicknessTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ToolAssetId</c> events reported with the scalar VALUE representation.
+        /// Identifier of an individual tool asset.
+        /// </summary>
         [JsonPropertyName("ToolAssetId")]
         public IEnumerable<JsonEventValue> ToolAssetId { get; set; }
 
+        /// <summary>
+        /// The <c>ToolAssetId</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ToolAssetIdDataSet")]
         public IEnumerable<JsonEventDataSet> ToolAssetIdDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ToolAssetId</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ToolAssetIdTable")]
         public IEnumerable<JsonEventTable> ToolAssetIdTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ToolCuttingItem</c> events reported with the scalar VALUE representation.
+        /// Indices of the currently active cutting tool edge.
+        /// </summary>
         [JsonPropertyName("ToolCuttingItem")]
         public IEnumerable<JsonEventValue> ToolCuttingItem { get; set; }
 
+        /// <summary>
+        /// The <c>ToolCuttingItem</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ToolCuttingItemDataSet")]
         public IEnumerable<JsonEventDataSet> ToolCuttingItemDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ToolCuttingItem</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ToolCuttingItemTable")]
         public IEnumerable<JsonEventTable> ToolCuttingItemTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ToolGroup</c> events reported with the scalar VALUE representation.
+        /// Identifier for the tool group associated with a specific tool. Commonly used to designate spare tools.
+        /// </summary>
         [JsonPropertyName("ToolGroup")]
         public IEnumerable<JsonEventValue> ToolGroup { get; set; }
 
+        /// <summary>
+        /// The <c>ToolGroup</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ToolGroupDataSet")]
         public IEnumerable<JsonEventDataSet> ToolGroupDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ToolGroup</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ToolGroupTable")]
         public IEnumerable<JsonEventTable> ToolGroupTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ToolId</c> events reported with the scalar VALUE representation.
+        /// Identifier of the tool currently in use for a given `Path`.**DEPRECATED** in *Version 1.2.0*.   See `TOOL_NUMBER`.
+        /// </summary>
         [JsonPropertyName("ToolId")]
         public IEnumerable<JsonEventValue> ToolId { get; set; }
 
+        /// <summary>
+        /// The <c>ToolId</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ToolIdDataSet")]
         public IEnumerable<JsonEventDataSet> ToolIdDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ToolId</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ToolIdTable")]
         public IEnumerable<JsonEventTable> ToolIdTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ToolNumber</c> events reported with the scalar VALUE representation.
+        /// Identifier assigned by the Controller component to a cutting tool when in use by a piece of equipment.
+        /// </summary>
         [JsonPropertyName("ToolNumber")]
         public IEnumerable<JsonEventValue> ToolNumber { get; set; }
 
+        /// <summary>
+        /// The <c>ToolNumber</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ToolNumberDataSet")]
         public IEnumerable<JsonEventDataSet> ToolNumberDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ToolNumber</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ToolNumberTable")]
         public IEnumerable<JsonEventTable> ToolNumberTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ToolOffset</c> events reported with the scalar VALUE representation.
+        /// Reference to the tool offset variables applied to the active cutting tool.
+        /// </summary>
         [JsonPropertyName("ToolOffset")]
         public IEnumerable<JsonEventValue> ToolOffset { get; set; }
 
+        /// <summary>
+        /// The <c>ToolOffset</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ToolOffsetDataSet")]
         public IEnumerable<JsonEventDataSet> ToolOffsetDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ToolOffset</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ToolOffsetTable")]
         public IEnumerable<JsonEventTable> ToolOffsetTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ToolOffsets</c> events reported with the scalar VALUE representation.
+        /// Properties of each addressable tool offset.
+        /// </summary>
         [JsonPropertyName("ToolOffsets")]
         public IEnumerable<JsonEventValue> ToolOffsets { get; set; }
 
+        /// <summary>
+        /// The <c>ToolOffsets</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ToolOffsetsDataSet")]
         public IEnumerable<JsonEventDataSet> ToolOffsetsDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ToolOffsets</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ToolOffsetsTable")]
         public IEnumerable<JsonEventTable> ToolOffsetsTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>TransferCount</c> events reported with the scalar VALUE representation.
+        /// Accumulation of the number of times an operation has attempted to, or is planned to attempt to, transfer materials, parts, or other items from one location to another.
+        /// </summary>
         [JsonPropertyName("TransferCount")]
         public IEnumerable<JsonEventValue> TransferCount { get; set; }
 
+        /// <summary>
+        /// The <c>TransferCount</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("TransferCountDataSet")]
         public IEnumerable<JsonEventDataSet> TransferCountDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>TransferCount</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("TransferCountTable")]
         public IEnumerable<JsonEventTable> TransferCountTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Translation</c> events reported with the scalar VALUE representation.
+        /// Three space linear displacement of an object or coordinate system relative to a cartesian coordinate system.
+        /// </summary>
         [JsonPropertyName("Translation")]
         public IEnumerable<JsonEventValue> Translation { get; set; }
 
+        /// <summary>
+        /// The <c>Translation</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("TranslationDataSet")]
         public IEnumerable<JsonEventDataSet> TranslationDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Translation</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("TranslationTable")]
         public IEnumerable<JsonEventTable> TranslationTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Uncertainty</c> events reported with the scalar VALUE representation.
+        /// Uncertainty specified by UncertaintyType.
+        /// </summary>
         [JsonPropertyName("Uncertainty")]
         public IEnumerable<JsonEventValue> Uncertainty { get; set; }
 
+        /// <summary>
+        /// The <c>Uncertainty</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("UncertaintyDataSet")]
         public IEnumerable<JsonEventDataSet> UncertaintyDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Uncertainty</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("UncertaintyTable")]
         public IEnumerable<JsonEventTable> UncertaintyTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>UncertaintyType</c> events reported with the scalar VALUE representation.
+        /// Method used to compute standard uncertainty.
+        /// </summary>
         [JsonPropertyName("UncertaintyType")]
         public IEnumerable<JsonEventValue> UncertaintyType { get; set; }
 
+        /// <summary>
+        /// The <c>UncertaintyType</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("UncertaintyTypeDataSet")]
         public IEnumerable<JsonEventDataSet> UncertaintyTypeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>UncertaintyType</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("UncertaintyTypeTable")]
         public IEnumerable<JsonEventTable> UncertaintyTypeTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>UnloadCount</c> events reported with the scalar VALUE representation.
+        /// Accumulation of the number of times an operation has attempted to, or is planned to attempt to, unload materials, parts, or other items.
+        /// </summary>
         [JsonPropertyName("UnloadCount")]
         public IEnumerable<JsonEventValue> UnloadCount { get; set; }
 
+        /// <summary>
+        /// The <c>UnloadCount</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("UnloadCountDataSet")]
         public IEnumerable<JsonEventDataSet> UnloadCountDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>UnloadCount</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("UnloadCountTable")]
         public IEnumerable<JsonEventTable> UnloadCountTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>User</c> events reported with the scalar VALUE representation.
+        /// Identifier of the person currently responsible for operating the piece of equipment.
+        /// </summary>
         [JsonPropertyName("User")]
         public IEnumerable<JsonEventValue> User { get; set; }
 
+        /// <summary>
+        /// The <c>User</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("UserDataSet")]
         public IEnumerable<JsonEventDataSet> UserDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>User</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("UserTable")]
         public IEnumerable<JsonEventTable> UserTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>ValveState</c> events reported with the scalar VALUE representation.
+        /// State of a valve is one of open, closed, or transitioning between the states.
+        /// </summary>
         [JsonPropertyName("ValveState")]
         public IEnumerable<JsonEventValue> ValveState { get; set; }
 
+        /// <summary>
+        /// The <c>ValveState</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ValveStateDataSet")]
         public IEnumerable<JsonEventDataSet> ValveStateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ValveState</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ValveStateTable")]
         public IEnumerable<JsonEventTable> ValveStateTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Variable</c> events reported with the scalar VALUE representation.
+        /// Data whose meaning may change over time due to changes in the operation of a piece of equipment or the process being executed on that piece of equipment.
+        /// </summary>
         [JsonPropertyName("Variable")]
         public IEnumerable<JsonEventValue> Variable { get; set; }
 
+        /// <summary>
+        /// The <c>Variable</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("VariableDataSet")]
         public IEnumerable<JsonEventDataSet> VariableDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Variable</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("VariableTable")]
         public IEnumerable<JsonEventTable> VariableTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>WaitState</c> events reported with the scalar VALUE representation.
+        /// Indication of the reason that Execution is reporting a value of `WAIT`.
+        /// </summary>
         [JsonPropertyName("WaitState")]
         public IEnumerable<JsonEventValue> WaitState { get; set; }
 
+        /// <summary>
+        /// The <c>WaitState</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("WaitStateDataSet")]
         public IEnumerable<JsonEventDataSet> WaitStateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>WaitState</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("WaitStateTable")]
         public IEnumerable<JsonEventTable> WaitStateTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>Wire</c> events reported with the scalar VALUE representation.
+        /// Identifier for the type of wire used as the cutting mechanism in Electrical Discharge Machining or similar processes.
+        /// </summary>
         [JsonPropertyName("Wire")]
         public IEnumerable<JsonEventValue> Wire { get; set; }
 
+        /// <summary>
+        /// The <c>Wire</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("WireDataSet")]
         public IEnumerable<JsonEventDataSet> WireDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Wire</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("WireTable")]
         public IEnumerable<JsonEventTable> WireTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>WorkOffset</c> events reported with the scalar VALUE representation.
+        /// Reference to offset variables for a work piece or part.
+        /// </summary>
         [JsonPropertyName("WorkOffset")]
         public IEnumerable<JsonEventValue> WorkOffset { get; set; }
 
+        /// <summary>
+        /// The <c>WorkOffset</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("WorkOffsetDataSet")]
         public IEnumerable<JsonEventDataSet> WorkOffsetDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>WorkOffset</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("WorkOffsetTable")]
         public IEnumerable<JsonEventTable> WorkOffsetTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>WorkOffsets</c> events reported with the scalar VALUE representation.
+        /// Properties of each addressable work offset.
+        /// </summary>
         [JsonPropertyName("WorkOffsets")]
         public IEnumerable<JsonEventValue> WorkOffsets { get; set; }
 
+        /// <summary>
+        /// The <c>WorkOffsets</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("WorkOffsetsDataSet")]
         public IEnumerable<JsonEventDataSet> WorkOffsetsDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>WorkOffsets</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("WorkOffsetsTable")]
         public IEnumerable<JsonEventTable> WorkOffsetsTable { get; set; }
 
 
+        /// <summary>
+        /// The <c>WorkholdingId</c> events reported with the scalar VALUE representation.
+        /// Identifier for the current workholding or part clamp in use by a piece of equipment.**DEPRECATION WARNING**: Recommend using `FIXTURE_ID` instead.
+        /// </summary>
         [JsonPropertyName("WorkholdingId")]
         public IEnumerable<JsonEventValue> WorkholdingId { get; set; }
 
+        /// <summary>
+        /// The <c>WorkholdingId</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("WorkholdingIdDataSet")]
         public IEnumerable<JsonEventDataSet> WorkholdingIdDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>WorkholdingId</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("WorkholdingIdTable")]
         public IEnumerable<JsonEventTable> WorkholdingIdTable { get; set; }
 
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonEvents() { }
 
+        /// <summary>
+        /// Initializes a new instance from a flat sequence of <paramref name="observations"/>,
+        /// routing each one into the typed collection matching its MTConnect type and
+        /// representation.
+        /// </summary>
         public JsonEvents(IEnumerable<IObservationOutput> observations)
         {
             if (observations != null)
@@ -7482,5 +9252,5 @@ namespace MTConnect.Streams.Json
                 }
             }
         }
-    }  
+    }
 }

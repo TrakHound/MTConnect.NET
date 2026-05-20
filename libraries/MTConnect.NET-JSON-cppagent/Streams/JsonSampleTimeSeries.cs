@@ -10,20 +10,47 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a SAMPLE observation carrying a
+    /// TIME_SERIES representation in the cppagent-compatible Streams
+    /// shape. The series of sample values is emitted as a numeric JSON
+    /// array on the <c>value</c> property (via
+    /// <see cref="JsonTimeSeriesSamples"/>), with the sample count and
+    /// rate carried alongside.
+    /// </summary>
     public class JsonSampleTimeSeries : JsonObservation
     {
+        /// <summary>
+        /// The series of sample values, emitted as a numeric JSON array
+        /// or as the <c>UNAVAILABLE</c> string sentinel.
+        /// </summary>
         [JsonPropertyName("value")]
         public JsonTimeSeriesSamples Samples { get; set; }
 
+        /// <summary>
+        /// The number of samples in the series.
+        /// </summary>
         [JsonPropertyName("sampleCount")]
         public long? SampleCount { get; set; }
 
+        /// <summary>
+        /// The sample rate, in Hz.
+        /// </summary>
         [JsonPropertyName("sampleRate")]
         public double? SampleRate { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonSampleTimeSeries() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed time-series
+        /// <see cref="IObservation"/>, optionally surfacing category and
+        /// instance-id. Emits an unavailable marker when the source has
+        /// no samples.
+        /// </summary>
         public JsonSampleTimeSeries(IObservation observation, bool categoryOutput = false, bool instanceIdOutput = false)
         {
             if (observation != null)
@@ -60,6 +87,11 @@ namespace MTConnect.Streams.Json
             }
         }
 
+        /// <summary>
+        /// Initializes the surrogate from a streaming
+        /// <see cref="IObservationOutput"/>, rehydrating the time-series
+        /// samples from the observation's value bag.
+        /// </summary>
         public JsonSampleTimeSeries(IObservationOutput observation)
         {
             if (observation != null)
@@ -96,6 +128,14 @@ namespace MTConnect.Streams.Json
             }
         }
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="ISampleTimeSeriesObservation"/>, restoring the
+        /// data-item type from the supplied dictionary key and writing
+        /// each sample into the observation's keyed value bag, or
+        /// emitting the <c>UNAVAILABLE</c> result when the series is
+        /// marked unavailable.
+        /// </summary>
         public ISampleTimeSeriesObservation ToObservation(string type)
         {
             // Route construction through the typed factory so the runtime

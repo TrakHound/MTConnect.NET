@@ -7,29 +7,70 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a <c>Configuration</c> in the
+    /// cppagent-compatible shape. Aggregates the optional configuration
+    /// sub-elements (coordinate systems, motion, relationships, sensor
+    /// configuration, solid model, specifications), each emitted only
+    /// when present. Relationships and specifications are routed through
+    /// their typed sub-containers so that
+    /// <c>ComponentRelationship</c>/<c>DeviceRelationship</c> and
+    /// <c>Specification</c>/<c>ProcessSpecification</c> are kept in
+    /// separate JSON sibling arrays. Converts to and from the
+    /// strongly-typed <see cref="Configuration"/> model.
+    /// </summary>
     public class JsonConfiguration
     {
+        /// <summary>
+        /// The coordinate systems defined for the component.
+        /// </summary>
         [JsonPropertyName("CoordinateSystems")]
         public JsonCoordinateSystems CoordinateSystems { get; set; }
 
+        /// <summary>
+        /// The motion definition for the component.
+        /// </summary>
         [JsonPropertyName("Motion")]
         public JsonMotion Motion { get; set; }
 
+        /// <summary>
+        /// Relationships to other components, devices, or assets,
+        /// partitioned by relationship kind in the surrogate container.
+        /// </summary>
         [JsonPropertyName("Relationships")]
         public JsonRelationshipContainer Relationships { get; set; }
 
+        /// <summary>
+        /// The sensor configuration definition for the component.
+        /// </summary>
         [JsonPropertyName("SensorConfiguration")]
         public JsonSensorConfiguration SensorConfiguration { get; set; }
 
+        /// <summary>
+        /// The solid model reference for the component.
+        /// </summary>
         [JsonPropertyName("SolidModel")]
         public JsonSolidModel SolidModel { get; set; }
 
+        /// <summary>
+        /// Specifications constraining the component, partitioned into
+        /// scalar specifications and process specifications.
+        /// </summary>
         [JsonPropertyName("Specifications")]
         public JsonSpecificationContainer Specifications { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonConfiguration() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IConfiguration"/>, partitioning relationships into
+        /// component versus device kinds and specifications into scalar
+        /// versus process kinds for serialization.
+        /// </summary>
         public JsonConfiguration(IConfiguration configuration)
         {
             if (configuration != null)
@@ -107,10 +148,16 @@ namespace MTConnect.Devices.Json
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="IConfiguration"/>, flattening the typed
+        /// relationship and specification sub-containers back into the
+        /// uniform model collections.
+        /// </summary>
         public IConfiguration ToConfiguration()
         {
             var configuration = new Configuration();
-            
+
             // Coordinate Systems
             if (CoordinateSystems != null)
             {

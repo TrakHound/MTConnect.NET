@@ -6,17 +6,40 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate that partitions a probe document's
+    /// devices into the agent-self device and the real-equipment
+    /// devices into separate typed lists. The cppagent shape keys each
+    /// list by element name (<c>Agent</c>, <c>Device</c>), so this
+    /// container exposes one list per kind and only the lists with
+    /// content are populated.
+    /// </summary>
     public class JsonDevices
     {
+        /// <summary>
+        /// Devices of type <c>Agent</c> (the agent-self device).
+        /// </summary>
         [JsonPropertyName("Agent")]
         public IEnumerable<JsonDevice> Agents { get; set; }
 
+        /// <summary>
+        /// Devices of any non-Agent type (real equipment devices).
+        /// </summary>
         [JsonPropertyName("Device")]
         public IEnumerable<JsonDevice> Devices { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonDevices() { }
 
+        /// <summary>
+        /// Initializes the container from a Devices response document,
+        /// routing the agent-self device into <see cref="Agents"/> and
+        /// every other device into <see cref="Devices"/>; either list
+        /// is suppressed when its partition is empty.
+        /// </summary>
         public JsonDevices(IDevicesResponseDocument document)
         {
             if (document != null)
@@ -39,6 +62,10 @@ namespace MTConnect.Devices.Json
         }
 
 
+        /// <summary>
+        /// Flattens the typed device lists back into a uniform
+        /// <see cref="IDevice"/> collection in Agent-then-Device order.
+        /// </summary>
         public IEnumerable<IDevice> ToDevices()
         {
             var devices = new List<IDevice>();

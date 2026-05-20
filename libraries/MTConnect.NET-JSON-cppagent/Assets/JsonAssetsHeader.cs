@@ -7,11 +7,21 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Assets.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for the <c>Header</c> of an
+    /// MTConnectAssets document in the cppagent-compatible shape.
+    /// </summary>
     public class JsonAssetsHeader
     {
+        /// <summary>
+        /// The instance identifier of the agent.
+        /// </summary>
         [JsonPropertyName("instanceId")]
         public ulong InstanceId { get; set; }
 
+        /// <summary>
+        /// The agent's version.
+        /// </summary>
         [JsonPropertyName("version")]
         public string Version { get; set; }
 
@@ -22,18 +32,34 @@ namespace MTConnect.Assets.Json
         [JsonPropertyName("schemaVersion")]
         public string SchemaVersion { get; set; }
 
+        /// <summary>
+        /// The identifier of the agent that produced the document.
+        /// </summary>
         [JsonPropertyName("sender")]
         public string Sender { get; set; }
 
+        /// <summary>
+        /// The maximum number of assets the agent can store.
+        /// </summary>
         [JsonPropertyName("assetBufferSize")]
         public ulong AssetBufferSize { get; set; }
 
+        /// <summary>
+        /// The number of assets currently stored by the agent.
+        /// </summary>
         [JsonPropertyName("assetCount")]
         public ulong AssetCount { get; set; }
 
+        /// <summary>
+        /// The timestamp of the most recent change to the device model.
+        /// </summary>
         [JsonPropertyName("deviceModelChangeTime")]
         public string DeviceModelChangeTime { get; set; }
 
+        /// <summary>
+        /// Whether the document was produced for testing rather than
+        /// production use.
+        /// </summary>
         [JsonPropertyName("testIndicator")]
         public bool TestIndicator { get; set; }
 
@@ -44,12 +70,22 @@ namespace MTConnect.Assets.Json
         [JsonPropertyName("validation")]
         public bool Validation { get; set; }
 
+        /// <summary>
+        /// The time the document was created.
+        /// </summary>
         [JsonPropertyName("creationTime")]
         public DateTime CreationTime { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonAssetsHeader() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IMTConnectAssetsHeader"/>.
+        /// </summary>
         public JsonAssetsHeader(IMTConnectAssetsHeader header)
         {
             if (header != null)
@@ -68,6 +104,10 @@ namespace MTConnect.Assets.Json
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="IMTConnectAssetsHeader"/>.
+        /// </summary>
         public virtual IMTConnectAssetsHeader ToAssetsHeader()
         {
             var header = new MTConnectAssetsHeader();

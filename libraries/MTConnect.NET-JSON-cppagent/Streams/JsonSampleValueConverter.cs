@@ -31,6 +31,12 @@ namespace MTConnect.NET_JSON_cppagent.Streams
     /// </summary>
     public class JsonSampleValueConverter : JsonConverter<object>
     {
+        /// <summary>
+        /// Reads a sample value, returning a boxed <see cref="double"/>
+        /// for a JSON number token and the raw string for a JSON string
+        /// token. Any other token kind throws to make feed corruption
+        /// visible rather than silently dropped.
+        /// </summary>
         public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             switch (reader.TokenType)
@@ -46,6 +52,14 @@ namespace MTConnect.NET_JSON_cppagent.Streams
             }
         }
 
+        /// <summary>
+        /// Writes a sample value to the wire, emitting a JSON number
+        /// for numeric primitives and numeric-string payloads, a JSON
+        /// string for the <c>UNAVAILABLE</c> sentinel and any non-numeric
+        /// payload, and a JSON null for null/blank strings so the
+        /// carrier honours the
+        /// <see cref="JsonIgnoreCondition.WhenWritingDefault"/> contract.
+        /// </summary>
         public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
         {
             if (value is null)

@@ -11,8 +11,18 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
+    /// <summary>
+    /// cppagent-style JSON representation of the SAMPLE-category observations in a
+    /// stream. Every MTConnect sample type is exposed as four typed collections —
+    /// one each for the VALUE, DATA_SET, TABLE, and TIME_SERIES representations — so
+    /// the serialized object shape matches the C++ reference agent's output.
+    /// </summary>
     public class JsonSamples
     {
+        /// <summary>
+        /// Materializes every typed collection into a single flat list of
+        /// <see cref="IObservation"/>, restoring each observation's MTConnect type.
+        /// </summary>
         [JsonIgnore]
         public List<IObservation> Observations
         {
@@ -498,1244 +508,2772 @@ namespace MTConnect.Streams.Json
                 return l;
             }
         }
+        /// <summary>
+        /// The <c>Acceleration</c> samples reported with the scalar VALUE representation.
+        /// Positive rate of change of velocity.
+        /// </summary>
         [JsonPropertyName("Acceleration")]
         public IEnumerable<JsonSampleValue> Acceleration { get; set; }
 
+        /// <summary>
+        /// The <c>Acceleration</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AccelerationDataSet")]
         public IEnumerable<JsonSampleDataSet> AccelerationDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Acceleration</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AccelerationTable")]
         public IEnumerable<JsonSampleTable> AccelerationTable { get; set; }
 
+        /// <summary>
+        /// The <c>Acceleration</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("AccelerationTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> AccelerationTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>AccumulatedTime</c> samples reported with the scalar VALUE representation.
+        /// Accumulated time for an activity or event.
+        /// </summary>
         [JsonPropertyName("AccumulatedTime")]
         public IEnumerable<JsonSampleValue> AccumulatedTime { get; set; }
 
+        /// <summary>
+        /// The <c>AccumulatedTime</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AccumulatedTimeDataSet")]
         public IEnumerable<JsonSampleDataSet> AccumulatedTimeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AccumulatedTime</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AccumulatedTimeTable")]
         public IEnumerable<JsonSampleTable> AccumulatedTimeTable { get; set; }
 
+        /// <summary>
+        /// The <c>AccumulatedTime</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("AccumulatedTimeTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> AccumulatedTimeTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Amperage</c> samples reported with the scalar VALUE representation.
+        /// Strength of electrical current.**DEPRECATED** in *Version 1.6*. Replaced by `AMPERAGE_AC` and `AMPERAGE_DC`.
+        /// </summary>
         [JsonPropertyName("Amperage")]
         public IEnumerable<JsonSampleValue> Amperage { get; set; }
 
+        /// <summary>
+        /// The <c>Amperage</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AmperageDataSet")]
         public IEnumerable<JsonSampleDataSet> AmperageDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Amperage</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AmperageTable")]
         public IEnumerable<JsonSampleTable> AmperageTable { get; set; }
 
+        /// <summary>
+        /// The <c>Amperage</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("AmperageTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> AmperageTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>AmperageAC</c> samples reported with the scalar VALUE representation.
+        /// Electrical current that reverses direction at regular short intervals.
+        /// </summary>
         [JsonPropertyName("AmperageAC")]
         public IEnumerable<JsonSampleValue> AmperageAC { get; set; }
 
+        /// <summary>
+        /// The <c>AmperageAC</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AmperageACDataSet")]
         public IEnumerable<JsonSampleDataSet> AmperageACDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AmperageAC</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AmperageACTable")]
         public IEnumerable<JsonSampleTable> AmperageACTable { get; set; }
 
+        /// <summary>
+        /// The <c>AmperageAC</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("AmperageACTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> AmperageACTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>AmperageDC</c> samples reported with the scalar VALUE representation.
+        /// Electric current flowing in one direction only.
+        /// </summary>
         [JsonPropertyName("AmperageDC")]
         public IEnumerable<JsonSampleValue> AmperageDC { get; set; }
 
+        /// <summary>
+        /// The <c>AmperageDC</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AmperageDCDataSet")]
         public IEnumerable<JsonSampleDataSet> AmperageDCDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AmperageDC</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AmperageDCTable")]
         public IEnumerable<JsonSampleTable> AmperageDCTable { get; set; }
 
+        /// <summary>
+        /// The <c>AmperageDC</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("AmperageDCTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> AmperageDCTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Angle</c> samples reported with the scalar VALUE representation.
+        /// Angular position.
+        /// </summary>
         [JsonPropertyName("Angle")]
         public IEnumerable<JsonSampleValue> Angle { get; set; }
 
+        /// <summary>
+        /// The <c>Angle</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AngleDataSet")]
         public IEnumerable<JsonSampleDataSet> AngleDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Angle</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AngleTable")]
         public IEnumerable<JsonSampleTable> AngleTable { get; set; }
 
+        /// <summary>
+        /// The <c>Angle</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("AngleTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> AngleTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>AngularAcceleration</c> samples reported with the scalar VALUE representation.
+        /// Positive rate of change of angular velocity.
+        /// </summary>
         [JsonPropertyName("AngularAcceleration")]
         public IEnumerable<JsonSampleValue> AngularAcceleration { get; set; }
 
+        /// <summary>
+        /// The <c>AngularAcceleration</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AngularAccelerationDataSet")]
         public IEnumerable<JsonSampleDataSet> AngularAccelerationDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AngularAcceleration</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AngularAccelerationTable")]
         public IEnumerable<JsonSampleTable> AngularAccelerationTable { get; set; }
 
+        /// <summary>
+        /// The <c>AngularAcceleration</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("AngularAccelerationTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> AngularAccelerationTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>AngularDeceleration</c> samples reported with the scalar VALUE representation.
+        /// Negative rate of change of angular velocity.
+        /// </summary>
         [JsonPropertyName("AngularDeceleration")]
         public IEnumerable<JsonSampleValue> AngularDeceleration { get; set; }
 
+        /// <summary>
+        /// The <c>AngularDeceleration</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AngularDecelerationDataSet")]
         public IEnumerable<JsonSampleDataSet> AngularDecelerationDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AngularDeceleration</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AngularDecelerationTable")]
         public IEnumerable<JsonSampleTable> AngularDecelerationTable { get; set; }
 
+        /// <summary>
+        /// The <c>AngularDeceleration</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("AngularDecelerationTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> AngularDecelerationTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>AngularVelocity</c> samples reported with the scalar VALUE representation.
+        /// Rate of change of angular position.
+        /// </summary>
         [JsonPropertyName("AngularVelocity")]
         public IEnumerable<JsonSampleValue> AngularVelocity { get; set; }
 
+        /// <summary>
+        /// The <c>AngularVelocity</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AngularVelocityDataSet")]
         public IEnumerable<JsonSampleDataSet> AngularVelocityDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AngularVelocity</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AngularVelocityTable")]
         public IEnumerable<JsonSampleTable> AngularVelocityTable { get; set; }
 
+        /// <summary>
+        /// The <c>AngularVelocity</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("AngularVelocityTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> AngularVelocityTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>AssetUpdateRate</c> samples reported with the scalar VALUE representation.
+        /// Average rate of change of values for assets in the MTConnect streams. The average is computed over a rolling window defined by the implementation.
+        /// </summary>
         [JsonPropertyName("AssetUpdateRate")]
         public IEnumerable<JsonSampleValue> AssetUpdateRate { get; set; }
 
+        /// <summary>
+        /// The <c>AssetUpdateRate</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AssetUpdateRateDataSet")]
         public IEnumerable<JsonSampleDataSet> AssetUpdateRateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AssetUpdateRate</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AssetUpdateRateTable")]
         public IEnumerable<JsonSampleTable> AssetUpdateRateTable { get; set; }
 
+        /// <summary>
+        /// The <c>AssetUpdateRate</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("AssetUpdateRateTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> AssetUpdateRateTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>AxisFeedrate</c> samples reported with the scalar VALUE representation.
+        /// Feedrate of a linear axis.
+        /// </summary>
         [JsonPropertyName("AxisFeedrate")]
         public IEnumerable<JsonSampleValue> AxisFeedrate { get; set; }
 
+        /// <summary>
+        /// The <c>AxisFeedrate</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("AxisFeedrateDataSet")]
         public IEnumerable<JsonSampleDataSet> AxisFeedrateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>AxisFeedrate</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("AxisFeedrateTable")]
         public IEnumerable<JsonSampleTable> AxisFeedrateTable { get; set; }
 
+        /// <summary>
+        /// The <c>AxisFeedrate</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("AxisFeedrateTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> AxisFeedrateTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>BatteryCapacity</c> samples reported with the scalar VALUE representation.
+        /// Maximum rated charge a battery is capable of maintaining based on the battery discharging at a specified current over a specified time period.
+        /// </summary>
         [JsonPropertyName("BatteryCapacity")]
         public IEnumerable<JsonSampleValue> BatteryCapacity { get; set; }
 
+        /// <summary>
+        /// The <c>BatteryCapacity</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("BatteryCapacityDataSet")]
         public IEnumerable<JsonSampleDataSet> BatteryCapacityDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>BatteryCapacity</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("BatteryCapacityTable")]
         public IEnumerable<JsonSampleTable> BatteryCapacityTable { get; set; }
 
+        /// <summary>
+        /// The <c>BatteryCapacity</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("BatteryCapacityTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> BatteryCapacityTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>BatteryCharge</c> samples reported with the scalar VALUE representation.
+        /// Value of the battery's present capacity expressed as a percentage of the battery's maximum rated capacity.
+        /// </summary>
         [JsonPropertyName("BatteryCharge")]
         public IEnumerable<JsonSampleValue> BatteryCharge { get; set; }
 
+        /// <summary>
+        /// The <c>BatteryCharge</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("BatteryChargeDataSet")]
         public IEnumerable<JsonSampleDataSet> BatteryChargeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>BatteryCharge</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("BatteryChargeTable")]
         public IEnumerable<JsonSampleTable> BatteryChargeTable { get; set; }
 
+        /// <summary>
+        /// The <c>BatteryCharge</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("BatteryChargeTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> BatteryChargeTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>CapacityFluid</c> samples reported with the scalar VALUE representation.
+        /// Maximum amount of fluid that can be held by a container.
+        /// </summary>
         [JsonPropertyName("CapacityFluid")]
         public IEnumerable<JsonSampleValue> CapacityFluid { get; set; }
 
+        /// <summary>
+        /// The <c>CapacityFluid</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("CapacityFluidDataSet")]
         public IEnumerable<JsonSampleDataSet> CapacityFluidDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>CapacityFluid</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("CapacityFluidTable")]
         public IEnumerable<JsonSampleTable> CapacityFluidTable { get; set; }
 
+        /// <summary>
+        /// The <c>CapacityFluid</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("CapacityFluidTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> CapacityFluidTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>CapacitySpatial</c> samples reported with the scalar VALUE representation.
+        /// Maximum amount of material that can be held by a container.
+        /// </summary>
         [JsonPropertyName("CapacitySpatial")]
         public IEnumerable<JsonSampleValue> CapacitySpatial { get; set; }
 
+        /// <summary>
+        /// The <c>CapacitySpatial</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("CapacitySpatialDataSet")]
         public IEnumerable<JsonSampleDataSet> CapacitySpatialDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>CapacitySpatial</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("CapacitySpatialTable")]
         public IEnumerable<JsonSampleTable> CapacitySpatialTable { get; set; }
 
+        /// <summary>
+        /// The <c>CapacitySpatial</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("CapacitySpatialTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> CapacitySpatialTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>ChargeRate</c> samples reported with the scalar VALUE representation.
+        /// Value of the current being supplied to the Component for the purpose of charging.
+        /// </summary>
         [JsonPropertyName("ChargeRate")]
         public IEnumerable<JsonSampleValue> ChargeRate { get; set; }
 
+        /// <summary>
+        /// The <c>ChargeRate</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ChargeRateDataSet")]
         public IEnumerable<JsonSampleDataSet> ChargeRateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ChargeRate</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ChargeRateTable")]
         public IEnumerable<JsonSampleTable> ChargeRateTable { get; set; }
 
+        /// <summary>
+        /// The <c>ChargeRate</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("ChargeRateTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> ChargeRateTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Concentration</c> samples reported with the scalar VALUE representation.
+        /// Percentage of one component within a mixture of components.
+        /// </summary>
         [JsonPropertyName("Concentration")]
         public IEnumerable<JsonSampleValue> Concentration { get; set; }
 
+        /// <summary>
+        /// The <c>Concentration</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ConcentrationDataSet")]
         public IEnumerable<JsonSampleDataSet> ConcentrationDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Concentration</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ConcentrationTable")]
         public IEnumerable<JsonSampleTable> ConcentrationTable { get; set; }
 
+        /// <summary>
+        /// The <c>Concentration</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("ConcentrationTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> ConcentrationTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Conductivity</c> samples reported with the scalar VALUE representation.
+        /// Ability of a material to conduct electricity.
+        /// </summary>
         [JsonPropertyName("Conductivity")]
         public IEnumerable<JsonSampleValue> Conductivity { get; set; }
 
+        /// <summary>
+        /// The <c>Conductivity</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ConductivityDataSet")]
         public IEnumerable<JsonSampleDataSet> ConductivityDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Conductivity</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ConductivityTable")]
         public IEnumerable<JsonSampleTable> ConductivityTable { get; set; }
 
+        /// <summary>
+        /// The <c>Conductivity</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("ConductivityTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> ConductivityTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>CuttingSpeed</c> samples reported with the scalar VALUE representation.
+        /// Speed difference (relative velocity) between the cutting mechanism and the surface of the workpiece it is operating on.
+        /// </summary>
         [JsonPropertyName("CuttingSpeed")]
         public IEnumerable<JsonSampleValue> CuttingSpeed { get; set; }
 
+        /// <summary>
+        /// The <c>CuttingSpeed</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("CuttingSpeedDataSet")]
         public IEnumerable<JsonSampleDataSet> CuttingSpeedDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>CuttingSpeed</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("CuttingSpeedTable")]
         public IEnumerable<JsonSampleTable> CuttingSpeedTable { get; set; }
 
+        /// <summary>
+        /// The <c>CuttingSpeed</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("CuttingSpeedTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> CuttingSpeedTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Deceleration</c> samples reported with the scalar VALUE representation.
+        /// Negative rate of change of velocity.
+        /// </summary>
         [JsonPropertyName("Deceleration")]
         public IEnumerable<JsonSampleValue> Deceleration { get; set; }
 
+        /// <summary>
+        /// The <c>Deceleration</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DecelerationDataSet")]
         public IEnumerable<JsonSampleDataSet> DecelerationDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Deceleration</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DecelerationTable")]
         public IEnumerable<JsonSampleTable> DecelerationTable { get; set; }
 
+        /// <summary>
+        /// The <c>Deceleration</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("DecelerationTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> DecelerationTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Density</c> samples reported with the scalar VALUE representation.
+        /// Volumetric mass of a material per unit volume of that material.
+        /// </summary>
         [JsonPropertyName("Density")]
         public IEnumerable<JsonSampleValue> Density { get; set; }
 
+        /// <summary>
+        /// The <c>Density</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DensityDataSet")]
         public IEnumerable<JsonSampleDataSet> DensityDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Density</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DensityTable")]
         public IEnumerable<JsonSampleTable> DensityTable { get; set; }
 
+        /// <summary>
+        /// The <c>Density</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("DensityTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> DensityTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>DepositionAccelerationVolumetric</c> samples reported with the scalar VALUE representation.
+        /// Rate of change in spatial volume of material deposited in an additive manufacturing process.
+        /// </summary>
         [JsonPropertyName("DepositionAccelerationVolumetric")]
         public IEnumerable<JsonSampleValue> DepositionAccelerationVolumetric { get; set; }
 
+        /// <summary>
+        /// The <c>DepositionAccelerationVolumetric</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DepositionAccelerationVolumetricDataSet")]
         public IEnumerable<JsonSampleDataSet> DepositionAccelerationVolumetricDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>DepositionAccelerationVolumetric</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DepositionAccelerationVolumetricTable")]
         public IEnumerable<JsonSampleTable> DepositionAccelerationVolumetricTable { get; set; }
 
+        /// <summary>
+        /// The <c>DepositionAccelerationVolumetric</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("DepositionAccelerationVolumetricTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> DepositionAccelerationVolumetricTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>DepositionDensity</c> samples reported with the scalar VALUE representation.
+        /// Density of the material deposited in an additive manufacturing process per unit of volume.
+        /// </summary>
         [JsonPropertyName("DepositionDensity")]
         public IEnumerable<JsonSampleValue> DepositionDensity { get; set; }
 
+        /// <summary>
+        /// The <c>DepositionDensity</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DepositionDensityDataSet")]
         public IEnumerable<JsonSampleDataSet> DepositionDensityDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>DepositionDensity</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DepositionDensityTable")]
         public IEnumerable<JsonSampleTable> DepositionDensityTable { get; set; }
 
+        /// <summary>
+        /// The <c>DepositionDensity</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("DepositionDensityTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> DepositionDensityTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>DepositionMass</c> samples reported with the scalar VALUE representation.
+        /// Mass of the material deposited in an additive manufacturing process.
+        /// </summary>
         [JsonPropertyName("DepositionMass")]
         public IEnumerable<JsonSampleValue> DepositionMass { get; set; }
 
+        /// <summary>
+        /// The <c>DepositionMass</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DepositionMassDataSet")]
         public IEnumerable<JsonSampleDataSet> DepositionMassDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>DepositionMass</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DepositionMassTable")]
         public IEnumerable<JsonSampleTable> DepositionMassTable { get; set; }
 
+        /// <summary>
+        /// The <c>DepositionMass</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("DepositionMassTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> DepositionMassTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>DepositionRateVolumetric</c> samples reported with the scalar VALUE representation.
+        /// Rate at which a spatial volume of material is deposited in an additive manufacturing process.
+        /// </summary>
         [JsonPropertyName("DepositionRateVolumetric")]
         public IEnumerable<JsonSampleValue> DepositionRateVolumetric { get; set; }
 
+        /// <summary>
+        /// The <c>DepositionRateVolumetric</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DepositionRateVolumetricDataSet")]
         public IEnumerable<JsonSampleDataSet> DepositionRateVolumetricDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>DepositionRateVolumetric</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DepositionRateVolumetricTable")]
         public IEnumerable<JsonSampleTable> DepositionRateVolumetricTable { get; set; }
 
+        /// <summary>
+        /// The <c>DepositionRateVolumetric</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("DepositionRateVolumetricTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> DepositionRateVolumetricTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>DepositionVolume</c> samples reported with the scalar VALUE representation.
+        /// Spatial volume of material to be deposited in an additive manufacturing process.
+        /// </summary>
         [JsonPropertyName("DepositionVolume")]
         public IEnumerable<JsonSampleValue> DepositionVolume { get; set; }
 
+        /// <summary>
+        /// The <c>DepositionVolume</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DepositionVolumeDataSet")]
         public IEnumerable<JsonSampleDataSet> DepositionVolumeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>DepositionVolume</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DepositionVolumeTable")]
         public IEnumerable<JsonSampleTable> DepositionVolumeTable { get; set; }
 
+        /// <summary>
+        /// The <c>DepositionVolume</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("DepositionVolumeTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> DepositionVolumeTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>DewPoint</c> samples reported with the scalar VALUE representation.
+        /// Temperature at which moisture begins to condense, corresponding to saturation for a given absolute humidity.
+        /// </summary>
         [JsonPropertyName("DewPoint")]
         public IEnumerable<JsonSampleValue> DewPoint { get; set; }
 
+        /// <summary>
+        /// The <c>DewPoint</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DewPointDataSet")]
         public IEnumerable<JsonSampleDataSet> DewPointDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>DewPoint</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DewPointTable")]
         public IEnumerable<JsonSampleTable> DewPointTable { get; set; }
 
+        /// <summary>
+        /// The <c>DewPoint</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("DewPointTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> DewPointTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Diameter</c> samples reported with the scalar VALUE representation.
+        /// Dimension of a diameter.
+        /// </summary>
         [JsonPropertyName("Diameter")]
         public IEnumerable<JsonSampleValue> Diameter { get; set; }
 
+        /// <summary>
+        /// The <c>Diameter</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DiameterDataSet")]
         public IEnumerable<JsonSampleDataSet> DiameterDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Diameter</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DiameterTable")]
         public IEnumerable<JsonSampleTable> DiameterTable { get; set; }
 
+        /// <summary>
+        /// The <c>Diameter</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("DiameterTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> DiameterTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>DischargeRate</c> samples reported with the scalar VALUE representation.
+        /// Value of current being drawn from the Component.
+        /// </summary>
         [JsonPropertyName("DischargeRate")]
         public IEnumerable<JsonSampleValue> DischargeRate { get; set; }
 
+        /// <summary>
+        /// The <c>DischargeRate</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DischargeRateDataSet")]
         public IEnumerable<JsonSampleDataSet> DischargeRateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>DischargeRate</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DischargeRateTable")]
         public IEnumerable<JsonSampleTable> DischargeRateTable { get; set; }
 
+        /// <summary>
+        /// The <c>DischargeRate</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("DischargeRateTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> DischargeRateTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Displacement</c> samples reported with the scalar VALUE representation.
+        /// Change in position of an object.
+        /// </summary>
         [JsonPropertyName("Displacement")]
         public IEnumerable<JsonSampleValue> Displacement { get; set; }
 
+        /// <summary>
+        /// The <c>Displacement</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DisplacementDataSet")]
         public IEnumerable<JsonSampleDataSet> DisplacementDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Displacement</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DisplacementTable")]
         public IEnumerable<JsonSampleTable> DisplacementTable { get; set; }
 
+        /// <summary>
+        /// The <c>Displacement</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("DisplacementTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> DisplacementTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>DisplacementAngular</c> samples reported with the scalar VALUE representation.
+        /// Absolute value of the change in angular position around a vector
+        /// </summary>
         [JsonPropertyName("DisplacementAngular")]
         public IEnumerable<JsonSampleValue> DisplacementAngular { get; set; }
 
+        /// <summary>
+        /// The <c>DisplacementAngular</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DisplacementAngularDataSet")]
         public IEnumerable<JsonSampleDataSet> DisplacementAngularDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>DisplacementAngular</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DisplacementAngularTable")]
         public IEnumerable<JsonSampleTable> DisplacementAngularTable { get; set; }
 
+        /// <summary>
+        /// The <c>DisplacementAngular</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("DisplacementAngularTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> DisplacementAngularTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>DisplacementLinear</c> samples reported with the scalar VALUE representation.
+        /// Absolute value of the change in position along a vector.
+        /// </summary>
         [JsonPropertyName("DisplacementLinear")]
         public IEnumerable<JsonSampleValue> DisplacementLinear { get; set; }
 
+        /// <summary>
+        /// The <c>DisplacementLinear</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("DisplacementLinearDataSet")]
         public IEnumerable<JsonSampleDataSet> DisplacementLinearDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>DisplacementLinear</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("DisplacementLinearTable")]
         public IEnumerable<JsonSampleTable> DisplacementLinearTable { get; set; }
 
+        /// <summary>
+        /// The <c>DisplacementLinear</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("DisplacementLinearTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> DisplacementLinearTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>ElectricalEnergy</c> samples reported with the scalar VALUE representation.
+        /// Wattage used or generated by a component over an interval of time.
+        /// </summary>
         [JsonPropertyName("ElectricalEnergy")]
         public IEnumerable<JsonSampleValue> ElectricalEnergy { get; set; }
 
+        /// <summary>
+        /// The <c>ElectricalEnergy</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ElectricalEnergyDataSet")]
         public IEnumerable<JsonSampleDataSet> ElectricalEnergyDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ElectricalEnergy</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ElectricalEnergyTable")]
         public IEnumerable<JsonSampleTable> ElectricalEnergyTable { get; set; }
 
+        /// <summary>
+        /// The <c>ElectricalEnergy</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("ElectricalEnergyTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> ElectricalEnergyTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>EquipmentTimer</c> samples reported with the scalar VALUE representation.
+        /// Amount of time a piece of equipment or a sub-part of a piece of equipment has performed specific activities.
+        /// </summary>
         [JsonPropertyName("EquipmentTimer")]
         public IEnumerable<JsonSampleValue> EquipmentTimer { get; set; }
 
+        /// <summary>
+        /// The <c>EquipmentTimer</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("EquipmentTimerDataSet")]
         public IEnumerable<JsonSampleDataSet> EquipmentTimerDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>EquipmentTimer</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("EquipmentTimerTable")]
         public IEnumerable<JsonSampleTable> EquipmentTimerTable { get; set; }
 
+        /// <summary>
+        /// The <c>EquipmentTimer</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("EquipmentTimerTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> EquipmentTimerTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>FillHeight</c> samples reported with the scalar VALUE representation.
+        /// Amount of a substance in a container.
+        /// </summary>
         [JsonPropertyName("FillHeight")]
         public IEnumerable<JsonSampleValue> FillHeight { get; set; }
 
+        /// <summary>
+        /// The <c>FillHeight</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("FillHeightDataSet")]
         public IEnumerable<JsonSampleDataSet> FillHeightDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>FillHeight</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("FillHeightTable")]
         public IEnumerable<JsonSampleTable> FillHeightTable { get; set; }
 
+        /// <summary>
+        /// The <c>FillHeight</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("FillHeightTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> FillHeightTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>FillLevel</c> samples reported with the scalar VALUE representation.
+        /// Amount of a substance remaining compared to the planned maximum amount of that substance.
+        /// </summary>
         [JsonPropertyName("FillLevel")]
         public IEnumerable<JsonSampleValue> FillLevel { get; set; }
 
+        /// <summary>
+        /// The <c>FillLevel</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("FillLevelDataSet")]
         public IEnumerable<JsonSampleDataSet> FillLevelDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>FillLevel</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("FillLevelTable")]
         public IEnumerable<JsonSampleTable> FillLevelTable { get; set; }
 
+        /// <summary>
+        /// The <c>FillLevel</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("FillLevelTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> FillLevelTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Flow</c> samples reported with the scalar VALUE representation.
+        /// Rate of flow of a fluid.
+        /// </summary>
         [JsonPropertyName("Flow")]
         public IEnumerable<JsonSampleValue> Flow { get; set; }
 
+        /// <summary>
+        /// The <c>Flow</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("FlowDataSet")]
         public IEnumerable<JsonSampleDataSet> FlowDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Flow</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("FlowTable")]
         public IEnumerable<JsonSampleTable> FlowTable { get; set; }
 
+        /// <summary>
+        /// The <c>Flow</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("FlowTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> FlowTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>FollowingError</c> samples reported with the scalar VALUE representation.
+        /// Difference between actual and commanded position at any specific point in time during a motion.
+        /// </summary>
         [JsonPropertyName("FollowingError")]
         public IEnumerable<JsonSampleValue> FollowingError { get; set; }
 
+        /// <summary>
+        /// The <c>FollowingError</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("FollowingErrorDataSet")]
         public IEnumerable<JsonSampleDataSet> FollowingErrorDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>FollowingError</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("FollowingErrorTable")]
         public IEnumerable<JsonSampleTable> FollowingErrorTable { get; set; }
 
+        /// <summary>
+        /// The <c>FollowingError</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("FollowingErrorTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> FollowingErrorTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>FollowingErrorAngular</c> samples reported with the scalar VALUE representation.
+        /// Angular difference between the commanded encoder/resolver position and the actual encoder/resolver position at any specified point in time during a motion.
+        /// </summary>
         [JsonPropertyName("FollowingErrorAngular")]
         public IEnumerable<JsonSampleValue> FollowingErrorAngular { get; set; }
 
+        /// <summary>
+        /// The <c>FollowingErrorAngular</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("FollowingErrorAngularDataSet")]
         public IEnumerable<JsonSampleDataSet> FollowingErrorAngularDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>FollowingErrorAngular</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("FollowingErrorAngularTable")]
         public IEnumerable<JsonSampleTable> FollowingErrorAngularTable { get; set; }
 
+        /// <summary>
+        /// The <c>FollowingErrorAngular</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("FollowingErrorAngularTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> FollowingErrorAngularTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>FollowingErrorLinear</c> samples reported with the scalar VALUE representation.
+        /// Difference between the commanded encoder/resolver position and the actual encoder/resolver position at any specified point in time during a motion.
+        /// </summary>
         [JsonPropertyName("FollowingErrorLinear")]
         public IEnumerable<JsonSampleValue> FollowingErrorLinear { get; set; }
 
+        /// <summary>
+        /// The <c>FollowingErrorLinear</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("FollowingErrorLinearDataSet")]
         public IEnumerable<JsonSampleDataSet> FollowingErrorLinearDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>FollowingErrorLinear</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("FollowingErrorLinearTable")]
         public IEnumerable<JsonSampleTable> FollowingErrorLinearTable { get; set; }
 
+        /// <summary>
+        /// The <c>FollowingErrorLinear</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("FollowingErrorLinearTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> FollowingErrorLinearTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Frequency</c> samples reported with the scalar VALUE representation.
+        /// Number of occurrences of a repeating event per unit time.
+        /// </summary>
         [JsonPropertyName("Frequency")]
         public IEnumerable<JsonSampleValue> Frequency { get; set; }
 
+        /// <summary>
+        /// The <c>Frequency</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("FrequencyDataSet")]
         public IEnumerable<JsonSampleDataSet> FrequencyDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Frequency</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("FrequencyTable")]
         public IEnumerable<JsonSampleTable> FrequencyTable { get; set; }
 
+        /// <summary>
+        /// The <c>Frequency</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("FrequencyTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> FrequencyTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>GlobalPosition</c> samples reported with the scalar VALUE representation.
+        /// Position in three-dimensional space.**DEPRECATED** in Version 1.1.
+        /// </summary>
         [JsonPropertyName("GlobalPosition")]
         public IEnumerable<JsonSampleValue> GlobalPosition { get; set; }
 
+        /// <summary>
+        /// The <c>GlobalPosition</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("GlobalPositionDataSet")]
         public IEnumerable<JsonSampleDataSet> GlobalPositionDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>GlobalPosition</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("GlobalPositionTable")]
         public IEnumerable<JsonSampleTable> GlobalPositionTable { get; set; }
 
+        /// <summary>
+        /// The <c>GlobalPosition</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("GlobalPositionTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> GlobalPositionTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>GravitationalAcceleration</c> samples reported with the scalar VALUE representation.
+        /// Acceleration relative to Earth's gravity of 9.80665 `METER/SECOND^2`.
+        /// </summary>
         [JsonPropertyName("GravitationalAcceleration")]
         public IEnumerable<JsonSampleValue> GravitationalAcceleration { get; set; }
 
+        /// <summary>
+        /// The <c>GravitationalAcceleration</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("GravitationalAccelerationDataSet")]
         public IEnumerable<JsonSampleDataSet> GravitationalAccelerationDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>GravitationalAcceleration</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("GravitationalAccelerationTable")]
         public IEnumerable<JsonSampleTable> GravitationalAccelerationTable { get; set; }
 
+        /// <summary>
+        /// The <c>GravitationalAcceleration</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("GravitationalAccelerationTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> GravitationalAccelerationTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>GravitationalForce</c> samples reported with the scalar VALUE representation.
+        /// Force relative to earth's gravity.
+        /// </summary>
         [JsonPropertyName("GravitationalForce")]
         public IEnumerable<JsonSampleValue> GravitationalForce { get; set; }
 
+        /// <summary>
+        /// The <c>GravitationalForce</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("GravitationalForceDataSet")]
         public IEnumerable<JsonSampleDataSet> GravitationalForceDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>GravitationalForce</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("GravitationalForceTable")]
         public IEnumerable<JsonSampleTable> GravitationalForceTable { get; set; }
 
+        /// <summary>
+        /// The <c>GravitationalForce</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("GravitationalForceTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> GravitationalForceTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>HumidityAbsolute</c> samples reported with the scalar VALUE representation.
+        /// Amount of water vapor expressed in grams per cubic meter.
+        /// </summary>
         [JsonPropertyName("HumidityAbsolute")]
         public IEnumerable<JsonSampleValue> HumidityAbsolute { get; set; }
 
+        /// <summary>
+        /// The <c>HumidityAbsolute</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("HumidityAbsoluteDataSet")]
         public IEnumerable<JsonSampleDataSet> HumidityAbsoluteDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>HumidityAbsolute</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("HumidityAbsoluteTable")]
         public IEnumerable<JsonSampleTable> HumidityAbsoluteTable { get; set; }
 
+        /// <summary>
+        /// The <c>HumidityAbsolute</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("HumidityAbsoluteTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> HumidityAbsoluteTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>HumidityRelative</c> samples reported with the scalar VALUE representation.
+        /// Amount of water vapor present expressed as a percent to reach saturation at the same temperature.
+        /// </summary>
         [JsonPropertyName("HumidityRelative")]
         public IEnumerable<JsonSampleValue> HumidityRelative { get; set; }
 
+        /// <summary>
+        /// The <c>HumidityRelative</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("HumidityRelativeDataSet")]
         public IEnumerable<JsonSampleDataSet> HumidityRelativeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>HumidityRelative</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("HumidityRelativeTable")]
         public IEnumerable<JsonSampleTable> HumidityRelativeTable { get; set; }
 
+        /// <summary>
+        /// The <c>HumidityRelative</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("HumidityRelativeTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> HumidityRelativeTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>HumiditySpecific</c> samples reported with the scalar VALUE representation.
+        /// Ratio of the water vapor present over the total weight of the water vapor and air present expressed as a percent.
+        /// </summary>
         [JsonPropertyName("HumiditySpecific")]
         public IEnumerable<JsonSampleValue> HumiditySpecific { get; set; }
 
+        /// <summary>
+        /// The <c>HumiditySpecific</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("HumiditySpecificDataSet")]
         public IEnumerable<JsonSampleDataSet> HumiditySpecificDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>HumiditySpecific</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("HumiditySpecificTable")]
         public IEnumerable<JsonSampleTable> HumiditySpecificTable { get; set; }
 
+        /// <summary>
+        /// The <c>HumiditySpecific</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("HumiditySpecificTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> HumiditySpecificTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Length</c> samples reported with the scalar VALUE representation.
+        /// Length of an object.
+        /// </summary>
         [JsonPropertyName("Length")]
         public IEnumerable<JsonSampleValue> Length { get; set; }
 
+        /// <summary>
+        /// The <c>Length</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("LengthDataSet")]
         public IEnumerable<JsonSampleDataSet> LengthDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Length</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("LengthTable")]
         public IEnumerable<JsonSampleTable> LengthTable { get; set; }
 
+        /// <summary>
+        /// The <c>Length</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("LengthTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> LengthTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Level</c> samples reported with the scalar VALUE representation.
+        /// Level of a resource.**DEPRECATED** in *Version 1.2*.  See `FILL_LEVEL`.
+        /// </summary>
         [JsonPropertyName("Level")]
         public IEnumerable<JsonSampleValue> Level { get; set; }
 
+        /// <summary>
+        /// The <c>Level</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("LevelDataSet")]
         public IEnumerable<JsonSampleDataSet> LevelDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Level</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("LevelTable")]
         public IEnumerable<JsonSampleTable> LevelTable { get; set; }
 
+        /// <summary>
+        /// The <c>Level</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("LevelTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> LevelTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>LinearForce</c> samples reported with the scalar VALUE representation.
+        /// Force applied to a mass in one direction only.
+        /// </summary>
         [JsonPropertyName("LinearForce")]
         public IEnumerable<JsonSampleValue> LinearForce { get; set; }
 
+        /// <summary>
+        /// The <c>LinearForce</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("LinearForceDataSet")]
         public IEnumerable<JsonSampleDataSet> LinearForceDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>LinearForce</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("LinearForceTable")]
         public IEnumerable<JsonSampleTable> LinearForceTable { get; set; }
 
+        /// <summary>
+        /// The <c>LinearForce</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("LinearForceTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> LinearForceTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Load</c> samples reported with the scalar VALUE representation.
+        /// Actual versus the standard rating of a piece of equipment.
+        /// </summary>
         [JsonPropertyName("Load")]
         public IEnumerable<JsonSampleValue> Load { get; set; }
 
+        /// <summary>
+        /// The <c>Load</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("LoadDataSet")]
         public IEnumerable<JsonSampleDataSet> LoadDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Load</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("LoadTable")]
         public IEnumerable<JsonSampleTable> LoadTable { get; set; }
 
+        /// <summary>
+        /// The <c>Load</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("LoadTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> LoadTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Mass</c> samples reported with the scalar VALUE representation.
+        /// Mass of an object(s) or an amount of material.
+        /// </summary>
         [JsonPropertyName("Mass")]
         public IEnumerable<JsonSampleValue> Mass { get; set; }
 
+        /// <summary>
+        /// The <c>Mass</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("MassDataSet")]
         public IEnumerable<JsonSampleDataSet> MassDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Mass</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("MassTable")]
         public IEnumerable<JsonSampleTable> MassTable { get; set; }
 
+        /// <summary>
+        /// The <c>Mass</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("MassTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> MassTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>ObservationUpdateRate</c> samples reported with the scalar VALUE representation.
+        /// Average rate of change of values for data items in the MTConnect streams. The average is computed over a rolling window defined by the implementation.
+        /// </summary>
         [JsonPropertyName("ObservationUpdateRate")]
         public IEnumerable<JsonSampleValue> ObservationUpdateRate { get; set; }
 
+        /// <summary>
+        /// The <c>ObservationUpdateRate</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ObservationUpdateRateDataSet")]
         public IEnumerable<JsonSampleDataSet> ObservationUpdateRateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ObservationUpdateRate</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ObservationUpdateRateTable")]
         public IEnumerable<JsonSampleTable> ObservationUpdateRateTable { get; set; }
 
+        /// <summary>
+        /// The <c>ObservationUpdateRate</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("ObservationUpdateRateTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> ObservationUpdateRateTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Openness</c> samples reported with the scalar VALUE representation.
+        /// Percentage open where 100% is fully open and 0% is fully closed.
+        /// </summary>
         [JsonPropertyName("Openness")]
         public IEnumerable<JsonSampleValue> Openness { get; set; }
 
+        /// <summary>
+        /// The <c>Openness</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("OpennessDataSet")]
         public IEnumerable<JsonSampleDataSet> OpennessDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Openness</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("OpennessTable")]
         public IEnumerable<JsonSampleTable> OpennessTable { get; set; }
 
+        /// <summary>
+        /// The <c>Openness</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("OpennessTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> OpennessTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Orientation</c> samples reported with the scalar VALUE representation.
+        /// Angular position of a plane or vector relative to a cartesian coordinate system
+        /// </summary>
         [JsonPropertyName("Orientation")]
         public IEnumerable<JsonSampleValue> Orientation { get; set; }
 
+        /// <summary>
+        /// The <c>Orientation</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("OrientationDataSet")]
         public IEnumerable<JsonSampleDataSet> OrientationDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Orientation</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("OrientationTable")]
         public IEnumerable<JsonSampleTable> OrientationTable { get; set; }
 
+        /// <summary>
+        /// The <c>Orientation</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("OrientationTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> OrientationTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>ParticleCount</c> samples reported with the scalar VALUE representation.
+        /// Number of particles counted by their size or other characteristics.
+        /// </summary>
         [JsonPropertyName("ParticleCount")]
         public IEnumerable<JsonSampleValue> ParticleCount { get; set; }
 
+        /// <summary>
+        /// The <c>ParticleCount</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ParticleCountDataSet")]
         public IEnumerable<JsonSampleDataSet> ParticleCountDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ParticleCount</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ParticleCountTable")]
         public IEnumerable<JsonSampleTable> ParticleCountTable { get; set; }
 
+        /// <summary>
+        /// The <c>ParticleCount</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("ParticleCountTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> ParticleCountTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>ParticleSize</c> samples reported with the scalar VALUE representation.
+        /// Size of particles counted by their size or other characteristics.
+        /// </summary>
         [JsonPropertyName("ParticleSize")]
         public IEnumerable<JsonSampleValue> ParticleSize { get; set; }
 
+        /// <summary>
+        /// The <c>ParticleSize</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ParticleSizeDataSet")]
         public IEnumerable<JsonSampleDataSet> ParticleSizeDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ParticleSize</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ParticleSizeTable")]
         public IEnumerable<JsonSampleTable> ParticleSizeTable { get; set; }
 
+        /// <summary>
+        /// The <c>ParticleSize</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("ParticleSizeTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> ParticleSizeTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>PathFeedrate</c> samples reported with the scalar VALUE representation.
+        /// Feedrate for the axes, or a single axis, associated with a Path component.
+        /// </summary>
         [JsonPropertyName("PathFeedrate")]
         public IEnumerable<JsonSampleValue> PathFeedrate { get; set; }
 
+        /// <summary>
+        /// The <c>PathFeedrate</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PathFeedrateDataSet")]
         public IEnumerable<JsonSampleDataSet> PathFeedrateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PathFeedrate</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PathFeedrateTable")]
         public IEnumerable<JsonSampleTable> PathFeedrateTable { get; set; }
 
+        /// <summary>
+        /// The <c>PathFeedrate</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("PathFeedrateTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> PathFeedrateTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>PathFeedratePerRevolution</c> samples reported with the scalar VALUE representation.
+        /// Feedrate for the axes, or a single axis.
+        /// </summary>
         [JsonPropertyName("PathFeedratePerRevolution")]
         public IEnumerable<JsonSampleValue> PathFeedratePerRevolution { get; set; }
 
+        /// <summary>
+        /// The <c>PathFeedratePerRevolution</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PathFeedratePerRevolutionDataSet")]
         public IEnumerable<JsonSampleDataSet> PathFeedratePerRevolutionDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PathFeedratePerRevolution</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PathFeedratePerRevolutionTable")]
         public IEnumerable<JsonSampleTable> PathFeedratePerRevolutionTable { get; set; }
 
+        /// <summary>
+        /// The <c>PathFeedratePerRevolution</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("PathFeedratePerRevolutionTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> PathFeedratePerRevolutionTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>PathPosition</c> samples reported with the scalar VALUE representation.
+        /// Position of a control point associated with a Controller or a Path.
+        /// </summary>
         [JsonPropertyName("PathPosition")]
         public IEnumerable<JsonSampleValue> PathPosition { get; set; }
 
+        /// <summary>
+        /// The <c>PathPosition</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PathPositionDataSet")]
         public IEnumerable<JsonSampleDataSet> PathPositionDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PathPosition</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PathPositionTable")]
         public IEnumerable<JsonSampleTable> PathPositionTable { get; set; }
 
+        /// <summary>
+        /// The <c>PathPosition</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("PathPositionTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> PathPositionTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>PH</c> samples reported with the scalar VALUE representation.
+        /// Acidity or alkalinity of a solution.
+        /// </summary>
         [JsonPropertyName("PH")]
         public IEnumerable<JsonSampleValue> PH { get; set; }
 
+        /// <summary>
+        /// The <c>PH</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PHDataSet")]
         public IEnumerable<JsonSampleDataSet> PHDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PH</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PHTable")]
         public IEnumerable<JsonSampleTable> PHTable { get; set; }
 
+        /// <summary>
+        /// The <c>PH</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("PHTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> PHTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Position</c> samples reported with the scalar VALUE representation.
+        /// Point along an axis in a cartesian coordinate system.
+        /// </summary>
         [JsonPropertyName("Position")]
         public IEnumerable<JsonSampleValue> Position { get; set; }
 
+        /// <summary>
+        /// The <c>Position</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PositionDataSet")]
         public IEnumerable<JsonSampleDataSet> PositionDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Position</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PositionTable")]
         public IEnumerable<JsonSampleTable> PositionTable { get; set; }
 
+        /// <summary>
+        /// The <c>Position</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("PositionTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> PositionTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>PositionCartesian</c> samples reported with the scalar VALUE representation.
+        /// Point in a cartesian coordinate system.
+        /// </summary>
         [JsonPropertyName("PositionCartesian")]
         public IEnumerable<JsonSampleValue> PositionCartesian { get; set; }
 
+        /// <summary>
+        /// The <c>PositionCartesian</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PositionCartesianDataSet")]
         public IEnumerable<JsonSampleDataSet> PositionCartesianDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PositionCartesian</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PositionCartesianTable")]
         public IEnumerable<JsonSampleTable> PositionCartesianTable { get; set; }
 
+        /// <summary>
+        /// The <c>PositionCartesian</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("PositionCartesianTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> PositionCartesianTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>PowerFactor</c> samples reported with the scalar VALUE representation.
+        /// Ratio of real power flowing to a load to the apparent power in that AC circuit.
+        /// </summary>
         [JsonPropertyName("PowerFactor")]
         public IEnumerable<JsonSampleValue> PowerFactor { get; set; }
 
+        /// <summary>
+        /// The <c>PowerFactor</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PowerFactorDataSet")]
         public IEnumerable<JsonSampleDataSet> PowerFactorDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PowerFactor</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PowerFactorTable")]
         public IEnumerable<JsonSampleTable> PowerFactorTable { get; set; }
 
+        /// <summary>
+        /// The <c>PowerFactor</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("PowerFactorTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> PowerFactorTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Pressure</c> samples reported with the scalar VALUE representation.
+        /// Force per unit area measured relative to atmospheric pressure. Commonly referred to as gauge pressure.
+        /// </summary>
         [JsonPropertyName("Pressure")]
         public IEnumerable<JsonSampleValue> Pressure { get; set; }
 
+        /// <summary>
+        /// The <c>Pressure</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PressureDataSet")]
         public IEnumerable<JsonSampleDataSet> PressureDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Pressure</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PressureTable")]
         public IEnumerable<JsonSampleTable> PressureTable { get; set; }
 
+        /// <summary>
+        /// The <c>Pressure</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("PressureTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> PressureTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>PressureAbsolute</c> samples reported with the scalar VALUE representation.
+        /// Force per unit area measured relative to a vacuum.
+        /// </summary>
         [JsonPropertyName("PressureAbsolute")]
         public IEnumerable<JsonSampleValue> PressureAbsolute { get; set; }
 
+        /// <summary>
+        /// The <c>PressureAbsolute</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PressureAbsoluteDataSet")]
         public IEnumerable<JsonSampleDataSet> PressureAbsoluteDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PressureAbsolute</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PressureAbsoluteTable")]
         public IEnumerable<JsonSampleTable> PressureAbsoluteTable { get; set; }
 
+        /// <summary>
+        /// The <c>PressureAbsolute</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("PressureAbsoluteTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> PressureAbsoluteTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>PressurizationRate</c> samples reported with the scalar VALUE representation.
+        /// Change of pressure per unit time.
+        /// </summary>
         [JsonPropertyName("PressurizationRate")]
         public IEnumerable<JsonSampleValue> PressurizationRate { get; set; }
 
+        /// <summary>
+        /// The <c>PressurizationRate</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("PressurizationRateDataSet")]
         public IEnumerable<JsonSampleDataSet> PressurizationRateDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>PressurizationRate</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("PressurizationRateTable")]
         public IEnumerable<JsonSampleTable> PressurizationRateTable { get; set; }
 
+        /// <summary>
+        /// The <c>PressurizationRate</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("PressurizationRateTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> PressurizationRateTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>ProcessTimer</c> samples reported with the scalar VALUE representation.
+        /// Amount of time a piece of equipment has performed different types of activities associated with the process being performed at that piece of equipment.
+        /// </summary>
         [JsonPropertyName("ProcessTimer")]
         public IEnumerable<JsonSampleValue> ProcessTimer { get; set; }
 
+        /// <summary>
+        /// The <c>ProcessTimer</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ProcessTimerDataSet")]
         public IEnumerable<JsonSampleDataSet> ProcessTimerDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ProcessTimer</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ProcessTimerTable")]
         public IEnumerable<JsonSampleTable> ProcessTimerTable { get; set; }
 
+        /// <summary>
+        /// The <c>ProcessTimer</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("ProcessTimerTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> ProcessTimerTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Resistance</c> samples reported with the scalar VALUE representation.
+        /// Degree to which a substance opposes the passage of an electric current.
+        /// </summary>
         [JsonPropertyName("Resistance")]
         public IEnumerable<JsonSampleValue> Resistance { get; set; }
 
+        /// <summary>
+        /// The <c>Resistance</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ResistanceDataSet")]
         public IEnumerable<JsonSampleDataSet> ResistanceDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Resistance</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ResistanceTable")]
         public IEnumerable<JsonSampleTable> ResistanceTable { get; set; }
 
+        /// <summary>
+        /// The <c>Resistance</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("ResistanceTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> ResistanceTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Resistivity</c> samples reported with the scalar VALUE representation.
+        /// Inability of a material to conduct electricity.
+        /// </summary>
         [JsonPropertyName("Resistivity")]
         public IEnumerable<JsonSampleValue> Resistivity { get; set; }
 
+        /// <summary>
+        /// The <c>Resistivity</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ResistivityDataSet")]
         public IEnumerable<JsonSampleDataSet> ResistivityDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Resistivity</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ResistivityTable")]
         public IEnumerable<JsonSampleTable> ResistivityTable { get; set; }
 
+        /// <summary>
+        /// The <c>Resistivity</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("ResistivityTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> ResistivityTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>RotaryVelocity</c> samples reported with the scalar VALUE representation.
+        /// Rotational speed of a rotary axis.
+        /// </summary>
         [JsonPropertyName("RotaryVelocity")]
         public IEnumerable<JsonSampleValue> RotaryVelocity { get; set; }
 
+        /// <summary>
+        /// The <c>RotaryVelocity</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("RotaryVelocityDataSet")]
         public IEnumerable<JsonSampleDataSet> RotaryVelocityDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>RotaryVelocity</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("RotaryVelocityTable")]
         public IEnumerable<JsonSampleTable> RotaryVelocityTable { get; set; }
 
+        /// <summary>
+        /// The <c>RotaryVelocity</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("RotaryVelocityTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> RotaryVelocityTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>SettlingError</c> samples reported with the scalar VALUE representation.
+        /// Difference between actual and commanded position at the end of a motion.
+        /// </summary>
         [JsonPropertyName("SettlingError")]
         public IEnumerable<JsonSampleValue> SettlingError { get; set; }
 
+        /// <summary>
+        /// The <c>SettlingError</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("SettlingErrorDataSet")]
         public IEnumerable<JsonSampleDataSet> SettlingErrorDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>SettlingError</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("SettlingErrorTable")]
         public IEnumerable<JsonSampleTable> SettlingErrorTable { get; set; }
 
+        /// <summary>
+        /// The <c>SettlingError</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("SettlingErrorTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> SettlingErrorTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>SettlingErrorAngular</c> samples reported with the scalar VALUE representation.
+        /// Angular difference between the commanded encoder/resolver position, and the actual encoder/resolver position when motion is complete.
+        /// </summary>
         [JsonPropertyName("SettlingErrorAngular")]
         public IEnumerable<JsonSampleValue> SettlingErrorAngular { get; set; }
 
+        /// <summary>
+        /// The <c>SettlingErrorAngular</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("SettlingErrorAngularDataSet")]
         public IEnumerable<JsonSampleDataSet> SettlingErrorAngularDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>SettlingErrorAngular</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("SettlingErrorAngularTable")]
         public IEnumerable<JsonSampleTable> SettlingErrorAngularTable { get; set; }
 
+        /// <summary>
+        /// The <c>SettlingErrorAngular</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("SettlingErrorAngularTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> SettlingErrorAngularTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>SettlingErrorLinear</c> samples reported with the scalar VALUE representation.
+        /// Difference between the commanded encoder/resolver position, and the actual encoder/resolver position when motion is complete.
+        /// </summary>
         [JsonPropertyName("SettlingErrorLinear")]
         public IEnumerable<JsonSampleValue> SettlingErrorLinear { get; set; }
 
+        /// <summary>
+        /// The <c>SettlingErrorLinear</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("SettlingErrorLinearDataSet")]
         public IEnumerable<JsonSampleDataSet> SettlingErrorLinearDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>SettlingErrorLinear</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("SettlingErrorLinearTable")]
         public IEnumerable<JsonSampleTable> SettlingErrorLinearTable { get; set; }
 
+        /// <summary>
+        /// The <c>SettlingErrorLinear</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("SettlingErrorLinearTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> SettlingErrorLinearTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>SoundLevel</c> samples reported with the scalar VALUE representation.
+        /// Sound level or sound pressure level relative to atmospheric pressure.
+        /// </summary>
         [JsonPropertyName("SoundLevel")]
         public IEnumerable<JsonSampleValue> SoundLevel { get; set; }
 
+        /// <summary>
+        /// The <c>SoundLevel</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("SoundLevelDataSet")]
         public IEnumerable<JsonSampleDataSet> SoundLevelDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>SoundLevel</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("SoundLevelTable")]
         public IEnumerable<JsonSampleTable> SoundLevelTable { get; set; }
 
+        /// <summary>
+        /// The <c>SoundLevel</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("SoundLevelTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> SoundLevelTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>SpindleSpeed</c> samples reported with the scalar VALUE representation.
+        /// Rotational speed of the rotary axis.**DEPRECATED** in *Version 1.2*.  Replaced by `ROTARY_VELOCITY`.
+        /// </summary>
         [JsonPropertyName("SpindleSpeed")]
         public IEnumerable<JsonSampleValue> SpindleSpeed { get; set; }
 
+        /// <summary>
+        /// The <c>SpindleSpeed</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("SpindleSpeedDataSet")]
         public IEnumerable<JsonSampleDataSet> SpindleSpeedDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>SpindleSpeed</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("SpindleSpeedTable")]
         public IEnumerable<JsonSampleTable> SpindleSpeedTable { get; set; }
 
+        /// <summary>
+        /// The <c>SpindleSpeed</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("SpindleSpeedTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> SpindleSpeedTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Strain</c> samples reported with the scalar VALUE representation.
+        /// Amount of deformation per unit length of an object when a load is applied.
+        /// </summary>
         [JsonPropertyName("Strain")]
         public IEnumerable<JsonSampleValue> Strain { get; set; }
 
+        /// <summary>
+        /// The <c>Strain</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("StrainDataSet")]
         public IEnumerable<JsonSampleDataSet> StrainDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Strain</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("StrainTable")]
         public IEnumerable<JsonSampleTable> StrainTable { get; set; }
 
+        /// <summary>
+        /// The <c>Strain</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("StrainTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> StrainTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Temperature</c> samples reported with the scalar VALUE representation.
+        /// Degree of hotness or coldness measured on a definite scale.
+        /// </summary>
         [JsonPropertyName("Temperature")]
         public IEnumerable<JsonSampleValue> Temperature { get; set; }
 
+        /// <summary>
+        /// The <c>Temperature</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("TemperatureDataSet")]
         public IEnumerable<JsonSampleDataSet> TemperatureDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Temperature</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("TemperatureTable")]
         public IEnumerable<JsonSampleTable> TemperatureTable { get; set; }
 
+        /// <summary>
+        /// The <c>Temperature</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("TemperatureTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> TemperatureTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Tension</c> samples reported with the scalar VALUE representation.
+        /// Force that stretches or elongates an object.
+        /// </summary>
         [JsonPropertyName("Tension")]
         public IEnumerable<JsonSampleValue> Tension { get; set; }
 
+        /// <summary>
+        /// The <c>Tension</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("TensionDataSet")]
         public IEnumerable<JsonSampleDataSet> TensionDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Tension</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("TensionTable")]
         public IEnumerable<JsonSampleTable> TensionTable { get; set; }
 
+        /// <summary>
+        /// The <c>Tension</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("TensionTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> TensionTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Tilt</c> samples reported with the scalar VALUE representation.
+        /// Angular displacement.
+        /// </summary>
         [JsonPropertyName("Tilt")]
         public IEnumerable<JsonSampleValue> Tilt { get; set; }
 
+        /// <summary>
+        /// The <c>Tilt</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("TiltDataSet")]
         public IEnumerable<JsonSampleDataSet> TiltDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Tilt</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("TiltTable")]
         public IEnumerable<JsonSampleTable> TiltTable { get; set; }
 
+        /// <summary>
+        /// The <c>Tilt</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("TiltTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> TiltTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Torque</c> samples reported with the scalar VALUE representation.
+        /// Turning force exerted on an object or by an object.
+        /// </summary>
         [JsonPropertyName("Torque")]
         public IEnumerable<JsonSampleValue> Torque { get; set; }
 
+        /// <summary>
+        /// The <c>Torque</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("TorqueDataSet")]
         public IEnumerable<JsonSampleDataSet> TorqueDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Torque</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("TorqueTable")]
         public IEnumerable<JsonSampleTable> TorqueTable { get; set; }
 
+        /// <summary>
+        /// The <c>Torque</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("TorqueTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> TorqueTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Velocity</c> samples reported with the scalar VALUE representation.
+        /// Rate of change of position of a Component.
+        /// </summary>
         [JsonPropertyName("Velocity")]
         public IEnumerable<JsonSampleValue> Velocity { get; set; }
 
+        /// <summary>
+        /// The <c>Velocity</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("VelocityDataSet")]
         public IEnumerable<JsonSampleDataSet> VelocityDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Velocity</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("VelocityTable")]
         public IEnumerable<JsonSampleTable> VelocityTable { get; set; }
 
+        /// <summary>
+        /// The <c>Velocity</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("VelocityTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> VelocityTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Viscosity</c> samples reported with the scalar VALUE representation.
+        /// Fluid's resistance to flow.
+        /// </summary>
         [JsonPropertyName("Viscosity")]
         public IEnumerable<JsonSampleValue> Viscosity { get; set; }
 
+        /// <summary>
+        /// The <c>Viscosity</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ViscosityDataSet")]
         public IEnumerable<JsonSampleDataSet> ViscosityDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Viscosity</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ViscosityTable")]
         public IEnumerable<JsonSampleTable> ViscosityTable { get; set; }
 
+        /// <summary>
+        /// The <c>Viscosity</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("ViscosityTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> ViscosityTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>VoltAmpere</c> samples reported with the scalar VALUE representation.
+        /// Apparent power in an electrical circuit, equal to the product of root-mean-square (RMS) voltage and RMS current (commonly referred to as VA).
+        /// </summary>
         [JsonPropertyName("VoltAmpere")]
         public IEnumerable<JsonSampleValue> VoltAmpere { get; set; }
 
+        /// <summary>
+        /// The <c>VoltAmpere</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("VoltAmpereDataSet")]
         public IEnumerable<JsonSampleDataSet> VoltAmpereDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>VoltAmpere</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("VoltAmpereTable")]
         public IEnumerable<JsonSampleTable> VoltAmpereTable { get; set; }
 
+        /// <summary>
+        /// The <c>VoltAmpere</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("VoltAmpereTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> VoltAmpereTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>VoltAmpereReactive</c> samples reported with the scalar VALUE representation.
+        /// Reactive power in an AC electrical circuit (commonly referred to as VAR).
+        /// </summary>
         [JsonPropertyName("VoltAmpereReactive")]
         public IEnumerable<JsonSampleValue> VoltAmpereReactive { get; set; }
 
+        /// <summary>
+        /// The <c>VoltAmpereReactive</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("VoltAmpereReactiveDataSet")]
         public IEnumerable<JsonSampleDataSet> VoltAmpereReactiveDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>VoltAmpereReactive</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("VoltAmpereReactiveTable")]
         public IEnumerable<JsonSampleTable> VoltAmpereReactiveTable { get; set; }
 
+        /// <summary>
+        /// The <c>VoltAmpereReactive</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("VoltAmpereReactiveTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> VoltAmpereReactiveTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Voltage</c> samples reported with the scalar VALUE representation.
+        /// Electrical potential between two points.**DEPRECATED** in *Version 1.6*. Replaced by `VOLTAGE_AC` and `VOLTAGE_DC`.
+        /// </summary>
         [JsonPropertyName("Voltage")]
         public IEnumerable<JsonSampleValue> Voltage { get; set; }
 
+        /// <summary>
+        /// The <c>Voltage</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("VoltageDataSet")]
         public IEnumerable<JsonSampleDataSet> VoltageDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Voltage</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("VoltageTable")]
         public IEnumerable<JsonSampleTable> VoltageTable { get; set; }
 
+        /// <summary>
+        /// The <c>Voltage</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("VoltageTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> VoltageTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>VoltageAC</c> samples reported with the scalar VALUE representation.
+        /// Electrical potential between two points in an electrical circuit in which the current periodically reverses direction.
+        /// </summary>
         [JsonPropertyName("VoltageAC")]
         public IEnumerable<JsonSampleValue> VoltageAC { get; set; }
 
+        /// <summary>
+        /// The <c>VoltageAC</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("VoltageACDataSet")]
         public IEnumerable<JsonSampleDataSet> VoltageACDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>VoltageAC</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("VoltageACTable")]
         public IEnumerable<JsonSampleTable> VoltageACTable { get; set; }
 
+        /// <summary>
+        /// The <c>VoltageAC</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("VoltageACTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> VoltageACTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>VoltageDC</c> samples reported with the scalar VALUE representation.
+        /// Electrical potential between two points in an electrical circuit in which the current is unidirectional.
+        /// </summary>
         [JsonPropertyName("VoltageDC")]
         public IEnumerable<JsonSampleValue> VoltageDC { get; set; }
 
+        /// <summary>
+        /// The <c>VoltageDC</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("VoltageDCDataSet")]
         public IEnumerable<JsonSampleDataSet> VoltageDCDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>VoltageDC</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("VoltageDCTable")]
         public IEnumerable<JsonSampleTable> VoltageDCTable { get; set; }
 
+        /// <summary>
+        /// The <c>VoltageDC</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("VoltageDCTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> VoltageDCTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>VolumeFluid</c> samples reported with the scalar VALUE representation.
+        /// Fluid volume of an object or container.
+        /// </summary>
         [JsonPropertyName("VolumeFluid")]
         public IEnumerable<JsonSampleValue> VolumeFluid { get; set; }
 
+        /// <summary>
+        /// The <c>VolumeFluid</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("VolumeFluidDataSet")]
         public IEnumerable<JsonSampleDataSet> VolumeFluidDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>VolumeFluid</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("VolumeFluidTable")]
         public IEnumerable<JsonSampleTable> VolumeFluidTable { get; set; }
 
+        /// <summary>
+        /// The <c>VolumeFluid</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("VolumeFluidTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> VolumeFluidTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>VolumeSpatial</c> samples reported with the scalar VALUE representation.
+        /// Geometric volume of an object or container.
+        /// </summary>
         [JsonPropertyName("VolumeSpatial")]
         public IEnumerable<JsonSampleValue> VolumeSpatial { get; set; }
 
+        /// <summary>
+        /// The <c>VolumeSpatial</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("VolumeSpatialDataSet")]
         public IEnumerable<JsonSampleDataSet> VolumeSpatialDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>VolumeSpatial</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("VolumeSpatialTable")]
         public IEnumerable<JsonSampleTable> VolumeSpatialTable { get; set; }
 
+        /// <summary>
+        /// The <c>VolumeSpatial</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("VolumeSpatialTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> VolumeSpatialTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>WaterHardness</c> samples reported with the scalar VALUE representation.
+        /// Concentration of calcium carbonate (CaCO3) in water
+        /// </summary>
         [JsonPropertyName("WaterHardness")]
         public IEnumerable<JsonSampleValue> WaterHardness { get; set; }
 
+        /// <summary>
+        /// The <c>WaterHardness</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("WaterHardnessDataSet")]
         public IEnumerable<JsonSampleDataSet> WaterHardnessDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>WaterHardness</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("WaterHardnessTable")]
         public IEnumerable<JsonSampleTable> WaterHardnessTable { get; set; }
 
+        /// <summary>
+        /// The <c>WaterHardness</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("WaterHardnessTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> WaterHardnessTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>Wattage</c> samples reported with the scalar VALUE representation.
+        /// Power flowing through or dissipated by an electrical circuit or piece of equipment.
+        /// </summary>
         [JsonPropertyName("Wattage")]
         public IEnumerable<JsonSampleValue> Wattage { get; set; }
 
+        /// <summary>
+        /// The <c>Wattage</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("WattageDataSet")]
         public IEnumerable<JsonSampleDataSet> WattageDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>Wattage</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("WattageTable")]
         public IEnumerable<JsonSampleTable> WattageTable { get; set; }
 
+        /// <summary>
+        /// The <c>Wattage</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("WattageTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> WattageTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>XDimension</c> samples reported with the scalar VALUE representation.
+        /// Dimension of an entity relative to the X direction of the referenced coordinate system.
+        /// </summary>
         [JsonPropertyName("XDimension")]
         public IEnumerable<JsonSampleValue> XDimension { get; set; }
 
+        /// <summary>
+        /// The <c>XDimension</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("XDimensionDataSet")]
         public IEnumerable<JsonSampleDataSet> XDimensionDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>XDimension</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("XDimensionTable")]
         public IEnumerable<JsonSampleTable> XDimensionTable { get; set; }
 
+        /// <summary>
+        /// The <c>XDimension</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("XDimensionTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> XDimensionTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>YDimension</c> samples reported with the scalar VALUE representation.
+        /// Dimension of an entity relative to the Y direction of the referenced coordinate system.
+        /// </summary>
         [JsonPropertyName("YDimension")]
         public IEnumerable<JsonSampleValue> YDimension { get; set; }
 
+        /// <summary>
+        /// The <c>YDimension</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("YDimensionDataSet")]
         public IEnumerable<JsonSampleDataSet> YDimensionDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>YDimension</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("YDimensionTable")]
         public IEnumerable<JsonSampleTable> YDimensionTable { get; set; }
 
+        /// <summary>
+        /// The <c>YDimension</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("YDimensionTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> YDimensionTimeSeries { get; set; }
 
 
+        /// <summary>
+        /// The <c>ZDimension</c> samples reported with the scalar VALUE representation.
+        /// Dimension of an entity relative to the Z direction of the referenced coordinate system.
+        /// </summary>
         [JsonPropertyName("ZDimension")]
         public IEnumerable<JsonSampleValue> ZDimension { get; set; }
 
+        /// <summary>
+        /// The <c>ZDimension</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("ZDimensionDataSet")]
         public IEnumerable<JsonSampleDataSet> ZDimensionDataSet { get; set; }
 
+        /// <summary>
+        /// The <c>ZDimension</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("ZDimensionTable")]
         public IEnumerable<JsonSampleTable> ZDimensionTable { get; set; }
 
+        /// <summary>
+        /// The <c>ZDimension</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("ZDimensionTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> ZDimensionTimeSeries { get; set; }
 
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonSamples() { }
 
+        /// <summary>
+        /// Initializes a new instance from a flat sequence of <paramref name="observations"/>,
+        /// routing each one into the typed collection matching its MTConnect type and
+        /// representation.
+        /// </summary>
         public JsonSamples(IEnumerable<IObservationOutput> observations)
         {
             if (observations != null)
@@ -6401,5 +7939,5 @@ namespace MTConnect.Streams.Json
                 }
             }
         }
-    }  
+    }
 }

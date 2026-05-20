@@ -8,17 +8,38 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Assets.Json.CuttingTools
 {
+    /// <summary>
+    /// JSON serialization surrogate for the counted cutting-item
+    /// collection of a CuttingTool, in the cppagent shape that pairs
+    /// the inline item count with the typed item list under <c>list</c>.
+    /// </summary>
     public class JsonCuttingItemCollection
     {
+        /// <summary>
+        /// The number of cutting items in the collection, captured at
+        /// construction for round-trip and inspection convenience.
+        /// </summary>
         [JsonPropertyName("count")]
         public int Count { get; set; }
 
+        /// <summary>
+        /// The cutting items themselves under the cppagent <c>list</c>
+        /// key.
+        /// </summary>
         [JsonPropertyName("list")]
         public JsonCuttingItems CuttingItems { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonCuttingItemCollection() { }
 
+        /// <summary>
+        /// Initializes the collection from a cutting-item sequence,
+        /// caching the count and projecting each item into the typed
+        /// <see cref="JsonCuttingItems"/> container.
+        /// </summary>
         public JsonCuttingItemCollection(IEnumerable<ICuttingItem> cuttingItems)
         {
             if (!cuttingItems.IsNullOrEmpty())
@@ -30,6 +51,10 @@ namespace MTConnect.Assets.Json.CuttingTools
         }
 
 
+        /// <summary>
+        /// Flattens the typed cutting-item container back into a
+        /// uniform <see cref="ICuttingItem"/> sequence.
+        /// </summary>
         public IEnumerable<ICuttingItem> ToCuttingItems()
         {
             if (CuttingItems != null)

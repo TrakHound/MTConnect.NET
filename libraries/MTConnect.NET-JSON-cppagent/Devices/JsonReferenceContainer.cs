@@ -7,17 +7,38 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate that partitions a component's
+    /// references by kind into typed sibling lists, keyed by element
+    /// name (<c>ComponentReference</c>, <c>DataItemReference</c>) per
+    /// the cppagent shape. Converts to and from a uniform
+    /// <see cref="IReference"/> collection.
+    /// </summary>
     public class JsonReferenceContainer
     {
+        /// <summary>
+        /// References to other components.
+        /// </summary>
         [JsonPropertyName("ComponentReference")]
         public List<JsonComponentReference> ComponentReferences { get; set; }
 
+        /// <summary>
+        /// References to data items.
+        /// </summary>
         [JsonPropertyName("DataItemReference")]
         public List<JsonDataItemReference> DataItemReferences { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonReferenceContainer() { }
 
+        /// <summary>
+        /// Initializes the container from a uniform reference
+        /// collection, partitioning each reference into the typed list
+        /// matching its concrete interface.
+        /// </summary>
         public JsonReferenceContainer(IEnumerable<IReference> references)
         {
             if (!references.IsNullOrEmpty())
@@ -42,6 +63,10 @@ namespace MTConnect.Devices.Json
             }
         }
 
+        /// <summary>
+        /// Flattens the typed reference lists back into a uniform
+        /// <see cref="IReference"/> collection.
+        /// </summary>
         public IEnumerable<IReference> ToReferences()
         {
             var references = new List<IReference>();

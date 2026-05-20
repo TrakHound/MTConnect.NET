@@ -12,20 +12,45 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a Configuration <c>Origin</c>
+    /// expressed as a data set in the cppagent-compatible shape. The
+    /// flat <c>{"X": v, "Y": v, "Z": v}</c> PascalCase object encoding
+    /// matches the cppagent v2 DataSet convention; the values are
+    /// serialized as strings to round-trip equipment-native formatting.
+    /// Converts to and from the strongly-typed
+    /// <see cref="OriginDataSet"/> model.
+    /// </summary>
     public class JsonOriginDataSet
     {
+        /// <summary>
+        /// Component of the origin along the X direction.
+        /// </summary>
         [JsonPropertyName("X")]
         public string X { get; set; }
 
+        /// <summary>
+        /// Component of the origin along the Y direction.
+        /// </summary>
         [JsonPropertyName("Y")]
         public string Y { get; set; }
 
+        /// <summary>
+        /// Component of the origin along the Z direction.
+        /// </summary>
         [JsonPropertyName("Z")]
         public string Z { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonOriginDataSet() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IOriginDataSet"/>.
+        /// </summary>
         public JsonOriginDataSet(IOriginDataSet dataSet)
         {
             if (dataSet != null)
@@ -37,6 +62,10 @@ namespace MTConnect.Devices.Json
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="IOriginDataSet"/>.
+        /// </summary>
         public IOriginDataSet ToOriginDataSet()
         {
             var dataSet = new OriginDataSet();
