@@ -90,19 +90,37 @@ namespace MTConnect.Input
         }
 
 
+        /// <summary>
+        /// Initializes a new, empty FaultState with no DataItem key or level.
+        /// </summary>
         public ConditionFaultStateObservationInput() { }
 
+        /// <summary>
+        /// Initializes a new FaultState for the specified DataItem with no level set.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the Condition DataItem the FaultState applies to.</param>
         public ConditionFaultStateObservationInput(string dataItemKey)
         {
             DataItemKey = dataItemKey;
         }
 
+        /// <summary>
+        /// Initializes a new FaultState for the specified DataItem at the given Condition level.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the Condition DataItem the FaultState applies to.</param>
+        /// <param name="level">The Condition level of the FaultState.</param>
         public ConditionFaultStateObservationInput(string dataItemKey, ConditionLevel level)
         {
             DataItemKey = dataItemKey;
             Level = level;
         }
 
+        /// <summary>
+        /// Initializes a new FaultState for the specified DataItem at the given Condition level and timestamp.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the Condition DataItem the FaultState applies to.</param>
+        /// <param name="level">The Condition level of the FaultState.</param>
+        /// <param name="timestamp">The observation timestamp as UnixTime in milliseconds.</param>
         public ConditionFaultStateObservationInput(string dataItemKey, ConditionLevel level, long timestamp)
         {
             DataItemKey = dataItemKey;
@@ -110,6 +128,12 @@ namespace MTConnect.Input
             Timestamp = timestamp;
         }
 
+        /// <summary>
+        /// Initializes a new FaultState for the specified DataItem at the given Condition level and timestamp.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the Condition DataItem the FaultState applies to.</param>
+        /// <param name="level">The Condition level of the FaultState.</param>
+        /// <param name="timestamp">The observation timestamp, converted to UnixTime in milliseconds.</param>
         public ConditionFaultStateObservationInput(string dataItemKey, ConditionLevel level, DateTime timestamp)
         {
             DataItemKey = dataItemKey;
@@ -117,6 +141,10 @@ namespace MTConnect.Input
             Timestamp = timestamp.ToUnixTime();
         }
 
+        /// <summary>
+        /// Initializes a new FaultState by copying the Device key, DataItem key, timestamp, and values from an existing Observation.
+        /// </summary>
+        /// <param name="observation">The source Observation to copy; a <c>null</c> argument leaves the new instance empty.</param>
         public ConditionFaultStateObservationInput(IObservationInput observation)
         {
             if (observation != null)

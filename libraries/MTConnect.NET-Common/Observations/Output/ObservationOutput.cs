@@ -13,6 +13,9 @@ namespace MTConnect.Observations.Output
     public struct ObservationOutput : IObservationOutput
     {
         internal string _deviceUuid;
+        /// <summary>
+        /// The UUID of the Device the Observation belongs to.
+        /// </summary>
         public string DeviceUuid
         {
             get => _deviceUuid;
@@ -20,6 +23,9 @@ namespace MTConnect.Observations.Output
         }
 
         internal IDataItem _dataItem;
+        /// <summary>
+        /// The DataItem definition the Observation was produced for.
+        /// </summary>
         public IDataItem DataItem
         {
             get => _dataItem;
@@ -31,6 +37,9 @@ namespace MTConnect.Observations.Output
         /// The DataItemID MUST match the id attribute of the data item defined in the Device Information Model that this DataItem element represents.
         /// </summary>
         internal string _dataItemId;
+        /// <summary>
+        /// The unique identifier for the DataItem, matching the id of the DataItem in the Device Information Model.
+        /// </summary>
         public string DataItemId
         {
             get => _dataItemId;
@@ -43,6 +52,9 @@ namespace MTConnect.Observations.Output
         /// The most accurate time available to the device MUST be used for the timestamp.
         /// </summary>
         internal DateTime _timestamp;
+        /// <summary>
+        /// The time the DataItem data was reported or its statistics computed; the end of the collection interval for durations and TIME_SERIES.
+        /// </summary>
         public DateTime Timestamp
         {
             get => _timestamp;
@@ -50,6 +62,9 @@ namespace MTConnect.Observations.Output
         }
 
         internal DateTimeOffset _timeZoneTimestamp;
+        /// <summary>
+        /// The Observation timestamp expressed with the configured output time-zone offset.
+        /// </summary>
         public DateTimeOffset TimeZoneTimestamp
         {
             get => _timeZoneTimestamp;
@@ -61,6 +76,9 @@ namespace MTConnect.Observations.Output
         /// The name MUST match the name of the data item defined in the Device Information Model that this DataItem represents.
         /// </summary>
         internal string _name;
+        /// <summary>
+        /// The name of the DataItem, matching the name of the DataItem in the Device Information Model.
+        /// </summary>
         public string Name
         {
             get => _name;
@@ -71,6 +89,9 @@ namespace MTConnect.Observations.Output
         /// The Agent Instance ID that produced the Observation
         /// </summary>
         internal ulong _instanceId;
+        /// <summary>
+        /// The instance identifier of the Agent that produced the Observation.
+        /// </summary>
         public ulong InstanceId
         {
             get => _instanceId;
@@ -82,6 +103,9 @@ namespace MTConnect.Observations.Output
         /// The value MUST be represented as an unsigned 64 bit with valid values from 1 to 2^64-1.
         /// </summary>
         internal ulong _sequence;
+        /// <summary>
+        /// The sequential position of the Observation in the Agent's data buffer (1 to 2^64-1).
+        /// </summary>
         public ulong Sequence
         {
             get => _sequence;
@@ -92,6 +116,9 @@ namespace MTConnect.Observations.Output
         /// Category of DataItem (Condition, Event, or Sample)
         /// </summary>
         internal DataItemCategory _category;
+        /// <summary>
+        /// The category (SAMPLE, EVENT, or CONDITION) of the DataItem.
+        /// </summary>
         public DataItemCategory Category
         {
             get => _category;
@@ -102,6 +129,9 @@ namespace MTConnect.Observations.Output
         /// Type associated with the DataItem
         /// </summary>
         internal string _type;
+        /// <summary>
+        /// The type associated with the DataItem.
+        /// </summary>
         public string Type
         {
             get => _type;
@@ -112,6 +142,9 @@ namespace MTConnect.Observations.Output
         /// The subtype of the DataItem defined in the Device Information Model that this DataItem element represents
         /// </summary>
         internal string _subType;
+        /// <summary>
+        /// The subtype of the DataItem defined in the Device Information Model.
+        /// </summary>
         public string SubType
         {
             get => _subType;
@@ -122,6 +155,9 @@ namespace MTConnect.Observations.Output
         /// The identifier of the Composition element defined in the MTConnectDevices document associated with the data reported for the DataItem.
         /// </summary>
         internal string _compositionId;
+        /// <summary>
+        /// The identifier of the Composition element associated with the data reported for the DataItem.
+        /// </summary>
         public string CompositionId
         {
             get => _compositionId;
@@ -136,6 +172,9 @@ namespace MTConnect.Observations.Output
         /// If a representation is not specified, it MUST be determined to be a VALUE.
         /// </summary>
         internal DataItemRepresentation _representation;
+        /// <summary>
+        /// The representation of the reported data (VALUE, DATA_SET, TABLE, or TIME_SERIES); VALUE when unspecified.
+        /// </summary>
         public DataItemRepresentation Representation
         {
             get => _representation;
@@ -146,6 +185,9 @@ namespace MTConnect.Observations.Output
         /// Indicates if the Observation is verifiable and is in accordance with the normative definitions within the MTConnect Standard.
         /// </summary>
         internal Quality _quality;
+        /// <summary>
+        /// Indicates whether the Observation is verifiable against the normative definitions in the MTConnect Standard.
+        /// </summary>
         public Quality Quality
         {
             get => _quality;
@@ -156,6 +198,9 @@ namespace MTConnect.Observations.Output
         /// Indicates if the Observation has any property or controlled vocabulary that has been deprecated in the MTConnect Standard.
         /// </summary>
         internal bool _deprecated;
+        /// <summary>
+        /// Indicates whether the Observation uses any property or controlled vocabulary deprecated in the MTConnect Standard.
+        /// </summary>
         public bool Deprecated
         {
             get => _deprecated;
@@ -166,6 +211,9 @@ namespace MTConnect.Observations.Output
         /// Indicates if the Observation has any property or controlled vocabulary that has been extended and cannot be validated.
         /// </summary>
         internal bool _extended;
+        /// <summary>
+        /// Indicates whether the Observation uses any extended property or controlled vocabulary that cannot be validated.
+        /// </summary>
         public bool Extended
         {
             get => _extended;
@@ -176,6 +224,9 @@ namespace MTConnect.Observations.Output
         /// Gets the Values associated with this Observation. These values represent data recorded during an Observation.
         /// </summary>
         internal ObservationValue[] _values;
+        /// <summary>
+        /// The ValueKey and value pairs recorded during the Observation.
+        /// </summary>
         public ObservationValue[] Values
         {
             get => _values;
@@ -183,6 +234,10 @@ namespace MTConnect.Observations.Output
         }
 
 
+        /// <summary>
+        /// Initializes a new output projection from a reported Observation, copying its identity, metadata, and values.
+        /// </summary>
+        /// <param name="observation">The source Observation; a <c>null</c> argument yields default field values.</param>
         public ObservationOutput(IObservation observation)
         {
             _deviceUuid = null;
@@ -230,6 +285,11 @@ namespace MTConnect.Observations.Output
         }
 
 
+        /// <summary>
+        /// Gets the value recorded for the specified ValueKey.
+        /// </summary>
+        /// <param name="valueKey">The ValueKey identifying the Representation component to retrieve.</param>
+        /// <returns>The recorded value, or <c>null</c> when no matching value exists.</returns>
         public string GetValue(string valueKey)
         {
             if (valueKey != null && _values != null && _values.Length > 0)

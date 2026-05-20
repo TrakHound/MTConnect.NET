@@ -5,6 +5,9 @@ using MTConnect.Devices;
 
 namespace MTConnect.Input
 {
+    /// <summary>
+    /// An Information Model Input that carries a Device definition for reporting to an Agent.
+    /// </summary>
     public interface IDeviceInput
     {
         /// <summary>

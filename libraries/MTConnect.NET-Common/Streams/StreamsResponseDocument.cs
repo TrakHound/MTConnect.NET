@@ -29,6 +29,9 @@ namespace MTConnect.Streams
         public Version Version { get; set; }
 
 
+        /// <summary>
+        /// Flattens the document's per-device and per-component streams into a single sequence of all contained observations.
+        /// </summary>
         public IEnumerable<IObservation> GetObservations()
         {
             if (!Streams.IsNullOrEmpty())

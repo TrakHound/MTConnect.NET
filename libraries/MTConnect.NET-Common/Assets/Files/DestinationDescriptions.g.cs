@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.Files
 {
+    /// <summary>
+    /// Description text for each property of <c>Destination</c> as defined by the MTConnect Standard.
+    /// </summary>
     public static class DestinationDescriptions
     {
         /// <summary>

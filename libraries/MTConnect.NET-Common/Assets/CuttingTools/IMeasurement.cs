@@ -8,6 +8,9 @@ namespace MTConnect.Assets.CuttingTools
     /// </summary>
     public partial interface IMeasurement
     {
+        /// <summary>
+        /// The measurement type name (e.g. a tooling measurement code), which selects the concrete measurement subtype and its element name in serialized documents.
+        /// </summary>
         string Type { get; set; }
     }
 }

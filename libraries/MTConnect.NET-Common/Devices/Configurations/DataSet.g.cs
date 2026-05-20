@@ -10,8 +10,10 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public class DataSet : IDataSet
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Representation for an Observation composed of value(s) represented as a set of key-value pair.";
-
 
     }
 }

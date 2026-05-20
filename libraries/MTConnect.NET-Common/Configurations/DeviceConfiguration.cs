@@ -15,6 +15,9 @@ namespace MTConnect.Configurations
     /// </summary>
     public class DeviceConfiguration : Device
     {
+        /// <summary>
+        /// The conventional file name (<c>devices.xml</c>) used when no explicit device configuration path is supplied.
+        /// </summary>
         public const string DefaultFilename = "devices.xml";
 
 
@@ -24,8 +27,16 @@ namespace MTConnect.Configurations
         public string Path { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty device configuration, typically populated by a deserializer.
+        /// </summary>
         public DeviceConfiguration() { }
 
+        /// <summary>
+        /// Initializes a device configuration by copying the model of an existing device and recording the path it originated from.
+        /// </summary>
+        /// <param name="device">The source device whose information model is copied; when null no properties are copied.</param>
+        /// <param name="path">The file path the device was read from, retained for later save operations.</param>
         public DeviceConfiguration(IDevice device, string path = null)
         {
             if (device != null)

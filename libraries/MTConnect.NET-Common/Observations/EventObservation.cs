@@ -28,12 +28,20 @@ namespace MTConnect.Observations
         }
 
 
+        /// <summary>
+        /// Initializes a new Event Observation with the Event category.
+        /// </summary>
         public EventObservation()
         {
             _category = DataItemCategory.EVENT;
         }
 
 
+        /// <summary>
+        /// Creates an Event Observation for the given DataItem, copying its identifying metadata.
+        /// </summary>
+        /// <param name="dataItem">The DataItem the Observation is created for.</param>
+        /// <returns>The Event Observation, or null when <paramref name="dataItem"/> is null.</returns>
         public new static EventObservation Create(IDataItem dataItem)
         {
             if (dataItem != null)
@@ -52,6 +60,11 @@ namespace MTConnect.Observations
             return null;
         }
 
+        /// <summary>
+        /// Creates an Event Observation from an existing Observation, copying its metadata and values.
+        /// </summary>
+        /// <param name="observation">The source Observation to copy.</param>
+        /// <returns>The Event Observation, or null when <paramref name="observation"/> is null.</returns>
         public static EventObservation Create(IObservation observation)
         {
             if (observation != null)
@@ -75,6 +88,12 @@ namespace MTConnect.Observations
         }
 
 
+        /// <summary>
+        /// Creates the Event Observation subclass matching the given type and representation.
+        /// </summary>
+        /// <param name="type">The DataItem Type identifier.</param>
+        /// <param name="representation">The DataItem representation.</param>
+        /// <returns>A type-specific Event Observation, or a base EventObservation when the type is not recognized.</returns>
         public static EventObservation Create(string type, DataItemRepresentation representation)
         {
             if (!string.IsNullOrEmpty(type))

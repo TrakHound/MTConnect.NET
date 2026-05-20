@@ -1,18 +1,13 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Observations.Events
 {
     /// <summary>
-    /// 
+    /// DirectionLinear controlled vocabulary as defined by the MTConnect Standard.
     /// </summary>
     public enum DirectionLinear
     {
-        /// <summary>
-        /// Linear position is increasing.
-        /// </summary>
-        POSITIVE,
-        
         /// <summary>
         /// Linear position is decreasing.
         /// </summary>
@@ -21,6 +16,11 @@ namespace MTConnect.Observations.Events
         /// <summary>
         /// No direction.
         /// </summary>
-        NONE
+        NONE,
+        
+        /// <summary>
+        /// Linear position is increasing.
+        /// </summary>
+        POSITIVE
     }
 }

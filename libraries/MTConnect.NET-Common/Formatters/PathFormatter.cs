@@ -10,12 +10,21 @@ using System.Linq;
 
 namespace MTConnect.Formatters
 {
+    /// <summary>
+    /// Static facade that discovers and caches the <see cref="IPathFormatter"/> implementations available across loaded assemblies and dispatches path resolution to the one matching a requested document format.
+    /// </summary>
     public static class PathFormatter
     {
         private static readonly ConcurrentDictionary<string, IPathFormatter> _formatters = new ConcurrentDictionary<string, IPathFormatter>();
         private static bool _firstRead = true;
 
 
+        /// <summary>
+        /// Resolves a path expression to matching DataItem IDs using the path formatter registered for the given document format; returns null when the path is empty or no matching formatter exists.
+        /// </summary>
+        /// <param name="documentFormatterId">The identifier of the document format whose path formatter should be used.</param>
+        /// <param name="devicesResponseDocument">The Devices document to evaluate the path against.</param>
+        /// <param name="path">The format-specific path expression.</param>
         public static IEnumerable<string> GetDataItemIds(string documentFormatterId, IDevicesResponseDocument devicesResponseDocument, string path)
         {
             if (!string.IsNullOrEmpty(path))

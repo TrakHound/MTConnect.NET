@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// Description text for each <see cref="CharacteristicStatus"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class CharacteristicStatusDescriptions
     {
         /// <summary>
@@ -46,6 +49,9 @@ namespace MTConnect.Observations.Events
         public const string UNDEFINED = "Status of measurement cannot be determined.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="CharacteristicStatus"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(CharacteristicStatus value)
         {
             switch (value)

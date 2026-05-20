@@ -16,9 +16,16 @@ namespace MTConnect.Devices
     /// <summary>
     /// Agent is a Device representing the MTConnect Agent and all its connected data sources.
     /// </summary>
-    public class Agent : Device 
+    public class Agent : Device
     {
+        /// <summary>
+        /// The MTConnect type identifier for the Agent Device.
+        /// </summary>
         public new const string TypeId = "Agent";
+
+        /// <summary>
+        /// The standard description text shown for the Agent Device type.
+        /// </summary>
         public new const string DescriptionText = "Agent is a Device representing the MTConnect Agent and all its connected data sources.";
         private const string AdaptersId = "__adapters__";
 
@@ -26,11 +33,20 @@ namespace MTConnect.Devices
         private readonly MTConnectAgent _agent;
 
 
+        /// <summary>
+        /// The human-readable description of the Agent Device type.
+        /// </summary>
         public override string TypeDescription => DescriptionText;
 
+        /// <summary>
+        /// The earliest MTConnect Standard version in which the Agent Device type is defined.
+        /// </summary>
         public override Version MinimumVersion => MTConnectVersions.Version17;
 
 
+        /// <summary>
+        /// Initializes a new, empty Agent Device with empty child collections.
+        /// </summary>
         public Agent()
         {
             Type = TypeId;
@@ -39,6 +55,10 @@ namespace MTConnect.Devices
             Compositions = new List<Composition>();
         }
 
+        /// <summary>
+        /// Initializes a new Agent Device that represents the given running agent, deriving its Id, name, uuid, and version from it.
+        /// </summary>
+        /// <param name="agent">The running MTConnect agent this Device represents.</param>
         public Agent(MTConnectAgent agent)
         {
             Type = TypeId;
@@ -63,6 +83,10 @@ namespace MTConnect.Devices
             }
         }
 
+        /// <summary>
+        /// Populates this Agent Device with the standard set of agent DataItems
+        /// (availability, application and operating-system metadata, device add/remove/change, and asset events).
+        /// </summary>
         public void InitializeDataItems()
         {
             var dataItems = new List<IDataItem>();
@@ -99,6 +123,9 @@ namespace MTConnect.Devices
             DataItems = dataItems;
         }
 
+        /// <summary>
+        /// Publishes the initial observations for this Agent Device's standard DataItems to the associated agent.
+        /// </summary>
         public void InitializeObservations()
         {
             if (_agent != null)

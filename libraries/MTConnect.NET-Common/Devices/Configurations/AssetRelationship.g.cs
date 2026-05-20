@@ -10,6 +10,9 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public class AssetRelationship : ConfigurationRelationship, IAssetRelationship
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "ConfigurationRelationship that describes the association between a Component or an Asset and another Asset.";
 
 
@@ -17,12 +20,12 @@ namespace MTConnect.Devices.Configurations
         /// Uuid of the related Asset.
         /// </summary>
         public string AssetIdRef { get; set; }
-        
+
         /// <summary>
         /// Type of Asset being referenced.
         /// </summary>
         public string AssetType { get; set; }
-        
+
         /// <summary>
         /// URI reference to the associated Asset.
         /// </summary>

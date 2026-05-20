@@ -3,10 +3,19 @@
 
 namespace MTConnect
 {
+    /// <summary>
+    /// Common contract for any addressable entity in the MTConnect model, exposing its unique identity and its kind.
+    /// </summary>
     public interface IMTConnectEntity
     {
+        /// <summary>
+        /// The globally unique identifier of this entity.
+        /// </summary>
         string Uuid { get; }
 
+        /// <summary>
+        /// The category of this entity within the MTConnect model.
+        /// </summary>
         MTConnectEntityType EntityType { get; }
     }
 }

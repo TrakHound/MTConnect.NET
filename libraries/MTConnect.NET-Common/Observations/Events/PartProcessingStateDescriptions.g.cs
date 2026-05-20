@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// Description text for each <see cref="PartProcessingState"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class PartProcessingStateDescriptions
     {
         /// <summary>
@@ -66,6 +69,9 @@ namespace MTConnect.Observations.Events
         public const string TRANSIT_COMPLETE = "Part occurrence has been placed at its designated destination.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="PartProcessingState"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(PartProcessingState value)
         {
             switch (value)

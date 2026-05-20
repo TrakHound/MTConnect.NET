@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// Description text for each <see cref="DataItemRelationshipType"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class DataItemRelationshipTypeDescriptions
     {
         /// <summary>
@@ -26,6 +29,9 @@ namespace MTConnect.Devices
         public const string OBSERVATION = "Referenced DataItem provides the observed values.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="DataItemRelationshipType"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(DataItemRelationshipType value)
         {
             switch (value)

@@ -19,19 +19,37 @@ namespace MTConnect.Configurations
         private const string BackupDirectoryName = "backup";
 
 
+        /// <summary>
+        /// The conventional file name for a user-supplied JSON adapter configuration.
+        /// </summary>
         public const string JsonFilename = "adapter.config.json";
 
+        /// <summary>
+        /// The file name of the shipped JSON configuration used as a fallback when no user JSON configuration is present.
+        /// </summary>
         public const string DefaultJsonFilename = "adapter.config.default.json";
 
 
+        /// <summary>
+        /// The conventional file name for a user-supplied YAML adapter configuration.
+        /// </summary>
         public const string YamlFilename = "adapter.config.yaml";
 
+        /// <summary>
+        /// The file name of the shipped YAML configuration used as a fallback when no user YAML configuration is present.
+        /// </summary>
         public const string DefaultYamlFilename = "adapter.config.default.yaml";
 
 
+        /// <summary>
+        /// An opaque token regenerated each time the configuration is saved, allowing consumers to detect that the configuration has changed.
+        /// </summary>
         [JsonPropertyName("changeToken")]
         public string ChangeToken { get; set; }
 
+        /// <summary>
+        /// The file system path the configuration was loaded from; not serialized, and used as the default target when the configuration is saved.
+        /// </summary>
         [JsonIgnore]
         [YamlIgnore]
         public string Path { get; set; }
@@ -106,14 +124,23 @@ namespace MTConnect.Configurations
         public int ConfigurationFileRestartInterval { get; set; }
 
 
+        /// <summary>
+        /// Free-form key/value settings consumed by the adapter engine; keys correspond to engine property names with loosely typed values.
+        /// </summary>
         [JsonPropertyName("engine")]
         public Dictionary<string, object> Engine { get; set; }
 
+        /// <summary>
+        /// The raw, untyped module configuration sections declared for the adapter, each later resolved to a strongly typed configuration on demand.
+        /// </summary>
         [JsonPropertyName("modules")]
         public IEnumerable<object> Modules { get; set; }
 
 
 
+        /// <summary>
+        /// Initializes a new instance with adapter defaults (random 6-character id, 100 ms read/write intervals, duplicate filtering and timestamp output enabled, auto-start service, configuration file monitoring on).
+        /// </summary>
         public AdapterApplicationConfiguration()
         {
             Id = StringFunctions.RandomString(6);
@@ -129,6 +156,10 @@ namespace MTConnect.Configurations
         }
 
 
+        /// <summary>
+        /// Returns the value of the named engine property, or null when no engine settings are present or the property is undefined.
+        /// </summary>
+        /// <param name="propertyName">The engine property key to look up.</param>
         public object GetEngineProperty(string propertyName)
         {
             if (!Engine.IsNullOrEmpty() && !string.IsNullOrEmpty(propertyName))
@@ -143,6 +174,9 @@ namespace MTConnect.Configurations
         }
 
 
+        /// <summary>
+        /// Flattens every declared module section into a single map keyed by module identifier, or null when no modules are configured.
+        /// </summary>
         public Dictionary<object, object> GetModules()
         {
             if (!Modules.IsNullOrEmpty())
@@ -168,6 +202,10 @@ namespace MTConnect.Configurations
             return null;
         }
 
+        /// <summary>
+        /// Returns every module section declared under the given key as untyped objects, or null when the key is empty or no modules are configured.
+        /// </summary>
+        /// <param name="key">The module identifier whose sections are requested.</param>
         public IEnumerable<object> GetModules(string key)
         {
             if (!string.IsNullOrEmpty(key) && !Modules.IsNullOrEmpty())
@@ -197,6 +235,11 @@ namespace MTConnect.Configurations
             return null;
         }
 
+        /// <summary>
+        /// Returns every module section declared under the given key, round-tripped through YAML to bind each to <typeparamref name="TConfiguration"/>. Sections that fail to bind are skipped.
+        /// </summary>
+        /// <typeparam name="TConfiguration">The strongly typed configuration the module sections are bound to.</typeparam>
+        /// <param name="key">The module identifier whose sections are requested.</param>
         public IEnumerable<TConfiguration> GetModules<TConfiguration>(string key)
         {
             if (!string.IsNullOrEmpty(key) && !Modules.IsNullOrEmpty())
@@ -245,14 +288,31 @@ namespace MTConnect.Configurations
         }
 
 
+        /// <summary>
+        /// Loads an <see cref="AdapterApplicationConfiguration"/>, preferring a JSON file in the base directory before falling back to YAML.
+        /// </summary>
+        /// <param name="path">An explicit configuration path, or null to auto-detect.</param>
         public static AdapterApplicationConfiguration Read(string path = null) => Read<AdapterApplicationConfiguration>(path);
 
+        /// <summary>
+        /// Loads an <see cref="AdapterApplicationConfiguration"/> from a JSON file.
+        /// </summary>
+        /// <param name="path">An explicit JSON path, or null to use the conventional file in the base directory.</param>
         public static AdapterApplicationConfiguration ReadJson(string path = null) => ReadJson<AdapterApplicationConfiguration>(path);
 
+        /// <summary>
+        /// Loads an <see cref="AdapterApplicationConfiguration"/> from a YAML file.
+        /// </summary>
+        /// <param name="path">An explicit YAML path, or null to use the conventional file in the base directory.</param>
         public static AdapterApplicationConfiguration ReadYaml(string path = null) => ReadYaml<AdapterApplicationConfiguration>(path);
 
 
 
+        /// <summary>
+        /// Loads a derived configuration, preferring the conventional JSON file in the base directory and falling back to YAML.
+        /// </summary>
+        /// <typeparam name="T">The concrete configuration type to deserialize.</typeparam>
+        /// <param name="path">Reserved; resolution always uses the conventional file names in the base directory.</param>
         public static T Read<T>(string path = null) where T : AdapterApplicationConfiguration
         {
             var jsonPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, JsonFilename);
@@ -267,6 +327,11 @@ namespace MTConnect.Configurations
             }
         }
 
+        /// <summary>
+        /// Loads a configuration of the given runtime type, preferring the conventional JSON file in the base directory and falling back to YAML.
+        /// </summary>
+        /// <param name="type">The concrete configuration type to deserialize into.</param>
+        /// <param name="path">Reserved; resolution always uses the conventional file names in the base directory.</param>
         public static AdapterApplicationConfiguration Read(Type type, string path = null)
         {
             var jsonPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, JsonFilename);
@@ -282,6 +347,11 @@ namespace MTConnect.Configurations
         }
 
 
+        /// <summary>
+        /// Deserializes a derived configuration from a JSON file, ignoring comments and recording the source path. Returns null when the file is missing, empty, or cannot be parsed.
+        /// </summary>
+        /// <typeparam name="T">The concrete configuration type to deserialize.</typeparam>
+        /// <param name="path">An explicit JSON path (resolved relative to the base directory when not rooted), or null to use the conventional file.</param>
         public static T ReadJson<T>(string path = null) where T : AdapterApplicationConfiguration
         {
             var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, JsonFilename);
@@ -317,6 +387,11 @@ namespace MTConnect.Configurations
             return null;
         }
 
+        /// <summary>
+        /// Deserializes a configuration of the given runtime type from a JSON file, ignoring comments and recording the source path. Returns null when the file is missing, empty, or cannot be parsed.
+        /// </summary>
+        /// <param name="type">The concrete configuration type to deserialize into.</param>
+        /// <param name="path">An explicit JSON path (resolved relative to the base directory when not rooted), or null to use the conventional file.</param>
         public static AdapterApplicationConfiguration ReadJson(Type type, string path = null)
         {
             var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, JsonFilename);
@@ -353,6 +428,11 @@ namespace MTConnect.Configurations
         }
 
 
+        /// <summary>
+        /// Deserializes a derived configuration from a YAML file using camelCase naming, ignoring unmatched properties and recording the source path. Returns null when the file is missing, empty, or cannot be parsed.
+        /// </summary>
+        /// <typeparam name="T">The concrete configuration type to deserialize.</typeparam>
+        /// <param name="path">An explicit YAML path (resolved relative to the base directory when not rooted), or null to use the conventional file.</param>
         public static T ReadYaml<T>(string path = null) where T : AdapterApplicationConfiguration
         {
             var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, YamlFilename);
@@ -388,6 +468,11 @@ namespace MTConnect.Configurations
             return null;
         }
 
+        /// <summary>
+        /// Deserializes a configuration of the given runtime type from a YAML file using camelCase naming, ignoring unmatched properties and recording the source path. Returns null when the file is missing, empty, or cannot be parsed.
+        /// </summary>
+        /// <param name="type">The concrete configuration type to deserialize into.</param>
+        /// <param name="path">An explicit YAML path (resolved relative to the base directory when not rooted), or null to use the conventional file.</param>
         public static AdapterApplicationConfiguration ReadYaml(Type type, string path = null)
         {
             var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, YamlFilename);
@@ -425,6 +510,11 @@ namespace MTConnect.Configurations
 
 
 
+        /// <summary>
+        /// Serializes this configuration to JSON and writes it to disk, regenerating <see cref="ChangeToken"/> and optionally backing up any existing file. Write failures are swallowed.
+        /// </summary>
+        /// <param name="path">The destination path; when null the conventional JSON file in the base directory is used.</param>
+        /// <param name="createBackup">When true, an existing file is copied into a timestamped backup before being overwritten.</param>
         public void SaveJson(string path = null, bool createBackup = true)
         {
             var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, JsonFilename);
@@ -454,6 +544,11 @@ namespace MTConnect.Configurations
             catch { }
         }
 
+        /// <summary>
+        /// Serializes this configuration to YAML and writes it to disk, regenerating <see cref="ChangeToken"/> and optionally backing up any existing file. Write failures are swallowed.
+        /// </summary>
+        /// <param name="path">The destination path; when null the conventional YAML file in the base directory is used.</param>
+        /// <param name="createBackup">When true, an existing file is copied into a timestamped backup before being overwritten.</param>
         public void SaveYaml(string path = null, bool createBackup = true)
         {
             var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, YamlFilename);
@@ -487,6 +582,11 @@ namespace MTConnect.Configurations
         }
 
 
+        /// <summary>
+        /// Binds an arbitrary configuration object to <typeparamref name="TConfiguration"/> by round-tripping it through YAML, tolerating a leading sequence marker. Returns the type default when the input is null or cannot be bound.
+        /// </summary>
+        /// <typeparam name="TConfiguration">The target configuration type.</typeparam>
+        /// <param name="controllerConfiguration">The loosely typed configuration object to convert.</param>
         public static TConfiguration GetConfiguration<TConfiguration>(object controllerConfiguration)
         {
             if (controllerConfiguration != null)

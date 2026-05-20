@@ -11,8 +11,14 @@ namespace MTConnect.Configurations
     /// </summary>
     public interface IAgentConfiguration
     {
+        /// <summary>
+        /// An opaque token that changes whenever the underlying configuration source is reloaded, allowing consumers to detect that the configuration has been replaced.
+        /// </summary>
         string ChangeToken { get; }
 
+        /// <summary>
+        /// The file system path the configuration was loaded from, used as the default target when the configuration is saved back to disk.
+        /// </summary>
         string Path { get; }
 
 
@@ -76,8 +82,18 @@ namespace MTConnect.Configurations
         bool EnableMetrics { get; }
 
 
+        /// <summary>
+        /// Serializes this configuration to JSON and writes it to disk.
+        /// </summary>
+        /// <param name="path">The destination path; when null the path the configuration was loaded from is used.</param>
+        /// <param name="createBackup">When true, an existing file at the destination is preserved as a backup before being overwritten.</param>
         void SaveJson(string path = null, bool createBackup = true);
 
+        /// <summary>
+        /// Serializes this configuration to YAML and writes it to disk.
+        /// </summary>
+        /// <param name="path">The destination path; when null the path the configuration was loaded from is used.</param>
+        /// <param name="createBackup">When true, an existing file at the destination is preserved as a backup before being overwritten.</param>
         void SaveYaml(string path = null, bool createBackup = true);
     }
 }

@@ -10,6 +10,9 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public abstract class ConfigurationRelationship : IConfigurationRelationship
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Association between two pieces of equipment or assets that may function independently but together perform a manufacturing operation.";
 
 
@@ -17,17 +20,17 @@ namespace MTConnect.Devices.Configurations
         /// Defines whether the services or functions provided by the associated piece of equipment is required for the operation of this piece of equipment.
         /// </summary>
         public MTConnect.Devices.Configurations.CriticalityType? Criticality { get; set; }
-        
+
         /// <summary>
         /// Unique identifier for this ConfigurationRelationship.
         /// </summary>
         public string Id { get; set; }
-        
+
         /// <summary>
         /// Name associated with this ConfigurationRelationship.
         /// </summary>
         public string Name { get; set; }
-        
+
         /// <summary>
         /// Defines the authority that this piece of equipment has relative to the associated piece of equipment.
         /// </summary>

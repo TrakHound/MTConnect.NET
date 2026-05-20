@@ -3,13 +3,11 @@
 
 namespace MTConnect.Assets.CuttingTools
 {
+    /// <summary>
+    /// Description text for each property of <c>Measurement</c> as defined by the MTConnect Standard.
+    /// </summary>
     public static class MeasurementDescriptions
     {
-        /// <summary>
-        /// Shop specific code for the measurement. ISO 13399 codes **MAY** be used for these codes as well. code values.
-        /// </summary>
-        public const string Code = "Shop specific code for the measurement. ISO 13399 codes **MAY** be used for these codes as well. code values.";
-        
         /// <summary>
         /// Maximum value for the measurement.
         /// </summary>

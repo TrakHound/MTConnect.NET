@@ -10,6 +10,9 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public class Configuration : IConfiguration
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Technical information about an entity describing its physical layout, functional characteristics, and relationships with other entities.";
 
 
@@ -17,37 +20,37 @@ namespace MTConnect.Devices.Configurations
         /// Reference system that associates a unique set of n parameters with each point in an n-dimensional space. ISO 10303-218:2004
         /// </summary>
         public System.Collections.Generic.IEnumerable<MTConnect.Devices.Configurations.ICoordinateSystem> CoordinateSystems { get; set; }
-        
+
         /// <summary>
         /// Reference to a file containing an image of the Component.
         /// </summary>
         public System.Collections.Generic.IEnumerable<MTConnect.Devices.Configurations.IImageFile> ImageFiles { get; set; }
-        
+
         /// <summary>
         /// Movement of the component relative to a coordinate system.
         /// </summary>
         public MTConnect.Devices.Configurations.IMotion Motion { get; set; }
-        
+
         /// <summary>
         /// Potential energy sources for the Component.
         /// </summary>
         public MTConnect.Devices.Configurations.IPowerSource PowerSource { get; set; }
-        
+
         /// <summary>
         /// Association between two pieces of equipment or assets that may function independently but together perform a manufacturing operation.
         /// </summary>
         public System.Collections.Generic.IEnumerable<MTConnect.Devices.Configurations.IConfigurationRelationship> Relationships { get; set; }
-        
+
         /// <summary>
         /// Configuration for a Sensor.
         /// </summary>
         public MTConnect.Devices.Configurations.ISensorConfiguration SensorConfiguration { get; set; }
-        
+
         /// <summary>
         /// References to a file with the three-dimensional geometry of the Component or Composition.
         /// </summary>
         public MTConnect.Devices.Configurations.ISolidModel SolidModel { get; set; }
-        
+
         /// <summary>
         /// Design characteristics for a piece of equipment.
         /// </summary>

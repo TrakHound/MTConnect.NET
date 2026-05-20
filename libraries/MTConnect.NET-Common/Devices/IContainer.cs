@@ -73,10 +73,19 @@ namespace MTConnect.Devices
         Version MinimumVersion { get; }
 
 
-		string DataItemIdFormat { get; }
+        /// <summary>
+        /// The pattern used to generate Ids for DataItems added to this container.
+        /// </summary>
+        string DataItemIdFormat { get; }
 
-		string CompositionIdFormat { get; }
+        /// <summary>
+        /// The pattern used to generate Ids for child Compositions added to this container.
+        /// </summary>
+        string CompositionIdFormat { get; }
 
-		string ComponentIdFormat { get; }
-	}
+        /// <summary>
+        /// The pattern used to generate Ids for child Components added to this container.
+        /// </summary>
+        string ComponentIdFormat { get; }
+    }
 }

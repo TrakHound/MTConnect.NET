@@ -10,8 +10,14 @@ namespace MTConnect.Configurations
     /// </summary>
     public interface IAdapterApplicationConfiguration : IDataSourceConfiguration
     {
+        /// <summary>
+        /// An opaque token that changes whenever the underlying configuration source is reloaded, allowing consumers to detect that the configuration has been replaced.
+        /// </summary>
         string ChangeToken { get; }
 
+        /// <summary>
+        /// The file system path the configuration was loaded from, used as the default target when the configuration is saved back to disk.
+        /// </summary>
         string Path { get; }
 
 
@@ -49,7 +55,6 @@ namespace MTConnect.Configurations
 
 
         /// <summary>
-        /// <summary>
         /// Changes the service name when installing or removing the service. This allows multiple Adapters to run as services on the same machine.
         /// </summary>
         string ServiceName { get; set; }
@@ -71,18 +76,40 @@ namespace MTConnect.Configurations
         int ConfigurationFileRestartInterval { get; set; }
 
 
+        /// <summary>
+        /// Free-form key/value settings consumed by the adapter engine; keys correspond to engine property names with loosely typed values.
+        /// </summary>
         Dictionary<string, object> Engine { get; set; }
 
+        /// <summary>
+        /// The raw, untyped module configuration sections declared for the adapter, each later resolved to a strongly typed configuration on demand.
+        /// </summary>
         IEnumerable<object> Modules { get; set; }
 
 
+        /// <summary>
+        /// Returns the value of the named engine property, or null when the property is not present.
+        /// </summary>
+        /// <param name="propertyName">The engine property key to look up.</param>
         object GetEngineProperty(string propertyName);
 
 
+        /// <summary>
+        /// Returns every configured module section keyed by its declared module identifier.
+        /// </summary>
         Dictionary<object, object> GetModules();
 
+        /// <summary>
+        /// Returns the configured module sections registered under the given module key as untyped objects.
+        /// </summary>
+        /// <param name="key">The module identifier whose sections are requested.</param>
         IEnumerable<object> GetModules(string key);
 
+        /// <summary>
+        /// Returns the configured module sections registered under the given module key, each deserialized to <typeparamref name="TConfiguration"/>.
+        /// </summary>
+        /// <typeparam name="TConfiguration">The strongly typed configuration the module sections are bound to.</typeparam>
+        /// <param name="key">The module identifier whose sections are requested.</param>
         IEnumerable<TConfiguration> GetModules<TConfiguration>(string key);
     }
 }

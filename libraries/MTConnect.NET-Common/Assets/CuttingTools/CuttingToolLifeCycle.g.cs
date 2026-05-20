@@ -10,6 +10,9 @@ namespace MTConnect.Assets.CuttingTools
     /// </summary>
     public partial class CuttingToolLifeCycle : ICuttingToolLifeCycle
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Data regarding the application or use of the tool.This data is provided by various pieces of equipment (i.e. machine tool, presetter) and statistical process control applications. Life cycle data will not remain static, but will change periodically when a tool is used or measured.";
 
 
@@ -17,52 +20,52 @@ namespace MTConnect.Assets.CuttingTools
         /// Identifier for the capability to connect any component of the cutting tool together, except Assembly Items, on the machine side. Code: `CCMS`
         /// </summary>
         public string ConnectionCodeMachineSide { get; set; }
-        
+
         /// <summary>
         /// Status of the cutting tool.
         /// </summary>
         public System.Collections.Generic.IEnumerable<MTConnect.Assets.CuttingTools.CutterStatusType> CutterStatus { get; set; }
-        
+
         /// <summary>
         /// Part of of the tool that physically removes the material from the workpiece by shear deformation.
         /// </summary>
         public System.Collections.Generic.IEnumerable<MTConnect.Assets.CuttingTools.ICuttingItem> CuttingItems { get; set; }
-        
+
         /// <summary>
         /// Location of the pot or spindle the cutting tool currently resides in.positiveOverlap is provided, the tool reserves additional locations on either side, otherwise if they are not given, no additional locations are required for this tool.positiveOverlap of 1, the first pot **MAY** be occupied as well.
         /// </summary>
         public MTConnect.Assets.CuttingTools.ILocation Location { get; set; }
-        
+
         /// <summary>
         /// Constrained scalar value associated with a cutting tool.
         /// </summary>
         public System.Collections.Generic.IEnumerable<MTConnect.Assets.CuttingTools.IToolingMeasurement> Measurements { get; set; }
-        
+
         /// <summary>
         /// Constrained process feed rate for the tool in mm/s.minimum **MUST** be specified.
         /// </summary>
         public MTConnect.Assets.CuttingTools.IProcessFeedRate ProcessFeedRate { get; set; }
-        
+
         /// <summary>
         /// Constrained process spindle speed for the tool in revolutions/minute.minimum **MUST** be specified.
         /// </summary>
         public MTConnect.Assets.CuttingTools.IProcessSpindleSpeed ProcessSpindleSpeed { get; set; }
-        
+
         /// <summary>
         /// Tool group this tool is assigned in the part program.
         /// </summary>
         public string ProgramToolGroup { get; set; }
-        
+
         /// <summary>
         /// Number of the tool as referenced in the part program.
         /// </summary>
         public string ProgramToolNumber { get; set; }
-        
+
         /// <summary>
         /// Number of times the cutter has been reconditioned.
         /// </summary>
         public MTConnect.Assets.CuttingTools.IReconditionCount ReconditionCount { get; set; }
-        
+
         /// <summary>
         /// Cutting tool life as related to the assembly.
         /// </summary>

@@ -10,6 +10,9 @@ namespace MTConnect.Assets.QIF
     /// </summary>
     public partial class QIFDocumentWrapperAsset : Asset, IQIFDocumentWrapperAsset
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Asset that carries the QIF Document.";
 
 
@@ -17,7 +20,7 @@ namespace MTConnect.Assets.QIF
         /// QIF Document as given by the QIF standard.
         /// </summary>
         public string QIFDocument { get; set; }
-        
+
         /// <summary>
         /// Contained QIF Document type as defined in the QIF Standard.
         /// </summary>

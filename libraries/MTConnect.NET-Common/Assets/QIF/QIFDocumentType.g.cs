@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.QIF
 {
+    /// <summary>
+    /// QIFDocumentType controlled vocabulary as defined by the MTConnect Standard.
+    /// </summary>
     public enum QIFDocumentType
     {
         /// <summary>

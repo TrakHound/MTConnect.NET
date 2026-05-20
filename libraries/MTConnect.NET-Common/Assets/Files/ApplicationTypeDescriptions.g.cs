@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.Files
 {
+    /// <summary>
+    /// Description text for each <see cref="ApplicationType"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class ApplicationTypeDescriptions
     {
         /// <summary>
@@ -36,6 +39,9 @@ namespace MTConnect.Assets.Files
         public const string PRODUCTION_PROGRAM = "Machine instructions to perform a process.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="ApplicationType"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(ApplicationType value)
         {
             switch (value)

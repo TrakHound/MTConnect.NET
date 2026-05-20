@@ -8,10 +8,20 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// </summary>
     public class ToolCuttingEdgeAngleMeasurement : ToolingMeasurement
     {
+        /// <summary>
+        /// The MTConnect <c>type</c> value that identifies this Measurement.
+        /// </summary>
         public const string TypeId = "ToolCuttingEdgeAngle";
+
+        /// <summary>
+        /// The MTConnect <c>code</c> value that identifies this Measurement.
+        /// </summary>
         public const string CodeId = "KAPR";
 
 
+        /// <summary>
+        /// Initializes a new instance with its type and code set to the defaults for this Measurement.
+        /// </summary>
         public ToolCuttingEdgeAngleMeasurement()
         {
             Type = TypeId;
@@ -19,6 +29,10 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
+        /// <summary>
+        /// Initializes a new instance with the specified measured value.
+        /// </summary>
+        /// <param name="value">The measured value.</param>
         public ToolCuttingEdgeAngleMeasurement(double value)
         {
             Type = TypeId;
@@ -27,6 +41,10 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
+        /// <summary>
+        /// Initializes a new instance by copying the specified measurement.
+        /// </summary>
+        /// <param name="measurement">The measurement to copy.</param>
         public ToolCuttingEdgeAngleMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;

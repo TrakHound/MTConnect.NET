@@ -8,9 +8,15 @@ namespace MTConnect.Assets.RawMaterials
 {
     public partial class RawMaterialAsset
     {
+        /// <summary>
+        /// The fixed Asset type identifier ("RawMaterial") written to the Type attribute and used to recognize this asset during deserialization.
+        /// </summary>
         public const string TypeId = "RawMaterial";
 
 
+        /// <summary>
+        /// Initializes a new RawMaterialAsset, stamping the Asset Type with <see cref="TypeId"/>.
+        /// </summary>
         public RawMaterialAsset()
         {
             Type = TypeId;

@@ -36,6 +36,10 @@ namespace MTConnect.Adapters
 
 
         private CancellationTokenSource _stop;
+
+        /// <summary>
+        /// The cancellation source signalled by <see cref="Stop"/>; subclasses observe its token to terminate background work.
+        /// </summary>
         protected CancellationTokenSource StopToken => _stop;
 
 
@@ -59,13 +63,25 @@ namespace MTConnect.Adapters
         /// </summary>
         public bool OutputTimestamps { get; set; }
 
+        /// <summary>
+        /// When true, incoming observation timestamps are replaced with the send time rather than preserved.
+        /// </summary>
         public bool IgnoreTimestamps { get; set; }
 
 
+        /// <summary>
+        /// The transport callback invoked to deliver a batch of observations to the Agent; returns true on success. The concrete transport adapter supplies this.
+        /// </summary>
         public Func<IEnumerable<IObservationInput>, bool> WriteObservationsFunction { get; set; }
 
+        /// <summary>
+        /// The transport callback invoked to deliver a batch of assets to the Agent; returns true on success.
+        /// </summary>
         public Func<IEnumerable<IAssetInput>, bool> WriteAssetsFunction { get; set; }
 
+        /// <summary>
+        /// The transport callback invoked to deliver a batch of devices to the Agent; returns true on success.
+        /// </summary>
         public Func<IEnumerable<IDeviceInput>, bool> WriteDevicesFunction { get; set; }
 
 
@@ -84,6 +100,11 @@ namespace MTConnect.Adapters
         #pragma warning restore CS0067
 
 
+        /// <summary>
+        /// Initializes the adapter. When <paramref name="interval"/> is non-null, a background worker flushes queued changes on that millisecond cadence; otherwise sends are caller-driven. Duplicate filtering and timestamp output default to enabled.
+        /// </summary>
+        /// <param name="interval">The send interval in milliseconds, or null for no background worker.</param>
+        /// <param name="bufferEnabled">When true, the interval worker drains the observation buffer instead of only changed values.</param>
         public MTConnectAdapter(int? interval = null, bool bufferEnabled = false)
         {
             _interval = interval;
@@ -123,8 +144,14 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>
+        /// Hook invoked at the end of <see cref="Start"/>; the base implementation does nothing. Transport adapters override it to begin listening for connections.
+        /// </summary>
         protected virtual void OnStart() { }
 
+        /// <summary>
+        /// Hook invoked at the end of <see cref="Stop"/>; the base implementation does nothing. Transport adapters override it to tear down connections.
+        /// </summary>
         protected virtual void OnStop() { }
 
 
@@ -156,6 +183,9 @@ namespace MTConnect.Adapters
             catch (Exception) { }
         }
 
+        /// <summary>
+        /// Invoked each time the send interval elapses; flushes the observation buffer when buffering is enabled, otherwise sends only changed values. Overridable to customize the flush behavior.
+        /// </summary>
         protected virtual void OnIntervalElapsed()
         {
             if (_bufferEnabled)
@@ -180,6 +210,10 @@ namespace MTConnect.Adapters
 
         #region "Write"
 
+        /// <summary>
+        /// Sends a single observation through the transport by wrapping it in a one-element batch; returns false when the observation is null.
+        /// </summary>
+        /// <param name="observation">The observation to send.</param>
         protected bool Write(IObservationInput observation)
         {
             if (observation != null)
@@ -190,6 +224,10 @@ namespace MTConnect.Adapters
             return false;
         }
 
+        /// <summary>
+        /// Sends a batch of observations via <see cref="WriteObservationsFunction"/>; returns true (a no-op success) when no transport callback is configured.
+        /// </summary>
+        /// <param name="observations">The observations to send.</param>
         protected bool Write(IEnumerable<IObservationInput> observations)
         {
             if (WriteObservationsFunction != null)
@@ -231,6 +269,9 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>
+        /// Drains the buffered observations and then sends any changed assets and devices to the Agent; stops at the first failing stage.
+        /// </summary>
         public bool SendBuffer()
         {
             bool success;
@@ -242,32 +283,63 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>
+        /// Hook invoked after a changed-data send; the base implementation does nothing.
+        /// </summary>
         protected virtual void OnChangedSent() { }
 
+        /// <summary>
+        /// Hook invoked after a last-known-values resend; the base implementation does nothing.
+        /// </summary>
         protected virtual void OnLastSent() { }
 
         #endregion
 
         #region "Observations"
 
+        /// <summary>
+        /// Hook invoked whenever an observation is accepted into the current set; the base implementation does nothing.
+        /// </summary>
+        /// <param name="observation">The observation that was added.</param>
         protected virtual void OnObservationAdd(IObservationInput observation) { }
 
 
+        /// <summary>
+        /// Queues an observation for the given DataItem with the current time as its timestamp.
+        /// </summary>
+        /// <param name="dataItemKey">The DataItem key the value belongs to.</param>
+        /// <param name="value">The observed value.</param>
         public void AddObservation(string dataItemKey, object value)
         {
             AddObservation(dataItemKey, value, UnixDateTime.Now);
         }
 
+        /// <summary>
+        /// Queues an observation for the given DataItem at the specified time.
+        /// </summary>
+        /// <param name="dataItemKey">The DataItem key the value belongs to.</param>
+        /// <param name="value">The observed value.</param>
+        /// <param name="timestamp">The observation time.</param>
         public void AddObservation(string dataItemKey, object value, DateTime timestamp)
         {
             AddObservation(dataItemKey, value, timestamp.ToUnixTime());
         }
 
+        /// <summary>
+        /// Queues an observation for the given DataItem at the specified Unix-tick timestamp.
+        /// </summary>
+        /// <param name="dataItemKey">The DataItem key the value belongs to.</param>
+        /// <param name="value">The observed value.</param>
+        /// <param name="timestamp">The observation time in Unix ticks.</param>
         public void AddObservation(string dataItemKey, object value, long timestamp)
         {
             AddObservation(new ObservationInput(dataItemKey, value, timestamp));
         }
 
+        /// <summary>
+        /// Queues an observation, stamping it with the adapter's device key and the current time when unset, and (when duplicate filtering is on) discarding it if it is unchanged from the current value for that DataItem.
+        /// </summary>
+        /// <param name="observation">The observation to queue.</param>
         public void AddObservation(IObservationInput observation)
         {
             if (observation != null)
@@ -314,6 +386,10 @@ namespace MTConnect.Adapters
             }
         }
 
+        /// <summary>
+        /// Queues each observation in the sequence via <see cref="AddObservation(IObservationInput)"/>.
+        /// </summary>
+        /// <param name="observations">The observations to queue.</param>
         public void AddObservations(IEnumerable<IObservationInput> observations)
         {
             if (!observations.IsNullOrEmpty())
@@ -326,21 +402,42 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>
+        /// Immediately sends an observation for the given DataItem with the current time, bypassing the queue.
+        /// </summary>
+        /// <param name="dataItemId">The DataItem key the value belongs to.</param>
+        /// <param name="value">The observed value.</param>
         public bool SendObservation(string dataItemId, object value)
         {
             return SendObservation(dataItemId, value, UnixDateTime.Now);
         }
 
+        /// <summary>
+        /// Immediately sends an observation for the given DataItem at the specified time, bypassing the queue.
+        /// </summary>
+        /// <param name="dataItemId">The DataItem key the value belongs to.</param>
+        /// <param name="value">The observed value.</param>
+        /// <param name="timestamp">The observation time.</param>
         public bool SendObservation(string dataItemId, object value, DateTime timestamp)
         {
             return SendObservation(dataItemId, value, timestamp.ToUnixTime());
         }
 
+        /// <summary>
+        /// Immediately sends an observation for the given DataItem at the specified Unix-tick timestamp, bypassing the queue.
+        /// </summary>
+        /// <param name="dataItemId">The DataItem key the value belongs to.</param>
+        /// <param name="value">The observed value.</param>
+        /// <param name="timestamp">The observation time in Unix ticks.</param>
         public bool SendObservation(string dataItemId, object value, long timestamp)
         {
             return SendObservation(new ObservationInput(dataItemId, value, timestamp));
         }
 
+        /// <summary>
+        /// Immediately sends an observation, stamping it with the adapter's device key and the current time when unset, removing it from the pending current set, and recording it as the last sent value on success.
+        /// </summary>
+        /// <param name="observation">The observation to send.</param>
         public bool SendObservation(IObservationInput observation)
         {
             if (observation != null)
@@ -374,6 +471,10 @@ namespace MTConnect.Adapters
             return false;
         }
 
+        /// <summary>
+        /// Immediately sends each observation in the sequence; returns false if any individual send fails (all are still attempted), true when the sequence is empty.
+        /// </summary>
+        /// <param name="dataItems">The observations to send.</param>
         public bool SendObservations(IEnumerable<IObservationInput> dataItems)
         {
             var success = true;
@@ -394,6 +495,10 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>
+        /// Records, per DataItem, the most recent of the supplied observations as the last sent value so it can be resent on reconnection.
+        /// </summary>
+        /// <param name="observations">The observations that were just sent.</param>
         protected void UpdateLastObservations(IEnumerable<IObservationInput> observations)
         {
             if (!observations.IsNullOrEmpty())
@@ -419,6 +524,9 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>
+        /// Sends every current observation not yet marked as sent, applying the timestamp-output and ignore-timestamp policies, and records them as last sent on success.
+        /// </summary>
         protected bool WriteChangedObservations()
         {
             var now = UnixDateTime.Now;
@@ -465,6 +573,10 @@ namespace MTConnect.Adapters
             }
         }
 
+        /// <summary>
+        /// Resends the last sent value of every DataItem, used to repopulate the Agent after a reconnection; honors the timestamp-output policy.
+        /// </summary>
+        /// <param name="timestamp">Unused reserved parameter for an override timestamp.</param>
         protected bool WriteLastObservations(long timestamp = 0)
         {
             // Get a list of all Last Obserations
@@ -496,6 +608,10 @@ namespace MTConnect.Adapters
             }
         }
 
+        /// <summary>
+        /// Dequeues up to <paramref name="count"/> buffered observations and sends them, honoring the timestamp-output policy and recording them as last sent on success.
+        /// </summary>
+        /// <param name="count">The maximum number of buffered observations to send in this pass.</param>
         public bool WriteBufferObservations(int count = 1000)
         {
             var observations = _observationsBuffer.Take(count);
@@ -668,6 +784,10 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>
+        /// Records, per AssetId, the most recent of the supplied assets as the last sent value so it can be resent on reconnection.
+        /// </summary>
+        /// <param name="assets">The assets that were just sent.</param>
         protected void UpdateLastAsset(IEnumerable<IAssetInput> assets)
         {
             if (!assets.IsNullOrEmpty())
@@ -689,6 +809,9 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>
+        /// Sends every current asset not yet marked as sent and records them as last sent on success.
+        /// </summary>
         protected bool WriteChangedAssets()
         {
             // Get a list of all Current Assets
@@ -729,6 +852,9 @@ namespace MTConnect.Adapters
             }
         }
 
+        /// <summary>
+        /// Resends every last sent asset, used to repopulate the Agent after a reconnection.
+        /// </summary>
         protected bool WriteAllAssets()
         {
             // Get a list of all Assets
@@ -883,6 +1009,10 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>
+        /// Records, per DeviceKey, the most recent of the supplied devices as the last sent value so it can be resent on reconnection.
+        /// </summary>
+        /// <param name="devices">The devices that were just sent.</param>
         protected void UpdateLastDevice(IEnumerable<IDeviceInput> devices)
         {
             if (!devices.IsNullOrEmpty())
@@ -904,6 +1034,9 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>
+        /// Sends every current device not yet marked as sent and records them as last sent on success.
+        /// </summary>
         protected bool WriteChangedDevices()
         {
             // Get a list of all Current Devices
@@ -944,6 +1077,9 @@ namespace MTConnect.Adapters
             }
         }
 
+        /// <summary>
+        /// Resends every last sent device, used to repopulate the Agent after a reconnection.
+        /// </summary>
         protected bool WriteAllDevices()
         {
             // Get a list of all Devices

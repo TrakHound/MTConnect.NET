@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.CuttingTools.Measurements
 {
+    /// <summary>
+    /// Description text for each <see cref="MeasurementCode"/> string constant as defined by the MTConnect Standard.
+    /// </summary>
     public static class MeasurementCodeDescriptions
     {
         /// <summary>
@@ -166,6 +169,9 @@ namespace MTConnect.Assets.CuttingTools.Measurements
         public const string WT = "Total weight of the cutting tool in grams. The force exerted by the mass of the cutting tool.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(string value)
         {
             switch (value)

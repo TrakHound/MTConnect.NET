@@ -28,6 +28,9 @@ namespace MTConnect.Assets
             set => _uuid = value;
         }
 
+        /// <summary>
+        /// Identifies this entity as an Asset within the MTConnect entity model.
+        /// </summary>
         public MTConnectEntityType EntityType => MTConnectEntityType.Asset;
 
 
@@ -42,6 +45,10 @@ namespace MTConnect.Assets
         public ulong InstanceId { get; set; }
 
 
+        /// <summary>
+        /// Instantiates the concrete asset class registered for the given asset type name via its parameterless constructor; returns null when the type is unknown or cannot be constructed.
+        /// </summary>
+        /// <param name="type">The MTConnect asset type name (e.g. "CuttingTool").</param>
         public static IAsset Create(string type)
         {
             if (!string.IsNullOrEmpty(type))
@@ -68,6 +75,10 @@ namespace MTConnect.Assets
             return null;
         }
 
+        /// <summary>
+        /// Resolves the concrete CLR type registered for the given asset type name without instantiating it; returns null when the type is unknown.
+        /// </summary>
+        /// <param name="type">The MTConnect asset type name (e.g. "CuttingTool").</param>
         public static Type GetAssetType(string type)
         {
             if (!string.IsNullOrEmpty(type))
@@ -122,6 +133,10 @@ namespace MTConnect.Assets
         }
 
 
+        /// <summary>
+        /// Prepares this asset for inclusion in a response document for the given MTConnect version: excludes the asset entirely when the version predates 1.2, drops the Hash for versions before 2.2 (where it is not defined), then delegates per-type adjustment to <see cref="OnProcess"/>.
+        /// </summary>
+        /// <param name="mtconnectVersion">The MTConnect version the response document targets.</param>
         public IAsset Process(Version mtconnectVersion)
         {
 			if (mtconnectVersion < MTConnectVersions.Version12) return null;
@@ -131,16 +146,28 @@ namespace MTConnect.Assets
 			return OnProcess(mtconnectVersion);
 		}
 
+        /// <summary>
+        /// Per-type version adjustment hook invoked by <see cref="Process"/>; the base implementation returns the asset unchanged. Overrides may downgrade properties or return null to exclude the asset for a given version.
+        /// </summary>
+        /// <param name="mtconnectVersion">The MTConnect version the response document targets.</param>
         protected virtual IAsset OnProcess(Version mtconnectVersion)
         {
 			return this;
 		}
 
+        /// <summary>
+        /// Validates the asset against the given MTConnect version; the base implementation accepts all assets and is overridden by types with required fields or constraints.
+        /// </summary>
+        /// <param name="mtconnectVersion">The MTConnect version to validate against.</param>
         public virtual ValidationResult IsValid(Version mtconnectVersion)
         {
             return new ValidationResult(true);
         }
 
+        /// <summary>
+        /// Computes a content hash for change detection; the base implementation returns null and is overridden by concrete asset types that participate in hashing.
+        /// </summary>
+        /// <param name="includeTimestamp">When true, the asset timestamp is folded into the hash.</param>
         public virtual string GenerateHash(bool includeTimestamp = true)
         {
 			return null;

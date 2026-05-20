@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.Pallet
 {
+    /// <summary>
+    /// Description text for each property of <c>Measurement</c> as defined by the MTConnect Standard.
+    /// </summary>
     public static class MeasurementDescriptions
     {
         /// <summary>

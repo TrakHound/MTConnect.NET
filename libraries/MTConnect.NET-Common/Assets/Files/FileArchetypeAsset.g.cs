@@ -10,8 +10,10 @@ namespace MTConnect.Assets.Files
     /// </summary>
     public partial class FileArchetypeAsset : AbstractFileAsset, IFileArchetypeAsset
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "AbstractFile type that provides information common to all versions of a file.";
-
 
     }
 }

@@ -8,6 +8,9 @@ using System.Reflection;
 
 namespace MTConnect.Extensions
 {
+    /// <summary>
+    /// Reflection helpers for querying the types contained in an assembly while tolerating partial type-load failures.
+    /// </summary>
     public static class AssemblyExtensions
     {
         /// <summary>

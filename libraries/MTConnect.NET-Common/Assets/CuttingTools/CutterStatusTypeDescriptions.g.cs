@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.CuttingTools
 {
+    /// <summary>
+    /// Description text for each <see cref="CutterStatusType"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class CutterStatusTypeDescriptions
     {
         /// <summary>
@@ -66,6 +69,9 @@ namespace MTConnect.Assets.CuttingTools
         public const string USED = "Tool is in process and has remaining tool life.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="CutterStatusType"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(CutterStatusType value)
         {
             switch (value)

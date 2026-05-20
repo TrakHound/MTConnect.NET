@@ -46,8 +46,14 @@ namespace MTConnect.Agents
         ulong NextSequence { get; }
 
 
+        /// <summary>
+        /// Lookup of Device UUID to its assigned buffer index, used to resolve a Device to its slot in the streaming buffer.
+        /// </summary>
         Dictionary<string, int> DeviceIndexes { get; }
 
+        /// <summary>
+        /// Lookup of DataItem key to its assigned buffer index, used to resolve a DataItem to its slot in the streaming buffer.
+        /// </summary>
         Dictionary<string, int> DataItemIndexes { get; }
 
 

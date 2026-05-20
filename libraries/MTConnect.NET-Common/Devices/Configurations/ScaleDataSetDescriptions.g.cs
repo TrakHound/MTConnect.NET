@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices.Configurations
 {
+    /// <summary>
+    /// Description text for each property of <c>ScaleDataSet</c> as defined by the MTConnect Standard.
+    /// </summary>
     public static class ScaleDataSetDescriptions
     {
         /// <summary>

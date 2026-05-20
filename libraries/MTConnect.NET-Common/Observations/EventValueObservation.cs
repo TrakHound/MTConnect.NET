@@ -18,6 +18,9 @@ namespace MTConnect.Observations
         }
 
 
+        /// <summary>
+        /// Initializes a new Event Observation that reports a single VALUE representation.
+        /// </summary>
         public EventValueObservation() : base()
         {
             _representation = Devices.DataItemRepresentation.VALUE;

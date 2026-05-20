@@ -10,6 +10,9 @@ namespace MTConnect.Assets.ComponentConfigurationParameters
     /// </summary>
     public class ParameterSet : IParameterSet
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Set of Parameters.";
 
 
@@ -17,7 +20,7 @@ namespace MTConnect.Assets.ComponentConfigurationParameters
         /// Name of the parameter set if more than one exists.
         /// </summary>
         public string Name { get; set; }
-        
+
         /// <summary>
         /// Property that determines the characteristic or behavior of an entity.
         /// </summary>

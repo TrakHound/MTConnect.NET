@@ -46,6 +46,9 @@ namespace MTConnect.Devices
             set => _uuid = value;
         }
 
+        /// <summary>
+        /// The MTConnect entity classification for this object, which is always <see cref="MTConnectEntityType.DataItem"/>.
+        /// </summary>
         public MTConnectEntityType EntityType => MTConnectEntityType.DataItem;
 
         /// <summary>
@@ -65,22 +68,22 @@ namespace MTConnect.Devices
 
 
         private string _hash;
-		/// <summary>
-		/// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
-		/// </summary>
-		public string Hash
-		{
-			get
-			{
-				if (_hash == null) _hash = GenerateHash();
-				return _hash;
-			}
-		}
+        /// <summary>
+        /// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
+        /// </summary>
+        public string Hash
+        {
+            get
+            {
+                if (_hash == null) _hash = GenerateHash();
+                return _hash;
+            }
+        }
 
-		/// <summary>
-		/// The text description that describes what the DataItem Type represents
-		/// </summary>
-		public virtual string TypeDescription => DescriptionText;
+        /// <summary>
+        /// The text description that describes what the DataItem Type represents
+        /// </summary>
+        public virtual string TypeDescription => DescriptionText;
 
         /// <summary>
         /// The text description that describes what the DataItem SubType represents
@@ -122,16 +125,27 @@ namespace MTConnect.Devices
 
         internal bool _isExtended;
         /// <summary>
-        /// 
+        /// Indicates that this DataItem uses a Type or SubType that is not defined by the MTConnect Standard,
+        /// meaning it was created from an unrecognized (vendor- or application-specific) extension value.
         /// </summary>
         public bool IsExtended => _isExtended;
 
 
+        /// <summary>
+        /// Initializes a new, empty DataItem with its default Type registrations loaded.
+        /// </summary>
         public DataItem()
         {
             Init();
         }
 
+        /// <summary>
+        /// Initializes a new DataItem with the specified category, type, and optional subtype and identifier.
+        /// </summary>
+        /// <param name="category">The category (Sample, Event, or Condition) of the DataItem.</param>
+        /// <param name="type">The Type that defines what the DataItem represents.</param>
+        /// <param name="subType">An optional SubType that further refines the meaning of the Type.</param>
+        /// <param name="dataItemId">An optional unique identifier for the DataItem.</param>
         public DataItem(DataItemCategory category, string type, string subType = null, string dataItemId = null)
         {
             Init();
@@ -142,6 +156,10 @@ namespace MTConnect.Devices
             SubType = subType;
         }
 
+        /// <summary>
+        /// Initializes a new DataItem by copying every property from an existing DataItem instance.
+        /// </summary>
+        /// <param name="dataItem">The DataItem to copy. When null, an empty DataItem is produced.</param>
         public DataItem(IDataItem dataItem)
         {
             Init();
@@ -183,11 +201,20 @@ namespace MTConnect.Devices
         }
 
 
+        /// <summary>
+        /// Computes a content hash for this DataItem that changes whenever any hashed property or relationship changes.
+        /// </summary>
+        /// <returns>A SHA-1 hash string identifying the current state of this DataItem.</returns>
         public string GenerateHash()
         {
             return GenerateHash(this);
         }
 
+        /// <summary>
+        /// Computes a content hash for the specified DataItem, incorporating its hashed properties and the hashes of its relationships.
+        /// </summary>
+        /// <param name="dataItem">The DataItem to hash.</param>
+        /// <returns>A SHA-1 hash string, or null when <paramref name="dataItem"/> is null.</returns>
         public static string GenerateHash(IDataItem dataItem)
         {
             if (dataItem != null)
@@ -211,6 +238,11 @@ namespace MTConnect.Devices
         }
 
 
+        /// <summary>
+        /// Builds the ordered list of Id segments from the containing hierarchy down to the DataItem itself.
+        /// </summary>
+        /// <param name="dataItem">The DataItem whose Id path is built.</param>
+        /// <returns>The Id segments from the outermost container to the DataItem, or null when <paramref name="dataItem"/> is null.</returns>
         public static string[] GenerateIdPaths(IDataItem dataItem)
         {
             if (dataItem != null)
@@ -230,6 +262,11 @@ namespace MTConnect.Devices
             return null;
         }
 
+        /// <summary>
+        /// Builds the slash-delimited Id path string from the containing hierarchy down to the DataItem itself.
+        /// </summary>
+        /// <param name="dataItem">The DataItem whose Id path is built.</param>
+        /// <returns>The Id segments joined with '/', or null when no path is available.</returns>
         public static string GenerateIdPath(IDataItem dataItem)
         {
             if (dataItem != null && !dataItem.IdPaths.IsNullOrEmpty())
@@ -240,6 +277,11 @@ namespace MTConnect.Devices
             return null;
         }
 
+        /// <summary>
+        /// Builds the ordered list of Type segments from the containing hierarchy down to the DataItem itself.
+        /// </summary>
+        /// <param name="dataItem">The DataItem whose Type path is built.</param>
+        /// <returns>The Type segments from the outermost container to the DataItem, or null when <paramref name="dataItem"/> is null.</returns>
         public static string[] GenerateTypePaths(IDataItem dataItem)
         {
             if (dataItem != null)
@@ -259,6 +301,11 @@ namespace MTConnect.Devices
             return null;
         }
 
+        /// <summary>
+        /// Builds the slash-delimited Type path string from the containing hierarchy down to the DataItem itself.
+        /// </summary>
+        /// <param name="dataItem">The DataItem whose Type path is built.</param>
+        /// <returns>The Type segments joined with '/', or null when no path is available.</returns>
         public static string GenerateTypePath(IDataItem dataItem)
         {
             if (dataItem != null && !dataItem.TypePaths.IsNullOrEmpty())
@@ -270,11 +317,23 @@ namespace MTConnect.Devices
         }
 
 
+        /// <summary>
+        /// Produces a copy of this DataItem adjusted for the specified MTConnect version, dropping members not valid in that version.
+        /// </summary>
+        /// <param name="mtconnectVersion">The target MTConnect Standard version.</param>
+        /// <returns>The version-adjusted DataItem, or null when this DataItem is not valid in that version.</returns>
         public DataItem Process(Version mtconnectVersion)
         {
             return Process(this, mtconnectVersion);
         }
 
+        /// <summary>
+        /// Hook for derived DataItem types to apply type-specific adjustments during version processing.
+        /// The base implementation returns the DataItem unchanged.
+        /// </summary>
+        /// <param name="dataItem">The DataItem being processed.</param>
+        /// <param name="mtconnectVersion">The target MTConnect Standard version.</param>
+        /// <returns>The adjusted DataItem.</returns>
         protected virtual DataItem OnProcess(DataItem dataItem, Version mtconnectVersion)
         {
             return dataItem;
@@ -310,8 +369,8 @@ namespace MTConnect.Devices
                     var conditionValidation = ValidateCondition(mtconnectVersion, observation);
                     if (!conditionValidation.IsValid) result = conditionValidation;
                     break;
-            }       
-            
+            }
+
             return result;
         }
 
@@ -356,7 +415,7 @@ namespace MTConnect.Devices
                         if (!conditionValidation.IsValid) result = conditionValidation;
                         break;
                 }
-            }           
+            }
 
             return result;
         }
@@ -435,22 +494,49 @@ namespace MTConnect.Devices
             return OnValidation(mtconnectVersion, observation);
         }
 
+        /// <summary>
+        /// Hook for derived DataItem types to apply type-specific validation of an input value.
+        /// The base implementation treats every value as valid.
+        /// </summary>
+        /// <param name="mtconnectVerion">The MTConnect Standard version to validate against.</param>
+        /// <param name="observation">The observation input being validated.</param>
+        /// <returns>The validation result for the type-specific check.</returns>
         protected virtual ValidationResult OnValidation(Version mtconnectVerion, IObservationInput observation)
         {
             return new ValidationResult(true);
         }
 
+        /// <summary>
+        /// Hook for derived DataItem types to apply type-specific validation of an existing observation.
+        /// The base implementation treats every observation as valid.
+        /// </summary>
+        /// <param name="mtconnectVerion">The MTConnect Standard version to validate against.</param>
+        /// <param name="observation">The observation being validated.</param>
+        /// <returns>The validation result for the type-specific check.</returns>
         protected virtual ValidationResult OnValidation(Version mtconnectVerion, IObservation observation)
         {
             return new ValidationResult(true);
         }
 
 
+        /// <summary>
+        /// Builds a DataItem Id by combining a parent Id with a name segment.
+        /// </summary>
+        /// <param name="parentId">The Id of the containing Component or Device.</param>
+        /// <param name="name">The name segment to append.</param>
+        /// <returns>The composed Id in the form "parentId_name".</returns>
         public static string CreateId(string parentId, string name)
         {
             return $"{parentId}_{name}";
         }
 
+        /// <summary>
+        /// Builds a DataItem Id from a parent Id and the DataItem's type and optional subtype.
+        /// </summary>
+        /// <param name="parentId">The Id of the containing Component or Device.</param>
+        /// <param name="type">The DataItem Type.</param>
+        /// <param name="subType">An optional SubType included in the Id when present.</param>
+        /// <returns>The composed Id, or null when <paramref name="parentId"/> or <paramref name="type"/> is empty.</returns>
         public static string CreateDataItemId(string parentId, string type, string subType = null)
         {
             if (!string.IsNullOrEmpty(parentId) && !string.IsNullOrEmpty(type))
@@ -468,6 +554,13 @@ namespace MTConnect.Devices
             return null;
         }
 
+        /// <summary>
+        /// Builds a DataItem Id from a parent Id, a name segment, and an optional suffix.
+        /// </summary>
+        /// <param name="parentId">The Id of the containing Component or Device.</param>
+        /// <param name="name">The name segment to append.</param>
+        /// <param name="suffix">An optional suffix appended after the name when present.</param>
+        /// <returns>The composed Id.</returns>
         public static string CreateId(string parentId, string name, string suffix)
         {
             if (!string.IsNullOrEmpty(name))
@@ -521,6 +614,11 @@ namespace MTConnect.Devices
         }
 
 
+        /// <summary>
+        /// Creates the most-derived DataItem subclass matching the given DataItem's Type and copies its properties.
+        /// </summary>
+        /// <param name="dataItem">The source DataItem to recreate as its concrete type.</param>
+        /// <returns>A typed DataItem instance, or a base DataItem when the Type is not recognized.</returns>
         public static DataItem Create(IDataItem dataItem)
         {
             var type = GetDataItemType(dataItem.Type);
@@ -557,12 +655,22 @@ namespace MTConnect.Devices
             return (DataItem)dataItem;
         }
 
+        /// <summary>
+        /// Creates an instance of the DataItem subclass registered for the specified Type identifier.
+        /// </summary>
+        /// <param name="type">The MTConnect DataItem Type identifier.</param>
+        /// <returns>A new typed DataItem instance, or null when the Type is not recognized.</returns>
         public static DataItem Create(string type)
         {
             var t = GetDataItemType(type);
             return Create(t);
         }
 
+        /// <summary>
+        /// Creates an instance of the specified DataItem CLR type using its parameterless constructor.
+        /// </summary>
+        /// <param name="type">The concrete DataItem CLR type to instantiate.</param>
+        /// <returns>A new DataItem instance, or null when instantiation fails.</returns>
         public static DataItem Create(Type type)
         {
             if (type != null)
@@ -582,6 +690,10 @@ namespace MTConnect.Devices
             return new DataItem();
         }
 
+        /// <summary>
+        /// Returns every DataItem Type identifier known to the library across all categories.
+        /// </summary>
+        /// <returns>The registered DataItem Type identifiers.</returns>
         public static IEnumerable<string> GetTypes()
         {
             lock (_lock)
@@ -592,6 +704,10 @@ namespace MTConnect.Devices
             }
         }
 
+        /// <summary>
+        /// Returns every DataItem Type identifier that belongs to the Condition category.
+        /// </summary>
+        /// <returns>The registered Condition-category Type identifiers.</returns>
         public static IEnumerable<string> GetConditionTypes()
         {
             if (_conditionTypes == null)
@@ -618,6 +734,10 @@ namespace MTConnect.Devices
             return _conditionTypes;
         }
 
+        /// <summary>
+        /// Returns every DataItem Type identifier that belongs to the Event category.
+        /// </summary>
+        /// <returns>The registered Event-category Type identifiers.</returns>
         public static IEnumerable<string> GetEventTypes()
         {
             if (_eventTypes == null)
@@ -644,6 +764,10 @@ namespace MTConnect.Devices
             return _eventTypes;
         }
 
+        /// <summary>
+        /// Returns every DataItem Type identifier that belongs to the Sample category.
+        /// </summary>
+        /// <returns>The registered Sample-category Type identifiers.</returns>
         public static IEnumerable<string> GetSampleTypes()
         {
             if (_sampleTypes == null)
@@ -670,6 +794,10 @@ namespace MTConnect.Devices
             return _sampleTypes;
         }
 
+        /// <summary>
+        /// Returns the human-readable description for every known DataItem Type, keyed by Type identifier.
+        /// </summary>
+        /// <returns>Pairs of Type identifier and its description text.</returns>
         public static IEnumerable<KeyValuePair<string, string>> GetTypeDescriptions()
         {
             if (_typeDescriptions == null)
@@ -695,6 +823,10 @@ namespace MTConnect.Devices
             return _typeDescriptions;
         }
 
+        /// <summary>
+        /// Returns the set of valid SubType identifiers for every known DataItem Type, keyed by Type identifier.
+        /// </summary>
+        /// <returns>Pairs of Type identifier and its collection of valid SubType identifiers.</returns>
         public static IEnumerable<KeyValuePair<string, IEnumerable<string>>> GetSubTypes()
         {
             if (_subtypes == null)
@@ -731,6 +863,10 @@ namespace MTConnect.Devices
             return _subtypes;
         }
 
+        /// <summary>
+        /// Returns the human-readable description for every known DataItem SubType, keyed by "Type.SubType".
+        /// </summary>
+        /// <returns>Pairs of qualified SubType key and its description text.</returns>
         public static IEnumerable<KeyValuePair<string, string>> GetSubTypeDescriptions()
         {
             if (_subtypeDescriptions == null)
@@ -781,6 +917,10 @@ namespace MTConnect.Devices
             return _subtypeDescriptions;
         }
 
+        /// <summary>
+        /// Returns the conventional default name for every known DataItem Type, keyed by Type identifier.
+        /// </summary>
+        /// <returns>Pairs of Type identifier and its default name.</returns>
         public static IEnumerable<KeyValuePair<string, string>> GetDefaultNames()
         {
             if (_defaultNames == null)
@@ -810,6 +950,10 @@ namespace MTConnect.Devices
             return _defaultNames;
         }
 
+        /// <summary>
+        /// Returns the default measurement Units for every known DataItem Type, keyed by Type identifier.
+        /// </summary>
+        /// <returns>Pairs of Type identifier and its default Units.</returns>
         public static IEnumerable<KeyValuePair<string, string>> GetDefaultUnits()
         {
             if (_defaultUnits == null)
@@ -839,6 +983,10 @@ namespace MTConnect.Devices
             return _defaultUnits;
         }
 
+        /// <summary>
+        /// Returns the default significant-digit precision for every known DataItem Type, keyed by Type identifier.
+        /// </summary>
+        /// <returns>Pairs of Type identifier and its default significant-digit count.</returns>
         public static IEnumerable<KeyValuePair<string, int>> GetDefaultSignificantDigits()
         {
             if (_defaultSignificantDigits == null)
@@ -868,6 +1016,11 @@ namespace MTConnect.Devices
             return _defaultSignificantDigits;
         }
 
+        /// <summary>
+        /// Resolves the concrete DataItem CLR type registered for the specified Type identifier.
+        /// </summary>
+        /// <param name="type">The MTConnect DataItem Type identifier.</param>
+        /// <returns>The matching CLR type, or null when the Type is not recognized.</returns>
         public static Type GetDataItemType(string type)
         {
             if (!string.IsNullOrEmpty(type))
@@ -894,6 +1047,11 @@ namespace MTConnect.Devices
             return typeof(DataItem);
         }
 
+        /// <summary>
+        /// Returns the human-readable description for the specified DataItem Type.
+        /// </summary>
+        /// <param name="type">The MTConnect DataItem Type identifier.</param>
+        /// <returns>The description text, or null when the Type is not recognized.</returns>
         public static string GetDataItemDescription(string type)
         {
             if (!string.IsNullOrEmpty(type))
@@ -908,6 +1066,11 @@ namespace MTConnect.Devices
             return null;
         }
 
+        /// <summary>
+        /// Returns the valid SubType identifiers for the specified DataItem Type.
+        /// </summary>
+        /// <param name="type">The MTConnect DataItem Type identifier.</param>
+        /// <returns>The valid SubType identifiers, or null when the Type has none or is not recognized.</returns>
         public static IEnumerable<string> GetDataItemSubTypes(string type)
         {
             if (!string.IsNullOrEmpty(type))
@@ -922,6 +1085,12 @@ namespace MTConnect.Devices
             return null;
         }
 
+        /// <summary>
+        /// Returns the human-readable description for a specific SubType of the specified DataItem Type.
+        /// </summary>
+        /// <param name="type">The MTConnect DataItem Type identifier.</param>
+        /// <param name="subtype">The SubType identifier.</param>
+        /// <returns>The description text, or null when the Type/SubType pair is not recognized.</returns>
         public static string GetDataItemSubTypeDescription(string type, string subtype)
         {
             if (!string.IsNullOrEmpty(type) && !string.IsNullOrEmpty(subtype))
@@ -936,6 +1105,11 @@ namespace MTConnect.Devices
             return null;
         }
 
+        /// <summary>
+        /// Returns the conventional default name for the specified DataItem Type.
+        /// </summary>
+        /// <param name="type">The MTConnect DataItem Type identifier.</param>
+        /// <returns>The default name, or null when the Type is not recognized.</returns>
         public static string GetDataItemDefaultName(string type)
         {
             if (!string.IsNullOrEmpty(type))
@@ -950,6 +1124,11 @@ namespace MTConnect.Devices
             return null;
         }
 
+        /// <summary>
+        /// Returns the default measurement Units for the specified DataItem Type.
+        /// </summary>
+        /// <param name="type">The MTConnect DataItem Type identifier.</param>
+        /// <returns>The default Units, or null when the Type has no defined Units or is not recognized.</returns>
         public static string GetDataItemDefaultUnits(string type)
         {
             if (!string.IsNullOrEmpty(type))
@@ -964,6 +1143,11 @@ namespace MTConnect.Devices
             return null;
         }
 
+        /// <summary>
+        /// Returns the default significant-digit precision for the specified DataItem Type.
+        /// </summary>
+        /// <param name="type">The MTConnect DataItem Type identifier.</param>
+        /// <returns>The default significant-digit count, or zero when none is defined for the Type.</returns>
         public static int GetDataItemDefaultSignificantDigits(string type)
         {
             if (!string.IsNullOrEmpty(type))
@@ -1018,6 +1202,12 @@ namespace MTConnect.Devices
         }
 
 
+        /// <summary>
+        /// Determines whether the specified DataItem is valid for use under the given MTConnect Standard version.
+        /// </summary>
+        /// <param name="dataItem">The DataItem to check.</param>
+        /// <param name="mtconnectVersion">The target MTConnect Standard version.</param>
+        /// <returns>True when the DataItem's version range includes <paramref name="mtconnectVersion"/>; otherwise false.</returns>
         public static bool IsCompatible(IDataItem dataItem, Version mtconnectVersion)
         {
             if (dataItem != null)
@@ -1028,6 +1218,13 @@ namespace MTConnect.Devices
             return false;
         }
 
+        /// <summary>
+        /// Produces a typed copy of the specified DataItem adjusted for the target MTConnect version,
+        /// returning null when the DataItem is not valid in that version.
+        /// </summary>
+        /// <param name="dataItem">The source DataItem to process.</param>
+        /// <param name="mtconnectVersion">The target MTConnect Standard version; when null, the latest version is assumed.</param>
+        /// <returns>The version-adjusted DataItem, or null when it is not valid in that version.</returns>
         public static DataItem Process(IDataItem dataItem, Version mtconnectVersion = null)
         {
             if (dataItem != null)
@@ -1135,7 +1332,7 @@ namespace MTConnect.Devices
 
                     // Check CompositionId
                     if (version >= MTConnectVersions.Version14)
-                    {                       
+                    {
                         obj.CompositionId = dataItem.CompositionId;
                     }
                     else if (!string.IsNullOrEmpty(dataItem.CompositionId))

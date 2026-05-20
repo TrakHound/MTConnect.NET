@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.RawMaterials
 {
+    /// <summary>
+    /// Description text for each <see cref="Form"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class FormDescriptions
     {
         /// <summary>
@@ -51,6 +54,9 @@ namespace MTConnect.Assets.RawMaterials
         public const string SHEET = "";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="Form"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(Form value)
         {
             switch (value)

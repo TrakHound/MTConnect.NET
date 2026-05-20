@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// Description text for each <see cref="ConnectionStatus"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class ConnectionStatusDescriptions
     {
         /// <summary>
@@ -21,6 +24,9 @@ namespace MTConnect.Observations.Events
         public const string ESTABLISHED = "Open connection.The normal state for the data transfer phase of the connection.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="ConnectionStatus"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(ConnectionStatus value)
         {
             switch (value)

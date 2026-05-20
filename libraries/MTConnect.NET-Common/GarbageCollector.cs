@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace MTConnect
 {
+    /// <summary>
+    /// Background coordinator that debounces explicit GC requests: callers signal a low- or high-priority need to collect, and a worker performs full collections no more often than the configured intervals, then tapers off with an exponentially backing-off "run" series so memory is reclaimed without thrashing.
+    /// </summary>
     public class GarbageCollector : IDisposable
     {
         private const int _interval = 250;
@@ -31,6 +34,11 @@ namespace MTConnect
         private bool _highPriorityCollect = false;
 
 
+        /// <summary>
+        /// Starts the background worker that performs debounced collections, with separate minimum spacings (in milliseconds) for low- and high-priority requests.
+        /// </summary>
+        /// <param name="lowPriorityInterval">Minimum milliseconds between collections triggered by low-priority requests.</param>
+        /// <param name="highPriorityInterval">Minimum milliseconds between collections triggered by high-priority requests.</param>
         public GarbageCollector(int lowPriorityInterval = 10000, int highPriorityInterval = 500)
         {
             _lowPriorityInterval = lowPriorityInterval * 10000; // Convert ms to ticks
@@ -39,6 +47,9 @@ namespace MTConnect
             _ = Task.Run(Worker);
         }
 
+        /// <summary>
+        /// Signals the background worker to stop.
+        /// </summary>
         public void Dispose()
         {
             if (_stop != null) _stop.Cancel();
@@ -114,16 +125,27 @@ namespace MTConnect
         }
 
 
+        /// <summary>
+        /// Lazily creates the shared singleton collector with the given intervals; subsequent calls have no effect.
+        /// </summary>
+        /// <param name="lowPriorityInterval">Minimum milliseconds between low-priority collections.</param>
+        /// <param name="highPriorityInterval">Minimum milliseconds between high-priority collections.</param>
         public static void Initialize(int lowPriorityInterval = 30000, int highPriorityInterval = 500)
         {
             if (_instance == null) _instance = new GarbageCollector(lowPriorityInterval, highPriorityInterval);
         }
 
+        /// <summary>
+        /// Stops the shared singleton collector if it has been created.
+        /// </summary>
         public static void DisposeInstance()
         {
             if (_instance != null) _instance.Dispose();
         }
 
+        /// <summary>
+        /// Requests a low-priority collection on the shared collector; the actual collection is deferred until the low-priority interval has elapsed.
+        /// </summary>
         public static void LowPriorityCollect()
         {
             if (_instance != null)
@@ -135,6 +157,9 @@ namespace MTConnect
             }
         }
 
+        /// <summary>
+        /// Requests a high-priority collection on the shared collector; collections are deferred only by the shorter high-priority interval and take precedence over low-priority requests.
+        /// </summary>
         public static void HighPriorityCollect()
         {
             if (_instance != null)

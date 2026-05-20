@@ -10,6 +10,9 @@ namespace MTConnect.Assets.Files
     /// </summary>
     public class Destination : IDestination
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Reference to the target Device for this File.";
 
 

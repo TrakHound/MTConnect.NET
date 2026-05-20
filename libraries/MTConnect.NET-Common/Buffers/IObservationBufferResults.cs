@@ -28,12 +28,24 @@ namespace MTConnect.Buffers
         /// </summary>
         BufferObservation[] Observations { get; }
 
+        /// <summary>
+        /// Gets the sequence number of the first observation actually included in this result set.
+        /// </summary>
         ulong FirstObservationSequence { get; }
 
+        /// <summary>
+        /// Gets the sequence number of the last observation actually included in this result set.
+        /// </summary>
         ulong LastObservationSequence { get; }
 
+        /// <summary>
+        /// Gets the number of observations contained in this result set.
+        /// </summary>
         uint ObservationCount { get; }
 
+        /// <summary>
+        /// Indicates whether the requested range could be satisfied; false when the buffer no longer holds the requested sequences.
+        /// </summary>
         bool IsValid { get; }
     }
 }

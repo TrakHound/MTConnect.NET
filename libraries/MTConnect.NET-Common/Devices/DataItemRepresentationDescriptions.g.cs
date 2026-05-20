@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// Description text for each <see cref="DataItemRepresentation"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class DataItemRepresentationDescriptions
     {
         /// <summary>
@@ -31,6 +34,9 @@ namespace MTConnect.Devices
         public const string VALUE = "Measured value of the sample data.representation **MUST** be determined to be `VALUE`.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="DataItemRepresentation"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(DataItemRepresentation value)
         {
             switch (value)

@@ -10,6 +10,9 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public class ProcessSpecification : Specification, IProcessSpecification
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Specification that provides information used to assess the conformance of a variable to process requirements.";
 
 
@@ -17,12 +20,12 @@ namespace MTConnect.Devices.Configurations
         /// Set of limits that is used to trigger warning or alarm indicators.
         /// </summary>
         public MTConnect.Devices.Configurations.IAlarmLimits AlarmLimits { get; set; }
-        
+
         /// <summary>
         /// Set of limits that is used to indicate whether a process variable is stable and in control.
         /// </summary>
         public MTConnect.Devices.Configurations.IControlLimits ControlLimits { get; set; }
-        
+
         /// <summary>
         /// Set of limits that define a range of values designating acceptable performance for a variable.
         /// </summary>

@@ -5,6 +5,9 @@ namespace MTConnect.Devices.References
 {
     public abstract partial class Reference
     {
+        /// <summary>
+        /// A human-readable description of the concrete Reference type, defaulting to the type's description text.
+        /// </summary>
         public virtual string TypeDescription => DescriptionText;
     }
 }

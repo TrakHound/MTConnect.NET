@@ -10,6 +10,9 @@ namespace MTConnect.Assets
     /// </summary>
     public partial class Asset : IAsset
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Abstract Asset.";
 
 
@@ -17,52 +20,52 @@ namespace MTConnect.Assets
         /// Unique identifier for an Asset.
         /// </summary>
         public string AssetId { get; set; }
-        
+
         /// <summary>
         /// Technical information about an entity describing its physical layout, functional characteristics, and relationships with other entities.
         /// </summary>
         public MTConnect.Devices.Configurations.IConfiguration Configuration { get; set; }
-        
+
         /// <summary>
         /// Textual description for Asset.
         /// </summary>
         public string Description { get; set; }
-        
+
         /// <summary>
         /// Associated piece of equipment's UUID that supplied the Asset's data.uuid defined in Device Information Model.
         /// </summary>
         public string DeviceUuid { get; set; }
-        
+
         /// <summary>
         /// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
         /// </summary>
         public string Hash { get; set; }
-        
+
         /// <summary>
         /// 
         /// </summary>
         public System.Collections.Generic.IEnumerable<string> Manufacturers { get; set; }
-        
+
         /// <summary>
         /// 
         /// </summary>
         public string Model { get; set; }
-        
+
         /// <summary>
         /// Indicator that the Asset has been removed from the piece of equipment.
         /// </summary>
         public bool Removed { get; set; }
-        
+
         /// <summary>
         /// 
         /// </summary>
         public string SerialNumber { get; set; }
-        
+
         /// <summary>
         /// 
         /// </summary>
         public string Station { get; set; }
-        
+
         /// <summary>
         /// Time the Asset data was last modified.
         /// </summary>

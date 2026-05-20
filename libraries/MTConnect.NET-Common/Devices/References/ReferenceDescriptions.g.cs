@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices.References
 {
+    /// <summary>
+    /// Description text for each property of <c>Reference</c> as defined by the MTConnect Standard.
+    /// </summary>
     public static class ReferenceDescriptions
     {
         /// <summary>

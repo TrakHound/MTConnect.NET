@@ -20,16 +20,38 @@ namespace MTConnect.Observations
         /// If an Agent cannot determine a Valid Data Value for a DataItem, the value returned for the Result for the Data Entity MUST be reported as UNAVAILABLE.
         /// </summary>
         public const string Unavailable = "UNAVAILABLE";
+
+        /// <summary>
+        /// The explanatory description of when an Observation result is reported as UNAVAILABLE.
+        /// </summary>
         public const string UnavailableDescription = "If an Agent cannot determine a Valid Data Value for a DataItem, the value returned for the Result for the Data Entity MUST be reported as UNAVAILABLE.";
         private const string UppercaseValuePattern = "^[a-zA-Z_]*$";
 
         private static readonly Regex _uppercaseValueRegex = new Regex(UppercaseValuePattern);
 
+        /// <summary>
+        /// Cache mapping each Observation type identifier to its concrete implementing type's full name.
+        /// </summary>
         protected static readonly Dictionary<string, string> _typeIds = new Dictionary<string, string>();
+
+        /// <summary>
+        /// Lazily populated cache mapping each Observation type identifier to its concrete CLR type.
+        /// </summary>
         protected static Dictionary<string, Type> _types;
+
+        /// <summary>
+        /// Synchronization object guarding lazy initialization of the shared type caches.
+        /// </summary>
         protected static readonly object _typeLock = new object();
 
+        /// <summary>
+        /// Synchronization object guarding mutation of this Observation's value collection.
+        /// </summary>
         protected readonly object _valueLock = new object();
+
+        /// <summary>
+        /// The Observation's values, keyed by value key.
+        /// </summary>
         protected readonly Dictionary<string, ObservationValue> _values = new Dictionary<string, ObservationValue>();
 
 
@@ -67,6 +89,9 @@ namespace MTConnect.Observations
             set => _uuid = value;
         }
 
+        /// <summary>
+        /// The MTConnect entity classification for this object, which is always <see cref="MTConnectEntityType.Observation"/>.
+        /// </summary>
         public MTConnectEntityType EntityType => MTConnectEntityType.Observation;
 
         internal string _dataItemId;
@@ -219,6 +244,10 @@ namespace MTConnect.Observations
         public IEnumerable<ObservationValue> Values => _values.Values;
 
 
+        /// <summary>
+        /// Validates this Observation against its DataItem's constraints for the Device's MTConnect version.
+        /// </summary>
+        /// <returns>The validation result; an invalid result when the Observation has no associated DataItem or Device.</returns>
         public ValidationResult Validate()
         {
             var result = new ValidationResult(false);
@@ -232,6 +261,11 @@ namespace MTConnect.Observations
         }
 
 
+        /// <summary>
+        /// Creates the Observation subclass that matches the given DataItem's category (Sample, Event, or Condition).
+        /// </summary>
+        /// <param name="dataItem">The DataItem the Observation is created for.</param>
+        /// <returns>A category-specific Observation, or a base Observation when <paramref name="dataItem"/> is null.</returns>
         public static Observation Create(IDataItem dataItem)
         {
             if (dataItem != null)
@@ -248,6 +282,11 @@ namespace MTConnect.Observations
         }
 
 
+        /// <summary>
+        /// Returns the raw string value stored under the specified value key.
+        /// </summary>
+        /// <param name="valueKey">The value key to look up.</param>
+        /// <returns>The stored value, or null when the key is absent.</returns>
         public string GetValue(string valueKey)
         {
             if (!string.IsNullOrEmpty(valueKey) && !_values.IsNullOrEmpty())
@@ -264,6 +303,12 @@ namespace MTConnect.Observations
             return null;
         }
 
+        /// <summary>
+        /// Returns the value stored under the specified value key converted to the requested type.
+        /// </summary>
+        /// <typeparam name="TValue">The type to convert the stored value to.</typeparam>
+        /// <param name="valueKey">The value key to look up.</param>
+        /// <returns>The converted value, or the default of <typeparamref name="TValue"/> when the key is absent.</returns>
         public TValue GetValue<TValue>(string valueKey)
         {
             var value = GetValue(valueKey);
@@ -275,6 +320,11 @@ namespace MTConnect.Observations
             return default;
         }
 
+        /// <summary>
+        /// Adds or replaces the value stored under the specified value key.
+        /// </summary>
+        /// <param name="valueKey">The value key to set.</param>
+        /// <param name="value">The value to store; ignored when null.</param>
         public void AddValue(string valueKey, object value)
         {
             if (!string.IsNullOrEmpty(valueKey) && value != null)
@@ -283,6 +333,10 @@ namespace MTConnect.Observations
             }
         }
 
+        /// <summary>
+        /// Adds or replaces the given value, raising the value-added notification afterward.
+        /// </summary>
+        /// <param name="observationValue">The value to store, identified by its key.</param>
         public void AddValue(ObservationValue observationValue)
         {
             if (!string.IsNullOrEmpty(observationValue.Key))
@@ -301,6 +355,10 @@ namespace MTConnect.Observations
             }
         }
 
+        /// <summary>
+        /// Adds or replaces each value in the given collection.
+        /// </summary>
+        /// <param name="observationValues">The values to store.</param>
         public void AddValues(IEnumerable<ObservationValue> observationValues)
         {
             if (!observationValues.IsNullOrEmpty())
@@ -313,9 +371,22 @@ namespace MTConnect.Observations
         }
 
 
+        /// <summary>
+        /// Hook invoked after a value is added, letting derived Observation types react to the change.
+        /// The base implementation does nothing.
+        /// </summary>
+        /// <param name="observationValue">The value that was added.</param>
         protected virtual void OnValueAdded(ObservationValue observationValue) { }
 
 
+        /// <summary>
+        /// Returns the human-readable description for an observed value of the given category, type, and subtype.
+        /// </summary>
+        /// <param name="category">The DataItem category.</param>
+        /// <param name="type">The DataItem Type.</param>
+        /// <param name="subType">The DataItem SubType.</param>
+        /// <param name="value">The observed value to describe.</param>
+        /// <returns>The description text, or null when no description applies to the category.</returns>
         public static string GetDescriptionText(DataItemCategory category, string type, string subType, string value)
         {
             switch (category)
@@ -327,6 +398,11 @@ namespace MTConnect.Observations
         }
 
 
+        /// <summary>
+        /// Returns a materialized copy of the supplied Observation values.
+        /// </summary>
+        /// <param name="values">The values to copy.</param>
+        /// <returns>A new list containing the supplied values, empty when none are supplied.</returns>
         public static IEnumerable<ObservationValue> ProcessValues(IEnumerable<ObservationValue> values)
         {
             var valuesList = new List<ObservationValue>();
@@ -342,6 +418,11 @@ namespace MTConnect.Observations
             return valuesList;
         }
 
+        /// <summary>
+        /// Returns a copy of the supplied values with non-numeric, identifier-shaped string values upper-cased.
+        /// </summary>
+        /// <param name="values">The values to normalize.</param>
+        /// <returns>The values with eligible string values upper-cased.</returns>
         public static IEnumerable<ObservationValue> UppercaseValues(IEnumerable<ObservationValue> values)
         {
             if (!values.IsNullOrEmpty())
@@ -396,6 +477,10 @@ namespace MTConnect.Observations
         }
 
 
+        /// <summary>
+        /// Discovers every concrete Observation type across the loaded assemblies, keyed by Observation type identifier.
+        /// </summary>
+        /// <returns>The discovered Observation types keyed by their type identifier.</returns>
         protected static Dictionary<string, Type> GetAllTypes()
         {
             var assemblies = Assemblies.Get();

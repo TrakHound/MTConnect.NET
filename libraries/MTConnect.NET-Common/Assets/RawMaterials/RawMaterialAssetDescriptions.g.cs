@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.RawMaterials
 {
+    /// <summary>
+    /// Description text for each property of <c>RawMaterialAsset</c> as defined by the MTConnect Standard.
+    /// </summary>
     public static class RawMaterialAssetDescriptions
     {
         /// <summary>

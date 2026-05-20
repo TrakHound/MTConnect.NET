@@ -19,6 +19,11 @@ namespace MTConnect.Observations
         public const string HIGH = "A measured value that is greater than the expected value for the process variable";
 
 
+        /// <summary>
+        /// Returns the descriptive text for the given Condition qualifier.
+        /// </summary>
+        /// <param name="qualifier">The Condition qualifier to describe.</param>
+        /// <returns>The description text, or an empty string for an unrecognized qualifier.</returns>
         public static string Get(ConditionQualifier qualifier)
         {
             switch (qualifier)

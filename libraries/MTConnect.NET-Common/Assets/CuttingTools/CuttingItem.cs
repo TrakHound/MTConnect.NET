@@ -7,6 +7,9 @@ namespace MTConnect.Assets.CuttingTools
 {
     public partial class CuttingItem
     {
+        /// <summary>
+        /// Initializes a new CuttingItem with empty cutter-status and measurement collections.
+        /// </summary>
         public CuttingItem()
         {
             CutterStatus = new List<CutterStatusType>();
@@ -14,6 +17,9 @@ namespace MTConnect.Assets.CuttingTools
         }
 
 
+        /// <summary>
+        /// Returns a copy of this cutting item with its measurements rebound to their concrete tooling-measurement subtypes so they serialize with the correct element name.
+        /// </summary>
         public ICuttingItem Process()
         {
             var cuttingItem = new CuttingItem();
@@ -41,6 +47,10 @@ namespace MTConnect.Assets.CuttingTools
             return cuttingItem;
         }
 
+        /// <summary>
+        /// Computes a SHA-1 content hash over the cutting item's scalar properties for change detection; returns null for a null item.
+        /// </summary>
+        /// <param name="cuttingItem">The cutting item to hash.</param>
         public static string GenerateHash(ICuttingItem cuttingItem)
         {
             if (cuttingItem != null)

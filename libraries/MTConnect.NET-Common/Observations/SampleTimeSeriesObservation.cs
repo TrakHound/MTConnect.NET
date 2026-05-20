@@ -35,12 +35,19 @@ namespace MTConnect.Observations
         }
 
 
+        /// <summary>
+        /// Initializes a new Sample Observation that reports a TIME_SERIES representation.
+        /// </summary>
         public SampleTimeSeriesObservation() : base()
         {
             _representation = Devices.DataItemRepresentation.TIME_SERIES;
         }
 
 
+        /// <summary>
+        /// Invalidates the cached Time Series samples so they are rebuilt the next time they are read.
+        /// </summary>
+        /// <param name="observationValue">The value that was added.</param>
         protected override void OnValueAdded(ObservationValue observationValue)
         {
             _entries = null;

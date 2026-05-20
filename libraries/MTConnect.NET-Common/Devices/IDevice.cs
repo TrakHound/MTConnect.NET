@@ -16,6 +16,10 @@ namespace MTConnect.Devices
         new string Type { get; }
 
 
+        /// <summary>
+        /// Computes a content hash for this Device that changes whenever its hashed members change.
+        /// </summary>
+        /// <returns>A SHA-1 hash string identifying the current state of this Device.</returns>
         string GenerateHash();
     }
 }

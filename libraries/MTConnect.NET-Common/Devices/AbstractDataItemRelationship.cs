@@ -19,11 +19,20 @@ namespace MTConnect.Devices
         }
 
 
+        /// <summary>
+        /// Computes a content hash for this relationship that changes whenever its hashed properties change.
+        /// </summary>
+        /// <returns>A SHA-1 hash string identifying the current state of this relationship.</returns>
         public string GenerateHash()
         {
             return GenerateHash(this);
         }
 
+        /// <summary>
+        /// Computes a content hash for the specified DataItem relationship.
+        /// </summary>
+        /// <param name="relationship">The relationship to hash.</param>
+        /// <returns>A SHA-1 hash string, or null when <paramref name="relationship"/> is null.</returns>
         public static string GenerateHash(IAbstractDataItemRelationship relationship)
         {
             if (relationship != null)

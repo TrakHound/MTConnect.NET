@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.Files
 {
+    /// <summary>
+    /// ApplicationCategory controlled vocabulary as defined by the MTConnect Standard.
+    /// </summary>
     public enum ApplicationCategory
     {
         /// <summary>

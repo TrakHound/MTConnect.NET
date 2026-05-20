@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.ComponentConfigurationParameters
 {
+    /// <summary>
+    /// Description text for each property of <c>Parameter</c> as defined by the MTConnect Standard.
+    /// </summary>
     public static class ParameterDescriptions
     {
         /// <summary>

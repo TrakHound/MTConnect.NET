@@ -24,7 +24,7 @@ namespace MTConnect.Agents
     /// Algorithm: UUID v5 over the RFC 4122 DNS namespace UUID
     /// <c>6ba7b810-9dad-11d1-80b4-00c04fd430c8</c> with seed
     /// <c>"agent:" + agentName + ":" + port</c>.  Falls back to
-    /// <c>"agent:" + hostname + ":" + port</c> when <paramref name="agentName"/>
+    /// <c>"agent:" + hostname + ":" + port</c> when <c>agentName</c>
     /// is <see langword="null"/> or empty.
     /// </para>
     ///

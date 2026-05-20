@@ -12,6 +12,10 @@ namespace MTConnect.Assets.CuttingTools
     /// </summary>
     public partial class ToolLife
     {
+        /// <summary>
+        /// Computes a SHA-1 content hash over the tool-life entry's scalar properties for change detection; returns null for a null entry.
+        /// </summary>
+        /// <param name="toolLife">The tool-life entry to hash.</param>
         public static string GenerateHash(IToolLife toolLife)
         {
             if (toolLife != null)

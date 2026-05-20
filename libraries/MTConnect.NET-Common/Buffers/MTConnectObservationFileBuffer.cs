@@ -36,25 +36,55 @@ namespace MTConnect.Buffers
         private bool _currentConditionUpdated;
 
 
+        /// <summary>
+        /// The interval, in milliseconds, between background flushes of queued observation changes to disk.
+        /// </summary>
         public int WriteInterval { get; set; } = 5000;
 
+        /// <summary>
+        /// The interval, in milliseconds, between retention passes that prune persisted observations that have aged out of the buffer.
+        /// </summary>
         public int RetentionInterval { get; set; } = 10000;
 
+        /// <summary>
+        /// The number of observations grouped into a single on-disk page during load and flush operations.
+        /// </summary>
         public uint PageSize { get; set; } = DefaultPageSize;
 
+        /// <summary>
+        /// The maximum number of queued observation changes written to disk in a single flush.
+        /// </summary>
         public int MaxItemsPerWrite { get; set; } = 50000;
 
+        /// <summary>
+        /// The number of observation changes currently queued and awaiting a flush to disk.
+        /// </summary>
         public long QueuedItemCount => _items.Count;
 
+        /// <summary>
+        /// Indicates whether persisted observation pages are GZip-compressed.
+        /// </summary>
         public bool UseCompression { get; set; } = true;
 
+        /// <summary>
+        /// Raised when the buffer begins reloading persisted observations from disk on startup.
+        /// </summary>
         public event EventHandler BufferLoadStarted;
 
+        /// <summary>
+        /// Raised when the startup reload completes, reporting the number of observations recovered and the elapsed time.
+        /// </summary>
         public event EventHandler<ObservationBufferLoadArgs> BufferLoadCompleted;
 
+        /// <summary>
+        /// Raised when a retention pass completes, reporting the purged sequence range, count, and elapsed time.
+        /// </summary>
         public event EventHandler<ObservationBufferRetentionArgs> BufferRetentionCompleted;
 
 
+        /// <summary>
+        /// Initializes the durable observation buffer with default settings and starts the background write and retention workers.
+        /// </summary>
         public MTConnectObservationFileBuffer()
         {
             _items = new MTConnectObservationQueue();
@@ -62,6 +92,11 @@ namespace MTConnect.Buffers
             Start();
         }
 
+        /// <summary>
+        /// Initializes the durable observation buffer from the supplied agent configuration, optionally rooting persistence at a custom base path, and starts the background workers.
+        /// </summary>
+        /// <param name="configuration">The agent configuration controlling buffer capacity.</param>
+        /// <param name="basePath">An optional custom buffer root directory; when null the default location is used.</param>
         public MTConnectObservationFileBuffer(IAgentConfiguration configuration, string basePath = null) : base(configuration)
         {
             _basePath = basePath;
@@ -71,6 +106,10 @@ namespace MTConnect.Buffers
         }
 
 
+        /// <summary>
+        /// Flags the current-observation snapshot as dirty so it is rewritten on the next flush, unless the change originated from the startup reload.
+        /// </summary>
+        /// <param name="observation">The observation that became current.</param>
         protected override void OnCurrentObservationAdd(ref BufferObservation observation)
         {
             if (!_isLoading)
@@ -79,6 +118,10 @@ namespace MTConnect.Buffers
             }
         }
 
+        /// <summary>
+        /// Flags the current-condition snapshot as dirty so it is rewritten on the next flush, unless the change originated from the startup reload.
+        /// </summary>
+        /// <param name="observations">The active condition set.</param>
         protected override void OnCurrentConditionAdd(ref IEnumerable<BufferObservation> observations)
         {
             if (!_isLoading)
@@ -87,6 +130,10 @@ namespace MTConnect.Buffers
             }
         }
 
+        /// <summary>
+        /// Queues the archived observation for persistence, unless the addition originated from the startup reload itself.
+        /// </summary>
+        /// <param name="observation">The observation appended to the archive.</param>
         protected override void OnBufferObservationAdd(ref BufferObservation observation)
         {
             if (!_isLoading)
@@ -127,6 +174,9 @@ namespace MTConnect.Buffers
             }
         }
 
+        /// <summary>
+        /// Stops the background workers, flushing queued observation changes to disk, then releases the base buffer resources.
+        /// </summary>
         public new void Dispose()
         {
             Stop();
@@ -134,6 +184,10 @@ namespace MTConnect.Buffers
         }
 
 
+        /// <summary>
+        /// Deletes the entire durable observation directory under the given buffer root. WARNING: this permanently clears all persisted observations.
+        /// </summary>
+        /// <param name="basePath">The buffer root directory; when null the default location is used.</param>
         public static void Reset(string basePath)
         {
             var dir = GetDirectory(basePath, false);
@@ -152,12 +206,21 @@ namespace MTConnect.Buffers
 
         #region "Add"
 
+        /// <summary>
+        /// Enqueues a single observation to be flushed to disk by the background write worker.
+        /// </summary>
+        /// <param name="observation">The observation to persist.</param>
+        /// <returns>True if the observation was queued.</returns>
         public bool Add(BufferObservation observation)
         {
             // Add to internal Queue
             return _items.Add(observation);
         }
 
+        /// <summary>
+        /// Enqueues a batch of observations to be flushed to disk; returns true only if every observation was queued.
+        /// </summary>
+        /// <param name="observations">The observations to persist.</param>
         public bool Add(IEnumerable<BufferObservation> observations)
         {
             if (!observations.IsNullOrEmpty())
@@ -180,6 +243,10 @@ namespace MTConnect.Buffers
 
         #region "Load"
 
+        /// <summary>
+        /// Reloads all persisted observations and current snapshots from disk back into the in-memory buffer, raising <see cref="BufferLoadStarted"/> and <see cref="BufferLoadCompleted"/> around the operation.
+        /// </summary>
+        /// <returns>True if at least one observation was recovered.</returns>
         public bool Load()
         {
             var found = false;
@@ -433,7 +500,7 @@ namespace MTConnect.Buffers
         private string[] ReadFileLines(string path)
         {
             if (!string.IsNullOrEmpty(path))
-            {          
+            {
                 try
                 {
                     if (File.Exists(path))
@@ -459,7 +526,7 @@ namespace MTConnect.Buffers
                         {
                             return File.ReadAllLines(path);
                         }
-                    }                 
+                    }
                 }
                 catch { }
             }
@@ -595,6 +662,9 @@ namespace MTConnect.Buffers
             }
         }
 
+        /// <summary>
+        /// Flushes every queued observation change to disk immediately, bypassing the timed write interval.
+        /// </summary>
         public void WriteAllItems()
         {
             _ = Task.Run(async () =>
@@ -639,7 +709,7 @@ namespace MTConnect.Buffers
                 update = _currentConditionUpdated;
                 _currentConditionUpdated = false;
             }
-            
+
             if (update)
             {
                 var writeItems = GetCurrentConditions();

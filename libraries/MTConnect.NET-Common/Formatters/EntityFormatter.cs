@@ -14,12 +14,19 @@ using System.Linq;
 
 namespace MTConnect.Formatters
 {
+    /// <summary>
+    /// Static facade that discovers and caches the <see cref="IEntityFormatter"/> implementations available across loaded assemblies and dispatches entity serialization/deserialization to the one matching a requested document format, timing each operation.
+    /// </summary>
     public static class EntityFormatter
     {
         private static readonly ConcurrentDictionary<string, IEntityFormatter> _formatters = new ConcurrentDictionary<string, IEntityFormatter>();
         private static bool _firstRead = true;
 
 
+        /// <summary>
+        /// Returns the MIME content type produced by the entity formatter registered for the given format, or null when no such formatter exists.
+        /// </summary>
+        /// <param name="documentFormatterId">The identifier of the document format.</param>
         public static string GetContentType(string documentFormatterId)
         {
             // Get the Formatter with the specified ID
@@ -33,6 +40,12 @@ namespace MTConnect.Formatters
         }
 
 
+        /// <summary>
+        /// Serializes a device using the entity formatter for the given format, returning an error result when no matching formatter exists. The result's response duration is set to the elapsed time.
+        /// </summary>
+        /// <param name="documentFormatterId">The identifier of the document format.</param>
+        /// <param name="device">The device to serialize.</param>
+        /// <param name="options">Optional format-specific key/value options.</param>
         public static FormatWriteResult Format(string documentFormatterId, IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var stpw = Stopwatch.StartNew();
@@ -53,6 +66,12 @@ namespace MTConnect.Formatters
             return result;
         }
 
+        /// <summary>
+        /// Serializes a single observation using the entity formatter for the given format, returning an error result when no matching formatter exists. The result's response duration is set to the elapsed time.
+        /// </summary>
+        /// <param name="documentFormatterId">The identifier of the document format.</param>
+        /// <param name="observation">The observation to serialize.</param>
+        /// <param name="options">Optional format-specific key/value options.</param>
         public static FormatWriteResult Format(string documentFormatterId, IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var stpw = Stopwatch.StartNew();
@@ -73,6 +92,12 @@ namespace MTConnect.Formatters
             return result;
         }
 
+        /// <summary>
+        /// Serializes a batch of observations using the entity formatter for the given format, returning an error result when no matching formatter exists. The result's response duration is set to the elapsed time.
+        /// </summary>
+        /// <param name="documentFormatterId">The identifier of the document format.</param>
+        /// <param name="observations">The observations to serialize.</param>
+        /// <param name="options">Optional format-specific key/value options.</param>
         public static FormatWriteResult Format(string documentFormatterId, IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var stpw = Stopwatch.StartNew();
@@ -93,6 +118,12 @@ namespace MTConnect.Formatters
             return result;
         }
 
+        /// <summary>
+        /// Serializes an asset using the entity formatter for the given format, returning an error result when no matching formatter exists. The result's response duration is set to the elapsed time.
+        /// </summary>
+        /// <param name="documentFormatterId">The identifier of the document format.</param>
+        /// <param name="asset">The asset to serialize.</param>
+        /// <param name="options">Optional format-specific key/value options.</param>
         public static FormatWriteResult Format(string documentFormatterId, IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var stpw = Stopwatch.StartNew();
@@ -114,6 +145,11 @@ namespace MTConnect.Formatters
         }
 
 
+        /// <summary>
+        /// Deserializes a device from the given content stream using the entity formatter for the given format; returns an error result when no matching formatter exists.
+        /// </summary>
+        /// <param name="documentFormatterId">The identifier of the document format.</param>
+        /// <param name="content">The serialized device content.</param>
         public static FormatReadResult<IDevice> CreateDevice(string documentFormatterId, Stream content)
         {
             // Get the Formatter with the specified ID
@@ -127,6 +163,11 @@ namespace MTConnect.Formatters
             return FormatReadResult<IDevice>.Error(null, $"Entity Formatter Not found for \"{documentFormatterId}\"");
         }
 
+        /// <summary>
+        /// Deserializes a component from the given content stream using the entity formatter for the given format; returns an error result when no matching formatter exists.
+        /// </summary>
+        /// <param name="documentFormatterId">The identifier of the document format.</param>
+        /// <param name="content">The serialized component content.</param>
         public static FormatReadResult<IComponent> CreateComponent(string documentFormatterId, Stream content)
         {
             // Get the Formatter with the specified ID
@@ -140,6 +181,11 @@ namespace MTConnect.Formatters
             return FormatReadResult<IComponent>.Error(null, $"Entity Formatter Not found for \"{documentFormatterId}\"");
         }
 
+        /// <summary>
+        /// Deserializes a composition from the given content stream using the entity formatter for the given format; returns an error result when no matching formatter exists.
+        /// </summary>
+        /// <param name="documentFormatterId">The identifier of the document format.</param>
+        /// <param name="content">The serialized composition content.</param>
         public static FormatReadResult<IComposition> CreateComposition(string documentFormatterId, Stream content)
         {
             // Get the Formatter with the specified ID
@@ -153,6 +199,11 @@ namespace MTConnect.Formatters
             return FormatReadResult<IComposition>.Error(null, $"Entity Formatter Not found for \"{documentFormatterId}\"");
         }
 
+        /// <summary>
+        /// Deserializes a data item from the given content stream using the entity formatter for the given format; returns an error result when no matching formatter exists.
+        /// </summary>
+        /// <param name="documentFormatterId">The identifier of the document format.</param>
+        /// <param name="content">The serialized data item content.</param>
         public static FormatReadResult<IDataItem> CreateDataItem(string documentFormatterId, Stream content)
         {
             // Get the Formatter with the specified ID
@@ -166,6 +217,12 @@ namespace MTConnect.Formatters
             return FormatReadResult<IDataItem>.Error(null, $"Entity Formatter Not found for \"{documentFormatterId}\"");
         }
 
+        /// <summary>
+        /// Deserializes an asset of the given type from the content stream using the entity formatter for the given format; returns an error result when no matching formatter exists.
+        /// </summary>
+        /// <param name="documentFormatterId">The identifier of the document format.</param>
+        /// <param name="assetType">The MTConnect asset type to deserialize as.</param>
+        /// <param name="content">The serialized asset content.</param>
         public static FormatReadResult<IAsset> CreateAsset(string documentFormatterId, string assetType, Stream content)
         {
             // Get the Formatter with the specified ID

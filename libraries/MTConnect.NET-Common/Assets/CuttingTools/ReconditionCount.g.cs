@@ -10,6 +10,9 @@ namespace MTConnect.Assets.CuttingTools
     /// </summary>
     public class ReconditionCount : IReconditionCount
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Number of times the cutter has been reconditioned.";
 
 
@@ -17,7 +20,7 @@ namespace MTConnect.Assets.CuttingTools
         /// Maximum number of times the tool may be reconditioned.
         /// </summary>
         public int? MaximumCount { get; set; }
-        
+
         /// <summary>
         /// CuttingToolLifeCycle.
         /// </summary>

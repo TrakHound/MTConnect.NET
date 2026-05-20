@@ -10,6 +10,9 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public class Channel : IChannel
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Sensing element of a Sensor.";
 
 
@@ -17,27 +20,27 @@ namespace MTConnect.Devices.Configurations
         /// Date upon which the sensor unit was last calibrated to the sensor element.
         /// </summary>
         public System.DateTime? CalibrationDate { get; set; }
-        
+
         /// <summary>
         /// The initials of the person verifying the validity of the calibration data.
         /// </summary>
         public string CalibrationInitials { get; set; }
-        
+
         /// <summary>
         /// Textual description for Channel.
         /// </summary>
         public string Description { get; set; }
-        
+
         /// <summary>
         /// Name of the specific sensing element.
         /// </summary>
         public string Name { get; set; }
-        
+
         /// <summary>
         /// Date upon which the sensor element is next scheduled to be calibrated with the sensor unit.
         /// </summary>
         public System.DateTime? NextCalibrationDate { get; set; }
-        
+
         /// <summary>
         /// Unique identifier that will only refer to a specific sensing element.
         /// </summary>

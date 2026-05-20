@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// DataItemStatistic controlled vocabulary as defined by the MTConnect Standard.
+    /// </summary>
     public enum DataItemStatistic
     {
         /// <summary>

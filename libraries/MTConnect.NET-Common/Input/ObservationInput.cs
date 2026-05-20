@@ -100,24 +100,42 @@ namespace MTConnect.Input
         }
 
 
+        /// <summary>
+        /// Initializes a new, empty Observation with no DataItem key, values, or timestamp.
+        /// </summary>
         public ObservationInput() { }
 
+        /// <summary>
+        /// Initializes a new Observation for the specified DataItem with an unset timestamp.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the DataItem the Observation applies to.</param>
         public ObservationInput(string dataItemKey)
         {
             DataItemKey = dataItemKey;
             Timestamp = 0;
         }
 
+        /// <summary>
+        /// Initializes a new Observation for the specified DataItem and records the value under the Result ValueKey.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the DataItem the Observation applies to.</param>
+        /// <param name="value">The Result value. A <c>null</c> value is stored as an empty string.</param>
         public ObservationInput(string dataItemKey, object value)
         {
             DataItemKey = dataItemKey;
-            Values = new List<ObservationValue> 
-            { 
+            Values = new List<ObservationValue>
+            {
                 new ObservationValue(ValueKeys.Result, value != null ? value.ToString() : string.Empty)
             };
             Timestamp = 0;
         }
 
+        /// <summary>
+        /// Initializes a new Observation for the specified DataItem, recording the value under the Result ValueKey at the given timestamp.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the DataItem the Observation applies to.</param>
+        /// <param name="value">The Result value. A <c>null</c> value is stored as an empty string.</param>
+        /// <param name="timestamp">The observation timestamp as UnixTime in milliseconds.</param>
         public ObservationInput(string dataItemKey, object value, long timestamp)
         {
             DataItemKey = dataItemKey;
@@ -128,6 +146,12 @@ namespace MTConnect.Input
             Timestamp = timestamp;
         }
 
+        /// <summary>
+        /// Initializes a new Observation for the specified DataItem, recording the value under the Result ValueKey at the given timestamp.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the DataItem the Observation applies to.</param>
+        /// <param name="value">The Result value. A <c>null</c> value is stored as an empty string.</param>
+        /// <param name="timestamp">The observation timestamp, converted to UnixTime in milliseconds.</param>
         public ObservationInput(string dataItemKey, object value, DateTime timestamp)
         {
             DataItemKey = dataItemKey;
@@ -138,6 +162,13 @@ namespace MTConnect.Input
             Timestamp = timestamp.ToUnixTime();
         }
 
+        /// <summary>
+        /// Initializes a new Observation for the specified DataItem, recording the value under an explicit ValueKey at the given timestamp.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the DataItem the Observation applies to.</param>
+        /// <param name="valueKey">The ValueKey identifying the Representation component the value applies to.</param>
+        /// <param name="value">The value to record. A <c>null</c> value is stored as an empty string.</param>
+        /// <param name="timestamp">The observation timestamp as UnixTime in milliseconds.</param>
         public ObservationInput(string dataItemKey, string valueKey, object value, long timestamp)
         {
             DataItemKey = dataItemKey;
@@ -148,6 +179,13 @@ namespace MTConnect.Input
             Timestamp = timestamp;
         }
 
+        /// <summary>
+        /// Initializes a new Observation for the specified DataItem, recording the value under an explicit ValueKey at the given timestamp.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the DataItem the Observation applies to.</param>
+        /// <param name="valueKey">The ValueKey identifying the Representation component the value applies to.</param>
+        /// <param name="value">The value to record. A <c>null</c> value is stored as an empty string.</param>
+        /// <param name="timestamp">The observation timestamp, converted to UnixTime in milliseconds.</param>
         public ObservationInput(string dataItemKey, string valueKey, object value, DateTime timestamp)
         {
             DataItemKey = dataItemKey;
@@ -158,6 +196,10 @@ namespace MTConnect.Input
             Timestamp = timestamp.ToUnixTime();
         }
 
+        /// <summary>
+        /// Initializes a new Observation by copying the Device key, DataItem key, timestamp, and values from an existing Observation.
+        /// </summary>
+        /// <param name="observationInput">The source Observation to copy.</param>
         public ObservationInput(IObservationInput observationInput)
         {
             DeviceKey = observationInput.DeviceKey;
@@ -166,6 +208,10 @@ namespace MTConnect.Input
             Values = observationInput.Values;
         }
 
+        /// <summary>
+        /// Initializes a new Observation from a reported <see cref="IObservation"/>, mapping its Device UUID, DataItem ID, timestamp, and values.
+        /// </summary>
+        /// <param name="observation">The reported Observation to convert.</param>
         public ObservationInput(IObservation observation)
         {
             DeviceKey = observation.DeviceUuid;
@@ -175,6 +221,9 @@ namespace MTConnect.Input
         }
 
 
+        /// <summary>
+        /// Marks the Observation as Unavailable, setting the Result to the Unavailable constant and the <see cref="IsUnavailable"/> flag.
+        /// </summary>
         public void Unavailable()
         {
             AddValue(ValueKeys.Result, Observation.Unavailable);
@@ -182,11 +231,20 @@ namespace MTConnect.Input
         }
 
 
+        /// <summary>
+        /// Adds a value to the Observation using the specified ValueKey and raw value.
+        /// </summary>
+        /// <param name="valueKey">The ValueKey that identifies the Representation component the value applies to.</param>
+        /// <param name="value">The value to record.</param>
         public void AddValue(string valueKey, object value)
         {
             AddValue(new ObservationValue(valueKey, value));
         }
 
+        /// <summary>
+        /// Adds a <see cref="ObservationValue"/>, replacing any existing value with the same ValueKey and resetting cached change identifiers.
+        /// </summary>
+        /// <param name="observationValue">The ValueKey and value pair to record. Values with no content are not stored.</param>
         public void AddValue(ObservationValue observationValue)
         {
             var x = new List<ObservationValue>();
@@ -208,6 +266,11 @@ namespace MTConnect.Input
             _changeIdWithTimestamp = null;
         }
 
+        /// <summary>
+        /// Gets the value recorded for the specified ValueKey.
+        /// </summary>
+        /// <param name="valueKey">The ValueKey that identifies the Representation component to retrieve.</param>
+        /// <returns>The recorded value, or <c>null</c> when the ValueKey is empty or no matching value exists.</returns>
         public string GetValue(string valueKey)
         {
             if (!string.IsNullOrEmpty(valueKey) && !Values.IsNullOrEmpty())
@@ -219,6 +282,9 @@ namespace MTConnect.Input
             return null;
         }
 
+        /// <summary>
+        /// Removes all recorded values and resets cached change identifiers.
+        /// </summary>
         public void ClearValues()
         {
             Values = null;
@@ -261,6 +327,13 @@ namespace MTConnect.Input
             return null;
         }
 
+        /// <summary>
+        /// Formats a timestamp as an ISO 8601 string, optionally applying a time zone offset and appending a duration suffix.
+        /// </summary>
+        /// <param name="timestamp">The timestamp as UnixTime in milliseconds. A non-positive value yields a duration-only or <c>null</c> result.</param>
+        /// <param name="duration">The optional sample period appended as <c>@duration</c> when greater than zero.</param>
+        /// <param name="timeZoneInfo">The optional time zone used to compute the offset; UTC is used when not specified.</param>
+        /// <returns>The formatted timestamp string, or <c>null</c> when neither a timestamp nor a duration is provided.</returns>
         protected static string GetTimestampString(long timestamp, double duration = 0, TimeZoneInfo timeZoneInfo = null)
         {
             if (timestamp > 0)

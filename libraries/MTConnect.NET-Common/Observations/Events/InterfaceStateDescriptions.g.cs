@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// Description text for each <see cref="InterfaceState"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class InterfaceStateDescriptions
     {
         /// <summary>
@@ -16,6 +19,9 @@ namespace MTConnect.Observations.Events
         public const string DISABLED = "Interface is currently not operational.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="InterfaceState"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(InterfaceState value)
         {
             switch (value)

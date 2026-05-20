@@ -18,6 +18,9 @@ namespace MTConnect.Observations
         }
 
 
+        /// <summary>
+        /// Initializes a new Sample Observation that reports a single VALUE representation.
+        /// </summary>
         public SampleValueObservation() : base()
         {
             _representation = Devices.DataItemRepresentation.VALUE;

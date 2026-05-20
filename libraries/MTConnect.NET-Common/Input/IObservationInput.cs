@@ -58,10 +58,24 @@ namespace MTConnect.Input
         byte[] ChangeIdWithTimestamp { get; }
 
 
+        /// <summary>
+        /// Adds a value to the Observation using the specified ValueKey and raw value.
+        /// </summary>
+        /// <param name="valueKey">The ValueKey that identifies the Representation component the value applies to.</param>
+        /// <param name="value">The value to record. It is converted to its string representation when stored.</param>
         void AddValue(string valueKey, object value);
 
+        /// <summary>
+        /// Adds a previously constructed <see cref="ObservationValue"/> to the Observation.
+        /// </summary>
+        /// <param name="observationValue">The ValueKey and value pair to record.</param>
         void AddValue(ObservationValue observationValue);
 
+        /// <summary>
+        /// Gets the value recorded for the specified ValueKey.
+        /// </summary>
+        /// <param name="valueKey">The ValueKey that identifies the Representation component to retrieve.</param>
+        /// <returns>The recorded value, or <c>null</c> when no value exists for the ValueKey.</returns>
         string GetValue(string valueKey);
     }
 }

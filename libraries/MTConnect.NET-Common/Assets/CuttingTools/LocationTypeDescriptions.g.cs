@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.CuttingTools
 {
+    /// <summary>
+    /// Description text for each <see cref="LocationType"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class LocationTypeDescriptions
     {
         /// <summary>
@@ -56,6 +59,9 @@ namespace MTConnect.Assets.CuttingTools
         public const string TRANSFER_POT = "Location for a tool awaiting transfer from a tool magazine to spindle or a turret.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="LocationType"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(LocationType value)
         {
             switch (value)

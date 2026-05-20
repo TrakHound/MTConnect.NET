@@ -10,8 +10,10 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public abstract class AbstractRotation : IAbstractRotation
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Rotations about X, Y, and Z axes are expressed in A, B, and C respectively within a 3-dimensional vector.";
-
 
     }
 }

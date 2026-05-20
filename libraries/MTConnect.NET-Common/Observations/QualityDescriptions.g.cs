@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations
 {
+    /// <summary>
+    /// Description text for each <see cref="Quality"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class QualityDescriptions
     {
         /// <summary>
@@ -21,6 +24,9 @@ namespace MTConnect.Observations
         public const string VALID = "Observation is valid against the MTConnect Standard.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="Quality"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(Quality value)
         {
             switch (value)

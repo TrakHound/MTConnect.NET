@@ -3,6 +3,9 @@
 
 namespace MTConnect.Interfaces
 {
+    /// <summary>
+    /// The operational state of an Interface, controlling whether it participates in request/response handshakes.
+    /// </summary>
     public enum InterfaceState
     {
         /// <summary>

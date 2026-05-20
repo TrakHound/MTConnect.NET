@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// Description text for each <see cref="DataItemStatistic"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class DataItemStatisticDescriptions
     {
         /// <summary>
@@ -51,6 +54,9 @@ namespace MTConnect.Devices
         public const string STANDARD_DEVIATION = "Statistical Standard Deviation value calculated for the data item during the calculation period.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="DataItemStatistic"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(DataItemStatistic value)
         {
             switch (value)

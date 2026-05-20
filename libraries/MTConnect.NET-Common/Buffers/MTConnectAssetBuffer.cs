@@ -13,7 +13,7 @@ namespace MTConnect.Buffers
     /// Buffer used to store Assets
     /// </summary>
     public class MTConnectAssetBuffer : IMTConnectAssetBuffer
-    {       
+    {
         private readonly string _id = Guid.NewGuid().ToString();
         private readonly IAsset[] _storedAssets;
         private readonly Dictionary<string, uint> _assetIds = new Dictionary<string, uint>();
@@ -47,14 +47,24 @@ namespace MTConnect.Buffers
             get { return _assetIds.Keys.ToList(); }
         }
 
+        /// <summary>
+        /// Raised when an asset is evicted from the buffer, either because capacity was exceeded or it was explicitly removed.
+        /// </summary>
         public event EventHandler<IAsset> AssetRemoved;
 
 
-        public MTConnectAssetBuffer() 
+        /// <summary>
+        /// Initializes the buffer with the default asset capacity.
+        /// </summary>
+        public MTConnectAssetBuffer()
         {
             _storedAssets = new IAsset[BufferSize];
         }
 
+        /// <summary>
+        /// Initializes the buffer, taking its asset capacity from the supplied agent configuration when provided.
+        /// </summary>
+        /// <param name="configuration">The agent configuration whose asset buffer size is applied; ignored when null.</param>
         public MTConnectAssetBuffer(IAgentConfiguration configuration)
         {
             if (configuration != null)
@@ -66,8 +76,18 @@ namespace MTConnect.Buffers
         }
 
 
+        /// <summary>
+        /// Extension point invoked after an asset is stored at a buffer slot; overridden by durable buffers to persist the change. The base implementation does nothing.
+        /// </summary>
+        /// <param name="bufferIndex">The slot the asset was stored at.</param>
+        /// <param name="asset">The asset that was added.</param>
+        /// <param name="originalIndex">The slot the asset previously occupied when it was an update rather than a new addition.</param>
         protected virtual void OnAssetAdd(uint bufferIndex, IAsset asset, uint originalIndex) { }
 
+        /// <summary>
+        /// Extension point invoked after an asset is evicted; overridden by durable buffers to remove the persisted copy. The base implementation does nothing.
+        /// </summary>
+        /// <param name="asset">The asset that was removed.</param>
         protected virtual void OnAssetRemoved(IAsset asset) { }
 
 
@@ -136,7 +156,7 @@ namespace MTConnect.Buffers
                 }
 
                 return assets;
-            }        
+            }
 
             return null;
         }

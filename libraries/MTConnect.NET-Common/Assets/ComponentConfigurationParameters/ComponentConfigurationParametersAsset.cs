@@ -8,9 +8,15 @@ namespace MTConnect.Assets.ComponentConfigurationParameters
 {
     public partial class ComponentConfigurationParametersAsset
     {
+        /// <summary>
+        /// The fixed Asset type identifier ("ComponentConfigurationParameters") written to the Type attribute and used to recognize this asset during deserialization.
+        /// </summary>
         public const string TypeId = "ComponentConfigurationParameters";
 
 
+        /// <summary>
+        /// Initializes a new ComponentConfigurationParametersAsset, stamping the Asset Type with <see cref="TypeId"/>.
+        /// </summary>
         public ComponentConfigurationParametersAsset()
         {
             Type = TypeId;

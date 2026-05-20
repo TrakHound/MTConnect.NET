@@ -8,6 +8,10 @@ using System.Collections.Generic;
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// Defines the organizer Component types and which child Component types each organizer groups,
+    /// providing lookups from a child Component type to its organizing Component type.
+    /// </summary>
     public static class Organizers
     {
         private static readonly IEnumerable<string> _components = new List<string>

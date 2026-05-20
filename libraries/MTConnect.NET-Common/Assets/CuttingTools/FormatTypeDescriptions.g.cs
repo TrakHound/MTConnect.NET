@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.CuttingTools
 {
+    /// <summary>
+    /// Description text for each <see cref="FormatType"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class FormatTypeDescriptions
     {
         /// <summary>
@@ -26,6 +29,9 @@ namespace MTConnect.Assets.CuttingTools
         public const string XML = "Default value for the definition. The content will be an XML document.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="FormatType"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(FormatType value)
         {
             switch (value)

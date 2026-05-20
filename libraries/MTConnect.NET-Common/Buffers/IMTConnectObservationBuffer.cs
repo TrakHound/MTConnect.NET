@@ -37,8 +37,14 @@ namespace MTConnect.Buffers
         ulong NextSequence { get; }
 
 
+        /// <summary>
+        /// The most recent observation for each non-condition buffer key, indexed by the buffer key hash.
+        /// </summary>
         IDictionary<int, BufferObservation> CurrentObservations { get; }
 
+        /// <summary>
+        /// The current set of active condition observations for each condition buffer key, indexed by the buffer key hash.
+        /// </summary>
         IDictionary<int, IEnumerable<BufferObservation>> CurrentConditions { get; }
 
 

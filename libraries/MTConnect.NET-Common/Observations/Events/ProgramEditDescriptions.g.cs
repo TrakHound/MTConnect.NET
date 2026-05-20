@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// Description text for each <see cref="ProgramEdit"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class ProgramEditDescriptions
     {
         /// <summary>
@@ -21,6 +24,9 @@ namespace MTConnect.Observations.Events
         public const string NOT_READY = "Controller is being inhibited by a function from entering the program edit mode.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="ProgramEdit"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(ProgramEdit value)
         {
             switch (value)

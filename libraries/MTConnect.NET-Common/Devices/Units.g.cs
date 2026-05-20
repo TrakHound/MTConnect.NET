@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// Units string constants as defined by the MTConnect Standard.
+    /// </summary>
     public static partial class Units
     {
         /// <summary>

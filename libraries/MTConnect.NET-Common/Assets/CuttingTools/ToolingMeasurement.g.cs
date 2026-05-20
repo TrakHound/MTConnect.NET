@@ -10,6 +10,9 @@ namespace MTConnect.Assets.CuttingTools
     /// </summary>
     public partial class ToolingMeasurement : Measurement, IToolingMeasurement
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Constrained scalar value associated with a cutting tool.";
 
 

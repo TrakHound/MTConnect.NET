@@ -10,6 +10,9 @@ namespace MTConnect.Assets.CuttingTools
     /// </summary>
     public partial class ToolLife : IToolLife
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Cutting tool life as related to the assembly.";
 
 
@@ -17,27 +20,27 @@ namespace MTConnect.Assets.CuttingTools
         /// Indicates if the tool life counts from zero to maximum or maximum to zero.
         /// </summary>
         public MTConnect.Assets.CuttingTools.CountDirectionType CountDirection { get; set; }
-        
+
         /// <summary>
         /// Initial life of the tool when it is new.
         /// </summary>
         public double? Initial { get; set; }
-        
+
         /// <summary>
         /// End of life limit for the tool.
         /// </summary>
         public double? Limit { get; set; }
-        
+
         /// <summary>
         /// Type of tool life being accumulated.
         /// </summary>
         public MTConnect.Assets.CuttingTools.ToolLifeType Type { get; set; }
-        
+
         /// <summary>
         /// Value of ToolLife.
         /// </summary>
         public double Value { get; set; }
-        
+
         /// <summary>
         /// Point at which a tool life warning will be raised.
         /// </summary>

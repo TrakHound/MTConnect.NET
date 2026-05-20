@@ -7,8 +7,15 @@ namespace MTConnect.Assets.CuttingTools
 {
     public partial class ToolingMeasurement
     {
+        /// <summary>
+        /// Initializes an empty tooling measurement, typically for deserialization.
+        /// </summary>
         public ToolingMeasurement() { }
 
+        /// <summary>
+        /// Initializes a tooling measurement by copying the value, nominal, minimum, maximum, significant digits, and native units from an existing measurement; a null source leaves the fields default.
+        /// </summary>
+        /// <param name="measurement">The measurement to copy from.</param>
         public ToolingMeasurement(IToolingMeasurement measurement)
         {
             if (measurement != null)
@@ -22,6 +29,11 @@ namespace MTConnect.Assets.CuttingTools
             }
         }
 
+        /// <summary>
+        /// Factory that maps a tooling measurement type code to its strongly-typed measurement subclass so the measurement serializes under the correct element name; falls back to a generic ToolingMeasurement when the type is empty or unrecognized.
+        /// </summary>
+        /// <param name="type">The measurement type code (a measurement TypeId).</param>
+        /// <param name="measurement">The source measurement whose values are copied into the created instance.</param>
         public static ToolingMeasurement Create(string type, IToolingMeasurement measurement)
         {
             if (!string.IsNullOrEmpty(type))

@@ -17,6 +17,9 @@ namespace MTConnect.Configurations
         public int ReadInterval { get; set; }
 
 
+        /// <summary>
+        /// Initializes a new instance with the default read interval of 1000 milliseconds.
+        /// </summary>
         public DataSourceConfiguration()
         {
             ReadInterval = 1000;

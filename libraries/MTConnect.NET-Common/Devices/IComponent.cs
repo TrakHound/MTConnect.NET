@@ -12,6 +12,9 @@ namespace MTConnect.Devices
         /// </summary>
         new string Type { get; }
 
+        /// <summary>
+        /// Gets whether this Component is an organizer type that only groups other Components.
+        /// </summary>
         bool IsOrganizer { get; }
 
 
@@ -82,10 +85,10 @@ namespace MTConnect.Devices
         /// </summary>
         IDataItem GetDataItemByType(string type, SearchType searchType = SearchType.Child);
 
-		/// <summary>
-		/// Return the first DataItem matching the Type and SubType
-		/// </summary>
-		IDataItem GetDataItemByType(string type, string subType, SearchType searchType = SearchType.Child);
+        /// <summary>
+        /// Return the first DataItem matching the Type and SubType
+        /// </summary>
+        IDataItem GetDataItemByType(string type, string subType, SearchType searchType = SearchType.Child);
 
         /// <summary>
         /// Return the first DataItem matching the Type and SubType
@@ -97,15 +100,15 @@ namespace MTConnect.Devices
         /// </summary>
         IEnumerable<IDataItem> GetDataItemsByType(string type, SearchType searchType = SearchType.Child);
 
-		/// <summary>
-		/// Return All DataItems matching the Type and SubType
-		/// </summary>
-		IEnumerable<IDataItem> GetDataItemsByType(string type, string subType, SearchType searchType = SearchType.Child);
+        /// <summary>
+        /// Return All DataItems matching the Type and SubType
+        /// </summary>
+        IEnumerable<IDataItem> GetDataItemsByType(string type, string subType, SearchType searchType = SearchType.Child);
 
         /// <summary>
 		/// Return All DataItems matching the Type and SubType
         /// </summary>
         IEnumerable<IDataItem> GetDataItems<TDataItem>(string subType = null, SearchType searchType = SearchType.Child) where TDataItem : IDataItem;
-      
+
     }
 }

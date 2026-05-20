@@ -46,14 +46,28 @@ namespace MTConnect.Input
         }
 
 
+        /// <summary>
+        /// Initializes a new, empty Data Set Observation with no DataItem key or entries.
+        /// </summary>
         public DataSetObservationInput() { }
 
+        /// <summary>
+        /// Initializes a new Data Set Observation for the specified DataItem with the given entries.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the DataItem the Observation applies to.</param>
+        /// <param name="entries">The key-value pairs that make up the Data Set.</param>
         public DataSetObservationInput(string dataItemKey, IEnumerable<IDataSetEntry> entries)
         {
             DataItemKey = dataItemKey;
             Entries = entries;
         }
 
+        /// <summary>
+        /// Initializes a new Data Set Observation for the specified DataItem with the given entries and timestamp.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the DataItem the Observation applies to.</param>
+        /// <param name="entries">The key-value pairs that make up the Data Set.</param>
+        /// <param name="timestamp">The observation timestamp as UnixTime in milliseconds.</param>
         public DataSetObservationInput(string dataItemKey, IEnumerable<IDataSetEntry> entries, long timestamp)
         {
             DataItemKey = dataItemKey;
@@ -61,6 +75,12 @@ namespace MTConnect.Input
             Timestamp = timestamp;
         }
 
+        /// <summary>
+        /// Initializes a new Data Set Observation for the specified DataItem with the given entries and timestamp.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the DataItem the Observation applies to.</param>
+        /// <param name="entries">The key-value pairs that make up the Data Set.</param>
+        /// <param name="timestamp">The observation timestamp, converted to UnixTime in milliseconds.</param>
         public DataSetObservationInput(string dataItemKey, IEnumerable<IDataSetEntry> entries, DateTime timestamp)
         {
             DataItemKey = dataItemKey;
@@ -68,6 +88,10 @@ namespace MTConnect.Input
             Timestamp = timestamp.ToUnixTime();
         }
 
+        /// <summary>
+        /// Initializes a new Data Set Observation by copying the Device key, DataItem key, timestamp, and values from an existing Observation.
+        /// </summary>
+        /// <param name="observation">The source Observation to copy; a <c>null</c> argument leaves the new instance empty.</param>
         public DataSetObservationInput(IObservationInput observation)
         {
             if (observation != null)

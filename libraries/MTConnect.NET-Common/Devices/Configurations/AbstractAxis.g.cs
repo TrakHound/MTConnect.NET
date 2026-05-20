@@ -10,8 +10,10 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public abstract class AbstractAxis : IAbstractAxis
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Axis along or around which the Component moves relative to a coordinate system.";
-
 
     }
 }

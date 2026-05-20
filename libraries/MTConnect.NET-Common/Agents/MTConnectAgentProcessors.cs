@@ -10,6 +10,9 @@ using System.Collections.Generic;
 
 namespace MTConnect.Agents
 {
+    /// <summary>
+    /// Discovers <see cref="IMTConnectAgentProcessor"/> implementations from loaded assemblies, instantiates the ones enabled in the Agent configuration, and runs incoming observations and Assets through the resulting processor chain.
+    /// </summary>
     public class MTConnectAgentProcessors
     {
         private static readonly List<Type> _processorTypes = new List<Type>();
@@ -20,16 +23,29 @@ namespace MTConnect.Agents
         private readonly IAgentApplicationConfiguration _configuration;
 
 
+        /// <summary>
+        /// Raised once for each processor after it has been instantiated and loaded.
+        /// </summary>
         public event EventHandler<IMTConnectAgentProcessor> ProcessorLoaded;
 
+        /// <summary>
+        /// Raised when any hosted processor emits a log entry.
+        /// </summary>
         public event MTConnectLogEventHandler LogReceived;
 
 
+        /// <summary>
+        /// Initializes a new instance bound to the given Agent configuration.
+        /// </summary>
+        /// <param name="configuration">The Agent configuration used to determine which processors are enabled.</param>
         public MTConnectAgentProcessors(IAgentApplicationConfiguration configuration)
         {
             _configuration = configuration;
         }
 
+        /// <summary>
+        /// Discover all available processor types and create and load instances for every processor that is enabled in the configuration.
+        /// </summary>
         public void Load()
         {
             InitializeProcessors();
@@ -70,6 +86,11 @@ namespace MTConnect.Agents
         }
 
 
+        /// <summary>
+        /// Run an incoming observation through every loaded processor in turn, returning the final transformed result.
+        /// </summary>
+        /// <param name="observation">The observation, together with its resolved Device and DataItem context, to process.</param>
+        /// <returns>The observation input produced by the processor chain; when no processors are loaded, a faithful copy of the input observation.</returns>
         public IObservationInput Process(ProcessObservation observation)
         {
             var defaultObservation = new ObservationInput();
@@ -92,6 +113,11 @@ namespace MTConnect.Agents
             return outputObservation;
         }
 
+        /// <summary>
+        /// Run an incoming Asset through every loaded processor in turn, returning the final transformed result.
+        /// </summary>
+        /// <param name="asset">The Asset to process.</param>
+        /// <returns>The Asset produced by the processor chain; when no processors are loaded, the input Asset unchanged.</returns>
         public IAsset Process(IAsset asset)
         {
             var outputAsset = asset;
@@ -109,6 +135,9 @@ namespace MTConnect.Agents
             return outputAsset;
         }
 
+        /// <summary>
+        /// Release all loaded processors and clear the processor cache.
+        /// </summary>
         public void Dispose()
         {
             lock (_lock)

@@ -6,24 +6,48 @@ using MTConnect.Interfaces;
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// A simple EVENT category Observation that carries a single reported value.
+    /// </summary>
     public class EventValue : EventValueObservation
     {
+        /// <summary>
+        /// The value reported by the Event.
+        /// </summary>
         public object Value { get; set; }
 
 
+        /// <summary>
+        /// Initializes a new Event value with no reported value.
+        /// </summary>
         protected EventValue() { }
 
+        /// <summary>
+        /// Initializes a new Event value with the specified reported value.
+        /// </summary>
+        /// <param name="value">The value reported by the Event.</param>
         public EventValue(object value)
         {
             Value = value;
         }
 
+        /// <summary>
+        /// Returns the string representation of the reported value.
+        /// </summary>
+        /// <returns>The value's string form, or <c>null</c> when no value is set.</returns>
         public override string ToString()
         {
             return Value?.ToString();
         }
 
 
+        /// <summary>
+        /// Resolves the human-readable description for a controlled-vocabulary Event value based on its DataItem type and subtype.
+        /// </summary>
+        /// <param name="type">The DataItem type identifier (for example, <c>EXECUTION</c>).</param>
+        /// <param name="subType">The DataItem subtype, used to disambiguate types such as DIRECTION and COMPOSITION_STATE.</param>
+        /// <param name="value">The reported enumeration value to describe.</param>
+        /// <returns>The matching description text, or <c>null</c> when the type or value has no controlled-vocabulary description.</returns>
         public static string GetDescriptionText(string type, string subType, string value)
         {
             switch (type.ToUnderscoreUpper())

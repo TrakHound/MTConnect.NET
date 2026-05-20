@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// Description text for each <see cref="RotaryMode"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class RotaryModeDescriptions
     {
         /// <summary>
@@ -21,6 +24,9 @@ namespace MTConnect.Observations.Events
         public const string CONTOUR = "Position of the axis is being interpolated.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="RotaryMode"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(RotaryMode value)
         {
             switch (value)

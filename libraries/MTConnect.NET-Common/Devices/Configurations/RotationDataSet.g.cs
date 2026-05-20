@@ -10,6 +10,9 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public class RotationDataSet : AbstractRotation, IRotationDataSet, IDataSet
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Rotations about X, Y, and Z axes are expressed in A, B, and C respectively within a 3-dimensional vector represented as a dataset.";
 
 
@@ -17,12 +20,12 @@ namespace MTConnect.Devices.Configurations
         /// Rotation about X axis.
         /// </summary>
         public string A { get; set; }
-        
+
         /// <summary>
         /// Rotation about Y axis.
         /// </summary>
         public string B { get; set; }
-        
+
         /// <summary>
         /// Rotation about Z axis.
         /// </summary>

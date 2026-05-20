@@ -27,7 +27,7 @@ namespace MTConnect.Streams
         public IEnumerable<IComponentStream> ComponentStreams { get; set; }
 
         /// <summary>
-        /// Gets All Observations (Samples, Events, & Conditions)
+        /// Gets All Observations (Samples, Events, and Conditions)
         /// </summary>
         public IEnumerable<IObservation> Observations
         {

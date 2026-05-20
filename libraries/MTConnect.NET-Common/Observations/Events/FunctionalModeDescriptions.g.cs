@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// Description text for each <see cref="FunctionalMode"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class FunctionalModeDescriptions
     {
         /// <summary>
@@ -31,6 +34,9 @@ namespace MTConnect.Observations.Events
         public const string PROCESS_DEVELOPMENT = "Component is being used to prove-out a new process, testing of equipment or processes, or any other active use that does not result in the production of product.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="FunctionalMode"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(FunctionalMode value)
         {
             switch (value)

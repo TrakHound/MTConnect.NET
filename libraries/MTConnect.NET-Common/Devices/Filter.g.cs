@@ -10,6 +10,9 @@ namespace MTConnect.Devices
     /// </summary>
     public class Filter : IFilter
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Provides a means to control when an agent records updated information for a DataItem.";
 
 
@@ -17,7 +20,7 @@ namespace MTConnect.Devices
         /// Type of Filter.
         /// </summary>
         public MTConnect.Devices.DataItemFilterType Type { get; set; }
-        
+
         /// <summary>
         /// 
         /// </summary>

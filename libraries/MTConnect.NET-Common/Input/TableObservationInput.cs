@@ -15,7 +15,7 @@ namespace MTConnect.Input
     public class TableObservationInput : ObservationInput
     {
         /// <summary>
-        /// Key-value pairs published as part of a Data Set observation
+        /// The rows published as part of a Table observation, each containing a set of Cell key-value pairs.
         /// </summary>
         public IEnumerable<ITableEntry> Entries
         {
@@ -52,14 +52,28 @@ namespace MTConnect.Input
         }
 
 
+        /// <summary>
+        /// Initializes a new, empty Table Observation with no DataItem key or rows.
+        /// </summary>
         public TableObservationInput() { }
 
+        /// <summary>
+        /// Initializes a new Table Observation for the specified DataItem with the given rows.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the DataItem the Observation applies to.</param>
+        /// <param name="entries">The rows that make up the Table.</param>
         public TableObservationInput(string dataItemKey, IEnumerable<ITableEntry> entries)
         {
             DataItemKey = dataItemKey;
             Entries = entries;
         }
 
+        /// <summary>
+        /// Initializes a new Table Observation for the specified DataItem with the given rows and timestamp.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the DataItem the Observation applies to.</param>
+        /// <param name="entries">The rows that make up the Table.</param>
+        /// <param name="timestamp">The observation timestamp as UnixTime in milliseconds.</param>
         public TableObservationInput(string dataItemKey, IEnumerable<ITableEntry> entries, long timestamp)
         {
             DataItemKey = dataItemKey;
@@ -67,6 +81,12 @@ namespace MTConnect.Input
             Timestamp = timestamp;
         }
 
+        /// <summary>
+        /// Initializes a new Table Observation for the specified DataItem with the given rows and timestamp.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the DataItem the Observation applies to.</param>
+        /// <param name="entries">The rows that make up the Table.</param>
+        /// <param name="timestamp">The observation timestamp, converted to UnixTime in milliseconds.</param>
         public TableObservationInput(string dataItemKey, IEnumerable<ITableEntry> entries, DateTime timestamp)
         {
             DataItemKey = dataItemKey;
@@ -74,6 +94,10 @@ namespace MTConnect.Input
             Timestamp = timestamp.ToUnixTime();
         }
 
+        /// <summary>
+        /// Initializes a new Table Observation by copying the Device key, DataItem key, timestamp, and values from an existing Observation.
+        /// </summary>
+        /// <param name="observation">The source Observation to copy; a <c>null</c> argument leaves the new instance empty.</param>
         public TableObservationInput(IObservationInput observation)
         {
             if (observation != null)

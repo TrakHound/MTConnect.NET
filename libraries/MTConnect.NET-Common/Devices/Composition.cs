@@ -19,9 +19,15 @@ namespace MTConnect.Devices
         private static Dictionary<string, Type> _types;
 
 
+        /// <summary>
+        /// The MTConnect entity classification for this object, which is always <see cref="MTConnectEntityType.Composition"/>.
+        /// </summary>
         public MTConnectEntityType EntityType => MTConnectEntityType.Composition;
 
 
+        /// <summary>
+        /// The DataItems defined directly on this Composition.
+        /// </summary>
         public virtual IEnumerable<IDataItem> DataItems { get; set; }
 
         /// <summary>
@@ -30,18 +36,18 @@ namespace MTConnect.Devices
         public IContainer Parent { get; set; }
 
 
-		private string _hash;
-		/// <summary>
-		/// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
-		/// </summary>
-		public string Hash
-		{
-			get
-			{
-				if (_hash == null) _hash = GenerateHash();
-				return _hash;
-			}
-		}
+        private string _hash;
+        /// <summary>
+        /// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
+        /// </summary>
+        public string Hash
+        {
+            get
+            {
+                if (_hash == null) _hash = GenerateHash();
+                return _hash;
+            }
+        }
 
         /// <summary>
         /// The Agent InstanceId that produced this Device
@@ -88,29 +94,50 @@ namespace MTConnect.Devices
         public virtual Version MinimumVersion => DefaultMinimumVersion;
 
 
-		public string DataItemIdFormat { get; set; }
+        /// <summary>
+        /// The pattern used to generate Ids for DataItems added to this Composition.
+        /// </summary>
+        public string DataItemIdFormat { get; set; }
 
-		public string CompositionIdFormat { get; set; }
+        /// <summary>
+        /// The pattern used to generate Ids for child Compositions added to this Composition.
+        /// </summary>
+        public string CompositionIdFormat { get; set; }
 
-		public string ComponentIdFormat { get; set; }
+        /// <summary>
+        /// The pattern used to generate Ids for child Components added to this Composition.
+        /// </summary>
+        public string ComponentIdFormat { get; set; }
 
 
-		public Composition()
+        /// <summary>
+        /// Initializes a new Composition with the default Id-format patterns.
+        /// </summary>
+        public Composition()
         {
             //Id = StringFunctions.RandomString(10);
             DataItems = new List<IDataItem>();
 
-			DataItemIdFormat = Component._defaultDataItemIdFormat;
-			CompositionIdFormat = Component._defaultCompositionIdFormat;
-			ComponentIdFormat = Component._defaultComponentIdFormat;
-		}
+            DataItemIdFormat = Component._defaultDataItemIdFormat;
+            CompositionIdFormat = Component._defaultCompositionIdFormat;
+            ComponentIdFormat = Component._defaultComponentIdFormat;
+        }
 
 
+        /// <summary>
+        /// Computes a content hash for this Composition that changes whenever its hashed members change.
+        /// </summary>
+        /// <returns>A SHA-1 hash string identifying the current state of this Composition.</returns>
         public string GenerateHash()
         {
             return GenerateHash(this);
         }
 
+        /// <summary>
+        /// Computes a content hash for the specified Composition from its hashed members and child entities.
+        /// </summary>
+        /// <param name="composition">The Composition to hash.</param>
+        /// <returns>A SHA-1 hash string, or null when <paramref name="composition"/> is null.</returns>
         public static string GenerateHash(IComposition composition)
         {
             if (composition != null)
@@ -135,11 +162,24 @@ namespace MTConnect.Devices
         }
 
 
+        /// <summary>
+        /// Builds a Composition Id by combining a parent Id with a name segment.
+        /// </summary>
+        /// <param name="parentId">The Id of the containing Component or Device.</param>
+        /// <param name="name">The name segment to append.</param>
+        /// <returns>The composed Id in the form "parentId_name".</returns>
         public static string CreateId(string parentId, string name)
         {
             return $"{parentId}_{name}";
         }
 
+        /// <summary>
+        /// Builds a Composition Id from a parent Id, a name segment, and an optional suffix.
+        /// </summary>
+        /// <param name="parentId">The Id of the containing Component or Device.</param>
+        /// <param name="name">The name segment to append.</param>
+        /// <param name="suffix">An optional suffix appended after the name when present.</param>
+        /// <returns>The composed Id.</returns>
         public static string CreateId(string parentId, string name, string suffix)
         {
             if (!string.IsNullOrEmpty(suffix))
@@ -153,6 +193,11 @@ namespace MTConnect.Devices
         }
 
 
+        /// <summary>
+        /// Builds the ordered list of Id segments from the containing hierarchy down to the Composition itself.
+        /// </summary>
+        /// <param name="composition">The Composition whose Id path is built.</param>
+        /// <returns>The Id segments from the outermost container to the Composition, or null when <paramref name="composition"/> is null.</returns>
         public static string[] GenerateIdPaths(IComposition composition)
         {
             if (composition != null)
@@ -172,6 +217,11 @@ namespace MTConnect.Devices
             return null;
         }
 
+        /// <summary>
+        /// Builds the slash-delimited Id path string from the containing hierarchy down to the Composition itself.
+        /// </summary>
+        /// <param name="composition">The Composition whose Id path is built.</param>
+        /// <returns>The Id segments joined with '/', or null when no path is available.</returns>
         public static string GenerateIdPath(IComposition composition)
         {
             if (composition != null && !composition.IdPaths.IsNullOrEmpty())
@@ -182,6 +232,11 @@ namespace MTConnect.Devices
             return null;
         }
 
+        /// <summary>
+        /// Builds the ordered list of Type segments from the containing hierarchy down to the Composition itself.
+        /// </summary>
+        /// <param name="composition">The Composition whose Type path is built.</param>
+        /// <returns>The Type segments from the outermost container to the Composition, or null when <paramref name="composition"/> is null.</returns>
         public static string[] GenerateTypePaths(IComposition composition)
         {
             if (composition != null)
@@ -201,6 +256,11 @@ namespace MTConnect.Devices
             return null;
         }
 
+        /// <summary>
+        /// Builds the slash-delimited Type path string from the containing hierarchy down to the Composition itself.
+        /// </summary>
+        /// <param name="composition">The Composition whose Type path is built.</param>
+        /// <returns>The Type segments joined with '/', or null when no path is available.</returns>
         public static string GenerateTypePath(IComposition composition)
         {
             if (composition != null && !composition.TypePaths.IsNullOrEmpty())
@@ -212,6 +272,11 @@ namespace MTConnect.Devices
         }
 
 
+        /// <summary>
+        /// Creates the most-derived Composition subclass matching the given Composition's Type and copies its properties.
+        /// </summary>
+        /// <param name="component">The source Composition to recreate as its concrete type.</param>
+        /// <returns>A typed Composition instance, or a base Composition when the Type is not recognized.</returns>
         public static Composition Create(IComposition component)
         {
             var type = GetCompositionType(component.Type);
@@ -250,12 +315,22 @@ namespace MTConnect.Devices
             return (Composition)component;
         }
 
+        /// <summary>
+        /// Creates an instance of the Composition subclass registered for the specified Type identifier.
+        /// </summary>
+        /// <param name="type">The MTConnect Composition Type identifier.</param>
+        /// <returns>A new typed Composition instance, or null when the Type is not recognized.</returns>
         public static Composition Create(string type)
         {
             var t = GetCompositionType(type);
             return Create(t);
         }
 
+        /// <summary>
+        /// Creates an instance of the specified Composition CLR type using its parameterless constructor.
+        /// </summary>
+        /// <param name="type">The concrete Composition CLR type to instantiate.</param>
+        /// <returns>A new Composition instance, or null when instantiation fails.</returns>
         public static Composition Create(Type type)
         {
             if (type != null)
@@ -274,6 +349,10 @@ namespace MTConnect.Devices
             return new Composition();
         }
 
+        /// <summary>
+        /// Returns every Composition Type identifier known to the library.
+        /// </summary>
+        /// <returns>The registered Composition Type identifiers.</returns>
         public static IEnumerable<string> GetTypes()
         {
             if (_types == null) _types = GetAllTypes();
@@ -343,6 +422,13 @@ namespace MTConnect.Devices
         }
 
 
+        /// <summary>
+        /// Produces a typed copy of the specified Composition adjusted for the target MTConnect version,
+        /// dropping members not valid in that version.
+        /// </summary>
+        /// <param name="composition">The source Composition to process.</param>
+        /// <param name="mtconnectVersion">The target MTConnect Standard version; when null, the latest version is assumed.</param>
+        /// <returns>The version-adjusted Composition, or null when it is not valid in that version.</returns>
         public static Composition Process(IComposition composition, Version mtconnectVersion = null)
         {
             if (composition != null)
@@ -702,6 +788,13 @@ namespace MTConnect.Devices
             }
         }
 
+        /// <summary>
+        /// Creates a DataItem from the given category, type, and optional subtype and adds it to this Composition.
+        /// </summary>
+        /// <param name="category">The category (Sample, Event, or Condition) of the DataItem.</param>
+        /// <param name="type">The Type that defines what the DataItem represents.</param>
+        /// <param name="subType">An optional SubType that further refines the Type.</param>
+        /// <param name="dataItemId">An optional explicit Id; when omitted an Id is generated from the format pattern.</param>
         public void AddDataItem(DataItemCategory category, string type, string subType = null, string dataItemId = null)
         {
             if (!string.IsNullOrEmpty(type))

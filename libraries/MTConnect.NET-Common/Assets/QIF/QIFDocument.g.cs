@@ -10,8 +10,10 @@ namespace MTConnect.Assets.QIF
     /// </summary>
     public class QIFDocument : IQIFDocument
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "QIF Document as given by the QIF standard.";
-
 
     }
 }

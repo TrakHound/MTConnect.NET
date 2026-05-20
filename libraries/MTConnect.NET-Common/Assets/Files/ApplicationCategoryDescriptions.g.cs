@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.Files
 {
+    /// <summary>
+    /// Description text for each <see cref="ApplicationCategory"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class ApplicationCategoryDescriptions
     {
         /// <summary>
@@ -46,6 +49,9 @@ namespace MTConnect.Assets.Files
         public const string SETUP = "Files related to the setup of a process.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="ApplicationCategory"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(ApplicationCategory value)
         {
             switch (value)

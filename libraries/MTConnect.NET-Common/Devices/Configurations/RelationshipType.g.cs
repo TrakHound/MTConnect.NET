@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices.Configurations
 {
+    /// <summary>
+    /// RelationshipType controlled vocabulary as defined by the MTConnect Standard.
+    /// </summary>
     public enum RelationshipType
     {
         /// <summary>

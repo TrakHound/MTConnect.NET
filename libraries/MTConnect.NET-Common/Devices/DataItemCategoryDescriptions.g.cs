@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// Description text for each <see cref="DataItemCategory"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class DataItemCategoryDescriptions
     {
         /// <summary>
@@ -21,6 +24,9 @@ namespace MTConnect.Devices
         public const string SAMPLE = "Continuously variable or analog data value. A continuous value can be measured at any point-in-time and will always produce a result.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="DataItemCategory"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(DataItemCategory value)
         {
             switch (value)

@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.QIF
 {
+    /// <summary>
+    /// Description text for each <see cref="QIFDocumentType"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class QIFDocumentTypeDescriptions
     {
         /// <summary>
@@ -36,6 +39,9 @@ namespace MTConnect.Assets.QIF
         public const string STATISTICS = "";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="QIFDocumentType"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(QIFDocumentType value)
         {
             switch (value)

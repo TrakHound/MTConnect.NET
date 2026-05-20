@@ -5,6 +5,9 @@ using System;
 
 namespace MTConnect
 {
+    /// <summary>
+    /// Canonical <see cref="Version"/> instances for every MTConnect Standard release the library understands, used throughout for version gating of entities, attributes, and document shaping.
+    /// </summary>
     public static class MTConnectVersions
     {
         /// <summary>
@@ -14,20 +17,49 @@ namespace MTConnect
         /// </summary>
         public static Version Max => Version27;
 
+        /// <summary>MTConnect Standard v1.0.</summary>
         public static readonly Version Version10 = new Version(1, 0);
+
+        /// <summary>MTConnect Standard v1.1.</summary>
         public static readonly Version Version11 = new Version(1, 1);
+
+        /// <summary>MTConnect Standard v1.2.</summary>
         public static readonly Version Version12 = new Version(1, 2);
+
+        /// <summary>MTConnect Standard v1.3.</summary>
         public static readonly Version Version13 = new Version(1, 3);
+
+        /// <summary>MTConnect Standard v1.4.</summary>
         public static readonly Version Version14 = new Version(1, 4);
+
+        /// <summary>MTConnect Standard v1.5.</summary>
         public static readonly Version Version15 = new Version(1, 5);
+
+        /// <summary>MTConnect Standard v1.6.</summary>
         public static readonly Version Version16 = new Version(1, 6);
+
+        /// <summary>MTConnect Standard v1.7.</summary>
         public static readonly Version Version17 = new Version(1, 7);
+
+        /// <summary>MTConnect Standard v1.8.</summary>
         public static readonly Version Version18 = new Version(1, 8);
+
+        /// <summary>MTConnect Standard v2.0.</summary>
         public static readonly Version Version20 = new Version(2, 0);
+
+        /// <summary>MTConnect Standard v2.1.</summary>
         public static readonly Version Version21 = new Version(2, 1);
+
+        /// <summary>MTConnect Standard v2.2 (introduces the asset Hash).</summary>
         public static readonly Version Version22 = new Version(2, 2);
+
+        /// <summary>MTConnect Standard v2.3.</summary>
         public static readonly Version Version23 = new Version(2, 3);
+
+        /// <summary>MTConnect Standard v2.4.</summary>
         public static readonly Version Version24 = new Version(2, 4);
+
+        /// <summary>MTConnect Standard v2.5.</summary>
         public static readonly Version Version25 = new Version(2, 5);
 
         /// <summary>

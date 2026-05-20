@@ -3,6 +3,9 @@
 
 namespace MTConnect.Headers
 {
+    /// <summary>
+    /// Canonical human-readable descriptions of the attributes carried on an MTConnect response document Header, used for documentation and tooltip generation.
+    /// </summary>
     public static class MTConnectHeaderAttributeDescriptions
     {
         /// <summary>

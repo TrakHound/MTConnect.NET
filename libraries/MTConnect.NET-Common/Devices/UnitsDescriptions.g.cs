@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// Description text for each <see cref="Units"/> string constant as defined by the MTConnect Standard.
+    /// </summary>
     public static class UnitsDescriptions
     {
         /// <summary>
@@ -271,6 +274,9 @@ namespace MTConnect.Devices
         public const string WATT_SECOND = "Electrical energy in watt-second";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(string value)
         {
             switch (value)

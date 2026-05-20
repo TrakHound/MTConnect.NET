@@ -8,6 +8,9 @@ namespace MTConnect.Assets.CuttingTools
     /// </summary>
     public partial interface ICuttingToolLifeCycle
     {
+        /// <summary>
+        /// Returns a processed copy of this life cycle with its cutting items processed and measurements rebound to their concrete tooling-measurement subtypes for serialization.
+        /// </summary>
         ICuttingToolLifeCycle Process();
     }
 }

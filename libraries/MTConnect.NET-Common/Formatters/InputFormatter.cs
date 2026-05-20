@@ -13,12 +13,19 @@ using System.Linq;
 
 namespace MTConnect.Formatters
 {
+    /// <summary>
+    /// Static facade that discovers and caches the <see cref="IInputFormatter"/> implementations available across loaded assemblies and dispatches input serialization/deserialization to the one matching a requested format, timing each operation.
+    /// </summary>
     public static class InputFormatter
     {
         private static readonly ConcurrentDictionary<string, IInputFormatter> _formatters = new ConcurrentDictionary<string, IInputFormatter>();
         private static bool _firstRead = true;
 
 
+        /// <summary>
+        /// Returns the MIME content type produced by the input formatter registered for the given format, or null when no such formatter exists.
+        /// </summary>
+        /// <param name="documentFormatterId">The identifier of the input format.</param>
         public static string GetContentType(string documentFormatterId)
         {
             // Get the Formatter with the specified ID
@@ -32,6 +39,12 @@ namespace MTConnect.Formatters
         }
 
 
+        /// <summary>
+        /// Serializes a device input using the formatter for the given format, returning an error result when no matching formatter exists. The result's response duration is set to the elapsed time.
+        /// </summary>
+        /// <param name="documentFormatterId">The identifier of the input format.</param>
+        /// <param name="device">The device input to serialize.</param>
+        /// <param name="options">Optional format-specific key/value options.</param>
         public static FormatWriteResult Format(string documentFormatterId, IDeviceInput device, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var stpw = Stopwatch.StartNew();
@@ -52,6 +65,12 @@ namespace MTConnect.Formatters
             return result;
         }
 
+        /// <summary>
+        /// Serializes a batch of observation inputs using the formatter for the given format, returning an error result when no matching formatter exists. The result's response duration is set to the elapsed time.
+        /// </summary>
+        /// <param name="documentFormatterId">The identifier of the input format.</param>
+        /// <param name="observations">The observation inputs to serialize.</param>
+        /// <param name="options">Optional format-specific key/value options.</param>
         public static FormatWriteResult Format(string documentFormatterId, IEnumerable<IObservationInput> observations, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var stpw = Stopwatch.StartNew();
@@ -72,6 +91,12 @@ namespace MTConnect.Formatters
             return result;
         }
 
+        /// <summary>
+        /// Serializes a batch of asset inputs using the formatter for the given format, returning an error result when no matching formatter exists. The result's response duration is set to the elapsed time.
+        /// </summary>
+        /// <param name="documentFormatterId">The identifier of the input format.</param>
+        /// <param name="assets">The asset inputs to serialize.</param>
+        /// <param name="options">Optional format-specific key/value options.</param>
         public static FormatWriteResult Format(string documentFormatterId, IEnumerable<IAssetInput> assets, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var stpw = Stopwatch.StartNew();
@@ -93,6 +118,11 @@ namespace MTConnect.Formatters
         }
 
 
+        /// <summary>
+        /// Deserializes a device from the given payload using the formatter for the given format; returns an error result when no matching formatter exists.
+        /// </summary>
+        /// <param name="documentFormatterId">The identifier of the input format.</param>
+        /// <param name="content">The serialized device payload.</param>
         public static FormatReadResult<IDevice> CreateDevice(string documentFormatterId, byte[] content)
         {
             // Get the Formatter with the specified ID
@@ -106,6 +136,11 @@ namespace MTConnect.Formatters
             return FormatReadResult<IDevice>.Error(null, $"Input Formatter Not found for \"{documentFormatterId}\"");
         }
 
+        /// <summary>
+        /// Deserializes a batch of observation inputs from the given payload using the formatter for the given format; returns an error result when no matching formatter exists.
+        /// </summary>
+        /// <param name="documentFormatterId">The identifier of the input format.</param>
+        /// <param name="content">The serialized observations payload.</param>
         public static FormatReadResult<IEnumerable<IObservationInput>> CreateObservations(string documentFormatterId, byte[] content)
         {
             // Get the Formatter with the specified ID
@@ -119,6 +154,11 @@ namespace MTConnect.Formatters
             return FormatReadResult<IEnumerable<IObservationInput>>.Error(null, $"Input Formatter Not found for \"{documentFormatterId}\"");
         }
 
+        /// <summary>
+        /// Deserializes a batch of assets from the given payload using the formatter for the given format; returns an error result when no matching formatter exists.
+        /// </summary>
+        /// <param name="documentFormatterId">The identifier of the input format.</param>
+        /// <param name="content">The serialized assets payload.</param>
         public static FormatReadResult<IEnumerable<IAsset>> CreateAssets(string documentFormatterId, byte[] content)
         {
             // Get the Formatter with the specified ID

@@ -5,6 +5,9 @@ using System.Collections.Generic;
 
 namespace MTConnect.Input
 {
+    /// <summary>
+    /// An Information Model Input that describes Condition Streaming Data, composed of one or more FaultStates, reported by a piece of equipment.
+    /// </summary>
     public interface IConditionObservationInput
     {
         /// <summary>
@@ -18,6 +21,9 @@ namespace MTConnect.Input
         string DataItemKey { get; set; }
 
 
+        /// <summary>
+        /// The set of FaultStates that make up the current state of the Condition.
+        /// </summary>
         IEnumerable<IConditionFaultStateObservationInput> FaultStates { get; set; }
 
         /// <summary>

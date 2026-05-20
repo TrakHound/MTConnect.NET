@@ -76,26 +76,64 @@ namespace MTConnect.Configurations
         int ConfigurationFileRestartInterval { get; set; }
 
 
+        /// <summary>
+        /// The raw, untyped module configuration sections declared for the agent, each later resolved to a strongly typed configuration on demand.
+        /// </summary>
         IEnumerable<object> Modules { get; set; }
 
+        /// <summary>
+        /// The raw, untyped processor configuration sections declared for the agent's observation/asset processing pipeline.
+        /// </summary>
         IEnumerable<object> Processors { get; set; }
 
 
+        /// <summary>
+        /// Returns every configured module section keyed by its declared module identifier.
+        /// </summary>
         Dictionary<object, object> GetModules();
 
+        /// <summary>
+        /// Returns the configured module sections registered under the given module key as untyped objects.
+        /// </summary>
+        /// <param name="key">The module identifier whose sections are requested.</param>
         IEnumerable<object> GetModules(string key);
 
+        /// <summary>
+        /// Returns the number of module sections configured under the given module key.
+        /// </summary>
+        /// <param name="key">The module identifier to count sections for.</param>
         int GetModuleCount(string key);
 
+        /// <summary>
+        /// Returns the configured module sections registered under the given module key, each deserialized to <typeparamref name="TConfiguration"/>.
+        /// </summary>
+        /// <typeparam name="TConfiguration">The strongly typed configuration the module sections are bound to.</typeparam>
+        /// <param name="key">The module identifier whose sections are requested.</param>
         IEnumerable<TConfiguration> GetModules<TConfiguration>(string key);
 
+        /// <summary>
+        /// Indicates whether at least one module section is configured under the given module key.
+        /// </summary>
+        /// <param name="key">The module identifier to test.</param>
         bool IsModuleConfigured(string key);
 
 
-		Dictionary<object, object> GetProcessors();
+        /// <summary>
+        /// Returns every configured processor section keyed by its declared processor identifier.
+        /// </summary>
+        Dictionary<object, object> GetProcessors();
 
+        /// <summary>
+        /// Returns the configured processor sections registered under the given processor key as untyped objects.
+        /// </summary>
+        /// <param name="key">The processor identifier whose sections are requested.</param>
         IEnumerable<object> GetProcessors(string key);
 
+        /// <summary>
+        /// Returns the configured processor sections registered under the given processor key, each deserialized to <typeparamref name="TConfiguration"/>.
+        /// </summary>
+        /// <typeparam name="TConfiguration">The strongly typed configuration the processor sections are bound to.</typeparam>
+        /// <param name="key">The processor identifier whose sections are requested.</param>
         IEnumerable<TConfiguration> GetProcessors<TConfiguration>(string key);
     }
 }

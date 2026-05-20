@@ -7,6 +7,9 @@ using System.Linq;
 
 namespace MTConnect
 {
+    /// <summary>
+    /// Convenience extensions for working with enumerable sequences, optimizing for the common collection and array cases.
+    /// </summary>
     public static class ListExtensions
     {
         /// <summary>

@@ -10,6 +10,9 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public class AxisDataSet : AbstractAxis, IAxisDataSet, IDataSet
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Axis along or around which the Component moves relative to a coordinate system represented as a dataset.";
 
 
@@ -17,12 +20,12 @@ namespace MTConnect.Devices.Configurations
         /// X-component of Axis.
         /// </summary>
         public double X { get; set; }
-        
+
         /// <summary>
         /// Y-component of Axis.
         /// </summary>
         public double Y { get; set; }
-        
+
         /// <summary>
         /// Z-component of Axis.
         /// </summary>

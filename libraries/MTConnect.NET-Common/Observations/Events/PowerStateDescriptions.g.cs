@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// Description text for each <see cref="PowerState"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class PowerStateDescriptions
     {
         /// <summary>
@@ -16,6 +19,9 @@ namespace MTConnect.Observations.Events
         public const string OFF = "Source of energy for an entity or the enabling signal providing permission for the entity to perform its function(s) is not present or is disconnected.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="PowerState"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(PowerState value)
         {
             switch (value)

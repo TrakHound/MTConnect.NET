@@ -10,8 +10,10 @@ namespace MTConnect.Devices.References
     /// </summary>
     public class DataItemReference : Reference, IDataItemReference
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Reference that is a pointer to a DataItem associated with another entity defined for a piece of equipment.";
-
 
     }
 }

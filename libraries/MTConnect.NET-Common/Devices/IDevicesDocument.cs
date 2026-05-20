@@ -27,7 +27,7 @@ namespace MTConnect.Devices
 
         /// <summary>
         /// Interfaces is an XML Structural Element in the MTConnectDevices XML document. Interfaces is a container type XML element. 
-        /// Interfaces is used to group information de320 scribing Lower Level Interface XML elements, which each provide information for an individual Interface.
+        /// Interfaces is used to group information describing Lower Level Interface XML elements, which each provide information for an individual Interface.
         /// </summary>
         IEnumerable<IInterface> Interfaces { get; }
 
@@ -37,8 +37,16 @@ namespace MTConnect.Devices
         Version Version { get; }
 
 
+        /// <summary>
+        /// Flattens and returns every Component across all Devices in this document.
+        /// </summary>
+        /// <returns>The combined Components from every Device.</returns>
         IEnumerable<IComponent> GetComponents();
 
+        /// <summary>
+        /// Flattens and returns every DataItem across all Devices in this document.
+        /// </summary>
+        /// <returns>The combined DataItems from every Device.</returns>
         IEnumerable<IDataItem> GetDataItems();
     }
 }

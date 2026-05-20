@@ -8,9 +8,15 @@ namespace MTConnect.Assets.QIF
 {
     public partial class QIFDocumentWrapperAsset
     {
+        /// <summary>
+        /// The fixed Asset type identifier ("QIFDocumentWrapper") written to the Type attribute and used to recognize this asset during deserialization.
+        /// </summary>
         public const string TypeId = "QIFDocumentWrapper";
 
 
+        /// <summary>
+        /// Initializes a new QIFDocumentWrapperAsset, stamping the Asset Type with <see cref="TypeId"/>.
+        /// </summary>
         public QIFDocumentWrapperAsset()
         {
             Type = TypeId;

@@ -10,6 +10,9 @@ namespace MTConnect.Assets.CuttingTools
     /// </summary>
     public partial class CuttingToolAsset : Asset, ICuttingToolAsset
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Asset that physically removes the material from the workpiece by shear deformation.";
 
 
@@ -17,22 +20,22 @@ namespace MTConnect.Assets.CuttingTools
         /// AssetId and/or the URL of the data source of CuttingToolArchetype.
         /// </summary>
         public MTConnect.Assets.CuttingTools.ICuttingToolArchetypeReference CuttingToolArchetypeReference { get; set; }
-        
+
         /// <summary>
         /// Detailed structure of the cutting tool which is static during its lifecycle. ISO 13399.
         /// </summary>
         public MTConnect.Assets.CuttingTools.ICuttingToolDefinition CuttingToolDefinition { get; set; }
-        
+
         /// <summary>
         /// Data regarding the application or use of the tool.This data is provided by various pieces of equipment (i.e. machine tool, presetter) and statistical process control applications. Life cycle data will not remain static, but will change periodically when a tool is used or measured.
         /// </summary>
         public MTConnect.Assets.CuttingTools.ICuttingToolLifeCycle CuttingToolLifeCycle { get; set; }
-        
+
         /// <summary>
         /// Unique identifier for this assembly.
         /// </summary>
         public new string SerialNumber { get; set; }
-        
+
         /// <summary>
         /// Identifier for a class of cutting tools.
         /// </summary>

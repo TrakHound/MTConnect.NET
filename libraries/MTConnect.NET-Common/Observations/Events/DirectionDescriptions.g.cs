@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// Description text for each <see cref="Direction"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class DirectionDescriptions
     {
         /// <summary>
@@ -26,6 +29,9 @@ namespace MTConnect.Observations.Events
         public const string NEGATIVE = "";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="Direction"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(Direction value)
         {
             switch (value)

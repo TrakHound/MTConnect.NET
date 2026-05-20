@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.CuttingTools
 {
+    /// <summary>
+    /// ToolLifeType controlled vocabulary as defined by the MTConnect Standard.
+    /// </summary>
     public enum ToolLifeType
     {
         /// <summary>

@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets
 {
+    /// <summary>
+    /// Description text for each property of <c>PhysicalAsset</c> as defined by the MTConnect Standard.
+    /// </summary>
     public static class PhysicalAssetDescriptions
     {
         /// <summary>

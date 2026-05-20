@@ -10,6 +10,9 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public class Motion : IMotion
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Movement of the component relative to a coordinate system.";
 
 
@@ -17,42 +20,42 @@ namespace MTConnect.Devices.Configurations
         /// Describes if this component is actuated directly or indirectly as a result of other motion.
         /// </summary>
         public MTConnect.Devices.Configurations.MotionActuationType Actuation { get; set; }
-        
+
         /// <summary>
         /// Axis along or around which the Component moves relative to a coordinate system.
         /// </summary>
         public MTConnect.Devices.Configurations.IAbstractAxis Axis { get; set; }
-        
+
         /// <summary>
         /// Coordinate system within which the kinematic motion occurs.
         /// </summary>
         public string CoordinateSystemIdRef { get; set; }
-        
+
         /// <summary>
         /// Textual description for Motion.
         /// </summary>
         public string Description { get; set; }
-        
+
         /// <summary>
         /// Unique identifier for this element.
         /// </summary>
         public string Id { get; set; }
-        
+
         /// <summary>
         /// Coordinates of the origin position of a coordinate system.
         /// </summary>
         public MTConnect.Devices.Configurations.IAbstractOrigin Origin { get; set; }
-        
+
         /// <summary>
         /// Id.The kinematic chain connects all components using the parent relations. All motion is connected to the motion of the parent. The first node in the chain will not have a parent.
         /// </summary>
         public string ParentIdRef { get; set; }
-        
+
         /// <summary>
         /// Process of transforming to the origin position of the coordinate system from a parent coordinate system using Translation and Rotation.
         /// </summary>
         public MTConnect.Devices.Configurations.ITransformation Transformation { get; set; }
-        
+
         /// <summary>
         /// Type of motion.
         /// </summary>

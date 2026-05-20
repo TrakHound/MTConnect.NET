@@ -10,6 +10,9 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public class SpecificationLimits : ISpecificationLimits
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Set of limits that define a range of values designating acceptable performance for a variable.";
 
 
@@ -17,12 +20,12 @@ namespace MTConnect.Devices.Configurations
         /// Lower conformance boundary for a variable.> Note: immediate concern or action may be required.
         /// </summary>
         public double? LowerLimit { get; set; }
-        
+
         /// <summary>
         /// Numeric target or expected value.
         /// </summary>
         public double? Nominal { get; set; }
-        
+
         /// <summary>
         /// Upper conformance boundary for a variable.> Note: immediate concern or action may be required.
         /// </summary>

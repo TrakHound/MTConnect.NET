@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.QIF
 {
+    /// <summary>
+    /// Description text for each property of <c>QIFDocumentWrapperAsset</c> as defined by the MTConnect Standard.
+    /// </summary>
     public static class QIFDocumentWrapperAssetDescriptions
     {
         /// <summary>

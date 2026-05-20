@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices.Configurations
 {
+    /// <summary>
+    /// Description text for each <see cref="MotionType"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class MotionTypeDescriptions
     {
         /// <summary>
@@ -26,6 +29,9 @@ namespace MTConnect.Devices.Configurations
         public const string REVOLUTE = "Rotates around an axis with a fixed range of motion.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="MotionType"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(MotionType value)
         {
             switch (value)

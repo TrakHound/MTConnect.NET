@@ -6,6 +6,9 @@ using System.Text;
 
 namespace MTConnect.Input
 {
+    /// <summary>
+    /// An Information Model Input that carries a Device definition for reporting to an Agent.
+    /// </summary>
     public class DeviceInput : IDeviceInput
     {
         private static readonly Encoding _utf8 = new UTF8Encoding();
@@ -54,6 +57,10 @@ namespace MTConnect.Input
         }
 
 
+        /// <summary>
+        /// Initializes a new Device Input from a Device, using the Device UUID as the key.
+        /// </summary>
+        /// <param name="device">The Device to report. A <c>null</c> argument leaves the new instance empty.</param>
         public DeviceInput(IDevice device)
         {
             if (device != null)
@@ -63,6 +70,11 @@ namespace MTConnect.Input
             }
         }
 
+        /// <summary>
+        /// Initializes a new Device Input from a Device with an explicit Device key.
+        /// </summary>
+        /// <param name="deviceKey">The UUID or Name used to identify the Device.</param>
+        /// <param name="device">The Device to report. A <c>null</c> argument leaves the new instance empty.</param>
         public DeviceInput(string deviceKey, IDevice device)
         {
             if (device != null)
@@ -72,6 +84,10 @@ namespace MTConnect.Input
             }
         }
 
+        /// <summary>
+        /// Initializes a new Device Input by copying the Device key, Device, and timestamp from an existing Device Input.
+        /// </summary>
+        /// <param name="device">The source Device Input to copy; a <c>null</c> argument leaves the new instance empty.</param>
         public DeviceInput(IDeviceInput device)
         {
             if (device != null)

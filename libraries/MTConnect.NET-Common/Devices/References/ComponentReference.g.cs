@@ -10,8 +10,10 @@ namespace MTConnect.Devices.References
     /// </summary>
     public class ComponentReference : Reference, IComponentReference
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Reference that is a pointer to all of the information associated with another entity defined for a piece of equipment.";
-
 
     }
 }
