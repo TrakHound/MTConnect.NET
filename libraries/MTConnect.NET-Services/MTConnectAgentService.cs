@@ -27,15 +27,31 @@ namespace MTConnect.Services
         private bool _serviceStart = DefaultServiceStart;
 
 
+        /// <summary>
+        /// Raised when the service emits an informational log message.
+        /// </summary>
         public EventHandler<string> LogInformationReceived { get; set; }
 
+        /// <summary>
+        /// Raised when the service emits a warning log message.
+        /// </summary>
         public EventHandler<string> LogWarningReceived { get; set; }
 
+        /// <summary>
+        /// Raised when the service emits an error log message.
+        /// </summary>
         public EventHandler<string> LogErrorReceived { get; set; }
 
 
+        /// <summary>
+        /// Initializes the Windows Service wrapper with optional name, display name, description, and auto-start setting.
+        /// </summary>
+        /// <param name="name">The Windows Service name; defaults to the standard agent service name when empty.</param>
+        /// <param name="displayName">The Windows Service display name; defaults to the standard name when empty.</param>
+        /// <param name="description">The Windows Service description; defaults to the standard description when empty.</param>
+        /// <param name="autoStart">Whether the service starts automatically after installation.</param>
         public MTConnectAgentService(string name = null, string displayName = null, string description = null, bool autoStart = true)
-        { 
+        {
             _serviceName = !string.IsNullOrEmpty(name) ? name : DefaultServiceName;
             _serviceDisplayName = !string.IsNullOrEmpty(displayName) ? displayName : DefaultServiceDisplayName;
             _serviceDescription = !string.IsNullOrEmpty(description) ? description : DefaultServiceDescription;
@@ -43,6 +59,10 @@ namespace MTConnect.Services
         }
 
 
+        /// <summary>
+        /// Starts the agent when the Windows Service starts, reading the configuration-file path from the command line.
+        /// </summary>
+        /// <param name="args">The service start arguments.</param>
         protected override void OnStart(string[] args)
         {
             // Read Command Line Args manually (they are not passed in the args variable)
@@ -66,6 +86,9 @@ namespace MTConnect.Services
             base.OnStart(args);
         }
 
+        /// <summary>
+        /// Stops the agent when the Windows Service stops.
+        /// </summary>
         protected override void OnStop()
         {
             LogInformation("MTConnectAgentService : OnStop : Service Stopping");
@@ -76,15 +99,34 @@ namespace MTConnect.Services
         }
 
 
+        /// <summary>
+        /// Hook for derived services to start the hosted agent. The base implementation does nothing.
+        /// </summary>
+        /// <param name="configurationPath">The path to the agent configuration file, or null for the default.</param>
         protected virtual void StartAgent(string configurationPath) { }
 
+        /// <summary>
+        /// Hook for derived services to stop the hosted agent. The base implementation does nothing.
+        /// </summary>
         protected virtual void StopAgent() { }
 
 
+        /// <summary>
+        /// Hook for derived services to handle an informational log message. The base implementation does nothing.
+        /// </summary>
+        /// <param name="message">The log message.</param>
         protected virtual void OnLogInformation(string message) { }
 
+        /// <summary>
+        /// Hook for derived services to handle a warning log message. The base implementation does nothing.
+        /// </summary>
+        /// <param name="message">The log message.</param>
         protected virtual void OnLogWarning(string message) { }
 
+        /// <summary>
+        /// Hook for derived services to handle an error log message. The base implementation does nothing.
+        /// </summary>
+        /// <param name="message">The log message.</param>
         protected virtual void OnLogError(string message) { }
 
 
@@ -107,21 +149,34 @@ namespace MTConnect.Services
         }
 
 
+        /// <summary>
+        /// Installs the agent as a Windows Service when running on a compatible Windows platform.
+        /// </summary>
+        /// <param name="configurationPath">The path to the agent configuration file, or null for the default.</param>
         public void InstallService(string configurationPath = null)
         {
             if (WindowsService.IsCompatible()) WindowsInstall(configurationPath);
         }
 
+        /// <summary>
+        /// Removes the previously installed Windows Service when running on a compatible Windows platform.
+        /// </summary>
         public void RemoveService()
         {
             if (WindowsService.IsCompatible()) WindowsRemove();
         }
 
+        /// <summary>
+        /// Starts the installed Windows Service when running on a compatible Windows platform.
+        /// </summary>
         public void StartService()
         {
             if (WindowsService.IsCompatible()) WindowsStart();
         }
 
+        /// <summary>
+        /// Stops the running Windows Service when running on a compatible Windows platform.
+        /// </summary>
         public void StopService()
         {
             if (WindowsService.IsCompatible()) WindowsStop();
@@ -130,6 +185,10 @@ namespace MTConnect.Services
 
         #region "Windows"
 
+        /// <summary>
+        /// Registers the agent with the Windows Service Control Manager using the configured service identity.
+        /// </summary>
+        /// <param name="configurationPath">The path to the agent configuration file, or null for the default.</param>
         public void WindowsInstall(string configurationPath = null)
         {
             if (WindowsService.IsUserAdministrator())
@@ -181,6 +240,9 @@ namespace MTConnect.Services
             }
         }
 
+        /// <summary>
+        /// Unregisters the agent's Windows Service from the Service Control Manager.
+        /// </summary>
         public void WindowsRemove()
         {
             if (WindowsService.IsUserAdministrator())
@@ -208,6 +270,9 @@ namespace MTConnect.Services
             }
         }
 
+        /// <summary>
+        /// Starts the agent's installed Windows Service through the Service Control Manager.
+        /// </summary>
         public void WindowsStart()
         {
             if (WindowsService.IsUserAdministrator())
@@ -235,6 +300,9 @@ namespace MTConnect.Services
             }
         }
 
+        /// <summary>
+        /// Stops the agent's running Windows Service through the Service Control Manager.
+        /// </summary>
         public void WindowsStop()
         {
             if (WindowsService.IsUserAdministrator())

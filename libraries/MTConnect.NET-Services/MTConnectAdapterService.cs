@@ -27,15 +27,32 @@ namespace MTConnect.Services
         private bool _serviceStart = DefaultServiceStart;
 
 
+        /// <summary>
+        /// Raised when the service emits an informational log message.
+        /// </summary>
         public EventHandler<string> LogInformationReceived { get; set; }
 
+        /// <summary>
+        /// Raised when the service emits a warning log message.
+        /// </summary>
         public EventHandler<string> LogWarningReceived { get; set; }
 
+        /// <summary>
+        /// Raised when the service emits an error log message.
+        /// </summary>
         public EventHandler<string> LogErrorReceived { get; set; }
 
 
+        /// <summary>
+        /// Initializes the Windows Service wrapper, optionally suffixing the service name with a label to allow multiple adapter instances.
+        /// </summary>
+        /// <param name="label">An optional suffix appended to the service name to distinguish multiple adapters.</param>
+        /// <param name="name">The Windows Service name; defaults to the standard adapter service name when empty.</param>
+        /// <param name="displayName">The Windows Service display name; defaults to the standard name when empty.</param>
+        /// <param name="description">The Windows Service description; defaults to the standard description when empty.</param>
+        /// <param name="autoStart">Whether the service starts automatically after installation.</param>
         public MTConnectAdapterService(string label = null, string name = null, string displayName = null, string description = null, bool autoStart = true)
-        { 
+        {
             _serviceName = !string.IsNullOrEmpty(name) ? name : DefaultServiceName;
             if (!string.IsNullOrEmpty(label)) _serviceName += "-" + label;
             _serviceDisplayName = !string.IsNullOrEmpty(displayName) ? displayName : DefaultServiceDisplayName;
@@ -44,6 +61,10 @@ namespace MTConnect.Services
         }
 
 
+        /// <summary>
+        /// Starts the adapter when the Windows Service starts, reading the configuration-file path from the service arguments.
+        /// </summary>
+        /// <param name="args">The service start arguments.</param>
         protected override void OnStart(string[] args)
         {
             // Configuration File Path
@@ -62,6 +83,9 @@ namespace MTConnect.Services
             base.OnStart(args);
         }
 
+        /// <summary>
+        /// Stops the adapter when the Windows Service stops.
+        /// </summary>
         protected override void OnStop()
         {
             LogInformation("MTConnectAdapterService : OnStop : Service Stopping");
@@ -72,15 +96,34 @@ namespace MTConnect.Services
         }
 
 
+        /// <summary>
+        /// Hook for derived services to start the hosted adapter. The base implementation does nothing.
+        /// </summary>
+        /// <param name="configurationPath">The path to the adapter configuration file, or null for the default.</param>
         protected virtual void StartAdapter(string configurationPath) { }
 
+        /// <summary>
+        /// Hook for derived services to stop the hosted adapter. The base implementation does nothing.
+        /// </summary>
         protected virtual void StopAdapter() { }
 
 
+        /// <summary>
+        /// Hook for derived services to handle an informational log message. The base implementation does nothing.
+        /// </summary>
+        /// <param name="message">The log message.</param>
         protected virtual void OnLogInformation(string message) { }
 
+        /// <summary>
+        /// Hook for derived services to handle a warning log message. The base implementation does nothing.
+        /// </summary>
+        /// <param name="message">The log message.</param>
         protected virtual void OnLogWarning(string message) { }
 
+        /// <summary>
+        /// Hook for derived services to handle an error log message. The base implementation does nothing.
+        /// </summary>
+        /// <param name="message">The log message.</param>
         protected virtual void OnLogError(string message) { }
 
 
@@ -103,21 +146,34 @@ namespace MTConnect.Services
         }
 
 
+        /// <summary>
+        /// Installs the adapter as a Windows Service when running on a compatible Windows platform.
+        /// </summary>
+        /// <param name="configurationPath">The path to the adapter configuration file, or null for the default.</param>
         public void InstallService(string configurationPath = null)
         {
             if (WindowsService.IsCompatible()) WindowsInstall(configurationPath);
         }
 
+        /// <summary>
+        /// Removes the previously installed Windows Service when running on a compatible Windows platform.
+        /// </summary>
         public void RemoveService()
         {
             if (WindowsService.IsCompatible()) WindowsRemove();
         }
 
+        /// <summary>
+        /// Starts the installed Windows Service when running on a compatible Windows platform.
+        /// </summary>
         public void StartService()
         {
             if (WindowsService.IsCompatible()) WindowsStart();
         }
 
+        /// <summary>
+        /// Stops the running Windows Service when running on a compatible Windows platform.
+        /// </summary>
         public void StopService()
         {
             if (WindowsService.IsCompatible()) WindowsStop();
@@ -126,6 +182,10 @@ namespace MTConnect.Services
 
         #region "Windows"
 
+        /// <summary>
+        /// Registers the adapter with the Windows Service Control Manager using the configured service identity.
+        /// </summary>
+        /// <param name="configurationPath">The path to the adapter configuration file, or null for the default.</param>
         public void WindowsInstall(string configurationPath = null)
         {
             if (WindowsService.IsUserAdministrator())
@@ -165,6 +225,9 @@ namespace MTConnect.Services
             }
         }
 
+        /// <summary>
+        /// Unregisters the adapter's Windows Service from the Service Control Manager.
+        /// </summary>
         public void WindowsRemove()
         {
             if (WindowsService.IsUserAdministrator())
@@ -192,6 +255,9 @@ namespace MTConnect.Services
             }
         }
 
+        /// <summary>
+        /// Starts the adapter's installed Windows Service through the Service Control Manager.
+        /// </summary>
         public void WindowsStart()
         {
             if (WindowsService.IsUserAdministrator())
@@ -219,6 +285,9 @@ namespace MTConnect.Services
             }
         }
 
+        /// <summary>
+        /// Stops the adapter's running Windows Service through the Service Control Manager.
+        /// </summary>
         public void WindowsStop()
         {
             if (WindowsService.IsUserAdministrator())
