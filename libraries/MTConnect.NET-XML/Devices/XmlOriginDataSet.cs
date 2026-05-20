@@ -14,13 +14,27 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for the <c>OriginDataSet</c> element, the
+    /// keyed-entry representation of a coordinate-system origin where each
+    /// position component is carried as an <c>Entry</c> keyed <c>X</c>,
+    /// <c>Y</c>, or <c>Z</c>.
+    /// </summary>
     [XmlRoot("OriginDataSet")]
     public class XmlOriginDataSet
     {
+        /// <summary>
+        /// The per-axis origin entries as serialized <c>Entry</c> elements.
+        /// </summary>
         [XmlElement("Entry")]
         public List<XmlEntry> Entries { get; set; }
 
 
+        /// <summary>
+        /// Converts the keyed entries to a strongly-typed
+        /// <see cref="OriginDataSet"/>, mapping each <c>X</c>/<c>Y</c>/<c>Z</c>
+        /// entry to its position property and ignoring unkeyed entries.
+        /// </summary>
         public IOriginDataSet ToOriginDataSet()
         {
             var dataSet = new OriginDataSet();
@@ -40,6 +54,10 @@ namespace MTConnect.Devices.Xml
             return dataSet;
         }
 
+        /// <summary>
+        /// Writes the <c>OriginDataSet</c> element, emitting one keyed
+        /// <c>Entry</c> per component and omitting components with no value.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IOriginDataSet dataSet)
         {
             if (dataSet != null)

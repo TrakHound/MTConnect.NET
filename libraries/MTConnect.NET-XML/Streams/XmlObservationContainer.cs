@@ -50,7 +50,7 @@ namespace MTConnect.Streams.Xml
         public XmlObservationContainer(IEnumerable<IObservationOutput> observations, bool outputComments = false)
         {
             _outputComments = outputComments;
-            
+
             if (!observations.IsNullOrEmpty())
             {
                 Observations = new List<IObservationOutput>(observations.Count());
@@ -128,7 +128,7 @@ namespace MTConnect.Streams.Xml
                         {
                             writer.WriteComment($"Type = {observation.DataItem.Type} : {observation.DataItem.TypeDescription}");
                         }
-              
+
                         // Write DataItem SubType Description as Comment
                         if (!string.IsNullOrEmpty(observation.DataItem.SubType) && !string.IsNullOrEmpty(observation.DataItem.SubTypeDescription))
                         {
@@ -276,7 +276,7 @@ namespace MTConnect.Streams.Xml
                     type = RemoveNamespacePrefix(type);
 
                     var elementName = XmlObservation.GetDataItemType(type);
-                    
+
                     // Add Suffix based on Representation
                     switch (observation.Representation)
                     {

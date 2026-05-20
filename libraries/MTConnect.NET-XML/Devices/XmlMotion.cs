@@ -13,43 +13,92 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for the MTConnect <c>Motion</c> element that
+    /// defines the kinematic relationship of a component to its parent. Mirrors
+    /// the on-the-wire element and converts to and from the strongly-typed
+    /// <see cref="Motion"/> model.
+    /// </summary>
     [XmlRoot("Motion")]
     public class XmlMotion
     {
+        /// <summary>
+        /// The unique identifier of the motion within the device.
+        /// </summary>
         [XmlAttribute("id")]
         public string Id { get; set; }
 
+        /// <summary>
+        /// The <c>id</c> of the parent motion this motion is defined relative
+        /// to.
+        /// </summary>
         [XmlAttribute("parentIdRef")]
         public string ParentIdRef { get; set; }
 
+        /// <summary>
+        /// The <c>id</c> of the coordinate system the motion is defined in.
+        /// </summary>
         [XmlAttribute("coordinateSystemIdRef")]
         public string CoordinateSystemIdRef { get; set; }
 
+        /// <summary>
+        /// The type of motion, such as <c>REVOLUTE</c> or <c>PRISMATIC</c>.
+        /// </summary>
         [XmlAttribute("type")]
         public MotionType Type { get; set; }
 
+        /// <summary>
+        /// How the motion is actuated, such as <c>DIRECT</c> or <c>VIRTUAL</c>.
+        /// </summary>
         [XmlAttribute("actuation")]
         public MotionActuationType Actuation { get; set; }
 
+        /// <summary>
+        /// The free-form description of the motion.
+        /// </summary>
         [XmlElement("Description")]
         public XmlDescription Description { get; set; }
 
+        /// <summary>
+        /// The origin of the motion expressed as a coordinate triple; mutually
+        /// exclusive with <see cref="OriginDataSet"/>.
+        /// </summary>
         [XmlElement("Origin")]
         public XmlOrigin Origin { get; set; }
 
+        /// <summary>
+        /// The origin of the motion expressed as a data set; mutually exclusive
+        /// with <see cref="Origin"/>.
+        /// </summary>
         [XmlElement("OriginDataSet")]
         public XmlOriginDataSet OriginDataSet { get; set; }
 
+        /// <summary>
+        /// The translation and rotation applied relative to the parent motion.
+        /// </summary>
         [XmlElement("Transformation")]
         public XmlTransformation Transformation { get; set; }
 
+        /// <summary>
+        /// The axis of motion expressed as a coordinate triple; mutually
+        /// exclusive with <see cref="AxisDataSet"/>.
+        /// </summary>
         [XmlElement("Axis")]
         public XmlAxis Axis { get; set; }
 
+        /// <summary>
+        /// The axis of motion expressed as a data set; mutually exclusive with
+        /// <see cref="Axis"/>.
+        /// </summary>
         [XmlElement("AxisDataSet")]
         public XmlAxisDataSet AxisDataSet { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate into the strongly-typed <see cref="Motion"/>,
+        /// resolving the Origin and Axis choices in favour of the data-set form
+        /// when present.
+        /// </summary>
         public IMotion ToMotion()
         {
             var motion = new Motion();
@@ -67,6 +116,11 @@ namespace MTConnect.Devices.Xml
             return motion;
         }
 
+        /// <summary>
+        /// Writes the given <see cref="IMotion"/> to <paramref name="writer"/>
+        /// as a <c>Motion</c> element, emitting the data-set form of Origin and
+        /// Axis when the model carries it.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IMotion motion)
         {
             if (motion != null)

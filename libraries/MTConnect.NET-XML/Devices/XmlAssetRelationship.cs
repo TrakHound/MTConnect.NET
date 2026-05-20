@@ -7,19 +7,42 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for an <c>AssetRelationship</c>, associating
+    /// a Component with an asset (for example a cutting tool) it depends on or
+    /// otherwise relates to.
+    /// </summary>
     [XmlRoot("AssetRelationship")]
     public class XmlAssetRelationship : XmlConfigurationRelationship
     {
+        /// <summary>
+        /// The <c>assetId</c> of the related asset, carried by the
+        /// <c>assetIdRef</c> attribute.
+        /// </summary>
         [XmlAttribute("assetIdRef")]
         public string AssetIdRef { get; set; }
 
+        /// <summary>
+        /// The type of the related asset, carried by the <c>assetType</c>
+        /// attribute.
+        /// </summary>
         [XmlAttribute("assetType")]
         public string AssetType { get; set; }
 
+        /// <summary>
+        /// An optional URI locating the related asset, carried by the
+        /// <c>href</c> attribute.
+        /// </summary>
         [XmlAttribute("href")]
         public string Href { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="AssetRelationship"/>, copying the shared relationship
+        /// fields, mapping the optional criticality, and copying the asset
+        /// reference attributes.
+        /// </summary>
         public override IConfigurationRelationship ToRelationship()
         {
             var relationship = new AssetRelationship();
@@ -33,6 +56,11 @@ namespace MTConnect.Devices.Xml
             return relationship;
         }
 
+        /// <summary>
+        /// Writes the relationship element, emitting the shared relationship
+        /// attributes followed by the asset reference attributes that are
+        /// populated.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IAssetRelationship relationship)
         {
             if (relationship != null)

@@ -15,13 +15,27 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for the <c>AxisDataSet</c> element, the
+    /// keyed-entry representation of a motion axis direction where each
+    /// component is carried as an <c>Entry</c> keyed <c>X</c>, <c>Y</c>, or
+    /// <c>Z</c>.
+    /// </summary>
     [XmlRoot("AxisDataSet")]
     public class XmlAxisDataSet
     {
+        /// <summary>
+        /// The per-axis direction entries as serialized <c>Entry</c> elements.
+        /// </summary>
         [XmlElement("Entry")]
         public List<XmlEntry> Entries { get; set; }
 
 
+        /// <summary>
+        /// Converts the keyed entries to a strongly-typed
+        /// <see cref="AxisDataSet"/>, mapping each <c>X</c>/<c>Y</c>/<c>Z</c>
+        /// entry to its component property and ignoring unkeyed entries.
+        /// </summary>
         public IAxisDataSet ToAxisDataSet()
         {
             var dataSet = new AxisDataSet();
@@ -42,6 +56,10 @@ namespace MTConnect.Devices.Xml
             return dataSet;
         }
 
+        /// <summary>
+        /// Writes the <c>AxisDataSet</c> element, emitting one keyed
+        /// <c>Entry</c> per component using invariant-culture number formatting.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IAxisDataSet dataSet)
         {
             if (dataSet != null)

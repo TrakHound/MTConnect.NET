@@ -12,9 +12,9 @@ using System.Xml;
 namespace MTConnect
 {
     internal static class Namespaces
-    {      
+    {
         internal const string DefaultXmlSchemaInstance = "http://www.w3.org/2001/XMLSchema-instance";
-        
+
         private static Regex _streamRemoveNamespaceRegex = new Regex(@"\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""", RegexOptions.Compiled);
         private static Regex _streamNamespaceRegex = new Regex("<MTConnectStreams", RegexOptions.Compiled);
 
@@ -60,15 +60,15 @@ namespace MTConnect
 
                     switch (minorVersion)
                     {
-                        case 0: return Version10.Devices;                  
-                        case 1: return Version11.Devices;                  
-                        case 2: return Version12.Devices;                  
-                        case 3: return Version13.Devices;                  
-                        case 4: return Version14.Devices;                  
-                        case 5: return Version15.Devices;                  
-                        case 6: return Version16.Devices;                  
-                        case 7: return Version17.Devices;                  
-                        case 8: return Version18.Devices;                                  
+                        case 0: return Version10.Devices;
+                        case 1: return Version11.Devices;
+                        case 2: return Version12.Devices;
+                        case 3: return Version13.Devices;
+                        case 4: return Version14.Devices;
+                        case 5: return Version15.Devices;
+                        case 6: return Version16.Devices;
+                        case 7: return Version17.Devices;
+                        case 8: return Version18.Devices;
                     }
 
                     break;
@@ -349,20 +349,20 @@ namespace MTConnect
         }
 
         internal static class Version22
-		{
-			public const string Assets = "urn:mtconnect.org:MTConnectAssets:2.2";
-			public const string Devices = "urn:mtconnect.org:MTConnectDevices:2.2";
-			public const string Error = "urn:mtconnect.org:MTConnectError:2.2";
-			public const string Streams = "urn:mtconnect.org:MTConnectStreams:2.2";
+        {
+            public const string Assets = "urn:mtconnect.org:MTConnectAssets:2.2";
+            public const string Devices = "urn:mtconnect.org:MTConnectDevices:2.2";
+            public const string Error = "urn:mtconnect.org:MTConnectError:2.2";
+            public const string Streams = "urn:mtconnect.org:MTConnectStreams:2.2";
 
-			public static bool Match(string ns)
-			{
-				return ns == Assets || ns == Devices || ns == Error || ns == Streams;
-			}
-		}
+            public static bool Match(string ns)
+            {
+                return ns == Assets || ns == Devices || ns == Error || ns == Streams;
+            }
+        }
 
 
-		internal static class Version21
+        internal static class Version21
         {
             public const string Assets = "urn:mtconnect.org:MTConnectAssets:2.1";
             public const string Devices = "urn:mtconnect.org:MTConnectDevices:2.1";
@@ -418,7 +418,7 @@ namespace MTConnect
         }
 
         internal static class Version16
-        { 
+        {
             public const string Assets = "urn:mtconnect.org:MTConnectAssets:1.6";
             public const string Devices = "urn:mtconnect.org:MTConnectDevices:1.6";
             public const string Error = "urn:mtconnect.org:MTConnectError:1.6";

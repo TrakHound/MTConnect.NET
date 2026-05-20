@@ -12,13 +12,24 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for the <c>Rotation</c> element of a
+    /// Component <c>Configuration</c> <c>CoordinateSystem</c>, carrying the
+    /// rotation about each axis as simple element content.
+    /// </summary>
     [XmlRoot("Rotation")]
     public class XmlRotation
     {
+        /// <summary>
+        /// The rotation values as the raw, space-delimited element text content.
+        /// </summary>
         [XmlText]
         public string Value { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed <see cref="Rotation"/>.
+        /// </summary>
         public IRotation ToRotation()
         {
             var rotation = new Rotation();
@@ -26,6 +37,10 @@ namespace MTConnect.Devices.Xml
             return rotation;
         }
 
+        /// <summary>
+        /// Writes the <c>Rotation</c> element for the supplied model, emitting
+        /// the value as element text and omitting an empty value.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IRotation rotation)
         {
             if (rotation != null)

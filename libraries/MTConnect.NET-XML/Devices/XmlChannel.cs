@@ -8,28 +8,55 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for a sensor <c>Channel</c>, one calibrated
+    /// input of a sensor configuration. Mirrors the on-the-wire element and
+    /// converts to and from the strongly-typed <see cref="Channel"/> model.
+    /// </summary>
     [XmlRoot("Channel")]
     public class XmlChannel
     {
+        /// <summary>
+        /// The number that identifies the channel within the sensor.
+        /// </summary>
         [XmlAttribute("number")]
         public string Number { get; set; }
 
+        /// <summary>
+        /// The optional human-readable name of the channel.
+        /// </summary>
         [XmlAttribute("name")]
         public string Name { get; set; }
 
+        /// <summary>
+        /// The free-form description of the channel.
+        /// </summary>
         [XmlElement("Description")]
         public XmlDescription Description { get; set; }
 
+        /// <summary>
+        /// The date the channel was last calibrated.
+        /// </summary>
         [XmlElement("CalibrationDate")]
         public DateTime? CalibrationDate { get; set; }
 
+        /// <summary>
+        /// The date the channel is next due for calibration.
+        /// </summary>
         [XmlElement("NextCalibrationDate")]
         public DateTime? NextCalibrationDate { get; set; }
 
+        /// <summary>
+        /// The initials of the person who performed the calibration.
+        /// </summary>
         [XmlElement("CalibrationInitials")]
         public string CalibrationInitials { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate into the strongly-typed
+        /// <see cref="Channel"/>.
+        /// </summary>
         public IChannel ToChannel()
         {
             var channel = new Channel();
@@ -43,6 +70,11 @@ namespace MTConnect.Devices.Xml
             return channel;
         }
 
+        /// <summary>
+        /// Writes the given <see cref="IChannel"/> to <paramref name="writer"/>
+        /// as a <c>Channel</c> element, omitting calibration dates and initials
+        /// that are not set.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IChannel channel)
         {
             if (channel != null)

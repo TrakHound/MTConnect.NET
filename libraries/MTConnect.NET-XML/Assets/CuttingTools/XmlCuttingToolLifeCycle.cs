@@ -8,39 +8,81 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.Xml.CuttingTools
 {
+    /// <summary>
+    /// Hand-written part of the XML serialization surrogate for a
+    /// <c>CuttingToolLifeCycle</c>. Carries the life-cycle properties that are
+    /// not model-generated and converts the whole element to and from the
+    /// strongly-typed <see cref="ICuttingToolLifeCycle"/> model.
+    /// </summary>
     public partial class XmlCuttingToolLifeCycle
     {
+        /// <summary>
+        /// The status of the cutting tool, such as <c>NEW</c> or <c>USED</c>.
+        /// </summary>
         [XmlElement("CutterStatus")]
         public List<XmlCutterStatus> CutterStatus { get; set; }
 
+        /// <summary>
+        /// The number of times the tool has been reconditioned.
+        /// </summary>
         [XmlElement("ReconditionCount")]
         public XmlReconditionCount ReconditionCount { get; set; }
 
+        /// <summary>
+        /// The accumulated and remaining life of the tool.
+        /// </summary>
         [XmlElement("ToolLife")]
         public List<XmlToolLife> ToolLife { get; set; }
 
+        /// <summary>
+        /// Where the tool currently resides in a tool-handling system.
+        /// </summary>
         [XmlElement("Location")]
         public XmlLocation Location { get; set; }
 
+        /// <summary>
+        /// The identifier of the tool group the program refers to the tool by.
+        /// </summary>
         [XmlElement("ProgramToolGroup")]
         public string ProgramToolGroup { get; set; }
 
+        /// <summary>
+        /// The number the program refers to the tool by.
+        /// </summary>
         [XmlElement("ProgramToolNumber")]
         public string ProgramToolNumber { get; set; }
 
+        /// <summary>
+        /// The connection code identifying the machine-side interface of the
+        /// tool.
+        /// </summary>
         [XmlElement("ConnectionCodeMachineSide")]
         public string ConnectionCodeMachineSide { get; set; }
 
+        /// <summary>
+        /// The spindle speed limits the tool is expected to operate within.
+        /// </summary>
         [XmlElement("ProcessSpindleSpeed")]
         public XmlProcessSpindleSpeed ProcessSpindleSpeed { get; set; }
 
+        /// <summary>
+        /// The feed rate limits the tool is expected to operate within.
+        /// </summary>
         [XmlElement("ProcessFeedRate")]
         public XmlProcessFeedRate ProcessFeedRate { get; set; }
 
+        /// <summary>
+        /// The individual cutting items (edges) the tool comprises.
+        /// </summary>
         [XmlElement("CuttingItems")]
         public XmlCuttingItems CuttingItems { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate into the strongly-typed
+        /// <see cref="ICuttingToolLifeCycle"/>, projecting each nested
+        /// collection into its model representation.
+        /// </summary>
         public ICuttingToolLifeCycle ToCuttingToolLifeCycle()
         {
             var cuttingToolLifeCycle = new CuttingToolLifeCycle();
@@ -99,6 +141,11 @@ namespace MTConnect.Assets.Xml.CuttingTools
             return cuttingToolLifeCycle;
         }
 
+        /// <summary>
+        /// Writes the given <see cref="ICuttingToolLifeCycle"/> to
+        /// <paramref name="writer"/> as a <c>CuttingToolLifeCycle</c> element,
+        /// emitting only the properties and collections that are present.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, ICuttingToolLifeCycle cuttingToolLifeCycle)
         {
             if (cuttingToolLifeCycle != null)

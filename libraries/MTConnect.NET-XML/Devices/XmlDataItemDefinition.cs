@@ -7,24 +7,47 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for a DataItem <c>Definition</c>, describing
+    /// the structure of complex DATA_SET/TABLE observations through entry and
+    /// cell definitions.
+    /// </summary>
     public class XmlDataItemDefinition
     {
+        /// <summary>
+        /// The optional free-text description of the definition, serialized as
+        /// a <c>Description</c> element.
+        /// </summary>
         [XmlElement("Description")]
         public XmlDescription Description { get; set; }
 
+        /// <summary>
+        /// The definitions of the keyed entries the data item may report,
+        /// serialized as <c>EntryDefinition</c> elements within
+        /// <c>EntryDefinitions</c>.
+        /// </summary>
         [XmlArray("EntryDefinitions")]
         [XmlArrayItem("EntryDefinition")]
         public List<XmlEntryDefinition> EntryDefinitions { get; set; }
 
+        /// <summary>
+        /// The definitions of the cells within each table entry, serialized as
+        /// <c>CellDefinition</c> elements within <c>CellDefinitions</c>.
+        /// </summary>
         [XmlArray("CellDefinitions")]
         [XmlArrayItem("CellDefinition")]
         public List<XmlCellDefinition> CellDefinitions { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="DataItemDefinition"/>, copying the description and
+        /// converting each entry and cell definition.
+        /// </summary>
         public IDataItemDefinition ToDefinition()
         {
             var definition = new DataItemDefinition();
-            
+
             if (Description != null) definition.Description = Description?.CDATA;
             //if (Description != null) definition.Description = Description.ToDescription();
 
@@ -53,6 +76,11 @@ namespace MTConnect.Devices.Xml
             return definition;
         }
 
+        /// <summary>
+        /// Writes the <c>Definition</c> element, emitting the
+        /// <c>EntryDefinitions</c> and <c>CellDefinitions</c> containers only
+        /// when populated.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IDataItemDefinition dataItemDefinition)
         {
             if (dataItemDefinition != null)

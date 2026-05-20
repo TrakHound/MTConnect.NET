@@ -9,6 +9,11 @@ namespace MTConnect.Assets.Xml.CuttingTools
 {
     public partial class XmlCuttingItem
     {
+        /// <summary>
+        /// The set of physical and geometric measurements that characterize this cutting item.
+        /// Each element is deserialized into the concrete <see cref="XmlMeasurement"/> subclass
+        /// registered for its MTConnect measurement type.
+        /// </summary>
         [XmlArray("Measurements")]
         [XmlArrayItem(BodyDiameterMaxMeasurement.TypeId, typeof(XmlBodyDiameterMaxMeasurement))]
         [XmlArrayItem(BodyLengthMaxMeasurement.TypeId, typeof(XmlBodyLengthMaxMeasurement))]

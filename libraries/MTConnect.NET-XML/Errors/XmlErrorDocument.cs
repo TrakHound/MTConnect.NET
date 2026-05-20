@@ -10,22 +10,44 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Errors.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for the root <c>MTConnectError</c> response
+    /// document returned when the agent rejects a request. Mirrors the
+    /// on-the-wire shape so it can be read and written, then converts to and
+    /// from the strongly-typed <see cref="ErrorResponseDocument"/> model.
+    /// </summary>
     [XmlRoot("MTConnectError")]
     public class XmlErrorResponseDocument
     {
         private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(XmlErrorResponseDocument));
 
 
+        /// <summary>
+        /// The document <c>Header</c> describing the agent instance and version.
+        /// </summary>
         [XmlElement("Header")]
         public XmlErrorHeader Header { get; set; }
 
+        /// <summary>
+        /// The reported errors, serialized as child <c>Error</c> elements of an
+        /// <c>Errors</c> container.
+        /// </summary>
         [XmlArray("Errors")]
         public List<XmlError> Errors { get; set; }
 
+        /// <summary>
+        /// The MTConnect schema version detected from the source XML; carried
+        /// out of band so the correct namespace can be emitted on write.
+        /// </summary>
         [XmlIgnore]
         public Version Version { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="ErrorResponseDocument"/>, converting the header and each
+        /// error and propagating the detected version.
+        /// </summary>
         public IErrorResponseDocument ToResponseDocument()
         {
             var document = new ErrorResponseDocument();
@@ -46,6 +68,11 @@ namespace MTConnect.Errors.Xml
         }
 
 
+        /// <summary>
+        /// Deserializes an <c>MTConnectError</c> document from raw XML bytes,
+        /// sanitizing the input, detecting the schema version, and clearing
+        /// namespace prefixes before deserialization.
+        /// </summary>
         /// <exception cref="XmlException">XML Exception thrown during Serialization</exception>
         public static IErrorResponseDocument FromXml(byte[] xmlBytes)
         {
@@ -77,6 +104,11 @@ namespace MTConnect.Errors.Xml
         }
 
 
+        /// <summary>
+        /// Serializes the error response document to a new XML stream, choosing
+        /// indented or compact writer settings and optionally emitting a
+        /// stylesheet reference and header comment.
+        /// </summary>
         public static Stream ToXmlStream(
             IErrorResponseDocument document,
             bool indentOutput = true,
@@ -104,6 +136,12 @@ namespace MTConnect.Errors.Xml
             return null;
         }
 
+        /// <summary>
+        /// Writes the complete <c>MTConnectError</c> document, emitting the
+        /// version-specific namespace and schema location, the header, and one
+        /// <c>Error</c> element per reported error. No document is written when
+        /// the response has no errors.
+        /// </summary>
         public static void WriteXml(
             XmlWriter writer,
             IErrorResponseDocument document,

@@ -10,11 +10,23 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for a single keyed entry of a three-dimensional
+    /// data set (the <c>ThreeDimensionalEntryType</c> used by the polymorphic
+    /// Configuration data sets such as <c>XYZDataSet</c> and <c>ABCDataSet</c>).
+    /// </summary>
     public class XmlEntry
     {
+        /// <summary>
+        /// The axis the entry applies to, carried by the required <c>key</c>
+        /// attribute (one of <c>X</c>, <c>Y</c>, <c>Z</c>, <c>A</c>, <c>B</c>, <c>C</c>).
+        /// </summary>
         [XmlAttribute("key")]
         public string Key { get; set; }
 
+        /// <summary>
+        /// The decimal value for the keyed axis, carried as the element's text content.
+        /// </summary>
         [XmlText]
         public string Value { get; set; }
     }

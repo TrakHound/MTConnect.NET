@@ -13,6 +13,12 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.Xml
 {
+    /// <summary>
+    /// Base XML serialization surrogate for MTConnect assets. Carries the
+    /// attributes common to every asset and provides the type-driven
+    /// (de)serialization plumbing that dispatches to the concrete asset
+    /// surrogate matching an asset's type.
+    /// </summary>
     public class XmlAsset
     {
         private static readonly Dictionary<Type, XmlSerializer> _serializers = new Dictionary<Type, XmlSerializer>();
@@ -20,28 +26,56 @@ namespace MTConnect.Assets.Xml
         private static Dictionary<string, Type> _types;
 
 
+        /// <summary>
+        /// The identifier that uniquely identifies the asset.
+        /// </summary>
         [XmlAttribute("assetId")]
         public string AssetId { get; set; }
 
+        /// <summary>
+        /// The MTConnect asset type, such as <c>CuttingTool</c> or <c>File</c>.
+        /// </summary>
         [XmlAttribute("type")]
         public string Type { get; set; }
 
+        /// <summary>
+        /// The time the asset was last modified.
+        /// </summary>
         [XmlAttribute("timestamp")]
         public DateTime Timestamp { get; set; }
 
+        /// <summary>
+        /// The UUID of the device that supplied the asset.
+        /// </summary>
         [XmlAttribute("deviceUuid")]
         public string DeviceUuid { get; set; }
 
+        /// <summary>
+        /// Whether the asset has been removed.
+        /// </summary>
         [XmlAttribute("removed")]
         public bool Removed { get; set; }
 
+        /// <summary>
+        /// The free-form description of the asset.
+        /// </summary>
         [XmlAttribute("description")]
         public string Description { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate into the strongly-typed asset model.
+        /// Overridden by each concrete asset surrogate; the base implementation
+        /// returns <c>null</c>.
+        /// </summary>
         public virtual IAsset ToAsset() { return null; }
 
 
+        /// <summary>
+        /// Deserializes an asset XML document into a strongly-typed
+        /// <see cref="IAsset"/>, selecting the surrogate that matches the given
+        /// asset type name.
+        /// </summary>
         public static IAsset FromXml(string type, byte[] xmlBytes)
         {
             var asset = Asset.Create(type);
@@ -56,6 +90,12 @@ namespace MTConnect.Assets.Xml
             return default;
         }
 
+        /// <summary>
+        /// Deserializes an asset XML document into a strongly-typed
+        /// <see cref="IAsset"/> using the given surrogate
+        /// <paramref name="type"/>, caching the <see cref="XmlSerializer"/> per
+        /// type. Returns the default value if the input cannot be parsed.
+        /// </summary>
         public static IAsset FromXml(Type type, byte[] xmlBytes)
         {
             if (type != null && xmlBytes != null && xmlBytes.Length > 0)
@@ -102,6 +142,11 @@ namespace MTConnect.Assets.Xml
             return default;
         }
 
+        /// <summary>
+        /// Writes the given <see cref="IAsset"/> to <paramref name="writer"/> by
+        /// dispatching to the <c>WriteXml</c> method of the concrete surrogate
+        /// that matches the asset's type.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IAsset asset)
         {
             try
@@ -123,19 +168,30 @@ namespace MTConnect.Assets.Xml
             catch { }
         }
 
+        /// <summary>
+        /// Writes the attributes common to every asset (<c>assetId</c>,
+        /// <c>deviceUuid</c>, <c>timestamp</c>, and <c>removed</c>) onto the
+        /// current element. Intended to be called by concrete surrogates after
+        /// opening their root element.
+        /// </summary>
         public static void WriteCommonXml(XmlWriter writer, IAsset asset)
         {
             if (asset != null)
             {
                 // Write Properties
                 writer.WriteAttributeString("assetId", asset.AssetId);
-                writer.WriteAttributeString("deviceUuid", asset.DeviceUuid);  
-                writer.WriteAttributeString("timestamp", asset.Timestamp.ToString("o"));  
-                if (asset.Removed) writer.WriteAttributeString("removed", "true");  
+                writer.WriteAttributeString("deviceUuid", asset.DeviceUuid);
+                writer.WriteAttributeString("timestamp", asset.Timestamp.ToString("o"));
+                if (asset.Removed) writer.WriteAttributeString("removed", "true");
             }
         }
 
 
+        /// <summary>
+        /// Serializes the given <see cref="IAsset"/> to a <see cref="Stream"/>
+        /// of XML, optionally indented, returning <c>null</c> if serialization
+        /// fails.
+        /// </summary>
         public static Stream ToXml(IAsset asset, bool indent = false)
         {
             try
@@ -176,6 +232,11 @@ namespace MTConnect.Assets.Xml
             return null;
         }
 
+        /// <summary>
+        /// Resolves the concrete surrogate <see cref="Type"/> registered for
+        /// the given asset type name, or <c>null</c> when none is known. The
+        /// surrogate map is built once on first use.
+        /// </summary>
         public static Type GetAssetType(string type)
         {
             if (!string.IsNullOrEmpty(type))

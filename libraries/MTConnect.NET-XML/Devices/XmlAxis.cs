@@ -12,13 +12,24 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for the <c>Axis</c> element of a Component
+    /// <c>Configuration</c> <c>Motion</c>, carrying the direction vector of the
+    /// motion axis as simple element content.
+    /// </summary>
     [XmlRoot("Axis")]
     public class XmlAxis
     {
+        /// <summary>
+        /// The axis direction values as the raw, space-delimited element text content.
+        /// </summary>
         [XmlText]
         public string Value { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed <see cref="Axis"/>.
+        /// </summary>
         public IAxis ToAxis()
         {
             var axis = new Axis();
@@ -26,6 +37,10 @@ namespace MTConnect.Devices.Xml
             return axis;
         }
 
+        /// <summary>
+        /// Writes the <c>Axis</c> element for the supplied model, emitting the
+        /// value as element text and omitting an empty value.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IAxis axis)
         {
             if (axis != null)

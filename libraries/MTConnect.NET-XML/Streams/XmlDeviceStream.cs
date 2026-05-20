@@ -11,7 +11,7 @@ namespace MTConnect.Streams.Xml
     internal static class XmlDeviceStream
     {
         public static void WriteXml(
-            XmlWriter writer, 
+            XmlWriter writer,
             ref IDeviceStreamOutput deviceStream,
             IEnumerable<NamespaceConfiguration> extendedSchemas = null,
             bool outputComments = false

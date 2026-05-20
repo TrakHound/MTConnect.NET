@@ -15,13 +15,26 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for the <c>ScaleDataSet</c> element, the
+    /// keyed-entry representation of a solid-model scale where each axis factor
+    /// is carried as an <c>Entry</c> keyed <c>X</c>, <c>Y</c>, or <c>Z</c>.
+    /// </summary>
     [XmlRoot("ScaleDataSet")]
     public class XmlScaleDataSet
     {
+        /// <summary>
+        /// The per-axis scale entries as serialized <c>Entry</c> elements.
+        /// </summary>
         [XmlElement("Entry")]
         public List<XmlEntry> Entries { get; set; }
 
 
+        /// <summary>
+        /// Converts the keyed entries to a strongly-typed
+        /// <see cref="ScaleDataSet"/>, mapping each <c>X</c>/<c>Y</c>/<c>Z</c>
+        /// entry to its axis property and ignoring unkeyed entries.
+        /// </summary>
         public IScaleDataSet ToScaleDataSet()
         {
             var dataSet = new ScaleDataSet();
@@ -42,6 +55,10 @@ namespace MTConnect.Devices.Xml
             return dataSet;
         }
 
+        /// <summary>
+        /// Writes the <c>ScaleDataSet</c> element, emitting one keyed
+        /// <c>Entry</c> per axis using invariant-culture number formatting.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IScaleDataSet dataSet)
         {
             if (dataSet != null)

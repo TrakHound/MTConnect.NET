@@ -7,22 +7,47 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for the <c>AlarmLimits</c> element of a
+    /// Specification, carrying the upper/lower alarm and warning bounds as
+    /// optional child elements.
+    /// </summary>
     [XmlRoot("AlarmLimits")]
     public class XmlAlarmLimits
     {
+        /// <summary>
+        /// The upper alarm bound, serialized as the optional <c>UpperLimit</c>
+        /// element.
+        /// </summary>
         [XmlElement("UpperLimit")]
         public double? UpperLimit { get; set; }
 
+        /// <summary>
+        /// The upper warning bound, serialized as the optional
+        /// <c>UpperWarning</c> element.
+        /// </summary>
         [XmlElement("UpperWarning")]
         public double? UpperWarning { get; set; }
 
+        /// <summary>
+        /// The lower alarm bound, serialized as the optional <c>LowerLimit</c>
+        /// element.
+        /// </summary>
         [XmlElement("LowerLimit")]
         public double? LowerLimit { get; set; }
 
+        /// <summary>
+        /// The lower warning bound, serialized as the optional
+        /// <c>LowerWarning</c> element.
+        /// </summary>
         [XmlElement("LowerWarning")]
         public double? LowerWarning { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed <see cref="AlarmLimits"/>,
+        /// copying each present bound.
+        /// </summary>
         public IAlarmLimits ToAlarmLimits()
         {
             var alarmLimits = new AlarmLimits();
@@ -33,6 +58,10 @@ namespace MTConnect.Devices.Xml
             return alarmLimits;
         }
 
+        /// <summary>
+        /// Writes the alarm limits element, emitting only the bounds that are
+        /// present.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IAlarmLimits alarmLimits)
         {
             if (alarmLimits != null)

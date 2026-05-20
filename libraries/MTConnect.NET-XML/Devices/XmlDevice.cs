@@ -10,71 +10,143 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
-	[XmlRoot("Device")]
+    /// <summary>
+    /// XML serialization surrogate for an MTConnect <c>Device</c>. Mirrors the
+    /// <c>Device</c> element of an MTConnectDevices document so the XML
+    /// serializer can read and write the on-the-wire shape, then converts to
+    /// and from the strongly-typed <see cref="IDevice"/> model.
+    /// </summary>
+    [XmlRoot("Device")]
     public class XmlDevice
     {
         private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(XmlDevice));
 
 
+        /// <summary>
+        /// The unique <c>id</c> of the device within the MTConnectDevices document.
+        /// </summary>
         [XmlAttribute("id")]
         public string Id { get; set; }
 
+        /// <summary>
+        /// The human-readable <c>name</c> of the device.
+        /// </summary>
         [XmlAttribute("name")]
         public string Name { get; set; }
 
+        /// <summary>
+        /// The globally unique <c>uuid</c> identifying the physical device.
+        /// </summary>
         [XmlAttribute("uuid")]
         public string Uuid { get; set; }
 
+        /// <summary>
+        /// The ISO 841 classification of the device.
+        /// </summary>
         [XmlAttribute("iso841Class")]
         public string Iso841Class { get; set; }
 
+        /// <summary>
+        /// The name the device is known by on its native control.
+        /// </summary>
         [XmlAttribute("nativeName")]
         public string NativeName { get; set; }
 
+        /// <summary>
+        /// The interval, in milliseconds, between samples the device reports.
+        /// </summary>
         [XmlAttribute("sampleInterval")]
         public double SampleInterval { get; set; }
 
+        /// <summary>
+        /// The deprecated sample rate, in samples per second; superseded by
+        /// <see cref="SampleInterval"/>.
+        /// </summary>
         [XmlAttribute("sampleRate")]
         public double SampleRate { get; set; }
 
+        /// <summary>
+        /// Reference to the <c>id</c> of the CoordinateSystem the device's
+        /// values are expressed relative to.
+        /// </summary>
         [XmlAttribute("coordinateSystemIdRef")]
         public string CoordinateSystemIdRef { get; set; }
 
+        /// <summary>
+        /// The version of the MTConnect Standard the device's information model
+        /// conforms to.
+        /// </summary>
         [XmlAttribute("mtconnectVersion")]
         public string MTConnectVersion { get; set; }
 
+        /// <summary>
+        /// The change hash identifying the current revision of the device's
+        /// model, used to detect configuration changes.
+        /// </summary>
 		[XmlAttribute("hash")]
-		public string Hash { get; set; }
+        public string Hash { get; set; }
 
+        /// <summary>
+        /// The <c>Description</c> element carrying manufacturer, model, serial
+        /// number, and free-text description.
+        /// </summary>
         [XmlElement("Description")]
         public XmlDescription Description { get; set; }
 
+        /// <summary>
+        /// The <c>Configuration</c> element holding the device's configuration
+        /// sub-elements.
+        /// </summary>
         [XmlElement("Configuration")]
         public XmlConfiguration Configuration { get; set; }
 
+        /// <summary>
+        /// The <c>DataItems</c> the device reports directly (not via a child
+        /// component).
+        /// </summary>
         [XmlArray("DataItems")]
         [XmlArrayItem("DataItem")]
         public List<XmlDataItem> DataItems { get; set; }
 
+        /// <summary>
+        /// The <c>Components</c> element containing the device's child
+        /// component tree.
+        /// </summary>
         [XmlElement("Components")]
         public XmlComponentCollection ComponentCollection { get; set; }
 
+        /// <summary>
+        /// The <c>Compositions</c> describing the lower-level structural parts
+        /// of the device.
+        /// </summary>
         [XmlArray("Compositions")]
         [XmlArrayItem("Composition")]
         public List<XmlComposition> Compositions { get; set; }
 
+        /// <summary>
+        /// The component and data-item <c>References</c> the device depends on.
+        /// </summary>
         [XmlArray("References")]
         [XmlArrayItem("ComponentRef", typeof(XmlComponentReference))]
         [XmlArrayItem("DataItemRef", typeof(XmlDataItemReference))]
         public List<XmlReference> References { get; set; }
 
 
+        /// <summary>
+        /// Converts this XML surrogate into a new strongly-typed
+        /// <see cref="Device"/> model.
+        /// </summary>
         public virtual IDevice ToDevice()
         {
             var device = new Device();
             return ToDevice(device);
         }
 
+        /// <summary>
+        /// Populates <paramref name="device"/> from this XML surrogate,
+        /// projecting the description, configuration, references, data items,
+        /// compositions, and child components, and wiring up container links.
+        /// </summary>
         protected IDevice ToDevice(Device device)
         {
             device.Id = Id;
@@ -148,6 +220,13 @@ namespace MTConnect.Devices.Xml
             return device;
         }
 
+        /// <summary>
+        /// Deserializes a single <c>Device</c> XML document from
+        /// <paramref name="xmlBytes"/>, optionally overriding the device
+        /// <c>uuid</c> with <paramref name="deviceUuid"/>, and returns it as an
+        /// <see cref="IDevice"/>, or <c>null</c> when the bytes are empty or not
+        /// well-formed.
+        /// </summary>
         public static IDevice FromXml(byte[] xmlBytes, string deviceUuid = null)
         {
             if (xmlBytes != null && xmlBytes.Length > 0)
@@ -183,6 +262,11 @@ namespace MTConnect.Devices.Xml
             return null;
         }
 
+        /// <summary>
+        /// Serializes <paramref name="device"/> to a UTF-8 <c>Device</c> XML
+        /// byte array, optionally <paramref name="indent"/>ed, or <c>null</c>
+        /// when serialization fails.
+        /// </summary>
         public static byte[] ToXml(IDevice device, bool indent = true)
         {
             if (device != null)
@@ -209,6 +293,14 @@ namespace MTConnect.Devices.Xml
             return null;
         }
 
+        /// <summary>
+        /// Writes <paramref name="device"/> as its MTConnect element to
+        /// <paramref name="writer"/>, emitting only the attributes that differ
+        /// from their defaults and recursing into description, configuration,
+        /// references, data items, compositions, and components. When
+        /// <paramref name="outputComments"/> is <c>true</c>, type descriptions
+        /// are written as preceding XML comments.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IDevice device, bool outputComments = false)
         {
             if (device != null)
@@ -238,8 +330,8 @@ namespace MTConnect.Devices.Xml
                 if (device.MTConnectVersion != null) writer.WriteAttributeString("mtconnectVersion", device.MTConnectVersion.ToString());
                 if (!string.IsNullOrEmpty(device.Hash)) writer.WriteAttributeString("hash", device.Hash);
 
-				// Write Description
-				XmlDescription.WriteXml(writer, device.Description);
+                // Write Description
+                XmlDescription.WriteXml(writer, device.Description);
 
                 // Write Configuration
                 XmlConfiguration.WriteXml(writer, device.Configuration, outputComments);

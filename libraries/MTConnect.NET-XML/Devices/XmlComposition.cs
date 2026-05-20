@@ -9,45 +9,93 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for an MTConnect <c>Composition</c>, a
+    /// lower-level functional building block of a component. Mirrors the
+    /// on-the-wire element and converts to and from the strongly-typed
+    /// <see cref="MTConnect.Devices.Composition"/> model.
+    /// </summary>
     [XmlRoot("Composition")]
     public class XmlComposition
     {
         private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(XmlComposition));
 
 
+        /// <summary>
+        /// The unique identifier of the composition within the device.
+        /// </summary>
         [XmlAttribute("id")]
         public string Id { get; set; }
 
+        /// <summary>
+        /// The MTConnect composition type, such as <c>MOTOR</c> or
+        /// <c>SENSING_ELEMENT</c>.
+        /// </summary>
         [XmlAttribute("type")]
         public string Type { get; set; }
 
+        /// <summary>
+        /// The optional human-readable name of the composition.
+        /// </summary>
         [XmlAttribute("name")]
         public string Name { get; set; }
 
+        /// <summary>
+        /// The name the composition is known by on its native control.
+        /// </summary>
         [XmlAttribute("nativeName")]
         public string NativeName { get; set; }
 
+        /// <summary>
+        /// The interval, in milliseconds, between samples the composition
+        /// reports.
+        /// </summary>
         [XmlAttribute("sampleInterval")]
         public double SampleInterval { get; set; }
 
+        /// <summary>
+        /// The deprecated sample rate, in samples per second; superseded by
+        /// <see cref="SampleInterval"/>.
+        /// </summary>
         [XmlAttribute("sampleRate")]
         public double SampleRate { get; set; }
 
+        /// <summary>
+        /// The optional globally unique identifier of the composition.
+        /// </summary>
         [XmlAttribute("uuid")]
         public string Uuid { get; set; }
 
+        /// <summary>
+        /// The free-form description of the composition.
+        /// </summary>
         [XmlElement("Description")]
         public XmlDescription Description { get; set; }
 
+        /// <summary>
+        /// The configuration metadata that applies to the composition.
+        /// </summary>
         [XmlElement("Configuration")]
         public XmlConfiguration Configuration { get; set; }
 
+        /// <summary>
+        /// The references to components and data items related to this
+        /// composition.
+        /// </summary>
         [XmlArray("References")]
         [XmlArrayItem("ComponentRef", typeof(XmlComponentReference))]
         [XmlArrayItem("DataItemRef", typeof(XmlDataItemReference))]
         public List<XmlReference> References { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate into the strongly-typed
+        /// <see cref="MTConnect.Devices.Composition"/>, instantiating the
+        /// concrete composition class that matches <see cref="Type"/> when one
+        /// exists.
+        /// </summary>
+        /// <param name="device">The owning device, supplied for context where
+        /// the conversion needs it.</param>
         public Composition ToComposition(IDevice device = null)
         {
             var composition = Composition.Create(Type.ToPascalCase());
@@ -78,6 +126,11 @@ namespace MTConnect.Devices.Xml
             return composition;
         }
 
+        /// <summary>
+        /// Deserializes a standalone <c>Composition</c> XML document into a
+        /// strongly-typed <see cref="IComposition"/>, returning <c>null</c> if
+        /// the input is empty or cannot be parsed.
+        /// </summary>
         public static IComposition FromXml(byte[] xmlBytes)
         {
             if (xmlBytes != null && xmlBytes.Length > 0)
@@ -102,6 +155,15 @@ namespace MTConnect.Devices.Xml
             return null;
         }
 
+        /// <summary>
+        /// Writes the given <see cref="IComposition"/> to <paramref name="writer"/>
+        /// as a <c>Composition</c> element, optionally preceding it with a
+        /// comment describing the composition type.
+        /// </summary>
+        /// <param name="writer">The XML writer to emit to.</param>
+        /// <param name="composition">The composition to serialize.</param>
+        /// <param name="outputComments">When <c>true</c>, emits the human-readable
+        /// type description as an XML comment.</param>
         public static void WriteXml(XmlWriter writer, IComposition composition, bool outputComments = false)
         {
             if (composition != null)

@@ -8,36 +8,76 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.Xml.CuttingTools
 {
+    /// <summary>
+    /// Hand-written part of the XML serialization surrogate for a cutting tool
+    /// <c>CuttingItem</c> (an individual edge of the tool). Carries the
+    /// properties that are not model-generated and converts to and from the
+    /// strongly-typed <see cref="ICuttingItem"/> model.
+    /// </summary>
     public partial class XmlCuttingItem
     {
+        /// <summary>
+        /// The range of indices on the tool the cutting item occupies, as the
+        /// raw attribute text.
+        /// </summary>
         [XmlAttribute("indices")]
         public string Indices { get; set; }
 
+        /// <summary>
+        /// The identifier of the cutting item within the tool.
+        /// </summary>
         [XmlAttribute("itemId")]
         public string ItemId { get; set; }
 
+        /// <summary>
+        /// The manufacturers of the cutting item, as a comma-separated list.
+        /// </summary>
         [XmlAttribute("manufacturers")]
         public string Manufacturers { get; set; }
 
+        /// <summary>
+        /// The material grade of the cutting item.
+        /// </summary>
         [XmlAttribute("grade")]
         public string Grade { get; set; }
 
+        /// <summary>
+        /// The free-form description of the cutting item.
+        /// </summary>
         [XmlElement("Description")]
         public string Description { get; set; }
 
+        /// <summary>
+        /// The position of the cutting item on the tool.
+        /// </summary>
         [XmlElement("Locus")]
         public string Locus { get; set; }
 
+        /// <summary>
+        /// The identifier of the tool group the program refers to the item by.
+        /// </summary>
         [XmlElement("ProgramToolGroup")]
         public string ProgramToolGroup { get; set; }
 
+        /// <summary>
+        /// The status of the cutting item, such as <c>NEW</c> or <c>USED</c>.
+        /// </summary>
         [XmlElement("CutterStatus")]
         public List<XmlCutterStatus> CutterStatus { get; set; }
 
+        /// <summary>
+        /// The accumulated and remaining life of the cutting item.
+        /// </summary>
         [XmlElement("ItemLife")]
         public List<XmlItemLife> ItemLife { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate into the strongly-typed
+        /// <see cref="ICuttingItem"/>, splitting the comma-separated
+        /// manufacturers and projecting each nested collection into its model
+        /// representation.
+        /// </summary>
         public ICuttingItem ToCuttingItem()
         {
             var cuttingItem = new CuttingItem();
@@ -90,6 +130,11 @@ namespace MTConnect.Assets.Xml.CuttingTools
             return cuttingItem;
         }
 
+        /// <summary>
+        /// Writes the given cutting items to <paramref name="writer"/> wrapped
+        /// in a <c>CuttingItems</c> element, one <c>CuttingItem</c> element per
+        /// item, omitting optional values that are not set.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IEnumerable<ICuttingItem> cuttingItems)
         {
             if (!cuttingItems.IsNullOrEmpty())

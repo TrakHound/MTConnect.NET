@@ -7,33 +7,66 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.Xml.RawMaterials
 {
+    /// <summary>
+    /// XML serialization surrogate for the <c>Material</c> a raw-material asset
+    /// is made of. Mirrors the on-the-wire element and converts to and from the
+    /// strongly-typed <see cref="Material"/> model.
+    /// </summary>
     public class XmlMaterial
     {
+        /// <summary>
+        /// The identifier of the material.
+        /// </summary>
         [XmlAttribute("id")]
         public string Id { get; set; }
 
+        /// <summary>
+        /// The name of the material.
+        /// </summary>
         [XmlAttribute("name")]
         public string Name { get; set; }
 
+        /// <summary>
+        /// The type of the material.
+        /// </summary>
         [XmlAttribute("type")]
         public string Type { get; set; }
 
+        /// <summary>
+        /// The lot the material belongs to.
+        /// </summary>
         [XmlElement("Lot")]
         public string Lot { get; set; }
 
+        /// <summary>
+        /// The manufacturer of the material.
+        /// </summary>
         [XmlElement("Manufacturer")]
         public string Manufacturer { get; set; }
 
+        /// <summary>
+        /// The date the material was manufactured, as the raw element text.
+        /// </summary>
         [XmlElement("ManufacturingDate")]
         public string ManufacturingDate { get; set; }
 
+        /// <summary>
+        /// The manufacturer's code for the material.
+        /// </summary>
         [XmlElement("ManufacturingCode")]
         public string ManufacturingCode { get; set; }
 
+        /// <summary>
+        /// The standardized material code.
+        /// </summary>
         [XmlElement("MaterialCode")]
         public string MaterialCode { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate into the strongly-typed
+        /// <see cref="Material"/>, parsing the manufacturing date.
+        /// </summary>
         public IMaterial ToMaterial()
         {
             var material = new Material();
@@ -48,6 +81,11 @@ namespace MTConnect.Assets.Xml.RawMaterials
             return material;
         }
 
+        /// <summary>
+        /// Writes the given <see cref="IMaterial"/> to <paramref name="writer"/>
+        /// as a <c>Material</c> element, omitting optional child elements that
+        /// are not set.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IMaterial material)
         {
             if (material != null)

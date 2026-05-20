@@ -12,13 +12,24 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for the <c>Origin</c> element of a Component
+    /// <c>Configuration</c> <c>CoordinateSystem</c>, carrying the position of
+    /// the coordinate-system origin as simple element content.
+    /// </summary>
     [XmlRoot("Origin")]
     public class XmlOrigin
     {
+        /// <summary>
+        /// The origin values as the raw, space-delimited element text content.
+        /// </summary>
         [XmlText]
         public string Value { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed <see cref="Origin"/>.
+        /// </summary>
         public IOrigin ToOrigin()
         {
             var origin = new Origin();
@@ -26,6 +37,10 @@ namespace MTConnect.Devices.Xml
             return origin;
         }
 
+        /// <summary>
+        /// Writes the <c>Origin</c> element for the supplied model, emitting the
+        /// value as element text and omitting an empty value.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IOrigin origin)
         {
             if (origin != null)
