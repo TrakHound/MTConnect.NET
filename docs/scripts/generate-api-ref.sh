@@ -82,4 +82,16 @@ find docs/api -mindepth 1 -maxdepth 1 -not -name 'index.md' -exec rm -rf {} +
 
 "${docfx_bin}" metadata docs/.docfx/docfx.json --logLevel warning
 
+# docfx renders <c>…</c> as raw <code>…</code> HTML in the emitted
+# markdown. VitePress's underlying Vue template compiler then treats
+# {{ … }} inside that <code> element as a mustache interpolation —
+# e.g. <code>{{term(data set)}}</code> from the SysML representation
+# markers is parsed as the JavaScript expression `term(data set)` and
+# rejects the unquoted space. Mark every emitted <code> as v-pre so
+# Vue treats its contents as literal text rather than a template
+# fragment. Safe to re-run because the clean step above wipes the
+# output tree before docfx writes fresh files.
+find docs/api -name '*.md' -not -name 'index.md' -print0 \
+  | xargs -0 sed -i -E 's#<code( [^>]*)?>#<code v-pre\1>#g'
+
 echo "==> done. $(find docs/api -name '*.md' -not -name 'index.md' | wc -l) pages generated."

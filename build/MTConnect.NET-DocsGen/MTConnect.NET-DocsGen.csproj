@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>MTConnect.NET_DocsGen</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!--
+    Roslyn-only source inspection. The tool walks the `libraries/` and
+    `agent/` source trees as text via Microsoft.CodeAnalysis.CSharp and
+    extracts the route table, environment-variable reads, and
+    configuration option classes. No assemblies are loaded, so the
+    AspNetCore controller library — which currently does not build under
+    net8.0 — is still readable.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
+  </ItemGroup>
+
+</Project>
