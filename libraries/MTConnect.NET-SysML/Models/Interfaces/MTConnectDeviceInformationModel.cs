@@ -4,13 +4,28 @@ using System.Linq;
 
 namespace MTConnect.SysML.Models.Devices
 {
+    /// <summary>
+    /// Parses the Interface Interaction Model from the XMI, collecting the
+    /// interface-specific DataItem types keyed off the
+    /// <c>InterfaceEventEnum</c>.
+    /// </summary>
     public class MTConnectInterfaceInformationModel
     {
+        /// <summary>
+        /// The DataItem types declared for the interface model, or
+        /// <c>null</c> when the XMI carries no interface DataItem package.
+        /// </summary>
         public MTConnectDataItemsModel DataItems { get; private set; }
 
 
+        /// <summary>
+        /// Creates an empty model for manual population.
+        /// </summary>
         public MTConnectInterfaceInformationModel() { }
 
+        /// <summary>
+        /// Parses the interface DataItem types from the given XMI document.
+        /// </summary>
         public MTConnectInterfaceInformationModel(XmiDocument xmiDocument)
         {
             Parse(xmiDocument);

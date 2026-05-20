@@ -6,39 +6,98 @@ using System.Linq;
 
 namespace MTConnect.SysML.Models.Devices
 {
+    /// <summary>
+    /// A parsed concrete DataItem type: its emitted class name, MTConnect
+    /// category and type, default representation/units/subtype, structured
+    /// result type, valid version range, and its subtypes.
+    /// </summary>
     public class MTConnectDataItemType : IMTConnectExportModel
     {
+        /// <inheritdoc/>
         public string UmlId { get; set; }
 
+        /// <inheritdoc/>
         public string Id { get; set; }
 
+        /// <summary>
+        /// The emitted C# class name for this DataItem type.
+        /// </summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// The cleaned description text emitted into the doc comment.
+        /// </summary>
         public string Description { get; set; }
 
+        /// <summary>
+        /// The MTConnect category (<c>SAMPLE</c>, <c>EVENT</c>, or
+        /// <c>CONDITION</c>).
+        /// </summary>
         public string Category { get; set; }
 
+        /// <summary>
+        /// The MTConnect <c>type</c> attribute value for this DataItem.
+        /// </summary>
         public string Type { get; set; }
 
+        /// <summary>
+        /// The name of the base DataItem class.
+        /// </summary>
         public string ParentName { get; set; }
 
+        /// <summary>
+        /// The default representation (for example <c>VALUE</c>,
+        /// <c>DATA_SET</c>, <c>TABLE</c>, <c>TIME_SERIES</c>), or
+        /// <c>null</c> when the default applies.
+        /// </summary>
         public string Representation { get; set; }
 
+        /// <summary>
+        /// The default units for this DataItem, or <c>null</c> when none.
+        /// </summary>
         public string Units { get; set; }
 
+        /// <summary>
+        /// The default subtype, or <c>null</c> when none is declared.
+        /// </summary>
         public string DefaultSubType { get; set; }
 
+        /// <summary>
+        /// The structured result type name backing this DataItem, or
+        /// <c>null</c> for a plain value.
+        /// </summary>
         public string Result { get; set; }
 
+        /// <summary>
+        /// The MTConnect version this DataItem was deprecated at, or
+        /// <c>null</c>.
+        /// </summary>
         public Version MaximumVersion { get; set; }
 
+        /// <summary>
+        /// The MTConnect version this DataItem was introduced in, or
+        /// <c>null</c>.
+        /// </summary>
         public Version MinimumVersion { get; set; }
 
+        /// <summary>
+        /// The subtypes declared for this DataItem type.
+        /// </summary>
         public List<MTConnectDataItemSubType> SubTypes { get; set; }
 
 
+        /// <summary>
+        /// Creates an empty model for manual population.
+        /// </summary>
         public MTConnectDataItemType() { }
 
+        /// <summary>
+        /// Parses a DataItem type from <paramref name="umlClass"/> and its
+        /// matching <paramref name="umlEnumerationLiteral"/>: resolves the
+        /// emitted name, category, default subtype, structured representation
+        /// (read from both the result property's parent chain and the enum
+        /// literal's prose marker), version range, base class, and subtypes.
+        /// </summary>
         public MTConnectDataItemType(XmiDocument xmiDocument, string category, string idPrefix, UmlClass umlClass, UmlEnumerationLiteral umlEnumerationLiteral, IEnumerable<UmlClass> subClasses = null)
         {
             if (umlClass != null && umlEnumerationLiteral != null)
@@ -174,6 +233,12 @@ namespace MTConnect.SysML.Models.Devices
         }
 
 
+        /// <summary>
+        /// Parses every top-level DataItem type in
+        /// <paramref name="umlClasses"/> (excluding <c>Type.SubType</c>
+        /// entries), matching each against <paramref name="umlEnumeration"/>,
+        /// ordered by name.
+        /// </summary>
         public static IEnumerable<MTConnectDataItemType> Parse(XmiDocument xmiDocument, string category, string idPrefix, IEnumerable<UmlClass> umlClasses, UmlEnumeration umlEnumeration)
         {
             var types = new List<MTConnectDataItemType>();
@@ -198,14 +263,20 @@ namespace MTConnect.SysML.Models.Devices
         }
 
 
+        /// <summary>
+        /// Maps an XMI DataItem class name to its emitted C# class name,
+        /// preserving the acronym casing the spec uses (AdapterUri, the
+        /// AC/DC pairs, MTConnectVersion, PH) and title-casing everything
+        /// else.
+        /// </summary>
         private static string ConvertClassName(string name)
         {
             if (name != null)
             {
                 switch (name)
                 {
-                    case "AdapterURI": return "AdapterUri"; 
-                    case "AmperageAC": return "AmperageAC"; 
+                    case "AdapterURI": return "AdapterUri";
+                    case "AmperageAC": return "AmperageAC";
                     case "AmperageDC": return "AmperageDC";
                     case "VoltageAC": return "VoltageAC";
                     case "VoltageDC": return "VoltageDC";
@@ -232,6 +303,12 @@ namespace MTConnect.SysML.Models.Devices
         // because a malformed XMI cycle would otherwise loop forever;
         // the visited-set both detects cycles and short-circuits a
         // diamond-inheritance graph that visits the same parent twice.
+        /// <summary>
+        /// Walks the generalization chain of a result class to determine its
+        /// structured representation (<c>DATA_SET</c>, <c>TABLE</c>, or
+        /// <c>TIME_SERIES</c>), defaulting to <c>TABLE</c>. The walk is
+        /// cycle-safe via a visited-set.
+        /// </summary>
         private static string ResolveStructuredRepresentation(XmiDocument xmiDocument, string resultClassId)
         {
             var visited = new HashSet<string>();
@@ -261,6 +338,12 @@ namespace MTConnect.SysML.Models.Devices
         // typing fallback so DataItems whose `result` references a
         // primitive DataType (e.g. ASSET_COUNT pointing at `integer`)
         // still inherit the structured representation the spec mandates.
+        /// <summary>
+        /// Reads the canonical representation marker
+        /// (<c>{{term(data set)}}</c>, <c>{{term(table)}}</c>, or
+        /// <c>{{term(time series)}}</c>) from the start of the enum literal's
+        /// description, or <c>null</c> when no marker is present.
+        /// </summary>
         private static string GetRepresentationFromEnumLiteral(UmlEnumerationLiteral umlEnumerationLiteral)
         {
             var body = umlEnumerationLiteral?.Comments?.FirstOrDefault()?.Body;
@@ -274,6 +357,10 @@ namespace MTConnect.SysML.Models.Devices
             return null;
         }
 
+        /// <summary>
+        /// Maps an XMI DataItem enum literal name to its emitted C# name,
+        /// preserving the spec's acronym casing and title-casing the rest.
+        /// </summary>
         private static string ConvertEnumName(string name)
         {
             if (name != null)

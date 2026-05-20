@@ -4,8 +4,19 @@ using System.Linq;
 
 namespace MTConnect.SysML
 {
+    /// <summary>
+    /// Maps MTConnect Standard version numbers to their generated
+    /// <c>MTConnectVersions</c> constant names and resolves the version a
+    /// model element was introduced in or deprecated at from the XMI profile
+    /// stereotypes.
+    /// </summary>
     public class MTConnectVersion
     {
+        /// <summary>
+        /// Returns the fully qualified <c>MTConnectVersions.VersionXY</c>
+        /// constant name for the given version, or <c>null</c> when the
+        /// version is null or outside the known v1.0-v2.7 range.
+        /// </summary>
         public static string GetVersionEnum(Version version)
         {
             if (version != null)
@@ -46,6 +57,11 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Resolves the MTConnect version an element became normative in by
+        /// matching the element id against the XMI's normative-introduction
+        /// stereotypes. Returns <c>null</c> when no introduction is recorded.
+        /// </summary>
         public static Version LookupNormative(XmiDocument xmiDocument, string id)
         {
             if (xmiDocument != null && !string.IsNullOrEmpty(id))
@@ -68,6 +84,11 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Resolves the MTConnect version an element was deprecated at by
+        /// matching the element id against the XMI's deprecation stereotypes.
+        /// Returns <c>null</c> when the element is not deprecated.
+        /// </summary>
         public static Version LookupDeprecated(XmiDocument xmiDocument, string id)
         {
             if (xmiDocument != null && !string.IsNullOrEmpty(id))

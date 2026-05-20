@@ -10,6 +10,11 @@ using System.Text.RegularExpressions;
 
 namespace MTConnect.SysML
 {
+    /// <summary>
+    /// String, hashing, and casing helpers used by the SysML importer to turn
+    /// raw XMI names and documentation into the identifiers and content the
+    /// Scriban templates emit.
+    /// </summary>
     public static class StringFunctions
     {
         private static readonly Encoding _utf8 = Encoding.UTF8;
@@ -17,10 +22,10 @@ namespace MTConnect.SysML
         [ThreadStatic]
         private static MD5 _md5;
 
-		[ThreadStatic]
-		private static SHA1 _sha1;
+        [ThreadStatic]
+        private static SHA1 _sha1;
 
-		[ThreadStatic]
+        [ThreadStatic]
         private static Random _random;
 
         private static MD5 MD5Algorithm
@@ -35,19 +40,19 @@ namespace MTConnect.SysML
             }
         }
 
-		private static SHA1 SHA1Algorithm
-		{
-			get
-			{
-				if (_sha1 == null)
-				{
-					_sha1 = SHA1.Create();
-				}
-				return _sha1;
-			}
-		}
+        private static SHA1 SHA1Algorithm
+        {
+            get
+            {
+                if (_sha1 == null)
+                {
+                    _sha1 = SHA1.Create();
+                }
+                return _sha1;
+            }
+        }
 
-		private static Random Random
+        private static Random Random
         {
             get
             {
@@ -60,6 +65,11 @@ namespace MTConnect.SysML
             }
         }
 
+        /// <summary>
+        /// Converts the value to PascalCase by splitting it into words and
+        /// capitalizing the first character of each word. Returns
+        /// <c>null</c> when the input is null or empty.
+        /// </summary>
         public static string ToPascalCase(this string s)
         {
             if (!string.IsNullOrEmpty(s))
@@ -79,6 +89,11 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Converts the value to title case by splitting it into words and
+        /// capitalizing the first character of each word. Returns
+        /// <c>null</c> when the input is null or empty.
+        /// </summary>
         public static string ToTitleCase(this string s)
         {
             if (!string.IsNullOrEmpty(s))
@@ -98,6 +113,11 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Converts the value to camelCase: the first word is lowercased and
+        /// every subsequent word has its first character capitalized. Returns
+        /// <c>null</c> when the input is null or empty.
+        /// </summary>
         public static string ToCamelCase(this string s)
         {
             if (!string.IsNullOrEmpty(s))
@@ -118,6 +138,12 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Splits the value into its constituent words. Spaces take priority,
+        /// then underscores, then a fall-back split on uppercase boundaries.
+        /// Returns a single-element array containing the input when it cannot
+        /// be split.
+        /// </summary>
         public static string[] SplitOnWord(this string s)
         {
             if (!string.IsNullOrEmpty(s))
@@ -146,6 +172,12 @@ namespace MTConnect.SysML
             return new string[] { s };
         }
 
+        /// <summary>
+        /// Splits the value on uppercase-character boundaries (so
+        /// <c>"DataItem"</c> becomes <c>["Data", "Item"]</c>). An all-uppercase
+        /// value is returned as a single element; <c>null</c> is returned for a
+        /// null or empty input.
+        /// </summary>
         public static string[] SplitOnUppercase(this string s)
         {
             if (!string.IsNullOrEmpty(s))
@@ -175,6 +207,11 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Returns the value with its first character uppercased and the
+        /// remainder lowercased. A single-character value is uppercased;
+        /// <c>null</c> is passed through.
+        /// </summary>
         public static string UppercaseFirstCharacter(this string s)
         {
             if (s == null) return null;
@@ -193,6 +230,11 @@ namespace MTConnect.SysML
             return s.ToUpper();
         }
 
+        /// <summary>
+        /// Returns the value with only its first character lowercased; the
+        /// remainder is left unchanged. A single-character value is
+        /// lowercased; <c>null</c> is passed through.
+        /// </summary>
         public static string LowercaseFirstCharacter(this string s)
         {
             if (s == null) return null;
@@ -212,6 +254,14 @@ namespace MTConnect.SysML
         }
 
 
+        /// <summary>
+        /// Converts the value to a lowercase underscore-delimited form. Words
+        /// are taken from spaces or, when <paramref name="splitOnUppercase"/>
+        /// is set, uppercase boundaries. An all-uppercase value is lowercased
+        /// as-is; <c>null</c> is returned when nothing could be produced.
+        /// </summary>
+        /// <param name="s">The string to convert.</param>
+        /// <param name="splitOnUppercase">When true, splits on uppercase boundaries if the value contains no spaces.</param>
         public static string ToUnderscore(this string s, bool splitOnUppercase = true)
         {
             if (!string.IsNullOrEmpty(s))
@@ -244,6 +294,14 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Converts the value to an uppercase underscore-delimited form. Words
+        /// are taken from spaces or, when <paramref name="splitOnUppercase"/>
+        /// is set, uppercase boundaries. An all-uppercase value is uppercased
+        /// as-is; <c>null</c> is returned when nothing could be produced.
+        /// </summary>
+        /// <param name="s">The string to convert.</param>
+        /// <param name="splitOnUppercase">When true, splits on uppercase boundaries if the value contains no spaces.</param>
         public static string ToUnderscoreUpper(this string s, bool splitOnUppercase = true)
         {
             if (!string.IsNullOrEmpty(s))
@@ -276,6 +334,11 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Builds a random string of the requested length drawn from the
+        /// uppercase letters and digits A-Z and 0-9.
+        /// </summary>
+        /// <param name="length">Number of characters to generate.</param>
         public static string RandomString(int length)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -283,6 +346,10 @@ namespace MTConnect.SysML
               .Select(s => s[Random.Next(s.Length)]).ToArray());
         }
 
+        /// <summary>
+        /// Parses the value as a <see cref="DateTime"/>, returning
+        /// <see cref="DateTime.MinValue"/> when the value cannot be parsed.
+        /// </summary>
         public static DateTime ToDateTime(this string s)
         {
             if (DateTime.TryParse(s, out var dateTime))
@@ -293,6 +360,10 @@ namespace MTConnect.SysML
             return DateTime.MinValue;
         }
 
+        /// <summary>
+        /// Computes the MD5 hash of the UTF-8 encoded value and returns it as
+        /// a lowercase hexadecimal string, or <c>null</c> on failure.
+        /// </summary>
         public static string ToMD5Hash(this string s)
         {
             try
@@ -305,6 +376,11 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Computes the MD5 hash of the byte buffer and returns it as a
+        /// lowercase hexadecimal string, or <c>null</c> when the input is null
+        /// or hashing fails.
+        /// </summary>
         public static string ToMD5Hash(this byte[] bytes)
         {
             if (bytes != null)
@@ -320,6 +396,10 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Formats already-computed hash bytes as a lowercase hexadecimal
+        /// string, or <c>null</c> when the input is null.
+        /// </summary>
         public static string ToMD5HashString(this byte[] hashBytes)
         {
             if (hashBytes != null)
@@ -334,6 +414,10 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Computes the raw MD5 hash bytes of the UTF-8 encoded value, or
+        /// <c>null</c> on failure.
+        /// </summary>
         public static byte[] ToMD5HashBytes(this string s)
         {
             try
@@ -345,6 +429,10 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Computes the raw MD5 hash bytes of the byte buffer, or <c>null</c>
+        /// when the input is null or hashing fails.
+        /// </summary>
         public static byte[] ToMD5HashBytes(this byte[] bytes)
         {
             if (bytes != null)
@@ -358,6 +446,11 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Computes a single MD5 digest over a sequence of lines by hashing
+        /// each line and folding it into the running hash. Returns <c>null</c>
+        /// for a null or empty array.
+        /// </summary>
         public static string ToMD5Hash(string[] lines)
         {
             if (lines != null && lines.Length > 0)
@@ -378,6 +471,11 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Folds a sequence of byte buffers into a single MD5 hash by
+        /// concatenating and re-hashing pairwise. Returns <c>null</c> for a
+        /// null or empty array.
+        /// </summary>
         public static byte[] ToMD5HashBytes(byte[][] hashBytes)
         {
             if (hashBytes != null && hashBytes.Length > 0)
@@ -406,120 +504,155 @@ namespace MTConnect.SysML
         }
 
 
-		public static string ToSHA1Hash(this string s)
-		{
-			try
-			{
-				var hash = SHA1Algorithm.ComputeHash(_utf8.GetBytes(s));
-				return string.Concat(hash.Select(b => b.ToString("x2")));
-			}
-			catch { }
+        /// <summary>
+        /// Computes the SHA-1 hash of the UTF-8 encoded value and returns it as
+        /// a lowercase hexadecimal string, or <c>null</c> on failure.
+        /// </summary>
+        public static string ToSHA1Hash(this string s)
+        {
+            try
+            {
+                var hash = SHA1Algorithm.ComputeHash(_utf8.GetBytes(s));
+                return string.Concat(hash.Select(b => b.ToString("x2")));
+            }
+            catch { }
 
-			return null;
-		}
+            return null;
+        }
 
-		public static string ToSHA1Hash(this byte[] bytes)
-		{
-			if (bytes != null)
-			{
-				try
-				{
-					var hash = SHA1Algorithm.ComputeHash(bytes);
-					return string.Concat(hash.Select(b => b.ToString("x2")));
-				}
-				catch { }
-			}
+        /// <summary>
+        /// Computes the SHA-1 hash of the byte buffer and returns it as a
+        /// lowercase hexadecimal string, or <c>null</c> when the input is null
+        /// or hashing fails.
+        /// </summary>
+        public static string ToSHA1Hash(this byte[] bytes)
+        {
+            if (bytes != null)
+            {
+                try
+                {
+                    var hash = SHA1Algorithm.ComputeHash(bytes);
+                    return string.Concat(hash.Select(b => b.ToString("x2")));
+                }
+                catch { }
+            }
 
-			return null;
-		}
+            return null;
+        }
 
-		public static string ToSHA1HashString(this byte[] hashBytes)
-		{
-			if (hashBytes != null)
-			{
-				try
-				{
-					return string.Concat(hashBytes.Select(b => b.ToString("x2")));
-				}
-				catch { }
-			}
+        /// <summary>
+        /// Formats already-computed SHA-1 hash bytes as a lowercase
+        /// hexadecimal string, or <c>null</c> when the input is null.
+        /// </summary>
+        public static string ToSHA1HashString(this byte[] hashBytes)
+        {
+            if (hashBytes != null)
+            {
+                try
+                {
+                    return string.Concat(hashBytes.Select(b => b.ToString("x2")));
+                }
+                catch { }
+            }
 
-			return null;
-		}
+            return null;
+        }
 
-		public static byte[] ToSHA1HashBytes(this string s)
-		{
-			try
-			{
-				return SHA1Algorithm.ComputeHash(_utf8.GetBytes(s));
-			}
-			catch { }
+        /// <summary>
+        /// Computes the raw SHA-1 hash bytes of the UTF-8 encoded value, or
+        /// <c>null</c> on failure.
+        /// </summary>
+        public static byte[] ToSHA1HashBytes(this string s)
+        {
+            try
+            {
+                return SHA1Algorithm.ComputeHash(_utf8.GetBytes(s));
+            }
+            catch { }
 
-			return null;
-		}
+            return null;
+        }
 
-		public static byte[] ToSHA1HashBytes(this byte[] bytes)
-		{
-			if (bytes != null)
-			{
-				try
-				{
-					return SHA1Algorithm.ComputeHash(bytes);
-				}
-				catch { }
-			}
-			return null;
-		}
+        /// <summary>
+        /// Computes the raw SHA-1 hash bytes of the byte buffer, or <c>null</c>
+        /// when the input is null or hashing fails.
+        /// </summary>
+        public static byte[] ToSHA1HashBytes(this byte[] bytes)
+        {
+            if (bytes != null)
+            {
+                try
+                {
+                    return SHA1Algorithm.ComputeHash(bytes);
+                }
+                catch { }
+            }
+            return null;
+        }
 
-		public static string ToSHA1Hash(string[] lines)
-		{
-			if (lines != null && lines.Length > 0)
-			{
-				var x1 = lines[0];
-				var h = x1.ToSHA1Hash();
+        /// <summary>
+        /// Computes a single SHA-1 digest over a sequence of lines by hashing
+        /// each line and folding it into the running hash. Returns <c>null</c>
+        /// for a null or empty array.
+        /// </summary>
+        public static string ToSHA1Hash(string[] lines)
+        {
+            if (lines != null && lines.Length > 0)
+            {
+                var x1 = lines[0];
+                var h = x1.ToSHA1Hash();
 
-				for (int i = 1; i < lines.Length; i++)
-				{
-					x1 = lines[i].ToSHA1Hash();
-					x1 = h + x1;
-					h = x1.ToSHA1Hash();
-				}
+                for (int i = 1; i < lines.Length; i++)
+                {
+                    x1 = lines[i].ToSHA1Hash();
+                    x1 = h + x1;
+                    h = x1.ToSHA1Hash();
+                }
 
-				return h;
-			}
+                return h;
+            }
 
-			return null;
-		}
+            return null;
+        }
 
-		public static byte[] ToSHA1HashBytes(byte[][] hashBytes)
-		{
-			if (hashBytes != null && hashBytes.Length > 0)
-			{
-				var x1 = hashBytes[0];
-				var x2 = x1;
-				byte[] a1;
+        /// <summary>
+        /// Folds a sequence of byte buffers into a single SHA-1 hash by
+        /// concatenating and re-hashing pairwise. Returns <c>null</c> for a
+        /// null or empty array.
+        /// </summary>
+        public static byte[] ToSHA1HashBytes(byte[][] hashBytes)
+        {
+            if (hashBytes != null && hashBytes.Length > 0)
+            {
+                var x1 = hashBytes[0];
+                var x2 = x1;
+                byte[] a1;
 
-				for (int i = 1; i < hashBytes.Length; i++)
-				{
-					x2 = hashBytes[i];
-					if (x2 != null)
-					{
-						a1 = new byte[x1.Length + x2.Length];
-						Array.Copy(x1, 0, a1, 0, x1.Length);
-						Array.Copy(x2, 0, a1, x1.Length, x2.Length);
+                for (int i = 1; i < hashBytes.Length; i++)
+                {
+                    x2 = hashBytes[i];
+                    if (x2 != null)
+                    {
+                        a1 = new byte[x1.Length + x2.Length];
+                        Array.Copy(x1, 0, a1, 0, x1.Length);
+                        Array.Copy(x2, 0, a1, x1.Length, x2.Length);
 
-						x1 = a1.ToSHA1HashBytes();
-					}
-				}
+                        x1 = a1.ToSHA1HashBytes();
+                    }
+                }
 
-				return x2;
-			}
+                return x2;
+            }
 
-			return null;
-		}
+            return null;
+        }
 
 
-		public static string ToFileSize(this long byteCount)
+        /// <summary>
+        /// Formats a byte count as a human-readable size string using binary
+        /// (1024-based) units from B up to EB.
+        /// </summary>
+        public static string ToFileSize(this long byteCount)
         {
             string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" }; //Longs run out around EB
             if (byteCount == 0)
@@ -530,6 +663,11 @@ namespace MTConnect.SysML
             return (Math.Sign(byteCount) * num).ToString() + suf[place];
         }
 
+        /// <summary>
+        /// Formats a decimal byte count as a human-readable size string by
+        /// truncating to a whole number of bytes and delegating to the
+        /// <see cref="long"/> overload.
+        /// </summary>
         public static string ToFileSize(this decimal byteCount)
         {
             var x = (long)byteCount;
@@ -537,6 +675,10 @@ namespace MTConnect.SysML
         }
 
 
+        /// <summary>
+        /// Returns true when the value contains at least one matched
+        /// open/close HTML-style tag pair.
+        /// </summary>
         public static bool IsHtml(this string s)
         {
             if (!string.IsNullOrEmpty(s))
@@ -548,6 +690,13 @@ namespace MTConnect.SysML
             return false;
         }
 
+        /// <summary>
+        /// Parses the value into the enum type <typeparamref name="T"/>
+        /// case-insensitively, returning <c>default(T)</c> when the value is
+        /// null, <typeparamref name="T"/> is not an enum, or no member
+        /// matches.
+        /// </summary>
+        /// <typeparam name="T">Enum type to parse into.</typeparam>
         public static T ConvertEnum<T>(this string value) where T : struct
         {
             if (value != null && typeof(T).IsEnum)
@@ -561,6 +710,10 @@ namespace MTConnect.SysML
             return default;
         }
 
+        /// <summary>
+        /// Derives a stable 64-bit hash of the text by MD5-hashing it and
+        /// XOR-folding the digest down to a single <see cref="ulong"/>.
+        /// </summary>
         public static ulong GetUInt64Hash(this string text)
         {
             using (var md5 = MD5.Create())
@@ -574,6 +727,12 @@ namespace MTConnect.SysML
         }
 
 
+        /// <summary>
+        /// Replaces standalone integers 0 through 10 in the text with their
+        /// English word form. Numbers outside that range and the surrounding
+        /// text are left unchanged; returns <c>null</c> for a null or empty
+        /// input.
+        /// </summary>
         public static string ReplaceNumbersWithWords(string text)
         {
             if (!string.IsNullOrEmpty(text))

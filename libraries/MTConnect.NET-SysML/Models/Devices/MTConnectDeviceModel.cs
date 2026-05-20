@@ -4,8 +4,19 @@ using System.Linq;
 
 namespace MTConnect.SysML.Models.Devices
 {
+    /// <summary>
+    /// Parsed model for the MTConnect <c>Devices.Device</c> element, with the
+    /// MTConnectVersion casing fixed and the streaming/organizer navigations
+    /// stripped so the generated class carries only the static device shape.
+    /// </summary>
     public class MTConnectDeviceModel : MTConnectClassModel
     {
+        /// <summary>
+        /// Parses the <c>Device</c> class as a concrete type, renames the
+        /// version property to <c>MTConnectVersion</c> of type
+        /// <see cref="System.Version"/>, and removes the organizer and
+        /// streaming navigations (Adapter, Axis, Controller, System, etc.).
+        /// </summary>
         public MTConnectDeviceModel(XmiDocument xmiDocument, UmlClass umlClass) : base(xmiDocument, "Devices.Device", umlClass)
         {
             IsAbstract = false;

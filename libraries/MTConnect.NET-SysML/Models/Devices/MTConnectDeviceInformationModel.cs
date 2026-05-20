@@ -3,25 +3,63 @@ using System.Linq;
 
 namespace MTConnect.SysML.Models.Devices
 {
+    /// <summary>
+    /// Parses the Device Information Model from the XMI: the <c>Device</c>
+    /// class plus its component, composition, data item, description,
+    /// configuration, and reference models, with the project's name and
+    /// type overrides applied.
+    /// </summary>
     public class MTConnectDeviceInformationModel
     {
+        /// <summary>
+        /// The parsed <c>Device</c> class (with the component properties
+        /// folded in).
+        /// </summary>
         public MTConnectDeviceModel Device { get; private set; }
 
+        /// <summary>
+        /// The parsed Component base class and its concrete subtypes.
+        /// </summary>
         public MTConnectComponentsModel Components { get; private set; }
 
+        /// <summary>
+        /// The parsed Composition base class and its concrete subtypes.
+        /// </summary>
         public MTConnectCompositionsModel Compositions { get; private set; }
 
+        /// <summary>
+        /// The parsed DataItem base class, its type subclasses, and the
+        /// supporting classes and enumerations.
+        /// </summary>
         public MTConnectDataItemsModel DataItems { get; private set; }
 
+        /// <summary>
+        /// The parsed <c>Description</c> class.
+        /// </summary>
         public MTConnectDescriptionModel Description { get; private set; }
 
+        /// <summary>
+        /// The parsed <c>Configuration</c> class and its sub-element classes
+        /// and enumerations.
+        /// </summary>
         public MTConnectConfigurationModel Configurations { get; private set; }
 
+        /// <summary>
+        /// The parsed reference classes (ComponentReference,
+        /// DataItemReference).
+        /// </summary>
         public MTConnectPackageModel References { get; private set; } = new();
 
 
+        /// <summary>
+        /// Creates an empty model for manual population.
+        /// </summary>
         public MTConnectDeviceInformationModel() { }
 
+        /// <summary>
+        /// Parses the full device information model from the given XMI
+        /// document.
+        /// </summary>
         public MTConnectDeviceInformationModel(XmiDocument xmiDocument)
         {
             Parse(xmiDocument);

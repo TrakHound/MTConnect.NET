@@ -7,21 +7,46 @@ using System.Xml.Linq;
 
 namespace MTConnect.SysML
 {
+    /// <summary>
+    /// A parsed enumeration: its disambiguated C# name, cleaned description,
+    /// and its ordered set of literal values.
+    /// </summary>
     public class MTConnectEnumModel : IMTConnectExportModel
     {
+        /// <inheritdoc/>
         public string UmlId { get; set; }
 
+        /// <inheritdoc/>
         public string Id { get; set; }
 
+        /// <summary>
+        /// The C# enum name as emitted, after
+        /// <see cref="ModelHelper.ConvertEnumName"/> disambiguation.
+        /// </summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// The cleaned description text emitted into the doc comment.
+        /// </summary>
         public string Description { get; set; }
 
+        /// <summary>
+        /// The enumeration's literal members, ordered by name.
+        /// </summary>
         public List<MTConnectEnumValueModel> Values { get; set; } = new();
 
 
+        /// <summary>
+        /// Creates an empty model for manual population.
+        /// </summary>
         public MTConnectEnumModel() { }
 
+        /// <summary>
+        /// Parses an enumeration under <paramref name="idPrefix"/>, applying
+        /// the title-case and disambiguation rules to its name and parsing
+        /// each literal (optionally rewritten by
+        /// <paramref name="convertFunction"/>) in name order.
+        /// </summary>
         public MTConnectEnumModel(XmiDocument xmiDocument, string idPrefix, UmlEnumeration umlEnumeration, Func<string, string> convertFunction = null)
         {
             if (umlEnumeration != null)
@@ -55,6 +80,10 @@ namespace MTConnect.SysML
             }
         }
 
+        /// <summary>
+        /// Parses every enumeration in <paramref name="umlEnumerations"/>
+        /// under <paramref name="idPrefix"/>, returning them ordered by name.
+        /// </summary>
         public static IEnumerable<MTConnectEnumModel> Parse(XmiDocument xmiDocument, string idPrefix, IEnumerable<UmlEnumeration> umlEnumerations, Func<string, string> convertFunction = null)
         {
             var models = new List<MTConnectEnumModel>();

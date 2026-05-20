@@ -15,12 +15,28 @@ namespace MTConnect.SysML
     /// </summary>
     public class MTConnectModel
     {
+        /// <summary>
+        /// The parsed Device Information Model (devices, components,
+        /// compositions, data items, configurations, references).
+        /// </summary>
         public MTConnectDeviceInformationModel DeviceInformationModel { get; set; }
 
+        /// <summary>
+        /// The parsed Observation Information Model (condition, event, and
+        /// sample observation types and their result classes).
+        /// </summary>
         public MTConnectObservationInformationModel ObservationInformationModel { get; set; }
 
+        /// <summary>
+        /// The parsed Asset Information Model (the asset hierarchy and its
+        /// supporting types).
+        /// </summary>
         public MTConnectAssetInformationModel AssetInformationModel { get; set; }
 
+        /// <summary>
+        /// The parsed Interface Interaction Model (interface-specific
+        /// DataItem types).
+        /// </summary>
         public MTConnectInterfaceInformationModel IntefaceInformationModel { get; set; }
 
 

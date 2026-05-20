@@ -58,6 +58,13 @@ namespace MTConnect.SysML.Xmi.UML
         [XmlAnyElement(XmiHelper.XmiStructure.DEFAULT_VALUE, Namespace = "")]
         public XmlElement? DefaultValueElement { get; set; }
         private DefaultValue? _defaultValue;
+        /// <summary>
+        /// The deserialized default value of the property, materialized
+        /// lazily from <see cref="DefaultValueElement"/> as either a
+        /// <see cref="UmlInstanceValue"/> or <see cref="UmlLiteralString"/>
+        /// depending on the element's <c>xmi:type</c>. Returns <c>null</c>
+        /// when no default value element is present.
+        /// </summary>
         public DefaultValue? DefaultValue
         {
             get

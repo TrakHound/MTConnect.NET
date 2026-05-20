@@ -7,6 +7,12 @@ using System.Text.RegularExpressions;
 
 namespace MTConnect.SysML
 {
+    /// <summary>
+    /// Lookup and normalization helpers over a parsed XMI document: resolves
+    /// classes, enumerations, and their descriptions by id, cleans raw XMI
+    /// documentation into C# doc-comment text, and applies the
+    /// model-specific name/array/optional rules the renderers depend on.
+    /// </summary>
     public static class ModelHelper
     {
         private static Dictionary<string, UmlPackage> _packages;
@@ -14,6 +20,12 @@ namespace MTConnect.SysML
         private static Dictionary<string, UmlEnumeration> _enumerations;
 
 
+        /// <summary>
+        /// Returns the UML class with the given <c>xmi:id</c>, lazily
+        /// indexing the document's packages and classes on first use.
+        /// Returns <c>null</c> when the document or id is missing or no class
+        /// matches.
+        /// </summary>
         public static UmlClass GetClass(XmiDocument xmiDocument, string id)
         {
             if (xmiDocument != null && !string.IsNullOrEmpty(id))
@@ -27,6 +39,10 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Returns the name of the UML class with the given <c>xmi:id</c>, or
+        /// <c>null</c> when no class matches.
+        /// </summary>
         public static string GetClassName(XmiDocument xmiDocument, string id)
         {
             if (xmiDocument != null && !string.IsNullOrEmpty(id))
@@ -41,6 +57,12 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Returns the cleaned documentation text of the UML class with the
+        /// given <c>xmi:id</c> (its first comment run through
+        /// <see cref="ProcessDescription"/>), or <c>null</c> when no class or
+        /// comment is present.
+        /// </summary>
         public static string GetClassDescription(XmiDocument xmiDocument, string id)
         {
             if (xmiDocument != null && !string.IsNullOrEmpty(id))
@@ -59,6 +81,11 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Returns the UML enumeration with the given <c>xmi:id</c>, lazily
+        /// indexing the document's enumerations on first use. Returns
+        /// <c>null</c> when none matches.
+        /// </summary>
         public static UmlEnumeration GetEnum(XmiDocument xmiDocument, string typeId)
         {
             if (xmiDocument != null && !string.IsNullOrEmpty(typeId))
@@ -72,6 +99,11 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Returns the C# enum name for the enumeration with the given
+        /// <c>xmi:id</c>, applying the <see cref="ConvertEnumName"/>
+        /// disambiguation rules. Returns <c>null</c> when none matches.
+        /// </summary>
         public static string GetEnumName(XmiDocument xmiDocument, string typeId)
         {
             if (xmiDocument != null && !string.IsNullOrEmpty(typeId))
@@ -89,6 +121,11 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Returns the literal name of the value <paramref name="valueId"/>
+        /// within the enumeration <paramref name="typeId"/>, or <c>null</c>
+        /// when the enumeration or value is not found.
+        /// </summary>
         public static string GetEnumValue(XmiDocument xmiDocument, string typeId, string valueId)
         {
             if (xmiDocument != null && !string.IsNullOrEmpty(typeId) && !string.IsNullOrEmpty(valueId))
@@ -110,6 +147,12 @@ namespace MTConnect.SysML
             return null;
         }
 
+        /// <summary>
+        /// Disambiguates a raw XMI enumeration name into the project's C#
+        /// enum name (for example <c>CategoryEnum</c> becomes
+        /// <c>DataItemCategoryEnum</c>); names without a mapping are returned
+        /// unchanged.
+        /// </summary>
         public static string ConvertEnumName(string name)
         {
             if (name != null)
@@ -132,6 +175,10 @@ namespace MTConnect.SysML
             return name;
         }
 
+        /// <summary>
+        /// Strips a trailing <c>Enum</c> suffix from the name when present;
+        /// returns the name unchanged otherwise.
+        /// </summary>
         public static string RemoveEnumSuffix(string name)
         {
             if (name != null)
@@ -160,6 +207,10 @@ namespace MTConnect.SysML
             return packages;
         }
 
+        /// <summary>
+        /// Returns the package and all of its descendant packages, flattened
+        /// depth-first.
+        /// </summary>
         public static IEnumerable<UmlPackage> GetPackages(UmlPackage package)
         {
             var packages = new List<UmlPackage>();
@@ -191,6 +242,9 @@ namespace MTConnect.SysML
             return packages;
         }
 
+        /// <summary>
+        /// Returns every UML class declared directly in the given packages.
+        /// </summary>
         public static IEnumerable<UmlClass> GetClasses(IEnumerable<UmlPackage> packages)
         {
             var classes = new List<UmlClass>();
@@ -279,6 +333,13 @@ namespace MTConnect.SysML
         }
 
 
+        /// <summary>
+        /// Cleans raw XMI documentation into doc-comment-ready text:
+        /// unwraps <c>{{macro(label)}}</c> and <c>scope::name</c> references
+        /// to their readable form, strips newlines, normalizes quotes,
+        /// capitalizes the first word, and restores <c>MTConnect</c> casing.
+        /// Returns <c>null</c> for null or empty input.
+        /// </summary>
         public static string ProcessDescription(string text)
         {
             if (!string.IsNullOrEmpty(text))
@@ -363,6 +424,13 @@ namespace MTConnect.SysML
         }
 
 
+        /// <summary>
+        /// Returns true when the property identified by <paramref name="id"/>
+        /// is a collection in the MTConnect model. The set is keyed by
+        /// <c>xmi:id</c> because the XMI multiplicity alone does not reliably
+        /// distinguish the collection-valued associations the generated
+        /// classes must expose as enumerables.
+        /// </summary>
         public static bool IsArray(XmiDocument xmiDocument, string id)
         {
             switch (id)
@@ -419,6 +487,12 @@ namespace MTConnect.SysML
             return false;
         }
 
+        /// <summary>
+        /// Pluralizes a collection property's element name for its C#
+        /// accessor, honoring the irregular cases (<c>ToolLife</c>,
+        /// <c>ItemLife</c>, <c>FileProperty</c>) and otherwise appending an
+        /// <c>s</c> when not already present.
+        /// </summary>
         public static string ConvertArrayName(string name)
         {
             if (name != null)
@@ -431,13 +505,19 @@ namespace MTConnect.SysML
                     default:
                         if (!name.EndsWith("s")) return name += "s";
                         break;
-                
+
                 }
             }
 
             return name;
         }
 
+        /// <summary>
+        /// Returns true when the property identified by <paramref name="id"/>
+        /// is optional in the MTConnect model and must therefore be emitted
+        /// as a nullable C# member. Keyed by <c>xmi:id</c> for the same
+        /// reason as <see cref="IsArray"/>.
+        /// </summary>
         public static bool IsOptional(XmiDocument xmiDocument, string id)
         {
             switch (id)
@@ -536,6 +616,12 @@ namespace MTConnect.SysML
         }
 
 
+        /// <summary>
+        /// Returns true when the class is a single-valued wrapper (no
+        /// generalization and exactly one non-derived property), which the
+        /// renderer collapses into a scalar value type rather than a full
+        /// class. <c>Destination</c> is explicitly excluded.
+        /// </summary>
         public static bool IsValueClass(UmlClass umlClass)
         {
             if (umlClass != null && (umlClass.Generalizations == null || umlClass.Generalizations.Length == 0))
@@ -563,6 +649,11 @@ namespace MTConnect.SysML
             return false;
         }
 
+        /// <summary>
+        /// Returns the C# type of a value class's single property (see
+        /// <see cref="IsValueClass"/>), defaulting to <c>string</c> when the
+        /// class is not a value class or no single property is found.
+        /// </summary>
         public static string GetValueType(XmiDocument xmiDocument, UmlClass umlClass)
         {
             if (umlClass != null)
