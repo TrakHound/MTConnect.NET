@@ -12,6 +12,20 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Servers.Http
 {
+    /// <summary>
+    /// Ceen request handler for the MTConnect Current endpoint
+    /// (GET /current and GET /{deviceKey}/current). Returns an
+    /// MTConnectStreams Response Document containing the current
+    /// observation snapshot for every data item visible to the agent,
+    /// optionally filtered by an XPath in the path query parameter and
+    /// anchored to a sequence number via at. When interval is supplied,
+    /// the handler upgrades the response to a multipart
+    /// x-mixed-replace stream and emits a fresh snapshot every interval
+    /// milliseconds, interleaved with heartbeats. The response document
+    /// format is negotiated via documentFormat (xml | json |
+    /// json-cppagent), defaulting to XML; deviceType, version,
+    /// indentOutput, and outputComments further shape the payload.
+    /// </summary>
     class MTConnectCurrentResponseHandler : MTConnectHttpResponseHandler
     {
         private const int _minimumHeartbeat = 500; // 500 ms

@@ -299,7 +299,7 @@ namespace Ceen.Httpd
             private readonly DebugLogDelegate m_debuglogger;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="Ceen.Httpd+RunnerControl"/> class.
+            /// Initializes a new instance of the <c>Ceen.Httpd.RunnerControl</c> class.
             /// </summary>
             /// <param name="stoptoken">The stoptoken.</param>
             /// <param name="usessl">A flag indicating if this runner is using SSL</param>
