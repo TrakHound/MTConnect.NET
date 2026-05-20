@@ -27,20 +27,44 @@ namespace MTConnect.DeviceFinder
         private int sentPortRequests = 0;
         private int receivedPortRequests = 0;
 
+        /// <summary>Delegate fired by <see cref="DeviceFound"/> when an MTConnect agent has been positively identified at an address/port pair.</summary>
         public delegate void DeviceHandler(MTConnectDeviceFinder sender, MTConnectDevice device);
+
+        /// <summary>Delegate fired by <see cref="SearchCompleted"/>; carries the elapsed milliseconds of the search.</summary>
         public delegate void RequestStatusHandler(MTConnectDeviceFinder sender, long milliseconds);
+
+        /// <summary>Delegate fired by <see cref="PingSent"/> once a ping has been dispatched to <paramref name="address"/>.</summary>
         public delegate void PingSentHandler(MTConnectDeviceFinder sender, IPAddress address);
+
+        /// <summary>Delegate fired by <see cref="PingReceived"/> when a ping reply (success or timeout) returns from <paramref name="address"/>.</summary>
         public delegate void PingReceivedHandler(MTConnectDeviceFinder sender, IPAddress address, PingReply reply);
+
+        /// <summary>Delegate fired by <see cref="PortOpened"/>/<see cref="PortClosed"/> to report the state of a TCP port at <paramref name="address"/>.</summary>
         public delegate void PortRequestHandler(MTConnectDeviceFinder sender, IPAddress address, int port);
+
+        /// <summary>Delegate fired by <see cref="ProbeSent"/>/<see cref="ProbeSuccessful"/>/<see cref="ProbeError"/> for each MTConnect probe attempt.</summary>
         public delegate void ProbeRequestHandler(MTConnectDeviceFinder sender, IPAddress address, int port);
 
+        /// <summary>Raised after a ping has been dispatched to a candidate address.</summary>
         public event PingSentHandler PingSent;
+
+        /// <summary>Raised when the ping reply (success or timeout) returns; reachable addresses move on to the port-scan phase.</summary>
         public event PingReceivedHandler PingReceived;
+
+        /// <summary>Raised when a TCP connect to a candidate port succeeds; the address/port becomes a probe target.</summary>
         public event PortRequestHandler PortOpened;
+
+        /// <summary>Raised when a TCP connect to a candidate port fails or times out; the port is dropped.</summary>
         public event PortRequestHandler PortClosed;
+
+        /// <summary>Raised before each MTConnect <c>probe</c> request is sent to an open port.</summary>
         public event ProbeRequestHandler ProbeSent;
+
+        /// <summary>Raised when a probe response is parsed successfully; immediately followed by <see cref="DeviceFound"/>.</summary>
         public event ProbeRequestHandler ProbeSuccessful;
         #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
+
+        /// <summary>Raised when a probe attempt fails (HTTP error, parse failure, non-MTConnect response).</summary>
         public event ProbeRequestHandler ProbeError;
         #pragma warning restore CS0067
 
@@ -101,11 +125,15 @@ namespace MTConnect.DeviceFinder
         public event RequestStatusHandler SearchCompleted;
 
 
+        /// <summary>Constructs the finder bound to the first reachable network interface; call <see cref="Start(int)"/> after configuring <see cref="Addresses"/> and <see cref="Ports"/>.</summary>
         public MTConnectDeviceFinder()
         {
             Init();
         }
 
+        /// <summary>Constructs the finder bound to a specific network interface.</summary>
+        /// <param name="interfaceId">The .NET <see cref="NetworkInterface.Id"/> of the interface to use for outbound probes.</param>
+        /// <param name="interfaceDescription">The human-readable description of the same interface (used in logging events).</param>
         public MTConnectDeviceFinder(string interfaceId, string interfaceDescription)
         {
             InterfaceId = interfaceId;
@@ -331,7 +359,7 @@ namespace MTConnect.DeviceFinder
                         foundDevice.MacAddress = macAddress;
                         foundDevice.Name = device.Name;
                         foundDevice.Uuid = device.Uuid;
-                        
+
                         if (device.Description != null)
                         {
                             foundDevice.Manufacturer = device.Description.Manufacturer;
