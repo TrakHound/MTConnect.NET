@@ -8,44 +8,93 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Assets.Json.CuttingTools
 {
+    /// <summary>
+    /// JSON serialization surrogate for a <c>CuttingToolLifeCycle</c>, the
+    /// in-service state of a cutting tool. Mirrors the on-the-wire shape so the
+    /// JSON serializer can read and write it, then converts to and from the
+    /// strongly-typed <see cref="CuttingToolLifeCycle"/> model.
+    /// </summary>
     public class JsonCuttingToolLifeCycle
     {
+        /// <summary>
+        /// The status values of the cutting tool (for example NEW, USED, or
+        /// EXPIRED), serialized as enumeration names.
+        /// </summary>
         [JsonPropertyName("cutterStatus")]
         public IEnumerable<string> CutterStatus { get; set; }
 
+        /// <summary>
+        /// The number of times the tool has been reconditioned.
+        /// </summary>
         [JsonPropertyName("reconditionCount")]
         public JsonReconditionCount ReconditionCount { get; set; }
 
+        /// <summary>
+        /// The measured and remaining tool life values.
+        /// </summary>
         [JsonPropertyName("toolLife")]
         public IEnumerable<JsonToolLife> ToolLife { get; set; }
 
+        /// <summary>
+        /// The location of the tool in the machine, such as a pot or spindle.
+        /// </summary>
         [JsonPropertyName("location")]
         public JsonLocation Location { get; set; }
 
+        /// <summary>
+        /// The program tool group the tool is assigned to.
+        /// </summary>
         [JsonPropertyName("programToolGroup")]
         public string ProgramToolGroup { get; set; }
 
+        /// <summary>
+        /// The program tool number the tool is referenced by.
+        /// </summary>
         [JsonPropertyName("programToolNumber")]
         public string ProgramToolNumber { get; set; }
 
+        /// <summary>
+        /// The spindle speed limits the tool is intended to operate within.
+        /// </summary>
         [JsonPropertyName("processSpindleSpeed")]
         public JsonProcessSpindleSpeed ProcessSpindleSpeed { get; set; }
 
+        /// <summary>
+        /// The feed rate limits the tool is intended to operate within.
+        /// </summary>
         [JsonPropertyName("processFeedRate")]
         public JsonProcessFeedrate ProcessFeedRate { get; set; }
 
+        /// <summary>
+        /// The connection code identifying the machine-side interface of the
+        /// tool.
+        /// </summary>
         [JsonPropertyName("connectionCodeMachineSide")]
         public string ConnectionCodeMachineSide { get; set; }
 
+        /// <summary>
+        /// The dimensional measurements of the tool assembly.
+        /// </summary>
         [JsonPropertyName("measurements")]
         public IEnumerable<JsonMeasurement> Measurements { get; set; }
 
+        /// <summary>
+        /// The cutting items (inserts or edges) making up the tool.
+        /// </summary>
         [JsonPropertyName("cuttingItems")]
         public JsonCuttingItemCollection CuttingItems { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonCuttingToolLifeCycle() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="ICuttingToolLifeCycle"/>, converting cutter statuses to
+        /// strings and each nested measurement, tool life, and cutting item.
+        /// </summary>
         public JsonCuttingToolLifeCycle(ICuttingToolLifeCycle cuttingToolLifeCycle)
         {
             if (cuttingToolLifeCycle != null)
@@ -100,6 +149,11 @@ namespace MTConnect.Assets.Json.CuttingTools
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="ICuttingToolLifeCycle"/>, parsing cutter statuses and
+        /// converting each nested measurement, tool life, and cutting item.
+        /// </summary>
         public ICuttingToolLifeCycle ToCuttingToolLifeCycle()
         {
             var cuttingToolLifeCycle = new CuttingToolLifeCycle();

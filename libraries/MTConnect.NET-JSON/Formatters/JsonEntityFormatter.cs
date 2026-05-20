@@ -23,13 +23,29 @@ using System.Text.Json;
 
 namespace MTConnect.Formatters
 {
+    /// <summary>
+    /// <see cref="IEntityFormatter"/> that serializes and deserializes
+    /// individual MTConnect entities (devices, observations, and assets) to
+    /// and from JSON using the Json surrogate types.
+    /// </summary>
     public class JsonEntityFormatter : IEntityFormatter
     {
+        /// <summary>
+        /// The identifier of this formatter, <c>JSON</c>.
+        /// </summary>
         public string Id => "JSON";
 
+        /// <summary>
+        /// The MIME content type produced by this formatter,
+        /// <c>application/json</c>.
+        /// </summary>
         public string ContentType => "application/json";
 
 
+        /// <summary>
+        /// Serializes a device to a JSON stream, honoring the
+        /// <c>indentOutput</c> option.
+        /// </summary>
         public FormatWriteResult Format(IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (device != null)
@@ -46,6 +62,12 @@ namespace MTConnect.Formatters
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Serializes a single observation to a JSON stream, selecting the
+        /// sample, event, or condition surrogate by the observation's category
+        /// and honoring the <c>categoryOutput</c> and <c>instanceIdOutput</c>
+        /// options.
+        /// </summary>
         public FormatWriteResult Format(IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (observation != null)
@@ -97,6 +119,12 @@ namespace MTConnect.Formatters
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Serializes a collection of observations to a JSON array stream,
+        /// selecting the appropriate surrogate per observation by category and
+        /// honoring the <c>categoryOutput</c> and <c>instanceIdOutput</c>
+        /// options.
+        /// </summary>
         public FormatWriteResult Format(IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (!observations.IsNullOrEmpty())
@@ -153,6 +181,11 @@ namespace MTConnect.Formatters
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Serializes an asset to a JSON stream, selecting the surrogate that
+        /// matches the asset's type and falling back to direct serialization
+        /// for unrecognized types.
+        /// </summary>
         public FormatWriteResult Format(IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (asset != null)
@@ -179,6 +212,10 @@ namespace MTConnect.Formatters
         }
 
 
+        /// <summary>
+        /// Deserializes a device from a JSON stream, returning an
+        /// unsuccessful result if the content cannot be parsed.
+        /// </summary>
         public FormatReadResult<IDevice> CreateDevice(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
@@ -198,6 +235,10 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IDevice>();
         }
 
+        /// <summary>
+        /// Deserializes a component from a JSON stream, returning an
+        /// unsuccessful result if the content cannot be parsed.
+        /// </summary>
         public FormatReadResult<IComponent> CreateComponent(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
@@ -217,6 +258,10 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IComponent>();
         }
 
+        /// <summary>
+        /// Deserializes a composition from a JSON stream, returning an
+        /// unsuccessful result if the content cannot be parsed.
+        /// </summary>
         public FormatReadResult<IComposition> CreateComposition(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
@@ -236,6 +281,10 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IComposition>();
         }
 
+        /// <summary>
+        /// Deserializes a data item from a JSON stream, returning an
+        /// unsuccessful result if the content cannot be parsed.
+        /// </summary>
         public FormatReadResult<IDataItem> CreateDataItem(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
@@ -255,6 +304,11 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IDataItem>();
         }
 
+        /// <summary>
+        /// Deserializes an asset of the given type from a JSON stream,
+        /// selecting the surrogate that matches <paramref name="assetType"/>
+        /// and collecting any parse errors in the result.
+        /// </summary>
         public FormatReadResult<IAsset> CreateAsset(string assetType, Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
@@ -281,7 +335,7 @@ namespace MTConnect.Formatters
                     {
                         switch (assetType)
                         {
-                            case "CuttingTool": 
+                            case "CuttingTool":
                                 asset = JsonSerializer.Deserialize<JsonCuttingToolAsset>(json).ToCuttingToolAsset();
                                 break;
 

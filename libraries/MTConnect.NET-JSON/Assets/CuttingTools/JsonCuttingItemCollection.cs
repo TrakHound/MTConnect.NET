@@ -8,18 +8,37 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Assets.Json.CuttingTools
 {
+    /// <summary>
+    /// JSON serialization surrogate for the <c>CuttingItems</c> collection of
+    /// a cutting tool, including the redundant count attribute so consumers
+    /// can validate the cardinality without enumerating the collection.
+    /// </summary>
     public class JsonCuttingItemCollection
     {
+        /// <summary>
+        /// The number of cutting items in <see cref="CuttingItems"/>.
+        /// </summary>
         [JsonPropertyName("count")]
         public int Count { get; set; }
 
 
+        /// <summary>
+        /// The cutting items of the tool.
+        /// </summary>
         [JsonPropertyName("cuttingItems")]
         public IEnumerable<JsonCuttingItem> CuttingItems { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonCuttingItemCollection() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed cutting item
+        /// collection, populating both <see cref="Count"/> and
+        /// <see cref="CuttingItems"/>.
+        /// </summary>
         public JsonCuttingItemCollection(IEnumerable<ICuttingItem> cuttingItems)
         {
             if (!cuttingItems.IsNullOrEmpty())
@@ -40,6 +59,10 @@ namespace MTConnect.Assets.Json.CuttingTools
         }
 
 
+        /// <summary>
+        /// Converts the surrogate cutting items back to their strongly-typed
+        /// form, or null when the collection is empty.
+        /// </summary>
         public IEnumerable<ICuttingItem> ToCuttingItems()
         {
             // CuttingItems

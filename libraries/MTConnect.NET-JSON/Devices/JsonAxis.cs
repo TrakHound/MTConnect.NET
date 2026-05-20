@@ -9,14 +9,29 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for an <c>Axis</c>, the inline variant
+    /// carrying its direction vector as a single string (space-separated
+    /// triple). Converts to and from the strongly-typed <see cref="Axis"/>
+    /// model.
+    /// </summary>
     public class JsonAxis
     {
+        /// <summary>
+        /// The axis direction vector as a space-separated triple.
+        /// </summary>
         [JsonPropertyName("value")]
         public string Value { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonAxis() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed <see cref="IAxis"/>.
+        /// </summary>
         public JsonAxis(IAxis axis)
         {
             if (axis != null)
@@ -26,6 +41,9 @@ namespace MTConnect.Devices.Json
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed <see cref="IAxis"/>.
+        /// </summary>
         public IAxis ToAxis()
         {
             var axis = new Axis();

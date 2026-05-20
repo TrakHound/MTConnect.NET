@@ -6,20 +6,45 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a <c>Definition</c> describing the
+    /// shape of a DATA_SET or TABLE data item's entries. Mirrors the
+    /// on-the-wire shape so the JSON serializer can read and write it, then
+    /// converts to and from the strongly-typed <see cref="DataItemDefinition"/>
+    /// model.
+    /// </summary>
     public class JsonDataItemDefinition
     {
+        /// <summary>
+        /// The free-form description of the data item definition.
+        /// </summary>
         [JsonPropertyName("description")]
         public string Description { get; set; }
 
+        /// <summary>
+        /// The entry definitions describing the keys of a DATA_SET or TABLE.
+        /// </summary>
         [JsonPropertyName("entryDefinitions")]
         public IEnumerable<JsonEntryDefinition> EntryDefinitions { get; set; }
 
+        /// <summary>
+        /// The cell definitions describing the columns shared by every TABLE
+        /// entry.
+        /// </summary>
         [JsonPropertyName("cellDefinitions")]
         public IEnumerable<JsonCellDefinition> CellDefinitions { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonDataItemDefinition() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IDataItemDefinition"/>, converting each entry and cell
+        /// definition.
+        /// </summary>
         public JsonDataItemDefinition(IDataItemDefinition dataItemDefinition)
         {
             if (dataItemDefinition != null)
@@ -53,6 +78,11 @@ namespace MTConnect.Devices.Json
 
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="IDataItemDefinition"/>, converting each entry and cell
+        /// definition.
+        /// </summary>
         public IDataItemDefinition ToDefinition()
         {
             var definition = new DataItemDefinition();

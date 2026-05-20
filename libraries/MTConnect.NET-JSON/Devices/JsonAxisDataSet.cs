@@ -9,20 +9,41 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for an <c>AxisDataSet</c>, the variant of
+    /// a motion axis whose components are reported per axis. Converts to and
+    /// from the strongly-typed <see cref="AxisDataSet"/> model.
+    /// </summary>
     public class JsonAxisDataSet
     {
+        /// <summary>
+        /// The X component of the axis direction vector.
+        /// </summary>
         [JsonPropertyName("x")]
         public double X { get; set; }
 
+        /// <summary>
+        /// The Y component of the axis direction vector.
+        /// </summary>
         [JsonPropertyName("y")]
         public double Y { get; set; }
 
+        /// <summary>
+        /// The Z component of the axis direction vector.
+        /// </summary>
         [JsonPropertyName("z")]
         public double Z { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonAxisDataSet() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IAxisDataSet"/>.
+        /// </summary>
         public JsonAxisDataSet(IAxisDataSet dataSet)
         {
             if (dataSet != null)
@@ -34,6 +55,10 @@ namespace MTConnect.Devices.Json
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="IAxisDataSet"/>.
+        /// </summary>
         public IAxisDataSet ToAxisDataSet()
         {
             var dataSet = new AxisDataSet();

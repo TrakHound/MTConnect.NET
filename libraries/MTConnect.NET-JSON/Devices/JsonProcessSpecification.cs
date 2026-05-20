@@ -6,20 +6,43 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a <c>ProcessSpecification</c>,
+    /// extending <see cref="JsonAbstractSpecification"/> with control,
+    /// specification, and alarm limit groups. Converts to and from the
+    /// strongly-typed <see cref="ProcessSpecification"/> model.
+    /// </summary>
     public class JsonProcessSpecification : JsonAbstractSpecification
     {
+        /// <summary>
+        /// The statistical control limits (sigma bands) for the process.
+        /// </summary>
         [JsonPropertyName("controlLimits")]
         public JsonControlLimits ControlLimits { get; set; }
 
+        /// <summary>
+        /// The specification limits (tolerance bands) for the process.
+        /// </summary>
         [JsonPropertyName("specificationLimits")]
         public JsonSpecificationLimits SpecificationLimits { get; set; }
 
+        /// <summary>
+        /// The alarm limits at which the process triggers warnings or faults.
+        /// </summary>
         [JsonPropertyName("alarmLimits")]
         public JsonAlarmLimits AlarmLimits { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonProcessSpecification() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IProcessSpecification"/>, copying the common fields via
+        /// the base constructor and converting each limit group.
+        /// </summary>
         public JsonProcessSpecification(IProcessSpecification specification) : base(specification)
         {
             if (specification != null)
@@ -31,6 +54,11 @@ namespace MTConnect.Devices.Json
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="ProcessSpecification"/>, parsing the originator
+        /// enumeration and converting each limit group.
+        /// </summary>
         public override ISpecification ToSpecification()
         {
             var specification = new ProcessSpecification();

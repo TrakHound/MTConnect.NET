@@ -9,20 +9,46 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a SAMPLE-category observation,
+    /// extending <see cref="JsonObservation"/> with the sample-specific
+    /// properties. Converts to and from the strongly-typed
+    /// <see cref="SampleValueObservation"/> model.
+    /// </summary>
     public class JsonSample : JsonObservation
     {
+        /// <summary>
+        /// The rate, in samples per second, at which the values were sampled
+        /// for a TIME_SERIES representation.
+        /// </summary>
         [JsonPropertyName("sampleRate")]
         public double? SampleRate { get; set; }
 
+        /// <summary>
+        /// The statistical operation (for example AVERAGE or MAXIMUM) applied
+        /// to the reported value.
+        /// </summary>
         [JsonPropertyName("statistic")]
         public string Statistic { get; set; }
 
+        /// <summary>
+        /// The duration, in seconds, the statistic was computed over.
+        /// </summary>
         [JsonPropertyName("duration")]
         public double? Duration { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonSample() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IObservation"/>, optionally emitting the category and
+        /// instance id, and projecting data-set, table, or time-series payloads
+        /// into the corresponding properties.
+        /// </summary>
         public JsonSample(IObservation observation, bool categoryOutput = false, bool instanceIdOutput = false)
         {
             if (observation != null)
@@ -67,6 +93,11 @@ namespace MTConnect.Streams.Json
             }
         }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IObservationOutput"/>, reconstructing the data-set,
+        /// table, or time-series payload from the observation's raw values.
+        /// </summary>
         public JsonSample(IObservationOutput observation)
         {
             if (observation != null)
@@ -116,6 +147,11 @@ namespace MTConnect.Streams.Json
             }
         }
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="ISampleObservation"/>; currently delegates to
+        /// <see cref="ToSampleValue"/> for all representations.
+        /// </summary>
         public ISampleObservation ToSample()
         {
             if (Representation == DataItemRepresentation.DATA_SET.ToString())
@@ -134,6 +170,11 @@ namespace MTConnect.Streams.Json
             return ToSampleValue();
         }
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="ISampleValueObservation"/>, parsing the category, reset
+        /// trigger, and statistic enumerations.
+        /// </summary>
         public ISampleValueObservation ToSampleValue()
         {
             var sample = new SampleValueObservation();

@@ -17,13 +17,29 @@ using System.Text.Json;
 
 namespace MTConnect.Formatters
 {
+    /// <summary>
+    /// <see cref="IResponseDocumentFormatter"/> that serializes and
+    /// deserializes complete MTConnect response documents (devices, streams,
+    /// assets, and errors) to and from JSON using the Json surrogate types.
+    /// </summary>
     public class JsonResponseDocumentFormatter : IResponseDocumentFormatter
     {
+        /// <summary>
+        /// The identifier of this formatter, <c>JSON</c>.
+        /// </summary>
         public string Id => "JSON";
 
+        /// <summary>
+        /// The MIME content type produced by this formatter,
+        /// <c>application/json</c>.
+        /// </summary>
         public string ContentType => "application/json";
 
 
+        /// <summary>
+        /// Serializes an MTConnectDevices response document to a JSON stream,
+        /// honoring the <c>indentOutput</c> option.
+        /// </summary>
         public FormatWriteResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Indent Option passed to Formatter
@@ -40,6 +56,10 @@ namespace MTConnect.Formatters
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Serializes an MTConnectStreams response document to a JSON stream,
+        /// honoring the <c>indentOutput</c> option.
+        /// </summary>
         public FormatWriteResult Format(ref IStreamsResponseOutputDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Indent Option passed to Formatter
@@ -56,6 +76,10 @@ namespace MTConnect.Formatters
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Serializes an MTConnectAssets response document to a JSON stream,
+        /// honoring the <c>indentOutput</c> option.
+        /// </summary>
         public FormatWriteResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Indent Option passed to Formatter
@@ -72,6 +96,10 @@ namespace MTConnect.Formatters
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Serializes an MTConnectError response document to a JSON stream,
+        /// honoring the <c>indentOutput</c> option.
+        /// </summary>
         public FormatWriteResult Format(IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Indent Option passed to Formatter
@@ -89,6 +117,10 @@ namespace MTConnect.Formatters
         }
 
 
+        /// <summary>
+        /// Deserializes an MTConnectDevices response document from a JSON
+        /// stream.
+        /// </summary>
         public FormatReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
@@ -98,6 +130,10 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IDevicesResponseDocument>(document.ToDocument(), success);
         }
 
+        /// <summary>
+        /// Deserializes an MTConnectStreams response document from a JSON
+        /// stream.
+        /// </summary>
         public FormatReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
@@ -107,6 +143,10 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IStreamsResponseDocument>(document.ToStreamsDocument(), success);
         }
 
+        /// <summary>
+        /// Deserializes an MTConnectAssets response document from a JSON
+        /// stream.
+        /// </summary>
         public FormatReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
@@ -116,6 +156,10 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IAssetsResponseDocument>(document, success);
         }
 
+        /// <summary>
+        /// Deserializes an MTConnectError response document from a JSON
+        /// stream.
+        /// </summary>
         public FormatReadResult<IErrorResponseDocument> CreateErrorResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
