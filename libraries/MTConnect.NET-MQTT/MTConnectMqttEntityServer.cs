@@ -17,18 +17,37 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Clients
 {
+    /// <summary>
+    /// Publishes individual MTConnect entities (devices, observations, assets) over MQTT under
+    /// their dedicated topics rather than as packaged response documents. Each <c>Publish*</c>
+    /// method comes in two flavours: an <see cref="IMqttClient"/> overload for outbound publishes
+    /// to an external broker, and an <see cref="MqttServer"/> overload that injects the message
+    /// directly into an embedded broker via <see cref="InjectedMqttApplicationMessage"/>.
+    /// </summary>
     public class MTConnectMqttEntityServer
     {
         private readonly IMTConnectMqttEntityServerConfiguration _configuration;
 
+        /// <summary>The MQTT topic prefix used for every publish (sourced from the configuration).</summary>
         public string TopicPrefix => _configuration.TopicPrefix;
 
+        /// <summary>Raised after each successful publish with the topic of the message that was sent.</summary>
         public event EventHandler<string> MessageSent;
+
+        /// <summary>Raised when a publish completes but the broker reports a non-success result; the argument is the topic that failed.</summary>
         public event EventHandler<string> SendError;
+
+        /// <summary>Raised when an <see cref="IMqttClient"/> publish throws (transport failure, malformed payload).</summary>
         public event EventHandler<Exception> ClientError;
+
+        /// <summary>Raised when an <see cref="MqttServer"/> inject throws (the embedded broker rejected the message).</summary>
         public event EventHandler<Exception> ServerError;
 
 
+        /// <summary>Constructs an entity server with a fresh configuration populated from the supplied loose arguments.</summary>
+        /// <param name="topicPrefix">Topic prefix to use; null or empty keeps the default.</param>
+        /// <param name="documentFormat">Entity serialisation format; defaults to JSON.</param>
+        /// <param name="qos">MQTT Quality of Service level applied to every publish.</param>
         public MTConnectMqttEntityServer(string topicPrefix = null, string documentFormat = DocumentFormat.JSON, int qos = 0)
         {
             var configuration = new MTConnectMqttEntityServerConfiguration();
@@ -38,6 +57,8 @@ namespace MTConnect.Clients
             _configuration = configuration;
         }
 
+        /// <summary>Constructs an entity server from an existing configuration object; a null argument falls back to a freshly-initialised default configuration.</summary>
+        /// <param name="configuration">The configuration providing topic prefix, document format, and QoS.</param>
         public MTConnectMqttEntityServer(IMTConnectMqttEntityServerConfiguration configuration)
         {
             _configuration = configuration;
@@ -45,6 +66,12 @@ namespace MTConnect.Clients
         }
 
 
+        /// <summary>
+        /// Publishes a single device document to <c>{TopicPrefix}/Devices/{uuid}/Device</c> via
+        /// the supplied <paramref name="mqttClient"/>. The message is retained so newly
+        /// connecting clients see the latest device model. Raises <see cref="MessageSent"/>,
+        /// <see cref="SendError"/>, or <see cref="ClientError"/> depending on the outcome.
+        /// </summary>
         public async Task PublishDevice(IMqttClient mqttClient, IDevice device)
         {
             if (mqttClient != null && mqttClient.IsConnected && device != null)
@@ -69,6 +96,11 @@ namespace MTConnect.Clients
             }
         }
 
+        /// <summary>
+        /// Injects a single device document into an embedded <see cref="MqttServer"/> using
+        /// <see cref="InjectedMqttApplicationMessage"/>, avoiding the network round-trip when the
+        /// publisher hosts the broker itself. Raises <see cref="ServerError"/> on failure.
+        /// </summary>
         public async Task PublishDevice(MqttServer mqttServer, IDevice device)
         {
             if (mqttServer != null && device != null)
@@ -111,6 +143,12 @@ namespace MTConnect.Clients
         }
 
 
+        /// <summary>
+        /// Publishes a single observation to
+        /// <c>{TopicPrefix}/Devices/{deviceUuid}/Observations/{dataItemId}</c> via the supplied
+        /// <paramref name="mqttClient"/>. Returns the broker's publish result so callers can
+        /// inspect acknowledgement state when QoS &gt; 0 is in effect.
+        /// </summary>
         public async Task<MqttClientPublishResult> PublishObservation(IMqttClient mqttClient, IObservation observation)
         {
             if (mqttClient != null && mqttClient.IsConnected && observation != null)
@@ -137,6 +175,11 @@ namespace MTConnect.Clients
             return null;
         }
 
+        /// <summary>
+        /// Publishes a batch of observations that share the same DataItem (and therefore the same
+        /// topic) via the supplied <paramref name="mqttClient"/>. The topic is derived from the
+        /// first observation; remaining observations contribute to the serialised payload only.
+        /// </summary>
         public async Task<MqttClientPublishResult> PublishObservations(IMqttClient mqttClient, IEnumerable<IObservation> observations)
         {
             if (mqttClient != null && mqttClient.IsConnected && !observations.IsNullOrEmpty())
@@ -163,6 +206,7 @@ namespace MTConnect.Clients
             return null;
         }
 
+        /// <summary>Injects a single observation into an embedded <see cref="MqttServer"/> without a network round-trip. Raises <see cref="ServerError"/> on failure.</summary>
         public async Task PublishObservation(MqttServer mqttServer, IObservation observation)
         {
             if (mqttServer != null && observation != null)
@@ -181,6 +225,7 @@ namespace MTConnect.Clients
             }
         }
 
+        /// <summary>Injects a batch of observations (sharing the same DataItem topic) into an embedded <see cref="MqttServer"/>. Raises <see cref="ServerError"/> on failure.</summary>
         public async Task PublishObservations(MqttServer mqttServer, IEnumerable<IObservation> observations)
         {
             if (mqttServer != null && !observations.IsNullOrEmpty())
@@ -263,6 +308,11 @@ namespace MTConnect.Clients
         }
 
 
+        /// <summary>
+        /// Publishes a single asset to <c>{TopicPrefix}/Devices/{deviceUuid}/Assets/{assetId}</c>
+        /// via the supplied <paramref name="mqttClient"/>. The message is retained so consumers
+        /// joining after the publish still see the asset.
+        /// </summary>
         public async Task PublishAsset(IMqttClient mqttClient, IAsset asset)
         {
             if (mqttClient != null && mqttClient.IsConnected && asset != null)
@@ -287,6 +337,7 @@ namespace MTConnect.Clients
             }
         }
 
+        /// <summary>Injects a single asset into an embedded <see cref="MqttServer"/> without a network round-trip. Raises <see cref="ServerError"/> on failure.</summary>
         public async Task PublishAsset(MqttServer mqttServer, IAsset asset)
         {
             if (mqttServer != null && asset != null)

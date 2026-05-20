@@ -16,6 +16,14 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Mqtt
 {
+    /// <summary>
+    /// Bridges an in-process <see cref="IMTConnectAgent"/> to an MQTTnet broker, publishing every
+    /// device addition, observation, and asset received by the agent as MQTT messages under the
+    /// configured topic prefix. Hosts a heartbeat timer that emits the agent's
+    /// <c>HeartbeatTimestamp</c> topic on a fixed interval and, optionally, per-interval
+    /// observation buckets so consumers can subscribe to coarse-grained snapshots without
+    /// processing every individual publish.
+    /// </summary>
     public class MTConnectMqttBroker : IHostedService
     {
         private const int _retryInterval = 5000;
@@ -34,29 +42,46 @@ namespace MTConnect.Mqtt
         private readonly System.Timers.Timer _heartbeatTimer = new System.Timers.Timer();
 
 
+        /// <summary>Heartbeat interval in milliseconds; the broker emits the agent's <c>HeartbeatTimestamp</c> publish at this cadence.</summary>
         public int HeartbeatInterval => _heartbeatInterval;
 
+        /// <summary>Topic layout (flat or hierarchy) used for observation publishes; defaults to <see cref="MTConnectMqttFormat.Hierarchy"/>.</summary>
         public MTConnectMqttFormat Format { get; set; }
 
+        /// <summary>Optional topic prefix used in place of the default <c>MTConnect</c>; when null the standard prefix is applied by <see cref="MTConnectMqttMessage"/>.</summary>
         public string TopicPrefix { get; set; }
 
+        /// <summary>When true, retained publishes are used so newly connecting clients see the latest agent/device/observation state immediately.</summary>
         public bool RetainMessages { get; set; }
 
+        /// <summary>Raised by the underlying <see cref="MqttServer"/> when a downstream MQTT client connects.</summary>
         public event EventHandler ClientConnected;
 
+        /// <summary>Raised by the underlying <see cref="MqttServer"/> when a downstream MQTT client disconnects.</summary>
         public event EventHandler ClientDisconnected;
 
         #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
+        /// <summary>Raised after each successful publish; the argument is the topic name.</summary>
         public event EventHandler<string> MessageSent;
         #pragma warning restore CS0067
 
+        /// <summary>Raised when the broker's connection to its underlying transport fails.</summary>
         public event EventHandler<Exception> ConnectionError;
 
         #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
+        /// <summary>Raised when a publish fails after the connection has been established.</summary>
         public event EventHandler<Exception> PublishError;
         #pragma warning restore CS0067
 
 
+        /// <summary>
+        /// Subscribes to the agent's add events and prepares the broker for hosting. The broker
+        /// is not started until <see cref="StartAsync"/> is called by the .NET hosting layer.
+        /// </summary>
+        /// <param name="mtconnectAgent">The agent to mirror over MQTT; its add events are observed.</param>
+        /// <param name="mqttServer">The MQTTnet server instance the broker publishes through; ownership stays with the caller.</param>
+        /// <param name="observationIntervals">Optional list of interval-bucket lengths in milliseconds; if supplied, the broker emits batched observation topics for each interval.</param>
+        /// <param name="heartbeatInterval">Heartbeat publish cadence in milliseconds; defaults to one second.</param>
         public MTConnectMqttBroker(IMTConnectAgent mtconnectAgent, MqttServer mqttServer, IEnumerable<int> observationIntervals = null, int heartbeatInterval = 1000)
         {
             _mtconnectAgent = mtconnectAgent;
@@ -92,6 +117,11 @@ namespace MTConnect.Mqtt
         }
 
 
+        /// <summary>
+        /// <see cref="IHostedService"/> entry point. Spawns the broker worker on the thread pool,
+        /// starts the heartbeat timer, and starts one timer per configured observation interval
+        /// that flushes buffered observations under the interval-bucketed topic on each tick.
+        /// </summary>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             await Task.CompletedTask;
@@ -122,6 +152,11 @@ namespace MTConnect.Mqtt
             }
         }
 
+        /// <summary>
+        /// <see cref="IHostedService"/> shutdown hook. Cancels the worker, stops the heartbeat
+        /// timer, disposes the interval-bucket timers, and awaits a graceful shutdown of the
+        /// underlying <see cref="MqttServer"/>.
+        /// </summary>
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             if (_stop != null) _stop.Cancel();

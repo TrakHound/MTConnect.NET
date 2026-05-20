@@ -24,6 +24,15 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Clients
 {
+    /// <summary>
+    /// MQTT client tuned for the cppagent's <em>expanded</em> topic layout where each MTConnect
+    /// entity (device, observation, condition, asset) is published to its own deep topic rather
+    /// than as a packaged response document. The client subscribes to a configurable set of topic
+    /// filters, parses each message into the matching strongly-typed entity, and raises the
+    /// appropriate <see cref="DeviceReceived"/>, <see cref="ObservationReceived"/>, or
+    /// <see cref="AssetReceived"/> event. Multi-agent broker topologies are supported through a
+    /// per-agent heartbeat timer.
+    /// </summary>
     public class MTConnectMqttExpandedClient : IMTConnectEntityClient, IDisposable
     {
         private const string _defaultTopic = "MTConnect/#";
@@ -72,6 +81,10 @@ namespace MTConnect.Clients
         private MTConnectMqttConnectionStatus _connectionStatus;
 
 
+        /// <summary>Typed-entity event handler delegate; raised by the expanded client after a topic payload has been parsed back into an entity.</summary>
+        /// <typeparam name="T">The MTConnect entity type carried to the handler (device, observation, asset).</typeparam>
+        /// <param name="deviceUuid">UUID of the device the entity belongs to (derived from the topic).</param>
+        /// <param name="item">The reassembled entity.</param>
         public delegate void MTConnectMqttEventHandler<T>(string deviceUuid, T item);
 
 
@@ -80,28 +93,38 @@ namespace MTConnect.Clients
         /// </summary>
         public int ReconnectionInterval { get; set; }
 
+        /// <summary>The MQTT broker hostname or IP address the client connects to.</summary>
         public string Server => _server;
 
+        /// <summary>The MQTT broker TCP port the client connects to.</summary>
         public int Port => _port;
 
+        /// <summary>The MQTT Quality of Service level the client requests for its subscriptions.</summary>
         public int Qos => _qos;
 
+        /// <summary>The reconnect interval in milliseconds; the client retries the connection at this cadence after a drop.</summary>
         public int Interval => _interval;
 
+        /// <summary>The list of MQTT topic filters the client subscribes to (defaults to <c>MTConnect/#</c>).</summary>
         public IEnumerable<string> Topics => _topics;
 
+        /// <summary>Current broker session status.</summary>
         public MTConnectMqttConnectionStatus ConnectionStatus => _connectionStatus;
 
         #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
+        /// <summary>Raised after the broker session has been established and subscriptions are active.</summary>
         public event EventHandler Connected;
         #pragma warning restore CS0067
 
         #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
+        /// <summary>Raised when the broker session is dropped (by the client, the broker, or a transport failure).</summary>
         public event EventHandler Disconnected;
         #pragma warning restore CS0067
 
+        /// <summary>Raised whenever <see cref="ConnectionStatus"/> transitions; carries the new status.</summary>
         public event EventHandler<MTConnectMqttConnectionStatus> ConnectionStatusChanged;
 
+        /// <summary>Raised when an exception is thrown while attempting to open or maintain the broker session.</summary>
         public event EventHandler<Exception> ConnectionError;
 
         /// <summary>
@@ -109,10 +132,13 @@ namespace MTConnect.Clients
         /// </summary>
         public event EventHandler<Exception> InternalError;
 
+        /// <summary>Raised for each device document received on the <c>MTConnect/Devices/{uuid}/Device</c> topic, with the device parsed into an <see cref="IDevice"/>.</summary>
         public event EventHandler<IDevice> DeviceReceived;
 
+        /// <summary>Raised for each observation parsed from an <c>MTConnect/Devices/{uuid}/Observations/...</c> publish.</summary>
         public event EventHandler<IObservation> ObservationReceived;
 
+        /// <summary>Raised for each asset parsed from an <c>MTConnect/Devices/{uuid}/Assets/{type}/{assetId}</c> publish.</summary>
         public event EventHandler<IAsset> AssetReceived;
 
         /// <summary>
@@ -136,6 +162,18 @@ namespace MTConnect.Clients
         public event EventHandler ClientStopped;
 
 
+        /// <summary>
+        /// Constructs the expanded client with broker-connection parameters supplied directly.
+        /// Wires the MQTT message dispatcher to either a single-device handler (when
+        /// <paramref name="deviceUuid"/> is set) or the multi-device handler that triages by
+        /// topic.
+        /// </summary>
+        /// <param name="server">MQTT broker hostname or IP address.</param>
+        /// <param name="port">MQTT broker TCP port; defaults to 1883.</param>
+        /// <param name="interval">Reconnect interval in milliseconds (also used for the broker keep-alive); 0 leaves it at the MQTTnet default.</param>
+        /// <param name="deviceUuid">When supplied, limits subscriptions to a single device's topic subtree.</param>
+        /// <param name="topics">Optional explicit topic filters; defaults to <c>MTConnect/#</c>.</param>
+        /// <param name="qos">MQTT QoS level (0/1/2) requested on subscribe; defaults to 1.</param>
         public MTConnectMqttExpandedClient(string server, int port = 1883, int interval = 0, string deviceUuid = null, IEnumerable<string> topics = null, int qos = 1)
         {
             ReconnectionInterval = 10000;
@@ -160,6 +198,14 @@ namespace MTConnect.Clients
             }
         }
 
+        /// <summary>
+        /// Constructs the expanded client from a configuration object. Pulls the broker
+        /// connection settings (server, port, credentials, QoS, TLS) and the optional device
+        /// scope from <paramref name="configuration"/>; the topic filters are still supplied
+        /// separately and default to <c>MTConnect/#</c>.
+        /// </summary>
+        /// <param name="configuration">Broker connection settings; null leaves all fields at defaults.</param>
+        /// <param name="topics">Optional explicit topic filters; defaults to <c>MTConnect/#</c>.</param>
         public MTConnectMqttExpandedClient(IMTConnectMqttClientConfiguration configuration, IEnumerable<string> topics = null)
         {
             ReconnectionInterval = 10000;
@@ -197,6 +243,7 @@ namespace MTConnect.Clients
         }
 
 
+        /// <summary>Starts the background worker that connects to the broker, applies subscriptions, and dispatches incoming messages. Returns immediately.</summary>
         public void Start()
         {
             _stop = new CancellationTokenSource();
@@ -206,6 +253,7 @@ namespace MTConnect.Clients
             _ = Task.Run(Worker, _stop.Token);
         }
 
+        /// <summary>Signals the worker to stop and disconnect from the broker. <see cref="Disconnected"/> is raised once the session has closed.</summary>
         public void Stop()
         {
             ClientStopping?.Invoke(this, new EventArgs());
@@ -213,6 +261,7 @@ namespace MTConnect.Clients
             if (_stop != null) _stop.Cancel();
         }
 
+        /// <summary>Disposes the underlying <see cref="IMqttClient"/>. Call <see cref="Stop"/> first; this does not cancel the worker on its own.</summary>
         public void Dispose()
         {
             if (_mqttClient != null) _mqttClient.Dispose();
