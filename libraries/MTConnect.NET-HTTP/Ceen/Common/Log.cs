@@ -90,6 +90,6 @@ namespace Ceen
         public static Task DebugAsync(string message, Exception ex = null)
         {
             return Context.Current?.LogMessageAsync(LogLevel.Debug, message, ex) ?? Task.FromResult(true);
-        }        
+        }
     }
 }

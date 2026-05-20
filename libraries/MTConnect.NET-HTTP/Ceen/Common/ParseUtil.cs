@@ -155,7 +155,7 @@ namespace Ceen
         /// The prefix to a hostname that indicates a unix domain socket
         /// </summary>
         public const string UNIX_SOCKET_PREFIX = "unix:";
-        
+
         /// <summary>
         /// Parse an EndPoint Address, supporting &quot;any&quot;, &quot;*&quot;, &quot;local&quot;, &quot;loopback&quot;, and &quot;unix:&quot;
         /// </summary>
@@ -169,7 +169,7 @@ namespace Ceen
             if (!string.IsNullOrWhiteSpace(address) && address.StartsWith(UNIX_SOCKET_PREFIX, StringComparison.OrdinalIgnoreCase))
                 return new UnixDomainSocketEndPoint(address.Substring(UNIX_SOCKET_PREFIX.Length));
 #endif
-            
+
             // Support for having "localhost:1234" as the listen address
             if (address.Contains(":"))
             {
@@ -180,6 +180,6 @@ namespace Ceen
 
             return new IPEndPoint(ParseIPAddress(address), port);
         }
-    
+
     }
 }

@@ -283,10 +283,26 @@ namespace MTConnect.Clients
         }
 
 
+        /// <summary>Builds the <c>sample</c> request URI from the client's own <see cref="MTConnectHttpClientRequest.Authority"/>, <see cref="MTConnectHttpClientRequest.Device"/>, <see cref="MTConnectHttpClientRequest.Path"/>, <see cref="From"/>, <see cref="To"/>, <see cref="Count"/>, and <see cref="MTConnectHttpClientRequest.DocumentFormat"/>.</summary>
         public Uri CreateUri() => CreateUri(Authority, Device, Path, From, To, Count, DocumentFormat);
 
+        /// <summary>Convenience overload that passes <c>0</c> for <paramref name="port"/>, so the port is taken from <paramref name="hostname"/> if it carries one.</summary>
+        /// <param name="hostname">Agent base URL or hostname.</param>
+        /// <param name="device">Optional device key; null requests an agent-scoped sample.</param>
+        /// <param name="path">Optional XPath/JSONPath filter (becomes the <c>path</c> query parameter).</param>
+        /// <param name="from">The starting sequence number (<c>from</c> query parameter); <c>0</c> means unset.</param>
+        /// <param name="to">The ending sequence number (<c>to</c> query parameter); <c>0</c> means unset.</param>
+        /// <param name="count">The maximum number of observations (<c>count</c> query parameter); <c>0</c> means unset.</param>
+        /// <param name="documentFormat">Optional document format (<c>documentFormat</c> query parameter).</param>
         public static Uri CreateUri(string hostname, string device = null, string path = null, long from = 0, long to = 0, long count = 0, string documentFormat = null) => CreateUri(hostname, 0, device, path, from, to, count, documentFormat);
 
+        /// <summary>
+        /// Builds the absolute <c>sample</c> request URI. Combines <paramref name="hostname"/>
+        /// (with <paramref name="port"/> appended if positive) and the <paramref name="device"/>
+        /// segment, then adds <c>/sample</c> together with the standard MTConnect query
+        /// parameters <c>path</c>, <c>from</c>, <c>to</c>, <c>count</c>, and <c>documentFormat</c>
+        /// for the supplied non-default values.
+        /// </summary>
         public static Uri CreateUri(string hostname, int port, string device = null, string path = null, long from = 0, long to = 0, long count = 0, string documentFormat = null)
         {
             if (!string.IsNullOrEmpty(hostname))

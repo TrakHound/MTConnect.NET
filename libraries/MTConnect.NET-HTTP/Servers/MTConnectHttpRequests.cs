@@ -25,10 +25,10 @@ namespace MTConnect.Servers.Http
         /// <param name="formatOptions">Flags used for Formatting the Response</param>
         /// <returns>An MTConnectHttpResponse</returns>
         public static MTConnectHttpResponse GetProbeRequest(
-            IMTConnectAgentBroker mtconnectAgent, 
+            IMTConnectAgentBroker mtconnectAgent,
             string deviceType = null,
             Version mtconnectVersion = null,
-            string documentFormat = DocumentFormat.XML, 
+            string documentFormat = DocumentFormat.XML,
             IEnumerable<KeyValuePair<string, string>> formatOptions = null
             )
         {
@@ -80,7 +80,7 @@ namespace MTConnect.Servers.Http
         /// <param name="formatOptions">Flags used for Formatting the Response</param>
         /// <returns>An MTConnectHttpResponse</returns>
         public static MTConnectHttpResponse GetDeviceProbeRequest(
-            IMTConnectAgentBroker mtconnectAgent, 
+            IMTConnectAgentBroker mtconnectAgent,
             string deviceKey,
             Version mtconnectVersion = null,
             string documentFormat = DocumentFormat.XML,
@@ -493,8 +493,8 @@ namespace MTConnect.Servers.Http
             IEnumerable<KeyValuePair<string, string>> formatOptions = null
             )
         {
-            var stpw = Stopwatch.StartNew();    
-            
+            var stpw = Stopwatch.StartNew();
+
             // Get list of DataItem ID's based on Path (XPath) parameter
             var dataItemIds = PathProcessor.GetDataItemIds(mtconnectAgent, path, documentFormat);
 

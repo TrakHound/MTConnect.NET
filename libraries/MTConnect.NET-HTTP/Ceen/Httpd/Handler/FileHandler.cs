@@ -611,7 +611,7 @@ namespace Ceen.Httpd.Handler
                     context.Response.StatusCode = HttpStatusCode.OK;
                     context.Response.AddHeader("Last-Modified", lastmodified.ToString("R", CultureInfo.InvariantCulture));
                     context.Response.AddHeader("Accept-Ranges", "bytes");
-                    
+
                     // If the VFS or something else handles cache headers, do not overwrite them here
                     if (!context.Response.Headers.ContainsKey("Cache-Control") && !context.Response.Headers.ContainsKey("Expires"))
                         context.Response.SetExpires(CacheSeconds);
@@ -654,7 +654,7 @@ namespace Ceen.Httpd.Handler
                     fs.Position = startoffset;
                     var remain = context.Response.ContentLength;
                     var buf = new byte[TransferChunkSize];
-                    
+
                     // Since this is a transfer, we do not honor the processing timeout here
                     //var ct = context.Request.TimeoutCancellationToken;
 
@@ -663,7 +663,7 @@ namespace Ceen.Httpd.Handler
                         while (remain > 0)
                         {
                             var r = await fs.ReadAsync(buf, 0, (int)Math.Min(buf.Length, remain));
-                            using(var ct = new CancellationTokenSource(ActivityTimeoutSeconds))
+                            using (var ct = new CancellationTokenSource(ActivityTimeoutSeconds))
                                 await os.WriteAsync(buf, 0, r, ct.Token);
                             remain -= r;
                         }

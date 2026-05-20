@@ -653,7 +653,7 @@ namespace MTConnect.Clients
                     if (probe != null)
                     {
                         _lastResponse = UnixDateTime.Now;
-                       ResponseReceived?.Invoke(this, new EventArgs());
+                        ResponseReceived?.Invoke(this, new EventArgs());
 
                         ProcessProbeDocument(probe);
 
@@ -735,7 +735,7 @@ namespace MTConnect.Clients
                                     // Run Stream (Blocking call)
                                     await _stream.Run(_stop.Token);
                                 }
-                                    
+
                                 initialRequest = false;
 
                                 if (!_stop.Token.IsCancellationRequested)
@@ -1176,6 +1176,11 @@ namespace MTConnect.Clients
         }
 
 
+        /// <summary>
+        /// Builds the agent base URL string (without trailing slash) by appending
+        /// <paramref name="port"/> to <paramref name="hostname"/> when the port is positive.
+        /// Returns <c>null</c> for null or empty <paramref name="hostname"/>.
+        /// </summary>
         public static string CreateUrl(string hostname, int port)
         {
             if (!string.IsNullOrEmpty(hostname))

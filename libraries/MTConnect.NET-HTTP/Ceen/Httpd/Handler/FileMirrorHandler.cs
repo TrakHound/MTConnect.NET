@@ -264,7 +264,7 @@ namespace Ceen.Httpd.Handler
                         if (read == 0)
                             break;
 
-                        using(var ct = new CancellationTokenSource(ActivityTimeoutSeconds))
+                        using (var ct = new CancellationTokenSource(ActivityTimeoutSeconds))
                             await os.WriteAsync(buf, 0, read, ct.Token);
                         written += read;
                     }

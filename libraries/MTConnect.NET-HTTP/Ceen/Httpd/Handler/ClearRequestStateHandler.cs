@@ -8,7 +8,7 @@ namespace Ceen.Httpd.Handler
     /// A handler that clears the request state
     /// </summary>
     internal class ClearRequestStateHandler : IHttpModule
-	{
+    {
         /// <summary>
         /// Handles the request.
         /// </summary>
@@ -16,9 +16,9 @@ namespace Ceen.Httpd.Handler
         /// <param name="context">The http context.</param>
         /// <param name="cancellationToken">The token indicating to stop handling.</param>
         public Task<bool> HandleAsync(IHttpContext context, CancellationToken cancellationToken)
-		{
-			context.Request.RequestState.Clear();
-			return Task.FromResult(false);
-		}
-	}
+        {
+            context.Request.RequestState.Clear();
+            return Task.FromResult(false);
+        }
+    }
 }

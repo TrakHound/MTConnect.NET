@@ -7,6 +7,12 @@ using System.Collections.Generic;
 
 namespace MTConnect.Configurations
 {
+    /// <summary>
+    /// The transport-level settings consumed by the MTConnect HTTP server: bind address, TLS,
+    /// accepted document formats, response compression, PUT/POST policy, default schema version,
+    /// default output behaviour, validation level, and the optional list of static files served
+    /// alongside MTConnect responses.
+    /// </summary>
     public interface IHttpServerConfiguration
     {
         /// <summary>

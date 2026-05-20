@@ -15,6 +15,14 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Servers.Http
 {
+    /// <summary>
+    /// Server-side pump that produces the body of an MTConnect long-poll <c>sample</c> response
+    /// (or a repeating <c>current</c> if <see cref="StartCurrent"/> is used). The stream pulls
+    /// fresh <c>MTConnectStreams</c> documents from the agent on each tick, formats them in the
+    /// negotiated <see cref="MTConnect.DocumentFormat"/>, wraps the result in a multipart-mixed
+    /// chunk, and raises <see cref="DocumentReceived"/>/<see cref="HeartbeatReceived"/> so the
+    /// hosting HTTP framework can write the chunk to the open response.
+    /// </summary>
     public class MTConnectHttpServerStream
     {
         private const int _minInterval = 1; // 1 millisecond minimum interval
@@ -39,28 +47,56 @@ namespace MTConnect.Servers.Http
         private bool _currentOnly;
 
 
+        /// <summary>Unique random identifier for this stream instance; included in event payloads so multiple concurrent streams can be distinguished.</summary>
         public string Id => _id;
 
+        /// <summary>The MIME multipart boundary string emitted between chunks; derived from a fresh timestamp hash so each stream has its own boundary.</summary>
         public string Boundary => _boundary;
 
+        /// <summary>The content codings the client advertised via <c>Accept-Encoding</c>; the stream selects from this set when deciding whether to compress chunks.</summary>
         public IEnumerable<string> AcceptEncodings => _acceptEncodings;
 
+        /// <summary>True while the worker task is running and emitting chunks; flipped to false by <see cref="Stop"/> or once the task exits.</summary>
         public bool IsConnected => _isConnected;
 
+        /// <summary>Extra HTTP response headers the hosting framework should send alongside the multipart body (e.g. CORS or cache directives).</summary>
         public IEnumerable<KeyValuePair<string, string>> Headers { get; set; }
 
+        /// <summary>Raised once the worker task begins emitting chunks; the argument is <see cref="Id"/>.</summary>
         public event EventHandler<string> StreamStarted;
 
+        /// <summary>Raised after the worker task exits; the argument is <see cref="Id"/>.</summary>
         public event EventHandler<string> StreamStopped;
 
+        /// <summary>Raised when the worker task aborts because of an exception; the worker then rethrows so the caller can tear down the connection.</summary>
         public event EventHandler<Exception> StreamException;
 
+        /// <summary>Raised for each chunk that carries new observations; the args expose the formatted multipart body and the time spent producing it.</summary>
         public event EventHandler<MTConnectHttpStreamArgs> DocumentReceived;
 
+        /// <summary>Raised for each empty-document keep-alive chunk emitted after the configured heartbeat interval elapses with no observations.</summary>
         public event EventHandler<MTConnectHttpStreamArgs> HeartbeatReceived;
 
 
 
+        /// <summary>
+        /// Builds the server-side stream pump from the agent, device scope, and the request
+        /// parameters parsed from the long-poll URL (<c>from</c>, <c>count</c>, <c>interval</c>,
+        /// <c>heartbeat</c>, <c>documentFormat</c>, <c>path</c>-resolved DataItem ids, and
+        /// <c>Accept-Encoding</c>). The pump itself is not started until <see cref="StartSample"/>
+        /// or <see cref="StartCurrent"/> is called.
+        /// </summary>
+        /// <param name="configuration">HTTP server configuration used to pick a response compression coding.</param>
+        /// <param name="mtconnectAgent">The agent broker observations are read from.</param>
+        /// <param name="deviceKey">Device key the stream is scoped to; null requests an agent-wide stream.</param>
+        /// <param name="dataItemIds">Optional filter of DataItem ids resolved from a <c>path</c> query parameter.</param>
+        /// <param name="from">Initial sequence number passed to the agent; zero means start from the earliest available observation.</param>
+        /// <param name="count">Maximum observations per chunk; zero means no per-chunk limit.</param>
+        /// <param name="interval">Polling interval in milliseconds between chunks (clamped at 1 ms minimum).</param>
+        /// <param name="heartbeat">Heartbeat interval in milliseconds; if no observations appear within this window, an empty document is emitted instead.</param>
+        /// <param name="documentFormat">MTConnect document format used to serialise each chunk.</param>
+        /// <param name="acceptEncodings">The <c>Accept-Encoding</c> tokens the client offered, used to negotiate compression.</param>
+        /// <param name="formatOptions">Additional document-format options passed through to the registered formatter.</param>
         public MTConnectHttpServerStream(
             IHttpServerConfiguration configuration,
             IMTConnectAgentBroker mtconnectAgent,
@@ -89,6 +125,12 @@ namespace MTConnect.Servers.Http
         }
 
 
+        /// <summary>
+        /// Launches the streaming worker on a background task in <c>sample</c> mode: each tick
+        /// reads new observations starting from the most recent acknowledged sequence number.
+        /// <paramref name="cancellationToken"/> is wired so the stream stops when the request
+        /// is aborted.
+        /// </summary>
         public void StartSample(CancellationToken cancellationToken)
         {
             _stop = new CancellationTokenSource();
@@ -96,11 +138,17 @@ namespace MTConnect.Servers.Http
 
             _currentOnly = false;
 
-            _= Task.Run(Worker, _stop.Token);
+            _ = Task.Run(Worker, _stop.Token);
 
             _isConnected = true;
         }
 
+        /// <summary>
+        /// Launches the streaming worker on a background task in <c>current</c> mode: each tick
+        /// emits a fresh <c>MTConnectStreams</c> snapshot rather than incremental observations,
+        /// useful for periodic-refresh dashboards. <paramref name="cancellationToken"/> stops the
+        /// stream when the request is aborted.
+        /// </summary>
         public void StartCurrent(CancellationToken cancellationToken)
         {
             _stop = new CancellationTokenSource();
@@ -113,12 +161,18 @@ namespace MTConnect.Servers.Http
             _isConnected = true;
         }
 
+        /// <summary>Cancels the worker task and marks the stream disconnected. Safe to call from any thread, including before <c>Start*</c>.</summary>
         public void Stop()
         {
             if (_stop != null) _stop.Cancel();
             _isConnected = false;
         }
 
+        /// <summary>
+        /// Synchronous equivalent of <see cref="StartSample(CancellationToken)"/>: runs the
+        /// worker loop on the caller's thread until <paramref name="cancellationToken"/> is
+        /// cancelled. Useful for HTTP frameworks that own the response thread directly.
+        /// </summary>
         public void RunSample(CancellationToken cancellationToken)
         {
             _stop = new CancellationTokenSource();
@@ -130,6 +184,11 @@ namespace MTConnect.Servers.Http
             _isConnected = true;
         }
 
+        /// <summary>
+        /// Synchronous equivalent of <see cref="StartCurrent(CancellationToken)"/>: emits the
+        /// periodic-snapshot stream on the caller's thread. <see cref="Stop"/> must be called
+        /// from another thread to break the loop.
+        /// </summary>
         public void RunCurrent()
         {
             _stop = new CancellationTokenSource();
@@ -251,7 +310,7 @@ namespace MTConnect.Servers.Http
             if (_configuration != null && !_configuration.ResponseCompression.IsNullOrEmpty())
             {
                 // Gzip
-                if (_configuration.ResponseCompression.Contains(HttpResponseCompression.Gzip) && 
+                if (_configuration.ResponseCompression.Contains(HttpResponseCompression.Gzip) &&
                     !_acceptEncodings.IsNullOrEmpty() && _acceptEncodings.Contains(HttpContentEncodings.Gzip))
                 {
                     return HttpContentEncodings.Gzip;

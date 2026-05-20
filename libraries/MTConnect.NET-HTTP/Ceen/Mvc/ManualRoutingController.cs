@@ -203,13 +203,13 @@ namespace Ceen.Mvc
 
             var delegatetype = System.Linq.Expressions.Expression.GetDelegateType(
                 m.GetParameters().Select(x => x.ParameterType)
-                .Concat(new [] { m.ReturnType })
+                .Concat(new[] { m.ReturnType })
                 .ToArray()
             );
 
             // Clear this to avoid weird logic where Wire can reference an older WireWith
             Current = null;
-            return AddDelegateRoute(path, Delegate.CreateDelegate(delegatetype, instance, m, true));            
+            return AddDelegateRoute(path, Delegate.CreateDelegate(delegatetype, instance, m, true));
         }
 
         /// <summary>
@@ -283,8 +283,9 @@ namespace Ceen.Mvc
             config = config ?? new ControllerRouterConfig();
 
             // Extract all target methods, but remove their controller and interface fragments
-            foreach(var r in ControllerRouter.ParseControllers(new [] { instance }, config))
-                AddRoute(new PartialParsedRoute() {
+            foreach (var r in ControllerRouter.ParseControllers(new[] { instance }, config))
+                AddRoute(new PartialParsedRoute()
+                {
                     InterfacePath = prefix,
                     ControllerPath = controllerpath ?? $"{{{config.ActionGroupName}=index}}",
                     Controller = r.Controller,

@@ -12,8 +12,10 @@ namespace MTConnect.Devices.Components
     /// </summary>
     public class HttpAdapterComponent : AdapterComponent
     {
+        /// <summary>The agent base URI (scheme + host + port, no path) the HTTP adapter targets, as produced by <see cref="HttpClientConfiguration.CreateBaseUri"/>.</summary>
         public string BaseUri { get; set; }
 
+        /// <summary>The full device-scoped URI under the agent (<see cref="BaseUri"/> + the configured <c>deviceKey</c>) that this adapter component reports.</summary>
         public string Uri { get; set; }
 
 

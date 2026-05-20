@@ -80,13 +80,13 @@ namespace Ceen.Common
         {
             if (Current == this)
             {
-	            // already on execution thread
+                // already on execution thread
                 d(state);
                 return;
             }
 
             var task = new Task(new Action<object>(d), state);
-            m_queue.Add((x => ((Task) x).RunSynchronously(), task));
+            m_queue.Add((x => ((Task)x).RunSynchronously(), task));
 
             task.Wait();
         }

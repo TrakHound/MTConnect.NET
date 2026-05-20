@@ -53,9 +53,10 @@ namespace Ceen
         /// <summary>
         /// The loader scope, using AsyncLocal
         /// </summary>
-        private static readonly System.Threading.AsyncLocal<ContextKeeper> m_activeContext 
-            = new System.Threading.AsyncLocal<ContextKeeper>() { 
-                Value = new ContextKeeper() 
+        private static readonly System.Threading.AsyncLocal<ContextKeeper> m_activeContext
+            = new System.Threading.AsyncLocal<ContextKeeper>()
+            {
+                Value = new ContextKeeper()
             };
 
         /// <summary>
@@ -82,11 +83,11 @@ namespace Ceen
                 throw new ArgumentException("Cannot register instance after the context is frozen");
             if (c.Instances.TryGetValue(typeof(T), out var n))
                 return (T)n;
-            
+
             var inst = creator();
             if (inst == null)
                 throw new ArgumentException($"Creator function did not return an instance for type {typeof(T)}");
-            
+
             // Re-check, in case the creation of the item registers itself
             if (c.Instances.TryGetValue(typeof(T), out n))
                 return (T)n;
@@ -218,7 +219,7 @@ namespace Ceen
         public static Task LogDebugAsync(Exception ex)
         {
             return Current.LogDebugAsync(null, ex);
-        }        
+        }
 
         /// <summary>
         /// Logs an error message

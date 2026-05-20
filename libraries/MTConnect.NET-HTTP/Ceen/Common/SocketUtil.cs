@@ -19,12 +19,12 @@ namespace Ceen
         public static Socket CreateAndBindSocket(EndPoint addr, int backlog)
         {
             Socket socket;
-			if (addr is IPEndPoint)
-				socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
+            if (addr is IPEndPoint)
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
 
 #if NET5_0_OR_GREATER
-			else if (addr is UnixDomainSocketEndPoint)
-				socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
+            else if (addr is UnixDomainSocketEndPoint)
+                socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
 #endif
 
             else
@@ -42,7 +42,7 @@ namespace Ceen
         /// <param name="backlog">The backlog number to set</param>
         public static void BindSocket(Socket socket, EndPoint addr, int backlog)
         {
-			try 
+            try
             {
                 socket.Bind(addr);
             }
@@ -58,11 +58,11 @@ namespace Ceen
                         var failed = false;
                         try
                         {
-                            using(var ts = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP))
+                            using (var ts = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP))
                             {
                                 var t = ts.ConnectAsync(addr);
-                                t.Wait(TimeSpan.FromSeconds(1));                                
-                            }                            
+                                t.Wait(TimeSpan.FromSeconds(1));
+                            }
                         }
                         catch
                         {
@@ -75,7 +75,7 @@ namespace Ceen
 
                         // Try to unlink the file
                         try { File.Delete(path); }
-                        catch {}
+                        catch { }
 
                         // And retry the bind
                         socket.Bind(addr);

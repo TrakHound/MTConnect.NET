@@ -9,6 +9,12 @@ using YamlDotNet.Serialization;
 
 namespace MTConnect.Configurations
 {
+    /// <summary>
+    /// Default <see cref="IHttpServerConfiguration"/> implementation deserialised from the
+    /// agent's JSON/YAML configuration. The class also exposes the
+    /// <see cref="ResponseCompressionString"/> shadow property that captures the textual form of
+    /// <see cref="ResponseCompression"/> for round-tripping through configuration files.
+    /// </summary>
     public class HttpServerConfiguration : IHttpServerConfiguration
     {
         /// <summary>
@@ -76,6 +82,12 @@ namespace MTConnect.Configurations
             }
         }
 
+        /// <summary>
+        /// The textual round-tripping companion of <see cref="ResponseCompression"/>. Holds the
+        /// raw enum names (e.g. <c>Gzip</c>, <c>Deflate</c>, <c>Br</c>) as they appear in the
+        /// agent's JSON/YAML configuration; <see cref="ResponseCompression"/> projects this list
+        /// to the strongly-typed <see cref="HttpResponseCompression"/> enum.
+        /// </summary>
         [JsonPropertyName("responseCompression")]
         [YamlMember(Alias = "responseCompression")]
         public IEnumerable<string> ResponseCompressionString { get; set; }
@@ -132,6 +144,13 @@ namespace MTConnect.Configurations
         public IEnumerable<FileConfiguration> Files { get; set; }
 
 
+        /// <summary>
+        /// Initialises a new server configuration with sensible defaults: bind to the MTConnect
+        /// default port 5000, no explicit hostname (listen on all interfaces), XML as the default
+        /// document format, the standard <c>text/xml</c> / <c>application/xml</c> / <c>application/json</c>
+        /// accept-header mappings, indented output, no comments, PUT/POST disallowed, and validation
+        /// level <see cref="OutputValidationLevel.Ignore"/>.
+        /// </summary>
         public HttpServerConfiguration()
         {
             Server = null;

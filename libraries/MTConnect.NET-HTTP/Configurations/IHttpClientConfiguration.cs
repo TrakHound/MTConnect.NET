@@ -26,7 +26,7 @@ namespace MTConnect.Configurations
         /// <summary>
         /// The port to connect to the client MTConnect Agent.
         /// </summary>
-         int Port { get; }
+        int Port { get; }
 
         /// <summary>
         ///

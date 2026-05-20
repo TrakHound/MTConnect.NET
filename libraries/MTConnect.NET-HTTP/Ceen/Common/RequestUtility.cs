@@ -79,27 +79,27 @@ namespace Ceen
     /// </summary>
     internal static class RequestUtility
     {
-		/// <summary>
-		/// Gets an encoding from a charset string
-		/// </summary>
-		/// <returns>The encoding for the charset.</returns>
-		/// <param name="charset">The charset string.</param>
+        /// <summary>
+        /// Gets an encoding from a charset string
+        /// </summary>
+        /// <returns>The encoding for the charset.</returns>
+        /// <param name="charset">The charset string.</param>
         public static Encoding GetEncodingForCharset(string charset)
-		{
-			if (string.Equals("utf-8", charset, StringComparison.OrdinalIgnoreCase))
-				return Encoding.UTF8;
-			else if (string.Equals("ascii", charset, StringComparison.OrdinalIgnoreCase))
-				return Encoding.ASCII;
-			else
-				return Encoding.GetEncoding(charset);
-		}
+        {
+            if (string.Equals("utf-8", charset, StringComparison.OrdinalIgnoreCase))
+                return Encoding.UTF8;
+            else if (string.Equals("ascii", charset, StringComparison.OrdinalIgnoreCase))
+                return Encoding.ASCII;
+            else
+                return Encoding.GetEncoding(charset);
+        }
 
-		/// <summary>
-		/// Gets an encoding from a charset string
-		/// </summary>
-		/// <returns>The encoding for the charset.</returns>
-		/// <param name="contenttype">The content type string.</param>
-		public static Encoding GetEncodingForContentType(string contenttype)
+        /// <summary>
+        /// Gets an encoding from a charset string
+        /// </summary>
+        /// <returns>The encoding for the charset.</returns>
+        /// <param name="contenttype">The content type string.</param>
+        public static Encoding GetEncodingForContentType(string contenttype)
         {
             var enc = GetHeaderComponent(contenttype, "encoding");
             if (string.IsNullOrWhiteSpace(enc))
@@ -113,54 +113,54 @@ namespace Ceen
                         : Encoding.ASCII;
 
             return GetEncodingForCharset(enc);
-		}
+        }
 
-		/// <summary>
-		/// Gets an encoding from a charset string
-		/// </summary>
-		/// <returns>The encoding for the charset.</returns>
-		/// <param name="request">The request instance.</param>
-		public static Encoding GetEncodingForCharset(this IHttpRequestInternal request, string charset)
+        /// <summary>
+        /// Gets an encoding from a charset string
+        /// </summary>
+        /// <returns>The encoding for the charset.</returns>
+        /// <param name="request">The request instance.</param>
+        public static Encoding GetEncodingForCharset(this IHttpRequestInternal request, string charset)
             => GetEncodingForCharset(charset);
 
-		/// <summary>
-		/// Gets an encoding from the content-type string
-		/// </summary>
-		/// <returns>The encoding for the content-type.</returns>
-		/// <param name="request">The request instance.</param>
-		public static Encoding GetEncodingForContentType(this IHttpRequestInternal request)
+        /// <summary>
+        /// Gets an encoding from the content-type string
+        /// </summary>
+        /// <returns>The encoding for the content-type.</returns>
+        /// <param name="request">The request instance.</param>
+        public static Encoding GetEncodingForContentType(this IHttpRequestInternal request)
             => GetEncodingForContentType(request.ContentType);
 
-		/// <summary>
-		/// Regular expression for parsing the Accept-Language header
-		/// </summary>
-		private static System.Text.RegularExpressions.Regex LANGUAGE_MATCHER = 
-			new System.Text.RegularExpressions.Regex(
+        /// <summary>
+        /// Regular expression for parsing the Accept-Language header
+        /// </summary>
+        private static System.Text.RegularExpressions.Regex LANGUAGE_MATCHER =
+            new System.Text.RegularExpressions.Regex(
                 @"\s*(?<primary>[A-z]+)(-(?<subtag>[A-z-_]+))?(;(q=(?<quality>[0-9\.]+)))?\s*,?"
-			);
+            );
 
-		/// <summary>
-		/// The number style for parsing the language quality specifier
-		/// </summary>
-		private const System.Globalization.NumberStyles QUALITY_NUMBER_STYLE =
+        /// <summary>
+        /// The number style for parsing the language quality specifier
+        /// </summary>
+        private const System.Globalization.NumberStyles QUALITY_NUMBER_STYLE =
             System.Globalization.NumberStyles.AllowLeadingSign |
             System.Globalization.NumberStyles.AllowDecimalPoint |
             System.Globalization.NumberStyles.AllowLeadingWhite |
             System.Globalization.NumberStyles.AllowTrailingWhite;
 
-		/// <summary>
-		/// Gets the prefered language that the user accepts, which is also in the list of supported items.
-		/// Returns null if no languages are accepted.
-		/// Expects fully qualified language names (i.e. &quot;en-US&quot;)
-		/// </summary>
-		/// <param name="request">The request to examine</param>
-		/// <param name="supportedLanguages">The list of supported languages</param>
-		/// <returns>The prefered language or null</returns>
-		public static LanguageTag GetAcceptLanguage(this IHttpRequestInternal request, params string[] supportedLanguages)
-		{
-			var lookup = supportedLanguages.ToLookup(x => x, StringComparer.InvariantCultureIgnoreCase);
-			return GetAcceptLanguages(request).FirstOrDefault(x => lookup.Contains(x.IANAName));
-		}
+        /// <summary>
+        /// Gets the prefered language that the user accepts, which is also in the list of supported items.
+        /// Returns null if no languages are accepted.
+        /// Expects fully qualified language names (i.e. &quot;en-US&quot;)
+        /// </summary>
+        /// <param name="request">The request to examine</param>
+        /// <param name="supportedLanguages">The list of supported languages</param>
+        /// <returns>The prefered language or null</returns>
+        public static LanguageTag GetAcceptLanguage(this IHttpRequestInternal request, params string[] supportedLanguages)
+        {
+            var lookup = supportedLanguages.ToLookup(x => x, StringComparer.InvariantCultureIgnoreCase);
+            return GetAcceptLanguages(request).FirstOrDefault(x => lookup.Contains(x.IANAName));
+        }
 
         /// <summary>
         /// Gets the prefered language that the user accepts, which is also in the list of supported items.
@@ -174,7 +174,7 @@ namespace Ceen
         {
             var lookup = supportedLanguages.ToLookup(x => x, StringComparer.InvariantCultureIgnoreCase);
             return GetAcceptLanguages(request)
-				.FirstOrDefault(x => lookup.Contains(x.Primary));
+                .FirstOrDefault(x => lookup.Contains(x.Primary));
         }
 
         /// <summary>
@@ -183,31 +183,32 @@ namespace Ceen
         /// <param name="request">The request to examine</param>
         /// <returns>The ordered list of accepted languages</returns>
         public static IOrderedEnumerable<LanguageTag> GetAcceptLanguages(this IHttpRequestInternal request)
-		{
-			return LANGUAGE_MATCHER
-				// Match the string
-				.Matches(request.Headers["Accept-Language"] ?? string.Empty)
-				// Old IEnumerable to Linq
-				.Cast<System.Text.RegularExpressions.Match>()
-				// Parse each match
-				.Select(x => {
-					var quality = 1f;
-					if (x.Groups["quality"].Success && float.TryParse(x.Groups["quality"].Value, QUALITY_NUMBER_STYLE, System.Globalization.CultureInfo.InvariantCulture, out var q))
-						quality = q;
+        {
+            return LANGUAGE_MATCHER
+                // Match the string
+                .Matches(request.Headers["Accept-Language"] ?? string.Empty)
+                // Old IEnumerable to Linq
+                .Cast<System.Text.RegularExpressions.Match>()
+                // Parse each match
+                .Select(x =>
+                {
+                    var quality = 1f;
+                    if (x.Groups["quality"].Success && float.TryParse(x.Groups["quality"].Value, QUALITY_NUMBER_STYLE, System.Globalization.CultureInfo.InvariantCulture, out var q))
+                        quality = q;
 
-					return new LanguageTag(
-						x.Groups["primary"].Value,
-						x.Groups["subtag"].Success ? x.Groups["subtag"].Value : string.Empty,
-						quality
-					);
-				})
-				// Filter out those with quality zero or less
-				.Where(x => x.Quality > 0)
-				// Order by quality
-				.OrderByDescending(x => x.Quality)
-				// But with same quality, we prefer those with a sub-tag
-				.ThenBy(x => string.IsNullOrWhiteSpace(x.Subtag));
-		}
+                    return new LanguageTag(
+                        x.Groups["primary"].Value,
+                        x.Groups["subtag"].Success ? x.Groups["subtag"].Value : string.Empty,
+                        quality
+                    );
+                })
+                // Filter out those with quality zero or less
+                .Where(x => x.Quality > 0)
+                // Order by quality
+                .OrderByDescending(x => x.Quality)
+                // But with same quality, we prefer those with a sub-tag
+                .ThenBy(x => string.IsNullOrWhiteSpace(x.Subtag));
+        }
 
         /// <summary>
         /// Returns a value indicating if the request is a multi-part request
@@ -219,15 +220,15 @@ namespace Ceen
             return IsMultipartRequest(request.ContentType);
         }
 
-		/// <summary>
-		/// Returns a value indicating if the request is a multi-part request
-		/// </summary>
-		/// <returns><c>true</c>, if multi-part was used, <c>false</c> otherwise.</returns>
-		/// <param name="contenttype">The request contenttype to examine.</param>
-		public static bool IsMultipartRequest(string contenttype)
-		{
+        /// <summary>
+        /// Returns a value indicating if the request is a multi-part request
+        /// </summary>
+        /// <returns><c>true</c>, if multi-part was used, <c>false</c> otherwise.</returns>
+        /// <param name="contenttype">The request contenttype to examine.</param>
+        public static bool IsMultipartRequest(string contenttype)
+        {
             return IsContentType(contenttype, "multipart/form-data");
-		}
+        }
 
         /// <summary>
         /// Returns a value indicating if the content type is of a certain type
@@ -257,21 +258,21 @@ namespace Ceen
             return string.Equals(contenttype.Substring(0, firstdelim), test, StringComparison.OrdinalIgnoreCase);
         }
 
-		/// <summary>
-		/// Returns a value indicating if the content type is indicating Json data
-		/// </summary>
-		/// <returns><c>true</c>, if the content type is json, <c>false</c> otherwise.</returns>
-		/// <param name="request">The request instance.</param>
-		public static bool IsJsonRequest(this IHttpRequestInternal request)
+        /// <summary>
+        /// Returns a value indicating if the content type is indicating Json data
+        /// </summary>
+        /// <returns><c>true</c>, if the content type is json, <c>false</c> otherwise.</returns>
+        /// <param name="request">The request instance.</param>
+        public static bool IsJsonRequest(this IHttpRequestInternal request)
             => IsJsonRequest(request.ContentType);
 
-		/// <summary>
-		/// Returns a value indicating if the content type is indicating Json data
-		/// </summary>
-		/// <returns><c>true</c>, if the content type is json, <c>false</c> otherwise.</returns>
-		/// <param name="contenttype">The request contenttype to examine.</param>
-		public static bool IsJsonRequest(string contenttype)
-		{
+        /// <summary>
+        /// Returns a value indicating if the content type is indicating Json data
+        /// </summary>
+        /// <returns><c>true</c>, if the content type is json, <c>false</c> otherwise.</returns>
+        /// <param name="contenttype">The request contenttype to examine.</param>
+        public static bool IsJsonRequest(string contenttype)
+        {
             var ct = contenttype ?? string.Empty;
             if (string.IsNullOrWhiteSpace(ct))
                 return false;
@@ -282,77 +283,77 @@ namespace Ceen
                 || IsContentType(contenttype, "text/javascript")
                 || IsContentType(contenttype, "text/x-javascript")
                 || IsContentType(contenttype, "text/x-json");
-		}
+        }
 
-		/// <summary>
-		/// Splits a header line into its key-value components
-		/// </summary>
-		/// <returns>The components.</returns>
-		/// <param name="line">The line to split.</param>
-		public static IEnumerable<KeyValuePair<string, string>> SplitHeaderLine(string line)
-		{
-			return (line ?? "").Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(x =>
-				{
-					var c = x.Split(new char[] { '=' }, 2, StringSplitOptions.RemoveEmptyEntries);
-					var value = (c.Skip(1).FirstOrDefault() ?? "").Trim();
-					if (value.StartsWith("\"", StringComparison.Ordinal) && value.EndsWith("\"", StringComparison.Ordinal))
-						value = value.Substring(1, value.Length - 2);
-					return new KeyValuePair<string, string>(c.First().Trim(), value);
-				});
-		}
+        /// <summary>
+        /// Splits a header line into its key-value components
+        /// </summary>
+        /// <returns>The components.</returns>
+        /// <param name="line">The line to split.</param>
+        public static IEnumerable<KeyValuePair<string, string>> SplitHeaderLine(string line)
+        {
+            return (line ?? "").Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(x =>
+                {
+                    var c = x.Split(new char[] { '=' }, 2, StringSplitOptions.RemoveEmptyEntries);
+                    var value = (c.Skip(1).FirstOrDefault() ?? "").Trim();
+                    if (value.StartsWith("\"", StringComparison.Ordinal) && value.EndsWith("\"", StringComparison.Ordinal))
+                        value = value.Substring(1, value.Length - 2);
+                    return new KeyValuePair<string, string>(c.First().Trim(), value);
+                });
+        }
 
 
-		/// <summary>
-		/// Gets a named component from a header line
-		/// </summary>
-		/// <returns>The header component or null.</returns>
-		/// <param name="line">The header line.</param>
-		/// <param name="key">The component to find.</param>
-		public static string GetHeaderComponent(string line, string key)
-		{
-			return
-				SplitHeaderLine(line)
-				.Where(x => string.Equals(x.Key, key, StringComparison.OrdinalIgnoreCase))
-				.Select(x => x.Value)
-				.FirstOrDefault();
-		}
+        /// <summary>
+        /// Gets a named component from a header line
+        /// </summary>
+        /// <returns>The header component or null.</returns>
+        /// <param name="line">The header line.</param>
+        /// <param name="key">The component to find.</param>
+        public static string GetHeaderComponent(string line, string key)
+        {
+            return
+                SplitHeaderLine(line)
+                .Where(x => string.Equals(x.Key, key, StringComparison.OrdinalIgnoreCase))
+                .Select(x => x.Value)
+                .FirstOrDefault();
+        }
 
-		/// <summary>
-		/// Reads all bytes from a stream into a string, using UTF8 encoding
-		/// </summary>
-		/// <returns>The string from the stream.</returns>
-		/// <param name="stream">The stream to read from.</param>
-		/// <param name="token">The cancellation token.</param>
-		public static Task<string> ReadAllAsStringAsync(this Stream stream, CancellationToken token = default(CancellationToken))
-		{
-			return ReadAllAsStringAsync(stream, System.Text.Encoding.UTF8, token);
-		}
+        /// <summary>
+        /// Reads all bytes from a stream into a string, using UTF8 encoding
+        /// </summary>
+        /// <returns>The string from the stream.</returns>
+        /// <param name="stream">The stream to read from.</param>
+        /// <param name="token">The cancellation token.</param>
+        public static Task<string> ReadAllAsStringAsync(this Stream stream, CancellationToken token = default(CancellationToken))
+        {
+            return ReadAllAsStringAsync(stream, System.Text.Encoding.UTF8, token);
+        }
 
-		/// <summary>
-		/// Reads all bytes from a stream into a string
-		/// </summary>
-		/// <returns>The string from the stream.</returns>
-		/// <param name="stream">The stream to read from.</param>
-		/// <param name="encoding">The encoding to use.</param>
-		/// <param name="token">The cancellation token.</param>
-		public static async Task<string> ReadAllAsStringAsync(this Stream stream, System.Text.Encoding encoding, CancellationToken token = default(CancellationToken))
-		{
-			if (encoding == null)
-				throw new ArgumentNullException(nameof(encoding));
+        /// <summary>
+        /// Reads all bytes from a stream into a string
+        /// </summary>
+        /// <returns>The string from the stream.</returns>
+        /// <param name="stream">The stream to read from.</param>
+        /// <param name="encoding">The encoding to use.</param>
+        /// <param name="token">The cancellation token.</param>
+        public static async Task<string> ReadAllAsStringAsync(this Stream stream, System.Text.Encoding encoding, CancellationToken token = default(CancellationToken))
+        {
+            if (encoding == null)
+                throw new ArgumentNullException(nameof(encoding));
 
-			using (var ms = new System.IO.MemoryStream())
-			{
-				await stream.CopyToAsync(ms, 1024 * 8, token);
-				return encoding.GetString(ms.ToArray());
-			}
-		}
+            using (var ms = new System.IO.MemoryStream())
+            {
+                await stream.CopyToAsync(ms, 1024 * 8, token);
+                return encoding.GetString(ms.ToArray());
+            }
+        }
 
-		/// <summary>
-		/// Logs an exception error
-		/// </summary>
-		/// <param name="context">The context to log with</param>
-		/// <param name="ex">The exception to log</param>
-		/// <returns>An awaitable task</returns>
+        /// <summary>
+        /// Logs an exception error
+        /// </summary>
+        /// <param name="context">The context to log with</param>
+        /// <param name="ex">The exception to log</param>
+        /// <returns>An awaitable task</returns>
         public static Task LogErrorAsync(this IHttpContext context, Exception ex)
         {
             return context.LogMessageAsync(LogLevel.Error, null, ex);
@@ -366,9 +367,9 @@ namespace Ceen
         /// <param name="ex">The optional exception to log</param>
         /// <returns>An awaitable task</returns>
         public static Task LogErrorAsync(this IHttpContext context, string message, Exception ex = null)
-		{
-			return context.LogMessageAsync(LogLevel.Error, message, ex);
-		}
+        {
+            return context.LogMessageAsync(LogLevel.Error, message, ex);
+        }
 
         /// <summary>
         /// Logs an exception warning

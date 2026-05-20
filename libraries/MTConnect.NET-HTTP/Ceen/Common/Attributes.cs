@@ -7,23 +7,23 @@ namespace Ceen
     /// be loaded before a method can be called
     /// </summary>
     internal class RequireHandlerAttribute : Attribute
-	{
-		/// <summary>
-		/// Gets or sets a value indicating whether derived handlers are allowed.
-		/// </summary>
-		public bool AllowDerived { get; set; } = true;
-		/// <summary>
-		/// Gets or sets the type of the required module.
-		/// </summary>
-		public Type RequiredType { get; set; }
+    {
+        /// <summary>
+        /// Gets or sets a value indicating whether derived handlers are allowed.
+        /// </summary>
+        public bool AllowDerived { get; set; } = true;
+        /// <summary>
+        /// Gets or sets the type of the required module.
+        /// </summary>
+        public Type RequiredType { get; set; }
 
-		/// <summary>
-		/// Creates a new handler attribute
-		/// </summary>
-		/// <value>The type of the required module.</value>
-		public RequireHandlerAttribute(Type requiredtype)
-		{
-			RequiredType = requiredtype;
-		}
-	}
+        /// <summary>
+        /// Creates a new handler attribute
+        /// </summary>
+        /// <value>The type of the required module.</value>
+        public RequireHandlerAttribute(Type requiredtype)
+        {
+            RequiredType = requiredtype;
+        }
+    }
 }

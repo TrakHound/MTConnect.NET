@@ -96,9 +96,9 @@ namespace Ceen
         /// <returns><c>true<c/></returns>
         public static bool SetResponseRedirect(this IHttpContext context, string targeturl, HttpStatusCode code = HttpStatusCode.Found, string message = null)
         {
-			context.Response.Headers["Location"] = targeturl;
-			context.Response.StatusCode = code;
-			context.Response.StatusMessage = message ?? HttpStatusMessages.DefaultMessage(context.Response.StatusCode);
+            context.Response.Headers["Location"] = targeturl;
+            context.Response.StatusCode = code;
+            context.Response.StatusMessage = message ?? HttpStatusMessages.DefaultMessage(context.Response.StatusCode);
 
             return true;
         }
