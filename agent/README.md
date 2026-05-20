@@ -1,5 +1,7 @@
 # Standalone MTConnect Agent
 
+For the full agent CLI reference, configuration guide, and module catalogue, see the docs site under [`docs/cli/agent`](../docs/cli/agent.md), [`docs/configure/agent-config`](../docs/configure/agent-config.md), and [`docs/modules/`](../docs/modules/).
+
 <table>
     <thead>
         <tr>
