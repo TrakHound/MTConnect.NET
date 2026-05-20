@@ -6,6 +6,18 @@ using MTConnect.Assets.CuttingTools.Measurements;
 namespace MTConnect.Assets.Xml.CuttingTools
 {
 {{- for type in types }}
-    public class Xml{{type.name}} : XmlMeasurement { public Xml{{type.name}}() { Type = {{type.name}}.TypeId; } }
+    /// <summary>
+    /// XML serialization wrapper for the <c>{{type.type_id}}</c> cutting-tool measurement.
+{{- if (type.description) }}
+    /// {{type.description}}
+{{- end }}
+    /// </summary>
+    public class Xml{{type.name}} : XmlMeasurement
+    {
+        /// <summary>
+        /// Initializes a new instance and fixes the measurement <c>type</c> to <see cref="{{type.name}}.TypeId"/> (<c>{{type.type_id}}</c>).
+        /// </summary>
+        public Xml{{type.name}}() { Type = {{type.name}}.TypeId; }
+    }
 {{ end }}
 }

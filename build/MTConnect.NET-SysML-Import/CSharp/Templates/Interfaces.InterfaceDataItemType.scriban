@@ -10,17 +10,56 @@ namespace MTConnect.Interfaces
     /// </summary>
     public class {{name}} : InterfaceDataItem
     {
+        /// <summary>
+        /// The MTConnect <c>category</c> (SAMPLE, EVENT, or CONDITION) of this Interface DataItem.
+        /// </summary>
         public const DataItemCategory CategoryId = DataItemCategory.{{category}};
+
+        /// <summary>
+        /// The MTConnect <c>type</c> value that identifies this Interface DataItem.
+        /// </summary>
         public const string TypeId = "{{type}}";
+
+        /// <summary>
+        /// The default <c>name</c> assigned to an instance of this Interface DataItem.
+        /// </summary>
         public const string NameId = "{{default_name}}";
-        {{ if (units_enum) }}public const string DefaultUnits = {{units_enum}};{{ end }}
+{{- if (units_enum) }}
+
+        /// <summary>
+        /// The default <c>units</c> for this Interface DataItem as defined by the MTConnect Standard.
+        /// </summary>
+        public const string DefaultUnits = {{units_enum}};
+{{- end }}
+
+        /// <summary>
+        /// The description of this Interface DataItem as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "{{description}}";
 
+        /// <summary>
+        /// The description of this Interface DataItem as defined by the MTConnect Standard.
+        /// </summary>
         public override string TypeDescription => DescriptionText;
-        {{ if (maximum_version_enum) }}public override System.Version MaximumVersion => {{maximum_version_enum}};{{ end }}
-        {{ if (minimum_version_enum) }}public override System.Version MinimumVersion => {{minimum_version_enum}};{{ end }}
+{{- if (maximum_version_enum) }}
+
+        /// <summary>
+        /// The maximum MTConnect Version that this Interface DataItem is valid for; set when the type has been deprecated.
+        /// </summary>
+        public override System.Version MaximumVersion => {{ maximum_version_enum }};
+{{- end }}
+{{- if (minimum_version_enum) }}
+
+        /// <summary>
+        /// The minimum MTConnect Version that introduced this Interface DataItem.
+        /// </summary>
+        public override System.Version MinimumVersion => {{ minimum_version_enum }};
+{{- end }}
 
 {{ if ((sub_types | array.size) > 0) }}{{ i = 0 }}
+        /// <summary>
+        /// The set of <c>subType</c> values defined for this Interface DataItem by the MTConnect Standard.
+        /// </summary>
         public new enum SubTypes
         {
 {{- for sub_type in sub_types }}{{ i = i + 1 }}
@@ -34,6 +73,9 @@ namespace MTConnect.Interfaces
         }
 
 {{ end }}
+        /// <summary>
+        /// Initializes a new instance with its category and type set to the defaults for this Interface DataItem.
+        /// </summary>
         public {{name}}()
         {
             Category = CategoryId;
@@ -43,6 +85,11 @@ namespace MTConnect.Interfaces
 
 {{- if ((sub_types | array.size) > 0) }}
 
+        /// <summary>
+        /// Initializes a new instance for the given parent with the specified <paramref name="subType"/>.
+        /// </summary>
+        /// <param name="parentId">The Id of the parent element this Interface DataItem belongs to.</param>
+        /// <param name="subType">The subType to assign to this Interface DataItem.</param>
         public {{name}}(
             string parentId,
             SubTypes subType
@@ -56,10 +103,16 @@ namespace MTConnect.Interfaces
             {{ if (units_enum) }}Units = DefaultUnits;{{ end }}
         }
 
+        /// <summary>
+        /// The MTConnect Standard description of this Interface DataItem's current <c>subType</c>.
+        /// </summary>
         public override string SubTypeDescription => GetSubTypeDescription(SubType);
 
 {{- if ((sub_types | array.size) > 0) }}{{ i = 0 }}
 
+        /// <summary>
+        /// Returns the MTConnect Standard description for the specified <paramref name="subType"/>, or <c>null</c> when it is unknown.
+        /// </summary>
         public new static string GetSubTypeDescription(string subType)
         {
             var s = subType.ConvertEnum<SubTypes>();
@@ -75,6 +128,9 @@ namespace MTConnect.Interfaces
 {{- end }}
 {{- if ((sub_types | array.size) > 0) }}{{ i = 0 }}
 
+        /// <summary>
+        /// Returns the string identifier for the specified <paramref name="subType"/>, or <c>null</c> when it is unknown.
+        /// </summary>
         public static string GetSubTypeId(SubTypes subType)
         {
             switch (subType)
@@ -89,6 +145,10 @@ namespace MTConnect.Interfaces
 {{- end }}
 {{ else }}
 
+        /// <summary>
+        /// Initializes a new instance scoped to the given device.
+        /// </summary>
+        /// <param name="deviceId">The Id of the device this Interface DataItem belongs to.</param>
         public {{name}}(string deviceId)
         {
             Id = CreateId(deviceId, NameId);

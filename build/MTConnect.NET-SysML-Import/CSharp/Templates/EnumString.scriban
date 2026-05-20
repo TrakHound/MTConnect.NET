@@ -3,6 +3,9 @@
 
 namespace {{namespace}}
 {
+    /// <summary>
+    /// {{ if (description) }}{{ description }}{{ else }}{{ name }} string constants as defined by the MTConnect Standard.{{ end }}
+    /// </summary>
     public static {{- if (is_partial) }} partial{{ end }} class {{name}}
     {
 {{- i = 0 }}{{ for value in values }}{{ i = i + 1 }}

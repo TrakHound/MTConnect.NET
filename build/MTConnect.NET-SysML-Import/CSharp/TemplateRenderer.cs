@@ -457,7 +457,7 @@ namespace MTConnect.SysML.CSharp
         };
 
         /// <summary>
-        /// Marks each <see cref="PropertyModel.IsInherited"/> flag on a class /
+        /// Marks each <see cref="MTConnectPropertyModel.IsInherited"/> flag on a class /
         /// interface template whose property name matches one declared on an
         /// ancestor. The C# templates use the flag to emit a <c>new</c>
         /// modifier on the redeclared member, suppressing CS0108 ("hides
@@ -483,7 +483,7 @@ namespace MTConnect.SysML.CSharp
         ///       <item>
         ///         The synthesized <c>Devices.Container</c> ClassModel —
         ///         <c>IContainer</c>'s hand-written partial extends
-        ///         <see cref="IMTConnectEntity"/>, so its <c>Uuid</c> hides
+        ///         <c>IMTConnectEntity</c>, so its <c>Uuid</c> hides
         ///         <c>IMTConnectEntity.Uuid</c>.
         ///       </item>
         ///       <item>

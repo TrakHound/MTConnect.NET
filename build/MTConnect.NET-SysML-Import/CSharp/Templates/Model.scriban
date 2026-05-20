@@ -10,9 +10,12 @@ namespace {{namespace}}
     /// </summary>
     public {{- if (is_abstract) }} abstract{{ end }} {{- if (is_partial) }} partial{{ end }} class {{name}} : {{ if (parent_name) }}{{parent_name}}, {{ end }}I{{name}}{{ for additional_parent_name in additional_parent_names }}, I{{additional_parent_name}}{{ end }}
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         {{ if (parent_name) }}public new const string DescriptionText = "{{description}}";{{ else }}public const string DescriptionText = "{{description}}";{{ end }}
-
 {{ i = 0 }}{{- for property in properties }}{{ i = i + 1 }}
+
         /// <summary>
         /// {{property.description}}
         /// </summary>

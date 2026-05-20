@@ -3,6 +3,9 @@
 
 namespace {{namespace}}
 {
+    /// <summary>
+    /// Description text for each property of <c>{{name}}</c> as defined by the MTConnect Standard.
+    /// </summary>
     public static class {{name}}Descriptions
     {
 {{- i = 0 }}{{- for property in properties }}{{ i = i + 1 }}

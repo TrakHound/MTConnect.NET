@@ -15,7 +15,14 @@ namespace MTConnect.Devices
     /// </summary>
     public class Device : IDevice
     {
+        /// <summary>
+        /// The MTConnect <c>type</c> value that identifies a Device.
+        /// </summary>
         public const string TypeId = "Device";
+
+        /// <summary>
+        /// The description of the Device type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "{{descriptions.devices_device}}";
 
         private static readonly Version DefaultMaximumVersion = null;
@@ -164,6 +171,9 @@ namespace MTConnect.Devices
         public virtual Version MinimumVersion => DefaultMinimumVersion;
 
 
+        /// <summary>
+        /// Initializes a new Device with a random Id, default name, and a new Uuid.
+        /// </summary>
         public Device()
         {
             Id = StringFunctions.RandomString(10);
@@ -176,11 +186,18 @@ namespace MTConnect.Devices
         }
 
 
+        /// <summary>
+        /// Computes a content hash over this Device and its data items, compositions, and components.
+        /// </summary>
         public string GenerateHash()
         {
             return GenerateHash(this);
         }
 
+        /// <summary>
+        /// Computes a content hash over the specified Device and its data items, compositions, and components.
+        /// </summary>
+        /// <param name="device">The Device to hash.</param>
         public static string GenerateHash(IDevice device)
         {
             if (device != null)
@@ -587,6 +604,13 @@ namespace MTConnect.Devices
             }
         }
 
+        /// <summary>
+        /// Creates a DataItem from the specified category, type, optional subType, and optional Id, and adds it to the Device.
+        /// </summary>
+        /// <param name="category">The DataItem category.</param>
+        /// <param name="type">The DataItem type.</param>
+        /// <param name="subType">The optional DataItem subType.</param>
+        /// <param name="dataItemId">The optional DataItem Id.</param>
         public void AddDataItem(DataItemCategory category, string type, string subType = null, string dataItemId = null)
         {
             if (!string.IsNullOrEmpty(type))
@@ -641,6 +665,13 @@ namespace MTConnect.Devices
         #endregion
 
 
+        /// <summary>
+        /// Returns a version-conformant copy of the Device for the specified MTConnect Version, applying
+        /// the version gating rules for descriptions, references, configuration, and child elements;
+        /// returns <c>null</c> when the Device cannot be represented in that version.
+        /// </summary>
+        /// <param name="device">The source Device.</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version.</param>
         public static Device Process(IDevice device, Version mtconnectVersion)
         {
             if (device != null)

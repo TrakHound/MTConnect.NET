@@ -11,8 +11,18 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
+    /// <summary>
+    /// cppagent-style JSON representation of the EVENT-category observations in a
+    /// stream. Every MTConnect event type is exposed as three typed collections —
+    /// one each for the VALUE, DATA_SET, and TABLE representations — so the
+    /// serialized object shape matches the C++ reference agent's output.
+    /// </summary>
     public class JsonEvents
     {
+        /// <summary>
+        /// Materializes every typed collection into a single flat list of
+        /// <see cref="IObservation"/>, restoring each observation's MTConnect type.
+        /// </summary>
         [JsonIgnore]
         public List<IObservation> Observations
         {
@@ -31,19 +41,41 @@ namespace MTConnect.Streams.Json
         }
 
 {{- for type in types }}
+        /// <summary>
+        /// The <c>{{type.name}}</c> events reported with the scalar VALUE representation.
+{{- if (type.description) }}
+        /// {{type.description}}
+{{- end }}
+        /// </summary>
         [JsonPropertyName("{{type.name}}")]
         public IEnumerable<JsonEventValue> {{type.name}} { get; set; }
 
+        /// <summary>
+        /// The <c>{{type.name}}</c> events reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("{{type.name}}DataSet")]
         public IEnumerable<JsonEventDataSet> {{type.name}}DataSet { get; set; }
 
+        /// <summary>
+        /// The <c>{{type.name}}</c> events reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("{{type.name}}Table")]
         public IEnumerable<JsonEventTable> {{type.name}}Table { get; set; }
 
 {{ end }}
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonEvents() { }
 
+        /// <summary>
+        /// Initializes a new instance from a flat sequence of <paramref name="observations"/>,
+        /// routing each one into the typed collection matching its MTConnect type and
+        /// representation.
+        /// </summary>
         public JsonEvents(IEnumerable<IObservationOutput> observations)
         {
             if (observations != null)
@@ -93,5 +125,5 @@ namespace MTConnect.Streams.Json
                 }
             }
         }
-    }  
+    }
 }

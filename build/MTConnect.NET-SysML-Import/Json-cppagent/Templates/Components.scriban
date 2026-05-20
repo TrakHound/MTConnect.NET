@@ -8,16 +8,35 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
 {
+    /// <summary>
+    /// cppagent-style JSON representation of a device's component tree. Each MTConnect
+    /// component type is exposed as its own strongly-typed collection so the
+    /// System.Text.Json serializer emits one property per type, matching the
+    /// flattened object shape the C++ reference agent produces.
+    /// </summary>
     public class JsonComponents
     {
 {{- for type in types }}{{ i = i + 1 }}
+        /// <summary>
+        /// The set of <c>{{type.type}}</c> components on the device.
+{{- if (type.description) }}
+        /// {{type.description}}
+{{- end }}
+        /// </summary>
         [JsonPropertyName("{{type.type}}")]
         public IEnumerable<JsonComponent> {{type.type}} { get; set; }
 
 {{ end }}
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonComponents() { }
 
+        /// <summary>
+        /// Initializes a new instance from a flat sequence of <paramref name="components"/>,
+        /// bucketing each one into the typed collection that matches its MTConnect type.
+        /// </summary>
         public JsonComponents(IEnumerable<IComponent> components)
         {
             if (!components.IsNullOrEmpty())
@@ -45,6 +64,10 @@ namespace MTConnect.Devices.Json
         }
 
 
+        /// <summary>
+        /// Flattens every typed component collection back into a single
+        /// <see cref="IComponent"/> sequence, restoring each item's MTConnect type.
+        /// </summary>
         public IEnumerable<IComponent> ToComponents()
         {
             var components = new List<IComponent>();
