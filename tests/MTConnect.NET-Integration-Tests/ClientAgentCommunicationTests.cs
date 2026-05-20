@@ -148,7 +148,27 @@ namespace MTConnect.Tests.Integration
                 new()
                 {
                     DeviceKey = _machineName,
-                    Hostname = "localhost",
+                    // Bind the in-process agent's adapter client to the IPv4
+                    // loopback literal so the SHDR connection never depends on
+                    // DNS resolution order. The Adapter side (this test's
+                    // ShdrIntervalAdapter) binds an IPv4-only listener via
+                    // TcpListener(IPAddress.Any, port) inside
+                    // AgentClientConnectionListener. The client side
+                    // (ShdrAdapterClient -> ShdrClient.ListenForAdapter)
+                    // constructs an IPv4-family TcpClient when the hostname
+                    // does not parse as an IPAddress (i.e. for "localhost",
+                    // GetIpAddressType returns InterNetwork by default), and
+                    // then calls TcpClient.Connect(hostname, port). On Windows
+                    // CI runners, "localhost" resolves to "::1" before
+                    // "127.0.0.1"; .NET's TcpClient.Connect(string, int) walks
+                    // every Dns.GetHostAddresses result and the IPv6 attempt on
+                    // an IPv4 socket can intermittently leave the connection in
+                    // an unestablished state without raising a fatal exception,
+                    // so subsequent writes from the adapter's worker silently
+                    // never reach the agent. Using the numeric loopback literal
+                    // (matching the server-side bind at line 168) bypasses DNS
+                    // entirely and removes that Windows-specific race.
+                    Hostname = IPAddress.Loopback.ToString(),
                     Port = _adapterPort
                 }
             };
