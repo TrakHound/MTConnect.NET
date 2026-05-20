@@ -1,0 +1,33 @@
+<Project>
+
+	<!--
+		Import the repository-root Directory.Build.props so its version,
+		copyright, and package metadata still apply to every library project.
+		MSBuild stops at the nearest Directory.Build.props by default, so the
+		root one is not picked up automatically once this file exists.
+	-->
+	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+	<!--
+		Every production library is a documented public API surface. Emit the
+		XML documentation file and promote the "missing XML comment" warning
+		(CS1591) to an error so an undocumented public member fails the build
+		instead of degrading silently into a warning. Scoped to libraries/*
+		only; test, build, and example projects keep the default behavior.
+	-->
+	<PropertyGroup>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<WarningsAsErrors>$(WarningsAsErrors);CS1591</WarningsAsErrors>
+
+		<!--
+			Deferred XML-doc warnings tracked in TrakHound/MTConnect.NET#171.
+			Surface only with GenerateDocumentationFile=true; pre-existing on
+			the master branch but only made visible by the docs gate. Demoted
+			here until the dedicated cleanup PR lands so the docs gate can
+			tighten CS1591 to error without dragging in the long-tail XML-doc
+			validation backlog.
+		-->
+		<NoWarn>$(NoWarn);CS0419;CS1570;CS1572;CS1573;CS1574;CS1584;CS1587;CS1711;CS1712;CS1734</NoWarn>
+	</PropertyGroup>
+
+</Project>
