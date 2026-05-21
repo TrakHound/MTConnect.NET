@@ -8,7 +8,6 @@ namespace MTConnect.Assets.Pallet
     /// </summary>
     public class LoadedLengthMeasurement : Measurement, ILoadedLengthMeasurement
     {
-        public new const string DescriptionText = "Loaded length of the PhysicalAsset";
         public const string TypeId = "LoadedLength";
         public const string CodeId = "";
 

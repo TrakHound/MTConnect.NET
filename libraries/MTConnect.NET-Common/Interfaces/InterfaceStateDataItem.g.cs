@@ -13,12 +13,12 @@ namespace MTConnect.Interfaces
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "INTERFACE_STATE";
         public const string NameId = "interfaceState";
-             
-        public new const string DescriptionText = "Operational state of an Interface.";
         
+        public new const string DescriptionText = "Operational state of an Interface.";
+
         public override string TypeDescription => DescriptionText;
         
-        public override System.Version MinimumVersion => MTConnectVersions.Version13;       
+        public override System.Version MinimumVersion => MTConnectVersions.Version13;
 
 
         public InterfaceStateDataItem()

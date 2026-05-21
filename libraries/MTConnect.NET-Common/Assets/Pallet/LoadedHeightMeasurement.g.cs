@@ -8,7 +8,6 @@ namespace MTConnect.Assets.Pallet
     /// </summary>
     public class LoadedHeightMeasurement : Measurement, ILoadedHeightMeasurement
     {
-        public new const string DescriptionText = "Loaded height of the PhysicalAsset";
         public const string TypeId = "LoadedHeight";
         public const string CodeId = "";
 
