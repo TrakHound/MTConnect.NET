@@ -171,6 +171,12 @@ export default withMermaid(
             ],
           },
           {
+            text: 'Agent processors',
+            items: [
+              { text: 'Python agent processor', link: '/modules/agent-processor-python' },
+            ],
+          },
+          {
             text: 'Adapter modules',
             items: [
               { text: 'SHDR output', link: '/modules/shdr-output' },

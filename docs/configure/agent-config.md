@@ -83,7 +83,7 @@ Default: `true`. Set false when a consumer is strict about device counts (some l
 
 ### `processors`
 
-A list of input processors that run on every observation before it enters the buffer. The shipped processor types include the Python processor (`python:`), which can run a per-observation Python transform via [Python.NET](https://pythonnet.github.io/).
+A list of input processors that run on every observation before it enters the buffer. The shipped processor types include the [Python processor](/modules/agent-processor-python) (`python:`), which runs a directory of [IronPython](https://ironpython.net/) scripts as per-observation transforms.
 
 ```yaml
 processors:

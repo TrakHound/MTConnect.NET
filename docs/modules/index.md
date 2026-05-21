@@ -49,6 +49,14 @@ These six modules ship under `agent/Modules/MTConnect.NET-AgentModule-*` and loa
 | [HTTP adapter](./http-adapter) | `http-adapter` | Polls or streams from another MTConnect agent's HTTP endpoints and feeds the observations into the local agent. |
 | [SHDR adapter](./shdr-adapter) | `shdr-adapter` | Reads SHDR-protocol input from one or more SHDR adapters and feeds observations into the agent. |
 
+## Agent processors — shipped
+
+Agent processors sit one hop earlier than modules: they run as a per-observation transform between the adapter intake and the buffer write, while modules surface the buffered observations to the outside world. The catalogue contains one shipped processor, loaded the same way as a module — by YAML key under `processors:` in the host's `agent.config.yaml`.
+
+| Processor | YAML key | Purpose |
+| --- | --- | --- |
+| [Python agent processor](./agent-processor-python) | `python` | Runs a directory of Python (IronPython) scripts as per-observation transforms; supports rewriting, deriving, and filtering observations. |
+
 ## Adapter modules — shipped
 
 These two modules ship under `adapter/Modules/MTConnect.NET-AdapterModule-*` and load into the standalone adapter application (`MTConnect.NET-Adapter` / `MTConnect.NET-Adapter-Application`).
