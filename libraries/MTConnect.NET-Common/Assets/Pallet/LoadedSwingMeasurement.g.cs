@@ -8,7 +8,6 @@ namespace MTConnect.Assets.Pallet
     /// </summary>
     public class LoadedSwingMeasurement : Measurement, ILoadedSwingMeasurement
     {
-        public new const string DescriptionText = "Loaded swing of the PhysicalAsset";
         public const string TypeId = "LoadedSwing";
         public const string CodeId = "";
 

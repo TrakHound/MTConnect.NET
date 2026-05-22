@@ -8,7 +8,6 @@ namespace MTConnect.Assets.Pallet
     /// </summary>
     public class SwingMeasurement : Measurement, ISwingMeasurement
     {
-        public new const string DescriptionText = "Swing of the PhysicalAsset";
         public const string TypeId = "Swing";
         public const string CodeId = "";
 

@@ -8,7 +8,6 @@ namespace MTConnect.Assets.Pallet
     /// </summary>
     public class WidthMeasurement : Measurement, IWidthMeasurement
     {
-        public new const string DescriptionText = "Width of the PhysicalAsset";
         public const string TypeId = "Width";
         public const string CodeId = "";
 

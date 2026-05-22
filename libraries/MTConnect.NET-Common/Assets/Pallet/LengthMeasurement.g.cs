@@ -8,7 +8,6 @@ namespace MTConnect.Assets.Pallet
     /// </summary>
     public class LengthMeasurement : Measurement, ILengthMeasurement
     {
-        public new const string DescriptionText = "Length of the PhysicalAsset";
         public const string TypeId = "Length";
         public const string CodeId = "";
 
