@@ -22,6 +22,33 @@ namespace MTConnect.SysML
 
         public bool IsArray { get; set; }
 
+        /// <summary>
+        /// True when the property's <see cref="Name"/> hides an inherited member on
+        /// the generated <em>class</em> declaration. Model.scriban and the
+        /// DataSetResults template emit a <c>new</c> modifier on the property when
+        /// this is set, suppressing CS0108 ("hides inherited member; use the new
+        /// keyword if hiding was intended"). Populated by the per-renderer
+        /// inheritance pass — the SysML-declared parent chain plus hand-stitched
+        /// seeds for class-side inheritance links the SysML model does not express
+        /// (the hand-written <c>Observation</c> base of every DataSetResult).
+        /// </summary>
+        public bool IsInherited { get; set; }
+
+        /// <summary>
+        /// True when the property's <see cref="Name"/> hides an inherited member on
+        /// the generated <em>interface</em> declaration. Interface.scriban emits a
+        /// <c>new</c> modifier on the property when this is set, suppressing the
+        /// same CS0108. Separate from <see cref="IsInherited"/> because the
+        /// inheritance picture can diverge between the class and interface sides —
+        /// e.g. <c>IComposition</c>'s hand-written partial extends <c>IContainer</c>
+        /// (interface hides <c>Type</c>) but <c>Composition</c>'s hand-written
+        /// partial does not extend <c>Container</c> as a class base (the class does
+        /// not hide). The renderer's inheritance walk seeds both flags from the
+        /// SysML chain and adds interface-only seeds where the hand-written
+        /// interface partial extends a base the class does not.
+        /// </summary>
+        public bool IsInheritedInInterface { get; set; }
+
 
         public MTConnectPropertyModel() { }
 

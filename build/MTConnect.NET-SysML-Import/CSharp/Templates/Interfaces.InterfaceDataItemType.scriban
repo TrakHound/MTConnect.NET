@@ -75,7 +75,7 @@ namespace MTConnect.Interfaces
 {{- end }}
 {{- if ((sub_types | array.size) > 0) }}{{ i = 0 }}
 
-        public new static string GetSubTypeId(SubTypes subType)
+        public static string GetSubTypeId(SubTypes subType)
         {
             switch (subType)
             {

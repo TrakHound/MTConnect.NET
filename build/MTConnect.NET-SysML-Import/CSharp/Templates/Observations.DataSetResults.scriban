@@ -12,7 +12,7 @@ namespace {{namespace}}
         /// <summary>
         /// {{property.description}}
         /// </summary>
-        public {{property.data_type}} {{property.name}} 
+        public {{ if (property.is_inherited) }}new {{ end }}{{property.data_type}} {{property.name}} 
         { 
             get => GetValue<{{property.data_type}}>("DataSet[{{property.name}}]");
             set => AddValue("DataSet[{{property.name}}]", value);

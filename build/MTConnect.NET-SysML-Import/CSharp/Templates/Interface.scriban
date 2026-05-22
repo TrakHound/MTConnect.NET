@@ -12,8 +12,8 @@ namespace {{namespace}}
         /// <summary>
         /// {{property.description}}
         /// </summary>
-        {{ if (property.is_array) }}System.Collections.Generic.IEnumerable<{{property.data_type}}> {{property.name}} { get; }{{ end }}
-        {{- if (!property.is_array) }}{{property.data_type}}{{ if (property.is_optional) }}?{{ end }} {{property.name}} { get; }{{ end }}
+        {{ if (property.is_array) }}{{ if (property.is_inherited_in_interface) }}new {{ end }}System.Collections.Generic.IEnumerable<{{property.data_type}}> {{property.name}} { get; }{{ end }}
+        {{- if (!property.is_array) }}{{ if (property.is_inherited_in_interface) }}new {{ end }}{{property.data_type}}{{ if (property.is_optional) }}?{{ end }} {{property.name}} { get; }{{ end }}
         {{- if (i < (properties | array.size)) }}
         {{ end }}{{ end }}
 {{- end }}
