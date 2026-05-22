@@ -9,6 +9,7 @@ using MTConnect.Devices;
 using MTConnect.Errors;
 using MTConnect.Formatters;
 using MTConnect.Headers;
+using MTConnect.Mqtt;
 using MTConnect.Observations;
 using MTConnect.Streams;
 using System;
@@ -464,7 +465,7 @@ namespace MTConnect.Clients
 
         private void ProcessProbeMessage(MqttApplicationMessage message)
         {
-            using (var contentStream = new MemoryStream(message.Payload))
+            using (var contentStream = new MemoryStream(message.GetPayload()))
             {
                 var result = ResponseDocumentFormatter.CreateDevicesResponseDocument(_documentFormat, contentStream);
                 if (result.Success)
@@ -499,7 +500,7 @@ namespace MTConnect.Clients
         {
             if (!message.Retain)
             {
-                using (var contentStream = new MemoryStream(message.Payload))
+                using (var contentStream = new MemoryStream(message.GetPayload()))
                 {
                     var result = ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, contentStream);
                     if (result.Success)
@@ -514,7 +515,7 @@ namespace MTConnect.Clients
         {
             if (!message.Retain)
             {
-                using (var contentStream = new MemoryStream(message.Payload))
+                using (var contentStream = new MemoryStream(message.GetPayload()))
                 {
                     var result = ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, contentStream);
                     if (result.Success)
@@ -527,7 +528,7 @@ namespace MTConnect.Clients
 
         private void ProcessAssetMessage(MqttApplicationMessage message)
         {
-            using (var contentStream = new MemoryStream(message.Payload))
+            using (var contentStream = new MemoryStream(message.GetPayload()))
             {
                 var result = ResponseDocumentFormatter.CreateAssetsResponseDocument(_documentFormat, contentStream);
                 if (result.Success)

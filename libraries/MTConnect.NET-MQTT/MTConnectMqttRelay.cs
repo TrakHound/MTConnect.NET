@@ -185,15 +185,12 @@ namespace MTConnect.Mqtt
 #endif
 
                             clientOptionsBuilder.WithCleanSession();
-                            clientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters()
-                            {
-                                UseTls = true,
-                                SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
-                                IgnoreCertificateRevocationErrors = AllowUntrustedCertificates,
-                                IgnoreCertificateChainErrors = AllowUntrustedCertificates,
-                                AllowUntrustedCertificates = AllowUntrustedCertificates,
-                                Certificates = certificates
-                            });
+                            clientOptionsBuilder.WithTlsOptions(b => b
+                                .WithSslProtocols(System.Security.Authentication.SslProtocols.Tls12)
+                                .WithIgnoreCertificateRevocationErrors(AllowUntrustedCertificates)
+                                .WithIgnoreCertificateChainErrors(AllowUntrustedCertificates)
+                                .WithAllowUntrustedCertificates(AllowUntrustedCertificates)
+                                .WithClientCertificates(certificates));
                         }
 
                         // Add Credentials
@@ -201,7 +198,7 @@ namespace MTConnect.Mqtt
                         {
                             if (_configuration.UseTls)
                             {
-                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password).WithTls();
+                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password).WithTlsOptions(b => { });
                             }
                             else
                             {
@@ -295,7 +292,7 @@ namespace MTConnect.Mqtt
             {
                 foreach (var message in messages)
                 {
-                    if (message != null && message.Payload != null)
+                    if (message != null && message.HasPayload())
                     {
                         await Publish(message);
                     }
@@ -310,7 +307,7 @@ namespace MTConnect.Mqtt
             {
                 foreach (var message in messages)
                 {
-                    if (message != null && message.Payload != null)
+                    if (message != null && message.HasPayload())
                     {
                         await Publish(message);
                     }
@@ -360,7 +357,7 @@ namespace MTConnect.Mqtt
             if (observation.Category != Devices.DataItemCategory.CONDITION)
             {
                 var message = MTConnectMqttMessage.Create(observation, Format, _documentFormat, RetainMessages, interval);
-                if (message != null && message.Payload != null) await Publish(message);
+                if (message != null && message.HasPayload()) await Publish(message);
             }
             else
             {
@@ -383,7 +380,7 @@ namespace MTConnect.Mqtt
                         }
 
                         var message = MTConnectMqttMessage.Create(x, Format, _documentFormat, RetainMessages, interval);
-                        if (message != null && message.Payload != null) await Publish(message);
+                        if (message != null && message.HasPayload()) await Publish(message);
                     }
                 }
             }

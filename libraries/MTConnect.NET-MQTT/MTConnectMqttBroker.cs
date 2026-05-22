@@ -209,7 +209,7 @@ namespace MTConnect.Mqtt
             {
                 foreach (var message in messages)
                 {
-                    if (message != null && message.Payload != null)
+                    if (message != null && message.HasPayload())
                     {
                         await Publish(message);
                     }
@@ -224,7 +224,7 @@ namespace MTConnect.Mqtt
             {
                 foreach (var message in messages)
                 {
-                    if (message != null && message.Payload != null)
+                    if (message != null && message.HasPayload())
                     {
                         await Publish(message);
                     }
@@ -274,7 +274,7 @@ namespace MTConnect.Mqtt
             if (observation.Category != Devices.DataItemCategory.CONDITION)
             {
                 var message = MTConnectMqttMessage.Create(observation, Format, _documentFormat, RetainMessages, interval);
-                if (message != null && message.Payload != null) await Publish(message);
+                if (message != null && message.HasPayload()) await Publish(message);
             }
             else
             {
@@ -297,7 +297,7 @@ namespace MTConnect.Mqtt
                         }
 
                         var message = MTConnectMqttMessage.Create(x, Format, _documentFormat, RetainMessages, interval);
-                        if (message != null && message.Payload != null) await Publish(message);
+                        if (message != null && message.HasPayload()) await Publish(message);
                     }
                 }
             }

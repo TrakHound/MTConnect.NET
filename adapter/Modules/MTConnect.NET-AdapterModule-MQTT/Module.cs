@@ -91,15 +91,12 @@ namespace MTConnect
                             throw new Exception("PEM Certificates Not Supported in .NET Framework 4.8 or older");
 #endif
 
-                            clientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters()
-                            {
-                                UseTls = true,
-                                SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
-                                IgnoreCertificateRevocationErrors = _configuration.AllowUntrustedCertificates,
-                                IgnoreCertificateChainErrors = _configuration.AllowUntrustedCertificates,
-                                AllowUntrustedCertificates = _configuration.AllowUntrustedCertificates,
-                                Certificates = certificates
-                            });
+                            clientOptionsBuilder.WithTlsOptions(b => b
+                                .WithSslProtocols(System.Security.Authentication.SslProtocols.Tls12)
+                                .WithIgnoreCertificateRevocationErrors(_configuration.AllowUntrustedCertificates)
+                                .WithIgnoreCertificateChainErrors(_configuration.AllowUntrustedCertificates)
+                                .WithAllowUntrustedCertificates(_configuration.AllowUntrustedCertificates)
+                                .WithClientCertificates(certificates));
                         }
 
                         // Add Credentials
@@ -107,7 +104,7 @@ namespace MTConnect
                         {
                             if (_configuration.UseTls)
                             {
-                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password).WithTls();
+                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password).WithTlsOptions(b => { });
                             }
                             else
                             {
