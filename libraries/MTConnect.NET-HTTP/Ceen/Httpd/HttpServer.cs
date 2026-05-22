@@ -2,6 +2,7 @@
 using System.Net;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Security.Cryptography.X509Certificates;
@@ -171,6 +172,7 @@ namespace Ceen.Httpd
 			/// <param name="socket">The socket handle.</param>
 			/// <param name="remoteEndPoint">The remote endpoint.</param>
 			/// <param name="logtaskid">The task ID to use.</param>
+			[SupportedOSPlatform("windows")]
 			public void HandleRequest(SocketInformation socket, EndPoint remoteEndPoint, string logtaskid)
 			{
 				RunClient(socket, remoteEndPoint, logtaskid, Controller);
@@ -862,6 +864,7 @@ namespace Ceen.Httpd
 		/// <param name="remoteEndPoint">The remote endpoint.</param>
 		/// <param name="logtaskid">The log task ID.</param>
 		/// <param name="controller">The controller instance</param>
+		[SupportedOSPlatform("windows")]
 		private static void RunClient(SocketInformation socketinfo, EndPoint remoteEndPoint, string logtaskid, RunnerControl controller)
 		{
 			RunClient(new Socket(socketinfo), remoteEndPoint, logtaskid, controller);

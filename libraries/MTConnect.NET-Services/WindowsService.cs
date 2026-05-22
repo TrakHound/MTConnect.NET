@@ -3,11 +3,13 @@
 
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Security.Principal;
 using System.ServiceProcess;
 
 namespace MTConnect.Services
 {
+    [SupportedOSPlatform("windows")]
     internal static class WindowsService
     {
         public static bool ServiceExists(string serviceName)

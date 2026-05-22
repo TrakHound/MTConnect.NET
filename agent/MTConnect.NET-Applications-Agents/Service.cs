@@ -3,12 +3,14 @@
 
 using MTConnect.Services;
 using NLog;
+using System.Runtime.Versioning;
 
 namespace MTConnect.Applications
 {
     /// <summary>
     /// Class used to implement a Windows Service for an MTConnect Agent Application
     /// </summary>
+    [SupportedOSPlatform("windows")]
     public class Service : MTConnectAgentService
     {
         private static readonly Logger _serviceLogger = LogManager.GetLogger("service-logger");
