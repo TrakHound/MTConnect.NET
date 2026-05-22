@@ -148,7 +148,27 @@ namespace MTConnect.Tests.Integration
                 new()
                 {
                     DeviceKey = _machineName,
-                    Hostname = "localhost",
+                    // Bind the in-process agent's adapter client to the IPv4
+                    // loopback literal so the SHDR connection never depends on
+                    // DNS resolution order. The Adapter side (this test's
+                    // ShdrIntervalAdapter) binds an IPv4-only listener via
+                    // TcpListener(IPAddress.Any, port) inside
+                    // AgentClientConnectionListener. The client side
+                    // (ShdrAdapterClient -> ShdrClient.ListenForAdapter)
+                    // constructs an IPv4-family TcpClient when the hostname
+                    // does not parse as an IPAddress (i.e. for "localhost",
+                    // GetIpAddressType returns InterNetwork by default), and
+                    // then calls TcpClient.Connect(hostname, port). On Windows
+                    // CI runners, "localhost" resolves to "::1" before
+                    // "127.0.0.1"; .NET's TcpClient.Connect(string, int) walks
+                    // every Dns.GetHostAddresses result and the IPv6 attempt on
+                    // an IPv4 socket can intermittently leave the connection in
+                    // an unestablished state without raising a fatal exception,
+                    // so subsequent writes from the adapter's worker silently
+                    // never reach the agent. Using the numeric loopback literal
+                    // (matching the server-side bind at line 168) bypasses DNS
+                    // entirely and removes that Windows-specific race.
+                    Hostname = IPAddress.Loopback.ToString(),
                     Port = _adapterPort
                 }
             };
@@ -507,18 +527,49 @@ namespace MTConnect.Tests.Integration
             var cts = new CancellationTokenSource();
             cts.CancelAfter(c_testCancelTimeout);
 
-            // Completes on the first Current document the client receives.
-            // The client's worker runs the Probe + Current requests before it
-            // opens the long-lived Sample stream, and pins the Sample stream's
-            // starting sequence to the Current response's NextSequence. A data
-            // item added before the Current request is served therefore lands
-            // in the Current document and is skipped past by that NextSequence,
-            // so it never reaches the Sample stream. Waiting for the first
-            // CurrentReceived (instead of a fixed sleep) deterministically
-            // proves the Current request has been served, so the data item
-            // added afterwards is guaranteed a sequence at or above the Sample
-            // stream's start and is delivered on the Sample path.
+            // The test must drop a sample on a fully live Sample stream and
+            // verify it is delivered. Three sequence points need to be proved,
+            // in order, before the assertion is meaningful:
+            //
+            //   1. The client's Current request has been served. The client's
+            //      worker runs Probe + Current before it opens the long-lived
+            //      Sample stream, and pins the Sample stream's starting
+            //      sequence to the Current response's NextSequence. A data
+            //      item added before that point lands in the Current document
+            //      and is skipped past by NextSequence, so it never reaches
+            //      the Sample stream. CurrentReceived gives us a deterministic
+            //      "Current is served" signal.
+            //
+            //   2. The Sample stream is actually round-tripping documents
+            //      with the server. Neither CurrentReceived nor the client's
+            //      StreamStarted event proves this: StreamStarted is raised
+            //      on the client before the HTTP GET is even sent, and the
+            //      server's stream worker is constructed on a separate task
+            //      that may not yet be in its polling loop. The only
+            //      client-side primitive that proves the stream is fully
+            //      live (HTTP request received, server stream worker
+            //      polling, first multipart chunk delivered and parsed) is
+            //      SampleReceived firing with a non-empty Streams element.
+            //      That requires an observation to exist at or above the
+            //      stream's from= sequence; the agent has none until we add
+            //      one, so the server would otherwise emit only heartbeat
+            //      chunks (every Heartbeat ms) and SampleReceived would
+            //      never fire. We therefore publish a benign sentinel
+            //      observation ("avail" = AVAILABLE, a data item that already
+            //      sits at UNAVAILABLE in the devices template) to force a
+            //      document chunk through the live stream.
+            //
+            //   3. The sample under test has been published. With (1) and (2)
+            //      pinned, this is the only remaining variable: the agent
+            //      assigns servotemp1=120 a monotonically later sequence, and
+            //      the server's next polling tick (at the configured Sample
+            //      Interval) is guaranteed to include it in the next chunk.
+            //
+            // All three sequence points are bounded by the test-wide token so
+            // a genuine hang at any stage fails fast with a clear message.
             var currentReady = new TaskCompletionSource<bool>(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+            var sampleStreamLive = new TaskCompletionSource<bool>(
                 TaskCreationOptions.RunContinuationsAsynchronously);
 
             void OnCurrent(object? sender, IStreamsResponseDocument document)
@@ -535,6 +586,10 @@ namespace MTConnect.Tests.Integration
                 {
                     return;
                 }
+
+                // First non-empty Sample document proves the stream is
+                // fully round-tripping with the server.
+                sampleStreamLive.TrySetResult(true);
 
                 foreach (var observation in document.GetObservations())
                 {
@@ -556,10 +611,7 @@ namespace MTConnect.Tests.Integration
                 throw new XunitException("Client is null.");
             }
 
-            // Wait until the Current request has provably been served rather
-            // than guessing with a fixed delay. Bounded by the test-wide
-            // timeout so a client that never reaches the Current request fails
-            // fast with a clear message instead of racing.
+            // (1) Wait until the Current request has provably been served.
             using (cts.Token.Register(() => currentReady.TrySetCanceled()))
             {
                 try
@@ -573,6 +625,30 @@ namespace MTConnect.Tests.Integration
                 }
             }
 
+            // (2) Force a document chunk through the Sample stream by
+            // publishing a sentinel observation, then wait for the first
+            // SampleReceived. "avail" sits at UNAVAILABLE in the devices
+            // template, so flipping it to AVAILABLE is a genuine change
+            // that survives the agent's duplicate filter. The agent always
+            // assigns monotonically increasing sequences, so this sentinel
+            // lands at or above the Sample stream's from= and is guaranteed
+            // to be emitted on the next server polling tick.
+            _adapter.AddDataItem(new ShdrDataItem("avail", "AVAILABLE"));
+
+            using (cts.Token.Register(() => sampleStreamLive.TrySetCanceled()))
+            {
+                try
+                {
+                    await sampleStreamLive.Task;
+                }
+                catch (OperationCanceledException)
+                {
+                    throw new XunitException(
+                        $"Sample stream did not deliver any document within {c_testCancelTimeout} ms.");
+                }
+            }
+
+            // (3) Publish the sample under test on the now-live stream.
             _adapter.AddDataItem(new ShdrDataItem("servotemp1", 120));
 
             Assert.True(observationEvt.WaitOne(c_assertionWaitTimeout));
