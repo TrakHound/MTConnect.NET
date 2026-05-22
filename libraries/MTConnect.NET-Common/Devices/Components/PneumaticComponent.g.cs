@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version11; 
 
 
-        public PneumaticComponent() 
-        { 
+        public PneumaticComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

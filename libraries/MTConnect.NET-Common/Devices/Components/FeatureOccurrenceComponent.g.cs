@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version22; 
 
 
-        public FeatureOccurrenceComponent() 
-        { 
+        public FeatureOccurrenceComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

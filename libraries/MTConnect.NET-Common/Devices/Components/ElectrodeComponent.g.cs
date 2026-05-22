@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version26; 
 
 
-        public ElectrodeComponent() 
-        { 
+        public ElectrodeComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

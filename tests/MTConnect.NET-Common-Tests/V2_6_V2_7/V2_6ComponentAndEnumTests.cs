@@ -27,8 +27,9 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
         {
             var c = new CuttingTorchComponent();
             Assert.That(c.Type, Is.EqualTo("CuttingTorch"));
-            Assert.That(c.Name, Is.EqualTo("cuttingTorch"));
+            Assert.That(c.Name, Is.Null);
             Assert.That(CuttingTorchComponent.TypeId, Is.EqualTo("CuttingTorch"));
+            Assert.That(CuttingTorchComponent.NameId, Is.EqualTo("cuttingTorch"));
         }
 
         // Source: XMI v2.6 UML `Electrode` (Component Types); XSD v2.6
@@ -38,8 +39,9 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
         {
             var c = new ElectrodeComponent();
             Assert.That(c.Type, Is.EqualTo("Electrode"));
-            Assert.That(c.Name, Is.EqualTo("electrode"));
+            Assert.That(c.Name, Is.Null);
             Assert.That(ElectrodeComponent.TypeId, Is.EqualTo("Electrode"));
+            Assert.That(ElectrodeComponent.NameId, Is.EqualTo("electrode"));
         }
 
         // Source: XMI v2.6 enum `MediaTypeEnum` member `QIF_MBD`. XSD v2.6 lists

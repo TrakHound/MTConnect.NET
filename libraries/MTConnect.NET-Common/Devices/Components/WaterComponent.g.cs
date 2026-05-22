@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public WaterComponent() 
-        { 
+        public WaterComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version17; 
 
 
-        public VacuumComponent() 
-        { 
+        public VacuumComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

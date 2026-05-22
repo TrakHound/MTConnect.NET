@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version15; 
 
 
-        public ReelComponent() 
-        { 
+        public ReelComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

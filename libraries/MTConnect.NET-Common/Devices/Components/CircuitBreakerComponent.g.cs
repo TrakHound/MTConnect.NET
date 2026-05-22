@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public CircuitBreakerComponent() 
-        { 
+        public CircuitBreakerComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

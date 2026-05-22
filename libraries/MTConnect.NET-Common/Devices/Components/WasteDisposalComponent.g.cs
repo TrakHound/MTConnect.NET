@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public WasteDisposalComponent() 
-        { 
+        public WasteDisposalComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

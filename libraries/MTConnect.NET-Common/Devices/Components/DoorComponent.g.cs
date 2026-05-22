@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version11; 
 
 
-        public DoorComponent() 
-        { 
+        public DoorComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

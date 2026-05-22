@@ -100,13 +100,13 @@ public class Module : MTConnectInputAgentModule
     private void AddController(Device device)
     {
         // Create a Controller Component
-        var controller = new ControllerComponent();
+        var controller = new ControllerComponent { Name = ControllerComponent.NameId };
 
         // Add an EmergencyStop DataItem to the controller component
         controller.AddDataItem<EmergencyStopDataItem>();
 
         // Create a Path Component
-        var path = new PathComponent();
+        var path = new PathComponent { Name = PathComponent.NameId };
 
         // Add Path DataItems
         path.AddDataItem<ControllerModeDataItem>();
@@ -124,8 +124,8 @@ public class Module : MTConnectInputAgentModule
 
     private void AddAxes(Device device)
     {
-        // Create a Axes Component
-        var axes = new AxesComponent();
+        // Create an Axes Component
+        var axes = new AxesComponent { Name = AxesComponent.NameId };
 
         AddLinearAxis(axes, "X");
         AddLinearAxis(axes, "Y");
@@ -138,8 +138,7 @@ public class Module : MTConnectInputAgentModule
     private void AddLinearAxis(AxesComponent axesComponent, string name)
     {
         // Create a Linear Component
-        var axis = new LinearComponent();
-        axis.Name = name;
+        var axis = new LinearComponent { Name = name };
 
         axis.AddDataItem<PositionDataItem>(PositionDataItem.SubTypes.PROGRAMMED);
         axis.AddDataItem<PositionDataItem>(PositionDataItem.SubTypes.ACTUAL);
