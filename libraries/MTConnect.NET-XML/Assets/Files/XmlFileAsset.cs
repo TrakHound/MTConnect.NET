@@ -122,7 +122,7 @@ namespace MTConnect.Assets.Xml.Files
             return asset;
         }
 
-        public static void WriteXml(XmlWriter writer, IAsset asset)
+        public static new void WriteXml(XmlWriter writer, IAsset asset)
         {
             if (asset != null)
             {

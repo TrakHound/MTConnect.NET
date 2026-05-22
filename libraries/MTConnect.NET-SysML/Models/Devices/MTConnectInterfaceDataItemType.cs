@@ -13,7 +13,7 @@ namespace MTConnect.SysML.Models.Devices
             : base(xmiDocument, category, idPrefix, umlClass, umlEnumerationLiteral, subClasses) { }
 
 
-        public static IEnumerable<MTConnectInterfaceDataItemType> Parse(XmiDocument xmiDocument, string category, string idPrefix, IEnumerable<UmlClass> umlClasses, UmlEnumeration umlEnumeration)
+        public static new IEnumerable<MTConnectInterfaceDataItemType> Parse(XmiDocument xmiDocument, string category, string idPrefix, IEnumerable<UmlClass> umlClasses, UmlEnumeration umlEnumeration)
         {
             var types = new List<MTConnectInterfaceDataItemType>();
 

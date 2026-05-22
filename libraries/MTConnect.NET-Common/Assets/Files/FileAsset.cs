@@ -8,7 +8,7 @@ namespace MTConnect.Assets.Files
 {
     public partial class FileAsset
     {
-        public const string TypeId = "File";
+        public new const string TypeId = "File";
 
 
         public FileAsset()

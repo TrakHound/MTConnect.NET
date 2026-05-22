@@ -67,8 +67,8 @@ namespace MTConnect.SysML.CSharp
             return template.Render(this);
         }
 
-        public string RenderInterface() => null;
+        public new string RenderInterface() => null;
 
-        public string RenderDescriptions() => null;
+        public new string RenderDescriptions() => null;
     }
 }

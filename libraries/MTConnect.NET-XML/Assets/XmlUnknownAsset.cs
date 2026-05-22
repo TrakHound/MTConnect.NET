@@ -17,7 +17,7 @@ namespace MTConnect.Assets.Xml
         public string Xml { get; set; }
 
 
-        public static IAsset FromXml(string type, byte[] xmlBytes)
+        public static new IAsset FromXml(string type, byte[] xmlBytes)
         {
             var asset = Asset.Create(type);
             if (asset != null)

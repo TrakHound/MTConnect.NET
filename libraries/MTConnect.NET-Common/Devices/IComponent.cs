@@ -10,7 +10,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// The type of component
         /// </summary>
-        string Type { get; }
+        new string Type { get; }
 
         bool IsOrganizer { get; }
 
