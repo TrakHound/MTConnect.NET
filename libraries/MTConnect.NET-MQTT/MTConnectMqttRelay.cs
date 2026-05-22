@@ -63,7 +63,9 @@ namespace MTConnect.Mqtt
 
         public event EventHandler Disconnected;
 
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler<string> MessageSent;
+        #pragma warning restore CS0067
 
         public event EventHandler<Exception> ConnectionError;
 

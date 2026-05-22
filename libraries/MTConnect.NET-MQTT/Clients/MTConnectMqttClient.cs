@@ -74,17 +74,23 @@ namespace MTConnect.Clients
         /// <summary>
         /// Raised when the connection to the MQTT broker is established
         /// </summary>
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler Connected;
+        #pragma warning restore CS0067
 
         /// <summary>
         /// Raised when the connection to the MQTT broker is disconnected 
         /// </summary>
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler Disconnected;
+        #pragma warning restore CS0067
 
         /// <summary>
         /// Raised when the status of the connection to the MQTT broker has changed
         /// </summary>
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler<MTConnectMqttConnectionStatus> ConnectionStatusChanged;
+        #pragma warning restore CS0067
 
         /// <summary>
         /// Raised when an error occurs during connection to the MQTT broker
@@ -134,7 +140,9 @@ namespace MTConnect.Clients
         /// <summary>
         /// Raised when an MTConnectError Document is received
         /// </summary>
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler<IErrorResponseDocument> MTConnectError;
+        #pragma warning restore CS0067
 
         /// <summary>
         /// Raised when any MQTT Message is received

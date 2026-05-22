@@ -95,7 +95,9 @@ namespace MTConnect.Adapters
         /// <summary>
         /// Raised when an error occurs during an existing Agent connection. Includes the AgentClient ID as an argument.
         /// </summary>
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler<string> AgentConnectionError;
+        #pragma warning restore CS0067
 
 
         /// <summary>
@@ -116,7 +118,9 @@ namespace MTConnect.Adapters
         /// <summary>
         /// Raised when new data is sent to the Agent. Includes the AgentClient ID and the Line sent as an argument.
         /// </summary>
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler<AdapterEventArgs<string>> DataSent;
+        #pragma warning restore CS0067
 
         /// <summary>
         /// Raised when an error occurs when sending a new line to the Agent. Includes the AgentClient ID and the Error message as an argument.

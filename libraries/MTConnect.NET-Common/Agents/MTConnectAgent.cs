@@ -165,7 +165,9 @@ namespace MTConnect.Agents
         /// <summary>
         /// Raised when a new Asset is attempted to be added to the Agent
         /// </summary>
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler<IAsset> AssetReceived;
+        #pragma warning restore CS0067
 
         /// <summary>
         /// Raised when a new Asset is added to the Agent

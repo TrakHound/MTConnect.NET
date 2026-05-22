@@ -92,9 +92,13 @@ namespace MTConnect.Clients
 
         public MTConnectMqttConnectionStatus ConnectionStatus => _connectionStatus;
 
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler Connected;
+        #pragma warning restore CS0067
 
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler Disconnected;
+        #pragma warning restore CS0067
 
         public event EventHandler<MTConnectMqttConnectionStatus> ConnectionStatusChanged;
 
