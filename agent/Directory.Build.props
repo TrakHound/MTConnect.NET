@@ -1,6 +1,25 @@
 <Project>
+
+	<!--
+		Import the repository-root Directory.Build.props so its version,
+		copyright, and package metadata still apply to every agent
+		project. MSBuild stops at the nearest Directory.Build.props by
+		default, so the root one is not picked up automatically once
+		this file exists.
+	-->
 	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+	<!--
+		Every agent project ships against an end-user-facing public
+		API surface. Emit the XML documentation file and promote the
+		"missing XML comment" warning (CS1591) to an error so an
+		undocumented public member fails the build instead of
+		degrading silently into a warning. Matches the policy in
+		libraries/Directory.Build.props for the library tier.
+	-->
 	<PropertyGroup>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<WarningsAsErrors>$(WarningsAsErrors);CS1591</WarningsAsErrors>
 	</PropertyGroup>
+
 </Project>

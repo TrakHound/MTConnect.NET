@@ -1,6 +1,25 @@
 <Project>
+
+	<!--
+		Import the repository-root Directory.Build.props so its version,
+		copyright, and package metadata still apply to every build
+		project. MSBuild stops at the nearest Directory.Build.props by
+		default, so the root one is not picked up automatically once
+		this file exists.
+	-->
 	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+	<!--
+		Every build/* project is a contributor-facing tooling surface
+		(SysML importer, release builder, docs generator). Emit the XML
+		documentation file and promote the "missing XML comment"
+		warning (CS1591) to an error so an undocumented public member
+		fails the build instead of degrading silently into a warning.
+		Matches the policy in libraries/Directory.Build.props.
+	-->
 	<PropertyGroup>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<WarningsAsErrors>$(WarningsAsErrors);CS1591</WarningsAsErrors>
 	</PropertyGroup>
+
 </Project>
