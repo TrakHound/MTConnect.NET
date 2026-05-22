@@ -64,7 +64,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Applications-
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Applications-Adapter", "adapter\MTConnect.NET-Applications-Adapter\MTConnect.NET-Applications-Adapter.csproj", "{59076253-A3F6-42C7-96CD-E001008ED70E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "tests\IntegrationTests\IntegrationTests.csproj", "{50649CF1-7DD2-42CC-9721-A941750210F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Integration-Tests", "tests\MTConnect.NET-Integration-Tests\MTConnect.NET-Integration-Tests.csproj", "{50649CF1-7DD2-42CC-9721-A941750210F0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Common-Tests", "tests\MTConnect.NET-Common-Tests\MTConnect.NET-Common-Tests.csproj", "{C0BBADFF-D741-4FEB-8235-9335F58FB55E}"
 EndProject
@@ -132,6 +132,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect-Compliance-Tests", "tests\Compliance\MTConnect-Compliance-Tests\MTConnect-Compliance-Tests.csproj", "{37320C1F-5E50-4CDF-B00D-0E0ADB4F1AE6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-AgentModule-MqttRelay-Tests", "tests\MTConnect.NET-AgentModule-MqttRelay-Tests\MTConnect.NET-AgentModule-MqttRelay-Tests.csproj", "{E726EF85-4464-47D9-91EF-AD435D14F9D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-Tests-Agents", "tests\MTConnect.NET-Tests-Agents\MTConnect.NET-Tests-Agents.csproj", "{AE09D1CA-5572-40BF-B984-74230E8634E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-HTTP-Tests", "tests\MTConnect.NET-HTTP-Tests\MTConnect.NET-HTTP-Tests.csproj", "{3E89B860-A428-470C-8E48-0DDABC4027F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -469,6 +473,22 @@ Global
 		{E726EF85-4464-47D9-91EF-AD435D14F9D6}.Package|Any CPU.Build.0 = Debug|Any CPU
 		{E726EF85-4464-47D9-91EF-AD435D14F9D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E726EF85-4464-47D9-91EF-AD435D14F9D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE09D1CA-5572-40BF-B984-74230E8634E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE09D1CA-5572-40BF-B984-74230E8634E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE09D1CA-5572-40BF-B984-74230E8634E1}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE09D1CA-5572-40BF-B984-74230E8634E1}.Docker|Any CPU.Build.0 = Debug|Any CPU
+		{AE09D1CA-5572-40BF-B984-74230E8634E1}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE09D1CA-5572-40BF-B984-74230E8634E1}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{AE09D1CA-5572-40BF-B984-74230E8634E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE09D1CA-5572-40BF-B984-74230E8634E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E89B860-A428-470C-8E48-0DDABC4027F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E89B860-A428-470C-8E48-0DDABC4027F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E89B860-A428-470C-8E48-0DDABC4027F0}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E89B860-A428-470C-8E48-0DDABC4027F0}.Docker|Any CPU.Build.0 = Debug|Any CPU
+		{3E89B860-A428-470C-8E48-0DDABC4027F0}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E89B860-A428-470C-8E48-0DDABC4027F0}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{3E89B860-A428-470C-8E48-0DDABC4027F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E89B860-A428-470C-8E48-0DDABC4027F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -521,6 +541,8 @@ Global
 		{94E2A2D0-71FD-4563-B1A3-FC58136017E0} = {14375E03-6BF8-45E6-B868-D2399368992B}
 		{37320C1F-5E50-4CDF-B00D-0E0ADB4F1AE6} = {94E2A2D0-71FD-4563-B1A3-FC58136017E0}
 		{E726EF85-4464-47D9-91EF-AD435D14F9D6} = {14375E03-6BF8-45E6-B868-D2399368992B}
+		{AE09D1CA-5572-40BF-B984-74230E8634E1} = {14375E03-6BF8-45E6-B868-D2399368992B}
+		{3E89B860-A428-470C-8E48-0DDABC4027F0} = {14375E03-6BF8-45E6-B868-D2399368992B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CC13D3AD-18BF-4695-AB2A-087EF0885B20}

@@ -1,0 +1,36 @@
+{
+  "_description": "Runtime-only fields stripped from cppagent and MT.NET envelopes before the parity diff. Each pattern is an XPath-style expression naming an attribute or element whose value depends on the host implementation, the wall-clock at request time, the buffer size advertised by the running agent, or the agent assembly's hash.",
+  "headerAttributes": [
+    "creationTime",
+    "sender",
+    "instanceId",
+    "version",
+    "deviceModelChangeTime",
+    "assetBufferSize",
+    "assetCount",
+    "bufferSize",
+    "firstSequence",
+    "lastSequence",
+    "nextSequence",
+    "testIndicator"
+  ],
+  "deviceAttributes": [
+    "hash"
+  ],
+  "componentAttributes": [
+    "hash"
+  ],
+  "observationAttributes": [
+    "timestamp",
+    "sequence",
+    "instanceId",
+    "assetType"
+  ],
+  "elementsToDrop": [
+    "Adapters",
+    "Adapter",
+    "Agent"
+  ],
+  "_dataItemIdPrefix": "Only DataItems whose id starts with this prefix participate in the parity diff. The cppagent and MT.NET implementations both auto-generate hidden DataItems (ASSET_CHANGED / ASSET_REMOVED / ASSET_COUNT) for every Device with implementation-specific id schemes (parity_d1_asset_chg vs parity_d1_assetChanged); restricting the diff to fixture-declared ids isolates structural parity from auto-generation conventions.",
+  "dataItemIdPrefix": "parity_"
+}

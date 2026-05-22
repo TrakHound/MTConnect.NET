@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using MTConnect.Tests.Shared;
 using Xunit;
 
-namespace IntegrationTests
+namespace MTConnect.Tests.Integration
 {
     /// <summary>
     /// Source-grep regression guard for the loopback-only binding contract.

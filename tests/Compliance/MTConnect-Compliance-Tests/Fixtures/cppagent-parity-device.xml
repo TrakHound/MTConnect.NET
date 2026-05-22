@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MTConnectDevices xmlns="urn:mtconnect.org:MTConnectDevices:2.5"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="urn:mtconnect.org:MTConnectDevices:2.5 http://schemas.mtconnect.org/schemas/MTConnectDevices_2.5.xsd">
+  <Header creationTime="2026-04-29T00:00:00Z"
+          sender="parity-fixture"
+          instanceId="0"
+          version="2.5.0.0"
+          assetBufferSize="1024"
+          assetCount="0"
+          bufferSize="131072"/>
+  <Devices>
+    <Device id="parity_d1" name="ParityDevice" uuid="parity-uuid-0001">
+      <Description manufacturer="Parity" serialNumber="PARITY-SN">Parity test device</Description>
+      <DataItems>
+        <DataItem category="EVENT" id="parity_avail" type="AVAILABILITY"/>
+        <DataItem category="EVENT" id="parity_app" subType="VERSION" type="APPLICATION"/>
+        <DataItem category="EVENT" discrete="true" id="parity_assetchg" type="ASSET_CHANGED"/>
+        <DataItem category="EVENT" id="parity_assetrem" type="ASSET_REMOVED"/>
+        <DataItem category="EVENT" id="parity_assetcount" representation="DATA_SET" type="ASSET_COUNT"/>
+      </DataItems>
+      <Components>
+        <Axes id="parity_axes" name="axes">
+          <Components>
+            <Linear id="parity_x" name="X">
+              <DataItems>
+                <DataItem category="SAMPLE" id="parity_xpos" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+                <DataItem category="SAMPLE" id="parity_xload" type="LOAD" units="PERCENT"/>
+                <DataItem category="EVENT" id="parity_xstate" type="AXIS_STATE"/>
+                <DataItem category="CONDITION" id="parity_xtravel" type="POSITION"/>
+              </DataItems>
+            </Linear>
+            <Rotary id="parity_c" name="C">
+              <DataItems>
+                <DataItem category="SAMPLE" id="parity_cspeed" subType="ACTUAL" type="ROTARY_VELOCITY" units="REVOLUTION/MINUTE"/>
+              </DataItems>
+            </Rotary>
+          </Components>
+        </Axes>
+        <Controller id="parity_cont" name="controller">
+          <DataItems>
+            <DataItem category="EVENT" id="parity_estop" type="EMERGENCY_STOP"/>
+            <DataItem category="EVENT" id="parity_mode" type="CONTROLLER_MODE"/>
+            <DataItem category="EVENT" id="parity_exec" type="EXECUTION"/>
+            <DataItem category="CONDITION" id="parity_cont_logic" type="LOGIC_PROGRAM"/>
+          </DataItems>
+          <Components>
+            <Path id="parity_path" name="path">
+              <DataItems>
+                <DataItem category="EVENT" id="parity_program" subType="MAIN" type="PROGRAM"/>
+                <DataItem category="SAMPLE" id="parity_feedrate" subType="ACTUAL" type="PATH_FEEDRATE" units="MILLIMETER/SECOND"/>
+              </DataItems>
+            </Path>
+          </Components>
+        </Controller>
+        <Systems id="parity_systems" name="systems">
+          <Components>
+            <Coolant id="parity_coolant" name="coolant">
+              <DataItems>
+                <DataItem category="SAMPLE" id="parity_cool_temp" type="TEMPERATURE" units="CELSIUS"/>
+              </DataItems>
+            </Coolant>
+            <Hydraulic id="parity_hyd" name="hydraulic">
+              <DataItems>
+                <DataItem category="CONDITION" id="parity_hyd_cond" type="SYSTEM"/>
+              </DataItems>
+            </Hydraulic>
+          </Components>
+        </Systems>
+      </Components>
+    </Device>
+  </Devices>
+</MTConnectDevices>

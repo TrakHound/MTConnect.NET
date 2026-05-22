@@ -24,7 +24,7 @@ using Xunit.Abstractions;
 using Xunit.Sdk;
 using MTConnect.Assets.CuttingTools;
 
-namespace IntegrationTests
+namespace MTConnect.Tests.Integration
 {
     public class MTAgentFixture
     {
@@ -51,8 +51,27 @@ namespace IntegrationTests
     {
         #region Fields
 
-        //private const int c_maxWaitTimeout = 100000; // Debug
-        private const int c_maxWaitTimeout = 10000;
+        //private const int c_assertionWaitTimeout = 100000; // Debug
+        // Three staggered deadlines, strictly ordered so a marginal-
+        // latency case fails on a clean assertion instead of racing
+        // teardown:
+        //
+        //   assertion WaitOne (24000)  <  test cts.CancelAfter (27000)
+        //                              <  derived Sample-stream read
+        //                                 budget (Heartbeat * 3 = 30000)
+        //
+        // The stream-read budget is the outermost bound: the client's
+        // responseTimer is Heartbeat * 3, reset on every chunk, so an
+        // idle Sample stream tears down at ~30000 ms. The test-wide
+        // cancellation token fires a few seconds inside that so a stuck
+        // request is cancelled before the stream collapses. The
+        // assertion wait is a few seconds inside the token so a sample
+        // that is merely late (arriving between 24000 and 30000 ms)
+        // fails the assertion deterministically rather than racing the
+        // token/stream teardown. The pass/fail predicate is unchanged;
+        // only the ordering of the surrounding deadlines is widened.
+        private const int c_assertionWaitTimeout = 24000;
+        private const int c_testCancelTimeout = 27000;
 
         // Generous, CI-safe bound for waiting until the embedded HTTP server
         // is actually accepting and serving requests. The server's socket bind
@@ -389,7 +408,7 @@ namespace IntegrationTests
             ILogger logger)
         {
             var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = "IntegrationTests.devices-tpl.xml";
+            var resourceName = "MTConnect.Tests.Integration.devices-tpl.xml";
 
             using var stream = assembly.GetManifestResourceStream(resourceName);
             if (stream is null)
@@ -422,7 +441,7 @@ namespace IntegrationTests
 
             nameAttr.Value = machineName;
 
-            using var config = File.Create("devices.xml");
+            using var config = File.Create(fileName);
             xDocument.Save(config);
         }
 
@@ -432,7 +451,7 @@ namespace IntegrationTests
         public async Task GetCurrentFieldShouldReturnUpdatedValue()
         {
             var cts = new CancellationTokenSource();
-            cts.CancelAfter(c_maxWaitTimeout);
+            cts.CancelAfter(c_testCancelTimeout);
 
             var currentClient = new MTConnectHttpCurrentClient(
                 $"127.0.0.1:{_agentPort}",
@@ -465,7 +484,7 @@ namespace IntegrationTests
             var item = new ShdrDataItem("program", "SuperProg42");
             _adapter.AddDataItem(item);
 
-            Assert.True(observationEvt.WaitOne(c_maxWaitTimeout));
+            Assert.True(observationEvt.WaitOne(c_assertionWaitTimeout));
 
             document = await currentClient.GetAsync(cts.Token);
             if (document is null || document.Streams.IsNullOrEmpty())
@@ -486,7 +505,7 @@ namespace IntegrationTests
         public async Task WaitForSampleShouldSucceedAfterFirstItemIsSent()
         {
             var cts = new CancellationTokenSource();
-            cts.CancelAfter(c_maxWaitTimeout);
+            cts.CancelAfter(c_testCancelTimeout);
 
             // Completes on the first Current document the client receives.
             // The client's worker runs the Probe + Current requests before it
@@ -550,13 +569,13 @@ namespace IntegrationTests
                 catch (OperationCanceledException)
                 {
                     throw new XunitException(
-                        $"Current request was not served within {c_maxWaitTimeout} ms.");
+                        $"Current request was not served within {c_testCancelTimeout} ms.");
                 }
             }
 
             _adapter.AddDataItem(new ShdrDataItem("servotemp1", 120));
 
-            Assert.True(observationEvt.WaitOne(c_maxWaitTimeout));
+            Assert.True(observationEvt.WaitOne(c_assertionWaitTimeout));
         }
     }
 }

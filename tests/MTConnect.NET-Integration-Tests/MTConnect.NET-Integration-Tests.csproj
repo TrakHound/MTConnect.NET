@@ -1,0 +1,81 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+    <RootNamespace>MTConnect.Tests.Integration</RootNamespace>
+    <AssemblyName>MTConnect.Tests.Integration</AssemblyName>
+
+    <!--
+      This project drives the in-process Agent broker + embedded HTTP
+      server + HTTP streaming client + SHDR adapter as one
+      timing-critical sample-delivery hot path. Under coverlet IL
+      instrumentation that hot path is slow enough that, on a slow
+      shared CI runner, a Sample observation can arrive after the
+      test's 30 s assertion wait. The dominant-cost part of that path
+      (MTConnect.NET-Common, MTConnect.NET-HTTP) is already covered,
+      faster, by MTConnect.NET-Common-Tests / MTConnect.NET-HTTP-Tests
+      (the latter starts a real MTConnectAgentBroker +
+      MTConnectHttpServer via AgentRunner and streams Sample/Current
+      through it), so this project runs with
+      tests/coverlet.integration.runsettings, which excludes those two
+      product assemblies from instrumentation here only
+      (MTConnect.NET-SHDR stays instrumented: this suite is its only
+      runtime coverage). The
+      VSTest run-settings precedence is CLI settings flag over the
+      RunSettingsFilePath property (see Microsoft.TestPlatform.targets:
+      VSTestSetting = ValueOrDefault($(VSTestSetting),
+      $(RunSettingsFilePath))), so the solution-wide
+      `dotnet test MTConnect.NET.sln` settings file cannot be
+      overridden per project. The project is therefore skipped in the
+      solution-wide run (IsTestProject defaults false) and run as its
+      own `dotnet test` step with -p:IntegrationCoverage=true plus its
+      own coverlet settings file (CI and tools/test.sh). Every other
+      test project keeps the shared tests/coverlet.runsettings, so no
+      other coverage changes.
+    -->
+    <IsTestProject Condition="'$(IntegrationCoverage)' == 'true'">true</IsTestProject>
+    <IsTestProject Condition="'$(IntegrationCoverage)' != 'true'">false</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="devices-tpl.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="devices-tpl.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\RepoRootLocator.cs" Link="Shared\RepoRootLocator.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Divergic.Logging.Xunit" Version="4.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
+    <PackageReference Include="MQTTnet" Version="4.3.7.1207" />
+    <PackageReference Include="Testcontainers" Version="3.10.0" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="3.2.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\agent\Modules\MTConnect.NET-AgentModule-MqttRelay\MTConnect.NET-AgentModule-MqttRelay.csproj" />
+    <ProjectReference Include="..\..\libraries\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
+    <ProjectReference Include="..\..\libraries\MTConnect.NET-JSON-cppagent\MTConnect.NET-JSON-cppagent.csproj" />
+    <ProjectReference Include="..\..\libraries\MTConnect.NET-MQTT\MTConnect.NET-MQTT.csproj" />
+    <ProjectReference Include="..\..\libraries\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
+    <ProjectReference Include="..\..\libraries\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -119,9 +119,12 @@ mkdir -p TestResults
 "${DOTNET[@]}" tool restore
 
 # --- Unit + integration tiers (the default, always runs) --------------
-# Enumerate tests/**/*.csproj, minus Compliance (gated by --compliance)
-# minus explicit E2E subtrees (run separately below).
-mapfile -t ALL_TEST_PROJECTS < <(find tests -name '*.csproj' -not -path '*/Compliance/*' -not -path '*/E2E/*' | sort)
+# Enumerate tests/**/*.csproj, minus Compliance (gated by --compliance),
+# minus explicit E2E subtrees (run separately below), minus the
+# MTConnect.NET-Tests-Agents support library (an AgentRunner host with no
+# test adapter; it builds as a dependency of MTConnect.NET-HTTP-Tests and
+# discovers zero tests, so running it here is a redundant no-op cycle).
+mapfile -t ALL_TEST_PROJECTS < <(find tests -name '*.csproj' -not -name '*-Tests-Agents.csproj' -not -path '*/Compliance/*' -not -path '*/E2E/*' | sort)
 
 if [[ -n "${ONLY_PATTERN}" ]]; then
 	FILTERED=()
@@ -141,24 +144,60 @@ e2e_enabled_check() {
 	esac
 }
 
-# Category filter: by default exclude Docker-gated tests unless MTCONNECT_E2E_DOCKER.
-FILTER_EXPR='Category!=RequiresDocker&Category!=XsdLoadStrict'
+# Category filter: only XsdLoadStrict is excluded by default. The
+# Docker-backed RequiresDocker tests are intended to run wherever a
+# container runtime is available, so they are not filtered out here.
+FILTER_EXPR='Category!=XsdLoadStrict'
 if e2e_enabled_check; then
 	FILTER_EXPR=''
 fi
 
 for proj in "${ALL_TEST_PROJECTS[@]}"; do
 	SETTINGS_ARGS=()
-	if [[ -f tests/coverlet.runsettings ]]; then
+	EXTRA_BUILD_ARGS=()
+	PROJ_FILTER_EXPR="${FILTER_EXPR}"
+	# The integration suite drives the in-process Agent/HTTP hot path;
+	# coverlet IL-instrumenting MTConnect.NET-Common / MTConnect.NET-HTTP
+	# makes sample delivery race the test's wait. It uses its own
+	# runsettings (the shared config plus those two assemblies excluded
+	# — both covered, faster, by MTConnect.NET-Common-Tests / -HTTP-Tests.
+	# MTConnect.NET-HTTP-Tests (and its AgentRunner support project
+	# MTConnect.NET-Tests-Agents) is in MTConnect.NET.sln, so the earlier
+	# solution-wide run already executes it under the shared runsettings,
+	# starting a real broker + HTTP server and streaming Probe/Current/
+	# Sample through the HTTP clients; its Cobertura merges with this
+	# one, so no net coverage is lost. MTConnect.NET-SHDR stays
+	# instrumented as this suite is its only runtime coverage — and
+	# MaxCpuCount=1, now scoped here only). It is built with
+	# -p:IntegrationCoverage=true
+	# (IsTestProject is false without it; see the .csproj comment) and is
+	# owned by exactly this loop — it is NOT re-run in the E2E tier
+	# below. The heavy in-process-server workflow fixtures are tagged
+	# Category=E2E; they are excluded here by default (mirroring the CI
+	# integration step) and only run when --e2e widens the filter.
+	if [[ "${proj}" == *"MTConnect.NET-Integration-Tests"* ]]; then
+		if [[ -f tests/coverlet.integration.runsettings ]]; then
+			SETTINGS_ARGS+=(--settings tests/coverlet.integration.runsettings)
+		fi
+		EXTRA_BUILD_ARGS+=(-p:IntegrationCoverage=true)
+		if e2e_enabled_check; then
+			# --e2e: run every integration test including the
+			# Category=E2E / RequiresDocker workflow fixtures.
+			PROJ_FILTER_EXPR=''
+		else
+			PROJ_FILTER_EXPR='Category!=RequiresDocker&Category!=XsdLoadStrict&Category!=E2E'
+		fi
+	elif [[ -f tests/coverlet.runsettings ]]; then
 		SETTINGS_ARGS+=(--settings tests/coverlet.runsettings)
 	fi
 	FILTER_ARGS=()
-	if [[ -n "${FILTER_EXPR}" ]]; then
-		FILTER_ARGS+=(--filter "${FILTER_EXPR}")
+	if [[ -n "${PROJ_FILTER_EXPR}" ]]; then
+		FILTER_ARGS+=(--filter "${PROJ_FILTER_EXPR}")
 	fi
 
 	"${DOTNET[@]}" test "${proj}" \
 		--configuration Release \
+		"${EXTRA_BUILD_ARGS[@]}" \
 		"${SETTINGS_ARGS[@]}" \
 		"${FILTER_ARGS[@]}" \
 		--collect:"XPlat Code Coverage" \
@@ -176,9 +215,13 @@ if [[ "${RUN_COMPLIANCE}" == "1" ]]; then
 	done
 fi
 
-# --- E2E tier (tests/IntegrationTests + tests/E2E/**, Docker-gated) ---
+# --- E2E tier (tests/E2E/**, Docker-gated) ----------------------------
+# The integration project is NOT re-run here: it is owned by the
+# default loop above, which widens its filter to include the
+# Category=E2E / RequiresDocker workflow fixtures when --e2e is set.
+# This tier only covers any dedicated tests/E2E/** projects.
 if e2e_enabled_check; then
-	mapfile -t E2E_PROJECTS < <(find tests/IntegrationTests tests/E2E -name '*.csproj' 2>/dev/null | sort)
+	mapfile -t E2E_PROJECTS < <(find tests/E2E -name '*.csproj' 2>/dev/null | sort)
 	for proj in "${E2E_PROJECTS[@]}"; do
 		"${DOTNET[@]}" test "${proj}" \
 			--configuration Release \
