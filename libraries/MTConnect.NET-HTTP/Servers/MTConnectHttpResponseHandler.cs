@@ -89,7 +89,11 @@ namespace MTConnect.Servers.Http
             return false;
         }
 
-        protected async virtual Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context, CancellationToken cancellationToken) { return new MTConnectHttpResponse(); }
+        protected async virtual Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context, CancellationToken cancellationToken)
+        {
+            await Task.CompletedTask;
+            return new MTConnectHttpResponse();
+        }
 
 
 

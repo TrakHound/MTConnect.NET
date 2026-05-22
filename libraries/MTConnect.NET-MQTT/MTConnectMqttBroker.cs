@@ -70,10 +70,12 @@ namespace MTConnect.Mqtt
             _mqttServer = mqttServer;
             _mqttServer.ClientConnectedAsync += async (args) =>
             {
+                await Task.CompletedTask;
                 if (ClientConnected != null) ClientConnected.Invoke(this, new EventArgs());
             };
             _mqttServer.ClientDisconnectedAsync += async (args) =>
             {
+                await Task.CompletedTask;
                 if (ClientDisconnected != null) ClientDisconnected.Invoke(this, new EventArgs());
             };
 
@@ -92,6 +94,7 @@ namespace MTConnect.Mqtt
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            await Task.CompletedTask;
             _stop = new CancellationTokenSource();
 
             if (!_mqttServer.IsStarted)

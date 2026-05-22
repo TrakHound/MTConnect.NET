@@ -24,6 +24,7 @@ namespace MTConnect.Servers
 
         protected async override Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context, CancellationToken cancellationToken)
         {
+            await Task.CompletedTask;
             var response = new MTConnectHttpResponse();
 
             var httpRequest = context.Request;

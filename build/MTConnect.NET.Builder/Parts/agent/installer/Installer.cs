@@ -20,6 +20,7 @@
 
         private static async Task BuildProject(string configurationId, bool verbose)
         {
+            await Task.CompletedTask;
             var config = Configuration.Read(configurationId);
 
             var projectDirectory = Path.Combine(config.Input, config.Agent.Installer.ProjectPath);

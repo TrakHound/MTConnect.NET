@@ -122,6 +122,7 @@ namespace MTConnect.Configurations
         /// <param name="filePath">The path to the Device Configuration file</param>
         public static async Task<IEnumerable<DeviceConfiguration>> FromFileAsync(string filePath, string documentFormatterId)
         {
+            await Task.CompletedTask;
             // Set the Filename
             var path = !string.IsNullOrEmpty(filePath) ? filePath : DefaultFilename;
 

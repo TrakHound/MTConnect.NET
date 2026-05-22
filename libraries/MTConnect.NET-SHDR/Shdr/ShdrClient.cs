@@ -578,6 +578,7 @@ namespace MTConnect.Shdr
 
         private async Task ProcessCommand(string line)
         {
+            await Task.CompletedTask;
             if (!string.IsNullOrEmpty(line))
             {
 
