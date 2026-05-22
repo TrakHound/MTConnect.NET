@@ -31,6 +31,7 @@ public static class IndexRenderer
         sb.AppendLine("- [HTTP API endpoints](./http-api)");
         sb.AppendLine("- [Environment variables](./environment-variables)");
         sb.AppendLine("- [Configuration schema](./configuration)");
+        sb.AppendLine("- [CLI reference](./cli)");
         sb.AppendLine();
         sb.AppendLine("## Validation");
         sb.AppendLine();
@@ -191,6 +192,115 @@ public static class EnvVarRenderer
     }
 
     private static string Escape(string s) => s.Replace("|", "\\|").Replace("\n", " ").Replace("\r", " ");
+}
+
+/// <summary>
+/// Markdown for `docs/reference/cli.md`.
+/// </summary>
+public static class CliRenderer
+{
+    public static string Render(IReadOnlyList<CliInfo> tools)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine(IndexRenderer.AutoGenMarker);
+        sb.AppendLine();
+        sb.AppendLine("# CLI reference");
+        sb.AppendLine();
+        sb.AppendLine("Every command-line tool the repository exposes — including the shipped `mtconnect.net-agent` + `mtconnect.net-adapter` binaries and the contributor scripts under `tools/` plus the .NET tools under `build/`. The list is built by walking the source tree at docs-build time, so a new flag added to any tool surfaces here on the next regeneration.");
+        sb.AppendLine();
+
+        var shipped = tools.Where(t => t.Category == "shipped").ToList();
+        var contrib = tools.Where(t => t.Category == "contributor").ToList();
+
+        sb.AppendLine("## Shipped CLIs");
+        sb.AppendLine();
+        if (shipped.Count == 0)
+        {
+            sb.AppendLine("_No shipped CLIs discovered._");
+            sb.AppendLine();
+        }
+        foreach (var t in shipped) RenderOne(sb, t);
+
+        sb.AppendLine("## Contributor CLIs");
+        sb.AppendLine();
+        if (contrib.Count == 0)
+        {
+            sb.AppendLine("_No contributor CLIs discovered._");
+            sb.AppendLine();
+        }
+        foreach (var t in contrib) RenderOne(sb, t);
+
+        return sb.ToString();
+    }
+
+    private static void RenderOne(StringBuilder sb, CliInfo t)
+    {
+        sb.AppendLine($"### `{t.Name}`");
+        sb.AppendLine();
+        sb.AppendLine($"- **Source**: [`{t.SourceRelativePath}`](https://github.com/TrakHound/MTConnect.NET/blob/master/{t.SourceRelativePath})");
+        sb.AppendLine();
+        if (!string.IsNullOrEmpty(t.Summary))
+        {
+            sb.AppendLine(t.Summary);
+            sb.AppendLine();
+        }
+
+        if (t.Commands.Count > 0)
+        {
+            sb.AppendLine("**Commands**");
+            sb.AppendLine();
+            sb.AppendLine("| Command | Description |");
+            sb.AppendLine("| --- | --- |");
+            foreach (var c in t.Commands)
+            {
+                sb.AppendLine($"| `{c.Name}` | {Escape(c.Description)} |");
+            }
+            sb.AppendLine();
+        }
+
+        if (t.Flags.Count > 0)
+        {
+            sb.AppendLine("**Flags**");
+            sb.AppendLine();
+            sb.AppendLine("| Flag | Short | Argument | Description |");
+            sb.AppendLine("| --- | --- | --- | --- |");
+            foreach (var f in t.Flags)
+            {
+                var sh = string.IsNullOrEmpty(f.Short) ? "" : $"`{f.Short}`";
+                var arg = string.IsNullOrEmpty(f.ArgShape) ? "" : $"`{f.ArgShape}`";
+                sb.AppendLine($"| `{f.Name}` | {sh} | {arg} | {Escape(f.Description)} |");
+            }
+            sb.AppendLine();
+        }
+
+        if (t.Arguments.Count > 0)
+        {
+            sb.AppendLine("**Positional arguments**");
+            sb.AppendLine();
+            sb.AppendLine("| Name | Description |");
+            sb.AppendLine("| --- | --- |");
+            foreach (var a in t.Arguments)
+            {
+                sb.AppendLine($"| `{a.Name}` | {Escape(a.Description)} |");
+            }
+            sb.AppendLine();
+        }
+    }
+
+    // CLI descriptions are plain prose that may include placeholder
+    // tokens like `<repo>` or `<LibraryName>`. Markdown leaves those
+    // tokens untouched, and VitePress's Vue compiler then treats them
+    // as opening HTML tags that need closing — which breaks the build.
+    // Escape the angle brackets here so the rendered markdown is
+    // unambiguous; the `<value>` argument-shape tokens emitted into
+    // the Argument column are kept inside backticks elsewhere and stay
+    // literal in their own code spans.
+    private static string Escape(string s) => s
+        .Replace("|", "\\|")
+        .Replace("\n", " ")
+        .Replace("\r", " ")
+        .Replace("<", "&lt;")
+        .Replace(">", "&gt;");
 }
 
 /// <summary>

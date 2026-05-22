@@ -25,28 +25,28 @@ Every environment-variable reference discovered in the source tree. Both the C# 
 | Kind | Source | Default / value | Context |
 | --- | --- | --- | --- |
 | `powershell-read` | [`tools/dotnet.ps1:52`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.ps1#L52) |  | $e2eMode = ($env:MTCONNECT_DOTNET_E2E_DIND -eq '1') |
-| `shell-read` | [`tools/dotnet.sh:67`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.sh#L67) | `0` | if [[ "${MTCONNECT_DOTNET_E2E_DIND:-0}" == "1" ]]; then |
+| `shell-read` | [`tools/dotnet.sh:73`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.sh#L73) | `0` | if [[ "${MTCONNECT_DOTNET_E2E_DIND:-0}" == "1" ]]; then |
 
 ### `MTCONNECT_DOTNET_IMAGE`
 
 | Kind | Source | Default / value | Context |
 | --- | --- | --- | --- |
 | `powershell-read` | [`tools/dotnet.ps1:45`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.ps1#L45) |  | $image = if ($env:MTCONNECT_DOTNET_IMAGE) { $env:MTCONNECT_DOTNET_IMAGE } else { "mcr.microsoft.com/dotnet/sdk:${sdkTag}" } |
-| `shell-read` | [`tools/dotnet.sh:57`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.sh#L57) | `${IMAGE_DEFAULT}` | IMAGE="${MTCONNECT_DOTNET_IMAGE:-${IMAGE_DEFAULT}}" |
+| `shell-read` | [`tools/dotnet.sh:63`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.sh#L63) | `${IMAGE_DEFAULT}` | IMAGE="${MTCONNECT_DOTNET_IMAGE:-${IMAGE_DEFAULT}}" |
 
 ### `MTCONNECT_DOTNET_SDK_TAG`
 
 | Kind | Source | Default / value | Context |
 | --- | --- | --- | --- |
 | `powershell-read` | [`tools/dotnet.ps1:42`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.ps1#L42) |  | $sdkTag = if ($env:MTCONNECT_DOTNET_SDK_TAG) { $env:MTCONNECT_DOTNET_SDK_TAG } else { '8.0' } |
-| `shell-read` | [`tools/dotnet.sh:53`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.sh#L53) | `8.0` | SDK_TAG_DEFAULT="${MTCONNECT_DOTNET_SDK_TAG:-8.0}" |
+| `shell-read` | [`tools/dotnet.sh:59`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.sh#L59) | `8.0` | SDK_TAG_DEFAULT="${MTCONNECT_DOTNET_SDK_TAG:-8.0}" |
 
 ### `MTCONNECT_DOTNET_TOOLS_VOLUME`
 
 | Kind | Source | Default / value | Context |
 | --- | --- | --- | --- |
 | `powershell-read` | [`tools/dotnet.ps1:47`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.ps1#L47) |  | $toolsVol = if ($env:MTCONNECT_DOTNET_TOOLS_VOLUME) { $env:MTCONNECT_DOTNET_TOOLS_VOLUME } else { 'mtconnect-net-dotnet-tools' } |
-| `shell-read` | [`tools/dotnet.sh:59`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.sh#L59) | `mtconnect-net-dotnet-tools` | TOOLS_VOL="${MTCONNECT_DOTNET_TOOLS_VOLUME:-mtconnect-net-dotnet-tools}" |
+| `shell-read` | [`tools/dotnet.sh:65`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.sh#L65) | `mtconnect-net-dotnet-tools` | TOOLS_VOL="${MTCONNECT_DOTNET_TOOLS_VOLUME:-mtconnect-net-dotnet-tools}" |
 
 ### `MTCONNECT_DOTNET_USE_DOCKER`
 
@@ -54,14 +54,14 @@ Every environment-variable reference discovered in the source tree. Both the C# 
 | --- | --- | --- | --- |
 | `powershell-read` | [`tools/dotnet.ps1:40`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.ps1#L40) |  | $useDocker = $Docker -or ($env:MTCONNECT_DOTNET_USE_DOCKER -eq '1') |
 | `powershell-write` | [`tools/test.ps1:51`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/test.ps1#L51) | `'1'` | if ($Docker) { $env:MTCONNECT_DOTNET_USE_DOCKER = '1' } |
-| `shell-read` | [`tools/dotnet.sh:43`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.sh#L43) | `0` | USE_DOCKER="${MTCONNECT_DOTNET_USE_DOCKER:-0}" |
+| `shell-read` | [`tools/dotnet.sh:49`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.sh#L49) | `0` | USE_DOCKER="${MTCONNECT_DOTNET_USE_DOCKER:-0}" |
 | `shell-write` | [`tools/test.sh:106`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/test.sh#L106) | `1` | export MTCONNECT_DOTNET_USE_DOCKER=1 |
 
 ### `MTCONNECT_E2E_DOCKER`
 
 | Kind | Source | Default / value | Context |
 | --- | --- | --- | --- |
-| `docker-env` | [`tools/dotnet.sh:82`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.sh#L82) | `true` | -e MTCONNECT_E2E_DOCKER=true |
+| `docker-env` | [`tools/dotnet.sh:88`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.sh#L88) | `true` | -e MTCONNECT_E2E_DOCKER=true |
 | `powershell-read` | [`tools/test.ps1:67`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/test.ps1#L67) |  | $raw = [string]$env:MTCONNECT_E2E_DOCKER |
 | `powershell-write` | [`tools/test.ps1:52`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/test.ps1#L52) | `'true'` | if ($E2E) { $env:MTCONNECT_E2E_DOCKER = 'true' } |
 | `shell-read` | [`tools/test.sh:140`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/test.sh#L140) | `false` | local raw="${MTCONNECT_E2E_DOCKER:-false}" |
@@ -71,14 +71,14 @@ Every environment-variable reference discovered in the source tree. Both the C# 
 
 | Kind | Source | Default / value | Context |
 | --- | --- | --- | --- |
-| `docker-env` | [`tools/dotnet.sh:84`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.sh#L84) | `${REPO_ROOT}` | -e "MTCONNECT_E2E_HOST_REPO_ROOT=${REPO_ROOT}" |
+| `docker-env` | [`tools/dotnet.sh:90`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.sh#L90) | `${REPO_ROOT}` | -e "MTCONNECT_E2E_HOST_REPO_ROOT=${REPO_ROOT}" |
 
 ### `MTCONNECT_NUGET_VOLUME`
 
 | Kind | Source | Default / value | Context |
 | --- | --- | --- | --- |
 | `powershell-read` | [`tools/dotnet.ps1:46`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.ps1#L46) |  | $nugetVol = if ($env:MTCONNECT_NUGET_VOLUME) { $env:MTCONNECT_NUGET_VOLUME } else { 'mtconnect-net-nuget' } |
-| `shell-read` | [`tools/dotnet.sh:58`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.sh#L58) | `mtconnect-net-nuget` | NUGET_VOL="${MTCONNECT_NUGET_VOLUME:-mtconnect-net-nuget}" |
+| `shell-read` | [`tools/dotnet.sh:64`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.sh#L64) | `mtconnect-net-nuget` | NUGET_VOL="${MTCONNECT_NUGET_VOLUME:-mtconnect-net-nuget}" |
 
 ### `MTCONNECT_PARITY_FIXTURE_DIR`
 

@@ -27,6 +27,12 @@
 #   tools/dotnet.sh build MTConnect.NET.sln
 #   tools/dotnet.sh --docker test tests/MTConnect.NET-Common-Tests
 #   MTCONNECT_DOTNET_USE_DOCKER=1 tools/dotnet.sh --version
+#
+# Flags:
+#   -d, --docker        Run dotnet inside a pinned mcr.microsoft.com/dotnet/sdk
+#                       container (also honored via
+#                       MTCONNECT_DOTNET_USE_DOCKER=1). Everything after the
+#                       flag is forwarded to the `dotnet` CLI verbatim.
 set -euo pipefail
 
 # --- Locate repo root (macOS-safe; no readlink -f) ---------------------

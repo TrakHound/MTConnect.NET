@@ -10,6 +10,7 @@ using MTConnect.NET_DocsGen;
 //   docs/reference/http-api.md
 //   docs/reference/environment-variables.md
 //   docs/reference/configuration.md
+//   docs/reference/cli.md
 //
 // Usage:
 //   dotnet run --project build/MTConnect.NET-DocsGen \
@@ -22,9 +23,10 @@ using MTConnect.NET_DocsGen;
 //                  iff the inventory matches what is already on disk.
 //
 // The same inventory routines are exposed as public static methods on
-// `RouteInventory`, `EnvVarInventory`, and `ConfigInventory` so the
-// validation test in `tests/` can re-run them independently and assert
-// the on-disk markdown is in lock-step with the source tree.
+// `RouteInventory`, `EnvVarInventory`, `ConfigInventory`, and
+// `CliInventory` so the validation test in `tests/` can re-run them
+// independently and assert the on-disk markdown is in lock-step with
+// the source tree.
 
 string? repoRoot = null;
 string? docsRoot = null;
@@ -80,20 +82,24 @@ Console.WriteLine($"==> docs : {docsRoot}");
 var routes = RouteInventory.Collect(repoRoot);
 var envVars = EnvVarInventory.Collect(repoRoot);
 var configs = ConfigInventory.Collect(repoRoot);
+var clis = CliInventory.Collect(repoRoot);
 
 Console.WriteLine($"    routes      : {routes.Count}");
 Console.WriteLine($"    env-vars    : {envVars.Count}");
 Console.WriteLine($"    config keys : {configs.Sum(c => c.Properties.Count)} across {configs.Count} types");
+Console.WriteLine($"    CLIs        : {clis.Count} ({clis.Count(c => c.Category == "shipped")} shipped, {clis.Count(c => c.Category == "contributor")} contributor)");
 
 var httpMd = HttpApiRenderer.Render(routes);
 var envMd = EnvVarRenderer.Render(envVars);
 var configMd = ConfigRenderer.Render(configs);
+var cliMd = CliRenderer.Render(clis);
 
 var paths = new (string path, string content)[]
 {
     (Path.Combine(referenceDir, "http-api.md"), httpMd),
     (Path.Combine(referenceDir, "environment-variables.md"), envMd),
     (Path.Combine(referenceDir, "configuration.md"), configMd),
+    (Path.Combine(referenceDir, "cli.md"), cliMd),
     (Path.Combine(referenceDir, "index.md"), IndexRenderer.Render()),
 };
 

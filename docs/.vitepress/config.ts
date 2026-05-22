@@ -136,6 +136,7 @@ export default withMermaid(
               { text: 'HTTP API', link: '/reference/http-api' },
               { text: 'Environment variables', link: '/reference/environment-variables' },
               { text: 'Configuration schema', link: '/reference/configuration' },
+              { text: 'CLI reference', link: '/reference/cli' },
             ],
           },
         ],

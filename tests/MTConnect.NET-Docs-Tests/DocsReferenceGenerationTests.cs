@@ -97,6 +97,30 @@ public class DocsReferenceGenerationTests
     }
 
     [Test]
+    public void Cli_Page_Is_In_Sync_With_Source()
+    {
+        var clis = CliInventory.Collect(RepoRoot);
+        Assert.That(clis.Count, Is.GreaterThan(0), "expected at least one CLI tool");
+        // Shipped agent + adapter must both be present; if either goes
+        // missing the inventory has regressed and the page would lose
+        // critical surface coverage.
+        Assert.That(clis.Any(c => c.Name == "mtconnect.net-agent"), Is.True,
+            "mtconnect.net-agent should be discovered as a shipped CLI");
+        Assert.That(clis.Any(c => c.Name == "mtconnect.net-adapter"), Is.True,
+            "mtconnect.net-adapter should be discovered as a shipped CLI");
+
+        var expected = CliRenderer.Render(clis);
+        var path = Path.Combine(RepoRoot, "docs", "reference", "cli.md");
+        Assert.That(File.Exists(path), Is.True, $"missing {path}");
+        var actual = File.ReadAllText(path);
+
+        if (!string.Equals(actual, expected, StringComparison.Ordinal))
+        {
+            Assert.Fail("docs/reference/cli.md is out of sync with the source. Regenerate with:\n  dotnet run --project build/MTConnect.NET-DocsGen -- --repo .");
+        }
+    }
+
+    [Test]
     public void Endpoint_Code_Has_No_Stale_Entries_In_Markdown()
     {
         // Inverse check: every fenced `GET /path` heading in the

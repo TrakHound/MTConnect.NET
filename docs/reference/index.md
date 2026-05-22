@@ -13,8 +13,9 @@ dotnet run --project build/MTConnect.NET-DocsGen -- --repo .
 - [HTTP API endpoints](./http-api)
 - [Environment variables](./environment-variables)
 - [Configuration schema](./configuration)
+- [CLI reference](./cli)
 
 ## Validation
 
-`MTConnect.NET-Common-Tests` includes a `DocsReferenceGenerationTests` fixture that re-runs the same Roslyn inventories and asserts the on-disk markdown is in sync. Adding an HTTP route, environment-variable read, or configuration property without regenerating the reference therefore fails CI.
+`MTConnect.NET-Docs-Tests` includes a `DocsReferenceGenerationTests` fixture that re-runs the same Roslyn / shell inventories and asserts the on-disk markdown is in sync. Adding an HTTP route, a `Environment.GetEnvironmentVariable("…")` read, a `${MTCONNECT_…}` reference in a contributor script, or a configuration property without regenerating the reference therefore fails CI.
 
