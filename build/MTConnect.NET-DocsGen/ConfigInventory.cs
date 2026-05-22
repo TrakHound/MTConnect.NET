@@ -69,6 +69,15 @@ public static class ConfigInventory
         "IFileConfiguration",
     };
 
+    /// <summary>
+    /// Walks every <c>libraries/*/Configurations/*.cs</c> file under
+    /// <paramref name="repoRoot"/> whose stem is in
+    /// <see cref="IncludedStems"/> and returns one
+    /// <see cref="ConfigClassInfo"/> per discovered configuration
+    /// class. Output is sorted by type name.
+    /// </summary>
+    /// <param name="repoRoot">Repository root.</param>
+    /// <returns>Ordered list of configuration classes.</returns>
     public static IReadOnlyList<ConfigClassInfo> Collect(string repoRoot)
     {
         var results = new List<ConfigClassInfo>();

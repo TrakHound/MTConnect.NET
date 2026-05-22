@@ -2,8 +2,23 @@ using MTConnect.SysML.Models.Assets;
 
 namespace MTConnect.SysML.Xml
 {
+    /// <summary>
+    /// Orchestrator that renders the XML-emitter <c>*.g.cs</c>
+    /// artefacts (cutting-tool measurements + life-cycle + cutting
+    /// item) under <c>libraries/MTConnect.NET-XML/</c> from a SysML
+    /// import model.
+    /// </summary>
     public static class XmlTemplateRenderer
     {
+        /// <summary>
+        /// Renders every XML artefact from the supplied SysML import
+        /// model.
+        /// </summary>
+        /// <param name="mtconnectModel">Fully-loaded SysML import
+        /// model.</param>
+        /// <param name="outputPath">Repository root the
+        /// <c>libraries/MTConnect.NET-XML/</c> subtree is written
+        /// into.</param>
         public static void Render(MTConnectModel mtconnectModel, string outputPath)
         {
             if (mtconnectModel != null && !string.IsNullOrEmpty(outputPath))

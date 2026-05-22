@@ -53,6 +53,14 @@ public static class EnvVarInventory
     private static readonly System.Text.RegularExpressions.Regex EnvNameRe =
         new(@"\b([A-Z][A-Z0-9_]{2,})\b", System.Text.RegularExpressions.RegexOptions.Compiled);
 
+    /// <summary>
+    /// Walks every <c>*.cs</c> file under <paramref name="repoRoot"/>
+    /// plus the <c>tools/*.sh</c> and <c>tools/*.ps1</c> trees and
+    /// returns every env-var read / write / docker-pass discovered.
+    /// Output is deterministically sorted by name, kind, file, line.
+    /// </summary>
+    /// <param name="repoRoot">Repository root.</param>
+    /// <returns>Ordered list of env-var references.</returns>
     public static IReadOnlyList<EnvVarInfo> Collect(string repoRoot)
     {
         var results = new List<EnvVarInfo>();

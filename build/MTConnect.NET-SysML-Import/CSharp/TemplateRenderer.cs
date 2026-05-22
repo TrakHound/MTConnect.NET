@@ -5,8 +5,25 @@ using System.Collections;
 
 namespace MTConnect.SysML.CSharp
 {
+    /// <summary>
+    /// Orchestrator that loads every Scriban template under
+    /// <c>CSharp/Templates/</c> and emits the <c>*.g.cs</c> files for
+    /// devices, observations, assets, interfaces, and units into the
+    /// <c>libraries/MTConnect.NET-Common/</c> subtree of the output
+    /// directory.
+    /// </summary>
     public static class CSharpTemplateRenderer
     {
+        /// <summary>
+        /// Renders every C# artefact from the supplied SysML import
+        /// model. The output is partitioned by namespace under
+        /// <paramref name="outputPath"/>.
+        /// </summary>
+        /// <param name="mtconnectModel">Fully-loaded SysML import
+        /// model.</param>
+        /// <param name="outputPath">Repository root that the
+        /// <c>libraries/MTConnect.NET-Common/</c> subtree is written
+        /// into.</param>
         public static void Render(MTConnectModel mtconnectModel, string outputPath)
         {
             if (mtconnectModel != null && !string.IsNullOrEmpty(outputPath))

@@ -58,6 +58,15 @@ public sealed record CliArg(string Name, string Description);
 /// </summary>
 public static class CliInventory
 {
+    /// <summary>
+    /// Walks the shipped agent + adapter entry points, every
+    /// <c>tools/*.sh</c> wrapper, and the build-tree .NET tools under
+    /// <paramref name="repoRoot"/>, returning a deduplicated CLI
+    /// inventory. Output is ordered with shipped CLIs first, then
+    /// contributor CLIs alphabetically.
+    /// </summary>
+    /// <param name="repoRoot">Repository root.</param>
+    /// <returns>Ordered list of CLI tools.</returns>
     public static IReadOnlyList<CliInfo> Collect(string repoRoot)
     {
         var results = new List<CliInfo>();

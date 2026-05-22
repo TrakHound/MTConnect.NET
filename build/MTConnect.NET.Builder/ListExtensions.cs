@@ -1,5 +1,9 @@
 namespace TrakHound.Builder
 {
+    /// <summary>
+    /// Collection-related extension helpers used by the release-builder
+    /// script.
+    /// </summary>
     public static class ListExtensions
     {
         /// <summary>
@@ -50,6 +54,13 @@ namespace TrakHound.Builder
             return !enumerable.Any();
         }
 
+        /// <summary>
+        /// Returns the input sequence with duplicate strings removed,
+        /// preserving the original insertion order.
+        /// </summary>
+        /// <param name="strings">Input strings, possibly null.</param>
+        /// <returns>The distinct sequence, or the original sequence
+        /// when it is null or empty.</returns>
         public static IEnumerable<string> ToDistinct(this IEnumerable<string> strings)
         {
             if (!strings.IsNullOrEmpty())

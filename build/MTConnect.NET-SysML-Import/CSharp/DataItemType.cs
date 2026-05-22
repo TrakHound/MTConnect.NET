@@ -8,29 +8,79 @@ using System.Linq;
 
 namespace MTConnect.SysML.CSharp
 {
+    /// <summary>
+    /// Template model for an MTConnect <c>DataItemType</c>. Carries
+    /// the C#-emitter-only properties (namespace, units enum, version
+    /// enums, default short name) Scriban needs to render the
+    /// <c>*.g.cs</c> data-item type and its descriptions companion.
+    /// </summary>
     public class DataItemType : MTConnectDataItemType, ITemplateModel
     {
+        /// <summary>C# namespace the generated type belongs to.</summary>
         public string Namespace => NamespaceHelper.GetNamespace(Id);
 
+        /// <summary>XML-formatted description (XML doc-comment shape).</summary>
         public string XmlDescription { get; set; }
 
+        /// <summary>
+        /// Short-form name used for camel-case Property output; maps a
+        /// handful of well-known types to their canonical short names
+        /// (e.g. <c>EMERGENCY_STOP</c> → <c>estop</c>).
+        /// </summary>
         public string DefaultName => GetName(Type);
 
+        /// <summary>Fully-qualified Units enum value emitted into the
+        /// Scriban template, e.g. <c>Devices.CELSIUS</c>.</summary>
         public string UnitsEnum => Units != null ? $"Devices.{Units}" : null;
 
+        /// <summary>SysML <c>MaximumVersion</c> mapped to a C# enum
+        /// value.</summary>
         public string MaximumVersionEnum => MTConnectVersion.GetVersionEnum(MaximumVersion);
 
+        /// <summary>SysML <c>MinimumVersion</c> mapped to a C# enum
+        /// value.</summary>
         public string MinimumVersionEnum => MTConnectVersion.GetVersionEnum(MinimumVersion);
 
+        /// <summary>
+        /// Result type for Sample / TimeSeries / DataSet / Table /
+        /// Event data items, with the SysML <c>Enum</c> suffix
+        /// stripped (e.g. <c>EVENT_VALUE</c> → <c>EVENT_VALUE</c>).
+        /// </summary>
         public string ResultType { get; set; }
 
 
+        /// <summary>Parameterless constructor used by the reflection-
+        /// based <see cref="Create"/> factory.</summary>
         public DataItemType() { }
 
+        /// <summary>
+        /// Constructs a model directly from an XMI document tree.
+        /// </summary>
+        /// <param name="xmiDocument">Source XMI document.</param>
+        /// <param name="category">Data-item category (Sample /
+        /// Event / Condition).</param>
+        /// <param name="idPrefix">Identifier prefix applied to the
+        /// rendered type.</param>
+        /// <param name="umlClass">Backing UML class.</param>
+        /// <param name="umlEnumerationLiteral">Backing UML enumeration
+        /// literal.</param>
+        /// <param name="subClasses">Optional sub-classes that derive
+        /// from <paramref name="umlClass"/>.</param>
         public DataItemType(XmiDocument xmiDocument, string category, string idPrefix, UmlClass umlClass, UmlEnumerationLiteral umlEnumerationLiteral, IEnumerable<UmlClass> subClasses = null)
             : base (xmiDocument, category, idPrefix, umlClass, umlEnumerationLiteral, subClasses) { }
 
 
+        /// <summary>
+        /// Copies every matching property off <paramref name="importModel"/>
+        /// into a fresh <see cref="DataItemType"/> and applies a few
+        /// data-item-specific fix-ups: normalises the Units enum
+        /// reference, suffixes the Id / Name / ParentName with
+        /// <c>DataItem</c>, and lifts the Result type via
+        /// <see cref="ModelHelper.RemoveEnumSuffix"/>. Returns
+        /// <c>null</c> when the input is null.
+        /// </summary>
+        /// <param name="importModel">Generic SysML-import model.</param>
+        /// <returns>Emitter-aware model, or <c>null</c>.</returns>
         public static DataItemType Create(MTConnectDataItemType importModel)
         {
             if (importModel != null)
@@ -91,14 +141,17 @@ namespace MTConnect.SysML.CSharp
         }
 
 
+        /// <inheritdoc />
         public virtual string RenderModel()
         {
             var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "Devices.DataItemType.scriban");
             return template.Render(this);
         }
 
+        /// <inheritdoc />
         public string RenderInterface() => null;
 
+        /// <inheritdoc />
         public string RenderDescriptions() => null;
 
 

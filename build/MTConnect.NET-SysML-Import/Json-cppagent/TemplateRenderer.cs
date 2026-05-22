@@ -2,8 +2,23 @@ using MTConnect.SysML.Models.Assets;
 
 namespace MTConnect.SysML.Json_cppagent
 {
+    /// <summary>
+    /// Orchestrator that renders the JSON-cppagent <c>*.g.cs</c>
+    /// artefacts (components, events, samples, cutting-tool
+    /// measurements) under <c>libraries/MTConnect.NET-JSON-cppagent/</c>
+    /// from a SysML import model.
+    /// </summary>
     public static class JsonCppAgentTemplateRenderer
     {
+        /// <summary>
+        /// Renders every JSON-cppagent artefact from the supplied
+        /// SysML import model.
+        /// </summary>
+        /// <param name="mtconnectModel">Fully-loaded SysML import
+        /// model.</param>
+        /// <param name="outputPath">Repository root the
+        /// <c>libraries/MTConnect.NET-JSON-cppagent/</c> subtree is
+        /// written into.</param>
         public static void Render(MTConnectModel mtconnectModel, string outputPath)
         {
             if (mtconnectModel != null && !string.IsNullOrEmpty(outputPath))

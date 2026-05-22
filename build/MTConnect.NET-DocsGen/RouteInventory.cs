@@ -46,6 +46,14 @@ public sealed record EndpointParam(
 /// </summary>
 public static class RouteInventory
 {
+    /// <summary>
+    /// Walks the Ceen and AspNetCore source trees under
+    /// <paramref name="repoRoot"/> and returns the union of HTTP
+    /// endpoints discovered. Output is deterministically sorted by
+    /// source, method, path, handler.
+    /// </summary>
+    /// <param name="repoRoot">Repository root.</param>
+    /// <returns>Ordered list of endpoints.</returns>
     public static IReadOnlyList<EndpointInfo> Collect(string repoRoot)
     {
         var results = new List<EndpointInfo>();

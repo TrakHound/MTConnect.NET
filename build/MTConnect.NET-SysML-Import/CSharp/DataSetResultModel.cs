@@ -5,13 +5,28 @@ using System.Linq;
 
 namespace MTConnect.SysML.CSharp
 {
+    /// <summary>
+    /// Template model for an MTConnect <c>DataSet</c> result-type
+    /// entry. Renders the keys-and-values shape used by Sample / Event
+    /// data items whose result type is a DataSet.
+    /// </summary>
     public class DataSetResultModel : MTConnectClassModel, ITemplateModel
     {
+        /// <summary>C# namespace the generated type belongs to.</summary>
         public string Namespace => NamespaceHelper.GetNamespace(Id);
 
+        /// <summary>XML-formatted description (XML doc-comment shape).</summary>
         public string XmlDescription { get; set; }
 
 
+        /// <summary>
+        /// Copies every matching property off <paramref name="importModel"/>
+        /// into a fresh <see cref="DataSetResultModel"/> and strips the
+        /// SysML <c>Enum</c> suffix from every property's
+        /// <c>DataType</c>. Returns <c>null</c> when the input is null.
+        /// </summary>
+        /// <param name="importModel">Generic SysML-import model.</param>
+        /// <returns>Emitter-aware model, or <c>null</c>.</returns>
         public static DataSetResultModel Create(MTConnectClassModel importModel)
         {
             if (importModel != null)
@@ -55,14 +70,17 @@ namespace MTConnect.SysML.CSharp
             return null;
         }
 
+        /// <inheritdoc />
         public string RenderModel()
         {
             var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "Observations.DataSetResults.scriban");
             return template.Render(this);
         }
 
+        /// <inheritdoc />
         public string RenderInterface() => null;
 
+        /// <inheritdoc />
         public string RenderDescriptions() => null;
     }
 }
