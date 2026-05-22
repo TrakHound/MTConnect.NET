@@ -98,7 +98,7 @@ namespace MTConnect
                     await Task.Delay(_configuration.CurrentInterval, _stop.Token);
                 }
                 catch (TaskCanceledException) { }
-                catch (Exception ex) { }
+                catch (Exception) { }
 
             } while (!_stop.Token.IsCancellationRequested);
         }
@@ -134,7 +134,7 @@ namespace MTConnect
                         await Task.Delay(_configuration.SampleInterval, _stop.Token);
                     }
                     catch (TaskCanceledException) { }
-                    catch (Exception ex) { }
+                    catch (Exception) { }
 
                 } while (!_stop.Token.IsCancellationRequested);
             }

@@ -187,7 +187,7 @@ namespace MTConnect.Mqtt
                     await Task.Delay(_retryInterval, _stop.Token);
                 }
                 catch (TaskCanceledException) { }
-                catch (Exception ex) { }
+                catch (Exception) { }
 
             } while (!_stop.Token.IsCancellationRequested);
         }

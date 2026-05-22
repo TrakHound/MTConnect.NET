@@ -223,7 +223,7 @@ namespace MTConnect.Servers.Http
                 {
                     await WriteToResponseStream(responseStream, args);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     if (ClientDisconnected != null) ClientDisconnected.Invoke(this, sampleStream.Id);
                     sampleStream.Stop();
@@ -241,7 +241,7 @@ namespace MTConnect.Servers.Http
 
                     await response.FlushHeadersAsync();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     if (ClientDisconnected != null) ClientDisconnected.Invoke(this, sampleStream.Id);
                     sampleStream.Stop();

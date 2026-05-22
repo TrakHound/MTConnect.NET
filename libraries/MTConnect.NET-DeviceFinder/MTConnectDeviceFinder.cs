@@ -559,7 +559,7 @@ namespace MTConnect.DeviceFinder
                         }
                     }
                 }
-                catch (Exception ex) { }
+                catch (Exception) { }
             }
             else
             {
