@@ -56,7 +56,9 @@ namespace Ceen.Httpd.Handler
             if (targeturl == null)
                 return false;
 
+#pragma warning disable SYSLIB0014 // vendored Ceen proxy handler still uses WebRequest; HttpClient migration tracked separately
             var wr = System.Net.WebRequest.CreateHttp(targeturl);
+#pragma warning restore SYSLIB0014
             wr.Headers.Clear();
             foreach (var item in context.Request.Headers)
                 wr.Headers.Add(item.Key, item.Value);

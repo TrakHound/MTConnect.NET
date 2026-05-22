@@ -48,7 +48,7 @@ namespace MTConnect.Clients
 
 
         private CancellationTokenSource _stop;
-        private MTConnectMqttConnectionStatus _connectionStatus;
+        private MTConnectMqttConnectionStatus _connectionStatus = MTConnectMqttConnectionStatus.Disconnected;
         private long _lastResponse;
 
 

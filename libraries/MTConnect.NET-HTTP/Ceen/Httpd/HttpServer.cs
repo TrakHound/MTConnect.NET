@@ -86,7 +86,7 @@ namespace Ceen.Httpd
             /// <param name="isConnected">A method that checks if the socket is connected</param>
             public void HandleRequest(Stream stream, EndPoint remoteEndPoint, string logtaskid, Func<bool> isConnected)
             {
-                RunClient(stream, remoteEndPoint, logtaskid, Controller, isConnected);
+                _ = RunClient(stream, remoteEndPoint, logtaskid, Controller, isConnected);
             }
 
             /// <summary>
@@ -205,6 +205,7 @@ namespace Ceen.Httpd
 			/// Initializes the lifetime service.
 			/// </summary>
 			/// <returns>The lifetime service.</returns>
+			[Obsolete("InitializeLifetimeService is obsolete in .NET 5+; the override exists for legacy AppDomain remoting compatibility.")]
 			public override object InitializeLifetimeService()
 			{
 				return null;
