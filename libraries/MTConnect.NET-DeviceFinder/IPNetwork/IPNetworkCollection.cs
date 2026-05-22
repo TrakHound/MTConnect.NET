@@ -1,11 +1,14 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
 using System.Numerics;
 
-namespace System.Net
+namespace MTConnect.DeviceFinder
 {
     internal class IPNetworkCollection : IEnumerable<IPNetwork>, IEnumerator<IPNetwork>
     {
@@ -34,7 +37,7 @@ namespace System.Net
         internal IPNetworkCollection(IPNetwork ipnetwork, byte cidrSubnet)
         {
 
-            int maxCidr = ipnetwork.AddressFamily == Sockets.AddressFamily.InterNetwork ? 32 : 128;
+            int maxCidr = ipnetwork.AddressFamily == AddressFamily.InterNetwork ? 32 : 128;
             if (cidrSubnet > maxCidr)
             {
                 throw new ArgumentOutOfRangeException("cidrSubnet");
@@ -70,7 +73,7 @@ namespace System.Net
                     throw new ArgumentOutOfRangeException("i");
                 }
 
-                BigInteger last = this._ipnetwork.AddressFamily == Sockets.AddressFamily.InterNetworkV6
+                BigInteger last = this._ipnetwork.AddressFamily == AddressFamily.InterNetworkV6
                     ? this._lastUsable : this._broadcast;
                 BigInteger increment = (last - this._network) / this.Count;
                 BigInteger uintNetwork = this._network + ((increment + 1) * i);
