@@ -26,6 +26,8 @@ namespace MTConnect.Applications
         private const string DefaultServiceDisplayName = "MTConnect.NET Adapter";
         private const string DefaultServiceDescription = "MTConnect Adapter to transfer data to an MTConnect Agent";
 
+        /// <summary>NLog logger for application-level diagnostics
+        /// (startup, shutdown, configuration load).</summary>
         protected readonly Logger _applicationLogger = LogManager.GetLogger("application-logger");
         private readonly Dictionary<string, IMTConnectAdapter> _adapters = new Dictionary<string, IMTConnectAdapter>();
         private readonly Dictionary<string, Logger> _loggers = new Dictionary<string, Logger>();
@@ -35,25 +37,51 @@ namespace MTConnect.Applications
         private IMTConnectDataSource _dataSource;
         private bool _started = false;
 
+        /// <summary>When <c>true</c>, the adapter emits a console
+        /// header at startup and includes per-component summaries in
+        /// the startup log.</summary>
         protected bool _verboseLogging = true;
+        /// <summary>NLog log-level applied to every internal logger.
+        /// Defaults to <see cref="LogLevel.Debug"/>; the <c>debug</c>
+        /// CLI command overrides it.</summary>
         protected LogLevel _logLevel = LogLevel.Debug;
+        /// <summary>File-system watcher that reloads the adapter
+        /// configuration when the underlying YAML / JSON file
+        /// changes.</summary>
         protected IConfigurationFileWatcher<AdapterApplicationConfiguration> _adapterConfigurationWatcher;
 
 
+        /// <summary>
+        /// Human-readable label shown in the console header (e.g.
+        /// <c>MTConnect.NET Adapter</c>).
+        /// </summary>
         public string ServiceLabel { get; set; }
 
+        /// <inheritdoc />
         public string ServiceName { get; set; }
 
+        /// <inheritdoc />
         public string ServiceDisplayName { get; set; }
 
+        /// <inheritdoc />
         public string ServiceDescription { get; set; }
 
 
+        /// <inheritdoc />
         public IMTConnectDataSource DataSource => _dataSource;
 
+        /// <inheritdoc />
         public event EventHandler<AdapterApplicationConfiguration> OnRestart;
 
 
+        /// <summary>
+        /// Initialises a new instance against the supplied data source.
+        /// Subscribes to the data source's observation / asset / device
+        /// events so each datum is forwarded into the adapter's
+        /// outbound queue.
+        /// </summary>
+        /// <param name="dataSource">Data-pull worker that reads from
+        /// the underlying device.</param>
         public MTConnectAdapterApplication(IMTConnectDataSource dataSource)
         {
             _dataSource = dataSource;
@@ -239,9 +267,24 @@ namespace MTConnect.Applications
             }
         }
 
+        /// <summary>
+        /// Extension hook: invoked once the host has finished parsing
+        /// the command-line arguments. Override in a derived class to
+        /// inspect or react to the raw arguments.
+        /// </summary>
+        /// <param name="args">Raw command-line arguments.</param>
         protected virtual void OnCommandLineArgumentsRead(string[] args) { }
 
 
+        /// <summary>
+        /// Loads the configuration from
+        /// <paramref name="configurationPath"/> and delegates to the
+        /// in-memory overload.
+        /// </summary>
+        /// <param name="configurationPath">Path to the adapter's
+        /// configuration file.</param>
+        /// <param name="verboseLogging">When <c>true</c>, the adapter
+        /// emits a console header at startup.</param>
         public void StartAdapter(string configurationPath, bool verboseLogging = false)
         {
             var configuration = AdapterApplicationConfiguration.Read<AdapterApplicationConfiguration>(configurationPath);
@@ -250,6 +293,16 @@ namespace MTConnect.Applications
             StartAdapter(configuration, verboseLogging);
         }
 
+        /// <summary>
+        /// Loads every configured adapter module, wires each module's
+        /// outbound queue to a dedicated <see cref="MTConnectAdapter"/>,
+        /// starts the data source, and optionally wires the
+        /// configuration-file watcher. Idempotent.
+        /// </summary>
+        /// <param name="configuration">Already-loaded adapter
+        /// configuration.</param>
+        /// <param name="verboseLogging">When <c>true</c>, the adapter
+        /// emits a console header at startup.</param>
         public void StartAdapter(IAdapterApplicationConfiguration configuration, bool verboseLogging = false)
         {
             if (!_started && configuration != null)
@@ -294,6 +347,11 @@ namespace MTConnect.Applications
             }
         }
 
+        /// <summary>
+        /// Stops the configuration watcher, every module's adapter,
+        /// and the configured modules. Idempotent if the adapter never
+        /// started.
+        /// </summary>
         public void StopAdapter()
         {
             if (_started)
@@ -316,13 +374,23 @@ namespace MTConnect.Applications
         }
 
 
-        protected virtual void OnStartAdapter() 
+        /// <summary>
+        /// Extension hook: fires after every module + adapter is
+        /// wired but before the data source produces its first
+        /// reading. The default implementation starts the data source.
+        /// </summary>
+        protected virtual void OnStartAdapter()
         {
             // Start DataSource
             if (_dataSource != null) _dataSource.Start();
         }
 
-        protected virtual void OnStopAdapter() 
+        /// <summary>
+        /// Extension hook: fires once <see cref="StopAdapter"/> has
+        /// stopped every module + adapter. The default implementation
+        /// stops the data source.
+        /// </summary>
+        protected virtual void OnStopAdapter()
         {
             // Stop DataSource
             if (_dataSource != null) _dataSource.Stop();
@@ -353,6 +421,13 @@ namespace MTConnect.Applications
             }
         }
 
+        /// <summary>
+        /// Extension hook: fires after the configuration watcher
+        /// reloads the configuration from disk. Override to react to
+        /// runtime configuration changes.
+        /// </summary>
+        /// <param name="configuration">Freshly-reloaded
+        /// configuration.</param>
         protected virtual void OnAdapterConfigurationUpdated(AdapterApplicationConfiguration configuration) { }
 
         private void AdapterConfigurationFileError(object sender, string message)
@@ -449,10 +524,23 @@ namespace MTConnect.Applications
             OnPrintHelpArguments();
         }
 
+        /// <summary>
+        /// Extension hook: returns extra text appended to the
+        /// <c>Usage:</c> line printed by the <c>help</c> command.
+        /// </summary>
+        /// <returns>Extra usage text, or an empty string for none.</returns>
         protected virtual string OnPrintHelpUsage() { return ""; }
 
+        /// <summary>
+        /// Extension hook: prints extra rows in the <c>Options:</c>
+        /// section of the <c>help</c> command.
+        /// </summary>
         protected virtual void OnPrintHelpOptions() { }
 
+        /// <summary>
+        /// Extension hook: prints extra rows in the <c>Arguments:</c>
+        /// section of the <c>help</c> command.
+        /// </summary>
         protected virtual void OnPrintHelpArguments() { }
 
         #endregion

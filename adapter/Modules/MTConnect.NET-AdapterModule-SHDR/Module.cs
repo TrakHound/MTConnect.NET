@@ -15,8 +15,19 @@ using System.Threading;
 
 namespace MTConnect
 {
+    /// <summary>
+    /// Adapter module that listens for SHDR-protocol TCP clients (i.e.
+    /// downstream MTConnect agents) and streams observations / assets /
+    /// device models as SHDR text lines. The module owns an
+    /// <see cref="AgentClientConnectionListener"/> and routes outbound
+    /// data to every connected agent client.
+    /// </summary>
     public class Module : MTConnectAdapterModule
     {
+        /// <summary>
+        /// Token used in <c>adapter.config.yaml</c> to bind this
+        /// module (<c>type: shdr</c>).
+        /// </summary>
         public const string ConfigurationTypeId = "shdr";
         private const string ModuleId = "SDHR";
 
@@ -28,6 +39,16 @@ namespace MTConnect
         private CancellationTokenSource _stop;
 
 
+        /// <summary>
+        /// Initialises the module, binds the supplied configuration
+        /// payload to <see cref="ModuleConfiguration"/>, and wires the
+        /// <see cref="AgentClientConnectionListener"/> connect /
+        /// disconnect / ping / pong events.
+        /// </summary>
+        /// <param name="id">Adapter-side identifier the host passes
+        /// through.</param>
+        /// <param name="moduleConfiguration">Raw configuration payload
+        /// bound to <see cref="ModuleConfiguration"/>.</param>
         public Module(string id, object moduleConfiguration) : base(id)
         {
             Id = ModuleId;
@@ -45,6 +66,10 @@ namespace MTConnect
         }
 
 
+        /// <summary>
+        /// Module lifecycle hook: starts the SHDR-protocol connection
+        /// listener so downstream agents can connect.
+        /// </summary>
         protected override void OnStart()
         {
             _stop = new CancellationTokenSource();
@@ -53,6 +78,11 @@ namespace MTConnect
             _connectionListener.Start(_stop.Token);
         }
 
+        /// <summary>
+        /// Module lifecycle hook: cancels the connection-listener
+        /// token and stops the listener. Existing clients drain via
+        /// their own disconnect handlers.
+        /// </summary>
         protected override void OnStop()
         {
             if (_stop != null) _stop.Cancel();
@@ -62,6 +92,15 @@ namespace MTConnect
 
         #region "Entities"
 
+        /// <summary>
+        /// Translates each observation into one or more SHDR text
+        /// lines (data items, messages, conditions, time-series,
+        /// data-sets, tables) and writes them to every connected
+        /// agent client.
+        /// </summary>
+        /// <param name="observations">Observations to transmit.</param>
+        /// <returns>Always <c>true</c>; transport-level errors per
+        /// client are caught inside <c>WriteLine</c>.</returns>
         public override bool AddObservations(IEnumerable<IObservationInput> observations)
         {
             // DataItems
@@ -151,6 +190,13 @@ namespace MTConnect
             return true;
         }
 
+        /// <summary>
+        /// Serialises each asset into an SHDR asset block and writes
+        /// it to every connected agent client.
+        /// </summary>
+        /// <param name="assets">Assets to transmit.</param>
+        /// <returns>Always <c>true</c>; transport-level errors per
+        /// client are caught inside <c>WriteLine</c>.</returns>
         public override bool AddAssets(IEnumerable<IAssetInput> assets)
         {
             foreach (var asset in assets)
@@ -163,6 +209,13 @@ namespace MTConnect
             return true;
         }
 
+        /// <summary>
+        /// Serialises each device into an SHDR device block and writes
+        /// it to every connected agent client.
+        /// </summary>
+        /// <param name="devices">Devices to transmit.</param>
+        /// <returns>Always <c>true</c>; transport-level errors per
+        /// client are caught inside <c>WriteLine</c>.</returns>
         public override bool AddDevices(IEnumerable<IDeviceInput> devices)
         {
             foreach (var device in devices)
@@ -257,6 +310,14 @@ namespace MTConnect
 
         #region "Write"
 
+        /// <summary>
+        /// Writes the supplied SHDR text line to every connected agent
+        /// client. Per-client transport failures are caught and the
+        /// affected client is silently dropped from the broadcast set.
+        /// </summary>
+        /// <param name="line">SHDR-encoded text line.</param>
+        /// <returns><c>true</c> when at least one client was written
+        /// to; <c>false</c> otherwise.</returns>
         protected bool WriteLine(string line)
         {
             if (!string.IsNullOrEmpty(line))

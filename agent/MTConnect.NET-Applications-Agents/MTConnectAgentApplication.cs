@@ -29,17 +29,32 @@ namespace MTConnect.Applications
         private const string DefaultServiceDisplayName = "MTConnect.NET Agent";
         private const string DefaultServiceDescription = "MTConnect Agent to provide access to device information using the MTConnect Standard";
 
+        /// <summary>NLog logger for application-level diagnostics
+        /// (startup, shutdown, configuration load).</summary>
         protected readonly Logger _applicationLogger = LogManager.GetLogger("application-logger");
+        /// <summary>NLog logger for the agent broker's internal events
+        /// (device add, observation enqueue).</summary>
         protected readonly Logger _agentLogger = LogManager.GetLogger("agent-logger");
+        /// <summary>NLog logger for the periodic agent-metrics emitter
+        /// (observation rate, buffer depth).</summary>
         protected readonly Logger _agentMetricLogger = LogManager.GetLogger("agent-metrics");
+        /// <summary>NLog logger for input-validation issues
+        /// (rejected observations, type mismatches).</summary>
         protected readonly Logger _agentValidationLogger = LogManager.GetLogger("agent-validation");
+        /// <summary>NLog logger shared by every configured agent
+        /// module.</summary>
         protected readonly Logger _moduleLogger = LogManager.GetLogger("module");
+        /// <summary>NLog logger shared by every configured agent
+        /// processor.</summary>
         protected readonly Logger _processorLogger = LogManager.GetLogger("processor");
 
         private readonly List<DeviceConfigurationFileWatcher> _deviceConfigurationWatchers = new List<DeviceConfigurationFileWatcher>();
         private readonly Dictionary<string, Logger> _loggers = new Dictionary<string, Logger>();
         private readonly object _lock = new object();
 
+        /// <summary>NLog log-level applied to every internal logger.
+        /// Defaults to <see cref="LogLevel.Debug"/>; the <c>debug</c>
+        /// and <c>trace</c> CLI commands override it.</summary>
         protected LogLevel _logLevel = LogLevel.Debug;
         private MTConnectAgentBroker _mtconnectAgent;
         private IMTConnectObservationBuffer _observationBuffer;
@@ -47,24 +62,44 @@ namespace MTConnect.Applications
         private MTConnectAgentModules _modules;
         private MTConnectAgentProcessors _processors;
         private IAgentApplicationConfiguration _initialAgentConfiguration;
+        /// <summary>File-system watcher that reloads the agent
+        /// configuration when the underlying YAML / JSON file
+        /// changes.</summary>
         protected IAgentConfigurationFileWatcher _agentConfigurationWatcher;
         private System.Timers.Timer _metricsTimer;
         private bool _started = false;
+        /// <summary>When <c>true</c>, the agent emits a console header
+        /// at startup and includes per-component summaries in the
+        /// startup log.</summary>
         protected bool _verboseLogging = true;
 
 
+        /// <inheritdoc />
         public string ServiceName { get; set; }
 
+        /// <inheritdoc />
         public string ServiceDisplayName { get; set; }
 
+        /// <inheritdoc />
         public string ServiceDescription { get; set; }
 
+        /// <inheritdoc />
         public IMTConnectAgentBroker Agent => _mtconnectAgent;
 
 
+        /// <inheritdoc />
         public event EventHandler<AgentConfiguration> OnRestart;
 
 
+        /// <summary>
+        /// Initialises a new instance, optionally seeded with an
+        /// already-loaded <paramref name="agentConfiguration"/>. When a
+        /// configuration is supplied the service-name / display-name /
+        /// description triple is taken from it; otherwise the bundled
+        /// <c>MTConnect.NET-Agent</c> defaults apply.
+        /// </summary>
+        /// <param name="agentConfiguration">Pre-loaded configuration,
+        /// or <c>null</c> to load from disk during <see cref="Run"/>.</param>
         public MTConnectAgentApplication(IAgentApplicationConfiguration agentConfiguration = null)
         {
             if (agentConfiguration != null)
@@ -321,8 +356,26 @@ namespace MTConnect.Applications
             }
         }
 
+        /// <summary>
+        /// Extension hook: invoked once the host has finished parsing
+        /// the command-line arguments. Override in a derived class to
+        /// inspect or react to the raw arguments.
+        /// </summary>
+        /// <param name="args">Raw command-line arguments.</param>
         protected virtual void OnCommandLineArgumentsRead(string[] args) { }
 
+        /// <summary>
+        /// Extension hook: loads the agent configuration from
+        /// <paramref name="configurationPath"/>. The default
+        /// implementation delegates to
+        /// <see cref="AgentConfiguration.Read{T}(string)"/>; override
+        /// to swap the loader (e.g. to read from an environment-
+        /// variable backing store).
+        /// </summary>
+        /// <param name="configurationPath">Path to the agent's YAML /
+        /// JSON configuration file.</param>
+        /// <returns>The loaded configuration, or <c>null</c> when the
+        /// file could not be read.</returns>
         protected virtual IAgentApplicationConfiguration OnConfigurationFileRead(string configurationPath)
         {
             // Read the Configuration File
@@ -330,6 +383,16 @@ namespace MTConnect.Applications
         }
 
 
+        /// <summary>
+        /// Loads the configuration from <paramref name="configurationPath"/>
+        /// (via the <see cref="OnConfigurationFileRead"/> hook) and
+        /// delegates to the in-memory overload.
+        /// </summary>
+        /// <param name="configurationPath">Path to the agent's YAML /
+        /// JSON configuration file.</param>
+        /// <param name="verboseLogging">When <c>true</c>, the agent
+        /// emits a console header at startup and includes per-component
+        /// summaries in the startup log.</param>
         public void StartAgent(string configurationPath, bool verboseLogging = false)
         {
             var configuration = OnConfigurationFileRead(configurationPath);
@@ -338,6 +401,17 @@ namespace MTConnect.Applications
             StartAgent(configuration, verboseLogging);
         }
 
+        /// <summary>
+        /// Builds the agent broker, loads every device + module +
+        /// processor described in <paramref name="configuration"/>, and
+        /// starts the agent. Idempotent — a second call while the agent
+        /// is running is a no-op.
+        /// </summary>
+        /// <param name="configuration">Already-loaded agent
+        /// configuration.</param>
+        /// <param name="verboseLogging">When <c>true</c>, the agent
+        /// emits a console header at startup and includes per-component
+        /// summaries in the startup log.</param>
         public void StartAgent(IAgentApplicationConfiguration configuration, bool verboseLogging = false)
         {
             if (!_started && configuration != null)
@@ -551,6 +625,12 @@ namespace MTConnect.Applications
             }
         }
 
+        /// <summary>
+        /// Stops every running component (device watchers, modules,
+        /// processors, configuration watcher, metrics timer) and
+        /// disposes the agent broker. Idempotent if the agent never
+        /// started.
+        /// </summary>
         public void StopAgent()
         {
             if (_started)
@@ -579,15 +659,46 @@ namespace MTConnect.Applications
         }
 
 
+        /// <summary>
+        /// Extension hook: fires after the agent broker is created but
+        /// before devices are added to it. Override to register custom
+        /// data-items or initialise extension state that the device
+        /// load relies on.
+        /// </summary>
+        /// <param name="devices">Devices that are about to be added.</param>
+        /// <param name="initializeDataItems">Whether the agent should
+        /// seed observations for every data item.</param>
         protected virtual void OnStartAgentBeforeLoad(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false) { }
 
+        /// <summary>
+        /// Extension hook: fires after every device + module +
+        /// processor has been added to the agent broker. Override to
+        /// register custom subscribers that depend on the fully-built
+        /// agent.
+        /// </summary>
+        /// <param name="devices">Devices that have been added.</param>
+        /// <param name="initializeDataItems">Whether the agent seeded
+        /// observations for every data item.</param>
         protected virtual void OnStartAgentAfterLoad(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false) { }
 
+        /// <summary>
+        /// Extension hook: fires once <see cref="StopAgent"/> has
+        /// disposed every internal component. Override to release any
+        /// extension state held by a derived class.
+        /// </summary>
         protected virtual void OnStopAgent() { }
 
 
         #region "Agent Configuration"
 
+        /// <summary>
+        /// Extension hook: creates the file-system watcher that
+        /// reloads the agent configuration on disk changes. The
+        /// default implementation wires a
+        /// <see cref="AgentConfigurationFileWatcher{T}"/> against the
+        /// file path declared in <paramref name="configuration"/>.
+        /// </summary>
+        /// <param name="configuration">Currently-active configuration.</param>
         protected virtual void OnAgentConfigurationWatcherInitialize(IAgentApplicationConfiguration configuration)
         {
             _agentConfigurationWatcher = new AgentConfigurationFileWatcher<AgentApplicationConfiguration>(configuration.Path, configuration.ConfigurationFileRestartInterval * 1000);
@@ -610,6 +721,14 @@ namespace MTConnect.Applications
             }
         }
 
+        /// <summary>
+        /// Extension hook: fires after the configuration watcher
+        /// reloads the configuration from disk. Override to react to
+        /// runtime configuration changes (e.g. update derived state in
+        /// a host application).
+        /// </summary>
+        /// <param name="configuration">Freshly-reloaded
+        /// configuration.</param>
         protected virtual void OnAgentConfigurationUpdated(AgentConfiguration configuration) { }
 
         private void AgentConfigurationFileError(object sender, string message)
@@ -722,10 +841,26 @@ namespace MTConnect.Applications
             OnPrintHelpArguments();
         }
 
+        /// <summary>
+        /// Extension hook: returns extra text appended to the
+        /// <c>Usage:</c> line printed by the <c>help</c> command.
+        /// Override in a host that adds custom commands or arguments.
+        /// </summary>
+        /// <returns>Extra usage text, or an empty string for none.</returns>
         protected virtual string OnPrintHelpUsage() { return ""; }
 
+        /// <summary>
+        /// Extension hook: prints extra rows in the <c>Options:</c>
+        /// section of the <c>help</c> command. The default
+        /// implementation is empty.
+        /// </summary>
         protected virtual void OnPrintHelpOptions() { }
 
+        /// <summary>
+        /// Extension hook: prints extra rows in the <c>Arguments:</c>
+        /// section of the <c>help</c> command. The default
+        /// implementation is empty.
+        /// </summary>
         protected virtual void OnPrintHelpArguments() { }
 
         #endregion

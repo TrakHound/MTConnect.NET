@@ -18,8 +18,19 @@ using System.Threading.Tasks;
 
 namespace MTConnect
 {
+    /// <summary>
+    /// Adapter module that publishes observations to a downstream MQTT
+    /// broker. Each adapter-side observation is serialised via the
+    /// configured <see cref="ModuleConfiguration.DocumentFormat"/> and
+    /// published to <see cref="ModuleConfiguration.Topic"/>. Supports
+    /// TLS (mutual or CA-only), authentication, and configurable QoS.
+    /// </summary>
     public class Module : MTConnectAdapterModule
     {
+        /// <summary>
+        /// Token used in <c>adapter.config.yaml</c> to bind this
+        /// module (<c>type: mqtt</c>).
+        /// </summary>
         public const string ConfigurationTypeId = "mqtt";
         private const string ModuleId = "MQTT";
 
@@ -29,6 +40,17 @@ namespace MTConnect
         private CancellationTokenSource _stop;
 
 
+        /// <summary>
+        /// Initialises the module against the supplied
+        /// <paramref name="id"/> and configuration payload. The MQTT
+        /// connection itself is opened by the background worker that
+        /// <see cref="OnStart"/> spawns.
+        /// </summary>
+        /// <param name="id">Adapter-side identifier the host passes
+        /// through.</param>
+        /// <param name="moduleConfiguration">Raw configuration payload
+        /// bound to <see cref="ModuleConfiguration"/>; defaults to a
+        /// fresh instance when <c>null</c>.</param>
         public Module(string id, object moduleConfiguration) : base(id)
         {
             Id = ModuleId;
@@ -41,6 +63,10 @@ namespace MTConnect
         }
 
 
+        /// <summary>
+        /// Module lifecycle hook: spawns the MQTT publish worker on a
+        /// background task. The worker reconnects on transport failure.
+        /// </summary>
         protected override void OnStart()
         {
             _stop = new CancellationTokenSource();
@@ -48,6 +74,10 @@ namespace MTConnect
             _ = Task.Run(Worker, _stop.Token);
         }
 
+        /// <summary>
+        /// Module lifecycle hook: cancels the publish worker and
+        /// disposes the MQTT client.
+        /// </summary>
         protected override void OnStop()
         {
             if (_stop != null) _stop.Cancel();
@@ -150,6 +180,15 @@ namespace MTConnect
         }
 
 
+        /// <summary>
+        /// Serialises the supplied observations via the configured
+        /// document format and publishes them to
+        /// <c>{Topic}/observations</c> with the configured QoS and the
+        /// retain flag set.
+        /// </summary>
+        /// <param name="observations">Observations to publish.</param>
+        /// <returns>Always <c>true</c>; transport-level errors are
+        /// logged but do not break the adapter pipeline.</returns>
         public override bool AddObservations(IEnumerable<IObservationInput> observations)
         {
             if (_mqttClient != null && !observations.IsNullOrEmpty())
@@ -173,6 +212,14 @@ namespace MTConnect
             return true;
         }
 
+        /// <summary>
+        /// Serialises the supplied assets via the configured document
+        /// format and publishes them to <c>{Topic}/assets</c> with the
+        /// configured QoS and the retain flag set.
+        /// </summary>
+        /// <param name="assets">Assets to publish.</param>
+        /// <returns>Always <c>true</c>; transport-level errors are
+        /// logged but do not break the adapter pipeline.</returns>
         public override bool AddAssets(IEnumerable<IAssetInput> assets)
         {
             if (_mqttClient != null && !assets.IsNullOrEmpty())
@@ -196,6 +243,14 @@ namespace MTConnect
             return true;
         }
 
+        /// <summary>
+        /// Serialises the supplied device descriptors via the configured
+        /// document format and publishes them to <c>{Topic}/devices</c>
+        /// with the configured QoS and the retain flag set.
+        /// </summary>
+        /// <param name="devices">Devices to publish.</param>
+        /// <returns>Always <c>true</c>; transport-level errors are
+        /// logged but do not break the adapter pipeline.</returns>
         public override bool AddDevices(IEnumerable<IDeviceInput> devices)
         {
             if (_mqttClient != null && !devices.IsNullOrEmpty())

@@ -3,6 +3,10 @@
 
 namespace MTConnect.Configurations
 {
+    /// <summary>
+    /// Configuration shape for the SHDR output adapter module. Bound
+    /// from the adapter module's section of <c>adapter.config.yaml</c>.
+    /// </summary>
     public class ModuleConfiguration
     {
         /// <summary>
@@ -38,6 +42,15 @@ namespace MTConnect.Configurations
         public string TimeZoneOutput { get; set; }
 
 
+        /// <summary>
+        /// Initialises a new instance with the bundled defaults
+        /// (<c>Hostname = "localhost"</c>, <c>Port = 7878</c>,
+        /// <c>Heartbeat = 10000 ms</c>,
+        /// <c>ConnectionTimeout = 5000 ms</c>,
+        /// <c>ReconnectInterval = 10000 ms</c>,
+        /// <c>TimeZoneOutput = "Z"</c>). YAML / JSON values override
+        /// the defaults.
+        /// </summary>
         public ModuleConfiguration()
         {
             Hostname = "localhost";

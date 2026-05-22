@@ -17,34 +17,72 @@ namespace MTConnect.Applications
         private readonly IMTConnectAgentApplication _application;
 
 
+        /// <summary>
+        /// Initialises a new Windows-service wrapper that delegates
+        /// every <c>Start</c> / <c>Stop</c> action to the supplied
+        /// agent application.
+        /// </summary>
+        /// <param name="application">Agent application the service
+        /// hosts.</param>
+        /// <param name="name">Windows-service identifier.</param>
+        /// <param name="displayName">Human-readable display name.</param>
+        /// <param name="description">Service description.</param>
+        /// <param name="autoStart">Whether the service should be set
+        /// to start automatically on boot.</param>
         public Service(IMTConnectAgentApplication application, string name = null, string displayName = null, string description = null, bool autoStart = true)
-            : base(name, displayName, description, autoStart) 
+            : base(name, displayName, description, autoStart)
         {
             _application = application;
         }
 
 
+        /// <summary>
+        /// Service-control hook: delegates to
+        /// <see cref="IMTConnectAgentApplication.StartAgent"/> with the
+        /// supplied configuration path.
+        /// </summary>
+        /// <param name="configurationPath">Path to the agent's
+        /// configuration file.</param>
         protected override void StartAgent(string configurationPath)
         {
             _application.StartAgent(configurationPath);
         }
 
+        /// <summary>
+        /// Service-control hook: delegates to
+        /// <see cref="IMTConnectAgentApplication.StopAgent"/>.
+        /// </summary>
         protected override void StopAgent()
         {
             _application.StopAgent();
         }
 
 
+        /// <summary>
+        /// Routes informational service messages to the
+        /// <c>service-logger</c> NLog target.
+        /// </summary>
+        /// <param name="message">Message to log.</param>
         protected override void OnLogInformation(string message)
         {
             _serviceLogger.Info(message);
         }
 
+        /// <summary>
+        /// Routes warning service messages to the
+        /// <c>service-logger</c> NLog target.
+        /// </summary>
+        /// <param name="message">Message to log.</param>
         protected override void OnLogWarning(string message)
         {
             _serviceLogger.Warn(message);
         }
 
+        /// <summary>
+        /// Routes error service messages to the <c>service-logger</c>
+        /// NLog target.
+        /// </summary>
+        /// <param name="message">Message to log.</param>
         protected override void OnLogError(string message)
         {
             _serviceLogger.Error(message);
