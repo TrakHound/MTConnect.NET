@@ -3,6 +3,11 @@
 
 namespace MTConnect.Configurations
 {
+    /// <summary>
+    /// Configuration shape for the MQTT-adapter agent module. Bound
+    /// from the <c>mqtt-adapter</c> module section of
+    /// <c>agent.config.yaml</c>.
+    /// </summary>
     public class MqttAdapterModuleConfiguration
     {
         /// <summary>
@@ -94,6 +99,15 @@ namespace MTConnect.Configurations
         public string DocumentFormat { get; set; }
 
 
+        /// <summary>
+        /// Initialises a new instance with the bundled defaults
+        /// (<c>Server = "localhost"</c>, <c>Port = 1883</c>,
+        /// <c>Qos = 1</c>, <c>CleanSession = true</c>,
+        /// <c>Timeout = 5000 ms</c>,
+        /// <c>ReconnectInterval = 10000 ms</c>,
+        /// <c>DocumentFormat = "json"</c>). YAML / JSON values bound
+        /// on top of this instance override the defaults.
+        /// </summary>
         public MqttAdapterModuleConfiguration()
         {
             Server = "localhost";

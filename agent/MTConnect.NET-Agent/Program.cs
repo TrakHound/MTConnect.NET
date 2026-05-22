@@ -6,6 +6,14 @@ using System.Reflection;
 
 namespace MTConnect.Applications
 {
+    /// <summary>
+    /// Process entry point for the standalone <c>mtconnect.net-agent</c>
+    /// host. Prints a console header, instantiates an
+    /// <see cref="MTConnectAgentApplication"/>, and runs it in blocking
+    /// mode. The CLI surface (commands such as <c>run</c>, <c>debug</c>,
+    /// <c>install</c>, …) is implemented by <c>MTConnectAgentApplication</c>;
+    /// see <c>docs/reference/cli.md</c> for the full reference.
+    /// </summary>
     public class Program
     {
         // This is the Application Name shown in the Console header information
@@ -16,6 +24,14 @@ namespace MTConnect.Applications
         // This is just what is shown in the console header. If you want to show support for the MTConnect.NET project, you can reference it using the links in the default header
         private const string ApplicationCopyright = "Copyright 2025 TrakHound Inc., All Rights Reserved";
 
+        /// <summary>
+        /// Process entry point. Prints the console header, then delegates
+        /// to <see cref="MTConnectAgentApplication.Run(string[], bool)"/>
+        /// in blocking mode so the process stays alive for the lifetime
+        /// of the agent.
+        /// </summary>
+        /// <param name="args">Command-line arguments forwarded verbatim
+        /// to <see cref="MTConnectAgentApplication"/>.</param>
         public static void Main(string[] args)
         {
             // Print an application header to the console

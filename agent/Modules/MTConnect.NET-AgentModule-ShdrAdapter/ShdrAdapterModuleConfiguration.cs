@@ -3,6 +3,14 @@
 
 namespace MTConnect.Configurations
 {
+    /// <summary>
+    /// Configuration shape for the SHDR-adapter agent module. Extends
+    /// the base <see cref="ShdrAdapterClientConfiguration"/> (host,
+    /// port, connect-timeout, heartbeat, …) with the
+    /// <see cref="AllowShdrDevice"/> opt-in that lets an SHDR adapter
+    /// transmit its own device model rather than relying on a pre-
+    /// configured one.
+    /// </summary>
     public class ShdrAdapterModuleConfiguration : ShdrAdapterClientConfiguration
     {
         /// <summary>
@@ -11,6 +19,11 @@ namespace MTConnect.Configurations
         public bool AllowShdrDevice { get; set; }
 
 
+        /// <summary>
+        /// Initialises a new instance with <see cref="AllowShdrDevice"/>
+        /// set to <c>false</c> (the safe default — a generic adapter
+        /// client is not auto-created unless this is opted in).
+        /// </summary>
         public ShdrAdapterModuleConfiguration()
         {
             AllowShdrDevice = false;

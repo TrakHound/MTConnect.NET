@@ -24,8 +24,21 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Modules
 {
+    /// <summary>
+    /// Agent module that hosts an in-process MQTT broker. Devices,
+    /// observations, and assets the upstream agent emits are forwarded
+    /// to subscribed MQTT clients on either a document-shaped topic
+    /// hierarchy (one full MTConnect response per topic) or an entity-
+    /// shaped topic hierarchy (one observation / device / asset per
+    /// topic). The topic structure is selected via
+    /// <see cref="MqttBrokerModuleConfiguration.TopicStructure"/>.
+    /// </summary>
     public class Module : MTConnectAgentModule
     {
+        /// <summary>
+        /// Token used in <c>agent.config.yaml</c> to bind this module
+        /// (<c>type: mqtt-broker</c>).
+        /// </summary>
         public const string ConfigurationTypeId = "mqtt-broker";
         private const string ModuleId = "MQTT Broker";
 
@@ -36,6 +49,16 @@ namespace MTConnect.Modules
         private CancellationTokenSource _stop;
 
 
+        /// <summary>
+        /// Initialises the module, binds the supplied configuration
+        /// payload to <see cref="MqttBrokerModuleConfiguration"/>, and
+        /// wires the document- or entity-shaped MQTT topic server to
+        /// the upstream agent's event stream.
+        /// </summary>
+        /// <param name="mtconnectAgent">Upstream agent broker the module
+        /// reads from.</param>
+        /// <param name="configuration">Raw configuration payload bound
+        /// to <see cref="MqttBrokerModuleConfiguration"/> at startup.</param>
         public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)
         {
             Id = ModuleId;
@@ -65,6 +88,13 @@ namespace MTConnect.Modules
         }
 
 
+        /// <summary>
+        /// Module lifecycle hook: spawns the MQTT broker on a background
+        /// task and blocks for <c>InitialDelay</c> milliseconds so the
+        /// broker is ready before the agent starts publishing.
+        /// </summary>
+        /// <param name="initializeDataItems">Inherited flag; unused by
+        /// the broker module.</param>
         protected override void OnStartBeforeLoad(bool initializeDataItems)
         {
             _stop = new CancellationTokenSource();
@@ -73,6 +103,10 @@ namespace MTConnect.Modules
             Task.Delay(_configuration.InitialDelay).Wait();
         }
 
+        /// <summary>
+        /// Module lifecycle hook: gracefully stops the in-process MQTT
+        /// broker (idempotent if the broker never started).
+        /// </summary>
         protected override void OnStop()
         {
             if (_mqttServer != null) _mqttServer.StopAsync();

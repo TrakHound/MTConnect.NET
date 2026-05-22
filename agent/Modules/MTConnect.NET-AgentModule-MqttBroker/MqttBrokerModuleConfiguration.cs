@@ -5,6 +5,11 @@ using MTConnect.Tls;
 
 namespace MTConnect.Configurations
 {
+    /// <summary>
+    /// Configuration shape for the in-process MQTT broker agent
+    /// module. Bound from the <c>mqtt-broker</c> module section of
+    /// <c>agent.config.yaml</c>.
+    /// </summary>
     public class MqttBrokerModuleConfiguration : IMTConnectMqttDocumentServerConfiguration
     {
         /// <summary>
@@ -77,6 +82,14 @@ namespace MTConnect.Configurations
         public int SampleInterval { get; set; }
 
 
+        /// <summary>
+        /// Initialises a new instance with the bundled defaults
+        /// (<c>Port = 1883</c>, <c>InitialDelay = 500 ms</c>,
+        /// <c>Timeout = 5000 ms</c>, <c>TopicPrefix = "MTConnect"</c>,
+        /// <c>TopicStructure = Document</c>,
+        /// <c>DocumentFormat = "json-cppagent"</c>, …). YAML / JSON
+        /// values bound on top of this instance override the defaults.
+        /// </summary>
         public MqttBrokerModuleConfiguration()
         {
             Server = null;

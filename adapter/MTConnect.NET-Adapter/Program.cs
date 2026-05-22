@@ -6,6 +6,15 @@ using System.Reflection;
 
 namespace MTConnect.Applications
 {
+    /// <summary>
+    /// Process entry point for the standalone <c>mtconnect.net-adapter</c>
+    /// host. Wires the bundled <see cref="DataSource"/> implementation to
+    /// an <see cref="MTConnectAdapterApplication"/> and runs the adapter
+    /// in blocking mode. The CLI surface (commands such as <c>run</c>,
+    /// <c>debug</c>, <c>install</c>, …) is implemented by
+    /// <c>MTConnectAdapterApplication</c>; see <c>docs/reference/cli.md</c>
+    /// for the full reference.
+    /// </summary>
     public class Program
     {
         // This is the Application Name shown in the Console header information
@@ -17,6 +26,14 @@ namespace MTConnect.Applications
         private const string ApplicationCopyright = "Copyright 2024 TrakHound Inc., All Rights Reserved";
 
 
+        /// <summary>
+        /// Process entry point. Prints the console header, instantiates
+        /// the bundled <see cref="DataSource"/>, and delegates to
+        /// <see cref="MTConnectAdapterApplication.Run(string[], bool)"/>
+        /// in blocking mode.
+        /// </summary>
+        /// <param name="args">Command-line arguments forwarded to
+        /// <see cref="MTConnectAdapterApplication"/>.</param>
         public static void Main(string[] args)
         {
             // Print an application header to the console

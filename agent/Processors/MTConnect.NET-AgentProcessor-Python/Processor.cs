@@ -10,8 +10,22 @@ using System.IO;
 
 namespace MTConnect.Processors
 {
+    /// <summary>
+    /// Agent processor that pipes each inbound observation through every
+    /// Python script in a configured directory. Each <c>*.py</c> file must
+    /// declare a top-level <c>process(observation)</c> function that
+    /// returns a (possibly modified) <c>ProcessObservation</c>. Scripts
+    /// are evaluated by the IronPython engine; the directory is watched
+    /// with a <see cref="FileSystemWatcher"/> so add / change / remove
+    /// events trigger a debounced reload.
+    /// </summary>
     public class Processor : MTConnectAgentProcessor
     {
+        /// <summary>
+        /// Token used in <c>agent.config.yaml</c> to bind this processor
+        /// (<c>type: python</c>). The agent host matches this value
+        /// against the configuration discriminator at startup.
+        /// </summary>
         public const string ConfigurationTypeId = "python";
         private const string ProcessorId = "Python Scripts";
         private const int DefaultUpdateInterval = 2000;
@@ -30,7 +44,16 @@ namespace MTConnect.Processors
         private bool _update = false;
 
 
-        public Processor(object configuration)   
+        /// <summary>
+        /// Initialises the processor, binds the supplied configuration
+        /// payload to <see cref="ProcessorConfiguration"/>, creates the
+        /// IronPython engine, and starts the script-directory watcher.
+        /// </summary>
+        /// <param name="configuration">Raw configuration object the
+        /// agent host passes through; bound to
+        /// <see cref="ProcessorConfiguration"/> via the standard agent
+        /// configuration helper.</param>
+        public Processor(object configuration)
         {
             Id = ProcessorId;
 
@@ -42,6 +65,13 @@ namespace MTConnect.Processors
         }
 
 
+        /// <summary>
+        /// Rescans the configured script directory and (re)loads every
+        /// <c>*.py</c> file. Existing functions are cleared first so a
+        /// removed script no longer participates in
+        /// <see cref="OnProcess"/>. Safe to call from the file-system
+        /// watcher's debounced timer.
+        /// </summary>
         public override void Load()
         {
             lock (_lock) _functions.Clear();
@@ -85,6 +115,19 @@ namespace MTConnect.Processors
         }
 
 
+        /// <summary>
+        /// Pipes the supplied observation through every loaded Python
+        /// <c>process</c> function in registration order. Each function
+        /// receives the *current* observation (with prior functions'
+        /// changes applied) and returns either a transformed observation
+        /// or <c>null</c> to drop it. Exceptions inside a function are
+        /// logged and the original observation continues down the chain.
+        /// </summary>
+        /// <param name="observation">Observation produced by the agent
+        /// pipeline immediately upstream of this processor.</param>
+        /// <returns>The observation flattened into an
+        /// <see cref="IObservationInput"/> ready to enqueue, or
+        /// <c>null</c> when every function dropped the observation.</returns>
         protected override IObservationInput OnProcess(ProcessObservation observation)
         {
             ProcessObservation outputObservation = observation;

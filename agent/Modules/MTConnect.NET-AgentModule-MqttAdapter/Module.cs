@@ -21,8 +21,19 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Modules
 {
+    /// <summary>
+    /// Agent module that subscribes to an upstream MQTT broker and
+    /// converts published <c>observations</c>, <c>assets</c>, and
+    /// <c>device</c> messages into observations the local agent broker
+    /// can serve. Pairs with an upstream agent's MQTT-output / MQTT-
+    /// broker module.
+    /// </summary>
     public class Module : MTConnectAgentModule
     {
+        /// <summary>
+        /// Token used in <c>agent.config.yaml</c> to bind this module
+        /// (<c>type: mqtt-adapter</c>).
+        /// </summary>
         public const string ConfigurationTypeId = "mqtt-adapter";
         private const string ModuleId = "MQTT Adapter";
         private const string ObservationTopic = "observations";
@@ -36,6 +47,14 @@ namespace MTConnect.Modules
         private CancellationTokenSource _stop;
 
 
+        /// <summary>
+        /// Initialises the module, creates the MQTTnet client, and binds
+        /// the supplied configuration payload to
+        /// <see cref="MqttAdapterModuleConfiguration"/>.
+        /// </summary>
+        /// <param name="mtconnectAgent">Local agent broker the
+        /// translated observations are written into.</param>
+        /// <param name="configuration">Raw configuration payload.</param>
         public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)
         {
             Id = ModuleId;
@@ -49,6 +68,12 @@ namespace MTConnect.Modules
         }
 
 
+        /// <summary>
+        /// Module lifecycle hook: spawns the MQTT subscription worker on
+        /// a background task. Subscriptions are managed by <c>Worker</c>
+        /// which reconnects on failure.
+        /// </summary>
+        /// <param name="initializeDataItems">Inherited flag; unused.</param>
         protected override void OnStartAfterLoad(bool initializeDataItems)
         {
             if (_configuration != null)
@@ -60,6 +85,10 @@ namespace MTConnect.Modules
         }
 
 
+        /// <summary>
+        /// Module lifecycle hook: cancels the subscription worker and
+        /// disposes the MQTT client.
+        /// </summary>
         protected override void OnStop()
         {
             if (_stop != null) _stop.Cancel();

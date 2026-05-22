@@ -30,6 +30,14 @@ namespace MTConnect.Modules.Http
         private readonly HttpServerModuleConfiguration _moduleConfiguration;
 
 
+        /// <summary>
+        /// Initialises a new instance against the supplied module
+        /// configuration and agent broker.
+        /// </summary>
+        /// <param name="configuration">Module configuration with the
+        /// XSL stylesheet and XSD-namespace settings.</param>
+        /// <param name="mtconnectAgent">Agent broker the server reads
+        /// observations + assets from.</param>
         public MTConnectHttpAgentServer(HttpServerModuleConfiguration configuration, IMTConnectAgentBroker mtconnectAgent) : base(configuration, mtconnectAgent)
         {
             _moduleConfiguration = configuration;
@@ -41,6 +49,15 @@ namespace MTConnect.Modules.Http
         //    base.OnConfigureServer(serverConfig);
         //}
 
+        /// <summary>
+        /// Serves the configured Devices / Streams XSL stylesheets when
+        /// the request's local path matches the configured location.
+        /// Returns <c>null</c> for any other static-file request so the
+        /// default file pipeline runs.
+        /// </summary>
+        /// <param name="request">Incoming static-file request.</param>
+        /// <returns>The stylesheet contents as a stream, or <c>null</c>
+        /// when no stylesheet matches.</returns>
         protected override Stream OnProcessStatic(MTConnectStaticFileRequest request)
         {
             if (request.LocalPath != null)
@@ -70,6 +87,15 @@ namespace MTConnect.Modules.Http
             return null;
         }
 
+        /// <summary>
+        /// Builds the per-request format-options bag passed to the
+        /// document formatter. For XML responses the bag carries the
+        /// XSD schema text, the configured XML namespaces, and the
+        /// stylesheet location / path key-value pairs.
+        /// </summary>
+        /// <param name="args">Pre-formatting metadata (request type,
+        /// document format, MTConnect version, validation level).</param>
+        /// <returns>List of format-option key-value pairs.</returns>
         protected override List<KeyValuePair<string, string>> OnCreateFormatOptions(MTConnectFormatOptionsArgs args)
         {
             var x = new List<KeyValuePair<string, string>>();
