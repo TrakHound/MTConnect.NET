@@ -69,7 +69,7 @@ namespace MTConnect.Interfaces
             return null;
         }
 
-        public new static string GetSubTypeId(SubTypes subType)
+        public static string GetSubTypeId(SubTypes subType)
         {
             switch (subType)
             {

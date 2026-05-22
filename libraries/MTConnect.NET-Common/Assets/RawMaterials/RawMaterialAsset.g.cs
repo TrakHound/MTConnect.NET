@@ -91,6 +91,6 @@ namespace MTConnect.Assets.RawMaterials
         /// <summary>
         /// Serial number of the raw material.
         /// </summary>
-        public string SerialNumber { get; set; }
+        public new string SerialNumber { get; set; }
     }
 }
