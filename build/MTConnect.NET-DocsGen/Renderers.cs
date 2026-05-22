@@ -34,7 +34,7 @@ public static class IndexRenderer
         sb.AppendLine();
         sb.AppendLine("## Validation");
         sb.AppendLine();
-        sb.AppendLine("`MTConnect.NET-Common-Tests` includes a `DocsReferenceGenerationTests` fixture that re-runs the same Roslyn inventories and asserts the on-disk markdown is in sync. Adding an HTTP route, environment-variable read, or configuration property without regenerating the reference therefore fails CI.");
+        sb.AppendLine("`MTConnect.NET-Docs-Tests` includes a `DocsReferenceGenerationTests` fixture that re-runs the same Roslyn / shell inventories and asserts the on-disk markdown is in sync. Adding an HTTP route, a `Environment.GetEnvironmentVariable(\"…\")` read, a `${MTCONNECT_…}` reference in a contributor script, or a configuration property without regenerating the reference therefore fails CI.");
         sb.AppendLine();
         return sb.ToString();
     }
@@ -141,26 +141,52 @@ public static class EnvVarRenderer
         sb.AppendLine();
         sb.AppendLine("# Environment variables");
         sb.AppendLine();
-        sb.AppendLine("Every environment-variable read site discovered in the source tree.");
+        sb.AppendLine("Every environment-variable reference discovered in the source tree. Both the C# `Environment.GetEnvironmentVariable(\"…\")` read sites and the contributor scripts under `tools/` (`*.sh` and `*.ps1`) are scanned. Variables are grouped by name, so reads, writes, and defaults that all target the same variable appear together.");
         sb.AppendLine();
         if (vars.Count == 0)
         {
-            sb.AppendLine("_No environment-variable reads found in the current source tree._");
+            sb.AppendLine("_No environment-variable references found in the current source tree._");
             sb.AppendLine();
+            return sb.ToString();
         }
-        else
+
+        // Group by variable name.
+        var byName = vars
+            .GroupBy(v => v.Name, StringComparer.Ordinal)
+            .OrderBy(g => g.Key, StringComparer.Ordinal)
+            .ToList();
+
+        sb.AppendLine("## Summary");
+        sb.AppendLine();
+        sb.AppendLine("| Variable | Kinds | Default(s) |");
+        sb.AppendLine("| --- | --- | --- |");
+        foreach (var g in byName)
         {
-            sb.AppendLine("| Variable | Source | Fallback / context |");
-            sb.AppendLine("| --- | --- | --- |");
-            foreach (var v in vars)
+            var kinds = string.Join(", ", g.Select(v => v.Kind).Distinct().OrderBy(k => k, StringComparer.Ordinal));
+            var defaults = string.Join(", ", g.Where(v => !string.IsNullOrEmpty(v.FallbackLiteral))
+                .Select(v => $"`{v.FallbackLiteral}`").Distinct());
+            sb.AppendLine($"| `{g.Key}` | {kinds} | {defaults} |");
+        }
+        sb.AppendLine();
+
+        sb.AppendLine("## Per-variable detail");
+        sb.AppendLine();
+        foreach (var g in byName)
+        {
+            sb.AppendLine($"### `{g.Key}`");
+            sb.AppendLine();
+            sb.AppendLine("| Kind | Source | Default / value | Context |");
+            sb.AppendLine("| --- | --- | --- | --- |");
+            foreach (var v in g)
             {
                 var fallback = string.IsNullOrEmpty(v.FallbackLiteral) ? "" : $"`{v.FallbackLiteral}`";
-                sb.AppendLine($"| `{v.Name}` | [`{v.FileRelativePath}:{v.Line}`](https://github.com/TrakHound/MTConnect.NET/blob/master/{v.FileRelativePath}#L{v.Line}) | {fallback} {Escape(v.Context)} |");
+                sb.AppendLine($"| `{v.Kind}` | [`{v.FileRelativePath}:{v.Line}`](https://github.com/TrakHound/MTConnect.NET/blob/master/{v.FileRelativePath}#L{v.Line}) | {fallback} | {Escape(v.Context)} |");
             }
             sb.AppendLine();
-            sb.AppendLine("Each row is grouped by `Variable` then `Source`. Adding a new `Environment.GetEnvironmentVariable(\"...\")` call without regenerating this page fails the validation test in CI.");
-            sb.AppendLine();
         }
+
+        sb.AppendLine("Adding a new `Environment.GetEnvironmentVariable(\"…\")` call, a new `${MTCONNECT_…}` read in a contributor script, or a new `$env:MTCONNECT_…` reference in a PowerShell script without regenerating this page fails the validation test in CI.");
+        sb.AppendLine();
         return sb.ToString();
     }
 
