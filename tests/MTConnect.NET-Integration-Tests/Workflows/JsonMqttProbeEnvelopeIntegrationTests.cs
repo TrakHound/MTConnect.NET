@@ -119,7 +119,7 @@ namespace MTConnect.Tests.Integration.Workflows
         public async Task Probe_envelope_multi_device_round_trip_preserves_every_device()
         {
             // Subscribe to every Probe topic published under the prefix.
-            using var subscriber = await ConnectSubscriberAsync().ConfigureAwait(false);
+            using var subscriber = await ConnectSubscriberAsync();
 
             var received = new Dictionary<string, byte[]>(StringComparer.Ordinal);
             var receivedLock = new object();
@@ -159,11 +159,11 @@ namespace MTConnect.Tests.Integration.Workflows
                     .WithTopicFilter(
                         $"{TopicPrefix}/Probe/#",
                         MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
-                    .Build()).ConfigureAwait(false);
+                    .Build());
 
             var completed = await Task.WhenAny(
                 allArrived.Task,
-                Task.Delay(TimeSpan.FromSeconds(30))).ConfigureAwait(false);
+                Task.Delay(TimeSpan.FromSeconds(30)));
             Assert.True(
                 completed == allArrived.Task,
                 $"Did not receive Probe payloads for every device within 30s "
@@ -206,7 +206,7 @@ namespace MTConnect.Tests.Integration.Workflows
             // and parse it back through the production formatter. The
             // round-tripped Device.Name must match the source byte-for-byte
             // — no lowercase / case normalisation anywhere in the path.
-            using var subscriber = await ConnectSubscriberAsync().ConfigureAwait(false);
+            using var subscriber = await ConnectSubscriberAsync();
 
             var matched = new TaskCompletionSource<byte[]>(
                 TaskCreationOptions.RunContinuationsAsynchronously);
@@ -230,16 +230,16 @@ namespace MTConnect.Tests.Integration.Workflows
                     .WithTopicFilter(
                         $"{TopicPrefix}/Probe/{Device3Uuid}",
                         MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
-                    .Build()).ConfigureAwait(false);
+                    .Build());
 
             var completed = await Task.WhenAny(
                 matched.Task,
-                Task.Delay(TimeSpan.FromSeconds(30))).ConfigureAwait(false);
+                Task.Delay(TimeSpan.FromSeconds(30)));
             Assert.True(
                 completed == matched.Task,
                 $"Did not receive a Probe payload on /Probe/{Device3Uuid} within 30s.");
 
-            var payload = await matched.Task.ConfigureAwait(false);
+            var payload = await matched.Task;
 
             // Surface inspection: case is preserved on the wire.
             var json = Encoding.UTF8.GetString(payload);
