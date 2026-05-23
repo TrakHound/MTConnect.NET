@@ -43,9 +43,22 @@ namespace MTConnect.Devices.Json
         {
             var devices = new List<IDevice>();
 
+            // Items deserialised from the "Agent" envelope key must be
+            // re-tagged with Agent.TypeId after reconstruction; JsonDevice
+            // is type-agnostic and ToDevice() returns a generic Device
+            // (Type = Device.TypeId from the Device ctor). Without this
+            // re-tag, the Agent vs Device distinction is silently erased
+            // on the read path even though the wire envelope keys are
+            // symmetric (cf. MTConnect v2.7 DevicesType XSD lines 5029-5051
+            // and cppagent JSON v2 reference).
             if (!Agents.IsNullOrEmpty())
             {
-                foreach (var device in Agents) devices.Add(device.ToDevice());
+                foreach (var jsonAgent in Agents)
+                {
+                    var agent = jsonAgent.ToDevice();
+                    if (agent != null) agent.Type = Agent.TypeId;
+                    devices.Add(agent);
+                }
             }
 
             if (!Devices.IsNullOrEmpty())

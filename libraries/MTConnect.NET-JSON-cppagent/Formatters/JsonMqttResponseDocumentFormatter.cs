@@ -64,19 +64,15 @@ namespace MTConnect.Formatters
         {
             try
             {
-                // Read Document
-                var devices = JsonSerializer.Deserialize<JsonDeviceContainer>(content);
-                var success = devices != null;
+                // Symmetric counterpart of the write path: deserialise the
+                // full JsonDevicesResponseDocument envelope so multi-device
+                // MTConnectDevices.Devices.{Agent[],Device[]} payloads round-
+                // trip with their device count, identity, and Agent vs Device
+                // type tagging intact. Mirrors JsonHttpResponseDocumentFormatter.
+                var document = JsonSerializer.Deserialize<JsonDevicesResponseDocument>(content);
+                var success = document != null;
 
-                var responseDocument = new DevicesResponseDocument();
-
-                var device = devices.ToDevice();
-                if (device != null)
-                {
-                    responseDocument.Devices = new IDevice[] { device };
-                }
-
-                return new FormatReadResult<IDevicesResponseDocument>(responseDocument, success);
+                return new FormatReadResult<IDevicesResponseDocument>(document?.ToDocument(), success);
             }
             catch (Exception ex)
             {
