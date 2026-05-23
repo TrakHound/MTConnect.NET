@@ -37,13 +37,26 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
     {
         private static IDevicesResponseDocument BuildDocument(IEnumerable<IDevice> devices)
         {
+            return BuildDocument(devices, new System.Version(2, 7, 0, 0));
+        }
+
+        /// <summary>
+        /// Builds a Probe-shaped DevicesResponseDocument anchored at a
+        /// specific MTConnect Standard release. Both <c>document.Version</c>
+        /// and <c>Header.SchemaVersion</c> are derived from the same source
+        /// so the parametric envelope-shape tests pin a single coherent
+        /// version across the response envelope and its Header sibling.
+        /// </summary>
+        private static IDevicesResponseDocument BuildDocument(IEnumerable<IDevice> devices, System.Version version)
+        {
+            var schemaVersion = version.Major + "." + version.Minor;
             return new DevicesResponseDocument
             {
                 Header = new MTConnectDevicesHeader
                 {
                     InstanceId = 1,
-                    Version = "2.7.0.0",
-                    SchemaVersion = "2.7",
+                    Version = version.ToString(),
+                    SchemaVersion = schemaVersion,
                     Sender = "test-agent",
                     AssetBufferSize = 1024,
                     AssetCount = 0,
@@ -53,8 +66,33 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
                     CreationTime = new System.DateTime(2026, 5, 23, 0, 0, 0, System.DateTimeKind.Utc),
                 },
                 Devices = devices.ToArray(),
-                Version = new System.Version(2, 7, 0, 0),
+                Version = version,
             };
+        }
+
+        /// <summary>
+        /// Every MTConnect Standard version this library advertises support
+        /// for, sourced from <c>MTConnectVersions</c>
+        /// (libraries/MTConnect.NET-Common/MTConnectVersions.cs). Range is
+        /// v1.0 through v2.7 inclusive. Adding a new <c>VersionNM</c>
+        /// constant there extends this list automatically on the next
+        /// reflection scan, so the parametric envelope-shape gate never
+        /// silently drops a release.
+        /// </summary>
+        public static System.Collections.Generic.IEnumerable<System.Version> AllSupportedMTConnectVersions()
+        {
+            var fields = typeof(MTConnectVersions).GetFields(
+                System.Reflection.BindingFlags.Public
+                | System.Reflection.BindingFlags.Static);
+            foreach (var field in fields)
+            {
+                if (field.FieldType != typeof(System.Version)) continue;
+                if (!field.Name.StartsWith("Version", System.StringComparison.Ordinal)) continue;
+                if (field.GetValue(null) is System.Version v)
+                {
+                    yield return v;
+                }
+            }
         }
 
         private static Device NewAgent(string id, string name, string uuid)
@@ -408,6 +446,153 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
                 "Agent JSON object must expose a `name` field.");
             Assert.That(nameProp.GetString(), Is.EqualTo("LinuxCNC"),
                 "Agent `name` must be emitted verbatim — no lowercase / case normalisation.");
+        }
+
+
+        // ---------------------------------------------------------------
+        // Parametric multi-version envelope-shape contract.
+        //
+        // The bug report's central artefact citations require every
+        // supported MTConnect release to honour the same envelope shape:
+        //  * cppagent JSON v2 probe printer (json_printer_probe_test.cpp)
+        //  * MTConnect v2.7 XSD DevicesType (MTConnectDevices_2.7.xsd
+        //    lines 5029-5051) — Agent + Device as separate named child
+        //    elements of Devices
+        //  * SysML v2.7 Agent block (Profile:normative)
+        //
+        // The Format(IDevicesResponseDocument, options) signature is not
+        // version-parameterised at the API surface; the version travels
+        // on document.Version + Header.SchemaVersion. These tests pin
+        // that the envelope key shape (MTConnectDevices.Devices is a
+        // JSON object with Agent[] + Device[] keys) and the Agent name
+        // case preservation are invariant across the v1.0 → v2.7 range
+        // sourced from MTConnectVersions.cs. If a future release adds a
+        // version-discriminating branch to the formatter, these tests
+        // become the regression gate that surfaces silent shape drift on
+        // older releases.
+        // ---------------------------------------------------------------
+
+        /// <remarks>
+        /// Pins the contract from bug report lines 13-15 (TL;DR) across
+        /// every supported MTConnect release — multi-version variant of
+        /// MqttProbeFormatter_emits_full_envelope_with_Agent_and_Device_keys.
+        /// </remarks>
+        [TestCaseSource(nameof(AllSupportedMTConnectVersions))]
+        public void MqttProbeFormatter_envelope_shape_holds_for_version(System.Version version)
+        {
+            // Arrange: one Agent + two Devices, same shape as the master
+            // test, anchored at the supplied MTConnect Standard release.
+            var devices = new IDevice[]
+            {
+                NewAgent("agent-1", "Agent", "agent-1"),
+                NewDevice("device-1", "VMC-3Axis", "device-1"),
+                NewDevice("device-2", "Lathe", "device-2"),
+            };
+            var document = BuildDocument(devices, version);
+            var formatter = new JsonMqttResponseDocumentFormatter();
+
+            // Act
+            var root = GetRoot(formatter.Format(document));
+
+            // Assert: envelope key shape is invariant across all versions.
+            var envelope = root.GetProperty("MTConnectDevices");
+            var devicesNode = envelope.GetProperty("Devices");
+            Assert.That(devicesNode.ValueKind, Is.EqualTo(JsonValueKind.Object),
+                $"Devices must be a JSON object for v{version} (XSD DevicesType complex type).");
+
+            Assert.That(devicesNode.TryGetProperty("Agent", out var agents), Is.True,
+                $"Devices.Agent key must be emitted for v{version} when the source contains an Agent.");
+            Assert.That(agents.GetArrayLength(), Is.EqualTo(1),
+                $"Devices.Agent must contain exactly one entry for v{version}.");
+
+            Assert.That(devicesNode.TryGetProperty("Device", out var machineDevices), Is.True,
+                $"Devices.Device key must be emitted for v{version} when the source contains Devices.");
+            Assert.That(machineDevices.GetArrayLength(), Is.EqualTo(2),
+                $"Devices.Device must contain both source entries for v{version}; none may be dropped.");
+        }
+
+        /// <remarks>
+        /// Pins the contract from bug report lines 13-15 (TL;DR) — Agent
+        /// name case preservation across every supported MTConnect release.
+        /// </remarks>
+        [TestCaseSource(nameof(AllSupportedMTConnectVersions))]
+        public void MqttProbeFormatter_Agent_name_case_preserved_for_version(System.Version version)
+        {
+            // Arrange: a mixed-case Agent name with hyphen and underscore,
+            // exercising every code-point class the XSD NameType permits.
+            const string mixedCaseName = "LinuxCNC-Mixed_Case";
+            var document = BuildDocument(
+                new IDevice[] { NewAgent("agent-1", mixedCaseName, "agent-1") },
+                version);
+            var formatter = new JsonMqttResponseDocumentFormatter();
+
+            // Act
+            var root = GetRoot(formatter.Format(document));
+            var agents = root
+                .GetProperty("MTConnectDevices")
+                .GetProperty("Devices")
+                .GetProperty("Agent");
+            var agentNode = agents[0];
+
+            // Assert: the `name` JSON field is byte-identical to the source
+            // for every supported release — no case folding anywhere in
+            // the version range. W3C XML 1.0 §2.3 ("Names are case-
+            // sensitive") plus the XSD NameType (xs:string, no case facet)
+            // make any lowercase normalisation a wire-shape regression.
+            Assert.That(agentNode.TryGetProperty("name", out var nameProp), Is.True,
+                $"Agent JSON object must expose a `name` field for v{version}.");
+            Assert.That(nameProp.GetString(), Is.EqualTo(mixedCaseName),
+                $"Agent `name` must be emitted verbatim for v{version} — no case normalisation.");
+        }
+
+        /// <remarks>
+        /// Pins the contract from bug report lines 13-15 (TL;DR) — read-path
+        /// envelope round-trip across every supported MTConnect release.
+        /// Multi-version variant of
+        /// MqttProbeFormatter_round_trip_envelope_preserves_multi_device_shape +
+        /// MqttProbeFormatter_round_trip_envelope_preserves_Agent_Device_typing.
+        /// </remarks>
+        [TestCaseSource(nameof(AllSupportedMTConnectVersions))]
+        public void MqttProbeFormatter_round_trip_envelope_for_version(System.Version version)
+        {
+            // Arrange: one Agent + two Devices.
+            var sourceDevices = new IDevice[]
+            {
+                NewAgent("agent-1", "Agent", "agent-1"),
+                NewDevice("device-1", "VMC-3Axis", "device-1"),
+                NewDevice("device-2", "Lathe", "device-2"),
+            };
+            var document = BuildDocument(sourceDevices, version);
+            var formatter = new JsonMqttResponseDocumentFormatter();
+
+            // Act: Format → stream → CreateDevicesResponseDocument.
+            var writeResult = formatter.Format(document);
+            Assert.That(writeResult.Success, Is.True,
+                $"Format must succeed for v{version} on a non-empty source.");
+            writeResult.Content.Position = 0;
+
+            var readResult = formatter.CreateDevicesResponseDocument(writeResult.Content);
+
+            // Assert: device count survives the envelope round-trip.
+            Assert.That(readResult.Success, Is.True,
+                $"CreateDevicesResponseDocument must succeed for v{version} on the freshly written payload.");
+            var roundTripped = readResult.Content.Devices.ToList();
+            Assert.That(roundTripped.Count, Is.EqualTo(sourceDevices.Length),
+                $"Round-tripped Devices count must match the source for v{version} — no envelope entry may be dropped.");
+
+            // Assert: Agent vs Device typing survives — the central read-path
+            // regression that 15d70abe addressed.
+            var agentMeta = roundTripped.SingleOrDefault(d => d.Uuid == "agent-1");
+            Assert.That(agentMeta, Is.Not.Null,
+                $"Agent meta-device must be recoverable for v{version} by source UUID.");
+            Assert.That(agentMeta!.Type, Is.EqualTo(Agent.TypeId),
+                $"Round-tripped Agent meta-device must retain Agent.TypeId for v{version}.");
+
+            var machineDevice = roundTripped.SingleOrDefault(d => d.Uuid == "device-1");
+            Assert.That(machineDevice, Is.Not.Null,
+                $"Machine Device must be recoverable for v{version} by source UUID.");
+            Assert.That(machineDevice!.Type, Is.EqualTo(Device.TypeId),
+                $"Round-tripped machine Device must retain Device.TypeId for v{version}.");
         }
     }
 }
