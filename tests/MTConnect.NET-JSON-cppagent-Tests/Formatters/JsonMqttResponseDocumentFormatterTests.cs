@@ -291,5 +291,123 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
             Assert.That(text, Does.Contain("\"MTConnectDevices\""),
                 "Indented output must still wrap content in the MTConnectDevices envelope.");
         }
+
+
+        // ---------------------------------------------------------------
+        // Read-path symmetry: CreateDevicesResponseDocument must deserialise
+        // the same envelope shape that Format emits. Pre-fix the reader
+        // routed through JsonDeviceContainer (single-device round-trip),
+        // which collapsed every multi-device envelope to a one-element list
+        // and erased Agent vs Device typing. These tests pin the symmetric
+        // contract: write-then-read survives the device count, identity,
+        // and Type-tag intact.
+        // ---------------------------------------------------------------
+
+        [Test]
+        public void MqttProbeFormatter_round_trip_envelope_preserves_multi_device_shape()
+        {
+            // Arrange: one Agent + two Devices.
+            var sourceDevices = new IDevice[]
+            {
+                NewAgent("agent-1", "agent", "agent-1"),
+                NewDevice("device-1", "VMC-3Axis", "device-1"),
+                NewDevice("device-2", "Lathe", "device-2"),
+            };
+            var document = BuildDocument(sourceDevices);
+            var formatter = new JsonMqttResponseDocumentFormatter();
+
+            // Act: Format -> stream -> CreateDevicesResponseDocument.
+            var writeResult = formatter.Format(document);
+            Assert.That(writeResult.Success, Is.True, "Format must succeed for a non-empty source.");
+            writeResult.Content.Position = 0;
+
+            var readResult = formatter.CreateDevicesResponseDocument(writeResult.Content);
+
+            // Assert: round-trip success.
+            Assert.That(readResult.Success, Is.True,
+                "CreateDevicesResponseDocument must succeed on a payload Format just produced.");
+            Assert.That(readResult.Content, Is.Not.Null,
+                "Read result content (the parsed document) must not be null on success.");
+
+            var roundTripped = readResult.Content;
+            Assert.That(roundTripped.Devices, Is.Not.Null,
+                "Round-tripped document must expose a non-null Devices collection.");
+
+            var roundTrippedList = roundTripped.Devices.ToList();
+            Assert.That(roundTrippedList.Count, Is.EqualTo(sourceDevices.Length),
+                "Round-tripped Devices count must match the source — no envelope entry may be dropped.");
+
+            // Identity preservation: every source UUID is present after round-trip.
+            var roundTrippedUuids = roundTrippedList.Select(d => d.Uuid).ToList();
+            foreach (var source in sourceDevices)
+            {
+                Assert.That(roundTrippedUuids, Contains.Item(source.Uuid),
+                    $"Source UUID '{source.Uuid}' must survive the envelope round-trip.");
+            }
+        }
+
+        [Test]
+        public void MqttProbeFormatter_round_trip_envelope_preserves_Agent_Device_typing()
+        {
+            // Arrange: one Agent + one Device. The read path must distinguish
+            // them by Type so consumers can re-derive the cppagent v2 keyed
+            // shape (Agent[] vs Device[]) without losing identity.
+            var document = BuildDocument(new IDevice[]
+            {
+                NewAgent("agent-1", "agent", "agent-1"),
+                NewDevice("device-1", "VMC-3Axis", "device-1"),
+            });
+            var formatter = new JsonMqttResponseDocumentFormatter();
+
+            // Act
+            var writeResult = formatter.Format(document);
+            writeResult.Content.Position = 0;
+            var readResult = formatter.CreateDevicesResponseDocument(writeResult.Content);
+
+            // Assert: typing is preserved through round-trip.
+            Assert.That(readResult.Success, Is.True);
+            var roundTripped = readResult.Content.Devices.ToList();
+
+            var agentMeta = roundTripped.SingleOrDefault(d => d.Uuid == "agent-1");
+            Assert.That(agentMeta, Is.Not.Null,
+                "The Agent meta-device must be recoverable by its source UUID after round-trip.");
+            Assert.That(agentMeta!.Type, Is.EqualTo(Agent.TypeId),
+                "Round-tripped Agent meta-device must retain Type == Agent.TypeId, "
+                + "not collapse to the generic Device.TypeId.");
+
+            var machineDevice = roundTripped.SingleOrDefault(d => d.Uuid == "device-1");
+            Assert.That(machineDevice, Is.Not.Null,
+                "The machine Device must be recoverable by its source UUID after round-trip.");
+            Assert.That(machineDevice!.Type, Is.EqualTo(Device.TypeId),
+                "Round-tripped machine Device must retain Type == Device.TypeId.");
+        }
+
+        [Test]
+        public void MqttProbeFormatter_preserves_Agent_name_case_in_envelope_output()
+        {
+            // Arrange: an Agent whose source `name` attribute is mixed-case,
+            // mirroring cppagent's reference fixture convention (e.g. "LinuxCNC").
+            // The cppagent JSON v2 serialiser emits the `name` attribute
+            // verbatim — MTConnect.NET's formatter must do the same.
+            var document = BuildDocument(new IDevice[]
+            {
+                NewAgent("agent-1", "LinuxCNC", "agent-1"),
+            });
+            var formatter = new JsonMqttResponseDocumentFormatter();
+
+            // Act
+            var root = GetRoot(formatter.Format(document));
+            var agents = root
+                .GetProperty("MTConnectDevices")
+                .GetProperty("Devices")
+                .GetProperty("Agent");
+            var agentNode = agents[0];
+
+            // Assert: the `name` JSON field equals the source value byte-for-byte.
+            Assert.That(agentNode.TryGetProperty("name", out var nameProp), Is.True,
+                "Agent JSON object must expose a `name` field.");
+            Assert.That(nameProp.GetString(), Is.EqualTo("LinuxCNC"),
+                "Agent `name` must be emitted verbatim — no lowercase / case normalisation.");
+        }
     }
 }
