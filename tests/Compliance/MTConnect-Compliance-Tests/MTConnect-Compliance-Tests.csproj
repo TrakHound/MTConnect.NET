@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+    <PackageReference Include="MQTTnet" Version="4.3.7.1207" />
     <PackageReference Include="NUnit" Version="3.13.3" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="Testcontainers" Version="3.10.0" />
@@ -17,8 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\agent\Modules\MTConnect.NET-AgentModule-MqttRelay\MTConnect.NET-AgentModule-MqttRelay.csproj" />
     <ProjectReference Include="..\..\..\libraries\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
     <ProjectReference Include="..\..\..\libraries\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
+    <ProjectReference Include="..\..\..\libraries\MTConnect.NET-MQTT\MTConnect.NET-MQTT.csproj" />
     <ProjectReference Include="..\..\..\libraries\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
     <ProjectReference Include="..\..\..\libraries\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
     <ProjectReference Include="..\..\..\libraries\MTConnect.NET-JSON-cppagent\MTConnect.NET-JSON-cppagent.csproj" />
