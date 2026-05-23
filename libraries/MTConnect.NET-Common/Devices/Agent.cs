@@ -50,7 +50,14 @@ namespace MTConnect.Devices
             if (_agent != null)
             {
                 Id = $"agent_{_agent.Uuid.ToMD5Hash().Substring(0, 10)}";
-                Name = "agent";
+                // Pascal-case "Agent" matches the cppagent JSON v2 element-key
+                // convention (the source XML <Agent name="..."> attribute is
+                // preserved verbatim by cppagent; MTConnect.NET-as-agent does
+                // not expose an operator-configurable agent-device name, so
+                // this constant is the canonical default that aligns with the
+                // reference encoder). NameType in the v2.7 XSD is xs:string
+                // with no case facet, so either casing is schema-valid.
+                Name = "Agent";
                 Uuid = _agent.Uuid;
                 MTConnectVersion = _agent.MTConnectVersion;
             }
