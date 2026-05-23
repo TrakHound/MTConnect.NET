@@ -26,12 +26,15 @@ namespace MTConnect.Formatters
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
             var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
 
+            // Serialize through the full JsonDevicesResponseDocument envelope so
+            // MTConnectDevices.Devices is emitted as the cppagent JSON v2 keyed
+            // object (separate Agent[] and Device[] keys), matching the MTConnect
+            // v2.7 XSD DevicesType complex type. Mirrors JsonHttpResponseDocumentFormatter.
             if (!document.Devices.IsNullOrEmpty())
             {
-                var device = document.Devices.FirstOrDefault();
                 var outputStream = new MemoryStream();
-                JsonSerializer.Serialize(outputStream, new JsonDeviceContainer(device), jsonOptions);
-                if (outputStream != null && outputStream.Length > 0)
+                JsonSerializer.Serialize(outputStream, new JsonDevicesResponseDocument(document), jsonOptions);
+                if (outputStream.Length > 0)
                 {
                     return FormatWriteResult.Successful(outputStream, ContentType);
                 }
