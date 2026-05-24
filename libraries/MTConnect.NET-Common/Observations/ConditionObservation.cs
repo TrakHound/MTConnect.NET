@@ -150,7 +150,12 @@ namespace MTConnect.Observations
                     {
                         var key = string.Intern(type + ":" + (int)representation);
 
-                        // Lookup Type ID (Type as PascalCase)
+                        // Lookup Type ID (Type as PascalCase). _types is
+                        // keyed by the class-name-minus-Observation suffix
+                        // (e.g. "Condition" for ConditionObservation), so
+                        // the dictionary lookup must use the PascalCase
+                        // typeId — not the raw (type, representation) cache
+                        // key — or every typed-subclass route misses.
                         _typeIds.TryGetValue(key, out string typeId);
                         if (typeId == null)
                         {
@@ -158,7 +163,7 @@ namespace MTConnect.Observations
                             _typeIds.Add(key, typeId);
                         }
 
-                        _types.TryGetValue(key, out dataItemType);
+                        _types.TryGetValue(typeId, out dataItemType);
                     }
                 }
 
