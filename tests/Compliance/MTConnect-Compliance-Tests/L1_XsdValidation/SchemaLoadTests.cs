@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Schema;
+using MTConnect;
 using NUnit.Framework;
 
 namespace MTConnect.Compliance.Tests.L1_XsdValidation
@@ -161,6 +162,19 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
             using var stream = asm.GetManifestResourceStream(resourceName);
             Assert.That(stream, Is.Not.Null, $"Embedded resource '{resourceName}' not found.");
 
+            // Pre-process the XSD source through the library's
+            // XsdPreprocessor so the BCL XmlSchemaSet (XSD 1.0 only) can
+            // compile the 1.0-compatible subset of the official MTConnect
+            // XSDs. Tests and library share a single source of truth — if
+            // the preprocessor drift ever introduces a regression, both
+            // sides surface it.
+            string xsdSource;
+            using (var srcReader = new StreamReader(stream!))
+            {
+                xsdSource = srcReader.ReadToEnd();
+            }
+            var preprocessed = XsdPreprocessor.StripXsd11Constructs(xsdSource);
+
             var errors = new List<string>();
 
             var settings = new XmlReaderSettings
@@ -190,7 +204,8 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
             AddEmbeddedSchema(asm, schemaSet, settings, XmlResourceName, "w3c/xml.xsd");
             AddEmbeddedSchema(asm, schemaSet, settings, XlinkResourceName, "w3c/xlink.xsd");
 
-            using var reader = XmlReader.Create(stream!, settings, ToDisplayPath(resourceName));
+            using var preprocessedReader = new StringReader(preprocessed);
+            using var reader = XmlReader.Create(preprocessedReader, settings, ToDisplayPath(resourceName));
             schemaSet.Add(null, reader);
             schemaSet.Compile();
 

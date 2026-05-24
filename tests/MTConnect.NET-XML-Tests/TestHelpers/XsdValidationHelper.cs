@@ -48,7 +48,13 @@ namespace MTConnect.Tests.XML.TestHelpers
             };
 
             settings.Schemas.XmlResolver = null;
-            using (var schemaReader = XmlReader.Create(xsdPath, new XmlReaderSettings
+            // Pre-process the XSD source through the library's
+            // XsdPreprocessor so the BCL XmlSchemaSet (XSD 1.0 only) can
+            // compile the 1.0-compatible subset of the official MTConnect
+            // XSDs (which carry XSD 1.1 constructs the BCL reader rejects).
+            var preprocessedXsd = XsdPreprocessor.StripXsd11Constructs(File.ReadAllText(xsdPath));
+            using (var schemaStringReader = new StringReader(preprocessedXsd))
+            using (var schemaReader = XmlReader.Create(schemaStringReader, new XmlReaderSettings
             {
                 DtdProcessing = DtdProcessing.Ignore,
                 XmlResolver = null
