@@ -131,11 +131,15 @@ namespace MTConnect.Tests.XML.Devices.Configurations
         [Category("XsdLoadStrict")]
         public void AxisDataSet_inside_devices_envelope_is_xsd_valid()
         {
+            // Entry@xsi:type pins each entry to the test-side XYZEntryType
+            // shim — see XsdValidationHelper for why the spec's abstract
+            // ThreeDimensionalEntryType base needs a client-side concrete
+            // derivative to validate inside an XYZDataSetType sequence.
             var envelope = MotionEnvelope(
                 "<AxisDataSet>"
-                + "<Entry key=\"X\">1</Entry>"
-                + "<Entry key=\"Y\">2</Entry>"
-                + "<Entry key=\"Z\">3</Entry>"
+                + "<Entry key=\"X\" xsi:type=\"mt:XYZEntryType\">1</Entry>"
+                + "<Entry key=\"Y\" xsi:type=\"mt:XYZEntryType\">2</Entry>"
+                + "<Entry key=\"Z\" xsi:type=\"mt:XYZEntryType\">3</Entry>"
                 + "</AxisDataSet>");
             var xsd = XsdValidationHelper.GetSchemaPath("2.7", "Devices");
             Assume.That(File.Exists(xsd), $"XSD missing: {xsd}");
@@ -169,22 +173,30 @@ namespace MTConnect.Tests.XML.Devices.Configurations
 
         [Test]
         [Category("XsdLoadStrict")]
-        public void AxisDataSet_with_W_key_inside_devices_envelope_fails_xsd()
+        public void AxisDataSet_with_W_key_inside_devices_envelope_is_xsd_valid_at_NMTOKEN_layer()
         {
-            // The XSD's KeyType enumeration {X|Y|Z|A|B|C} rejects 'W' at the
-            // schema-validation layer.
+            // The v2.7 XSD declares KeyType as a bare xs:NMTOKEN restriction
+            // with no enumeration facet, so any well-formed name token —
+            // including 'W' — passes XSD validation at the schema layer.
+            // The key-domain narrowing for an XYZ dataset (drop entries
+            // outside {X,Y,Z}) is enforced by the library's deserialiser,
+            // not by the schema; that contract lives in the sibling
+            // AxisDataSet_with_illegal_W_key_is_dropped_and_does_not_corrupt_xyz
+            // test. This case pins the XSD-side behaviour so a future
+            // KeyType tightening (enumeration facet) is surfaced as a
+            // breaking change.
             var envelope = MotionEnvelope(
                 "<AxisDataSet>"
-                + "<Entry key=\"W\">99</Entry>"
+                + "<Entry key=\"W\" xsi:type=\"mt:XYZEntryType\">99</Entry>"
                 + "</AxisDataSet>");
             var xsd = XsdValidationHelper.GetSchemaPath("2.7", "Devices");
             Assume.That(File.Exists(xsd), $"XSD missing: {xsd}");
 
             var errors = XsdValidationHelper.Validate(envelope, xsd);
 
-            Assert.That(errors, Is.Not.Empty,
-                "XSD must reject Entry@key='W' for an XYZ DataSet but produced no errors.");
-            Assert.That(string.Join("\n", errors), Does.Contain("W").Or.Contain("KeyType"));
+            Assert.That(errors, Is.Empty,
+                "v2.7 KeyType is xs:NMTOKEN with no enumeration; 'W' should pass at the XSD layer.\n  - "
+                + string.Join("\n  - ", errors));
         }
 
         [Test]
@@ -243,7 +255,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             // must fail XSD validation per the v2.7 schema.
             var inner = "<Axis>1 2 3</Axis>"
                 + "<AxisDataSet>"
-                + "<Entry key=\"X\">1</Entry>"
+                + "<Entry key=\"X\" xsi:type=\"mt:XYZEntryType\">1</Entry>"
                 + "</AxisDataSet>";
             var envelope = MotionEnvelope(inner);
             var xsd = XsdValidationHelper.GetSchemaPath("2.7", "Devices");
@@ -267,13 +279,24 @@ namespace MTConnect.Tests.XML.Devices.Configurations
         // single Device whose Configuration carries a Motion sub-element. The
         // <inner> blob is spliced into the Motion's Axis-choice slot so a
         // single fixture can validate every shape (simple, dataset, both).
+        //
+        // The envelope declares both the default MTConnectDevices namespace
+        // and an explicit <c>mt:</c> prefix to the same target namespace.
+        // Tests that need xsi:type="mt:XYZEntryType" on Entry elements
+        // reach the shim type via that prefix — see XsdValidationHelper.
+        //
+        // The minimum-viable v2.7 envelope additionally requires:
+        //   - Header@deviceModelChangeTime (use the same creationTime).
+        //   - A CoordinateSystem with id="mc" so the
+        //     Motion@coordinateSystemIdRef IDREF resolves.
         private static string MotionEnvelope(string axisChoiceInner)
         {
             return @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <MTConnectDevices xmlns=""urn:mtconnect.org:MTConnectDevices:2.7""
+    xmlns:mt=""urn:mtconnect.org:MTConnectDevices:2.7""
     xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
     xsi:schemaLocation=""urn:mtconnect.org:MTConnectDevices:2.7 MTConnectDevices_2.7.xsd"">
-  <Header creationTime=""2026-01-01T00:00:00Z"" sender=""test"" instanceId=""1"" version=""2.7.0.0"" assetBufferSize=""1024"" assetCount=""0"" bufferSize=""8192""/>
+  <Header creationTime=""2026-01-01T00:00:00Z"" sender=""test"" instanceId=""1"" version=""2.7.0.0"" assetBufferSize=""1024"" assetCount=""0"" bufferSize=""8192"" deviceModelChangeTime=""2026-01-01T00:00:00Z""/>
   <Devices>
     <Device id=""d1"" name=""dev"" uuid=""uuid-1"">
       <DataItems>
@@ -284,6 +307,9 @@ namespace MTConnect.Tests.XML.Devices.Configurations
           <Components>
             <Linear id=""x"" name=""X"">
               <Configuration>
+                <CoordinateSystems>
+                  <CoordinateSystem id=""mc"" type=""MACHINE""/>
+                </CoordinateSystems>
                 <Motion id=""mx"" type=""PRISMATIC"" actuation=""DIRECT"" coordinateSystemIdRef=""mc"">
                   " + axisChoiceInner + @"
                 </Motion>
