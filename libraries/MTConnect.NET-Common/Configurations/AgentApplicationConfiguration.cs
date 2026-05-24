@@ -16,6 +16,21 @@ namespace MTConnect.Configurations
     public class AgentApplicationConfiguration : AgentConfiguration, IAgentApplicationConfiguration
     {
         /// <summary>
+        /// Optional static UUID to assign to the Agent meta-device. When set,
+        /// this value overrides the per-boot <c>Guid.NewGuid()</c> default
+        /// applied by <see cref="MTConnect.Agents.MTConnectAgentInformation"/>'s
+        /// parameterless constructor and survives restarts without relying on
+        /// <c>agent.information.json</c> being present on disk. Corresponds to
+        /// <c>AgentDeviceUUID</c> in the cppagent reference implementation.
+        /// Per MTConnect v2.7 XSD <c>UuidType</c>, the uuid identifies the
+        /// element "for its entire life" — <c>Header.instanceId</c> is the
+        /// per-boot discriminator.
+        /// </summary>
+        [JsonPropertyName("agentUuid")]
+        public string AgentUuid { get; set; }
+
+
+        /// <summary>
         /// The Path to look for the file(s) that represent the Device Information Models to load into the Agent.
         /// The path can either be a single file or a directory. The path can be absolute or relative to the executable's directory
         /// </summary>

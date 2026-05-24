@@ -354,6 +354,17 @@ namespace MTConnect.Applications
                     agentInformation = new MTConnectAgentInformation();
                 }
 
+                // Apply explicit AgentUuid config override (if set). This
+                // pins the Agent meta-device UUID across restarts without
+                // requiring agent.information.json to be present on disk,
+                // and takes precedence over any UUID previously stored in
+                // that file. See MTConnect v2.7 XSD UuidType ("for its
+                // entire life") vs Header.instanceId (per-boot).
+                if (!string.IsNullOrEmpty(configuration.AgentUuid))
+                {
+                    agentInformation.Uuid = configuration.AgentUuid;
+                }
+
                 // Create Observation File Buffer
                 if (configuration.Durable)
                 {

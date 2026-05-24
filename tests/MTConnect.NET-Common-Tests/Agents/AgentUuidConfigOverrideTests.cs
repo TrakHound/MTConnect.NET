@@ -3,7 +3,9 @@
 
 using System;
 using System.IO;
-using System.Text.Json;
+using System.Linq;
+using System.Reflection;
+using System.Text.Json.Serialization;
 using MTConnect.Agents;
 using MTConnect.Configurations;
 using NUnit.Framework;
@@ -141,12 +143,17 @@ namespace MTConnect.Tests.Common.Agents
         /// <summary>
         /// Contract test — the new field is part of the interface surface so
         /// downstream consumers can set it via <see cref="IAgentApplicationConfiguration"/>
-        /// without depending on the concrete class. Also verifies JSON
-        /// serialization uses the camelCase key <c>agentUuid</c> matching the
-        /// project's existing naming convention.
+        /// without depending on the concrete class. Also verifies the JSON
+        /// wire-format key via reflection on the <see cref="JsonPropertyNameAttribute"/>
+        /// to match the camelCase convention used by the other fields on
+        /// <see cref="AgentApplicationConfiguration"/>. (Reflection rather
+        /// than full-object serialization is used because the class has a
+        /// pre-existing unrelated JsonPropertyName collision between
+        /// <c>ServiceDisplayName</c> and <c>ServiceDescription</c> that
+        /// trips <c>JsonSerializer.Serialize</c>.)
         /// </summary>
         [Test]
-        public void AgentUuid_is_exposed_on_interface_and_serializes_camelCase()
+        public void AgentUuid_is_exposed_on_interface_with_camelCase_wire_name()
         {
             IAgentApplicationConfiguration configuration = new AgentApplicationConfiguration
             {
@@ -155,8 +162,19 @@ namespace MTConnect.Tests.Common.Agents
 
             Assert.That(configuration.AgentUuid, Is.EqualTo("interface-surface-test"));
 
-            var json = JsonSerializer.Serialize((AgentApplicationConfiguration)configuration);
-            StringAssert.Contains("\"agentUuid\":\"interface-surface-test\"", json);
+            var property = typeof(AgentApplicationConfiguration).GetProperty(
+                nameof(AgentApplicationConfiguration.AgentUuid),
+                BindingFlags.Public | BindingFlags.Instance);
+            Assert.That(property, Is.Not.Null,
+                "AgentUuid must be a public instance property on AgentApplicationConfiguration.");
+
+            var jsonNameAttribute = property!
+                .GetCustomAttributes(typeof(JsonPropertyNameAttribute), inherit: false)
+                .Cast<JsonPropertyNameAttribute>()
+                .FirstOrDefault();
+            Assert.That(jsonNameAttribute, Is.Not.Null,
+                "AgentUuid must carry [JsonPropertyName(...)] to match the other config fields.");
+            Assert.That(jsonNameAttribute!.Name, Is.EqualTo("agentUuid"));
         }
     }
 }
