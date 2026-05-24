@@ -35,6 +35,24 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
+        include:
+          # ubuntu-latest runs the full sweep: Docker is pre-installed
+          # on GitHub-hosted Linux runners and Testcontainers can spawn
+          # the eclipse-mosquitto + mtconnect/agent images the
+          # RequiresDocker / E2E suites need; the XSD source-of-truth
+          # files ship in-repo, so XsdLoadStrict also has every
+          # prerequisite. Empty filter = no exclusions.
+          - os: ubuntu-latest
+            testFilter: ""
+          # windows-latest GitHub-hosted runners do NOT pre-install
+          # Docker for Linux containers (only Windows containers via
+          # Hyper-V), so the RequiresDocker / E2E suites that boot
+          # Linux images (eclipse-mosquitto:2.0.22,
+          # mtconnect/agent:latest) cannot run there. Skip both
+          # categories on the Windows leg; XsdLoadStrict has no
+          # platform dependency and still runs.
+          - os: windows-latest
+            testFilter: "Category!=RequiresDocker&Category!=E2E"
 
     steps:
       - name: Checkout
@@ -64,15 +82,34 @@ jobs:
       # file cannot win against this solution-wide --settings; running
       # the project as its own step is the only way to give it
       # different coverage scoping. See the integration .csproj comment.
+      #
+      # The --filter expression is matrix-controlled so each OS leg runs
+      # the categories it can physically support. ubuntu-latest carries
+      # an empty filter (the full sweep: RequiresDocker + E2E +
+      # XsdLoadStrict all included); windows-latest carries
+      # Category!=RequiresDocker&Category!=E2E (no Linux-image Docker
+      # on the hosted Windows runner). See the strategy.matrix.include
+      # block above for the rationale.
       - name: Run unit tests with coverage
+        env:
+          TEST_FILTER: ${{ matrix.testFilter }}
         run: |
-          dotnet test MTConnect.NET.sln \
-            --configuration Debug \
-            --no-build \
-            --settings tests/coverlet.runsettings \
-            --results-directory TestResults \
-            --logger "trx;LogFileName=test-results-${{ matrix.os }}.trx" \
-            --filter "Category!=RequiresDocker&Category!=XsdLoadStrict"
+          if [ -n "$TEST_FILTER" ]; then
+            dotnet test MTConnect.NET.sln \
+              --configuration Debug \
+              --no-build \
+              --settings tests/coverlet.runsettings \
+              --results-directory TestResults \
+              --logger "trx;LogFileName=test-results-${{ matrix.os }}.trx" \
+              --filter "$TEST_FILTER"
+          else
+            dotnet test MTConnect.NET.sln \
+              --configuration Debug \
+              --no-build \
+              --settings tests/coverlet.runsettings \
+              --results-directory TestResults \
+              --logger "trx;LogFileName=test-results-${{ matrix.os }}.trx"
+          fi
         shell: bash
 
       # Same zero-test false-green guard as the integration step, on
@@ -129,14 +166,16 @@ jobs:
       # solution-built non-test assembly would discover 0 tests and the
       # step would false-green.
       #
-      # The E2E category is excluded alongside RequiresDocker: the
-      # heavy in-process-server workflow fixtures (HttpProbe /
-      # HttpAsset / ConfigurationPolymorphicHttpProbe workflow tests)
-      # are tagged Category=E2E and re-introduce the timing fragility
-      # the coverage-isolation split exists to avoid; they run only
-      # under MTCONNECT_E2E_DOCKER. ClientAgentCommunicationTests,
+      # As with the unit step, the integration step's --filter is
+      # matrix-controlled: ubuntu-latest runs the full sweep
+      # (RequiresDocker + E2E + XsdLoadStrict — the campaign-added
+      # MqttRelay / JsonMqttProbeEnvelope / HttpProbe / HttpAsset /
+      # ConfigurationPolymorphicHttpProbe workflow tests all run on a
+      # real broker via Testcontainers), windows-latest excludes
+      # RequiresDocker + E2E (no Linux-image Docker on the hosted
+      # Windows runner). ClientAgentCommunicationTests,
       # GenerateDevicesXmlTests and HttpServerLoopbackBindingTests
-      # carry no category and still run here.
+      # carry no category and run on both legs unconditionally.
       - name: Build integration project with IntegrationCoverage flag
         run: |
           dotnet build tests/MTConnect.NET-Integration-Tests/MTConnect.NET-Integration-Tests.csproj \
@@ -146,15 +185,27 @@ jobs:
         shell: bash
 
       - name: Run integration tests with coverage
+        env:
+          TEST_FILTER: ${{ matrix.testFilter }}
         run: |
-          dotnet test tests/MTConnect.NET-Integration-Tests/MTConnect.NET-Integration-Tests.csproj \
-            --configuration Debug \
-            --no-build \
-            -p:IntegrationCoverage=true \
-            --settings tests/coverlet.integration.runsettings \
-            --results-directory TestResults \
-            --logger "trx;LogFileName=test-results-integration-${{ matrix.os }}.trx" \
-            --filter "Category!=RequiresDocker&Category!=XsdLoadStrict&Category!=E2E"
+          if [ -n "$TEST_FILTER" ]; then
+            dotnet test tests/MTConnect.NET-Integration-Tests/MTConnect.NET-Integration-Tests.csproj \
+              --configuration Debug \
+              --no-build \
+              -p:IntegrationCoverage=true \
+              --settings tests/coverlet.integration.runsettings \
+              --results-directory TestResults \
+              --logger "trx;LogFileName=test-results-integration-${{ matrix.os }}.trx" \
+              --filter "$TEST_FILTER"
+          else
+            dotnet test tests/MTConnect.NET-Integration-Tests/MTConnect.NET-Integration-Tests.csproj \
+              --configuration Debug \
+              --no-build \
+              -p:IntegrationCoverage=true \
+              --settings tests/coverlet.integration.runsettings \
+              --results-directory TestResults \
+              --logger "trx;LogFileName=test-results-integration-${{ matrix.os }}.trx"
+          fi
         shell: bash
 
       # Hard-fail the job if the integration step discovered/executed 0
