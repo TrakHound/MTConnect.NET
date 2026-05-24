@@ -1,5 +1,5 @@
 using System;
-using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
@@ -26,7 +26,6 @@ namespace MTConnect.Tests.Integration.Workflows
         private const int InternalPort = 1883;
 
         private IContainer? _container;
-        private string? _configDir;
 
         public string Host => _container?.Hostname ?? "127.0.0.1";
 
@@ -36,23 +35,26 @@ namespace MTConnect.Tests.Integration.Workflows
         public async Task InitializeAsync()
         {
             // Mosquitto 2.x refuses anonymous remote connections by default.
-            // Mount a per-fixture config that opens 1883/tcp to anonymous
+            // Ship a per-fixture config that opens 1883/tcp to anonymous
             // clients so tests do not need to ship credentials into the
             // container or carry a global default the dev's local mosquitto
             // setup might shadow.
-            _configDir = Path.Combine(
-                Path.GetTempPath(),
-                $"mqttrelay-fixture-{Guid.NewGuid():N}");
-            Directory.CreateDirectory(_configDir);
-            var configFile = Path.Combine(_configDir, "mosquitto.conf");
-            File.WriteAllText(
-                configFile,
+            //
+            // Use WithResourceMapping(byte[], string) — copies the bytes
+            // into the container's filesystem at start-up time — rather
+            // than WithBindMount, which couples to a host path. On
+            // Docker-in-Docker setups (e.g. bluefin) the test-host
+            // container's view of /tmp doesn't match the Docker daemon
+            // host's view; the bind-mount would resolve to an empty
+            // directory inside the started container. WithResourceMapping
+            // copies bytes through the Docker API and is path-agnostic.
+            var configBytes = Encoding.UTF8.GetBytes(
                 "listener 1883 0.0.0.0\nallow_anonymous true\n");
 
             _container = new ContainerBuilder()
                 .WithImage(ImageTag)
                 .WithPortBinding(InternalPort, assignRandomHostPort: true)
-                .WithBindMount(configFile, "/mosquitto/config/mosquitto.conf")
+                .WithResourceMapping(configBytes, "/mosquitto/config/mosquitto.conf")
                 .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(InternalPort))
                 .Build();
 
@@ -65,14 +67,6 @@ namespace MTConnect.Tests.Integration.Workflows
             {
                 await _container.DisposeAsync().ConfigureAwait(false);
                 _container = null;
-            }
-
-            if (_configDir != null && Directory.Exists(_configDir))
-            {
-                try { Directory.Delete(_configDir, recursive: true); }
-                catch (IOException) { }
-                catch (UnauthorizedAccessException) { }
-                _configDir = null;
             }
         }
     }

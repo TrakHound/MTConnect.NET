@@ -104,11 +104,26 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
                 "ServiceName = MTConnect Agent\n" +
                 "SchemaVersion = \"2.5\"\n");
 
+            // Use WithResourceMapping(byte[], string) — copies the
+            // configured bytes into the container at start-up via the
+            // Docker API — rather than WithBindMount, which couples to a
+            // host path. On Docker-in-Docker setups (e.g. bluefin) the
+            // test-host container's view of /tmp doesn't match the Docker
+            // daemon host's view; a bind-mount would resolve to an empty
+            // directory inside the started container. ResourceMapping
+            // pushes bytes through the API and is path-agnostic.
+            //
+            // The host-side staging file remains because the in-process
+            // .NET agent's DeviceConfiguration.FromFile requires a file
+            // path; the container side no longer touches that path.
+            var agentCfgBytes = File.ReadAllBytes(_agentCfgPath);
+            var devicesXmlBytes = File.ReadAllBytes(_fixtureXmlPath);
+
             _cppAgent = new ContainerBuilder()
                 .WithImage(CppAgentImage)
                 .WithPortBinding(CppAgentPort, assignRandomHostPort: true)
-                .WithBindMount(_agentCfgPath, "/mtconnect/config/agent.cfg")
-                .WithBindMount(_fixtureXmlPath, "/mtconnect/config/Devices.xml")
+                .WithResourceMapping(agentCfgBytes, "/mtconnect/config/agent.cfg")
+                .WithResourceMapping(devicesXmlBytes, "/mtconnect/config/Devices.xml")
                 .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(CppAgentPort))
                 .WithStartupCallback(async (_, _) => await Task.Delay(500).ConfigureAwait(false))
                 .Build();
