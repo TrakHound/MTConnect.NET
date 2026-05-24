@@ -26,12 +26,15 @@ namespace MTConnect.Formatters
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
             var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
 
+            // Serialize through the full JsonDevicesResponseDocument envelope so
+            // MTConnectDevices.Devices is emitted as the cppagent JSON v2 keyed
+            // object (separate Agent[] and Device[] keys), matching the MTConnect
+            // v2.7 XSD DevicesType complex type. Mirrors JsonHttpResponseDocumentFormatter.
             if (!document.Devices.IsNullOrEmpty())
             {
-                var device = document.Devices.FirstOrDefault();
                 var outputStream = new MemoryStream();
-                JsonSerializer.Serialize(outputStream, new JsonDeviceContainer(device), jsonOptions);
-                if (outputStream != null && outputStream.Length > 0)
+                JsonSerializer.Serialize(outputStream, new JsonDevicesResponseDocument(document), jsonOptions);
+                if (outputStream.Length > 0)
                 {
                     return FormatWriteResult.Successful(outputStream, ContentType);
                 }
@@ -61,19 +64,15 @@ namespace MTConnect.Formatters
         {
             try
             {
-                // Read Document
-                var devices = JsonSerializer.Deserialize<JsonDeviceContainer>(content);
-                var success = devices != null;
+                // Symmetric counterpart of the write path: deserialise the
+                // full JsonDevicesResponseDocument envelope so multi-device
+                // MTConnectDevices.Devices.{Agent[],Device[]} payloads round-
+                // trip with their device count, identity, and Agent vs Device
+                // type tagging intact. Mirrors JsonHttpResponseDocumentFormatter.
+                var document = JsonSerializer.Deserialize<JsonDevicesResponseDocument>(content);
+                var success = document != null;
 
-                var responseDocument = new DevicesResponseDocument();
-
-                var device = devices.ToDevice();
-                if (device != null)
-                {
-                    responseDocument.Devices = new IDevice[] { device };
-                }
-
-                return new FormatReadResult<IDevicesResponseDocument>(responseDocument, success);
+                return new FormatReadResult<IDevicesResponseDocument>(document?.ToDocument(), success);
             }
             catch (Exception ex)
             {

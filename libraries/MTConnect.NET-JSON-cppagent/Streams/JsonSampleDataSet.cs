@@ -92,7 +92,10 @@ namespace MTConnect.Streams.Json
 
         public ISampleDataSetObservation ToObservation(string type)
         {
-            var observation = new SampleDataSetObservation();
+            // Route construction through the typed factory so the runtime
+            // type discriminator survives the envelope read path.
+            var observation = SampleObservation.Create(type, DataItemRepresentation.DATA_SET) as SampleDataSetObservation;
+            if (observation == null) observation = new SampleDataSetObservation();
             observation.DataItemId = DataItemId;
             observation.Timestamp = Timestamp;
             observation.Name = Name;

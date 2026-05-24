@@ -107,10 +107,19 @@ namespace MTConnect.Devices.Json
         public byte[] ToBytes(bool indent = false) => JsonFunctions.ConvertBytes(this, indented: indent);
         public Stream ToStream(bool indent = false) => JsonFunctions.ConvertStream(this, indented: indent);
 
-        public Device ToDevice()
-        {
-            var device = new Device();
+        public Device ToDevice() => CopyFieldsInto(new Device());
 
+        // Agent : Device, so the same set of JsonDevice fields applies; the
+        // difference is the resulting runtime type carries the Agent
+        // discriminator (`device is Agent`, `device.Type == Agent.TypeId`).
+        // Callers that read the cppagent JSON v2 envelope must call ToAgent()
+        // for entries deserialised from the "Agent" key inside Devices so the
+        // meta-device's type identity survives the round trip; calling
+        // ToDevice() in that path silently collapses the discriminator.
+        public Agent ToAgent() => (Agent)CopyFieldsInto(new Agent());
+
+        private Device CopyFieldsInto(Device device)
+        {
             device.Id = Id;
             device.Name = Name;
             device.NativeName = NativeName;
