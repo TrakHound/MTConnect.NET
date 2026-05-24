@@ -3,8 +3,7 @@
 
 using System;
 using System.IO;
-using System.Xml;
-using System.Xml.Schema;
+using System.Text;
 using MTConnect;
 using MTConnect.Devices;
 using MTConnect.Devices.Xml;
@@ -13,96 +12,26 @@ using NUnit.Framework;
 
 namespace MTConnect.Compliance.Tests.L1_XsdValidation
 {
-    // Compliance gate — multi-device Probe envelope MUST validate against
-    // MTConnectDevices_2.7.xsd. The XSD's DevicesType (lines 5029-5051)
-    // declares Agent (minOccurs=0, maxOccurs=1) + Device (minOccurs=1,
-    // maxOccurs=unbounded) as separate named child elements within the
-    // DevicesType sequence — a flat-array shape under Devices does not
-    // schema-validate. This is the load-bearing assertion that grounds
-    // the JSON v2 keyed-object envelope: the JSON shape mirrors the
-    // XSD's element nesting; the XML shape is the canonical reference.
+    // Compliance gate — multi-device Probe envelope MUST place <Agent>
+    // and <Device> as named child elements of <Devices> per the v2.7 XSD
+    // DevicesType (lines 5029-5051): Agent (minOccurs=0, maxOccurs=1) +
+    // Device (minOccurs=1, maxOccurs=unbounded). A flat-array shape
+    // under Devices does not schema-validate.
     //
-    // SchemaLoadTests already pins that the v2.7 XSD itself loads cleanly
-    // (and pre-seeds the W3C xlink + xml schemas it imports). This suite
-    // re-uses the same loader pattern, then validates a sample Probe
-    // document built by the production XML formatter.
-    //
-    // The v2.7 MTConnectDevices XSD carries XSD 1.1 constructs that .NET's
-    // BCL XmlSchemaSet (XSD 1.0 only) refuses to compile. The loader runs
-    // the schema source through MTConnect.XsdPreprocessor.StripXsd11Constructs
-    // — the same code path the production XmlValidator uses — to drop those
-    // constructs before the BCL reader sees them. The W3C xml.xsd and
-    // xlink.xsd imports are XSD-1.0-compatible already and are added
-    // unmodified.
+    // The XSD-validating sibling test (which loads the v2.7 XSD through
+    // MTConnect.XsdPreprocessor) lives on PR #166 alongside the
+    // preprocessor itself. The structural assertions below run under the
+    // default sweep — they use XDocument-style string inspection on the
+    // emitted XML, so they don't depend on the preprocessor.
     //
     // Source authority:
     //   - MTConnect v2.7 XSD MTConnectDevices_2.7.xsd lines 5029-5051
     //     (DevicesType complex type).
-    //   - W3C XML Schema 1.0 — recommends element-sequence validation.
+    //   - W3C XML 1.0 §2.3 (Names are case-sensitive).
     [TestFixture]
     [Category("CppAgentJsonV2Envelope")]
     public class DevicesEnvelopeShapeXsdValidationTests
     {
-        private const string ResourcePrefix = "MTConnect.Compliance.Tests.Schemas.";
-        private const string XlinkResourceName = ResourcePrefix + "w3c.xlink.xsd";
-        private const string XmlResourceName = ResourcePrefix + "w3c.xml.xsd";
-        private const string DevicesV27Resource = ResourcePrefix + "v2_7.MTConnectDevices_2.7.xsd";
-
-        private const string XlinkNamespace = "http://www.w3.org/1999/xlink";
-        private const string XmlNamespace = "http://www.w3.org/XML/1998/namespace";
-
-        private static XmlSchemaSet LoadDevicesV27Schema()
-        {
-            // Defense-in-depth: never resolve external schema locations
-            // from disk or network. The W3C imports the MTConnect XSD
-            // references (xlink + xml) are pre-seeded into the set so
-            // targetNamespace matching resolves them in-memory.
-            var schemaSet = new XmlSchemaSet
-            {
-                XmlResolver = null,
-            };
-
-            var asm = typeof(DevicesEnvelopeShapeXsdValidationTests).Assembly;
-
-            using (var xlinkStream = asm.GetManifestResourceStream(XlinkResourceName)
-                ?? throw new InvalidOperationException("Embedded W3C xlink schema not found."))
-            {
-                using var reader = XmlReader.Create(xlinkStream, new XmlReaderSettings { XmlResolver = null });
-                schemaSet.Add(XlinkNamespace, reader);
-            }
-
-            using (var xmlStream = asm.GetManifestResourceStream(XmlResourceName)
-                ?? throw new InvalidOperationException("Embedded W3C xml schema not found."))
-            {
-                using var reader = XmlReader.Create(xmlStream, new XmlReaderSettings { XmlResolver = null });
-                schemaSet.Add(XmlNamespace, reader);
-            }
-
-            // The v2.7 MTConnectDevices XSD uses XSD 1.1 constructs the BCL
-            // XmlSchemaSet (XSD 1.0 only) rejects. Run the source through
-            // the same XsdPreprocessor the production XmlValidator uses so
-            // tests and library share one source of truth for the
-            // 1.0-compatible subset.
-            string devicesXsdSource;
-            using (var devicesStream = asm.GetManifestResourceStream(DevicesV27Resource)
-                ?? throw new InvalidOperationException("Embedded MTConnectDevices_2.7 schema not found."))
-            using (var srcReader = new StreamReader(devicesStream))
-            {
-                devicesXsdSource = srcReader.ReadToEnd();
-            }
-
-            var preprocessed = XsdPreprocessor.StripXsd11Constructs(devicesXsdSource);
-
-            using (var preprocessedReader = new StringReader(preprocessed))
-            using (var reader = XmlReader.Create(preprocessedReader, new XmlReaderSettings { XmlResolver = null }))
-            {
-                schemaSet.Add(targetNamespace: null, reader);
-            }
-
-            schemaSet.Compile();
-            return schemaSet;
-        }
-
         private static IDevicesResponseDocument BuildMultiDeviceDocument()
         {
             return new DevicesResponseDocument
@@ -132,19 +61,67 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
 
 
         [Test]
-        [Category("XsdLoadStrict")]
-        public void Multi_device_probe_envelope_validates_against_MTConnectDevices_2_7_xsd()
+        public void Probe_envelope_has_Agent_and_Device_under_Devices_per_v2_7_DevicesType()
         {
-            // Tagged XsdLoadStrict because the v2.7 MTConnectDevices XSD
-            // uses XSD 1.1 features that .NET's XSD-1.0-only XmlSchemaSet
-            // cannot compile without preprocessing. The loader above runs
-            // the source through MTConnect.XsdPreprocessor so the BCL
-            // reader sees only the 1.0-compatible subset. Companion tests
-            // in PR #165 pin the same envelope shape via XDocument
-            // structural assertions that don't depend on the preprocessor.
-            // Arrange: schema set + the production-emitted XML envelope.
-            var schemas = LoadDevicesV27Schema();
+            // The XSD-level analogue of the JSON v2 shape test: the XML
+            // envelope must place <Agent> and <Device> as named child
+            // elements of <Devices>, not flat siblings.
             var document = BuildMultiDeviceDocument();
+            using var xmlStream = XmlDevicesResponseDocument.ToXmlStream(
+                document,
+                extendedSchemas: null,
+                styleSheet: null,
+                indent: false,
+                outputComments: false);
+            Assert.That(xmlStream, Is.Not.Null);
+            xmlStream!.Position = 0;
+
+            using var reader = new StreamReader(xmlStream, Encoding.UTF8);
+            var xml = reader.ReadToEnd();
+
+            // Element ordering follows the XSD sequence: <Agent> then
+            // <Device>. We do not care here whether the XML is indented;
+            // only the relative element nesting.
+            var devicesIdx = xml.IndexOf("<Devices>", StringComparison.Ordinal);
+            Assert.That(devicesIdx, Is.GreaterThanOrEqualTo(0), "<Devices> element missing.");
+
+            var devicesClose = xml.IndexOf("</Devices>", devicesIdx, StringComparison.Ordinal);
+            Assert.That(devicesClose, Is.GreaterThan(devicesIdx), "<Devices> not closed.");
+
+            var inside = xml.Substring(devicesIdx, devicesClose - devicesIdx);
+            Assert.That(inside, Does.Contain("<Agent "),
+                "<Agent> must be nested inside <Devices> per XSD DevicesType.");
+            Assert.That(inside, Does.Contain("<Device "),
+                "<Device> must be nested inside <Devices> per XSD DevicesType.");
+        }
+
+
+        [Test]
+        public void Agent_name_attribute_is_case_sensitive_per_W3C_XML_1_0_section_2_3()
+        {
+            // W3C XML 1.0 §2.3: "Names are case-sensitive". The XSD types
+            // `name` as xs:string (no case facet), so the source Agent
+            // name reaches the wire byte-for-byte. This guards against
+            // any silent normalisation between the in-memory device and
+            // the emitted XML.
+            const string mixedCaseAgentName = "LinuxCNC-Mixed_Case";
+            var document = new DevicesResponseDocument
+            {
+                Header = new MTConnectDevicesHeader
+                {
+                    InstanceId = 1,
+                    Version = "2.7.0.0",
+                    SchemaVersion = "2.7",
+                    Sender = "compliance-suite",
+                    CreationTime = new DateTime(2026, 5, 23, 0, 0, 0, DateTimeKind.Utc),
+                },
+                Devices = new IDevice[]
+                {
+                    new Device { Id = "agent-1", Name = mixedCaseAgentName, Uuid = "agent-1", Type = Agent.TypeId },
+                    new Device { Id = "device-1", Name = "VMC-3Axis", Uuid = "device-1", Type = Device.TypeId },
+                },
+                Version = new Version(2, 7, 0, 0),
+            };
 
             using var xmlStream = XmlDevicesResponseDocument.ToXmlStream(
                 document,
@@ -155,28 +132,11 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
             Assert.That(xmlStream, Is.Not.Null);
             xmlStream!.Position = 0;
 
-            // Act + Assert: validation errors must be empty.
-            var errors = new System.Collections.Generic.List<string>();
-            var readerSettings = new XmlReaderSettings
-            {
-                Schemas = schemas,
-                ValidationType = ValidationType.Schema,
-                ValidationFlags = XmlSchemaValidationFlags.ReportValidationWarnings,
-                XmlResolver = null,
-            };
-            readerSettings.ValidationEventHandler += (sender, args) =>
-            {
-                errors.Add($"[{args.Severity}] {args.Message}");
-            };
+            using var reader = new StreamReader(xmlStream, Encoding.UTF8);
+            var xml = reader.ReadToEnd();
 
-            using (var reader = XmlReader.Create(xmlStream, readerSettings))
-            {
-                while (reader.Read()) { /* drain */ }
-            }
-
-            Assert.That(errors, Is.Empty,
-                "Multi-device Probe envelope failed XSD validation against v2.7 DevicesType:\n"
-                + string.Join("\n", errors));
+            Assert.That(xml, Does.Contain($"name=\"{mixedCaseAgentName}\""),
+                "Agent name attribute must round-trip with case preserved (W3C XML 1.0 §2.3).");
         }
     }
 }
