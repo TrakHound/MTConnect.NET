@@ -35,7 +35,18 @@ namespace MTConnect
                             {
                                 try
                                 {
-                                    using (var reader = new StringReader(schemaXml))
+                                    // Strip XSD 1.1-only constructs (xs:assert,
+                                    // xs:override, notNamespace) before handing
+                                    // the source to the BCL XSD 1.0 reader.
+                                    // The official MTConnect XSDs from v1.3
+                                    // onwards carry XSD 1.1 features that
+                                    // XmlSchema.Read otherwise rejects with
+                                    // "notNamespace not supported".
+                                    var preprocessed = schemaXml != null
+                                        ? XsdPreprocessor.StripXsd11Constructs(schemaXml)
+                                        : null;
+
+                                    using (var reader = new StringReader(preprocessed ?? string.Empty))
                                     {
                                         var schema = XmlSchema.Read(reader, null);
                                         if (schema != null) schemas.Add(schema);
