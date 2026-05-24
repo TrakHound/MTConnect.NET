@@ -95,7 +95,16 @@ namespace MTConnect.Devices.Json
 
         public Component ToComponent(string componentType)
         {
-            var component = new Component();
+            // Route construction through the typed factory so the runtime
+            // type discriminator survives the envelope read path. A naked
+            // `new Component()` collapses every typed subclass declared in
+            // libraries/MTConnect.NET-Common/Devices/Components/*.g.cs back
+            // to the abstract base, breaking `component is AxesComponent`
+            // and the cppagent JSON v2 keyed-by-type re-serialisation that
+            // JsonComponents drives off the runtime type. Mirrors the
+            // factory pattern JsonDataItem.ToDataItem already uses.
+            var component = Component.Create(componentType);
+            if (component == null) component = new Component();
 
             component.Id = Id;
             component.Uuid = Uuid;

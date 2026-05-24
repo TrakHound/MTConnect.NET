@@ -86,7 +86,15 @@ namespace MTConnect.Devices.Json
 
         public Composition ToComposition()
         {
-            var composition = new Composition();
+            // Route construction through the typed factory so the runtime
+            // type discriminator survives the envelope read path. A naked
+            // `new Composition()` collapses every typed subclass declared
+            // in libraries/MTConnect.NET-Common/Devices/Compositions/*.g.cs
+            // back to the abstract base, breaking `composition is
+            // ChuckComposition`-style branching downstream. Mirrors the
+            // factory pattern JsonDataItem.ToDataItem already uses.
+            var composition = Composition.Create(Type);
+            if (composition == null) composition = new Composition();
 
             composition.Id = Id;
             composition.Uuid = Uuid;

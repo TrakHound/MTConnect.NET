@@ -92,7 +92,10 @@ namespace MTConnect.Streams.Json
 
         public IEventDataSetObservation ToObservation(string type)
         {
-            var observation = new EventDataSetObservation();
+            // Route construction through the typed factory so the runtime
+            // type discriminator survives the envelope read path.
+            var observation = EventObservation.Create(type, DataItemRepresentation.DATA_SET) as EventDataSetObservation;
+            if (observation == null) observation = new EventDataSetObservation();
             observation.DataItemId = DataItemId;
             observation.Timestamp = Timestamp;
             observation.Name = Name;

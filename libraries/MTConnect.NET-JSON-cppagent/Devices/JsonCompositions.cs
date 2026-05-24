@@ -31,7 +31,12 @@ namespace MTConnect.Devices.Json
         {
             var dataItems = new List<IComposition>();
 
-            if (!dataItems.IsNullOrEmpty())
+            // Guard the source collection, not the freshly-allocated empty
+            // sink — the original `!dataItems.IsNullOrEmpty()` check tested
+            // the empty list and silently dropped every Composition on the
+            // envelope read path. Same bug family as the runtime-type loss
+            // in ToComposition: payload arrives, nothing is reconstructed.
+            if (!Compositions.IsNullOrEmpty())
             {
                 foreach (var dataItem in Compositions) dataItems.Add(dataItem.ToComposition());
             }

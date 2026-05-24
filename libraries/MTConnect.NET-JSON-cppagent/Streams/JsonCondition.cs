@@ -92,7 +92,12 @@ namespace MTConnect.Streams.Json
 
         public IConditionObservation ToCondition(ConditionLevel conditionLevel)
         {
-            var condition = new ConditionObservation();
+            // Route construction through the typed factory so the runtime
+            // type discriminator survives the envelope read path. A naked
+            // `new ConditionObservation()` collapses any typed condition
+            // subclass back to the abstract carrier.
+            var condition = ConditionObservation.Create(Type, DataItemRepresentation.VALUE);
+            if (condition == null) condition = new ConditionObservation();
             condition.DataItemId = DataItemId;
             condition.Timestamp = Timestamp;
             condition.Name = Name;

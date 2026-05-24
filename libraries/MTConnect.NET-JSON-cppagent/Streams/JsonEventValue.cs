@@ -55,7 +55,14 @@ namespace MTConnect.Streams.Json
 
         public IEventValueObservation ToObservation(string type)
         {
-            var e = new EventValueObservation();
+            // Route construction through the typed factory so the runtime
+            // type discriminator survives the envelope read path. A naked
+            // `new EventValueObservation()` collapses typed event subclasses
+            // (e.g. MessageValueObservation, AssetChangedValueObservation)
+            // back to the abstract value carrier, breaking `obs is
+            // MessageValueObservation`-style branching downstream.
+            var e = EventObservation.Create(type, DataItemRepresentation.VALUE) as EventValueObservation;
+            if (e == null) e = new EventValueObservation();
             e.DataItemId = DataItemId;
             e.Timestamp = Timestamp;
             e.Name = Name;

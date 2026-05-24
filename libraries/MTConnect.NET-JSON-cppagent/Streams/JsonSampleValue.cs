@@ -74,7 +74,12 @@ namespace MTConnect.Streams.Json
 
         public ISampleValueObservation ToObservation(string type)
         {
-            var sample = new SampleValueObservation();
+            // Route construction through the typed factory so the runtime
+            // type discriminator survives the envelope read path. A naked
+            // `new SampleValueObservation()` collapses typed sample
+            // subclasses back to the abstract value carrier.
+            var sample = SampleObservation.Create(type, DataItemRepresentation.VALUE) as SampleValueObservation;
+            if (sample == null) sample = new SampleValueObservation();
             sample.DataItemId = DataItemId;
             sample.Timestamp = Timestamp;
             sample.Name = Name;
