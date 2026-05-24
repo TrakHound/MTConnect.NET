@@ -7,6 +7,7 @@ using MTConnect.Devices.Compositions;
 using MTConnect.Devices.DataItems;
 using MTConnect.Devices.Json;
 using MTConnect.Observations;
+using MTConnect.Observations.Events;
 using MTConnect.Streams.Json;
 using NUnit.Framework;
 
@@ -178,28 +179,50 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
         // ---- JsonEventValue.ToObservation -------------------------------
 
         [Test]
-        public void JsonEventValue_ToObservation_preserves_type_string_through_envelope()
+        public void JsonEventValue_ToObservation_preserves_runtime_type_for_typed_subclass()
         {
-            // Pin the no-regression behaviour: ToObservation must always
-            // stamp the supplied Type onto the result, regardless of whether
-            // the upstream EventObservation.Create factory can resolve a
-            // typed subclass for it. (Whether the runtime type is the
-            // typed subclass depends on the upstream factory's lookup
-            // logic, which is out of scope for this read-path fix.)
+            // The envelope read path runs JsonEventValue through
+            // EventObservation.Create(string type, DataItemRepresentation),
+            // which after the factory _types lookup fix at 0c3aead9
+            // resolves ("MESSAGE", VALUE) onto the MessageValueObservation
+            // runtime type. Pin both the runtime-type discriminator and
+            // the Type-string stamp end-to-end.
             var source = new JsonEventValue { DataItemId = "msg-1", Value = "hello" };
 
             // Act
-            var observation = source.ToObservation("MESSAGE");
+            var observation = source.ToObservation(MessageDataItem.TypeId);
 
-            // Assert: the Type discriminator survives the round-trip in
-            // every case; the abstract carrier ALSO survives in the worst
-            // case (factory miss), so `observation is null` would be a
-            // regression.
+            // Assert
             Assert.That(observation, Is.Not.Null,
                 "ToObservation must never return null.");
-            Assert.That(observation.Type, Is.EqualTo("MESSAGE"),
-                "Type discriminator must survive the envelope read path.");
+            Assert.That(observation, Is.InstanceOf<MessageValueObservation>(),
+                "MESSAGE/VALUE must round-trip onto the typed "
+                + "MessageValueObservation runtime carrier, not the "
+                + "abstract EventValueObservation. The factory _types "
+                + "key-format fix at 0c3aead9 is what makes "
+                + "`observation is MessageValueObservation` true.");
+            Assert.That(observation.Type, Is.EqualTo(MessageDataItem.TypeId),
+                "Type string discriminator must survive the envelope read path.");
             Assert.That(observation.DataItemId, Is.EqualTo("msg-1"));
+        }
+
+        [Test]
+        public void JsonEventValue_ToObservation_preserves_runtime_type_for_AssetChanged()
+        {
+            // ASSET_CHANGED is the underscore-bearing hostile case for the
+            // factory's PascalCase ToTypeId conversion. Pins the read
+            // path for the typed AssetChangedValueObservation subclass.
+            var source = new JsonEventValue { DataItemId = "asset-1", Value = "uuid-1" };
+
+            // Act
+            var observation = source.ToObservation(AssetChangedDataItem.TypeId);
+
+            // Assert
+            Assert.That(observation, Is.InstanceOf<AssetChangedValueObservation>(),
+                "ASSET_CHANGED/VALUE must round-trip onto the typed "
+                + "AssetChangedValueObservation runtime carrier.");
+            Assert.That(observation.Type, Is.EqualTo(AssetChangedDataItem.TypeId));
+            Assert.That(observation.DataItemId, Is.EqualTo("asset-1"));
         }
 
         // ---- JsonCondition.ToCondition ----------------------------------
