@@ -61,7 +61,12 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
         //
         // Display paths use the format produced by ToDisplayPath
         // (e.g. "v1_7/MTConnectDevices_1.7.xsd").
-        private static readonly HashSet<string> Xsd11BlockedSchemas = new(StringComparer.Ordinal)
+        // Made internal so the sibling Xsd11FeaturePresenceTests fixture
+        // can drive its per-schema XSD 1.1 marker assertions off the
+        // same authoritative list. Keeping the set in one place avoids
+        // copy-paste drift when a future MTConnect XSD adds (or removes)
+        // 1.1-only constructs.
+        internal static readonly HashSet<string> Xsd11BlockedSchemas = new(StringComparer.Ordinal)
         {
             "v1_3/MTConnectAssets_1.3.xsd",
             "v1_3/MTConnectDevices_1.3.xsd",
