@@ -412,12 +412,31 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
             Assert.That(agentMeta!.Type, Is.EqualTo(Agent.TypeId),
                 "Round-tripped Agent meta-device must retain Type == Agent.TypeId, "
                 + "not collapse to the generic Device.TypeId.");
+            // Runtime-type discriminator must also survive the round-trip.
+            // Setting Type == Agent.TypeId on a Device instance is a half-fix:
+            // `device.Type == Agent.TypeId` passes but `device is Agent`
+            // fails, so downstream code that branches on the runtime type
+            // (or calls JsonDevices(document) which re-emits the envelope
+            // via the line 31 `device.Type == Agent.TypeId` check) silently
+            // collapses the discriminator on the next serialisation.
+            Assert.That(agentMeta, Is.InstanceOf<Agent>(),
+                "Round-tripped Agent meta-device must be an Agent runtime "
+                + "instance, not a Device with its Type field re-tagged. The "
+                + "half-fix (Type-string-only) leaves `device is Agent` false "
+                + "and breaks downstream code that uses the runtime type "
+                + "for discrimination.");
 
             var machineDevice = roundTripped.SingleOrDefault(d => d.Uuid == "device-1");
             Assert.That(machineDevice, Is.Not.Null,
                 "The machine Device must be recoverable by its source UUID after round-trip.");
             Assert.That(machineDevice!.Type, Is.EqualTo(Device.TypeId),
                 "Round-tripped machine Device must retain Type == Device.TypeId.");
+            Assert.That(machineDevice, Is.Not.InstanceOf<Agent>(),
+                "Round-tripped machine Device must NOT be an Agent runtime "
+                + "instance. The Agent vs Device runtime distinction is the "
+                + "symmetric counterpart of the cppagent JSON v2 envelope's "
+                + "named Agent[] / Device[] keys; loss in either direction "
+                + "breaks the discriminator round-trip.");
         }
 
         [Test]
