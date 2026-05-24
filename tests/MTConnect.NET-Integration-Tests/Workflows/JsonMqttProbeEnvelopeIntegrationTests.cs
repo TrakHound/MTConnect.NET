@@ -164,16 +164,29 @@ namespace MTConnect.Tests.Integration.Workflows
             var completed = await Task.WhenAny(
                 allArrived.Task,
                 Task.Delay(TimeSpan.FromSeconds(30)));
+
+            // Freeze the received-topic set under the lock before
+            // inspecting it. The MQTT subscriber handler is still
+            // live after Task.WhenAny -- QoS-1 retransmits or late
+            // deliveries can fire after allArrived.TrySetResult, and
+            // an unlocked Dictionary read on the assertion path
+            // collides with the locked write site at line 144.
+            KeyValuePair<string, byte[]>[] snapshot;
+            lock (receivedLock)
+            {
+                snapshot = received.ToArray();
+            }
+
             Assert.True(
                 completed == allArrived.Task,
                 $"Did not receive Probe payloads for every device within 30s "
-                + $"(received {received.Count} topics: "
-                + $"{string.Join(", ", received.Keys)}).");
+                + $"(received {snapshot.Length} topics: "
+                + $"{string.Join(", ", snapshot.Select(kv => kv.Key))}).");
 
             // Inspect every received Probe payload: each must wrap content
             // in MTConnectDevices.Devices as a JSON object with Device[]
             // (and, on the agent topic, Agent[]).
-            foreach (var (topic, payload) in received)
+            foreach (var (topic, payload) in snapshot)
             {
                 var json = Encoding.UTF8.GetString(payload);
                 using var doc = JsonDocument.Parse(json);
