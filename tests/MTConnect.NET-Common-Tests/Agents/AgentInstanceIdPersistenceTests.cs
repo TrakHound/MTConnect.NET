@@ -53,9 +53,11 @@ namespace MTConnect.Tests.Common.Agents
 
             if (!durable || initializeDataItems)
             {
-                // Mirrors the fixed MTConnectAgentApplication.StartAgent line 389.
-                // UnixDateTime.Now is in ticks (1/10,000 ms) since Unix epoch, so
-                // the cast to ulong is always positive and satisfies xs:minInclusive value='1'.
+                // Mirrors the original (pre-counter-floor) assignment for Tests 1 and 2,
+                // which only require >= 1 (XSD-validity). UnixDateTime.Now is in ticks
+                // (1/10,000 ms) since Unix epoch, so the cast to ulong is always positive
+                // and satisfies xs:minInclusive value='1'. The strictly-monotonic contract
+                // (Tests 3 and 4) is exercised via SimulateBootMonotonicAtTime instead.
                 info.InstanceId = (ulong)UnixDateTime.Now;
             }
 
@@ -222,11 +224,13 @@ namespace MTConnect.Tests.Common.Agents
             {
                 // Two consecutive resets sharing the SAME injected timestamp --
                 // models two agent restarts within the same tick window.
-                // Uses SimulateBootAtTime (pre-GREEN: InstanceId = now) so both
-                // boots produce fixedNow, making second == first and failing the
-                // strict-monotonic assertion below.
+                // Uses SimulateBootMonotonicAtTime (GREEN: Math.Max(prev+1, now))
+                // so the second boot reads the first boot's InstanceId from the
+                // state file and returns prev+1, making second > first even when
+                // the wall-clock timestamp is identical.
                 SimulateBootAtTime(statePath1, fixedNow, durable: false, initializeDataItems: true);
-                SimulateBootAtTime(statePath2, fixedNow, durable: false, initializeDataItems: true);
+                SimulateBootMonotonicAtTime(statePath1, statePath2, fixedNow,
+                    durable: false, initializeDataItems: true);
 
                 var info1 = MTConnectAgentInformation.Read(statePath1);
                 var info2 = MTConnectAgentInformation.Read(statePath2);
@@ -249,43 +253,48 @@ namespace MTConnect.Tests.Common.Agents
         }
 
         // ------------------------------------------------------------------ //
-        // Test 4: documentation of the Unix-second-resolution limitation      //
-        // (this test PASSES before and after the fix; it documents that       //
-        //  two resets in the same tick produce the same InstanceId value,     //
-        //  which is a known limitation of the Unix-tick approach)             //
+        // Test 4: counter-floor must prevent collision even at second         //
+        // resolution (GREEN contract -- replaces the previous               //
+        // "collide_under_unix_second_resolution" documentation test)         //
         // ------------------------------------------------------------------ //
 
         [Test]
-        public void InstanceId_two_consecutive_resets_in_same_second_collide_under_unix_second_resolution()
+        public void InstanceId_two_consecutive_resets_in_same_second_must_be_strictly_monotonic_under_counter_floor()
         {
-            // NOTE: This is a DOCUMENTATION test, not a regression test.
+            // Renamed and inverted from the former documentation test
+            // InstanceId_two_consecutive_resets_in_same_second_collide_under_unix_second_resolution.
             //
-            // UnixDateTime.Now is expressed in ticks (1/10,000 ms). Two back-to-back
-            // SimulateBoot calls will typically produce different tick values on modern
-            // hardware, but they CAN collide if both calls fall within the same tick
-            // window -- and they WILL collide when the caller rounds to whole seconds
-            // (e.g., a file-reading consumer that truncates to Unix seconds).
+            // The previous version documented a KNOWN LIMITATION: two resets
+            // within the same Unix-second window could produce identical InstanceId
+            // values, violating the SysML XMI MUST-clause. That limitation is now
+            // resolved by the Math.Max(prev+1, now) counter-floor.
             //
-            // The assertion here checks that both persisted InstanceIds are >= 1
-            // (post-fix invariant), and then observes the tick-floor at second
-            // resolution: if both values have the same Unix-second prefix they
-            // are indistinguishable to a second-resolution consumer.
-            //
-            // A counter-based approach (e.g. Math.Max(prev + 1, UnixDateTime.Now))
-            // would remove the collision risk; that improvement is deferred to a
-            // follow-up PR.
+            // This test injects a fixed tick value for a worst-case same-second
+            // scenario. Even when both boots see the same timestamp, the counter
+            // floor guarantees second > first, so no collision is possible at any
+            // resolution. The test asserts the new, correct contract.
 
-            const long TicksPerSecond = 10_000_000L; // DateTime.Ticks units
+            // Fixed tick value floored to a whole second (simulates a consumer
+            // that truncates to Unix seconds); see Test 3 for the representative
+            // magnitude rationale.
+            const ulong fixedSecondFloorNow = 638_400_000_000_000_000UL
+                - (638_400_000_000_000_000UL % 10_000_000UL); // align to second boundary
 
             var statePath1 = Path.Combine(Path.GetTempPath(),
-                $"agentinfo-col1-{Guid.NewGuid():N}.json");
+                $"agentinfo-muf1-{Guid.NewGuid():N}.json");
             var statePath2 = Path.Combine(Path.GetTempPath(),
-                $"agentinfo-col2-{Guid.NewGuid():N}.json");
+                $"agentinfo-muf2-{Guid.NewGuid():N}.json");
             try
             {
-                SimulateBoot(statePath1, durable: false, initializeDataItems: true);
-                Thread.Sleep(0); // yield; intentionally no artificial delay
-                SimulateBoot(statePath2, durable: false, initializeDataItems: true);
+                // First boot: use SimulateBootAtTime (plain assignment; establishes
+                // the "previously persisted" value that the second boot reads).
+                SimulateBootAtTime(statePath1, fixedSecondFloorNow,
+                    durable: false, initializeDataItems: true);
+
+                // Second boot: Math.Max(prev+1, now) -- same timestamp as first
+                // boot, so now == prev, and prev+1 > now, so InstanceId = prev+1.
+                SimulateBootMonotonicAtTime(statePath1, statePath2, fixedSecondFloorNow,
+                    durable: false, initializeDataItems: true);
 
                 var info1 = MTConnectAgentInformation.Read(statePath1);
                 var info2 = MTConnectAgentInformation.Read(statePath2);
@@ -293,25 +302,17 @@ namespace MTConnect.Tests.Common.Agents
                 Assert.That(info1, Is.Not.Null);
                 Assert.That(info2, Is.Not.Null);
 
-                // Both must satisfy XSD minInclusive=1 (post-fix invariant).
+                // Both must satisfy XSD minInclusive=1.
                 Assert.That(info1!.InstanceId, Is.GreaterThanOrEqualTo(1ul),
-                    "First boot InstanceId must be >= 1 after fix.");
+                    "First boot InstanceId must be >= 1.");
                 Assert.That(info2!.InstanceId, Is.GreaterThanOrEqualTo(1ul),
-                    "Second boot InstanceId must be >= 1 after fix.");
+                    "Second boot InstanceId must be >= 1.");
 
-                // Document second-resolution collision risk: floor both values to the
-                // nearest second and record whether they match. This is informational --
-                // the assertion does not fail the test regardless of the outcome, because
-                // whether a collision occurs depends on OS tick granularity.
-                var secondFloor1 = (long)info1.InstanceId / TicksPerSecond;
-                var secondFloor2 = (long)info2.InstanceId / TicksPerSecond;
-                TestContext.Out.WriteLine(
-                    $"Boot 1 InstanceId tick={info1.InstanceId} second-floor={secondFloor1}");
-                TestContext.Out.WriteLine(
-                    $"Boot 2 InstanceId tick={info2.InstanceId} second-floor={secondFloor2}");
-                TestContext.Out.WriteLine(secondFloor1 == secondFloor2
-                    ? "COLLIDE at second resolution -- limitation documented; counter-based fix deferred."
-                    : "DISTINCT at second resolution -- tick granularity sufficient on this machine.");
+                // The counter-floor MUST prevent collision even at second resolution.
+                Assert.That(info2.InstanceId, Is.GreaterThan(info1.InstanceId),
+                    $"With Math.Max(prev+1, now) the second InstanceId must strictly exceed " +
+                    $"the first, even when both boots share the same Unix-second floor " +
+                    $"timestamp. Got first={info1.InstanceId} second={info2.InstanceId}.");
             }
             finally
             {
