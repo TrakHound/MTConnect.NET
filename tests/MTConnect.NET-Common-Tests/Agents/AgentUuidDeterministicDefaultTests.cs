@@ -107,16 +107,20 @@ namespace MTConnect.Tests.Common.Agents
         /// <summary>
         /// Validates the implementation against the canonical Python
         /// <c>uuid.uuid5(uuid.NAMESPACE_DNS, "example.com")</c> vector
-        /// <c>cfbff0d1-9375-5685-968a-48ce8b50a653</c>.
+        /// <c>cfbff0d1-9375-5685-968c-48ce8b15ae17</c>.
         ///
         /// Passing this test confirms that the RFC 4122 §4.3 byte-order
         /// conversion and version/variant masking are correct.
+        ///
+        /// (The task spec cited <c>cfbff0d1-9375-5685-968a-48ce8b50a653</c>;
+        /// Python 3 and the C# implementation both produce
+        /// <c>968c-48ce8b15ae17</c> — the spec vector was incorrect.)
         /// </summary>
         [Test]
         public void DeriveFromSeed_matches_python_uuid_v5_NAMESPACE_DNS_example_com_vector()
         {
             var derived = DeterministicAgentUuid.DeriveFromSeed("example.com");
-            Assert.AreEqual("cfbff0d1-9375-5685-968a-48ce8b50a653", derived,
+            Assert.AreEqual("cfbff0d1-9375-5685-968c-48ce8b15ae17", derived,
                 "DeriveFromSeed must reproduce the canonical UUID v5(NAMESPACE_DNS, 'example.com') vector.");
         }
 
