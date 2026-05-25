@@ -410,8 +410,12 @@ namespace MTConnect.Applications
 
                 if (!configuration.Durable || initializeDataItems)
                 {
-                    // Reset InstanceId
-                    agentInformation.InstanceId = 0;
+                    // Reset InstanceId to a fresh Unix-tick-based value -- spec requires
+                    // instanceId >= 1 (XSD InstanceIdType xs:minInclusive value='1') and
+                    // change-on-buffer-clear (SysML Header::instanceId MUST). UnixDateTime.Now
+                    // mirrors MTConnectAgentInformation's parameterless ctor (line 39) and
+                    // guarantees a non-zero value for every file-reading consumer.
+                    agentInformation.InstanceId = (ulong)UnixDateTime.Now;
                 }
 
                 // Save the AgentInformation file
