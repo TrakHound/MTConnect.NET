@@ -1476,6 +1476,35 @@ namespace MTConnect.Agents
         {
             if (device != null)
             {
+                // Startup-time Uuid invariant. Per MTConnect v2.7 XSD
+                // (MTConnectDevices_2.7.xsd, line 5245) the Device.uuid
+                // attribute is `use='required'` with UuidType documented
+                // as the element's identity "for it's entire life". The
+                // parameterless Device ctor deliberately leaves Uuid
+                // null (closing #136 / #137) so a config-driven builder
+                // that walks operator config keys cannot silently leak a
+                // ctor-stamped placeholder. The trade-off is that any
+                // caller that forgets to set Uuid before AddDevice must
+                // be told so at startup, not when a downstream
+                // ConcurrentDictionary key lookup blows up with an
+                // unrelated ArgumentNullException far from the cause.
+                if (string.IsNullOrEmpty(device.Uuid))
+                {
+                    // Registration index = current device-count, i.e.
+                    // the zero-based position of this device in the
+                    // sequence of AddDevice calls made on this agent.
+                    var index = _devices.Count;
+                    var typeName = device.Type ?? device.GetType().Name;
+                    var nameSuffix = !string.IsNullOrEmpty(device.Name)
+                        ? $" (name='{device.Name}')"
+                        : string.Empty;
+                    throw new InvalidOperationException(
+                        $"Device at registration index {index} has no Uuid. " +
+                        $"Type='{typeName}'{nameSuffix}. " +
+                        "Device.uuid is XSD-required (use='required', UuidType) since MTConnect v1.0. " +
+                        "Set Device.Uuid to a stable, operator-assigned value before registering the device.");
+                }
+
                 // Create new object (to validate and prevent derived classes that won't serialize right with XML)
                 var obj = NormalizeDevice(device);
                 if (obj != null)
