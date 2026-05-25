@@ -63,6 +63,66 @@ namespace MTConnect.Tests.Common.Agents
             return info;
         }
 
+        /// <summary>
+        /// Parameterised boot helper that accepts an explicit <paramref name="now"/> timestamp
+        /// instead of sampling <c>UnixDateTime.Now</c>. This lets tests inject a fixed timestamp
+        /// to produce a deterministic same-tick scenario regardless of wall-clock speed.
+        ///
+        /// Uses the pre-GREEN (UnixDateTime.Now-only) assignment:
+        ///   <c>info.InstanceId = now;</c>
+        /// so two calls with the same <paramref name="now"/> will produce identical InstanceId
+        /// values -- the collision the RED test is designed to expose.
+        /// </summary>
+        private static MTConnectAgentInformation SimulateBootAtTime(
+            string statePath, ulong now, bool durable = false, bool initializeDataItems = true)
+        {
+            var info = new MTConnectAgentInformation();
+
+            if (!durable || initializeDataItems)
+            {
+                // Pre-GREEN assignment (UnixDateTime.Now-only, no counter):
+                info.InstanceId = now;
+            }
+
+            info.Save(statePath);
+            return info;
+        }
+
+        /// <summary>
+        /// Parameterised boot helper that accepts an explicit <paramref name="now"/> timestamp
+        /// and a <paramref name="prevStatePath"/> to read the previous InstanceId from.
+        /// Applies the strictly-monotonic counter-floor variant:
+        ///   <c>Math.Max(prev + 1, now)</c>.
+        ///
+        /// <paramref name="prevStatePath"/> is the state file written by the previous boot;
+        /// if the file does not exist, 0 is used (first-boot case).
+        /// The result is saved to <paramref name="newStatePath"/>.
+        /// </summary>
+        private static MTConnectAgentInformation SimulateBootMonotonicAtTime(
+            string prevStatePath, string newStatePath, ulong now,
+            bool durable = false, bool initializeDataItems = true)
+        {
+            // Read the persisted InstanceId from the previous boot's state file.
+            // MTConnectAgentInformation.Read returns null when the file does not exist.
+            var prev = MTConnectAgentInformation.Read(prevStatePath);
+            ulong prevInstanceId = prev?.InstanceId ?? 0ul;
+
+            var info = new MTConnectAgentInformation();
+
+            if (!durable || initializeDataItems)
+            {
+                // Strictly-monotonic counter floor (mirrors the target GREEN implementation).
+                // Math.Max(prevInstanceId + 1, now) guarantees:
+                //   - >= 1 always (XSD minInclusive=1)
+                //   - > prevInstanceId always (SysML XMI MUST-clause)
+                //   - time-meaningful when the wall clock has advanced by more than 1 tick
+                info.InstanceId = Math.Max(prevInstanceId + 1, now);
+            }
+
+            info.Save(newStatePath);
+            return info;
+        }
+
         // ------------------------------------------------------------------ //
         // Test 1: persisted file must contain a non-zero InstanceId           //
         // ------------------------------------------------------------------ //
@@ -120,7 +180,76 @@ namespace MTConnect.Tests.Common.Agents
         }
 
         // ------------------------------------------------------------------ //
-        // Test 3: documentation of the Unix-second-resolution limitation      //
+        // Test 3: two consecutive resets must be strictly monotonic           //
+        // (RED -- fails with the UnixDateTime.Now-only approach when both     //
+        //  resets fall within the same tick; passes with Math.Max counter)   //
+        // ------------------------------------------------------------------ //
+
+        [Test]
+        public void InstanceId_two_consecutive_resets_in_same_second_must_be_strictly_monotonic()
+        {
+            // SysML XMI MTConnectSysMLModel_V2.7.xml line 15608:
+            //   "instanceId MUST be changed to a different unique number each
+            //    time the buffer is cleared."
+            //
+            // This is a BEHAVIOURAL contract, not merely a schema-validity
+            // check. Even if both values are >= 1 (XSD-valid), two resets that
+            // produce the same InstanceId violate the XMI MUST-clause because
+            // a client cannot distinguish the two restarts from state-file data
+            // alone.
+            //
+            // The test injects a FIXED timestamp (a pinned Unix-tick value) into
+            // both boots so the same-tick collision is DETERMINISTIC regardless
+            // of wall-clock speed. With the pre-GREEN UnixDateTime.Now-only
+            // assignment both calls receive the same value, making the
+            // strictly-greater assertion below FAIL -- that is the expected RED
+            // behaviour.
+            //
+            // The GREEN commit will update this test to use
+            // SimulateBootMonotonicAtTime (which applies Math.Max(prev+1, now)),
+            // at which point the strictly-monotonic assertion always passes.
+
+            // A fixed tick value (arbitrary; representative of a realistic
+            // UnixDateTime.Now magnitude -- Unix epoch ticks to 2024-01-01 ≈
+            // 638,389,248,000,000,000 ticks; use a round number in that range).
+            const ulong fixedNow = 638_400_000_000_000_000UL;
+
+            var statePath1 = Path.Combine(Path.GetTempPath(),
+                $"agentinfo-mono1-{Guid.NewGuid():N}.json");
+            var statePath2 = Path.Combine(Path.GetTempPath(),
+                $"agentinfo-mono2-{Guid.NewGuid():N}.json");
+            try
+            {
+                // Two consecutive resets sharing the SAME injected timestamp --
+                // models two agent restarts within the same tick window.
+                // Uses SimulateBootAtTime (pre-GREEN: InstanceId = now) so both
+                // boots produce fixedNow, making second == first and failing the
+                // strict-monotonic assertion below.
+                SimulateBootAtTime(statePath1, fixedNow, durable: false, initializeDataItems: true);
+                SimulateBootAtTime(statePath2, fixedNow, durable: false, initializeDataItems: true);
+
+                var info1 = MTConnectAgentInformation.Read(statePath1);
+                var info2 = MTConnectAgentInformation.Read(statePath2);
+
+                Assert.That(info1, Is.Not.Null);
+                Assert.That(info2, Is.Not.Null);
+
+                // Strict monotonicity: the second InstanceId MUST exceed the first.
+                Assert.That(info2!.InstanceId, Is.GreaterThan(info1!.InstanceId),
+                    $"InstanceId after consecutive resets must be strictly greater than the " +
+                    $"previous value (SysML XMI MUST-clause). Got first={info1.InstanceId} " +
+                    $"second={info2.InstanceId}. With UnixDateTime.Now-only both values " +
+                    $"are identical when both resets fall within the same tick window.");
+            }
+            finally
+            {
+                if (File.Exists(statePath1)) File.Delete(statePath1);
+                if (File.Exists(statePath2)) File.Delete(statePath2);
+            }
+        }
+
+        // ------------------------------------------------------------------ //
+        // Test 4: documentation of the Unix-second-resolution limitation      //
         // (this test PASSES before and after the fix; it documents that       //
         //  two resets in the same tick produce the same InstanceId value,     //
         //  which is a known limitation of the Unix-tick approach)             //
