@@ -29,7 +29,7 @@ namespace MTConnect.Streams.Output
         Version Version { get; }
 
         /// <summary>
-        /// Gets All Observations (Samples, Events, & Conditions)
+        /// Gets All Observations (Samples, Events, &amp; Conditions)
         /// </summary>
         IEnumerable<IObservationOutput> GetObservations();
 

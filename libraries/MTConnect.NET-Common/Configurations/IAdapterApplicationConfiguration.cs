@@ -49,7 +49,6 @@ namespace MTConnect.Configurations
 
 
         /// <summary>
-        /// <summary>
         /// Changes the service name when installing or removing the service. This allows multiple Adapters to run as services on the same machine.
         /// </summary>
         string ServiceName { get; set; }
