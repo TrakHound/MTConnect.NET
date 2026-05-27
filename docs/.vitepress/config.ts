@@ -256,6 +256,14 @@ export default withMermaid(
             ],
           },
         ],
+        '/migration/': [
+          {
+            text: 'Migration notes',
+            items: [
+              { text: 'v7: ValidationResult consolidation', link: '/migration/v7-validation-result' },
+            ],
+          },
+        ],
       },
 
       socialLinks: [
