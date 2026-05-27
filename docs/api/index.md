@@ -33,8 +33,6 @@ The configuration lives at `docs/.docfx/docfx.json` and explicitly lists each li
 | `MTConnect.NET-XML` | `MTConnect.NET-XML.dll` | XML codec and XSD validation. |
 | `MTConnect.NET` | `MTConnect.NET.dll` | Top-level umbrella package and convenience builders. |
 
-`MTConnect.NET-HTTP-AspNetCore` is the only shipped library currently excluded from the reference. Its project targets `netcoreapp3.1`–`net7.0` and cannot resolve its `net8.0` `ProjectReference` dependencies under the current Debug build, so docfx has no assembly to load. Once the TFM matrix is widened to include `net8.0` the library joins the table here and the regen script picks it up automatically.
-
 ## Finding what you need
 
 - Use the search box at the top of the site for a type or member by name.
