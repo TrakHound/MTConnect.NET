@@ -410,8 +410,17 @@ namespace MTConnect.Applications
 
                 if (!configuration.Durable || initializeDataItems)
                 {
-                    // Reset InstanceId
-                    agentInformation.InstanceId = 0;
+                    // Reset InstanceId with strict-monotonic guarantee. The Max() floor
+                    // makes the counter time-meaningful while the +1 defeats same-second
+                    // collisions on two consecutive restarts (per the SysML XMI MUST
+                    // clause at MTConnectSysMLModel_V2.7.xml line 15608: "MUST be changed
+                    // to a different unique number each time the buffer is cleared").
+                    // UnixDateTime.Now mirrors MTConnectAgentInformation's parameterless
+                    // ctor at libraries/MTConnect.NET-Common/Agents/MTConnectAgentInformation.cs
+                    // line 39; the +1/Max combination extends that to strict monotonicity.
+                    agentInformation.InstanceId = Math.Max(
+                        agentInformation.InstanceId + 1,
+                        (ulong)UnixDateTime.Now);
                 }
 
                 // Save the AgentInformation file
