@@ -30,7 +30,7 @@ namespace MTConnect
     /// <summary>Handles a received MTConnectError response document.</summary>
     public delegate void MTConnectErrorHandler(IErrorResponseDocument errorDocument);
 
-    /// <summary>Handles the validation result for a Device, raised when the agent rejects a Device (for example, when its UUID is missing).</summary>
+    /// <summary>Handles the validation result for a Device.</summary>
     public delegate void MTConnectDeviceValidationHandler(IDevice device, ValidationResult validationResults);
     /// <summary>Handles the validation result for a Component of the given device.</summary>
     public delegate void MTConnectComponentValidationHandler(string deviceUuid, IComponent component, ValidationResult validationResults);
