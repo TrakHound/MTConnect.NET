@@ -2007,7 +2007,13 @@ namespace MTConnect.Agents
                     if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
                     {
                         // Validate Observation Input with DataItem type
-                        if (!validationResult.IsValid) validationResult.Message = $"{dataItem.Type} : {dataItem.Id} : {validationResult.Message}";
+                        if (!validationResult.IsValid)
+                        {
+                            validationResult = new ValidationResult(
+                                false,
+                                $"{dataItem.Type} : {dataItem.Id} : {validationResult.Message}",
+                                validationResult.Code);
+                        }
                     }
 
                     if (validationResult.IsValid || _configuration.InputValidationLevel != InputValidationLevel.Strict)
