@@ -119,6 +119,7 @@ export default withMermaid(
               { text: 'Observations', link: '/concepts/observations' },
               { text: 'Assets', link: '/concepts/assets' },
               { text: 'Relationships', link: '/concepts/relationships' },
+              { text: 'Agent validation events', link: '/concepts/agent-validation-events' },
             ],
           },
         ],
