@@ -96,6 +96,11 @@ namespace MTConnect.Agents
 
 
         /// <summary>
+        /// Raised when an Invalid Device is Added
+        /// </summary>
+        event MTConnectDeviceValidationHandler InvalidDeviceAdded;
+
+        /// <summary>
         /// Raised when an Invalid Component is Added
         /// </summary>
         event MTConnectComponentValidationHandler InvalidComponentAdded;
@@ -384,6 +389,13 @@ namespace MTConnect.Agents
         void OnObservationAdded(IObservation observation);
 
         void OnInvalidObservationAdded(string deviceUuid, string dataItemId, ValidationResult result);
+
+        /// <summary>
+        /// Raises the <see cref="InvalidDeviceAdded"/> event for the given Device and validation result.
+        /// </summary>
+        /// <param name="device">The Device that failed validation at registration time.</param>
+        /// <param name="result">The validation result describing why the Device was rejected.</param>
+        void OnInvalidDeviceAdded(IDevice device, ValidationResult result);
 
         #endregion
 

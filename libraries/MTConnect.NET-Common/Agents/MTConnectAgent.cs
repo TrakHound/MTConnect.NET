@@ -174,6 +174,11 @@ namespace MTConnect.Agents
 
 
         /// <summary>
+        /// Raised when an Invalid Device is Added
+        /// </summary>
+        public event MTConnectDeviceValidationHandler InvalidDeviceAdded;
+
+        /// <summary>
         /// Raised when an Invalid Component is Added
         /// </summary>
         public event MTConnectComponentValidationHandler InvalidComponentAdded;
@@ -2171,6 +2176,14 @@ namespace MTConnect.Agents
             if (InvalidObservationAdded != null)
             {
                 InvalidObservationAdded?.Invoke(deviceUuid, dataItemId, result);
+            }
+        }
+
+        public void OnInvalidDeviceAdded(IDevice device, ValidationResult result)
+        {
+            if (InvalidDeviceAdded != null)
+            {
+                InvalidDeviceAdded?.Invoke(device, result);
             }
         }
 
