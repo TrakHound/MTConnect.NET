@@ -669,8 +669,7 @@ namespace MTConnect.Tests.Integration
 
                     var completed = await Task.WhenAny(
                         sampleStreamLive.Task,
-                        Task.Delay(1000, cts.Token))
-                        .ConfigureAwait(false);
+                        Task.Delay(1000, cts.Token));
 
                     if (completed == sampleStreamLive.Task) break;
                 }
