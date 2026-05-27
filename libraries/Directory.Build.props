@@ -27,7 +27,7 @@
 			tighten CS1591 to error without dragging in the long-tail XML-doc
 			validation backlog.
 		-->
-		<NoWarn>$(NoWarn);CS0419;CS1570;CS1572;CS1573;CS1574;CS1584;CS1587;CS1711;CS1712;CS1734</NoWarn>
+		<NoWarn>$(NoWarn);CS0419;CS1570;CS1572;CS1573;CS1574;CS1584;CS1587;CS1711;CS1712;CS1734;$(AdditionalNoWarn)</NoWarn>
 	</PropertyGroup>
 
 </Project>

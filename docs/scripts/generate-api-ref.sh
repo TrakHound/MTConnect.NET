@@ -60,7 +60,7 @@ if ! "${skip_build}"; then
     dotnet build "libraries/${lib}/${lib}.csproj" \
       -c Debug \
       -p:GenerateDocumentationFile=true \
-      -p:NoWarn=CS1591 \
+      -p:AdditionalNoWarn=CS1591 \
       --nologo \
       -v:quiet
   done
