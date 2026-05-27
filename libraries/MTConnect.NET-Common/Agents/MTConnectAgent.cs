@@ -2348,6 +2348,7 @@ namespace MTConnect.Agents
             }
         }
 
+        /// <inheritdoc />
         public void OnInvalidDeviceAdded(IDevice device, ValidationResult result)
         {
             if (InvalidDeviceAdded != null)
