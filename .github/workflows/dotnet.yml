@@ -22,6 +22,12 @@ on:
     paths-ignore:
       - 'README.md'
       - 'docs/**'
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        description: 'Branch to run CI against (default: the dispatching branch)'
+        required: false
+        type: string
 
 jobs:
   build-and-test:
@@ -29,7 +35,7 @@ jobs:
     # Skip drafts: run only on push-to-master + ready (non-draft) PRs.
     # The pull_request `types` list above includes `ready_for_review` so
     # CI fires the moment a draft is flipped to ready.
-    if: github.event_name == 'push' || github.event.pull_request.draft == false
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
