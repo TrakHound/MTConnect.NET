@@ -13,13 +13,14 @@ The agent exposes one event per validatable element kind:
 
 | Event | Delegate | When it fires |
 | --- | --- | --- |
+| `InvalidDeviceAdded` | [`MTConnectDeviceValidationHandler`](/api/MTConnect/MTConnectDeviceValidationHandler) | `AddDevice(IDevice)` rejects a Device whose top-level validation does not pass — the Device is null, or its `Uuid` is null or empty. |
 | `InvalidComponentAdded` | [`MTConnectComponentValidationHandler`](/api/MTConnect/MTConnectComponentValidationHandler) | A generic `Component` (unknown `Type`) is encountered while initialising a Device. |
 | `InvalidCompositionAdded` | [`MTConnectCompositionValidationHandler`](/api/MTConnect/MTConnectCompositionValidationHandler) | A generic `Composition` is encountered while initialising a Device. |
 | `InvalidDataItemAdded` | [`MTConnectDataItemValidationHandler`](/api/MTConnect/MTConnectDataItemValidationHandler) | A generic `DataItem` (unknown `Type`) is encountered while initialising a Device. |
 | `InvalidObservationAdded` | [`MTConnectObservationValidationHandler`](/api/MTConnect/MTConnectObservationValidationHandler) | An observation value fails per-DataItem validation, or its `DataItemKey` is unknown. |
 | `InvalidAssetAdded` | [`MTConnectAssetValidationHandler`](/api/MTConnect/MTConnectAssetValidationHandler) | An asset fails its `Process(...)` validation pipeline. |
 
-A sixth member, **`InvalidDeviceAdded`** (with delegate `MTConnectDeviceValidationHandler`), is in flight via [TrakHound/MTConnect.NET#169](https://github.com/TrakHound/MTConnect.NET/pull/169) and will fire when `AddDevice(IDevice)` rejects a device whose own validation does not pass — making the family closed across the five Device-tree element kinds plus the top-level Device itself.
+The family is closed across the five Device-tree element kinds plus the top-level Device itself. Every entry carries a universal [`MTConnect.ValidationResult`](/api/MTConnect/ValidationResult) payload exposing `IsValid`, a machine-readable `Code`, and a human-readable `Message` — see [v7 migration: ValidationResult consolidation](/migration/v7-validation-result) for the pre-v7 per-domain structs this replaced.
 
 ```mermaid
 flowchart TB
@@ -61,6 +62,9 @@ var agent = new MTConnectAgent(new AgentConfiguration
     InputValidationLevel = InputValidationLevel.Warn,
 });
 
+agent.InvalidDeviceAdded += (device, result) =>
+    Console.Error.WriteLine($"invalid Device (code={result.Code}): {result.Message}");
+
 agent.InvalidComponentAdded += (deviceUuid, component, result) =>
     Console.Error.WriteLine($"[{deviceUuid}] invalid Component {component.Type}: {result.Message}");
 
@@ -79,17 +83,43 @@ agent.InvalidAssetAdded += (asset, result) =>
 
 ### Handler signatures
 
-The delegates are all defined in [`MTConnect.Delegates`](/api/MTConnect/Delegates) and follow a uniform shape — the offending element, plus a `ValidationResult` (or `AssetValidationResult` for assets) describing what failed:
+The delegates are all defined in [`MTConnect.Delegates`](/api/MTConnect/Delegates) and follow a uniform shape — the offending element, plus a universal [`MTConnect.ValidationResult`](/api/MTConnect/ValidationResult) describing what failed:
 
 ```csharp
+public delegate void MTConnectDeviceValidationHandler(IDevice device, ValidationResult validationResults);
 public delegate void MTConnectComponentValidationHandler(string deviceUuid, IComponent component, ValidationResult validationResults);
 public delegate void MTConnectCompositionValidationHandler(string deviceUuid, IComposition composition, ValidationResult validationResults);
 public delegate void MTConnectDataItemValidationHandler(string deviceUuid, IDataItem dataItem, ValidationResult validationResults);
 public delegate void MTConnectObservationValidationHandler(string deviceUuid, string dataItemKey, ValidationResult validationResults);
-public delegate void MTConnectAssetValidationHandler(IAsset asset, AssetValidationResult validationResults);
+public delegate void MTConnectAssetValidationHandler(IAsset asset, ValidationResult validationResults);
 ```
 
+`InvalidDeviceAdded` and `InvalidAssetAdded` are the two members that do not carry a `deviceUuid` string: the offending element *is* the Device (or stands in for one, in the Asset case).
+
 `InvalidObservationAdded` carries the `DataItemKey` (a string) rather than an `IDataItem`, because the failure mode includes the case where the key did not resolve to a DataItem at all.
+
+### Validation codes
+
+`ValidationResult.Code` is a stable, machine-readable string the agent stamps onto each failure so subscribers can branch without parsing the human-readable message. The currently emitted codes for `InvalidDeviceAdded` are:
+
+| `Code` | Cause |
+| --- | --- |
+| `DeviceNull` | `AddDevice(null)` was called. |
+| `DeviceUuidMissing` | The Device had no `Uuid` (null or empty). The accompanying `Message` includes the device's registration index, `Type`, and `Name` (when set) so multi-device hosts can attribute the failure. |
+
+### Pre-flight validation
+
+[`MTConnectAgent.ValidateDevice(IDevice)`](/api/MTConnect.Agents/MTConnectAgent) exposes the same check `AddDevice` runs internally, so callers can validate a Device *before* attempting registration — useful when reading from a config file or building a Device programmatically:
+
+```csharp
+var result = agent.ValidateDevice(device);
+if (!result.IsValid)
+{
+    Console.Error.WriteLine($"Refusing to add Device ({result.Code}): {result.Message}");
+    return;
+}
+agent.AddDevice(device);
+```
 
 ### What happens to the rejected input
 
@@ -147,6 +177,7 @@ The event family is designed to grow. When a new element class becomes validatab
 
 ### Cross-reference
 
-- [TrakHound/MTConnect.NET#169](https://github.com/TrakHound/MTConnect.NET/pull/169) — adds `InvalidDeviceAdded` and is the canonical worked example of extending the family.
+- [v7 migration: ValidationResult consolidation](/migration/v7-validation-result) — how the three pre-v7 per-domain structs collapsed into the universal `MTConnect.ValidationResult` used by every member of this family.
+- [TrakHound/MTConnect.NET#169](https://github.com/TrakHound/MTConnect.NET/pull/169) — the canonical worked example of extending the family (adds `InvalidDeviceAdded`, `ValidateDevice`, and the `DeviceNull` / `DeviceUuidMissing` codes).
 - [`MTConnectAgent`](/api/MTConnect.Agents/MTConnectAgent) — the surface where every entry lives.
 - [`InputValidationLevel`](/api/MTConnect.Configurations/InputValidationLevel) — the agent-wide knob that gates whether the family fires at all.
