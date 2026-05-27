@@ -174,6 +174,11 @@ namespace MTConnect.Agents
 
 
         /// <summary>
+        /// Raised when an Invalid Device is Added
+        /// </summary>
+        public event MTConnectDeviceValidationHandler InvalidDeviceAdded;
+
+        /// <summary>
         /// Raised when an Invalid Component is Added
         /// </summary>
         public event MTConnectComponentValidationHandler InvalidComponentAdded;
@@ -1470,12 +1475,79 @@ namespace MTConnect.Agents
 
 
         /// <summary>
-        /// Add a new MTConnectDevice to the Agent's Buffer
+        /// Validate a Device at registration time, returning a
+        /// <see cref="ValidationResult"/> describing whether the Device
+        /// satisfies the startup-time invariants the agent enforces.
         /// </summary>
+        /// <remarks>
+        /// Pinned invariants:
+        ///   - Uuid: per MTConnect v2.7 XSD (MTConnectDevices_2.7.xsd,
+        ///     line 5245) the Device.uuid attribute is use='required'
+        ///     with UuidType documented as the element's identity 'for
+        ///     it's entire life'. A null or empty Uuid would defer the
+        ///     error from startup-time configuration to wire-emission
+        ///     XSD validation, surfacing far away from the operator
+        ///     config that caused it.
+        /// </remarks>
+        /// <param name="device">The Device to validate.</param>
+        /// <returns>The validation outcome. <see cref="ValidationResult.IsValid"/>
+        /// is true when the Device may be registered; otherwise false and the
+        /// <see cref="ValidationResult.Code"/> + <see cref="ValidationResult.Message"/>
+        /// describe the violation.</returns>
+        public ValidationResult ValidateDevice(IDevice device)
+        {
+            if (device == null)
+            {
+                return ValidationResult.Invalid(
+                    "DeviceNull",
+                    "Device is null.");
+            }
+
+            if (string.IsNullOrEmpty(device.Uuid))
+            {
+                var index = _devices.Count;
+                var typeName = device.Type ?? device.GetType().Name;
+                var nameSuffix = !string.IsNullOrEmpty(device.Name)
+                    ? $" (name='{device.Name}')"
+                    : string.Empty;
+                return ValidationResult.Invalid(
+                    "DeviceUuidMissing",
+                    $"Device at registration index {index} has no Uuid. " +
+                    $"Type='{typeName}'{nameSuffix}. " +
+                    "Device.uuid is XSD-required (use='required', UuidType) since MTConnect v1.0. " +
+                    "Set Device.Uuid to a stable, operator-assigned value before registering the device.");
+            }
+
+            return ValidationResult.Valid();
+        }
+
+
+        /// <summary>
+        /// Add a new MTConnectDevice to the Agent's Buffer.
+        /// </summary>
+        /// <remarks>
+        /// Returns null when the Device fails startup-time validation
+        /// (e.g. missing Uuid). Validation failures are surfaced through
+        /// the <see cref="InvalidDeviceAdded"/> event, matching the
+        /// existing Invalid*Added family on this agent.
+        /// </remarks>
         public IDevice AddDevice(IDevice device, bool initializeDataItems = true)
         {
             if (device != null)
             {
+                // Startup-time validation. Failures route through the
+                // family-consistent InvalidDeviceAdded event rather than
+                // throwing, so subscribers can decide whether to log,
+                // halt, or continue (mirroring InvalidComponentAdded /
+                // InvalidCompositionAdded / InvalidDataItemAdded /
+                // InvalidObservationAdded / InvalidAssetAdded).
+                var validationResult = ValidateDevice(device);
+                if (!validationResult.IsValid)
+                {
+                    OnInvalidDeviceAdded(device, validationResult);
+                    return null;
+                }
+
                 // Create new object (to validate and prevent derived classes that won't serialize right with XML)
                 var obj = NormalizeDevice(device);
                 if (obj != null)
@@ -1978,7 +2050,13 @@ namespace MTConnect.Agents
                     if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
                     {
                         // Validate Observation Input with DataItem type
-                        if (!validationResult.IsValid) validationResult.Message = $"{dataItem.Type} : {dataItem.Id} : {validationResult.Message}";
+                        if (!validationResult.IsValid)
+                        {
+                            validationResult = new ValidationResult(
+                                false,
+                                $"{dataItem.Type} : {dataItem.Id} : {validationResult.Message}",
+                                validationResult.Code);
+                        }
                     }
 
                     if (validationResult.IsValid || _configuration.InputValidationLevel != InputValidationLevel.Strict)
@@ -2136,6 +2214,14 @@ namespace MTConnect.Agents
             if (InvalidObservationAdded != null)
             {
                 InvalidObservationAdded?.Invoke(deviceUuid, dataItemId, result);
+            }
+        }
+
+        public void OnInvalidDeviceAdded(IDevice device, ValidationResult result)
+        {
+            if (InvalidDeviceAdded != null)
+            {
+                InvalidDeviceAdded?.Invoke(device, result);
             }
         }
 

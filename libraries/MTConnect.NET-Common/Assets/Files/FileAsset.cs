@@ -25,7 +25,7 @@ namespace MTConnect.Assets.Files
             return base.OnProcess(mtconnectVersion);
         }
 
-        public override AssetValidationResult IsValid(Version mtconnectVersion)
+        public override ValidationResult IsValid(Version mtconnectVersion)
         {
             var baseResult = base.IsValid(mtconnectVersion);
             var message = baseResult.Message;
@@ -63,7 +63,7 @@ namespace MTConnect.Assets.Files
                 }
             }
 
-            return new AssetValidationResult(result, message);
+            return new ValidationResult(result, message);
         }
 
         public override string GenerateHash(bool includeTimestamp = true)

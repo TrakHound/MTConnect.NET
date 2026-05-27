@@ -22,11 +22,12 @@ namespace MTConnect
 
     public delegate void MTConnectErrorHandler(IErrorResponseDocument errorDocument);
 
+    public delegate void MTConnectDeviceValidationHandler(IDevice device, ValidationResult validationResults);
     public delegate void MTConnectComponentValidationHandler(string deviceUuid, IComponent component, ValidationResult validationResults);
     public delegate void MTConnectCompositionValidationHandler(string deviceUuid, IComposition composition, ValidationResult validationResults);
     public delegate void MTConnectDataItemValidationHandler(string deviceUuid, IDataItem dataItem, ValidationResult validationResults);
     public delegate void MTConnectObservationValidationHandler(string deviceUuid, string dataItemKey, ValidationResult validationResults);
-    public delegate void MTConnectAssetValidationHandler(IAsset asset, AssetValidationResult validationResults);
+    public delegate void MTConnectAssetValidationHandler(IAsset asset, ValidationResult validationResults);
 
     public delegate void XmlHandler(string xml);
 

@@ -633,19 +633,57 @@ namespace MTConnect.Tests.Integration
             // assigns monotonically increasing sequences, so this sentinel
             // lands at or above the Sample stream's from= and is guaranteed
             // to be emitted on the next server polling tick.
-            _adapter.AddDataItem(new ShdrDataItem("avail", "AVAILABLE"));
-
-            using (cts.Token.Register(() => sampleStreamLive.TrySetCanceled()))
+            //
+            // A single sentinel push is not enough on a loaded CI runner:
+            // the SHDR adapter's writer is interval-driven (it batches
+            // changed observations every 100 ms via its worker tick) and
+            // its underlying TCP connection to the in-process
+            // ShdrAdapterClient can transiently drop and reconnect under
+            // scheduler pressure, dropping in-flight lines silently. We
+            // therefore re-publish the sentinel once per second until the
+            // Sample stream goes live or the test-wide token expires,
+            // alternating between AVAILABLE and UNAVAILABLE so each
+            // republish is a genuine change (FilterDuplicates accepts it)
+            // and so the agent records a monotonically later sequence
+            // each iteration (no chance of a stale, pre-from= duplicate
+            // being filtered server-side). One iteration is the previously
+            // single-shot behaviour; any further iteration is a no-op on
+            // the green path but the only line of defence against the
+            // sentinel-lost race on a stressed runner.
+            var sentinelToggle = false;
+            try
             {
-                try
+                while (!sampleStreamLive.Task.IsCompleted)
                 {
-                    await sampleStreamLive.Task;
+                    sentinelToggle = !sentinelToggle;
+                    var sentinelValue = sentinelToggle ? "AVAILABLE" : "UNAVAILABLE";
+
+                    // SendDataItem is the synchronous "write now" variant on
+                    // the SHDR adapter: it bypasses the interval-tick
+                    // batching path used by AddDataItem and writes directly
+                    // to every connected agent client. If no client is
+                    // currently connected the call returns false rather
+                    // than throwing, and the next iteration retries on a
+                    // freshly re-established connection.
+                    _adapter.SendDataItem(new ShdrDataItem("avail", sentinelValue));
+
+                    var completed = await Task.WhenAny(
+                        sampleStreamLive.Task,
+                        Task.Delay(1000, cts.Token));
+
+                    if (completed == sampleStreamLive.Task) break;
                 }
-                catch (OperationCanceledException)
-                {
-                    throw new XunitException(
-                        $"Sample stream did not deliver any document within {c_testCancelTimeout} ms.");
-                }
+            }
+            catch (OperationCanceledException)
+            {
+                throw new XunitException(
+                    $"Sample stream did not deliver any document within {c_testCancelTimeout} ms.");
+            }
+
+            if (!sampleStreamLive.Task.IsCompleted)
+            {
+                throw new XunitException(
+                    $"Sample stream did not deliver any document within {c_testCancelTimeout} ms.");
             }
 
             // (3) Publish the sample under test on the now-live stream.

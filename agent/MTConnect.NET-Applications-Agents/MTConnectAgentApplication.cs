@@ -928,7 +928,7 @@ namespace MTConnect.Applications
             _agentValidationLogger.Warn($"{deviceUuid} : DataItemKey = {dataItemKey} : {result.Message}");
         }
 
-        private void InvalidAsset(IAsset asset, AssetValidationResult result)
+        private void InvalidAsset(IAsset asset, ValidationResult result)
         {
             _agentValidationLogger.Warn($"{result.Message}");
         }

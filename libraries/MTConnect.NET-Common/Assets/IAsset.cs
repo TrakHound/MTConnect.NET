@@ -20,7 +20,7 @@ namespace MTConnect.Assets
 
 		IAsset Process(Version mtconnectVersion);
 
-        AssetValidationResult IsValid(Version mtconnectVersion);
+        ValidationResult IsValid(Version mtconnectVersion);
 
         string GenerateHash(bool includeTimestamp = true);
 	}

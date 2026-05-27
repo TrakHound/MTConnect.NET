@@ -27,7 +27,7 @@ namespace MTConnect.Assets.QIF
         //    return null;
         //}
 
-        //public override AssetValidationResult IsValid(Version mtconnectVersion)
+        //public override ValidationResult IsValid(Version mtconnectVersion)
         //{
         //    var message = "";
         //    var result = true;
@@ -46,7 +46,7 @@ namespace MTConnect.Assets.QIF
         //        }
         //    }
 
-        //    return new AssetValidationResult(result, message);
+        //    return new ValidationResult(result, message);
         //}
 
         //public override string GenerateHash()

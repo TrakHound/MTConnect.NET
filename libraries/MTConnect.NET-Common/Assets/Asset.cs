@@ -136,9 +136,9 @@ namespace MTConnect.Assets
 			return this;
 		}
 
-        public virtual AssetValidationResult IsValid(Version mtconnectVersion)
+        public virtual ValidationResult IsValid(Version mtconnectVersion)
         {
-            return new AssetValidationResult(true);
+            return new ValidationResult(true);
         }
 
         public virtual string GenerateHash(bool includeTimestamp = true)
