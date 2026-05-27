@@ -46,7 +46,7 @@ namespace MTConnect.Assets.CuttingTools
             return null;         
         }
 
-        public override AssetValidationResult IsValid(Version mtconnectVersion)
+        public override ValidationResult IsValid(Version mtconnectVersion)
         {
             var message = "";
             var result = true;
@@ -62,7 +62,7 @@ namespace MTConnect.Assets.CuttingTools
                 result = false;
             }
 
-            return new AssetValidationResult(result, message);
+            return new ValidationResult(result, message);
         }
 
 
