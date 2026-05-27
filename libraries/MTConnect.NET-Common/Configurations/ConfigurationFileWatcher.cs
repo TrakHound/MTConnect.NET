@@ -9,7 +9,7 @@ namespace MTConnect.Configurations
     /// <summary>
     /// Configuration File Watcher that notifies when the specified <typeparamref name="T"/> is updated
     /// </summary>
-    /// <typeparam name="TConfiguration">The type of Configuration file to read</typeparam>
+    /// <typeparam name="T">The type of Configuration file to read</typeparam>
     public class ConfigurationFileWatcher<T> : IConfigurationFileWatcher<T>
     {
         /// <summary>

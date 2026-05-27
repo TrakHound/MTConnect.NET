@@ -67,6 +67,7 @@ namespace MTConnect.Configurations
         /// Gets a list of Devices from the specified file (ex. devices.xml)
         /// </summary>
         /// <param name="filePath">The path to the Device Configuration file</param>
+        /// <param name="documentFormatterId">The ID of the formatter used to deserialize the device document (for example, <c>xml</c> or <c>json</c>).</param>
         public static IEnumerable<DeviceConfiguration> FromFile(string filePath, string documentFormatterId)
         {
             // Set the Filename
@@ -131,6 +132,7 @@ namespace MTConnect.Configurations
         /// Gets a list of Devices from the specified file (ex. devices.xml)
         /// </summary>
         /// <param name="filePath">The path to the Device Configuration file</param>
+        /// <param name="documentFormatterId">The ID of the formatter used to deserialize the device document (for example, <c>xml</c> or <c>json</c>).</param>
         public static async Task<IEnumerable<DeviceConfiguration>> FromFileAsync(string filePath, string documentFormatterId)
         {
             await Task.CompletedTask;
@@ -195,7 +197,8 @@ namespace MTConnect.Configurations
         /// <summary>
         /// Gets a list of Devices from files (ex. devices.xml) found in the specified directory path
         /// </summary>
-        /// <param name="dirPath">The path to the directory containing Device Configuration files</param>
+        /// <param name="path">The path to the directory containing Device Configuration files</param>
+        /// <param name="documentFormatterId">The ID of the formatter used to deserialize the device document (for example, <c>xml</c> or <c>json</c>).</param>
         public static IEnumerable<DeviceConfiguration> FromFiles(string path, string documentFormatterId)
         {
             if (!string.IsNullOrEmpty(path))
@@ -247,7 +250,8 @@ namespace MTConnect.Configurations
         /// <summary>
         /// Gets a list of Devices from files (ex. devices.xml) found in the specified directory path
         /// </summary>
-        /// <param name="dirPath">The path to the directory containing Device Configuration files</param>
+        /// <param name="path">The path to the directory containing Device Configuration files</param>
+        /// <param name="documentFormatterId">The ID of the formatter used to deserialize the device document (for example, <c>xml</c> or <c>json</c>).</param>
         public static async Task<IEnumerable<DeviceConfiguration>> FromFilesAsync(string path, string documentFormatterId)
         {
             if (!string.IsNullOrEmpty(path))
