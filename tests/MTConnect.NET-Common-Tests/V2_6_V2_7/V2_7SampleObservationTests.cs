@@ -16,7 +16,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
     //   - XSD: schemas.mtconnect.org/schemas/MTConnectStreams_2.7.xsd
     //          enum `SampleEnum` value `WATER_HARDNESS` is the sample-category
     //          element name on the wire.
-    //   - Prose: MTConnect Standard Part_2.0_Streams_v2.7 §11 "Sample observation
+    //   - Prose: MTConnect Standard Part_2.0_Streams_v2.7 section 11 "Sample observation
     //          types" — describes how SAMPLE-category observations carry
     //          continuous-numeric values reported at agent-defined intervals.
     //

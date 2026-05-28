@@ -14,7 +14,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
     //   - XSD:   https://schemas.mtconnect.org/schemas/MTConnectDevices_2.6.xsd
     //                                                  MTConnectDevices_2.7.xsd
     //            (each XSD's targetNamespace embeds the version it represents.)
-    //   - Prose: MTConnect Standard `Part_1.0_Overview_v2.7.pdf` §1 "Versioning"
+    //   - Prose: MTConnect Standard `Part_1.0_Overview_v2.7.pdf` section 1 "Versioning"
     //            (the document numbering scheme — v1.0 through v2.7 with v1.9
     //            intentionally skipped — is described here.)
     [TestFixture]
@@ -44,7 +44,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
         }
 
         // Pin that the version list contains no 1.9 entry.
-        // Source: MTConnect Standard Part_1.0_Overview prose §1 "Versioning";
+        // Source: MTConnect Standard Part_1.0_Overview prose section 1 "Versioning";
         // confirmed by the absence of an XMI tag `v1.9` in
         // `mtconnect/mtconnect_sysml_model` (tags: v2.5 b61907fb78,
         // v2.6 08185447bf, v2.7 25796ac591).
