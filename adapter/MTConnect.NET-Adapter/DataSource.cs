@@ -41,7 +41,6 @@ namespace MTConnect.Applications
         {
             var x = 0;
             var i = 0;
-            var j = 0d;
 
             while (true)
             {

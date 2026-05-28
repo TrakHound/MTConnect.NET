@@ -24,7 +24,6 @@ namespace MTConnect.Modules
         private readonly IMTConnectAgentBroker _mtconnectAgent;
         private readonly List<MTConnectHttpClient> _clients = new List<MTConnectHttpClient>();
         private readonly Dictionary<string, MTConnectClientInformation> _clientInformations = new Dictionary<string, MTConnectClientInformation>();
-        private System.Timers.Timer _clientInformationTimer;
 
 
         public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)

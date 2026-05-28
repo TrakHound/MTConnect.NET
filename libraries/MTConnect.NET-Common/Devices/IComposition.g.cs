@@ -11,7 +11,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Type of Composition.
         /// </summary>
-        string Type { get; }
+        new string Type { get; }
         
         /// <summary>
         /// Logical or physical entity that provides a capability.

@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace System.Net
+namespace MTConnect.DeviceFinder
 {
     using System;
     using System.Numerics;

@@ -9,6 +9,7 @@
         [Command("build")]
         public static async Task Build([CommandOption] string configurationId = null, [CommandOption] bool verbose = false)
         {
+            await Task.CompletedTask;
             if (string.IsNullOrEmpty(configurationId)) configurationId = Configuration.DefaultId;
 
             Console.WriteLine($"Build Nuget Libraries : Configuration ID = {configurationId}");
@@ -87,6 +88,7 @@
         [Command("publish")]
         public static async Task Publish([CommandOption] string configurationId = null, [CommandOption] bool verbose = false)
         {
+            await Task.CompletedTask;
             if (string.IsNullOrEmpty(configurationId)) configurationId = Configuration.DefaultId;
 
             Console.WriteLine($"Publish Nuget Libraries : Configuration ID = {configurationId}");

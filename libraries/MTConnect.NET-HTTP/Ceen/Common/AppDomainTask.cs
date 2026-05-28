@@ -64,7 +64,9 @@ namespace Ceen
 				{
 					if (task.Exception == null)
 						handler.SetFailed(new Exception());
+#pragma warning disable SYSLIB0050 // legacy AppDomain bridge: Formatter-based serialization gate is the documented contract
 					else if (task.Exception.GetType().IsSerializable)
+#pragma warning restore SYSLIB0050
 						handler.SetFailed(task.Exception);
 					else
 						handler.SetFailed(new Exception(task.Exception.Message));

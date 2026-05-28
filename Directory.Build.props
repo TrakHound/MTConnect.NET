@@ -7,6 +7,41 @@
 		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
 		<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+
+		<!--
+		  Solution-wide warning-as-error gate. Every campaign warning
+		  cleanup commit lands underneath this — a regression that
+		  reintroduces a warning fails the build. CI exercises the same
+		  shape (it builds the same Directory.Build.props), so a future
+		  PR that adds a warning is caught at compile time rather than
+		  at code review.
+
+		  Pair with the worktree-only SourceLink gate below: SourceLink
+		  emits an un-coded warning ("Source control information is not
+		  available - the generated source link is empty.") when the
+		  build sees a git worktree (the `.git` file points up at a
+		  parent gitdir, which the SourceLink.GitHub task does not
+		  recognise) or a non-github.com remote alias. CI checks out
+		  with a plain clone from github.com and never trips it, so
+		  the gate stays sharp there.
+		-->
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+		<!--
+		  Disable SourceLink locally when the build sees a git worktree
+		  (`.git` is a file, not a directory) and the GitHub Actions env
+		  var is unset. CI keeps SourceLink on so the produced symbols
+		  link back to github.com; local worktree builds skip it to
+		  avoid the un-coded warning that TreatWarningsAsErrors would
+		  otherwise escalate.
+
+		  The CI-side condition: GitHub-hosted runners set
+		  GITHUB_ACTIONS=true on every step. When the build runs under
+		  CI we want SourceLink active — even on a worktree-style
+		  checkout, though `actions/checkout` produces a plain clone, so
+		  the condition is double-belted.
+		-->
+		<EnableSourceLink Condition="'$(GITHUB_ACTIONS)' != 'true' AND Exists('$(MSBuildThisFileDirectory).git') AND !Exists('$(MSBuildThisFileDirectory).git/HEAD')">false</EnableSourceLink>
 	</PropertyGroup>
 
 	<!--

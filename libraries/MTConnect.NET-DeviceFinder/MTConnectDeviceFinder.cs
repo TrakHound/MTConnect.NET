@@ -40,7 +40,9 @@ namespace MTConnect.DeviceFinder
         public event PortRequestHandler PortClosed;
         public event ProbeRequestHandler ProbeSent;
         public event ProbeRequestHandler ProbeSuccessful;
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event ProbeRequestHandler ProbeError;
+        #pragma warning restore CS0067
 
 
         /// <summary>
@@ -557,7 +559,7 @@ namespace MTConnect.DeviceFinder
                         }
                     }
                 }
-                catch (Exception ex) { }
+                catch (Exception) { }
             }
             else
             {

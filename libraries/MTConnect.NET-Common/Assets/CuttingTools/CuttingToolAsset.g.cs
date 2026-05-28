@@ -31,7 +31,7 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// Unique identifier for this assembly.
         /// </summary>
-        public string SerialNumber { get; set; }
+        public new string SerialNumber { get; set; }
         
         /// <summary>
         /// Identifier for a class of cutting tools.

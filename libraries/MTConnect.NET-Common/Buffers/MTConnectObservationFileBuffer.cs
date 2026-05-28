@@ -127,7 +127,7 @@ namespace MTConnect.Buffers
             }
         }
 
-        public void Dispose()
+        public new void Dispose()
         {
             Stop();
             base.Dispose();

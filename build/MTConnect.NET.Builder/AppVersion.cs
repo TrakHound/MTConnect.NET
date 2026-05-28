@@ -110,7 +110,6 @@ namespace TrakHound.Builder
                         connection.Open();
 
                         string existingVersion = null;
-                        int nextRevision = 0;
 
                         // Read Existing Version
                         var query = $"select [version] from [products] where [configuration_id] = '{configurationId}' and [product_type] = '{productType}' and [product_key] = '{productKey}';";

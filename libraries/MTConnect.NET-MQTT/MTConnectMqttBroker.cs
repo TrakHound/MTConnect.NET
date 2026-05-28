@@ -46,11 +46,15 @@ namespace MTConnect.Mqtt
 
         public event EventHandler ClientDisconnected;
 
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler<string> MessageSent;
+        #pragma warning restore CS0067
 
         public event EventHandler<Exception> ConnectionError;
 
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler<Exception> PublishError;
+        #pragma warning restore CS0067
 
 
         public MTConnectMqttBroker(IMTConnectAgent mtconnectAgent, MqttServer mqttServer, IEnumerable<int> observationIntervals = null, int heartbeatInterval = 1000)
@@ -66,10 +70,12 @@ namespace MTConnect.Mqtt
             _mqttServer = mqttServer;
             _mqttServer.ClientConnectedAsync += async (args) =>
             {
+                await Task.CompletedTask;
                 if (ClientConnected != null) ClientConnected.Invoke(this, new EventArgs());
             };
             _mqttServer.ClientDisconnectedAsync += async (args) =>
             {
+                await Task.CompletedTask;
                 if (ClientDisconnected != null) ClientDisconnected.Invoke(this, new EventArgs());
             };
 
@@ -88,6 +94,7 @@ namespace MTConnect.Mqtt
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            await Task.CompletedTask;
             _stop = new CancellationTokenSource();
 
             if (!_mqttServer.IsStarted)
@@ -180,7 +187,7 @@ namespace MTConnect.Mqtt
                     await Task.Delay(_retryInterval, _stop.Token);
                 }
                 catch (TaskCanceledException) { }
-                catch (Exception ex) { }
+                catch (Exception) { }
 
             } while (!_stop.Token.IsCancellationRequested);
         }
@@ -209,7 +216,7 @@ namespace MTConnect.Mqtt
             {
                 foreach (var message in messages)
                 {
-                    if (message != null && message.Payload != null)
+                    if (message != null && message.HasPayload())
                     {
                         await Publish(message);
                     }
@@ -224,7 +231,7 @@ namespace MTConnect.Mqtt
             {
                 foreach (var message in messages)
                 {
-                    if (message != null && message.Payload != null)
+                    if (message != null && message.HasPayload())
                     {
                         await Publish(message);
                     }
@@ -274,7 +281,7 @@ namespace MTConnect.Mqtt
             if (observation.Category != Devices.DataItemCategory.CONDITION)
             {
                 var message = MTConnectMqttMessage.Create(observation, Format, _documentFormat, RetainMessages, interval);
-                if (message != null && message.Payload != null) await Publish(message);
+                if (message != null && message.HasPayload()) await Publish(message);
             }
             else
             {
@@ -297,7 +304,7 @@ namespace MTConnect.Mqtt
                         }
 
                         var message = MTConnectMqttMessage.Create(x, Format, _documentFormat, RetainMessages, interval);
-                        if (message != null && message.Payload != null) await Publish(message);
+                        if (message != null && message.HasPayload()) await Publish(message);
                     }
                 }
             }

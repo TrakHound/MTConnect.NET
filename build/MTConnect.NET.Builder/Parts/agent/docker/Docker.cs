@@ -79,6 +79,7 @@
 
         private static async Task BuildImage(string configurationId, bool verbose)
         {
+            await Task.CompletedTask;
             Console.Write("Building Agent Docker Image : ");
 
             var config = Configuration.Read(configurationId);
@@ -117,6 +118,7 @@
 
         private static async Task PushImage(string configurationId, bool verbose)
         {
+            await Task.CompletedTask;
             Console.Write("Pushing Agent Docker Image : ");
 
             var config = Configuration.Read(configurationId);

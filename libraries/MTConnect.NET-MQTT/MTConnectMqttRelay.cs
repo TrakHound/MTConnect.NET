@@ -63,7 +63,9 @@ namespace MTConnect.Mqtt
 
         public event EventHandler Disconnected;
 
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler<string> MessageSent;
+        #pragma warning restore CS0067
 
         public event EventHandler<Exception> ConnectionError;
 
@@ -185,15 +187,12 @@ namespace MTConnect.Mqtt
 #endif
 
                             clientOptionsBuilder.WithCleanSession();
-                            clientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters()
-                            {
-                                UseTls = true,
-                                SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
-                                IgnoreCertificateRevocationErrors = AllowUntrustedCertificates,
-                                IgnoreCertificateChainErrors = AllowUntrustedCertificates,
-                                AllowUntrustedCertificates = AllowUntrustedCertificates,
-                                Certificates = certificates
-                            });
+                            clientOptionsBuilder.WithTlsOptions(b => b
+                                .WithSslProtocols(System.Security.Authentication.SslProtocols.Tls12)
+                                .WithIgnoreCertificateRevocationErrors(AllowUntrustedCertificates)
+                                .WithIgnoreCertificateChainErrors(AllowUntrustedCertificates)
+                                .WithAllowUntrustedCertificates(AllowUntrustedCertificates)
+                                .WithClientCertificates(certificates));
                         }
 
                         // Add Credentials
@@ -201,7 +200,7 @@ namespace MTConnect.Mqtt
                         {
                             if (_configuration.UseTls)
                             {
-                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password).WithTls();
+                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password).WithTlsOptions(b => { });
                             }
                             else
                             {
@@ -261,7 +260,7 @@ namespace MTConnect.Mqtt
                     await Task.Delay(RetryInterval, _stop.Token);
                 }
                 catch (TaskCanceledException) { }
-                catch (Exception ex) { }
+                catch (Exception) { }
 
             } while (!_stop.Token.IsCancellationRequested);
         }
@@ -295,7 +294,7 @@ namespace MTConnect.Mqtt
             {
                 foreach (var message in messages)
                 {
-                    if (message != null && message.Payload != null)
+                    if (message != null && message.HasPayload())
                     {
                         await Publish(message);
                     }
@@ -310,7 +309,7 @@ namespace MTConnect.Mqtt
             {
                 foreach (var message in messages)
                 {
-                    if (message != null && message.Payload != null)
+                    if (message != null && message.HasPayload())
                     {
                         await Publish(message);
                     }
@@ -360,7 +359,7 @@ namespace MTConnect.Mqtt
             if (observation.Category != Devices.DataItemCategory.CONDITION)
             {
                 var message = MTConnectMqttMessage.Create(observation, Format, _documentFormat, RetainMessages, interval);
-                if (message != null && message.Payload != null) await Publish(message);
+                if (message != null && message.HasPayload()) await Publish(message);
             }
             else
             {
@@ -383,7 +382,7 @@ namespace MTConnect.Mqtt
                         }
 
                         var message = MTConnectMqttMessage.Create(x, Format, _documentFormat, RetainMessages, interval);
-                        if (message != null && message.Payload != null) await Publish(message);
+                        if (message != null && message.HasPayload()) await Publish(message);
                     }
                 }
             }

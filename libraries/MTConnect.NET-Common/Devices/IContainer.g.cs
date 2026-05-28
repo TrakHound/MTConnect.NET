@@ -56,6 +56,6 @@ namespace MTConnect.Devices
         /// <summary>
         /// Universally unique identifier for the Component.
         /// </summary>
-        string Uuid { get; }
+        new string Uuid { get; }
     }
 }

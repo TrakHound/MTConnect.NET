@@ -9,6 +9,7 @@ using MTConnect.Devices;
 using MTConnect.Errors;
 using MTConnect.Formatters;
 using MTConnect.Headers;
+using MTConnect.Mqtt;
 using MTConnect.Observations;
 using MTConnect.Streams;
 using System;
@@ -47,7 +48,7 @@ namespace MTConnect.Clients
 
 
         private CancellationTokenSource _stop;
-        private MTConnectMqttConnectionStatus _connectionStatus;
+        private MTConnectMqttConnectionStatus _connectionStatus = MTConnectMqttConnectionStatus.Disconnected;
         private long _lastResponse;
 
 
@@ -73,17 +74,23 @@ namespace MTConnect.Clients
         /// <summary>
         /// Raised when the connection to the MQTT broker is established
         /// </summary>
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler Connected;
+        #pragma warning restore CS0067
 
         /// <summary>
         /// Raised when the connection to the MQTT broker is disconnected 
         /// </summary>
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler Disconnected;
+        #pragma warning restore CS0067
 
         /// <summary>
         /// Raised when the status of the connection to the MQTT broker has changed
         /// </summary>
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler<MTConnectMqttConnectionStatus> ConnectionStatusChanged;
+        #pragma warning restore CS0067
 
         /// <summary>
         /// Raised when an error occurs during connection to the MQTT broker
@@ -133,7 +140,9 @@ namespace MTConnect.Clients
         /// <summary>
         /// Raised when an MTConnectError Document is received
         /// </summary>
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler<IErrorResponseDocument> MTConnectError;
+        #pragma warning restore CS0067
 
         /// <summary>
         /// Raised when any MQTT Message is received
@@ -464,7 +473,7 @@ namespace MTConnect.Clients
 
         private void ProcessProbeMessage(MqttApplicationMessage message)
         {
-            using (var contentStream = new MemoryStream(message.Payload))
+            using (var contentStream = new MemoryStream(message.GetPayload()))
             {
                 var result = ResponseDocumentFormatter.CreateDevicesResponseDocument(_documentFormat, contentStream);
                 if (result.Success)
@@ -499,7 +508,7 @@ namespace MTConnect.Clients
         {
             if (!message.Retain)
             {
-                using (var contentStream = new MemoryStream(message.Payload))
+                using (var contentStream = new MemoryStream(message.GetPayload()))
                 {
                     var result = ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, contentStream);
                     if (result.Success)
@@ -514,7 +523,7 @@ namespace MTConnect.Clients
         {
             if (!message.Retain)
             {
-                using (var contentStream = new MemoryStream(message.Payload))
+                using (var contentStream = new MemoryStream(message.GetPayload()))
                 {
                     var result = ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, contentStream);
                     if (result.Success)
@@ -527,7 +536,7 @@ namespace MTConnect.Clients
 
         private void ProcessAssetMessage(MqttApplicationMessage message)
         {
-            using (var contentStream = new MemoryStream(message.Payload))
+            using (var contentStream = new MemoryStream(message.GetPayload()))
             {
                 var result = ResponseDocumentFormatter.CreateAssetsResponseDocument(_documentFormat, contentStream);
                 if (result.Success)

@@ -89,7 +89,11 @@ namespace MTConnect.Servers.Http
             return false;
         }
 
-        protected async virtual Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context, CancellationToken cancellationToken) { return new MTConnectHttpResponse(); }
+        protected async virtual Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context, CancellationToken cancellationToken)
+        {
+            await Task.CompletedTask;
+            return new MTConnectHttpResponse();
+        }
 
 
 
@@ -219,7 +223,7 @@ namespace MTConnect.Servers.Http
                 {
                     await WriteToResponseStream(responseStream, args);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     if (ClientDisconnected != null) ClientDisconnected.Invoke(this, sampleStream.Id);
                     sampleStream.Stop();
@@ -237,7 +241,7 @@ namespace MTConnect.Servers.Http
 
                     await response.FlushHeadersAsync();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     if (ClientDisconnected != null) ClientDisconnected.Invoke(this, sampleStream.Id);
                     sampleStream.Stop();

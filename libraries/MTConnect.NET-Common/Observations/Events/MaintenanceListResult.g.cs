@@ -39,7 +39,7 @@ namespace MTConnect.Observations.Events
         /// <summary>
         /// Identifier of the maintenance activity.
         /// </summary>
-        public string Name 
+        public new string Name 
         { 
             get => GetValue<string>("DataSet[Name]");
             set => AddValue("DataSet[Name]", value);

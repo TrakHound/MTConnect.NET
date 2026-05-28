@@ -2,6 +2,7 @@
 using System.Net;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Security.Cryptography.X509Certificates;
@@ -85,7 +86,7 @@ namespace Ceen.Httpd
             /// <param name="isConnected">A method that checks if the socket is connected</param>
             public void HandleRequest(Stream stream, EndPoint remoteEndPoint, string logtaskid, Func<bool> isConnected)
             {
-                RunClient(stream, remoteEndPoint, logtaskid, Controller, isConnected);
+                _ = RunClient(stream, remoteEndPoint, logtaskid, Controller, isConnected);
             }
 
             /// <summary>
@@ -171,6 +172,7 @@ namespace Ceen.Httpd
 			/// <param name="socket">The socket handle.</param>
 			/// <param name="remoteEndPoint">The remote endpoint.</param>
 			/// <param name="logtaskid">The task ID to use.</param>
+			[SupportedOSPlatform("windows")]
 			public void HandleRequest(SocketInformation socket, EndPoint remoteEndPoint, string logtaskid)
 			{
 				RunClient(socket, remoteEndPoint, logtaskid, Controller);
@@ -203,6 +205,7 @@ namespace Ceen.Httpd
 			/// Initializes the lifetime service.
 			/// </summary>
 			/// <returns>The lifetime service.</returns>
+			[Obsolete("InitializeLifetimeService is obsolete in .NET 5+; the override exists for legacy AppDomain remoting compatibility.")]
 			public override object InitializeLifetimeService()
 			{
 				return null;
@@ -862,6 +865,7 @@ namespace Ceen.Httpd
 		/// <param name="remoteEndPoint">The remote endpoint.</param>
 		/// <param name="logtaskid">The log task ID.</param>
 		/// <param name="controller">The controller instance</param>
+		[SupportedOSPlatform("windows")]
 		private static void RunClient(SocketInformation socketinfo, EndPoint remoteEndPoint, string logtaskid, RunnerControl controller)
 		{
 			RunClient(new Socket(socketinfo), remoteEndPoint, logtaskid, controller);

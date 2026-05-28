@@ -1,11 +1,14 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
 using System.Numerics;
 
-namespace System.Net
+namespace MTConnect.DeviceFinder
 {
     internal class IPAddressCollection : IEnumerable<IPAddress>, IEnumerator<IPAddress>
     {
@@ -38,7 +41,7 @@ namespace System.Net
                 {
                     throw new ArgumentOutOfRangeException("i");
                 }
-                byte width = this._ipnetwork.AddressFamily == Sockets.AddressFamily.InterNetwork ? (byte)32 : (byte)128;
+                byte width = this._ipnetwork.AddressFamily == AddressFamily.InterNetwork ? (byte)32 : (byte)128;
                 IPNetworkCollection ipn = IPNetwork.Subnet(this._ipnetwork, width);
                 return ipn[i].Network;
             }

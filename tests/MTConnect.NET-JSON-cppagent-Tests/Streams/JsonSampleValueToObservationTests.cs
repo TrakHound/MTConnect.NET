@@ -32,7 +32,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
                 Statistic = null,
             };
 
-            ISampleValueObservation observation = null;
+            ISampleValueObservation? observation = null;
             Assert.That(
                 () => observation = sample.ToObservation("Temperature"),
                 Throws.Nothing,

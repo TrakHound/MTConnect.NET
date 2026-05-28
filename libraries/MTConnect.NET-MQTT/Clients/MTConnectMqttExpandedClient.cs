@@ -92,9 +92,13 @@ namespace MTConnect.Clients
 
         public MTConnectMqttConnectionStatus ConnectionStatus => _connectionStatus;
 
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler Connected;
+        #pragma warning restore CS0067
 
+        #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler Disconnected;
+        #pragma warning restore CS0067
 
         public event EventHandler<MTConnectMqttConnectionStatus> ConnectionStatusChanged;
 
@@ -250,15 +254,12 @@ namespace MTConnect.Clients
                     throw new Exception("PEM Certificates Not Supported in .NET Framework 4.8 or older");
 #endif
 
-                            clientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters()
-                            {
-                                UseTls = true,
-                                SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
-                                IgnoreCertificateRevocationErrors = _allowUntrustedCertificates,
-                                IgnoreCertificateChainErrors = _allowUntrustedCertificates,
-                                AllowUntrustedCertificates = _allowUntrustedCertificates,
-                                Certificates = certificates
-                            });
+                            clientOptionsBuilder.WithTlsOptions(b => b
+                                .WithSslProtocols(System.Security.Authentication.SslProtocols.Tls12)
+                                .WithIgnoreCertificateRevocationErrors(_allowUntrustedCertificates)
+                                .WithIgnoreCertificateChainErrors(_allowUntrustedCertificates)
+                                .WithAllowUntrustedCertificates(_allowUntrustedCertificates)
+                                .WithClientCertificates(certificates));
                         }
 
                         // Add Credentials
@@ -266,7 +267,7 @@ namespace MTConnect.Clients
                         {
                             if (_useTls)
                             {
-                                clientOptionsBuilder.WithCredentials(_username, _password).WithTls();
+                                clientOptionsBuilder.WithCredentials(_username, _password).WithTlsOptions(b => { });
                             }
                             else
                             {
@@ -449,7 +450,7 @@ namespace MTConnect.Clients
                 var deviceUuid = _deviceUuidRegex.Match(message.Topic).Groups[1].Value;
 
                 // Deserialize JSON to Observation
-                var jsonObservation = JsonSerializer.Deserialize<JsonObservation>(message.Payload);
+                var jsonObservation = JsonSerializer.Deserialize<JsonObservation>(message.GetPayload());
                 if (jsonObservation != null)
                 {
                     var observation = new Observation();
@@ -513,7 +514,7 @@ namespace MTConnect.Clients
                 var deviceUuid = _deviceUuidRegex.Match(message.Topic).Groups[1].Value;
 
                 // Deserialize JSON to Observation
-                var jsonObservations = JsonSerializer.Deserialize<IEnumerable<JsonObservation>>(message.Payload);
+                var jsonObservations = JsonSerializer.Deserialize<IEnumerable<JsonObservation>>(message.GetPayload());
                 if (!jsonObservations.IsNullOrEmpty())
                 {
                     foreach (var jsonObservation in jsonObservations)
@@ -563,7 +564,7 @@ namespace MTConnect.Clients
                     if (!string.IsNullOrEmpty(agentUuid) && !string.IsNullOrEmpty(property))
                     {
                         // Decode UTF8 bytes to string
-                        var value = Encoding.UTF8.GetString(message.Payload);
+                        var value = Encoding.UTF8.GetString(message.GetPayload());
 
                         switch (property.ToLower())
                         {
@@ -636,7 +637,7 @@ namespace MTConnect.Clients
                 var deviceUuid = _deviceUuidRegex.Match(message.Topic).Groups[1].Value;
 
                 // Deserialize JSON to Device
-                var jsonDevice = JsonSerializer.Deserialize<JsonDevice>(message.Payload);
+                var jsonDevice = JsonSerializer.Deserialize<JsonDevice>(message.GetPayload());
                 if (jsonDevice != null)
                 {
                     var device = jsonDevice.ToDevice();
@@ -658,7 +659,7 @@ namespace MTConnect.Clients
         {
             try
             {
-                var agentUuid = Encoding.UTF8.GetString(message.Payload);
+                var agentUuid = Encoding.UTF8.GetString(message.GetPayload());
 
                 await SubscribeToDeviceAgent(agentUuid);
             }
@@ -672,7 +673,7 @@ namespace MTConnect.Clients
                 // Read Device UUID
                 var deviceUuid = _deviceUuidRegex.Match(message.Topic).Groups[1].Value;
 
-                var stream = new MemoryStream(message.Payload);
+                var stream = new MemoryStream(message.GetPayload());
 
                 // Deserialize JSON to Device
                 var jsonAsset = JsonSerializer.Deserialize<JsonAsset>(stream);

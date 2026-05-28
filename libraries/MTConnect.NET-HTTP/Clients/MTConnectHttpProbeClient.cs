@@ -67,7 +67,7 @@ namespace MTConnect.Clients
                     isResolved = true;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }

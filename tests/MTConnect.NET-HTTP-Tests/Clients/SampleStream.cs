@@ -107,7 +107,7 @@ namespace MTConnect.Tests.Http.Clients
                 o.GetValue(ValueKeys.Result) == Availability.AVAILABLE.ToString());
 
             Assert.That(observation, Is.Not.Null, "Streamed Sample did not deliver the AVAILABLE observation");
-            Assert.That(observation.GetValue(ValueKeys.Result), Is.EqualTo(Availability.AVAILABLE.ToString()));
+            Assert.That(observation!.GetValue(ValueKeys.Result), Is.EqualTo(Availability.AVAILABLE.ToString()));
         }
     }
 }

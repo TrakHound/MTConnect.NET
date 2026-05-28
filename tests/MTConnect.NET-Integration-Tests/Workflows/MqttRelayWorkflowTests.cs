@@ -108,7 +108,12 @@ namespace MTConnect.Tests.Integration.Workflows
         [Fact]
         public async Task Agent_publishes_observation_consumer_receives_same_payload()
         {
-            using var subscriber = await ConnectSubscriberAsync().ConfigureAwait(false);
+            // No `.ConfigureAwait(false)` on awaits inside [Fact] methods —
+            // xUnit1030 flags that on test methods because the analyzer-
+            // tracked sync context is what gives the test framework
+            // parallelisation + timeout enforcement. Awaiting on the
+            // default context is the correct shape for an integration test.
+            using var subscriber = await ConnectSubscriberAsync();
 
             var matched = new TaskCompletionSource<MqttApplicationMessage>(
                 TaskCreationOptions.RunContinuationsAsynchronously);
@@ -143,20 +148,20 @@ namespace MTConnect.Tests.Integration.Workflows
             await subscriber.SubscribeAsync(
                 new MqttClientSubscribeOptionsBuilder()
                     .WithTopicFilter(topicFilter, MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
-                    .Build()).ConfigureAwait(false);
+                    .Build());
 
-            await Task.Delay(500).ConfigureAwait(false);
+            await Task.Delay(500);
 
             InjectObservation(value: InjectedSentinel);
 
             var completed = await Task.WhenAny(
                 matched.Task,
-                Task.Delay(TimeSpan.FromSeconds(20))).ConfigureAwait(false);
+                Task.Delay(TimeSpan.FromSeconds(20)));
             Assert.True(
                 completed == matched.Task,
                 $"Subscriber did not receive a /Current/{DeviceUuid} payload containing '{InjectedSentinel}' within 20s.");
 
-            var msg = await matched.Task.ConfigureAwait(false);
+            var msg = await matched.Task;
             var payload = Encoding.UTF8.GetString(msg.PayloadSegment.ToArray());
 
             Assert.Contains($"/Current/{DeviceUuid}", msg.Topic);
@@ -173,13 +178,16 @@ namespace MTConnect.Tests.Integration.Workflows
             // narrower "the agent keeps the observation in its own
             // buffer." Reading GetDeviceStreamsResponseDocument observes
             // the same data the HTTP /current endpoint would return.
-            var subscriber = await ConnectSubscriberAsync().ConfigureAwait(false);
-            await subscriber.DisconnectAsync().ConfigureAwait(false);
+            //
+            // No `.ConfigureAwait(false)` per xUnit1030 — see the comment
+            // on the publish/receive test above.
+            var subscriber = await ConnectSubscriberAsync();
+            await subscriber.DisconnectAsync();
             subscriber.Dispose();
 
             InjectObservation(value: InjectedSentinel);
 
-            await Task.Delay(250).ConfigureAwait(false);
+            await Task.Delay(250);
 
             var current = _agent.GetDeviceStreamsResponseDocument(DeviceUuid);
             Assert.NotNull(current);

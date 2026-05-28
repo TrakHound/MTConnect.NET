@@ -137,7 +137,9 @@ namespace Ceen.Httpd
 		/// <summary>
 		/// A callback handler for debugging the internal server state
 		/// </summary>
+#pragma warning disable CS0649 // field is part of the public configuration surface, assigned by consumers
 		public DebugLogDelegate DebugLogHandler;
+#pragma warning restore CS0649
 
 		/// <summary>
 		/// The storage creator
@@ -147,7 +149,9 @@ namespace Ceen.Httpd
 		/// <summary>
 		/// The loader context for this instance
 		/// </summary>
+#pragma warning disable CS0649 // field is part of the public configuration surface, assigned by consumers
 		public IDisposable LoaderContext;
+#pragma warning restore CS0649
 		
 		/// <summary>
 		/// Static initializer for the <see cref="T:Ceen.Httpd.ServerConfig"/> class.
