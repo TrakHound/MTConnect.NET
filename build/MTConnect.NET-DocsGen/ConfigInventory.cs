@@ -85,7 +85,13 @@ public static class ConfigInventory
         var librariesDir = Path.Combine(repoRoot, "libraries");
         if (!Directory.Exists(librariesDir)) return results;
 
-        foreach (var file in Directory.EnumerateFiles(librariesDir, "*.cs", SearchOption.AllDirectories))
+        // Sort the enumeration so collection order is deterministic across
+        // operating systems. Directory.EnumerateFiles returns entries in a
+        // filesystem-dependent order (NTFS on Windows differs from ext4 on
+        // Linux), which leaks into the rendered page wherever the final sort
+        // keys tie. Ordinal sort on the full path pins the order everywhere.
+        foreach (var file in Directory.EnumerateFiles(librariesDir, "*.cs", SearchOption.AllDirectories)
+                     .OrderBy(f => f, StringComparer.Ordinal))
         {
             // Skip generated and build outputs.
             if (file.Contains("/bin/", StringComparison.Ordinal)
@@ -152,6 +158,7 @@ public static class ConfigInventory
         return results
             .OrderBy(c => c.Namespace, StringComparer.Ordinal)
             .ThenBy(c => c.TypeName, StringComparer.Ordinal)
+            .ThenBy(c => c.FileRelativePath, StringComparer.Ordinal)
             .ToList();
     }
 
@@ -210,8 +217,13 @@ public static class ConfigInventory
         var sb = new StringBuilder();
         foreach (var node in summary.Content) sb.Append(node.ToString());
 
+        // Split on \n and strip any trailing \r so a CRLF-checked-out source
+        // file (the default on Windows) yields the same summary text as an
+        // LF checkout. Splitting on \n alone would leave a trailing \r on
+        // every line, which then survives into the rendered page and makes
+        // the generated markdown differ between Windows and Linux.
         var lines = sb.ToString().Split('\n')
-            .Select(l => l.TrimStart().TrimStart('/').TrimStart())
+            .Select(l => l.Trim().TrimStart('/').Trim())
             .Where(l => l.Length > 0);
         var joined = string.Join(' ', lines).Trim();
         while (joined.Contains("  ", StringComparison.Ordinal))

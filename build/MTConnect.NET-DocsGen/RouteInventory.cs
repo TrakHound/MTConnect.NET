@@ -70,12 +70,18 @@ public static class RouteInventory
             CollectAspNetCore(aspNetRoot, repoRoot, results);
         }
 
-        // Deterministic sort: source, then method, then path.
+        // Deterministic sort: source, then method, then path. The file +
+        // line tiebreakers keep the order stable across operating systems
+        // even when two endpoints share every higher-priority key — the
+        // collection order otherwise inherits the filesystem-dependent
+        // Directory.GetFiles ordering, which differs Windows vs Linux.
         return results
             .OrderBy(e => e.Source, StringComparer.Ordinal)
             .ThenBy(e => e.Method, StringComparer.Ordinal)
             .ThenBy(e => e.PathTemplate, StringComparer.Ordinal)
             .ThenBy(e => e.Handler, StringComparer.Ordinal)
+            .ThenBy(e => e.FileRelativePath, StringComparer.Ordinal)
+            .ThenBy(e => e.Line)
             .ToList();
     }
 
@@ -370,7 +376,8 @@ public static class RouteInventory
         var controllersDir = Path.Combine(root, "Http", "Controllers");
         if (!Directory.Exists(controllersDir)) return;
 
-        foreach (var file in Directory.GetFiles(controllersDir, "*.cs"))
+        foreach (var file in Directory.GetFiles(controllersDir, "*.cs")
+                     .OrderBy(f => f, StringComparer.Ordinal))
         {
             var text = File.ReadAllText(file);
             var rel = Path.GetRelativePath(repoRoot, file).Replace('\\', '/');
@@ -573,8 +580,13 @@ public static class RouteInventory
 
     private static string CleanXmlText(string raw)
     {
+        // Split on \n and strip any trailing \r so a CRLF-checked-out source
+        // file (the default on Windows) yields the same summary text as an
+        // LF checkout. Splitting on \n alone would leave a trailing \r on
+        // every line, which then survives into the rendered page and makes
+        // the generated markdown differ between Windows and Linux.
         var lines = raw.Split('\n')
-            .Select(l => l.TrimStart().TrimStart('/').TrimStart())
+            .Select(l => l.Trim().TrimStart('/').Trim())
             .Where(l => l.Length > 0);
         var joined = string.Join(' ', lines).Trim();
         // Collapse double spaces.

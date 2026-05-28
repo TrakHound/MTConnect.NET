@@ -303,7 +303,7 @@ public static class CliInventory
             if (!l.StartsWith('#')) break;
             // Stop at the first "Usage:" or "Flags:" header — that marks
             // the end of the prose block.
-            var stripped = l.TrimStart('#').TrimStart();
+            var stripped = l.TrimEnd('\r').TrimStart('#').Trim();
             if (Regex.IsMatch(stripped, @"^[A-Z][A-Za-z\s]+:\s*$")) break;
             if (sb.Length > 0) sb.Append(' ');
             sb.Append(stripped);
