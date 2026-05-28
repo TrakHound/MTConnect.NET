@@ -8,4 +8,24 @@
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
 		<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 	</PropertyGroup>
+
+	<!--
+	  Suppress SourceLink git-repository discovery when the build/sysml-model
+	  submodule has not been initialized.  Microsoft.Build.Tasks.Git walks the
+	  gitmodules list from the repo root and emits a "could not find .git"
+	  warning for every project when build/sysml-model/.git is absent (the
+	  gitdir pointer is written by "git submodule update"). This happens in
+	  docker bind-mount builds, fresh clones without recurse-submodules, and
+	  contributor worktrees that have not yet initialized the submodule.
+
+	  Setting EnableSourceControlManagerQueries=false tells SourceLink to skip
+	  the git-repository walk entirely; no PDB source-link data is embedded, but
+	  the build is otherwise unaffected.  The flag is only forced off when the
+	  submodule gitdir pointer is absent; Package-configuration CI builds and
+	  initialized developer checkouts are unaffected.
+	-->
+	<PropertyGroup Condition="!Exists('$(MSBuildThisFileDirectory)build/sysml-model/.git')">
+		<EnableSourceControlManagerQueries>false</EnableSourceControlManagerQueries>
+		<EnableSourceLink>false</EnableSourceLink>
+	</PropertyGroup>
 </Project>

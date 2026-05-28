@@ -1,0 +1,3 @@
+[submodule "build/sysml-model"]
+	path = build/sysml-model
+	url = https://github.com/mtconnect/mtconnect_sysml_model.git
