@@ -112,6 +112,6 @@ modules:
 
 ## API reference
 
-- [`ShdrAdapterModuleConfiguration`](/api/) — the module's configuration class.
-- [`ShdrAdapterClientConfiguration`](/api/) — the base SHDR adapter-client configuration shape.
-- [`ShdrClientConfiguration`](/api/) — the SHDR client configuration shape.
+- [`ShdrAdapterModuleConfiguration`](/api/MTConnect.Configurations.ShdrAdapterModuleConfiguration) — the module's configuration class.
+- [`ShdrAdapterClientConfiguration`](/api/MTConnect.Configurations.ShdrAdapterClientConfiguration) — the base SHDR adapter-client configuration shape.
+- [`ShdrClientConfiguration`](/api/MTConnect.Configurations.ShdrClientConfiguration) — the SHDR client configuration shape.

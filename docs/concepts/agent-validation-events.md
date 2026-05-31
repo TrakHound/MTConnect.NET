@@ -83,7 +83,7 @@ agent.InvalidAssetAdded += (asset, result) =>
 
 ### Handler signatures
 
-The delegates are all defined in `MTConnect.Delegates` and follow a uniform shape — the offending element, plus a universal [`MTConnect.ValidationResult`](/api/MTConnect.ValidationResult) describing what failed:
+The delegates are all defined under the [`MTConnect`](/api/MTConnect) namespace and follow a uniform shape — the offending element, plus a universal [`MTConnect.ValidationResult`](/api/MTConnect.ValidationResult) describing what failed:
 
 ```csharp
 public delegate void MTConnectDeviceValidationHandler(IDevice device, ValidationResult validationResults);

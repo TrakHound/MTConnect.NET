@@ -90,5 +90,5 @@ modules:
 
 ## API reference
 
-- [`ModuleConfiguration`](/api/) — the adapter-side SHDR module configuration class (under `MTConnect.Configurations` in the `MTConnect.NET-AdapterModule-SHDR` assembly).
-- [`MTConnectAdapterModule`](/api/) — the base class adapter modules derive from.
+- [`ModuleConfiguration`](/api/MTConnect.Configurations.ModuleConfiguration) — the adapter-side SHDR module configuration class (under `MTConnect.Configurations` in the `MTConnect.NET-AdapterModule-SHDR` assembly).
+- [`MTConnectAdapterModule`](/api/MTConnect.Adapters.MTConnectAdapterModule) — the base class adapter modules derive from.

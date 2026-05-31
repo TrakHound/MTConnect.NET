@@ -53,7 +53,7 @@ The `Specification` carries the spec-declared `Maximum`, `Minimum`, `Nominal`, `
 
 ## Component relationships
 
-A Component can declare a `ComponentRelationship` to another Component — the spec models siblings that "belong together" but do not strictly nest, like a Path and the Controller that runs it. The relationship type (`ComponentRelationshipType`) is one of `PARENT`, `CHILD`, `PEER`. Authored under the Component's `Configuration.Relationships`:
+A Component can declare a [`ComponentRelationship`](/api/MTConnect.Devices.Configurations.ComponentRelationship) to another Component — the spec models siblings that "belong together" but do not strictly nest, like a Path and the Controller that runs it. The relationship type (`PARENT`, `CHILD`, `PEER`) lives on the inherited `Type` property. Authored under the Component's `Configuration.Relationships`:
 
 ```xml
 <Component>

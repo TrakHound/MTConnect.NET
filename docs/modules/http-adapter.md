@@ -109,6 +109,6 @@ modules:
 
 ## API reference
 
-- [`HttpAdapterModuleConfiguration`](/api/) — the module's configuration class.
-- [`HttpClientConfiguration`](/api/) — the base HTTP client configuration shape.
-- [`DeviceMappingConfiguration`](/api/) — the per-device mapping entry.
+- [`HttpAdapterModuleConfiguration`](/api/MTConnect.Configurations.HttpAdapterModuleConfiguration) — the module's configuration class.
+- [`HttpClientConfiguration`](/api/MTConnect.Configurations.HttpClientConfiguration) — the base HTTP client configuration shape.
+- [`DeviceMappingConfiguration`](/api/MTConnect.DeviceMappingConfiguration) — the per-device mapping entry.

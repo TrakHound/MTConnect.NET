@@ -7,9 +7,9 @@ End-to-end guides for installing, configuring, running, and connecting consumers
 - **[Install](./install)** — NuGet package install for each shipped library, plus the prebuilt agent and prebuilt adapter, with per-target-framework notes.
 - **[Configure an agent](./agent-config)** — `agent.config.yaml` (every key, every default, every permissible value), `Devices.xml` (schema, sample, common pitfalls, XSD validation), per-module configuration, logging.
 - **[Configure an adapter](./adapter-config)** — SHDR / HTTP adapter config, ports, data-source bring-up, queue-vs-interval semantics.
-- **Run** — local development with `dotnet run`, Docker with `trakhound/mtconnect.net-agent`, Windows-service and systemd-unit deployment.
-- **Connect a consumer** — `curl` + browser examples for `/probe`, `/current`, `/sample`, `/asset`; MQTT subscriber examples for the relay topic tree; JSON v2 sample parser in .NET and Python.
-- **Operate** — observability (logs, metrics, traces), common error modes and recovery, backup and restore of the agent's storage layer.
+- **[Run](./run)** — local development with `dotnet run`, Docker with `trakhound/mtconnect.net-agent`, Windows-service and systemd-unit deployment.
+- **[Connect a consumer](./consumer)** — `curl` + browser examples for `/probe`, `/current`, `/sample`, `/asset`; MQTT subscriber examples for the relay topic tree; JSON v2 sample parser in .NET and Python.
+- **[Operate](./operate)** — observability (logs, metrics, traces), common error modes and recovery, backup and restore of the agent's storage layer.
 
 ## Topology
 

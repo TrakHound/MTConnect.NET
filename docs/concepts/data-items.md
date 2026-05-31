@@ -92,11 +92,11 @@ Construction through a typed class is preferable because the class also carries 
 
 A DataItem can carry side metadata that refines what the agent emits:
 
-- **`Filters`** — server-side filters that suppress observations. The two spec-defined filter types are `MINIMUM_DELTA` (only emit if `|new - last| > delta`) and `PERIOD` (emit at most once per period). Class: `DataItemFilter`; enum: [`DataItemFilterType`](/api/MTConnect.Devices.DataItemFilterType).
+- **`Filters`** — server-side filters that suppress observations. The two spec-defined filter types are `MINIMUM_DELTA` (only emit if `|new - last| > delta`) and `PERIOD` (emit at most once per period). Class: [`Filter`](/api/MTConnect.Devices.Filter); enum: [`DataItemFilterType`](/api/MTConnect.Devices.DataItemFilterType).
 - **`Constraints`** — declared bounds and enumerated allowed values. `MAXIMUM`, `MINIMUM`, `VALUE` lists. Constraints are advisory in the spec — the agent emits values that violate the constraints, but consumers may flag them as alarms.
 - **`Definition`** — for `DATA_SET` / `TABLE` representations, the structural definition of the entries and the cells. Class: [`DataItemDefinition`](/api/MTConnect.Devices.DataItemDefinition).
 - **`ResetTrigger`** — for accumulators (`PART_COUNT`, `ACCUMULATED_TIME`), the lifecycle event that zeroes the accumulator: `SHIFT`, `DAY`, `MAINTENANCE`. Enum: [`DataItemResetTrigger`](/api/MTConnect.Devices.DataItemResetTrigger).
-- **`Source`** — the SHDR / adapter key that maps incoming lines to this DataItem. Class: `DataItemSource`.
+- **`Source`** — the SHDR / adapter key that maps incoming lines to this DataItem. Class: [`Source`](/api/MTConnect.Devices.Source).
 
 ## DataItem hashing and change detection
 

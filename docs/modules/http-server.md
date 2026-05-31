@@ -125,8 +125,8 @@ modules:
 
 ## API reference
 
-- [`HttpServerModuleConfiguration`](/api/) — the module's configuration class.
-- [`HttpServerConfiguration`](/api/) — the base configuration shape this module extends.
-- [`MTConnectHttpServer`](/api/) — the runtime HTTP server the module wraps.
-- [`MTConnectShdrHttpAgentServer`](/api/) — the concrete server with SHDR-protocol `PUT` handling enabled.
-- [`TlsConfiguration`](/api/) — the TLS configuration schema.
+- [`HttpServerModuleConfiguration`](/api/MTConnect.Configurations.HttpServerModuleConfiguration) — the module's configuration class.
+- [`HttpServerConfiguration`](/api/MTConnect.Configurations.HttpServerConfiguration) — the base configuration shape this module extends.
+- [`MTConnectHttpServer`](/api/MTConnect.Servers.Http.MTConnectHttpServer) — the runtime HTTP server the module wraps.
+- [`MTConnectShdrHttpAgentServer`](/api/MTConnect.Modules.Http.MTConnectShdrHttpAgentServer) — the concrete server with SHDR-protocol `PUT` handling enabled.
+- [`TlsConfiguration`](/api/MTConnect.Tls.TlsConfiguration) — the TLS configuration schema.

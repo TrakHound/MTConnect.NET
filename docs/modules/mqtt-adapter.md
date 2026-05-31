@@ -109,5 +109,5 @@ modules:
 
 ## API reference
 
-- [`MqttAdapterModuleConfiguration`](/api/) — the module's configuration class.
-- [`MqttClientConfiguration`](/api/) — the base MQTT client configuration shape.
+- [`MqttAdapterModuleConfiguration`](/api/MTConnect.Configurations.MqttAdapterModuleConfiguration) — the module's configuration class.
+- [`MTConnectMqttClientConfiguration`](/api/MTConnect.Configurations.MTConnectMqttClientConfiguration) — the base MQTT client configuration shape.

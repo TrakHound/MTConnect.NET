@@ -110,7 +110,7 @@ modules:
 
 ## API reference
 
-- [`MqttBrokerModuleConfiguration`](/api/) — the module's configuration class.
-- [`MqttTopicStructure`](/api/) — the `Document` / `Entity` enum.
-- [`IMTConnectMqttDocumentServerConfiguration`](/api/) — the configuration interface this module implements.
-- [`TlsConfiguration`](/api/) — the TLS configuration schema.
+- [`MqttBrokerModuleConfiguration`](/api/MTConnect.Configurations.MqttBrokerModuleConfiguration) — the module's configuration class.
+- [`MqttTopicStructure`](/api/MTConnect.MqttTopicStructure) — the `Document` / `Entity` enum.
+- [`IMTConnectMqttDocumentServerConfiguration`](/api/MTConnect.Configurations.IMTConnectMqttDocumentServerConfiguration) — the configuration interface this module implements.
+- [`TlsConfiguration`](/api/MTConnect.Tls.TlsConfiguration) — the TLS configuration schema.

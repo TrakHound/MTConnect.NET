@@ -13,7 +13,7 @@ Recipes for the deployment patterns that come up most often. Each recipe is task
 - **Add a custom DataItem type** — define the type, the controlled-vocabulary subType (if any), and the units in your `Devices.xml`. The agent validates the declaration against the spec's controlled vocabularies and registers the DataItem at startup.
 - **Persist Assets to disk** — assets outlive observations and need a storage layer. Configure the agent's asset buffer to back to the file system; the buffer survives restarts.
 - **Bridge an MTConnect agent to InfluxDB or Grafana** — see the [InfluxDB integration](/configure/integrations/influxdb) page.
-- **Run the agent under a Windows service or systemd unit** — see Run.
+- **Run the agent under a Windows service or systemd unit** — see [Run](/configure/run).
 
 ## Recipe shape
 

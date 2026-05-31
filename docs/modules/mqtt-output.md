@@ -165,5 +165,5 @@ modules:
 
 ## API reference
 
-- [`ModuleConfiguration`](/api/) — the adapter-side MQTT module configuration class (under `MTConnect.Configurations` in the `MTConnect.NET-AdapterModule-MQTT` assembly).
-- [`MTConnectAdapterModule`](/api/) — the base class adapter modules derive from.
+- [`ModuleConfiguration`](/api/MTConnect.Configurations.ModuleConfiguration) — the adapter-side MQTT module configuration class (under `MTConnect.Configurations` in the `MTConnect.NET-AdapterModule-MQTT` assembly).
+- [`MTConnectAdapterModule`](/api/MTConnect.Adapters.MTConnectAdapterModule) — the base class adapter modules derive from.

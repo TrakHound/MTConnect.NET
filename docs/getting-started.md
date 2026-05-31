@@ -62,7 +62,7 @@ docker pull trakhound/mtconnect.net-agent
 docker run --rm -p 5000:5000 trakhound/mtconnect.net-agent
 ```
 
-Mount your own `agent.config.yaml` and `devices/` directory with `-v`. See Run for the production-grade invocation.
+Mount your own `agent.config.yaml` and `devices/` directory with `-v`. See [Run](/configure/run) for the production-grade invocation.
 
 ## 2. Run it
 
@@ -118,6 +118,6 @@ foreach (var device in probe.Devices)
 ## Next steps
 
 - Add real data: connect an [adapter](/configure/adapter-config) over SHDR or MQTT.
-- Deploy for production: run the agent as a service on Windows or Linux.
+- Deploy for production: run the agent [as a service](/configure/run) on Windows or Linux.
 - Build a custom module: read the [Cookbook](/cookbook/) recipe for writing a module.
 - Understand the data model: read [Concepts](/concepts/) for Devices, Components, DataItems, Observations, and Assets.
