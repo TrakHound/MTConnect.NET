@@ -15,18 +15,45 @@ namespace MTConnect.Devices.DataItems
     /// </summary>
     public class ChuckStateDataItem : DataItem
     {
+        /// <summary>
+        /// The MTConnect <c>category</c> (SAMPLE, EVENT, or CONDITION) of this DataItem.
+        /// </summary>
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
+
+        /// <summary>
+        /// The MTConnect <c>type</c> value that identifies this DataItem.
+        /// </summary>
         public const string TypeId = "CHUCK_STATE";
+
+        /// <summary>
+        /// The default <c>name</c> assigned to an instance of this DataItem.
+        /// </summary>
         public const string NameId = "chuckState";
-        public const DataItemRepresentation DefaultRepresentation = DataItemRepresentation.VALUE;     
-             
+
+        /// <summary>
+        /// The default <c>representation</c> for this DataItem as defined by the MTConnect Standard.
+        /// </summary>
+        public const DataItemRepresentation DefaultRepresentation = DataItemRepresentation.VALUE;
+
+        /// <summary>
+        /// The description of this DataItem as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Operating state of a mechanism that holds a part or stock material during a manufacturing process. It may also represent a mechanism that holds any other mechanism in place within a piece of equipment.";
-        
+
+        /// <summary>
+        /// The description of this DataItem as defined by the MTConnect Standard.
+        /// </summary>
         public override string TypeDescription => DescriptionText;
-        
-        public override System.Version MinimumVersion => MTConnectVersions.Version13;       
+
+        /// <summary>
+        /// The minimum MTConnect Version that introduced this DataItem.
+        /// </summary>
+        public override System.Version MinimumVersion => MTConnectVersions.Version13;
 
 
+        /// <summary>
+        /// Initializes a new instance with its category, type, and name set to the defaults for this DataItem.
+        /// </summary>
         public ChuckStateDataItem()
         {
             Category = CategoryId;
@@ -36,13 +63,17 @@ namespace MTConnect.Devices.DataItems
             
         }
 
+        /// <summary>
+        /// Initializes a new instance scoped to the given device.
+        /// </summary>
+        /// <param name="deviceId">The Id of the device this DataItem belongs to.</param>
         public ChuckStateDataItem(string deviceId)
         {
             Id = CreateId(deviceId, NameId);
             Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Representation = DefaultRepresentation; 
+            Representation = DefaultRepresentation;
             
         }
         /// <summary>

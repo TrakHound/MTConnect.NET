@@ -52,8 +52,15 @@ namespace MTConnect.Clients
         private long _lastResponse;
 
 
+        /// <summary>Raw-message event handler delegate; raised for each MQTT publish received with the unprocessed topic and payload.</summary>
+        /// <param name="topic">The MQTT topic the message was published on.</param>
+        /// <param name="payload">The raw payload bytes exactly as received from the broker.</param>
         public delegate void MTConnectMqttEventHandler(string topic, byte[] payload);
 
+        /// <summary>Typed-entity event handler delegate; raised by the client after it has reassembled an MTConnect entity from the topic stream.</summary>
+        /// <typeparam name="T">The MTConnect entity type (e.g. <see cref="IDevice"/>, <see cref="IObservation"/>, <see cref="IAsset"/>) the handler receives.</typeparam>
+        /// <param name="deviceUuid">The UUID of the device the entity belongs to.</param>
+        /// <param name="item">The reassembled entity.</param>
         public delegate void MTConnectMqttEventHandler<T>(string deviceUuid, T item);
 
         /// <summary>
@@ -212,6 +219,11 @@ namespace MTConnect.Clients
         }
 
 
+        /// <summary>
+        /// Starts the background MQTT worker that connects to the broker, subscribes to the
+        /// configured device topic tree, and reassembles incoming entities. Returns immediately;
+        /// <see cref="Connected"/> is raised once the broker session is established.
+        /// </summary>
         public void Start()
         {
             _stop = new CancellationTokenSource();
@@ -221,6 +233,10 @@ namespace MTConnect.Clients
             _ = Task.Run(Worker, _stop.Token);
         }
 
+        /// <summary>
+        /// Signals the worker to exit and drop the broker session. <see cref="Disconnected"/> is
+        /// raised once the disconnect completes.
+        /// </summary>
         public void Stop()
         {
             ClientStopping?.Invoke(this, new EventArgs());
@@ -228,6 +244,7 @@ namespace MTConnect.Clients
             if (_stop != null) _stop.Cancel();
         }
 
+        /// <summary>Disposes the underlying <see cref="IMqttClient"/>. <see cref="Stop"/> should be called first; <see cref="Dispose"/> does not stop the worker on its own.</summary>
         public void Dispose()
         {
             if (_mqttClient != null) _mqttClient.Dispose();

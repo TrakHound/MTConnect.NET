@@ -9,9 +9,12 @@ namespace MTConnect.Configurations
     /// <summary>
     /// Configuration File Watcher that notifies when the specified <typeparamref name="T"/> is updated
     /// </summary>
-    /// <typeparam name="TConfiguration">The type of Configuration file to read</typeparam>
+    /// <typeparam name="T">The type of Configuration file to read</typeparam>
     public class ConfigurationFileWatcher<T> : IConfigurationFileWatcher<T>
     {
+        /// <summary>
+        /// The default polling interval, in milliseconds, used to debounce file change notifications when none is supplied.
+        /// </summary>
         protected const int DefaultInterval = 2000;
 
         private readonly string _path;
@@ -21,11 +24,22 @@ namespace MTConnect.Configurations
         private bool _update = false;
 
 
+        /// <summary>
+        /// Raised when the watched file changes and is successfully re-read, supplying the freshly deserialized configuration of type <typeparamref name="T"/>.
+        /// </summary>
         public event EventHandler<T> ConfigurationUpdated;
 
+        /// <summary>
+        /// Raised when a change is detected but the file cannot be read or deserialized; the event argument carries the error message.
+        /// </summary>
         public event EventHandler<string> ErrorReceived;
 
 
+        /// <summary>
+        /// Initializes the watcher for the given file and begins monitoring it for changes.
+        /// </summary>
+        /// <param name="path">The full path of the configuration file to watch.</param>
+        /// <param name="interval">The debounce interval, in milliseconds, between detecting a change and re-reading the file.</param>
         public ConfigurationFileWatcher(string path, int interval = DefaultInterval)
         {
             _path = path;
@@ -83,6 +97,10 @@ namespace MTConnect.Configurations
             }
         }
 
+        /// <summary>
+        /// Reads and deserializes the configuration from the given path. Derived classes override this to supply format-specific parsing; the base implementation returns the default value.
+        /// </summary>
+        /// <param name="path">The full path of the configuration file to read.</param>
         protected virtual T OnRead(string path)
         {
             return default;
@@ -103,6 +121,9 @@ namespace MTConnect.Configurations
         }
 
 
+        /// <summary>
+        /// Stops monitoring and releases the underlying file system watcher and polling timer.
+        /// </summary>
         public void Dispose()
         {
             if (_watcher != null) _watcher.Dispose();

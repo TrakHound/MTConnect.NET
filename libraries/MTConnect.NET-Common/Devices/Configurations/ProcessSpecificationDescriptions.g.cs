@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices.Configurations
 {
+    /// <summary>
+    /// Description text for each property of <c>ProcessSpecification</c> as defined by the MTConnect Standard.
+    /// </summary>
     public static class ProcessSpecificationDescriptions
     {
         /// <summary>

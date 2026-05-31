@@ -21,6 +21,7 @@ namespace MTConnect.Adapters
         public TcpClient TcpClient { get; set; }
 
 
+        /// <summary>Constructs the connection wrapper with a unique <paramref name="id"/> and the already-open <paramref name="tcpClient"/> bound to the agent.</summary>
         public AgentClient(string id, TcpClient tcpClient)
         {
             Id = id;

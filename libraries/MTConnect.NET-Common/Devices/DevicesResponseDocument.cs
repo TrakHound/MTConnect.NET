@@ -26,11 +26,21 @@ namespace MTConnect.Devices
         public virtual IEnumerable<IDevice> Devices { get; set; }
 
 
+        /// <summary>
+        /// The Interfaces declared across the Devices in this document.
+        /// </summary>
         public IEnumerable<IInterface> Interfaces { get; set; }
 
+        /// <summary>
+        /// The MTConnect Standard version this Devices document conforms to.
+        /// </summary>
         public Version Version { get; set; }
 
 
+        /// <summary>
+        /// Flattens and returns every Component across all Devices in this document.
+        /// </summary>
+        /// <returns>The combined Components from every Device.</returns>
         public IEnumerable<IComponent> GetComponents()
         {
             var components = new List<IComponent>();
@@ -47,6 +57,10 @@ namespace MTConnect.Devices
             return components;
         }
 
+        /// <summary>
+        /// Flattens and returns every DataItem across all Devices in this document.
+        /// </summary>
+        /// <returns>The combined DataItems from every Device.</returns>
         public IEnumerable<IDataItem> GetDataItems()
         {
             var dataItems = new List<IDataItem>();

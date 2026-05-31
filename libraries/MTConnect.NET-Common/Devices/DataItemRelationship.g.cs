@@ -10,6 +10,9 @@ namespace MTConnect.Devices
     /// </summary>
     public class DataItemRelationship : AbstractDataItemRelationship, IDataItemRelationship
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Type.";
 
 

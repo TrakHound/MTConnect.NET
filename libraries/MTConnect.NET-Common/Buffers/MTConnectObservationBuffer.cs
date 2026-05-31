@@ -16,6 +16,9 @@ namespace MTConnect.Buffers
     /// </summary>
     public class MTConnectObservationBuffer : IMTConnectObservationBuffer
     {
+        /// <summary>
+        /// The minimum number of observations a single request must ask for before a high-priority garbage collection is forced after serving it.
+        /// </summary>
         public const int HighPriorityGC = 5000; // Minimum number of Observations requested that will trigger a High Priority Garbage Collection
 
         private readonly string _id = Guid.NewGuid().ToString();
@@ -70,6 +73,9 @@ namespace MTConnect.Buffers
         }
 
 
+        /// <summary>
+        /// A snapshot copy of the latest non-condition observation for each buffer key, indexed by the buffer key hash.
+        /// </summary>
         public IDictionary<int, BufferObservation> CurrentObservations
         {
             get
@@ -78,6 +84,9 @@ namespace MTConnect.Buffers
             }
         }
 
+        /// <summary>
+        /// A snapshot copy of the active condition observations for each condition buffer key, indexed by the buffer key hash.
+        /// </summary>
         public IDictionary<int, IEnumerable<BufferObservation>> CurrentConditions
         {
             get
@@ -87,11 +96,18 @@ namespace MTConnect.Buffers
         }
 
 
+        /// <summary>
+        /// Initializes the buffer with the default observation capacity.
+        /// </summary>
         public MTConnectObservationBuffer()
         {
             _archiveObservations = new CircularBuffer(BufferSize);
         }
 
+        /// <summary>
+        /// Initializes the buffer, taking its observation capacity from the supplied agent configuration when provided.
+        /// </summary>
+        /// <param name="configuration">The agent configuration whose observation buffer size is applied; ignored when null.</param>
         public MTConnectObservationBuffer(IAgentConfiguration configuration)
         {
             if (configuration != null)
@@ -102,6 +118,9 @@ namespace MTConnect.Buffers
             _archiveObservations = new CircularBuffer(BufferSize);
         }
 
+        /// <summary>
+        /// Releases the circular archive and clears the current observation and condition snapshots.
+        /// </summary>
         public void Dispose()
         {
             _archiveObservations = null;
@@ -110,12 +129,28 @@ namespace MTConnect.Buffers
         }
 
 
+        /// <summary>
+        /// Extension point invoked when the active condition set for a key changes; overridden by durable buffers to persist the change. The base implementation does nothing.
+        /// </summary>
+        /// <param name="observations">The new active condition set.</param>
         protected virtual void OnCurrentConditionChange(IEnumerable<BufferObservation> observations) { }
 
+        /// <summary>
+        /// Extension point invoked after the current observation for a key is updated; overridden by durable buffers to persist the change. The base implementation does nothing.
+        /// </summary>
+        /// <param name="observation">The observation that became current.</param>
         protected virtual void OnCurrentObservationAdd(ref BufferObservation observation) { }
 
+        /// <summary>
+        /// Extension point invoked after the active condition set for a key is established; overridden by durable buffers to persist the change. The base implementation does nothing.
+        /// </summary>
+        /// <param name="observations">The active condition set.</param>
         protected virtual void OnCurrentConditionAdd(ref IEnumerable<BufferObservation> observations) { }
 
+        /// <summary>
+        /// Extension point invoked after an observation is appended to the archive; overridden by durable buffers to persist the entry. The base implementation does nothing.
+        /// </summary>
+        /// <param name="observation">The observation appended to the archive.</param>
         protected virtual void OnBufferObservationAdd(ref BufferObservation observation) { }
 
 
@@ -158,11 +193,17 @@ namespace MTConnect.Buffers
 
         #region "Internal"
 
+        /// <summary>
+        /// Returns a flat copy of every current non-condition observation held in the buffer.
+        /// </summary>
         protected IEnumerable<BufferObservation> GetCurrentObservations()
         {
             return new List<BufferObservation>(_currentObservations.Values);
         }
 
+        /// <summary>
+        /// Returns a flat copy of every active condition observation held in the buffer, flattening the per-key condition sets.
+        /// </summary>
         protected IEnumerable<BufferObservation> GetCurrentConditions()
         {
             var x = new List<BufferObservation>();
@@ -554,12 +595,22 @@ namespace MTConnect.Buffers
 
         #region "Internal"
 
+        /// <summary>
+        /// Wraps an observation as a <see cref="BufferObservation"/> and records it as the current value for its buffer key.
+        /// </summary>
+        /// <param name="bufferKey">The packed device/data-item buffer key.</param>
+        /// <param name="sequence">The buffer sequence number to assign.</param>
+        /// <param name="observation">The observation to make current.</param>
         protected void AddCurrentObservation(int bufferKey, ulong sequence, IObservation observation)
         {
             var bufferObservation = new BufferObservation(bufferKey, sequence, observation);
             AddCurrentObservation(bufferObservation);
         }
 
+        /// <summary>
+        /// Records the given buffer observation as the current value for its key, replacing any previous current value and notifying durable subclasses.
+        /// </summary>
+        /// <param name="observation">The buffer observation to make current.</param>
         protected void AddCurrentObservation(BufferObservation observation)
         {
             if (!observation.Values.IsNullOrEmpty())
@@ -572,7 +623,7 @@ namespace MTConnect.Buffers
 
                 _currentObservations.TryGetValue(observation._key, out var existingObservation);
                 _currentObservations.Remove(observation._key);
-            
+
                 if (existingObservation.IsValid && !isUnavailable)
                 {
                     if (resetTriggered == ResetTriggered.NOT_SPECIFIED)
@@ -611,12 +662,22 @@ namespace MTConnect.Buffers
             }
         }
 
+        /// <summary>
+        /// Wraps a condition observation as a <see cref="BufferObservation"/> and updates the active condition set for its buffer key.
+        /// </summary>
+        /// <param name="bufferKey">The packed device/data-item buffer key.</param>
+        /// <param name="sequence">The buffer sequence number to assign.</param>
+        /// <param name="observation">The condition observation to record.</param>
         protected void AddCurrentCondition(int bufferKey, ulong sequence, IObservation observation)
         {
             var bufferObservation = new BufferObservation(bufferKey, sequence, observation);
             AddCurrentCondition(bufferObservation);
         }
 
+        /// <summary>
+        /// Updates the active condition set for the observation's key, applying normal/fault accumulation semantics and notifying durable subclasses.
+        /// </summary>
+        /// <param name="observation">The condition buffer observation to record.</param>
         protected void AddCurrentCondition(BufferObservation observation)
         {
             if (!observation.Values.IsNullOrEmpty())
@@ -777,12 +838,22 @@ namespace MTConnect.Buffers
         }
 
 
+        /// <summary>
+        /// Wraps an observation as a <see cref="BufferObservation"/> and appends it to the circular archive.
+        /// </summary>
+        /// <param name="bufferKey">The packed device/data-item buffer key.</param>
+        /// <param name="sequence">The buffer sequence number to assign.</param>
+        /// <param name="observation">The observation to archive.</param>
         protected void AddBufferObservation(int bufferKey, ulong sequence, IObservation observation)
         {
             var bufferObservation = new BufferObservation(bufferKey, sequence, observation);
             AddBufferObservation(ref bufferObservation);
         }
 
+        /// <summary>
+        /// Appends a single buffer observation to the circular archive and notifies durable subclasses.
+        /// </summary>
+        /// <param name="observation">The buffer observation to archive, passed by reference to avoid copying.</param>
         protected void AddBufferObservation(ref BufferObservation observation)
         {
             WriteObservation(ref observation);
@@ -791,6 +862,10 @@ namespace MTConnect.Buffers
             OnBufferObservationAdd(ref observation);
         }
 
+        /// <summary>
+        /// Appends a batch of buffer observations to the circular archive in order, notifying durable subclasses for each.
+        /// </summary>
+        /// <param name="observations">The buffer observations to archive, passed by reference to avoid copying.</param>
         protected void AddBufferObservations(ref BufferObservation[] observations)
         {
             if (observations != null && observations.Length > 0)

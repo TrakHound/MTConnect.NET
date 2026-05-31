@@ -10,6 +10,9 @@ namespace MTConnect.Assets.Files
     /// </summary>
     public class FileComment : IFileComment
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Remark or interpretation for human interpretation associated with a File or FileArchetype.";
 
 
@@ -17,7 +20,7 @@ namespace MTConnect.Assets.Files
         /// Time the comment was made.
         /// </summary>
         public System.DateTime Timestamp { get; set; }
-        
+
         /// <summary>
         /// Text of the comment about the file.
         /// </summary>

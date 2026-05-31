@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// DataItemCategory controlled vocabulary as defined by the MTConnect Standard.
+    /// </summary>
     public enum DataItemCategory
     {
         /// <summary>

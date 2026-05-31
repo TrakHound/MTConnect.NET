@@ -10,15 +10,35 @@ namespace MTConnect.Devices.Compositions
     /// </summary>
     public class CompressorComposition : Composition 
     {
+        /// <summary>
+        /// The MTConnect <c>type</c> value that identifies this Composition.
+        /// </summary>
         public const string TypeId = "COMPRESSOR";
+
+        /// <summary>
+        /// The default <c>name</c> assigned to an instance of this Composition.
+        /// </summary>
         public const string NameId = "compressorComposition";
+
+        /// <summary>
+        /// The description of this Composition as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Composition composed of a pump or other mechanism that reduces volume and increases pressure of gases in order to condense the gases to drive pneumatically powered pieces of equipment.";
 
+        /// <summary>
+        /// The description of this Composition as defined by the MTConnect Standard.
+        /// </summary>
         public override string TypeDescription => DescriptionText;
-        
-        public override System.Version MinimumVersion => MTConnectVersions.Version14; 
+
+        /// <summary>
+        /// The minimum MTConnect Version that introduced this Composition.
+        /// </summary>
+        public override System.Version MinimumVersion => MTConnectVersions.Version14;
 
 
-        public CompressorComposition()  { Type = TypeId; }
+        /// <summary>
+        /// Initializes a new instance with its <c>Type</c> set to <see cref="TypeId"/>.
+        /// </summary>
+        public CompressorComposition() { Type = TypeId; }
     }
 }

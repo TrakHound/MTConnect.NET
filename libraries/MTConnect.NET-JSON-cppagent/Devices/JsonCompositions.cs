@@ -6,14 +6,28 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a typed container of
+    /// <see cref="JsonComposition"/> items, keyed by the singular
+    /// cppagent element name <c>Composition</c>.
+    /// </summary>
     public class JsonCompositions
     {
+        /// <summary>
+        /// The compositions in the container.
+        /// </summary>
         [JsonPropertyName("Composition")]
         public IEnumerable<JsonComposition> Compositions { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonCompositions() { }
 
+        /// <summary>
+        /// Initializes the container from a composition sequence.
+        /// </summary>
         public JsonCompositions(IEnumerable<IComposition> dataItems)
         {
             if (!dataItems.IsNullOrEmpty())
@@ -27,6 +41,10 @@ namespace MTConnect.Devices.Json
         }
 
 
+        /// <summary>
+        /// Flattens the container back into a uniform
+        /// <see cref="IComposition"/> sequence.
+        /// </summary>
         public IEnumerable<IComposition> ToCompositions()
         {
             var dataItems = new List<IComposition>();

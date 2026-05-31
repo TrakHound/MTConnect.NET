@@ -23,8 +23,16 @@ namespace MTConnect.Errors
         public string Value { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty Error, leaving the code and description to be set by a deserializer or caller.
+        /// </summary>
         public Error() { }
 
+        /// <summary>
+        /// Initializes an Error with the given code and optional descriptive text.
+        /// </summary>
+        /// <param name="errorCode">The error category encountered by the Agent.</param>
+        /// <param name="value">An optional textual description of the error.</param>
         public Error(ErrorCode errorCode, string value = null)
         {
             ErrorCode = errorCode;

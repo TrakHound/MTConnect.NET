@@ -32,12 +32,19 @@ namespace MTConnect.Observations
         }
 
 
+        /// <summary>
+        /// Initializes a new Event Observation that reports a DATA_SET representation.
+        /// </summary>
         public EventDataSetObservation() : base()
         {
             _representation = Devices.DataItemRepresentation.DATA_SET;
         }
 
 
+        /// <summary>
+        /// Invalidates the cached Data Set entries so they are rebuilt the next time they are read.
+        /// </summary>
+        /// <param name="observationValue">The value that was added.</param>
         protected override void OnValueAdded(ObservationValue observationValue)
         {
             _entries = null;

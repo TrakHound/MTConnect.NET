@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices.Configurations
 {
+    /// <summary>
+    /// Description text for each <see cref="MotionActuationType"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class MotionActuationTypeDescriptions
     {
         /// <summary>
@@ -21,6 +24,9 @@ namespace MTConnect.Devices.Configurations
         public const string VIRTUAL = "Motion is computed and is used for expressing an imaginary movement.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="MotionActuationType"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(MotionActuationType value)
         {
             switch (value)

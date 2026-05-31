@@ -12,6 +12,7 @@ namespace MTConnect.Devices.Components
     /// </summary>
     public class ShdrAdapterComponent : AdapterComponent
     {
+        /// <summary>The SHDR endpoint URI (<c>hostname:port</c>) that this adapter component represents on the agent device.</summary>
         public string Uri { get; set; }
 
 

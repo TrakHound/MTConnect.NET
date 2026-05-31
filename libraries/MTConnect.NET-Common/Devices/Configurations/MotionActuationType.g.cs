@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices.Configurations
 {
+    /// <summary>
+    /// MotionActuationType controlled vocabulary as defined by the MTConnect Standard.
+    /// </summary>
     public enum MotionActuationType
     {
         /// <summary>

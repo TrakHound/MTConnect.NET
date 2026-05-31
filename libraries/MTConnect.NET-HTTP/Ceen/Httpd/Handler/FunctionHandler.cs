@@ -8,20 +8,20 @@ namespace Ceen.Httpd.Handler
     /// Implementation of a handler that operates on a lambda method or other delegate
     /// </summary>
     internal class FunctionHandler : IHttpModule
-	{
-		/// <summary>
-		/// The actual handler
-		/// </summary>
-		private readonly HttpHandlerDelegate m_handler;
+    {
+        /// <summary>
+        /// The actual handler
+        /// </summary>
+        private readonly HttpHandlerDelegate m_handler;
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="T:Ceen.Httpd.Handler.FunctionHandler"/> class.
-		/// </summary>
-		/// <param name="handler">The handler to invoke.</param>
-		public FunctionHandler(HttpHandlerDelegate handler)
-		{
-			m_handler = handler;			
-		}
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:Ceen.Httpd.Handler.FunctionHandler"/> class.
+        /// </summary>
+        /// <param name="handler">The handler to invoke.</param>
+        public FunctionHandler(HttpHandlerDelegate handler)
+        {
+            m_handler = handler;
+        }
 
         #region IHttpModule implementation
 
@@ -32,21 +32,21 @@ namespace Ceen.Httpd.Handler
         /// <param name="context">The request context.</param>
         /// <param name="cancellationToken">The token indicating to stop handling.</param>
         public Task<bool> HandleAsync(IHttpContext context, CancellationToken cancellationToken)
-		{
-			return m_handler(context);
-		}
+        {
+            return m_handler(context);
+        }
 
-		#endregion
+        #endregion
 
-		/// <summary>
-		/// Implicit conversion from a delegate or lambda to a function handler
-		/// </summary>
-		/// <returns>The handler instance.</returns>
-		/// <param name="handler">The delegate to invoke.</param>
-		public static implicit operator FunctionHandler(HttpHandlerDelegate handler)
-		{
-			return new FunctionHandler(handler);
-		}
-	}
+        /// <summary>
+        /// Implicit conversion from a delegate or lambda to a function handler
+        /// </summary>
+        /// <returns>The handler instance.</returns>
+        /// <param name="handler">The delegate to invoke.</param>
+        public static implicit operator FunctionHandler(HttpHandlerDelegate handler)
+        {
+            return new FunctionHandler(handler);
+        }
+    }
 }
 

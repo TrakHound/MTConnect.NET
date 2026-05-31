@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.CuttingTools
 {
+    /// <summary>
+    /// Description text for each <see cref="ToolLifeType"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class ToolLifeTypeDescriptions
     {
         /// <summary>
@@ -21,6 +24,9 @@ namespace MTConnect.Assets.CuttingTools
         public const string WEAR = "Tool life measured in tool wear. Wear **MUST** be provided in millimeters as an offset to nominal. All units for minimum, maximum, and nominal **MUST** be given as millimeter offsets aswell. The standard will only consider dimensional wear at this time.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="ToolLifeType"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(ToolLifeType value)
         {
             switch (value)

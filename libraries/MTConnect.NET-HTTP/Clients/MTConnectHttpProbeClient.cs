@@ -30,6 +30,15 @@ namespace MTConnect.Clients
             _httpClient.Timeout = TimeSpan.FromMilliseconds(DefaultTimeout);
         }
 
+        /// <summary>
+        /// Resolves <paramref name="serverNameOrURL"/> to its first IPv4 address using DNS. Used
+        /// when callers need the agent's numeric address (for instance to constrain TLS hostname
+        /// verification or to record the actual endpoint in logs). Catches and swallows DNS errors,
+        /// returning <c>false</c> with <paramref name="resolvedIPAddress"/> set to <c>null</c>.
+        /// </summary>
+        /// <param name="serverNameOrURL">Hostname, URL, or already-numeric address to resolve.</param>
+        /// <param name="resolvedIPAddress">On success the resolved IPv4 address; on failure <c>null</c>.</param>
+        /// <returns><c>true</c> if at least one IPv4 record was returned; otherwise <c>false</c>.</returns>
         public static bool GetResolvedConnecionIPAddress(string serverNameOrURL, out IPAddress resolvedIPAddress)
         {
             bool isResolved = false;
@@ -215,7 +224,7 @@ namespace MTConnect.Clients
 
                     // Create Uri and Send Request
 #if NET5_0_OR_GREATER
-                        using (var response = _httpClient.Send(request))
+                    using (var response = _httpClient.Send(request))
 #else
                     using (var response = _httpClient.SendAsync(request).Result)
 #endif
@@ -304,10 +313,21 @@ namespace MTConnect.Clients
         }
 
 
+        /// <summary>Builds the <c>probe</c> request URI from the client's own <see cref="MTConnectHttpClientRequest.Authority"/>, <see cref="MTConnectHttpClientRequest.Device"/>, and <see cref="MTConnectHttpClientRequest.DocumentFormat"/>.</summary>
         public Uri CreateUri() => CreateUri(Authority, Device, DocumentFormat);
 
+        /// <summary>Convenience overload that passes <c>0</c> for <paramref name="port"/>, taking the port from <paramref name="hostname"/> if present.</summary>
+        /// <param name="hostname">Agent base URL or hostname.</param>
+        /// <param name="device">Optional device key; null requests the agent-scoped probe.</param>
+        /// <param name="documentFormat">Optional document format (<c>documentFormat</c> query parameter).</param>
         public static Uri CreateUri(string hostname, string device = null, string documentFormat = null) => CreateUri(hostname, 0, device, documentFormat);
 
+        /// <summary>
+        /// Builds the absolute <c>probe</c> request URI. Combines <paramref name="hostname"/>
+        /// (with <paramref name="port"/> appended if positive) and the <paramref name="device"/>
+        /// segment, then adds <c>/probe</c> together with the <c>documentFormat</c> query
+        /// parameter when supplied.
+        /// </summary>
         public static Uri CreateUri(string hostname, int port, string device = null, string documentFormat = null)
         {
             if (!string.IsNullOrEmpty(hostname))

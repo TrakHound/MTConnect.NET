@@ -102,8 +102,17 @@ namespace MTConnect.Streams.Json
         public IEnumerable<JsonCondition> Unavailable { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonConditions() { }
 
+        /// <summary>
+        /// Initializes the container from an observation-output
+        /// sequence, partitioning each observation into the
+        /// Fault/Warning/Normal/Unavailable bucket indicated by its
+        /// <c>Level</c> value-bag entry.
+        /// </summary>
         public JsonConditions(IEnumerable<IObservationOutput> observations)
         {
             if (observations != null)

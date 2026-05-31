@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// DataItemResetTrigger controlled vocabulary as defined by the MTConnect Standard.
+    /// </summary>
     public enum DataItemResetTrigger
     {
         /// <summary>

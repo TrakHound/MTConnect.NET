@@ -16,12 +16,24 @@ namespace MTConnect.Agents.Metrics
         private double _lastAverage = 0;
 
 
+        /// <summary>
+        /// The ID of the DataItem these metrics track.
+        /// </summary>
         public string DataItemId { get; set; }
 
+        /// <summary>
+        /// The running total number of observations recorded for the DataItem.
+        /// </summary>
         public int Count { get; set; }
 
+        /// <summary>
+        /// The Unix timestamp of the most recent observation update.
+        /// </summary>
         public long LastUpdated { get; set; }
 
+        /// <summary>
+        /// The number of observations recorded since the last rate-update window.
+        /// </summary>
         public int Delta
         {
             get
@@ -33,6 +45,9 @@ namespace MTConnect.Agents.Metrics
             }
         }
 
+        /// <summary>
+        /// The exponentially smoothed observation update rate over the configured window.
+        /// </summary>
         public double Average
         {
             get
@@ -45,8 +60,15 @@ namespace MTConnect.Agents.Metrics
         }
 
 
+        /// <summary>
+        /// Initializes an empty metric, typically populated later.
+        /// </summary>
         public ObservationMetric() { }
 
+        /// <summary>
+        /// Initializes a metric bound to the given DataItem.
+        /// </summary>
+        /// <param name="dataItemId">The ID of the DataItem to track.</param>
         public ObservationMetric(string dataItemId)
         {
             DataItemId = dataItemId;

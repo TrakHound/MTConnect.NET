@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// Description text for each <see cref="ProcessState"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class ProcessStateDescriptions
     {
         /// <summary>
@@ -36,6 +39,9 @@ namespace MTConnect.Observations.Events
         public const string ABORTED = "Process occurrence has come to a premature end and cannot be resumed.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="ProcessState"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(ProcessState value)
         {
             switch (value)

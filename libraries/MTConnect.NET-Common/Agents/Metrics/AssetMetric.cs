@@ -16,12 +16,24 @@ namespace MTConnect.Agents.Metrics
         private double _lastAverage = 0;
 
 
+        /// <summary>
+        /// The ID of the Asset these metrics track.
+        /// </summary>
         public string AssetId { get; set; }
 
+        /// <summary>
+        /// The running total number of asset updates recorded.
+        /// </summary>
         public int Count { get; set; }
 
+        /// <summary>
+        /// The Unix timestamp of the most recent asset update.
+        /// </summary>
         public long LastUpdated { get; set; }
 
+        /// <summary>
+        /// The number of asset updates recorded since the last rate-update window.
+        /// </summary>
         public int Delta
         {
             get
@@ -33,6 +45,9 @@ namespace MTConnect.Agents.Metrics
             }
         }
 
+        /// <summary>
+        /// The exponentially smoothed asset update rate over the configured window.
+        /// </summary>
         public double Average
         {
             get
@@ -45,8 +60,15 @@ namespace MTConnect.Agents.Metrics
         }
 
 
+        /// <summary>
+        /// Initializes an empty metric, typically populated later.
+        /// </summary>
         public AssetMetric() { }
 
+        /// <summary>
+        /// Initializes a metric bound to the given Asset.
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to track.</param>
         public AssetMetric(string assetId)
         {
             AssetId = assetId;

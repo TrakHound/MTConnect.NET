@@ -113,11 +113,13 @@ namespace MTConnect.Shdr
 
         private ShdrCondition() { }
 
+        /// <summary>Creates a Condition observation scoped to a single DataItem key with no fault states yet recorded.</summary>
         public ShdrCondition(string dataItemKey)
         {
             DataItemKey = dataItemKey;
         }
 
+        /// <summary>Creates a Condition observation with an initial fault state at <paramref name="level"/> and an optional Unix-time <paramref name="timestamp"/>.</summary>
         public ShdrCondition(string dataItemKey, ConditionLevel level, long timestamp = 0)
         {
             DataItemKey = dataItemKey;
@@ -125,6 +127,7 @@ namespace MTConnect.Shdr
             AddFaultState(new ShdrFaultState(timestamp, level));
         }
 
+        /// <summary>Creates a Condition observation with an initial fault state at <paramref name="level"/> and an explicit <paramref name="timestamp"/>.</summary>
         public ShdrCondition(string dataItemKey, ConditionLevel level, DateTime timestamp)
         {
             DataItemKey = dataItemKey;
@@ -132,6 +135,7 @@ namespace MTConnect.Shdr
             AddFaultState(new ShdrFaultState(timestamp, level));
         }
 
+        /// <summary>Clones the supplied <see cref="IConditionObservationInput"/> into an SHDR-flavoured condition, lifting each fault state into a <see cref="ShdrFaultState"/>.</summary>
         public ShdrCondition(IConditionObservationInput conditionObservation)
         {
             if (conditionObservation != null)
@@ -152,6 +156,7 @@ namespace MTConnect.Shdr
             }
         }
 
+        /// <summary>Copy-constructs a Condition from <paramref name="condition"/>, duplicating its <see cref="FaultStates"/> list.</summary>
         public ShdrCondition(ShdrCondition condition)
         {
             if (condition != null)
@@ -467,6 +472,7 @@ namespace MTConnect.Shdr
         }
 
 
+        /// <summary>Removes only the fault states whose <see cref="ShdrFaultState.NativeCode"/> equals <paramref name="nativeCode"/>; useful for clearing a single alarm code without dropping the rest of the condition state.</summary>
         public void ClearFaultStates(string nativeCode)
         {
             lock (_lock)
@@ -489,6 +495,7 @@ namespace MTConnect.Shdr
             _changeIdWithTimestamp = null;
         }
 
+        /// <summary>Removes every fault state currently associated with the condition (does not flip <see cref="IsUnavailable"/>; use <see cref="Unavailable"/> to set the condition to UNAVAILABLE).</summary>
         public void ClearFaultStates()
         {
             lock (_lock) _faultStates = null;

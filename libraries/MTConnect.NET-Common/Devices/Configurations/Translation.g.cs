@@ -10,6 +10,9 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public class Translation : AbstractTranslation, ITranslation
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Translations along X, Y, and Z axes are expressed as x,y, and z respectively within a 3-dimensional vector.";
 
 

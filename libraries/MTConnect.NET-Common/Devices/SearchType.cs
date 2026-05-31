@@ -3,9 +3,15 @@
 
 namespace MTConnect.Devices
 {
-	public enum SearchType
-	{
-		Child,
-		AnyLevel
-	}
+    /// <summary>
+    /// Controls how deep a Component or DataItem search descends into the Device hierarchy.
+    /// </summary>
+    public enum SearchType
+    {
+        /// <summary>Search only the immediate children of the starting container.</summary>
+        Child,
+
+        /// <summary>Search the entire subtree of the starting container at any depth.</summary>
+        AnyLevel
+    }
 }

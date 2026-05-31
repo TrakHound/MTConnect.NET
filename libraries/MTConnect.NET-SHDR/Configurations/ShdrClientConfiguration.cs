@@ -10,6 +10,7 @@ namespace MTConnect.Configurations
     /// </summary>
     public class ShdrClientConfiguration : IShdrClientConfiguration
     {
+        /// <summary>The wildcard literal (<c>*</c>) used in <c>DeviceKey</c> when the SHDR client accepts data for any device.</summary>
         public const string DeviceKeyWildcard = "*";
 
 
@@ -65,6 +66,7 @@ namespace MTConnect.Configurations
         public int ReconnectInterval { get; set; }
 
 
+        /// <summary>Initialises the configuration with the conventional defaults expected by an SHDR client: device-key wildcard, <c>localhost</c> on port 7878, a 5-second heartbeat, a 600 ms legacy-silence timeout, and a 10-second reconnect interval.</summary>
         public ShdrClientConfiguration()
         {
             DeviceKey = DeviceKeyWildcard;

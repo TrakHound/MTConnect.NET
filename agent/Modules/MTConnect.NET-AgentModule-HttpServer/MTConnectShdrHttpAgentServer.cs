@@ -20,9 +20,26 @@ namespace MTConnect.Modules.Http
     /// </summary>
     public class MTConnectShdrHttpAgentServer : MTConnectHttpAgentServer
     {
+        /// <summary>
+        /// Initialises a new instance against the supplied module
+        /// configuration and agent broker.
+        /// </summary>
+        /// <param name="configuration">Module configuration.</param>
+        /// <param name="mtconnectAgent">Agent broker the server feeds.</param>
         public MTConnectShdrHttpAgentServer(HttpServerModuleConfiguration configuration, IMTConnectAgentBroker mtconnectAgent) : base(configuration, mtconnectAgent) { }
 
 
+        /// <summary>
+        /// Translates an HTTP-PUT / -POST observation input into an
+        /// SHDR-shaped <see cref="ShdrDataItem"/> /
+        /// <see cref="ShdrFaultState"/> / <see cref="ShdrTimeSeries"/>
+        /// and forwards it to the agent broker. Returns <c>true</c>
+        /// when the input was accepted, <c>false</c> when the device or
+        /// data item could not be resolved.
+        /// </summary>
+        /// <param name="args">Inbound observation: device key,
+        /// data-item key, value, and timestamp.</param>
+        /// <returns><c>true</c> if the observation was enqueued.</returns>
         protected override bool OnObservationInput(MTConnectObservationInputArgs args)
         {
             // Get the Devices Document from the Agent
@@ -93,6 +110,16 @@ namespace MTConnect.Modules.Http
             return false;
         }
 
+        /// <summary>
+        /// Deserialises an HTTP-POST asset payload via
+        /// <see cref="EntityFormatter.CreateAsset"/> and forwards it to
+        /// the agent broker. Returns <c>true</c> when the asset was
+        /// parsed and enqueued, <c>false</c> when the payload was
+        /// malformed or the device could not be resolved.
+        /// </summary>
+        /// <param name="args">Inbound asset: device key, asset type,
+        /// asset id, document format, and the raw request body.</param>
+        /// <returns><c>true</c> if the asset was enqueued.</returns>
         protected override bool OnAssetInput(MTConnectAssetInputArgs args)
         {
             if (!string.IsNullOrEmpty(args.DeviceKey) && !string.IsNullOrEmpty(args.AssetType))

@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// Description text for each <see cref="NativeUnits"/> string constant as defined by the MTConnect Standard.
+    /// </summary>
     public static class NativeUnitsDescriptions
     {
         /// <summary>
@@ -226,6 +229,9 @@ namespace MTConnect.Devices
         public const string TORR = "Pressure in torr.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(string value)
         {
             switch (value)

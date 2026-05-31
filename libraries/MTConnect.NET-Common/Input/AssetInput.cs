@@ -6,6 +6,9 @@ using System.Text;
 
 namespace MTConnect.Input
 {
+    /// <summary>
+    /// An Information Model Input that associates an Asset with a Device for reporting to an Agent.
+    /// </summary>
     public class AssetInput : IAssetInput
     {
         private static readonly Encoding _utf8 = new UTF8Encoding();
@@ -64,6 +67,10 @@ namespace MTConnect.Input
         }
 
 
+        /// <summary>
+        /// Initializes a new Asset Input from an Asset, taking its AssetId and Type and leaving the Device key unset.
+        /// </summary>
+        /// <param name="asset">The Asset to report. A <c>null</c> argument leaves the new instance empty.</param>
         public AssetInput(IAsset asset)
         {
             if (asset != null)
@@ -74,6 +81,11 @@ namespace MTConnect.Input
             }
         }
 
+        /// <summary>
+        /// Initializes a new Asset Input from an Asset and associates it with the specified Device.
+        /// </summary>
+        /// <param name="deviceKey">The UUID or Name of the Device the Asset is associated with.</param>
+        /// <param name="asset">The Asset to report. A <c>null</c> argument leaves the new instance empty.</param>
         public AssetInput(string deviceKey, IAsset asset)
         {
             if (asset != null)
@@ -85,6 +97,10 @@ namespace MTConnect.Input
             }
         }
 
+        /// <summary>
+        /// Initializes a new Asset Input by copying the Device key, AssetId, Type, Asset, and timestamp from an existing Asset Input.
+        /// </summary>
+        /// <param name="asset">The source Asset Input to copy; a <c>null</c> argument leaves the new instance empty.</param>
         public AssetInput(IAssetInput asset)
         {
             if (asset != null)

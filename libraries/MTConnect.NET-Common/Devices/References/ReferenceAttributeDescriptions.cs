@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices.References
 {
+    /// <summary>
+    /// Human-readable descriptions of the attributes shared by Reference elements.
+    /// </summary>
     public static class ReferenceAttributeDescriptions
     {
         /// <summary>

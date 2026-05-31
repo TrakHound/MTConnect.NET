@@ -3,50 +3,50 @@ using System.Threading.Tasks;
 
 namespace Ceen
 {
-	/// <summary>
-	/// Implementation of a Task that works across app domains
-	/// </summary>
-	internal class AppDomainTask : MarshalByRefObject
-	{
-		/// <summary>
-		/// A task completion source
-		/// </summary>
-		private TaskCompletionSource<object> m_tcs = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+    /// <summary>
+    /// Implementation of a Task that works across app domains
+    /// </summary>
+    internal class AppDomainTask : MarshalByRefObject
+    {
+        /// <summary>
+        /// A task completion source
+        /// </summary>
+        private TaskCompletionSource<object> m_tcs = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-		/// <summary>
-		/// Marks the operation complete
-		/// </summary>
-		/// <param name="data">The object to return.</param>
-		public void SetComplete(object data)
-		{
-			m_tcs.TrySetResult(data);
-		}
+        /// <summary>
+        /// Marks the operation complete
+        /// </summary>
+        /// <param name="data">The object to return.</param>
+        public void SetComplete(object data)
+        {
+            m_tcs.TrySetResult(data);
+        }
 
-		/// <summary>
-		/// Marks the operation cancelled
-		/// </summary>
-		public void SetCancelled()
-		{
-			m_tcs.TrySetCanceled();
-		}
+        /// <summary>
+        /// Marks the operation cancelled
+        /// </summary>
+        public void SetCancelled()
+        {
+            m_tcs.TrySetCanceled();
+        }
 
-		/// <summary>
-		/// Sets the operation failed.
-		/// </summary>
-		/// <param name="ex">The exception, must be serializable or marshalbyref.</param>
-		public void SetFailed(Exception ex)
-		{
-			m_tcs.TrySetException(ex);
-		}
+        /// <summary>
+        /// Sets the operation failed.
+        /// </summary>
+        /// <param name="ex">The exception, must be serializable or marshalbyref.</param>
+        public void SetFailed(Exception ex)
+        {
+            m_tcs.TrySetException(ex);
+        }
 
-		/// <summary>
-		/// Gets the result async
-		/// </summary>
-		/// <returns>The awaitable result.</returns>
-		public Task<object> ResultAsync()
-		{
-			return m_tcs.Task;
-		}
+        /// <summary>
+        /// Gets the result async
+        /// </summary>
+        /// <returns>The awaitable result.</returns>
+        public Task<object> ResultAsync()
+        {
+            return m_tcs.Task;
+        }
 
 		/// <summary>
 		/// Handles a task by invoking the AppDomainTask after completion

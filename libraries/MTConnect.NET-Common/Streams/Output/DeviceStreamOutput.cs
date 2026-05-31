@@ -27,7 +27,7 @@ namespace MTConnect.Streams.Output
         public IComponentStreamOutput[] ComponentStreams { get; set; }
 
         /// <summary>
-        /// Gets All Observations (Samples, Events, & Conditions)
+        /// Gets All Observations (Samples, Events, and Conditions)
         /// </summary>
         public IEnumerable<IObservationOutput> Observations
         {
@@ -51,8 +51,15 @@ namespace MTConnect.Streams.Output
         }
 
 
+        /// <summary>
+        /// Initializes an empty device stream output.
+        /// </summary>
         public DeviceStreamOutput() { }
 
+        /// <summary>
+        /// Builds a device stream output from a deserialized device stream, copying its device identity and projecting its component streams; a null source leaves the output empty.
+        /// </summary>
+        /// <param name="deviceStream">The source device stream.</param>
         public DeviceStreamOutput(IDeviceStream deviceStream)
         {
             if (deviceStream != null)

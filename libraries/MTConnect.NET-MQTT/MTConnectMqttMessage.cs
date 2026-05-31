@@ -13,6 +13,14 @@ using System.Text.Json;
 
 namespace MTConnect.Mqtt
 {
+    /// <summary>
+    /// Factory helpers that translate MTConnect entities (agent metadata, devices, assets, and
+    /// observations) into the matching <see cref="MqttApplicationMessage"/> objects with the
+    /// canonical topic layout used by the MTConnect MQTT broker. The methods cover the
+    /// <c>MTConnect/Agents/{uuid}/Information</c> message, the heartbeat timestamp, device and
+    /// asset publishes, and individual observation publishes in either flat or hierarchy
+    /// topic format.
+    /// </summary>
     public static class MTConnectMqttMessage
     {
         private static MqttApplicationMessage CreateMessage(string topic, string payload, bool retain = false)
@@ -45,6 +53,17 @@ namespace MTConnect.Mqtt
             return null;
         }
 
+        /// <summary>
+        /// Builds the <c>MTConnect/Agents/{uuid}/Information</c> MQTT message that announces the
+        /// agent's identity (UUID, instance id, version, sender), its
+        /// <c>DeviceModelChangeTime</c>, the heartbeat interval, the list of observation
+        /// intervals it publishes on, and the UUIDs of the devices it owns. Returns a single
+        /// message wrapped in a list so the caller can extend it without changing the signature.
+        /// </summary>
+        /// <param name="agent">The agent to describe; null returns null.</param>
+        /// <param name="observationIntervals">The interval-bucket lengths (ms) on which the agent publishes batched observation topics.</param>
+        /// <param name="heartbeat">Heartbeat interval in milliseconds; consumers use this to time out the agent if no <c>HeartbeatTimestamp</c> updates arrive.</param>
+        /// <param name="retain">If true, the message is published with the MQTT retain flag so newly connecting clients get the current information immediately.</param>
         public static IEnumerable<MqttApplicationMessage> Create(IMTConnectAgent agent, IEnumerable<int> observationIntervals, int heartbeat, bool retain = false)
         {
             if (agent != null)
@@ -78,7 +97,7 @@ namespace MTConnect.Mqtt
                 }
                 catch { }
 
-                
+
 
                 //// UUID
                 //var topic = $"MTConnect/Agents/{agent.Uuid}/UUID";
@@ -146,6 +165,13 @@ namespace MTConnect.Mqtt
         //    return null;
         //}
 
+        /// <summary>
+        /// Builds the heartbeat publish, an <c>MTConnect/Agents/{uuid}/HeartbeatTimestamp</c>
+        /// message carrying the current Unix-epoch timestamp in milliseconds. The agent is
+        /// expected to emit this on every heartbeat tick so consumers can detect a stalled agent.
+        /// </summary>
+        /// <param name="agent">The agent owning the heartbeat; null returns null.</param>
+        /// <param name="timestamp">The current timestamp in Windows ticks (100 ns units); converted to milliseconds for the payload.</param>
         public static IEnumerable<MqttApplicationMessage> CreateHeartbeat(IMTConnectAgent agent, long timestamp)
         {
             if (agent != null)
@@ -165,6 +191,16 @@ namespace MTConnect.Mqtt
             return null;
         }
 
+        /// <summary>
+        /// Builds the device-publish messages: an <c>MTConnect/Devices/{deviceUuid}/AgentUuid</c>
+        /// retained pointer back to the owning agent, and an
+        /// <c>MTConnect/Devices/{deviceUuid}/Device</c> message containing the serialised device
+        /// model in <paramref name="documentFormatterId"/>.
+        /// </summary>
+        /// <param name="device">The device to publish; null or empty <paramref name="documentFormatterId"/> returns null.</param>
+        /// <param name="agentUuid">The UUID of the agent the device belongs to; published as the back-pointer payload.</param>
+        /// <param name="documentFormatterId">The document format used to serialise the device model (defaults to XML).</param>
+        /// <param name="retain">If true, the device message itself is published with the MQTT retain flag (the agent UUID pointer is always retained).</param>
         public static IEnumerable<MqttApplicationMessage> Create(IDevice device, string agentUuid, string documentFormatterId = DocumentFormat.XML, bool retain = false)
         {
             if (device != null && !string.IsNullOrEmpty(documentFormatterId))
@@ -201,6 +237,15 @@ namespace MTConnect.Mqtt
             return null;
         }
 
+        /// <summary>
+        /// Builds the two asset publishes for an MTConnect asset: one at
+        /// <c>MTConnect/Assets/{type}/{assetId}</c> (asset-type-scoped) and one at
+        /// <c>MTConnect/Devices/{deviceUuid}/Assets/{type}/{assetId}</c> (device-scoped). Both
+        /// carry the same serialised payload in the requested <paramref name="documentFormatterId"/>.
+        /// </summary>
+        /// <param name="asset">The asset to publish; null returns null.</param>
+        /// <param name="documentFormatterId">The document format used to serialise the asset (defaults to XML).</param>
+        /// <param name="retain">If true, both messages are published with the MQTT retain flag.</param>
         public static IEnumerable<MqttApplicationMessage> Create(IAsset asset, string documentFormatterId = DocumentFormat.XML, bool retain = false)
         {
             if (asset != null)
@@ -220,6 +265,18 @@ namespace MTConnect.Mqtt
             return null;
         }
 
+        /// <summary>
+        /// Builds the publish for a single MTConnect observation. The topic is computed by
+        /// <see cref="MTConnectMqttFormat"/> from the data item type, sub-type, category, and
+        /// container; the payload is the observation serialised with the entity formatter,
+        /// always including category and instance-id options because MQTT consumers cannot
+        /// otherwise recover those properties from the topic alone.
+        /// </summary>
+        /// <param name="observation">The observation; null returns null. The observation must have a device UUID, a data item with a container, and at least one value.</param>
+        /// <param name="format">Flat or hierarchy topic layout.</param>
+        /// <param name="documentFormatterId">The document format used to serialise the observation (defaults to XML).</param>
+        /// <param name="retain">If true, the publish is retained (used for the last-known-value channel).</param>
+        /// <param name="interval">When non-zero, identifies the observation-interval bucket the publish belongs to and is reflected in the topic.</param>
         public static MqttApplicationMessage Create(IObservation observation, MTConnectMqttFormat format, string documentFormatterId = DocumentFormat.XML, bool retain = false, int interval = 0)
         {
             if (observation != null && !string.IsNullOrEmpty(observation.DeviceUuid) && observation.DataItem != null && observation.DataItem.Container != null && !observation.Values.IsNullOrEmpty())
@@ -242,6 +299,16 @@ namespace MTConnect.Mqtt
             return null;
         }
 
+        /// <summary>
+        /// Builds a publish for a batch of observations that all share the same data item (and
+        /// therefore the same MQTT topic). The first observation is inspected to derive the
+        /// topic; the payload is the formatter's serialisation of the whole batch.
+        /// </summary>
+        /// <param name="observations">The observation batch; null or empty returns null.</param>
+        /// <param name="format">Flat or hierarchy topic layout.</param>
+        /// <param name="documentFormatterId">The document format used to serialise the observations (defaults to XML).</param>
+        /// <param name="retain">If true, the publish is retained.</param>
+        /// <param name="interval">When non-zero, identifies the observation-interval bucket the publish belongs to.</param>
         public static MqttApplicationMessage Create(IEnumerable<IObservation> observations, MTConnectMqttFormat format, string documentFormatterId = DocumentFormat.XML, bool retain = false, int interval = 0)
         {
             if (!observations.IsNullOrEmpty())

@@ -7,48 +7,48 @@ namespace Ceen.Httpd.Logging
     /// Outputs Common Log Format to STDOUT
     /// </summary>
     internal sealed class CLFStdOut : CLFLogger
-	{
-		/// <summary>
-		/// Initializes a new instance of the <see cref="T:Ceen.Httpd.Logging.CFLStdOut"/> class.
-		/// </summary>
-		public CLFStdOut()
-			: base(Console.OpenStandardOutput())
-		{
-		}
-	}
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:Ceen.Httpd.Logging.CFLStdOut"/> class.
+        /// </summary>
+        public CLFStdOut()
+            : base(Console.OpenStandardOutput())
+        {
+        }
+    }
 
     /// <summary>
     /// Outputs Common Log Format to STDERR
     /// </summary>
     internal sealed class CLFStdErr : CLFLogger
-	{
-		/// <summary>
-		/// Initializes a new instance of the <see cref="T:Ceen.Httpd.Logging.CFLStdErr"/> class.
-		/// </summary>
-		public CLFStdErr()
-			: base(Console.OpenStandardError())
-		{
-		}
-	}
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:Ceen.Httpd.Logging.CFLStdErr"/> class.
+        /// </summary>
+        public CLFStdErr()
+            : base(Console.OpenStandardError())
+        {
+        }
+    }
 
     /// <summary>
     /// Logger that outputs exception messages to stdout
     /// </summary>
     internal sealed class StdErrErrors : IMessageLogger
-	{
-		/// <summary>
-		/// A static cached instance of the StdErr stream
-		/// </summary>
-		private static readonly System.IO.StreamWriter _stderr;
+    {
+        /// <summary>
+        /// A static cached instance of the StdErr stream
+        /// </summary>
+        private static readonly System.IO.StreamWriter _stderr;
 
-		/// <summary>
-		/// Static initializer
-		/// </summary>
-		static StdErrErrors()
-		{
-			_stderr = new System.IO.StreamWriter(Console.OpenStandardError(), System.Text.Encoding.UTF8, 1024, true);
-			_stderr.AutoFlush = true;
-		}
+        /// <summary>
+        /// Static initializer
+        /// </summary>
+        static StdErrErrors()
+        {
+            _stderr = new System.IO.StreamWriter(Console.OpenStandardError(), System.Text.Encoding.UTF8, 1024, true);
+            _stderr.AutoFlush = true;
+        }
 
         /// <summary>
         /// Logs a message
@@ -63,7 +63,7 @@ namespace Ceen.Httpd.Logging
         {
             if (ex != null)
                 _stderr.WriteLine(ex);
-			return Task.FromResult(true);
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Ceen.Httpd.Logging
     /// Logger that outputs exception messages to stdout
     /// </summary>
     internal sealed class StdOutErrors : IMessageLogger
-	{
+    {
         /// <summary>
         /// Logs a message
         /// </summary>

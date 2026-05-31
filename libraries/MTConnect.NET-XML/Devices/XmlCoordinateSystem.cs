@@ -13,37 +13,81 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for an MTConnect <c>CoordinateSystem</c>,
+    /// the spatial reference frame a component's geometry is expressed in.
+    /// Mirrors the on-the-wire element and converts to and from the
+    /// strongly-typed <see cref="CoordinateSystem"/> model.
+    /// </summary>
     [XmlRoot("CoordinateSystem")]
     public class XmlCoordinateSystem
     {
+        /// <summary>
+        /// The unique identifier of the coordinate system within the device.
+        /// </summary>
         [XmlAttribute("id")]
         public string Id { get; set; }
 
+        /// <summary>
+        /// The optional human-readable name of the coordinate system.
+        /// </summary>
         [XmlAttribute("name")]
         public string Name { get; set; }
 
+        /// <summary>
+        /// The name the coordinate system is known by on its native control.
+        /// </summary>
         [XmlAttribute("nativeName")]
         public string NativeName { get; set; }
 
+        /// <summary>
+        /// The <c>id</c> of the parent coordinate system this one is defined
+        /// relative to.
+        /// </summary>
         [XmlAttribute("parentIdRef")]
         public string ParentIdRef { get; set; }
 
+        /// <summary>
+        /// The kind of coordinate system, such as <c>MACHINE</c> or
+        /// <c>WORK</c>.
+        /// </summary>
         [XmlAttribute("type")]
         public CoordinateSystemType Type { get; set; }
 
+        /// <summary>
+        /// The origin expressed as a coordinate triple; mutually exclusive with
+        /// <see cref="OriginDataSet"/> and <see cref="Transformation"/>.
+        /// </summary>
         [XmlElement("Origin")]
         public XmlOrigin Origin { get; set; }
 
+        /// <summary>
+        /// The origin expressed as a data set; mutually exclusive with
+        /// <see cref="Origin"/> and <see cref="Transformation"/>.
+        /// </summary>
         [XmlElement("OriginDataSet")]
         public XmlOriginDataSet OriginDataSet { get; set; }
 
+        /// <summary>
+        /// The translation and rotation from the parent coordinate system;
+        /// mutually exclusive with <see cref="Origin"/> and
+        /// <see cref="OriginDataSet"/>.
+        /// </summary>
         [XmlElement("Transformation")]
         public XmlTransformation Transformation { get; set; }
 
+        /// <summary>
+        /// The free-form description of the coordinate system.
+        /// </summary>
         [XmlElement("Description")]
         public string Description { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate into the strongly-typed
+        /// <see cref="CoordinateSystem"/>, resolving the origin choice in
+        /// favour of the data-set form when present.
+        /// </summary>
         public ICoordinateSystem ToCoordinateSystem()
         {
             var coordinateSystem = new CoordinateSystem();
@@ -59,6 +103,11 @@ namespace MTConnect.Devices.Xml
             return coordinateSystem;
         }
 
+        /// <summary>
+        /// Writes the given <see cref="ICoordinateSystem"/> to
+        /// <paramref name="writer"/> as a <c>CoordinateSystem</c> element,
+        /// emitting the data-set form of the origin when the model carries it.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, ICoordinateSystem coordinateSystem)
         {
             if (coordinateSystem != null)

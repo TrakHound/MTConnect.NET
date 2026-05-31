@@ -11,15 +11,28 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for the root <c>MTConnectDevices</c>
+    /// response document returned by the agent <c>probe</c> request. Mirrors
+    /// the on-the-wire shape so it can be read and written, then converts to
+    /// and from the strongly-typed <see cref="DevicesResponseDocument"/> model.
+    /// </summary>
     [XmlRoot("MTConnectDevices")]
     public class XmlDevicesResponseDocument
     {
         private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(XmlDevicesResponseDocument));
 
 
+        /// <summary>
+        /// The document <c>Header</c> describing the agent instance and version.
+        /// </summary>
         [XmlElement("Header")]
         public XmlDevicesHeader Header { get; set; }
 
+        /// <summary>
+        /// The devices in the document, serialized as <c>Device</c> elements
+        /// (or <c>Agent</c> for the self-describing agent device).
+        /// </summary>
         [XmlArray("Devices")]
         [XmlArrayItem("Device", typeof(XmlDevice))]
         [XmlArrayItem("Agent", typeof(XmlAgent))]
@@ -28,10 +41,19 @@ namespace MTConnect.Devices.Xml
         //[XmlArray("Interfaces")]
         //public List<Interface> Interfaces { get; set; }
 
+        /// <summary>
+        /// The MTConnect schema version detected from the source XML; carried
+        /// out of band so the correct namespace can be emitted on write.
+        /// </summary>
         [XmlIgnore]
         public Version Version { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="DevicesResponseDocument"/>, converting the header and each
+        /// device and stamping every device with the detected schema version.
+        /// </summary>
         public IDevicesResponseDocument ToDocument()
         {
             var document = new DevicesResponseDocument();
@@ -57,6 +79,11 @@ namespace MTConnect.Devices.Xml
             return document;
         }
 
+        /// <summary>
+        /// Deserializes an <c>MTConnectDevices</c> document from raw XML bytes,
+        /// sanitizing the input, detecting the schema version, and clearing
+        /// namespace prefixes before deserialization.
+        /// </summary>
         /// <exception cref="XmlException">XML Exception thrown during Serialization</exception>
         public static IDevicesResponseDocument FromXml(byte[] xmlBytes)
         {
@@ -89,6 +116,11 @@ namespace MTConnect.Devices.Xml
             return null;
         }
 
+        /// <summary>
+        /// Serializes the devices response document to a UTF-8 XML byte array,
+        /// choosing indented or compact writer settings and optionally emitting
+        /// a stylesheet, header comment, and extended schema namespaces.
+        /// </summary>
         /// <exception cref="XmlException">XML Exception thrown during Serialization</exception>
         public static byte[] ToXmlBytes(
             IDevicesResponseDocument document,
@@ -117,6 +149,11 @@ namespace MTConnect.Devices.Xml
             return null;
         }
 
+        /// <summary>
+        /// Serializes the devices response document to a new XML stream,
+        /// choosing indented or compact writer settings and optionally emitting
+        /// a stylesheet, header comment, and extended schema namespaces.
+        /// </summary>
         /// <exception cref="XmlException">XML Exception thrown during Serialization</exception>
         public static Stream ToXmlStream(
             IDevicesResponseDocument document,
@@ -144,6 +181,12 @@ namespace MTConnect.Devices.Xml
             return null;
         }
 
+        /// <summary>
+        /// Writes the complete <c>MTConnectDevices</c> document, emitting the
+        /// version-specific namespace, optional extended schema namespaces and
+        /// schema location, the header, and each device. No document is written
+        /// when the response has no devices.
+        /// </summary>
         /// <exception cref="XmlException">XML Exception thrown during Serialization</exception>
         public static void WriteXml(
             XmlWriter writer,

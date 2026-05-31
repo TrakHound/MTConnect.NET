@@ -9,6 +9,13 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// Custom <see cref="IXmlSerializable"/> for the child components of a
+    /// component or device. Because MTConnect encodes a component's type in its
+    /// element name, this collection serializes each component through the
+    /// shared base surrogate and rewrites the element name to the concrete
+    /// component type, and reverses that on read.
+    /// </summary>
     public class XmlComponentCollection : IXmlSerializable
     {
         private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(XmlComponent));
@@ -16,6 +23,10 @@ namespace MTConnect.Devices.Xml
 
 
         private List<XmlComponent> _components;
+
+        /// <summary>
+        /// The child components held by the collection; never <c>null</c>.
+        /// </summary>
         [XmlIgnore]
         public List<XmlComponent> Components
         {
@@ -31,8 +42,15 @@ namespace MTConnect.Devices.Xml
         }
 
 
+        /// <summary>
+        /// Creates an empty collection.
+        /// </summary>
         public XmlComponentCollection() { }
 
+        /// <summary>
+        /// Creates an empty collection, recording whether component type
+        /// descriptions should be emitted as comments.
+        /// </summary>
         public XmlComponentCollection(bool outputComments = false)
         {
             _outputComments = outputComments;
@@ -41,6 +59,11 @@ namespace MTConnect.Devices.Xml
 
         #region "Xml Serialization"
 
+        /// <summary>
+        /// Writes each component to <paramref name="writer"/>, serializing
+        /// through the base surrogate and renaming the element to the concrete
+        /// component type, optionally preceded by a type-description comment.
+        /// </summary>
         public void WriteXml(XmlWriter writer)
         {
             if (!Components.IsNullOrEmpty())
@@ -98,6 +121,11 @@ namespace MTConnect.Devices.Xml
             }
         }
 
+        /// <summary>
+        /// Reads the component child elements from <paramref name="reader"/>,
+        /// rewriting each type-named element to the base <c>Component</c> name
+        /// so it can be deserialized, then restoring the concrete type.
+        /// </summary>
         public void ReadXml(XmlReader reader)
         {
             try
@@ -149,6 +177,10 @@ namespace MTConnect.Devices.Xml
             reader.Skip();
         }
 
+        /// <summary>
+        /// Returns <c>null</c>; the collection does not advertise an inline XML
+        /// schema, as required by <see cref="IXmlSerializable"/>.
+        /// </summary>
         public XmlSchema GetSchema()
         {
             return (null);

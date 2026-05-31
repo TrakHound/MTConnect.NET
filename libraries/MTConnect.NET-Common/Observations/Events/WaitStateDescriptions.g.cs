@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// Description text for each <see cref="WaitState"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class WaitStateDescriptions
     {
         /// <summary>
@@ -61,6 +64,9 @@ namespace MTConnect.Observations.Events
         public const string RESUMING = "Execution is waiting while the equipment is resuming the production cycle but has not yet resumed execution.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="WaitState"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(WaitState value)
         {
             switch (value)

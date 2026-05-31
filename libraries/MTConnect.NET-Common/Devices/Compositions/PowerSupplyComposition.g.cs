@@ -10,15 +10,35 @@ namespace MTConnect.Devices.Compositions
     /// </summary>
     public class PowerSupplyComposition : Composition 
     {
+        /// <summary>
+        /// The MTConnect <c>type</c> value that identifies this Composition.
+        /// </summary>
         public const string TypeId = "POWER_SUPPLY";
+
+        /// <summary>
+        /// The default <c>name</c> assigned to an instance of this Composition.
+        /// </summary>
         public const string NameId = "powerSupplyComposition";
+
+        /// <summary>
+        /// The description of this Composition as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Composition composed of a unit that provides power to electric mechanisms.";
 
+        /// <summary>
+        /// The description of this Composition as defined by the MTConnect Standard.
+        /// </summary>
         public override string TypeDescription => DescriptionText;
-        
-        public override System.Version MinimumVersion => MTConnectVersions.Version14; 
+
+        /// <summary>
+        /// The minimum MTConnect Version that introduced this Composition.
+        /// </summary>
+        public override System.Version MinimumVersion => MTConnectVersions.Version14;
 
 
-        public PowerSupplyComposition()  { Type = TypeId; }
+        /// <summary>
+        /// Initializes a new instance with its <c>Type</c> set to <see cref="TypeId"/>.
+        /// </summary>
+        public PowerSupplyComposition() { Type = TypeId; }
     }
 }

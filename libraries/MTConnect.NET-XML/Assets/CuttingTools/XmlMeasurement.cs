@@ -8,36 +8,77 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.Xml.CuttingTools
 {
+    /// <summary>
+    /// XML serialization surrogate for a cutting-tool <c>Measurement</c>.
+    /// Mirrors the on-the-wire element, where the dimension is carried as the
+    /// element text and its metadata as attributes, and converts to the
+    /// strongly-typed <see cref="IToolingMeasurement"/> model.
+    /// </summary>
     public class XmlMeasurement
     {
+        /// <summary>
+        /// The kind of measurement, such as <c>OverallToolLength</c> or
+        /// <c>BodyDiameterMax</c>.
+        /// </summary>
         [XmlAttribute("type")]
         public string Type { get; set; }
 
+        /// <summary>
+        /// The number of significant digits in the reported value, as the raw
+        /// attribute text.
+        /// </summary>
         [XmlAttribute("significantDigits")]
         public string SignificantDigits { get; set; }
 
+        /// <summary>
+        /// The engineering units the value is reported in.
+        /// </summary>
         [XmlAttribute("units")]
         public string Units { get; set; }
 
+        /// <summary>
+        /// The units the value was originally measured in before conversion.
+        /// </summary>
         [XmlAttribute("nativeUnits")]
         public string NativeUnits { get; set; }
 
+        /// <summary>
+        /// The short code identifying the measurement on tooling data sheets.
+        /// </summary>
         [XmlAttribute("code")]
         public string Code { get; set; }
 
+        /// <summary>
+        /// The maximum tolerated value, as the raw attribute text.
+        /// </summary>
         [XmlAttribute("maximum")]
         public string Maximum { get; set; }
 
+        /// <summary>
+        /// The minimum tolerated value, as the raw attribute text.
+        /// </summary>
         [XmlAttribute("minimum")]
         public string Minimum { get; set; }
 
+        /// <summary>
+        /// The nominal (target) value, as the raw attribute text.
+        /// </summary>
         [XmlAttribute("nominal")]
         public string Nominal { get; set; }
 
+        /// <summary>
+        /// The measured value, carried as the element text.
+        /// </summary>
         [XmlText]
         public string Value { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate into the strongly-typed
+        /// <see cref="IToolingMeasurement"/>, parsing the numeric text values
+        /// and instantiating the concrete measurement class that matches
+        /// <see cref="Type"/>.
+        /// </summary>
         public IToolingMeasurement ToMeasurement()
         {
             var measurement = new ToolingMeasurement();
@@ -53,6 +94,11 @@ namespace MTConnect.Assets.Xml.CuttingTools
             return ToolingMeasurement.Create(Type, measurement);
         }
 
+        /// <summary>
+        /// Writes the given measurements to <paramref name="writer"/> wrapped in
+        /// a <c>Measurements</c> element, one element per measurement named
+        /// after its type, omitting optional attributes that are not set.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IEnumerable<IToolingMeasurement> measurements)
         {
             if (!measurements.IsNullOrEmpty())

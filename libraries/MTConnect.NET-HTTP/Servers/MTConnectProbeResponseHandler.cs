@@ -12,6 +12,17 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Servers.Http
 {
+    /// <summary>
+    /// Ceen request handler for the MTConnect Probe endpoint
+    /// (GET /probe and GET /{deviceKey}/probe, plus the bare GET /
+    /// alias). Returns an MTConnectDevices Response Document describing
+    /// the device metadata visible to the agent. The optional leading
+    /// path segment selects a single device by name or UUID. The
+    /// response document format is negotiated via the documentFormat
+    /// query parameter (xml | json | json-cppagent) and defaults to
+    /// XML; deviceType, version, validationLevel, indentOutput, and
+    /// outputComments further shape the payload.
+    /// </summary>
     class MTConnectProbeResponseHandler : MTConnectHttpResponseHandler
     {
         public MTConnectProbeResponseHandler(IHttpServerConfiguration serverConfiguration, IMTConnectAgentBroker mtconnectAgent) : base(serverConfiguration, mtconnectAgent) { }

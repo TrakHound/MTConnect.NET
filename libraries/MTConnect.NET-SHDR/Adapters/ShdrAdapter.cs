@@ -30,9 +30,11 @@ namespace MTConnect.Adapters
 
 
         private CancellationTokenSource _stop;
+        /// <summary>Exposes the internal cancellation source to subclasses so they can hook custom shutdown work onto the same token used by the adapter listener and worker threads.</summary>
         protected CancellationTokenSource StopToken => _stop;
 
 
+        /// <summary>The underlying <see cref="IMTConnectAdapter"/> that buffers SHDR observations and serialises them onto each connected agent's socket.</summary>
         protected IMTConnectAdapter Adapter => _adapter;
 
 
@@ -133,6 +135,7 @@ namespace MTConnect.Adapters
         public event EventHandler<AdapterEventArgs<Exception>> ConnectionError;
 
 
+        /// <summary>Creates an SHDR adapter that listens on <paramref name="port"/> with the supplied <paramref name="heartbeat"/> interval (milliseconds), no device-key scope, duplicate filtering enabled, and timestamps emitted on every line.</summary>
         public ShdrAdapter(int port = 7878, int heartbeat = 10000)
         {
             FilterDuplicates = true;
@@ -156,6 +159,7 @@ namespace MTConnect.Adapters
             _connectionListener.ConnectionErrorReceived += ClientConnectionError;
         }
 
+        /// <summary>Creates an SHDR adapter scoped to <paramref name="deviceKey"/>, listening on <paramref name="port"/> with the supplied <paramref name="heartbeat"/> interval; lines targeting other devices are skipped.</summary>
         public ShdrAdapter(string deviceKey, int port = 7878, int heartbeat = 10000)
         {
             FilterDuplicates = true;
@@ -180,6 +184,7 @@ namespace MTConnect.Adapters
             _connectionListener.ConnectionErrorReceived += ClientConnectionError;
         }
 
+        /// <summary>Creates an SHDR adapter from <paramref name="configuration"/>, pulling device key, port, heartbeat, and the <c>IgnoreTimestamps</c> flag from the configuration object.</summary>
         public ShdrAdapter(ShdrAdapterClientConfiguration configuration)
         {
             FilterDuplicates = true;
@@ -209,6 +214,7 @@ namespace MTConnect.Adapters
             }
         }
 
+        /// <summary>Protected constructor used by interval and queue subclasses to wire the optional flush <paramref name="interval"/> (milliseconds) and to opt in to the queue-buffer mode via <paramref name="bufferEnabled"/>.</summary>
         protected ShdrAdapter(int port = 7878, int heartbeat = 10000, int? interval = null, bool bufferEnabled = false)
         {
             FilterDuplicates = true;
@@ -232,6 +238,7 @@ namespace MTConnect.Adapters
             _connectionListener.ConnectionErrorReceived += ClientConnectionError;
         }
 
+        /// <summary>Protected device-keyed variant of the interval/queue constructor; see <see cref="ShdrAdapter(int, int, int?, bool)"/> for the <paramref name="interval"/> and <paramref name="bufferEnabled"/> semantics.</summary>
         protected ShdrAdapter(string deviceKey, int port = 7878, int heartbeat = 10000, int? interval = null, bool bufferEnabled = false)
         {
             FilterDuplicates = true;
@@ -256,6 +263,7 @@ namespace MTConnect.Adapters
             _connectionListener.ConnectionErrorReceived += ClientConnectionError;
         }
 
+        /// <summary>Protected configuration-driven variant of the interval/queue constructor; see <see cref="ShdrAdapter(int, int, int?, bool)"/> for the <paramref name="interval"/> and <paramref name="bufferEnabled"/> semantics.</summary>
         protected ShdrAdapter(ShdrAdapterClientConfiguration configuration, int? interval = null, bool bufferEnabled = false)
         {
             FilterDuplicates = true;
@@ -315,8 +323,10 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>Override-point invoked at the tail end of <see cref="Start"/>, after the listener and underlying adapter have been started.</summary>
         protected virtual void OnStart() { }
 
+        /// <summary>Override-point invoked at the tail end of <see cref="Stop"/>, after the listener and underlying adapter have been signalled to stop.</summary>
         protected virtual void OnStop() { }
 
 
@@ -432,8 +442,10 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>Override-point invoked after <see cref="SendChanged"/> completes; subclasses can use it to record diagnostics or refresh derived state.</summary>
         protected virtual void OnChangedSent() { }
 
+        /// <summary>Override-point invoked after <see cref="SendLast"/> completes (typically once per reconnect); subclasses can use it to clear sent flags or trigger follow-up publishes.</summary>
         protected virtual void OnLastSent() { }
 
         #endregion
@@ -540,6 +552,7 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>Writes a fully-formatted SHDR <paramref name="line"/> (terminator included) to every connected agent and returns <c>true</c> when at least one write succeeded.</summary>
         protected bool WriteLine(string line)
         {
             if (!string.IsNullOrEmpty(line))
@@ -560,7 +573,7 @@ namespace MTConnect.Adapters
                         return success;
                     }
                 }
-                catch { }     
+                catch { }
             }
 
             return false;
@@ -692,29 +705,35 @@ namespace MTConnect.Adapters
 
         #region "DataItems"
 
+        /// <summary>Override-point invoked when an SHDR data-item observation is added to the buffered queue; subclasses can use it to tap, log, or rewrite observations before they are flushed.</summary>
         protected virtual void OnDataItemAdd(ShdrDataItem dataItem) { }
 
 
+        /// <summary>Adds a scalar Sample/Event observation for <paramref name="dataItemKey"/> with <paramref name="value"/> and the current Unix time as the timestamp.</summary>
         public void AddDataItem(string dataItemKey, object value)
         {
             AddDataItem(dataItemKey, value, UnixDateTime.Now);
         }
 
+        /// <summary>Adds a scalar Sample/Event observation with an explicit <paramref name="timestamp"/> (converted to Unix UTC time).</summary>
         public void AddDataItem(string dataItemKey, object value, DateTime timestamp)
         {
             AddDataItem(dataItemKey, value, timestamp.ToUnixUtcTime());
         }
 
+        /// <summary>Adds a scalar Sample/Event observation with an explicit Unix-time <paramref name="timestamp"/> (milliseconds since epoch).</summary>
         public void AddDataItem(string dataItemKey, object value, long timestamp)
         {
             AddDataItem(new ShdrDataItem(dataItemKey, value, timestamp));
         }
 
+        /// <summary>Adds a pre-built <see cref="ShdrDataItem"/> to the buffered queue.</summary>
         public void AddDataItem(ShdrDataItem dataItem)
         {
             AddDataItem((IObservationInput)dataItem);
         }
 
+        /// <summary>Adds a batch of <see cref="ShdrDataItem"/> objects to the buffered queue.</summary>
         public void AddDataItems(IEnumerable<ShdrDataItem> dataItems)
         {
             if (!dataItems.IsNullOrEmpty())
@@ -726,32 +745,38 @@ namespace MTConnect.Adapters
             }
         }
 
+        /// <summary>Adds an arbitrary <see cref="IObservationInput"/> to the buffered queue (used by SHDR data set/table/time-series observations that all flow through the same buffer).</summary>
         public void AddDataItem(IObservationInput observation)
         {
             _adapter.AddObservation(observation);
         }
 
 
+        /// <summary>Immediately writes a scalar Sample/Event observation to every connected agent and returns <c>true</c> when all writes succeeded.</summary>
         public bool SendDataItem(string dataItemKey, object value)
         {
             return SendDataItem(dataItemKey, value, UnixDateTime.Now);
         }
 
+        /// <summary>Sends a scalar Sample/Event observation with an explicit <paramref name="timestamp"/> (converted to Unix UTC time).</summary>
         public bool SendDataItem(string dataItemKey, object value, DateTime timestamp)
         {
             return SendDataItem(dataItemKey, value, timestamp.ToUnixUtcTime());
         }
 
+        /// <summary>Sends a scalar Sample/Event observation with an explicit Unix-time <paramref name="timestamp"/>.</summary>
         public bool SendDataItem(string dataItemKey, object value, long timestamp)
         {
             return SendDataItem(new ShdrDataItem(dataItemKey, value, timestamp));
         }
 
+        /// <summary>Sends a pre-built <see cref="ShdrDataItem"/> immediately.</summary>
         public bool SendDataItem(ShdrDataItem dataItem)
         {
             return SendDataItem((IObservationInput)dataItem);
         }
 
+        /// <summary>Sends a batch of <see cref="ShdrDataItem"/> objects immediately; returns <c>true</c> only when every observation was written successfully.</summary>
         public bool SendDataItems(IEnumerable<ShdrDataItem> dataItems)
         {
             var success = true;
@@ -769,6 +794,7 @@ namespace MTConnect.Adapters
             return false;
         }
 
+        /// <summary>Sends an arbitrary <see cref="IObservationInput"/> immediately; the common entry point used by the data-set/table/time-series send overloads.</summary>
         public bool SendDataItem(IObservationInput observation)
         {
             return _adapter.SendObservation(observation);
@@ -778,44 +804,53 @@ namespace MTConnect.Adapters
 
         #region "Messages"
 
+        /// <summary>Override-point invoked when an SHDR Message event is added to the buffered queue.</summary>
         protected virtual void OnMessageAdd(ShdrMessage message) { }
 
 
+        /// <summary>Adds a Message event for <paramref name="messageId"/> with the supplied text <paramref name="value"/> using the current Unix time.</summary>
         public void AddMessage(string messageId, string value)
         {
             AddMessage(messageId, value, UnixDateTime.Now);
         }
 
+        /// <summary>Adds a Message event with an explicit <paramref name="timestamp"/> (converted to Unix UTC time).</summary>
         public void AddMessage(string messageId, string value, DateTime timestamp)
         {
             AddMessage(messageId, value, timestamp.ToUnixUtcTime());
         }
 
+        /// <summary>Adds a Message event with an explicit Unix-time <paramref name="timestamp"/>.</summary>
         public void AddMessage(string messageId, string value, long timestamp)
         {
             AddMessage(new ShdrMessage(messageId, value, timestamp));
         }
 
+        /// <summary>Adds a Message event with a controller-supplied <paramref name="nativeCode"/> using the current Unix time.</summary>
         public void AddMessage(string messageId, string value, string nativeCode)
         {
             AddMessage(messageId, value, nativeCode, UnixDateTime.Now);
         }
 
+        /// <summary>Adds a Message event with native code and explicit <paramref name="timestamp"/> (converted to Unix UTC time).</summary>
         public void AddMessage(string messageId, string value, string nativeCode, DateTime timestamp)
         {
             AddMessage(messageId, value, nativeCode, timestamp.ToUnixUtcTime());
         }
 
+        /// <summary>Adds a Message event with native code and an explicit Unix-time <paramref name="timestamp"/>.</summary>
         public void AddMessage(string messageId, string value, string nativeCode, long timestamp)
         {
             AddMessage(new ShdrMessage(messageId, value, nativeCode, timestamp));
         }
 
+        /// <summary>Adds a pre-built <see cref="ShdrMessage"/> to the buffered queue.</summary>
         public void AddMessage(ShdrMessage message)
         {
             _adapter.AddObservation(message);
         }
 
+        /// <summary>Adds a batch of Message events to the buffered queue.</summary>
         public void AddMessages(IEnumerable<ShdrMessage> messages)
         {
             if (!messages.IsNullOrEmpty())
@@ -828,41 +863,49 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>Immediately writes a Message event using the current Unix time.</summary>
         public bool SendMessage(string dataItemId, string value)
         {
             return SendMessage(dataItemId, value, UnixDateTime.Now);
         }
 
+        /// <summary>Sends a Message event with an explicit <paramref name="timestamp"/>.</summary>
         public bool SendMessage(string dataItemId, string value, DateTime timestamp)
         {
             return SendMessage(dataItemId, value, timestamp.ToUnixUtcTime());
         }
 
+        /// <summary>Sends a Message event with an explicit Unix-time <paramref name="timestamp"/>.</summary>
         public bool SendMessage(string dataItemId, string value, long timestamp)
         {
             return SendMessage(new ShdrMessage(dataItemId, value, timestamp));
         }
 
+        /// <summary>Sends a Message event with a controller-supplied <paramref name="nativeCode"/> using the current Unix time.</summary>
         public bool SendMessage(string dataItemId, string value, string nativeCode)
         {
             return SendMessage(dataItemId, value, nativeCode, UnixDateTime.Now);
         }
 
+        /// <summary>Sends a Message event with native code and explicit <paramref name="timestamp"/>.</summary>
         public bool SendMessage(string dataItemId, string value, string nativeCode, DateTime timestamp)
         {
             return SendMessage(dataItemId, value, nativeCode, timestamp.ToUnixUtcTime());
         }
 
+        /// <summary>Sends a Message event with native code and an explicit Unix-time <paramref name="timestamp"/>.</summary>
         public bool SendMessage(string dataItemId, string value, string nativeCode, long timestamp)
         {
             return SendMessage(new ShdrMessage(dataItemId, value, nativeCode, timestamp));
         }
 
+        /// <summary>Sends a pre-built <see cref="ShdrMessage"/> immediately.</summary>
         public bool SendMessage(ShdrMessage message)
         {
             return _adapter.SendObservation(message);
         }
 
+        /// <summary>Sends a batch of Message events immediately; returns <c>true</c> when every message wrote successfully.</summary>
         public bool SendMessages(IEnumerable<ShdrMessage> messages)
         {
             var success = true;
@@ -884,9 +927,11 @@ namespace MTConnect.Adapters
 
         #region "Conditions"
 
+        /// <summary>Override-point invoked when an SHDR Condition is added to the buffered queue.</summary>
         protected virtual void OnConditionAdd(ShdrCondition condition) { }
 
 
+        /// <summary>Adds every fault state of <paramref name="condition"/> to the buffered queue; the SHDR adapter emits one line per fault state so multi-state conditions remain individually addressable.</summary>
         public void AddCondition(ShdrCondition condition)
         {
             if (condition != null && !condition.FaultStates.IsNullOrEmpty())
@@ -898,6 +943,7 @@ namespace MTConnect.Adapters
             }
         }
 
+        /// <summary>Adds a batch of <see cref="ShdrCondition"/> objects, flattening each into its fault states.</summary>
         public void AddConditions(IEnumerable<ShdrCondition> conditions)
         {
             if (!conditions.IsNullOrEmpty())
@@ -910,6 +956,7 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>Immediately writes the first fault state of <paramref name="condition"/> to every connected agent; the early-return behaviour exists to match the original send-on-first-state contract.</summary>
         public bool SendCondition(ShdrCondition condition)
         {
             if (condition != null && !condition.FaultStates.IsNullOrEmpty())
@@ -923,6 +970,7 @@ namespace MTConnect.Adapters
             return false;
         }
 
+        /// <summary>Sends a batch of <see cref="ShdrCondition"/> objects immediately; returns <c>true</c> when every send succeeded.</summary>
         public bool SendConditions(IEnumerable<ShdrCondition> conditions)
         {
             var success = true;
@@ -944,14 +992,17 @@ namespace MTConnect.Adapters
 
         #region "TimeSeries"
 
+        /// <summary>Override-point invoked when an SHDR TimeSeries observation is added to the buffered queue.</summary>
         protected virtual void OnTimeSeriesAdd(ShdrTimeSeries timeSeries) { }
 
 
+        /// <summary>Adds a TimeSeries observation to the buffered queue.</summary>
         public void AddTimeSeries(ShdrTimeSeries timeSeries)
         {
             _adapter.AddObservation(timeSeries);
         }
 
+        /// <summary>Adds a batch of TimeSeries observations to the buffered queue.</summary>
         public void AddTimeSeries(IEnumerable<ShdrTimeSeries> timeSeries)
         {
             if (!timeSeries.IsNullOrEmpty())
@@ -964,11 +1015,13 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>Immediately writes a TimeSeries observation to every connected agent.</summary>
         public bool SendTimeSeries(ShdrTimeSeries timeSeries)
         {
             return _adapter.SendObservation(timeSeries);
         }
 
+        /// <summary>Sends a batch of TimeSeries observations immediately; returns <c>true</c> only when every observation was written successfully.</summary>
         public bool SendTimeSeries(IEnumerable<ShdrTimeSeries> timeSeries)
         {
             var success = true;
@@ -990,14 +1043,17 @@ namespace MTConnect.Adapters
 
         #region "DataSet"
 
+        /// <summary>Override-point invoked when an SHDR DataSet observation is added to the buffered queue.</summary>
         protected virtual void OnDataSetAdd(ShdrDataSet dataSet) { }
 
 
+        /// <summary>Adds a DataSet observation to the buffered queue.</summary>
         public void AddDataSet(ShdrDataSet dataSet)
         {
             _adapter.AddObservation(dataSet);
         }
 
+        /// <summary>Adds a batch of DataSet observations to the buffered queue.</summary>
         public void AddDataSets(IEnumerable<ShdrDataSet> dataSets)
         {
             if (!dataSets.IsNullOrEmpty())
@@ -1010,11 +1066,13 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>Immediately writes a DataSet observation to every connected agent.</summary>
         public bool SendDataSet(ShdrDataSet dataSet)
         {
             return _adapter.SendObservation(dataSet);
         }
 
+        /// <summary>Sends a batch of DataSet observations immediately; returns <c>true</c> only when every observation was written successfully.</summary>
         public bool SendDataSets(IEnumerable<ShdrDataSet> dataSets)
         {
             var success = true;
@@ -1036,14 +1094,17 @@ namespace MTConnect.Adapters
 
         #region "Table"
 
+        /// <summary>Override-point invoked when an SHDR Table observation is added to the buffered queue.</summary>
         protected virtual void OnTableAdd(ShdrTable table) { }
 
 
+        /// <summary>Adds a Table observation to the buffered queue.</summary>
         public void AddTable(ShdrTable table)
         {
             _adapter.AddObservation(table);
         }
 
+        /// <summary>Adds a batch of Table observations to the buffered queue.</summary>
         public void AddTables(IEnumerable<ShdrTable> tables)
         {
             if (!tables.IsNullOrEmpty())
@@ -1056,11 +1117,13 @@ namespace MTConnect.Adapters
         }
 
 
+        /// <summary>Immediately writes a Table observation to every connected agent.</summary>
         public bool SendTable(ShdrTable table)
         {
             return _adapter.SendObservation(table);
         }
 
+        /// <summary>Sends a batch of Table observations immediately; returns <c>true</c> only when every observation was written successfully.</summary>
         public bool SendTables(IEnumerable<ShdrTable> tables)
         {
             var success = true;
@@ -1083,6 +1146,7 @@ namespace MTConnect.Adapters
 
         #region "Assets"
 
+        /// <summary>Override-point invoked when an SHDR Asset is staged for publish; subclasses can rewrite or annotate the asset before it is serialised onto the wire.</summary>
         protected virtual void OnAssetAdd(ShdrAsset asset) { }
 
 

@@ -21,11 +21,23 @@ namespace MTConnect.Configurations
         private bool _update = false;
 
 
+        /// <summary>
+        /// Raised once per device whenever the watched file changes and is successfully re-parsed into one or more device configurations.
+        /// </summary>
         public event EventHandler<DeviceConfiguration> ConfigurationUpdated;
 
+        /// <summary>
+        /// Raised when a change is detected but the file cannot be read or parsed; the event argument carries the error message.
+        /// </summary>
         public event EventHandler<string> ErrorReceived;
 
 
+        /// <summary>
+        /// Initializes the watcher for the given device configuration file and begins monitoring it for changes.
+        /// </summary>
+        /// <param name="path">The full path of the device configuration file to watch.</param>
+        /// <param name="interval">The debounce interval, in milliseconds, between detecting a change and re-reading the file.</param>
+        /// <param name="documentFormatter">The document format used to parse the file, defaulting to XML.</param>
         public DeviceConfigurationFileWatcher(string path, int interval = DefaultInterval, string documentFormatter = DocumentFormat.XML)
         {
             _path = path;
@@ -88,6 +100,9 @@ namespace MTConnect.Configurations
         }
 
 
+        /// <summary>
+        /// Stops monitoring and releases the underlying file system watcher and polling timer.
+        /// </summary>
         public void Dispose()
         {
             if (_watcher != null) _watcher.Dispose();

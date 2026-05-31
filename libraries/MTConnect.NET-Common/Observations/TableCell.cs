@@ -13,6 +13,9 @@ namespace MTConnect.Observations
         /// </summary>
         public string Key { get; set; }
 
+        /// <summary>
+        /// An optional human-readable description of the cell's <see cref="Key"/> (column).
+        /// </summary>
         public string KeyDescription { get; set; }
 
         /// <summary>
@@ -21,14 +24,26 @@ namespace MTConnect.Observations
         public string Value { get; set; }
 
 
+        /// <summary>
+        /// Initializes a new, empty Table cell.
+        /// </summary>
         public TableCell() { }
 
+        /// <summary>
+        /// Initializes a new Table cell with the given column key and value.
+        /// </summary>
+        /// <param name="key">The cell's column key.</param>
+        /// <param name="value">The cell's value; stringified when stored.</param>
         public TableCell(string key, object value)
         {
             Key = key;
             Value = value?.ToString();
         }
 
+        /// <summary>
+        /// Returns the cell formatted as "key=value", or an empty string when the cell has no key.
+        /// </summary>
+        /// <returns>The string representation of the cell.</returns>
         public override string ToString()
         {
             if (!string.IsNullOrEmpty(Key))

@@ -10,10 +10,16 @@ namespace MTConnect.Devices
 {
     public partial class Device : IDevice
     {
+        /// <summary>
+        /// The MTConnect type identifier for a Device element.
+        /// </summary>
         public const string TypeId = "Device";
         private static readonly Version DefaultMaximumVersion = null;
         private static readonly Version DefaultMinimumVersion = MTConnectVersions.Version10;
 
+        /// <summary>
+        /// The MTConnect entity classification for this object, which is always <see cref="MTConnectEntityType.Device"/>.
+        /// </summary>
         public MTConnectEntityType EntityType => MTConnectEntityType.Device;
 
 
@@ -27,6 +33,9 @@ namespace MTConnect.Devices
         /// </summary>
         public string Iso841Class { get; set; }
 
+        /// <summary>
+        /// The DataItems defined directly on this Device.
+        /// </summary>
         public IEnumerable<IDataItem> DataItems { get; set; }
 
         /// <summary>
@@ -84,31 +93,52 @@ namespace MTConnect.Devices
         public virtual Version MinimumVersion => DefaultMinimumVersion;
 
 
-		public string ComponentIdFormat { get; set; }
+        /// <summary>
+        /// The pattern used to generate Ids for child Components added to this Device.
+        /// </summary>
+        public string ComponentIdFormat { get; set; }
 
-		public string CompositionIdFormat { get; set; }
+        /// <summary>
+        /// The pattern used to generate Ids for child Compositions added to this Device.
+        /// </summary>
+        public string CompositionIdFormat { get; set; }
 
-		public string DataItemIdFormat { get; set; }
+        /// <summary>
+        /// The pattern used to generate Ids for DataItems added to this Device.
+        /// </summary>
+        public string DataItemIdFormat { get; set; }
 
 
-		public Device()
+        /// <summary>
+        /// Initializes a new Device with empty child collections and the default Id-format patterns.
+        /// </summary>
+        public Device()
         {
             Type = TypeId;
             DataItems = new List<IDataItem>();
             Components = new List<IComponent>();
             Compositions = new List<IComposition>();
 
-			DataItemIdFormat = Component._defaultDataItemIdFormat;
-			CompositionIdFormat = Component._defaultCompositionIdFormat;
-			ComponentIdFormat = Component._defaultComponentIdFormat;
-		}
+            DataItemIdFormat = Component._defaultDataItemIdFormat;
+            CompositionIdFormat = Component._defaultCompositionIdFormat;
+            ComponentIdFormat = Component._defaultComponentIdFormat;
+        }
 
 
+        /// <summary>
+        /// Computes a content hash for this Device that changes whenever its hashed members change.
+        /// </summary>
+        /// <returns>A SHA-1 hash string identifying the current state of this Device.</returns>
         public string GenerateHash()
         {
             return GenerateHash(this);
         }
 
+        /// <summary>
+        /// Computes a content hash for the specified Device from its hashed members and child entities.
+        /// </summary>
+        /// <param name="device">The Device to hash.</param>
+        /// <returns>A SHA-1 hash string, or null when <paramref name="device"/> is null.</returns>
         public static string GenerateHash(IDevice device)
         {
             if (device != null)
@@ -162,6 +192,11 @@ namespace MTConnect.Devices
             return null;
         }
 
+        /// <summary>
+        /// Computes a content hash for the entire Device tree, combining the Device's hash with every descendant's hash.
+        /// </summary>
+        /// <param name="device">The Device whose full subtree is hashed.</param>
+        /// <returns>A SHA-1 hash string covering the Device and all of its descendants.</returns>
         public static string CreateDeviceHash(IDevice device)
         {
             var s = ObjectExtensions.GetHashPropertyString(device);
@@ -210,35 +245,35 @@ namespace MTConnect.Devices
             return l.Count > 0 ? l : null;
         }
 
-		/// <summary>
-		/// Return the first Component matching the Type
-		/// </summary>
-		public IComponent GetComponent(string type, string name = null, SearchType searchType = SearchType.AnyLevel)
-		{
-			if (!string.IsNullOrEmpty(type))
-			{
-				IEnumerable<IComponent> components = null;
-				switch (searchType)
-				{
-					case SearchType.Child: components = Components; break;
-					case SearchType.AnyLevel: components = GetComponents(); break;
-				}
+        /// <summary>
+        /// Return the first Component matching the Type
+        /// </summary>
+        public IComponent GetComponent(string type, string name = null, SearchType searchType = SearchType.AnyLevel)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                IEnumerable<IComponent> components = null;
+                switch (searchType)
+                {
+                    case SearchType.Child: components = Components; break;
+                    case SearchType.AnyLevel: components = GetComponents(); break;
+                }
 
-				if (!components.IsNullOrEmpty())
-				{
-					if (!string.IsNullOrEmpty(name))
-					{
-						return components.FirstOrDefault(o => o.Type == type && o.Name == name);
-					}
-					else
-					{
-						return components.FirstOrDefault(o => o.Type == type);
-					}
-				}
-			}
+                if (!components.IsNullOrEmpty())
+                {
+                    if (!string.IsNullOrEmpty(name))
+                    {
+                        return components.FirstOrDefault(o => o.Type == type && o.Name == name);
+                    }
+                    else
+                    {
+                        return components.FirstOrDefault(o => o.Type == type);
+                    }
+                }
+            }
 
-			return null;
-		}
+            return null;
+        }
 
         /// <summary>
         /// Return the first Component matching the Type
@@ -262,31 +297,31 @@ namespace MTConnect.Devices
         /// Return All Components matching the Type
         /// </summary>
         public IEnumerable<IComponent> GetComponents(string type, string name = null, SearchType searchType = SearchType.AnyLevel)
-		{
-			if (!string.IsNullOrEmpty(type))
-			{
-				IEnumerable<IComponent> components = null;
-				switch (searchType)
-				{
-					case SearchType.Child: components = Components; break;
-					case SearchType.AnyLevel: components = GetComponents(); break;
-				}
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                IEnumerable<IComponent> components = null;
+                switch (searchType)
+                {
+                    case SearchType.Child: components = Components; break;
+                    case SearchType.AnyLevel: components = GetComponents(); break;
+                }
 
-				if (!components.IsNullOrEmpty())
-				{
-					if (!string.IsNullOrEmpty(name))
-					{
-						return components.Where(o => o.Type == type && o.Name == name);
-					}
-					else
-					{
-						return components.Where(o => o.Type == type);
-					}
-				}
-			}
+                if (!components.IsNullOrEmpty())
+                {
+                    if (!string.IsNullOrEmpty(name))
+                    {
+                        return components.Where(o => o.Type == type && o.Name == name);
+                    }
+                    else
+                    {
+                        return components.Where(o => o.Type == type);
+                    }
+                }
+            }
 
-			return null;
-		}
+            return null;
+        }
 
         /// <summary>
         /// Return All Components matching the Type
@@ -315,15 +350,15 @@ namespace MTConnect.Devices
         {
             if (component != null)
             {
-				component.Parent = this;
+                component.Parent = this;
 
-				// Set ID
-				if (!string.IsNullOrEmpty(Id) && string.IsNullOrEmpty(component.Id))
-				{
-					Component.ResetIds(component);
-				}
+                // Set ID
+                if (!string.IsNullOrEmpty(Id) && string.IsNullOrEmpty(component.Id))
+                {
+                    Component.ResetIds(component);
+                }
 
-				var components = new List<IComponent>();
+                var components = new List<IComponent>();
 
                 if (!Components.IsNullOrEmpty())
                 {
@@ -339,12 +374,12 @@ namespace MTConnect.Devices
                         if (organizer != null)
                         {
                             organizer.Parent = this;
-							organizer.Id = Component.CreateContainerId(organizer, ComponentIdFormat);
-							organizer.AddComponent(component);
+                            organizer.Id = Component.CreateContainerId(organizer, ComponentIdFormat);
+                            organizer.AddComponent(component);
                             components.Add(organizer);
                         }
                     }
-                    else 
+                    else
                     {
                         var organizer = (Component)components.FirstOrDefault(o => o.Type == organizerType);
                         if (organizer != null)
@@ -746,36 +781,13 @@ namespace MTConnect.Devices
             return null;
         }
 
-		/// <summary>
-		/// Return the first DataItem matching the Type
-		/// </summary>
-		public IDataItem GetDataItemByType(string type, SearchType searchType = SearchType.Child)
-		{
-			if (!string.IsNullOrEmpty(type))
-			{
-				IEnumerable<IDataItem> dataItems = null;
-				switch (searchType)
-				{
-					case SearchType.Child: dataItems = DataItems; break;
-					case SearchType.AnyLevel: dataItems = GetDataItems(); break;
-				}
-
-				if (!dataItems.IsNullOrEmpty())
-				{
-					return dataItems.FirstOrDefault(o => o.Type == type.ToUnderscoreUpper());
-				}
-			}
-
-			return null;
-		}
-
-		/// <summary>
-		/// Return the first DataItem matching the Type and SubType
-		/// </summary>
-		public IDataItem GetDataItemByType(string type, string subType, SearchType searchType = SearchType.Child)
-		{
-			if (!string.IsNullOrEmpty(type))
-			{
+        /// <summary>
+        /// Return the first DataItem matching the Type
+        /// </summary>
+        public IDataItem GetDataItemByType(string type, SearchType searchType = SearchType.Child)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
                 IEnumerable<IDataItem> dataItems = null;
                 switch (searchType)
                 {
@@ -783,14 +795,37 @@ namespace MTConnect.Devices
                     case SearchType.AnyLevel: dataItems = GetDataItems(); break;
                 }
 
-				if (!dataItems.IsNullOrEmpty())
-				{
-					return dataItems.FirstOrDefault(o => o.Type == type.ToUnderscoreUpper() && o.SubType == subType.ToUnderscoreUpper());
-				}
-			}
+                if (!dataItems.IsNullOrEmpty())
+                {
+                    return dataItems.FirstOrDefault(o => o.Type == type.ToUnderscoreUpper());
+                }
+            }
 
-			return null;
-		}
+            return null;
+        }
+
+        /// <summary>
+        /// Return the first DataItem matching the Type and SubType
+        /// </summary>
+        public IDataItem GetDataItemByType(string type, string subType, SearchType searchType = SearchType.Child)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                IEnumerable<IDataItem> dataItems = null;
+                switch (searchType)
+                {
+                    case SearchType.Child: dataItems = DataItems; break;
+                    case SearchType.AnyLevel: dataItems = GetDataItems(); break;
+                }
+
+                if (!dataItems.IsNullOrEmpty())
+                {
+                    return dataItems.FirstOrDefault(o => o.Type == type.ToUnderscoreUpper() && o.SubType == subType.ToUnderscoreUpper());
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// Return the first DataItem matching the Type
@@ -814,47 +849,47 @@ namespace MTConnect.Devices
         /// Return All DataItems matching the Type
         /// </summary>
         public IEnumerable<IDataItem> GetDataItemsByType(string type, SearchType searchType = SearchType.Child)
-		{
-			if (!string.IsNullOrEmpty(type))
-			{
-				IEnumerable<IDataItem> dataItems = null;
-				switch (searchType)
-				{
-					case SearchType.Child: dataItems = DataItems; break;
-					case SearchType.AnyLevel: dataItems = GetDataItems(); break;
-				}
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                IEnumerable<IDataItem> dataItems = null;
+                switch (searchType)
+                {
+                    case SearchType.Child: dataItems = DataItems; break;
+                    case SearchType.AnyLevel: dataItems = GetDataItems(); break;
+                }
 
-				if (!dataItems.IsNullOrEmpty())
-				{
-					return dataItems.Where(o => o.Type == type);
-				}
-			}
+                if (!dataItems.IsNullOrEmpty())
+                {
+                    return dataItems.Where(o => o.Type == type);
+                }
+            }
 
-			return null;
-		}
+            return null;
+        }
 
-		/// <summary>
-		/// Return All DataItems matching the Type and SubType
-		/// </summary>
-		public IEnumerable<IDataItem> GetDataItemsByType(string type, string subType, SearchType searchType = SearchType.Child)
-		{
-			if (!string.IsNullOrEmpty(type))
-			{
-				IEnumerable<IDataItem> dataItems = null;
-				switch (searchType)
-				{
-					case SearchType.Child: dataItems = DataItems; break;
-					case SearchType.AnyLevel: dataItems = GetDataItems(); break;
-				}
+        /// <summary>
+        /// Return All DataItems matching the Type and SubType
+        /// </summary>
+        public IEnumerable<IDataItem> GetDataItemsByType(string type, string subType, SearchType searchType = SearchType.Child)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                IEnumerable<IDataItem> dataItems = null;
+                switch (searchType)
+                {
+                    case SearchType.Child: dataItems = DataItems; break;
+                    case SearchType.AnyLevel: dataItems = GetDataItems(); break;
+                }
 
-				if (!dataItems.IsNullOrEmpty())
-				{
-					return dataItems.Where(o => o.Type == type.ToUnderscoreUpper() && o.SubType == subType.ToUnderscoreUpper());
-				}
-			}
+                if (!dataItems.IsNullOrEmpty())
+                {
+                    return dataItems.Where(o => o.Type == type.ToUnderscoreUpper() && o.SubType == subType.ToUnderscoreUpper());
+                }
+            }
 
-			return null;
-		}
+            return null;
+        }
 
         /// <summary>
         /// Return All DataItems matching the Type and SubType
@@ -883,11 +918,11 @@ namespace MTConnect.Devices
         {
             if (dataItem != null)
             {
-				((DataItem)dataItem).Container = this;
+                ((DataItem)dataItem).Container = this;
 
-				if (!string.IsNullOrEmpty(Id) && string.IsNullOrEmpty(dataItem.Id)) Component.ResetId(this, dataItem);
+                if (!string.IsNullOrEmpty(Id) && string.IsNullOrEmpty(dataItem.Id)) Component.ResetId(this, dataItem);
 
-				var dataItems = new List<IDataItem>();
+                var dataItems = new List<IDataItem>();
 
                 if (!DataItems.IsNullOrEmpty())
                 {
@@ -899,6 +934,13 @@ namespace MTConnect.Devices
             }
         }
 
+        /// <summary>
+        /// Creates a DataItem from the given category, type, and optional subtype and adds it to this Device.
+        /// </summary>
+        /// <param name="category">The category (Sample, Event, or Condition) of the DataItem.</param>
+        /// <param name="type">The Type that defines what the DataItem represents.</param>
+        /// <param name="subType">An optional SubType that further refines the Type.</param>
+        /// <param name="dataItemId">An optional explicit Id; when omitted an Id is generated from the format pattern.</param>
         public void AddDataItem(DataItemCategory category, string type, string subType = null, string dataItemId = null)
         {
             if (!string.IsNullOrEmpty(type))
@@ -950,21 +992,21 @@ namespace MTConnect.Devices
         {
             if (!dataItems.IsNullOrEmpty())
             {
-				foreach (var dataItem in dataItems)
-				{
-					AddDataItem(dataItem);
-				}
+                foreach (var dataItem in dataItems)
+                {
+                    AddDataItem(dataItem);
+                }
 
-				//var newDataItems = new List<IDataItem>();
+                //var newDataItems = new List<IDataItem>();
 
-				//if (!DataItems.IsNullOrEmpty())
-				//{
-				//    newDataItems.AddRange(DataItems);
-				//}
+                //if (!DataItems.IsNullOrEmpty())
+                //{
+                //    newDataItems.AddRange(DataItems);
+                //}
 
-				//newDataItems.AddRange(dataItems);
-				//DataItems = newDataItems;
-			}
+                //newDataItems.AddRange(dataItems);
+                //DataItems = newDataItems;
+            }
         }
 
 
@@ -993,6 +1035,13 @@ namespace MTConnect.Devices
         #endregion
 
 
+        /// <summary>
+        /// Produces a typed copy of the specified Device adjusted for the target MTConnect version,
+        /// recursively processing its child entities and dropping members not valid in that version.
+        /// </summary>
+        /// <param name="device">The source Device to process.</param>
+        /// <param name="mtconnectVersion">The target MTConnect Standard version; when null, the latest version is assumed.</param>
+        /// <returns>The version-adjusted Device, or null when it is not valid in that version.</returns>
         public static Device Process(IDevice device, Version mtconnectVersion = null)
         {
             if (device != null)

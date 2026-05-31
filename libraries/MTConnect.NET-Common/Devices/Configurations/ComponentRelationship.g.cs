@@ -10,6 +10,9 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public class ComponentRelationship : ConfigurationRelationship, IComponentRelationship
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "ConfigurationRelationship that describes the association between a Component or an Asset and another Component.";
 
 

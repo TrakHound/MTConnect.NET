@@ -10,6 +10,9 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public class Scale : AbstractScale, IScale
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Either a single multiplier applied to all three dimensions or a three space multiplier given in the X, Y, and Z dimensions in the coordinate system used for the SolidModel.";
 
 

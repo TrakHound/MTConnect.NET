@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// Description text for each property of <c>EntryDefinition</c> as defined by the MTConnect Standard.
+    /// </summary>
     public static class EntryDefinitionDescriptions
     {
         /// <summary>

@@ -12,11 +12,31 @@ using System.Xml;
 
 namespace MTConnect
 {
+    /// <summary>
+    /// Helper routines shared by the MTConnect XML writers, covering the
+    /// standard writer settings, timestamp formatting, byte-stream
+    /// sanitization, pretty-printing, and the provenance header comment.
+    /// </summary>
     public static class XmlFunctions
     {
+        /// <summary>
+        /// The XML declaration prepended to MTConnect documents.
+        /// </summary>
         public const string XmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+
+        /// <summary>
+        /// The newline string used when indenting output.
+        /// </summary>
         public const string NewLine = "\n";
+
+        /// <summary>
+        /// The newline character used when indenting output.
+        /// </summary>
         public const char NewLineCharacter = '\n';
+
+        /// <summary>
+        /// The string used for a single level of indentation.
+        /// </summary>
         public const string Tab = "  ";
 
 
@@ -38,15 +58,31 @@ namespace MTConnect
         };
 
 
+        /// <summary>
+        /// The shared writer settings that emit compact, non-indented UTF-8
+        /// XML.
+        /// </summary>
         public static XmlWriterSettings XmlWriterSettings => _xmlWriterSettings;
+
+        /// <summary>
+        /// The shared writer settings that emit indented UTF-8 XML.
+        /// </summary>
         public static XmlWriterSettings XmlWriterSettingsIndent => _xmlWriterSettingsIndent;
 
 
+        /// <summary>
+        /// Formats the given <see cref="DateTime"/> as an ISO 8601 round-trip
+        /// timestamp.
+        /// </summary>
         public static string GetTimestamp(DateTime timestamp)
         {
             return timestamp.ToString("o");
         }
 
+        /// <summary>
+        /// Formats the given <see cref="DateTimeOffset"/> as an ISO 8601
+        /// round-trip timestamp, normalizing zero-offset values to UTC.
+        /// </summary>
         public static string GetTimestamp(DateTimeOffset timestamp)
         {
             if (timestamp.Offset != TimeSpan.Zero)
@@ -59,6 +95,11 @@ namespace MTConnect
             }
         }
 
+        /// <summary>
+        /// Returns a copy of the given bytes with any leading or trailing
+        /// whitespace and a UTF-8 byte-order mark stripped, so the result
+        /// parses cleanly as an XML document.
+        /// </summary>
         public static byte[] SanitizeBytes(byte[] inputBytes)
         {
             if (inputBytes != null)
@@ -116,6 +157,11 @@ namespace MTConnect
             return null;
         }
 
+        /// <summary>
+        /// Re-serializes the given XML string with optional indentation,
+        /// comment preservation, and declaration omission, returning the
+        /// original input unchanged if it cannot be parsed.
+        /// </summary>
         public static string FormatXml(string xml, bool indent = true, bool outputComments = false, bool omitXmlDeclaration = false)
         {
             try
@@ -152,6 +198,11 @@ namespace MTConnect
             return xml;
         }
 
+        /// <summary>
+        /// Builds the multi-line provenance comment, naming the producing
+        /// agent application and the MTConnect.NET library, as a string of
+        /// concatenated XML comment nodes.
+        /// </summary>
         public static string CreateHeaderComment()
         {
             var assembly = Assembly.GetEntryAssembly();
@@ -212,6 +263,11 @@ namespace MTConnect
             return headerXml;
         }
 
+        /// <summary>
+        /// Writes the multi-line provenance comment directly to
+        /// <paramref name="writer"/>, optionally inserting newlines between
+        /// comment nodes when <paramref name="indentOutput"/> is set.
+        /// </summary>
         public static void WriteHeaderComment(XmlWriter writer, bool indentOutput)
         {
             var assembly = Assembly.GetEntryAssembly();

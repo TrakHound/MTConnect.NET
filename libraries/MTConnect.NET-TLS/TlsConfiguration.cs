@@ -7,21 +7,40 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Tls
 {
+    /// <summary>
+    /// Configures TLS for an MTConnect endpoint, selecting either a PFX or PEM certificate and its validation options.
+    /// </summary>
     public class TlsConfiguration
     {
+        /// <summary>
+        /// The PFX certificate configuration; takes precedence over <see cref="Pem"/> when set.
+        /// </summary>
         [JsonPropertyName("pfx")]
         public PfxCertificateConfiguration Pfx { get; set; }
 
+        /// <summary>
+        /// The PEM certificate configuration, used when <see cref="Pfx"/> is not set.
+        /// </summary>
         [JsonPropertyName("pem")]
         public PemCertificateConfiguration Pem { get; set; }
 
+        /// <summary>
+        /// Whether the endpoint requires and verifies a client certificate.
+        /// </summary>
         [JsonPropertyName("verifyClientCertificate")]
         public bool VerifyClientCertificate { get; set; }
 
+        /// <summary>
+        /// Whether certificate-authority chain validation is skipped.
+        /// </summary>
         [JsonPropertyName("omitCAValidation")]
         public bool OmitCAValidation { get; set; }
 
 
+        /// <summary>
+        /// Loads the configured endpoint certificate from the PFX or PEM source.
+        /// </summary>
+        /// <returns>The load result, empty when no certificate source is configured.</returns>
         public CertificateLoadResult GetCertificate()
         {
             // Load PFX Certificate
@@ -39,6 +58,10 @@ namespace MTConnect.Tls
             return new CertificateLoadResult();
         }
 
+        /// <summary>
+        /// Loads the configured certificate-authority chain from the PEM source.
+        /// </summary>
+        /// <returns>The load result, empty when no certificate authority is configured.</returns>
         public CertificateLoadResult GetCertificateAuthority()
         {
             // Load PEM Certificate
@@ -60,7 +83,7 @@ namespace MTConnect.Tls
 
                     if (!string.IsNullOrEmpty(Pfx.CertificatePassword)) certificate = new X509Certificate2(Pfx.CertificatePath, Pfx.CertificatePassword);
                     else certificate = new X509Certificate2(Pfx.CertificatePath);
-                    
+
                     return CertificateLoadResult.Ok(certificate);
                 }
                 catch (Exception ex)

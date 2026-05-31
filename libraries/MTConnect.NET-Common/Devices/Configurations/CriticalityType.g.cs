@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices.Configurations
 {
+    /// <summary>
+    /// CriticalityType controlled vocabulary as defined by the MTConnect Standard.
+    /// </summary>
     public enum CriticalityType
     {
         /// <summary>

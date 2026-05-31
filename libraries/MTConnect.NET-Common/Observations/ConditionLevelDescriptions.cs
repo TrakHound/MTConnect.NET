@@ -29,6 +29,11 @@ namespace MTConnect.Observations
         public const string FAULT = "The item has failed and intervention is required to return to a Normal condition. Transition to a Normal condition indicates that the Fault condition has been cleared. A Fault condition is something that always needs to be acknowledged before operation can continue.";
 
 
+        /// <summary>
+        /// Returns the descriptive text for the given Condition level.
+        /// </summary>
+        /// <param name="level">The Condition level to describe.</param>
+        /// <returns>The description text, or an empty string for an unrecognized level.</returns>
         public static string Get(ConditionLevel level)
         {
             switch (level)

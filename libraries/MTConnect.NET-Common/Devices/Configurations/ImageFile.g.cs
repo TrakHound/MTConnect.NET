@@ -10,6 +10,9 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public class ImageFile : IImageFile
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Reference to a file containing an image of the Component.";
 
 
@@ -17,17 +20,17 @@ namespace MTConnect.Devices.Configurations
         /// URL giving the location of the image file.
         /// </summary>
         public string Href { get; set; }
-        
+
         /// <summary>
         /// Unique identifier of the image file.
         /// </summary>
         public string Id { get; set; }
-        
+
         /// <summary>
         /// Mime type of the image file.
         /// </summary>
         public string MediaType { get; set; }
-        
+
         /// <summary>
         /// Description of the image file.
         /// </summary>

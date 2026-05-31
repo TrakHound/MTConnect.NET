@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// Description text for each <see cref="ValveState"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class ValveStateDescriptions
     {
         /// <summary>
@@ -26,6 +29,9 @@ namespace MTConnect.Observations.Events
         public const string CLOSING = "Valve is transitioning from an `OPEN` state to a `CLOSED` state.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="ValveState"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(ValveState value)
         {
             switch (value)

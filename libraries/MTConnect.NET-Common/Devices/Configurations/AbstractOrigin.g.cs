@@ -10,8 +10,10 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public abstract class AbstractOrigin : IAbstractOrigin
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Coordinates of the origin position of a coordinate system.";
-
 
     }
 }

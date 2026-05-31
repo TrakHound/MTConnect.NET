@@ -8,10 +8,25 @@ using System.Linq;
 
 namespace MTConnect.Streams.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for an EVENT-category observation,
+    /// extending <see cref="JsonObservation"/> with event-specific projection
+    /// of data-set and table payloads. Converts to and from the strongly-typed
+    /// <see cref="EventValueObservation"/> model.
+    /// </summary>
     public class JsonEvent : JsonObservation
     {
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonEvent() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IObservation"/>, optionally emitting the category and
+        /// instance id, and projecting data-set or table payloads into the
+        /// <see cref="JsonObservation.Entries"/> property.
+        /// </summary>
         public JsonEvent(IObservation observation, bool categoryOutput = false, bool instanceIdOutput = false)
         {
             if (observation != null)
@@ -47,6 +62,11 @@ namespace MTConnect.Streams.Json
             }
         }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IObservationOutput"/>, reconstructing the data-set or
+        /// table payload from the observation's raw values.
+        /// </summary>
         public JsonEvent(IObservationOutput observation)
         {
             if (observation != null)
@@ -85,6 +105,11 @@ namespace MTConnect.Streams.Json
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="IEventObservation"/>; currently delegates to
+        /// <see cref="ToEventValue"/> for all representations.
+        /// </summary>
         public IEventObservation ToEvent()
         {
             if (Representation == DataItemRepresentation.DATA_SET.ToString())
@@ -103,6 +128,11 @@ namespace MTConnect.Streams.Json
             return ToEventValue();
         }
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="IEventValueObservation"/>, parsing the category and reset
+        /// trigger enumerations.
+        /// </summary>
         public IEventValueObservation ToEventValue()
         {
             var e = new EventValueObservation();

@@ -21,10 +21,19 @@ namespace MTConnect.Shdr
     /// </summary>
     public class ShdrClient
     {
+        /// <summary>The literal SHDR PING command (<c>* PING\n</c>) sent to the adapter to probe for a heartbeat PONG response.</summary>
         public const string PingMessage = "* PING\n";
+
+        /// <summary>The read buffer size in bytes used when consuming the adapter socket; sized at 1 MB to accommodate multi-line device documents.</summary>
         public const int BufferSize = 1048576; // 1 MB
+
+        /// <summary>Default heartbeat interval (in milliseconds) the client expects to see PONG responses at; 10 seconds.</summary>
         public const int DefaultPongHeartbeat = 10000; // 10 seconds
+
+        /// <summary>Default TCP send/receive timeout (in milliseconds); 30 seconds.</summary>
         public const int DefaultConnectionTimeout = 30000; // 30 seconds
+
+        /// <summary>Default delay (in milliseconds) before attempting to reconnect after the adapter connection is lost; 10 seconds.</summary>
         public const int DefaultReconnectInterval = 10000; // 10 seconds
 
         private TcpClient _client;
@@ -32,7 +41,7 @@ namespace MTConnect.Shdr
         private CancellationTokenSource _stop;
         private int _heartbeat = DefaultPongHeartbeat;
 
-        
+
         /// <summary>
         /// The unique ID of the Client Connection
         /// </summary>
@@ -115,12 +124,14 @@ namespace MTConnect.Shdr
         #pragma warning restore CS0067
 
 
+        /// <summary>Creates an unconfigured SHDR client with a fresh random <see cref="Id"/> and the heartbeat-on-change suppression enabled.</summary>
         public ShdrClient()
         {
             Id = StringFunctions.RandomString(10);
             IgnoreHeartbeatOnChange = true;
         }
 
+        /// <summary>Creates an SHDR client connecting to <paramref name="hostname"/>:<paramref name="port"/> with optional timeout and reconnect overrides.</summary>
         public ShdrClient(string hostname, int port, int connectionTimeout = DefaultConnectionTimeout, int reconnectInterval = DefaultReconnectInterval)
         {
             Id = StringFunctions.RandomString(10);
@@ -131,6 +142,7 @@ namespace MTConnect.Shdr
             IgnoreHeartbeatOnChange = true;
         }
 
+        /// <summary>Creates an SHDR client scoped to a single device key on <paramref name="hostname"/>:<paramref name="port"/> with optional timeout and reconnect overrides.</summary>
         public ShdrClient(string hostname, int port, string deviceKey, int connectionTimeout = DefaultConnectionTimeout, int reconnectInterval = DefaultReconnectInterval)
         {
             Id = StringFunctions.RandomString(10);
@@ -142,6 +154,7 @@ namespace MTConnect.Shdr
             IgnoreHeartbeatOnChange = true;
         }
 
+        /// <summary>Creates an SHDR client populated from <paramref name="configuration"/>; a null configuration falls back to the parameterless defaults.</summary>
         public ShdrClient(ShdrClientConfiguration configuration)
         {
             Id = StringFunctions.RandomString(10);
@@ -159,45 +172,60 @@ namespace MTConnect.Shdr
         }
 
 
+        /// <summary>Launches the listen-and-reconnect loop on a background task. Returns immediately; <see cref="Connected"/> is raised once the adapter socket is established.</summary>
         public void Start()
         {
             _stop = new CancellationTokenSource();
-            _= Task.Run(() => ListenForAdapter(_stop.Token));
+            _ = Task.Run(() => ListenForAdapter(_stop.Token));
         }
 
+        /// <summary>Signals the background loop to exit and disconnect from the adapter.</summary>
         public void Stop()
         {
             if (_stop != null) _stop.Cancel();
         }
 
 
+        /// <summary>Override-point called immediately after the TCP connection to the adapter is established (before any data is read).</summary>
         protected virtual void OnConnect() { }
 
+        /// <summary>Override-point called when the adapter connection drops (clean shutdown, timeout, or transport error).</summary>
         protected virtual void OnDisconnect() { }
 
 
+        /// <summary>Override-point that resolves a DataItem id/name to the live <see cref="IDataItem"/>; consumed by the SHDR parser to determine the observation representation.</summary>
         protected virtual IDataItem OnGetDataItem(string dataItemKey) { return null; }
 
+        /// <summary>Override-point called for every parsed scalar Sample/Event observation.</summary>
         protected virtual void OnDataItemReceived(ShdrDataItem dataItem) { }
 
+        /// <summary>Override-point called for every parsed Condition fault state.</summary>
         protected virtual void OnConditionFaultStateReceived(ShdrFaultState faultState) { }
 
+        /// <summary>Override-point called for every parsed Message event.</summary>
         protected virtual void OnMessageReceived(ShdrMessage message) { }
 
+        /// <summary>Override-point called for every parsed DataSet observation.</summary>
         protected virtual void OnDataSetReceived(ShdrDataSet dataSet) { }
 
+        /// <summary>Override-point called for every parsed Table observation.</summary>
         protected virtual void OnTableReceived(ShdrTable table) { }
 
+        /// <summary>Override-point called for every parsed TimeSeries observation.</summary>
         protected virtual void OnTimeSeriesReceived(ShdrTimeSeries timeSeries) { }
 
 
+        /// <summary>Override-point called when an asset publish (<c>@ASSET@</c>) has been parsed and reassembled.</summary>
         protected virtual void OnAssetReceived(IAsset asset) { }
 
+        /// <summary>Override-point called when a <c>@REMOVE_ASSET@</c> SHDR line targeting <paramref name="assetId"/> at <paramref name="timestamp"/> has been parsed.</summary>
         protected virtual void OnRemoveAssetReceived(string assetId, long timestamp) { }
 
+        /// <summary>Override-point called when a <c>@REMOVE_ALL_ASSETS@</c> SHDR line targeting <paramref name="assetType"/> at <paramref name="timestamp"/> has been parsed.</summary>
         protected virtual void OnRemoveAllAssetsReceived(string assetType, long timestamp) { }
 
 
+        /// <summary>Override-point called when a multi-line <c>@DEVICE@</c> document has been reassembled and parsed back into an <see cref="IDevice"/>.</summary>
         protected virtual void OnDeviceReceived(IDevice device) { }
 
 
@@ -343,7 +371,7 @@ namespace MTConnect.Shdr
         private bool ProcessResponse(ref char[] chars, int length)
         {
             var response = new string(chars, 0, length);
-            
+
             if (response.Contains("\n"))
             {
                 var lines = response.Split('\n');
@@ -675,7 +703,7 @@ namespace MTConnect.Shdr
                 }
             }
 
-            return AddressFamily.InterNetwork;           
+            return AddressFamily.InterNetwork;
         }
     }
 }

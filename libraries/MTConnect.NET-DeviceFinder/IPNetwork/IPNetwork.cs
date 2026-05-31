@@ -909,7 +909,7 @@ namespace MTConnect.DeviceFinder
         ///  16 -> 255.255.0.0
         ///  8 -> 255.0.0.0
         /// </summary>
-        /// <see cref="http://snipplr.com/view/15557/cidr-class-for-ipv4/"/>
+        /// See <a href="http://snipplr.com/view/15557/cidr-class-for-ipv4/">http://snipplr.com/view/15557/cidr-class-for-ipv4/</a>.
         /// <param name="cidr"></param>
         /// <returns></returns>
         public static IPAddress ToNetmask(byte cidr, AddressFamily family)
@@ -926,7 +926,7 @@ namespace MTConnect.DeviceFinder
         ///  16 -> 255.255.0.0
         ///  8 -> 255.0.0.0
         /// </summary>
-        /// <see cref="http://snipplr.com/view/15557/cidr-class-for-ipv4/"/>
+        /// See <a href="http://snipplr.com/view/15557/cidr-class-for-ipv4/">http://snipplr.com/view/15557/cidr-class-for-ipv4/</a>.
         /// <param name="cidr"></param>
         /// <returns></returns>
         public static bool TryToNetmask(byte cidr, AddressFamily family, out IPAddress netmask)
@@ -993,7 +993,7 @@ namespace MTConnect.DeviceFinder
         /// <summary>
         /// Count bits set to 1 in netmask
         /// </summary>
-        /// <see cref="http://stackoverflow.com/questions/109023/best-algorithm-to-count-the-number-of-set-bits-in-a-32-bit-integer"/>
+        /// See <a href="http://stackoverflow.com/questions/109023/best-algorithm-to-count-the-number-of-set-bits-in-a-32-bit-integer">http://stackoverflow.com/questions/109023/best-algorithm-to-count-the-number-of-set-bits-in-a-32-bit-integer</a>.
         /// <param name="netmask"></param>
         /// <returns></returns>
         private static byte BitsSet(BigInteger netmask, AddressFamily family)
@@ -1039,7 +1039,7 @@ namespace MTConnect.DeviceFinder
         /// return true if netmask is a valid netmask
         /// 255.255.255.0, 255.0.0.0, 255.255.240.0, ...
         /// </summary>
-        /// <see cref="http://www.actionsnip.com/snippets/tomo_atlacatl/calculate-if-a-netmask-is-valid--as2-"/>
+        /// See <a href="http://www.actionsnip.com/snippets/tomo_atlacatl/calculate-if-a-netmask-is-valid--as2-">http://www.actionsnip.com/snippets/tomo_atlacatl/calculate-if-a-netmask-is-valid--as2-</a>.
         /// <param name="netmask"></param>
         /// <returns></returns>
         public static bool ValidNetmask(IPAddress netmask)
@@ -1495,12 +1495,12 @@ namespace MTConnect.DeviceFinder
             IPNetwork first = (network1._network < network2._network) ? network1 : network2;
             IPNetwork last = (network1._network > network2._network) ? network1 : network2;
 
-            /// Starting from here :
-            /// network1 and network2 have the same cidr,
-            /// network1 does not contain network2,
-            /// network2 does not contain network1,
-            /// first is the lower subnet
-            /// last is the higher subnet
+            // Starting from here :
+            // network1 and network2 have the same cidr,
+            // network1 does not contain network2,
+            // network2 does not contain network1,
+            // first is the lower subnet
+            // last is the higher subnet
 
 
             if ((first._broadcast + 1) != last._network)
@@ -1769,7 +1769,8 @@ namespace MTConnect.DeviceFinder
 
 
             IPNetwork[] nnin = Array.FindAll<IPNetwork>(ipnetworks, new Predicate<IPNetwork>(
-                delegate (IPNetwork ipnet) {
+                delegate (IPNetwork ipnet)
+                {
                     return ipnet != null;
                 }
             ));

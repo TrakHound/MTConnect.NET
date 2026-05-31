@@ -9,18 +9,34 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.Xml
 {
+    /// <summary>
+    /// XML serialization helper for the <c>Assets</c> container of an
+    /// MTConnectAssets document. Holds the strongly-typed assets and writes or
+    /// reads them as their type-named child elements, dispatching to the
+    /// per-type asset surrogates.
+    /// </summary>
     public class XmlAssetCollection
     {
         private readonly bool _indentOutput = false;
 
 
+        /// <summary>
+        /// The assets contained in the collection.
+        /// </summary>
         [XmlArray("Assets")]
         [XmlArrayItem(typeof(XmlCuttingToolAsset), ElementName = "CuttingTool")]
         public List<IAsset> Assets { get; set; }
 
 
+        /// <summary>
+        /// Creates an empty collection.
+        /// </summary>
         public XmlAssetCollection() { Assets = new List<IAsset>(); }
 
+        /// <summary>
+        /// Creates a collection containing the single given asset, recording
+        /// the indentation preference for output.
+        /// </summary>
         public XmlAssetCollection(IAsset asset, bool indentOutput = false)
         {
             _indentOutput = indentOutput;
@@ -28,6 +44,10 @@ namespace MTConnect.Assets.Xml
             if (asset != null) Assets.Add(asset);
         }
 
+        /// <summary>
+        /// Creates a collection containing the given assets, recording the
+        /// indentation preference for output.
+        /// </summary>
         public XmlAssetCollection(IEnumerable<IAsset> assets, bool indentOutput = false)
         {
             _indentOutput = indentOutput;
@@ -38,6 +58,10 @@ namespace MTConnect.Assets.Xml
 
         #region "Xml Serialization"
 
+        /// <summary>
+        /// Writes each contained asset to <paramref name="writer"/> by
+        /// dispatching to its concrete asset surrogate.
+        /// </summary>
         public void WriteXml(XmlWriter writer)
         {
             if (!Assets.IsNullOrEmpty())
@@ -105,6 +129,11 @@ namespace MTConnect.Assets.Xml
         //    }
         //}
 
+        /// <summary>
+        /// Reads the asset child elements from <paramref name="reader"/>,
+        /// resolving each element name to its asset type and deserializing it
+        /// into the collection.
+        /// </summary>
         public void ReadXml(XmlReader reader)
         {
             try
@@ -149,6 +178,10 @@ namespace MTConnect.Assets.Xml
             reader.Skip();
         }
 
+        /// <summary>
+        /// Returns <c>null</c>; the collection does not advertise an inline XML
+        /// schema, as required by <see cref="IXmlSerializable"/>.
+        /// </summary>
         public XmlSchema GetSchema()
         {
             return (null);

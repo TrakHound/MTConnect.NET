@@ -13,13 +13,28 @@ using System.Text.Json;
 
 namespace MTConnect.Formatters
 {
+    /// <summary>
+    /// <see cref="IInputFormatter"/> that serializes and deserializes input
+    /// payloads (device definitions, observation groups, and asset groups) to
+    /// and from JSON using the Json input surrogate types.
+    /// </summary>
     public class JsonInputFormatter : IInputFormatter
     {
+        /// <summary>
+        /// The identifier of this formatter, <c>JSON</c>.
+        /// </summary>
         public string Id => "JSON";
 
+        /// <summary>
+        /// The MIME content type produced by this formatter,
+        /// <c>application/json</c>.
+        /// </summary>
         public string ContentType => "application/json";
 
 
+        /// <summary>
+        /// Serializes a device input to a JSON stream.
+        /// </summary>
         public FormatWriteResult Format(IDeviceInput device, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (device != null)
@@ -34,6 +49,10 @@ namespace MTConnect.Formatters
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Serializes a collection of observation inputs to a JSON stream,
+        /// grouping observations sharing a device and timestamp.
+        /// </summary>
         public FormatWriteResult Format(IEnumerable<IObservationInput> observations, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (!observations.IsNullOrEmpty())
@@ -48,6 +67,10 @@ namespace MTConnect.Formatters
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Serializes a collection of asset inputs to a JSON stream as an
+        /// input asset group.
+        /// </summary>
         public FormatWriteResult Format(IEnumerable<IAssetInput> assets, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (!assets.IsNullOrEmpty())
@@ -67,6 +90,10 @@ namespace MTConnect.Formatters
         }
 
 
+        /// <summary>
+        /// Deserializes a device from JSON byte content, returning an
+        /// unsuccessful result if the content cannot be parsed.
+        /// </summary>
         public FormatReadResult<IDevice> CreateDevice(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
@@ -86,6 +113,10 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IDevice>();
         }
 
+        /// <summary>
+        /// Deserializes observation inputs from JSON byte content, sorting
+        /// the groups by timestamp and flattening their observations.
+        /// </summary>
         public FormatReadResult<IEnumerable<IObservationInput>> CreateObservations(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
@@ -110,6 +141,9 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IEnumerable<IObservationInput>>();
         }
 
+        /// <summary>
+        /// Deserializes assets from JSON byte content as an input asset group.
+        /// </summary>
         public FormatReadResult<IEnumerable<IAsset>> CreateAssets(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();

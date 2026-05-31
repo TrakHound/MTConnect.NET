@@ -8,6 +8,9 @@ namespace MTConnect.Assets.CuttingTools
     /// </summary>
     public partial interface ICuttingItem
     {
+        /// <summary>
+        /// Returns a processed copy of this cutting item with its measurements rebound to their concrete tooling-measurement subtypes for serialization.
+        /// </summary>
         ICuttingItem Process();
     }
 }

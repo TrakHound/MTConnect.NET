@@ -7,58 +7,124 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.Xml.RawMaterials
 {
+    /// <summary>
+    /// XML serialization surrogate for an MTConnect <c>RawMaterial</c> asset.
+    /// Mirrors the on-the-wire element so the XML serializer can read and write
+    /// it, then converts to and from the strongly-typed
+    /// <see cref="RawMaterialAsset"/> model.
+    /// </summary>
     [XmlRoot("RawMaterial")]
     public class XmlRawMaterialAsset : XmlAsset
     {
+        /// <summary>
+        /// The optional human-readable name of the raw material.
+        /// </summary>
         [XmlAttribute("name")]
         public string Name { get; set; }
 
+        /// <summary>
+        /// The type of container holding the raw material, such as a bottle or
+        /// cartridge.
+        /// </summary>
         [XmlAttribute("containerType")]
         public string ContainerType { get; set; }
 
+        /// <summary>
+        /// The manufacturing process the raw material is intended for.
+        /// </summary>
         [XmlAttribute("processKind")]
         public string ProcessKind { get; set; }
 
+        /// <summary>
+        /// The serial number that uniquely identifies this raw material.
+        /// </summary>
         [XmlAttribute("serialNumber")]
         public string SerialNumber { get; set; }
 
+        /// <summary>
+        /// The physical form of the material (for example <c>BAR</c>,
+        /// <c>BLOCK</c>, or <c>POWDER</c>) as the raw element text.
+        /// </summary>
         [XmlElement("Form")]
         public string Form { get; set; }
 
+        /// <summary>
+        /// Whether the container currently holds material, as the raw boolean
+        /// element text.
+        /// </summary>
         [XmlElement("HasMaterial")]
         public string HasMaterial { get; set; }
 
+        /// <summary>
+        /// The date the raw material was manufactured, as the raw element text.
+        /// </summary>
         [XmlElement("ManufacturingDate")]
         public string ManufacturingDate { get; set; }
 
+        /// <summary>
+        /// The date the raw material was first used, as the raw element text.
+        /// </summary>
         [XmlElement("FirstUseDate")]
         public string FirstUseDate { get; set; }
 
+        /// <summary>
+        /// The date the raw material was last used, as the raw element text.
+        /// </summary>
         [XmlElement("LastUseDate")]
         public string LastUseDate { get; set; }
 
+        /// <summary>
+        /// The volume of unused material when first received, as the raw
+        /// element text.
+        /// </summary>
         [XmlElement("InitialVolume")]
         public string InitialVolume { get; set; }
 
+        /// <summary>
+        /// The dimension of unused material when first received, as the raw
+        /// element text.
+        /// </summary>
         [XmlElement("InitialDimension")]
         public string InitialDimension { get; set; }
 
+        /// <summary>
+        /// The number of individual pieces of material when first received, as
+        /// the raw element text.
+        /// </summary>
         [XmlElement("InitialQuantity")]
         public string InitialQuantity { get; set; }
 
+        /// <summary>
+        /// The current volume of unused material, as the raw element text.
+        /// </summary>
         [XmlElement("CurrentVolume")]
         public string CurrentVolume { get; set; }
 
+        /// <summary>
+        /// The current dimension of unused material, as the raw element text.
+        /// </summary>
         [XmlElement("CurrentDimension")]
         public string CurrentDimension { get; set; }
 
+        /// <summary>
+        /// The current number of individual pieces of material, as the raw
+        /// element text.
+        /// </summary>
         [XmlElement("CurrentQuantity")]
         public string CurrentQuantity { get; set; }
 
+        /// <summary>
+        /// The material the raw material is made of.
+        /// </summary>
         [XmlElement("Material")]
         public XmlMaterial Material { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate into the strongly-typed
+        /// <see cref="RawMaterialAsset"/>, parsing each raw element value into
+        /// its model representation.
+        /// </summary>
         public override IAsset ToAsset()
         {
             var asset = new RawMaterialAsset();
@@ -96,6 +162,11 @@ namespace MTConnect.Assets.Xml.RawMaterials
             return asset;
         }
 
+        /// <summary>
+        /// Writes the given <see cref="IRawMaterialAsset"/> to <paramref name="writer"/>
+        /// as a <c>RawMaterial</c> element, omitting optional values that are
+        /// not set.
+        /// </summary>
         public static new void WriteXml(XmlWriter writer, IAsset asset)
         {
             if (asset != null)

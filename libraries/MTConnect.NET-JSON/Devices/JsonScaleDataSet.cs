@@ -9,20 +9,41 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a <c>ScaleDataSet</c>, the variant of
+    /// a scale whose components are reported per axis. Converts to and from
+    /// the strongly-typed <see cref="ScaleDataSet"/> model.
+    /// </summary>
     public class JsonScaleDataSet
     {
+        /// <summary>
+        /// The scale factor applied along the X axis.
+        /// </summary>
         [JsonPropertyName("x")]
         public double X { get; set; }
 
+        /// <summary>
+        /// The scale factor applied along the Y axis.
+        /// </summary>
         [JsonPropertyName("y")]
         public double Y { get; set; }
 
+        /// <summary>
+        /// The scale factor applied along the Z axis.
+        /// </summary>
         [JsonPropertyName("z")]
         public double Z { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonScaleDataSet() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IScaleDataSet"/>.
+        /// </summary>
         public JsonScaleDataSet(IScaleDataSet dataSet)
         {
             if (dataSet != null)
@@ -34,6 +55,10 @@ namespace MTConnect.Devices.Json
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="IScaleDataSet"/>.
+        /// </summary>
         public IScaleDataSet ToScaleDataSet()
         {
             var dataSet = new ScaleDataSet();

@@ -8,6 +8,9 @@ namespace MTConnect.Assets.CuttingTools
 {
     public partial class CuttingToolLifeCycle
     {
+        /// <summary>
+        /// Initializes a new CuttingToolLifeCycle with empty cutter-status, measurement, and cutting-item collections.
+        /// </summary>
         public CuttingToolLifeCycle()
         {
             CutterStatus = new List<CutterStatusType>();
@@ -16,6 +19,9 @@ namespace MTConnect.Assets.CuttingTools
         }
 
 
+        /// <summary>
+        /// Returns a copy of this life cycle with each cutting item processed and each measurement rebound to its concrete tooling-measurement subtype so they serialize correctly.
+        /// </summary>
         public ICuttingToolLifeCycle Process()
         {
             var lifeCycle = new CuttingToolLifeCycle();
@@ -57,6 +63,10 @@ namespace MTConnect.Assets.CuttingTools
             return lifeCycle;
         }
 
+        /// <summary>
+        /// Computes a SHA-1 content hash over the life cycle's scalar properties combined with the cutter statuses and the hashes of each contained cutting item and tool-life entry; returns null for a null life cycle.
+        /// </summary>
+        /// <param name="cuttingToolLifeCycle">The life cycle to hash.</param>
         public static string GenerateHash(ICuttingToolLifeCycle cuttingToolLifeCycle)
         {
             if (cuttingToolLifeCycle != null)

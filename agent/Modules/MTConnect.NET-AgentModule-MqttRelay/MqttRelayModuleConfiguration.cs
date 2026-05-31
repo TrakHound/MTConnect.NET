@@ -5,6 +5,10 @@ using MTConnect.Tls;
 
 namespace MTConnect.Configurations
 {
+    /// <summary>
+    /// Configuration shape for the MQTT-relay agent module. Bound from
+    /// the <c>mqtt-relay</c> module section of <c>agent.config.yaml</c>.
+    /// </summary>
     public class MqttRelayModuleConfiguration : IMTConnectMqttDocumentServerConfiguration
     {
         /// <summary>
@@ -101,6 +105,18 @@ namespace MTConnect.Configurations
         public bool DurableRelay { get; set; } = false;
 
 
+        /// <summary>
+        /// Initialises a new instance with the bundled defaults
+        /// (<c>Server = "localhost"</c>, <c>Port = 1883</c>,
+        /// <c>Timeout = 5000 ms</c>,
+        /// <c>ReconnectInterval = 10000 ms</c>,
+        /// <c>TopicPrefix = "MTConnect"</c>,
+        /// <c>TopicStructure = Document</c>,
+        /// <c>DocumentFormat = "json-cppAgent"</c>,
+        /// <c>CurrentInterval = 5000 ms</c>,
+        /// <c>SampleInterval = 500 ms</c>). YAML / JSON values override
+        /// the defaults.
+        /// </summary>
         public MqttRelayModuleConfiguration()
         {
             Server = "localhost";

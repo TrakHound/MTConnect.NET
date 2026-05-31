@@ -26,7 +26,7 @@ namespace MTConnect.Assets
         /// <summary>
         /// Constrained scalar value associated with an Asset
         /// </summary>
-        MTConnect.Assets.Pallet.IMeasurement Measurement { get; }
+        MTConnect.Assets.CuttingTools.IMeasurement Measurement { get; }
         
         /// <summary>
         /// Date of next inspection of the Asset.

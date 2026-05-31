@@ -77,12 +77,12 @@ namespace Ceen.Httpd
         /// Gets the http version string.
         /// </summary>
         public string HttpVersion { get; private set; }
-		/// <summary>
-		/// Gets or sets a user identifier attached to the request.
-		/// This can be set by handlers processing the request to simplify dealing with logged in users.
-		/// Handlers should only set this is the user is authenticated.
-		/// This value can be logged.
-		/// </summary>
+        /// <summary>
+        /// Gets or sets a user identifier attached to the request.
+        /// This can be set by handlers processing the request to simplify dealing with logged in users.
+        /// Handlers should only set this is the user is authenticated.
+        /// This value can be logged.
+        /// </summary>
         public string UserID { get; set; }
         /// <summary>
         /// Gets or sets a session tracking ID.
@@ -183,16 +183,16 @@ namespace Ceen.Httpd
             }
         }
 
-		/// <summary>
-		/// Gets the HTTP request hostname, can be null for a HTTP/1.0 request
-		/// </summary>
+        /// <summary>
+        /// Gets the HTTP request hostname, can be null for a HTTP/1.0 request
+        /// </summary>
         public string Hostname
         {
             get
             {
                 return Headers["Host"];
             }
-        }        
+        }
 
         /// <summary>
         /// Gets the HTTP Content-Length header value
@@ -372,7 +372,7 @@ namespace Ceen.Httpd
 
 
                 if (trail[0] != '-' || trail[1] != '-')
-                     throw new HttpException(HttpStatusCode.BadRequest);
+                    throw new HttpException(HttpStatusCode.BadRequest);
 
                 await reader.RepeatReadAsync(trail, 0, 2, idletime, timeouttask, stoptask);
                 if (trail[0] != '\r' || trail[1] != '\n')
@@ -516,14 +516,14 @@ namespace Ceen.Httpd
 
             if (this.ContentLength > config.MaxPostSize)
                 throw new HttpException(HttpStatusCode.PayloadTooLarge);
-            
+
             // Disable HTTP/1.0 unless explictly allowed
             if (!config.AllowLegacyHttp && this.HttpVersion == HTTP_VERSION_1_0)
                 throw new HttpException(HttpStatusCode.HTTPVersionNotSupported);
 
             // Enforce HTTP/1.1 requiring a header
             if (this.HttpVersion != HTTP_VERSION_1_0 && string.IsNullOrWhiteSpace(this.Headers["Host"]))
-                throw new HttpException(HttpStatusCode.BadRequest, "Host header missing");                
+                throw new HttpException(HttpStatusCode.BadRequest, "Host header missing");
 
             if (config.AllowHttpMethodOverride)
             {

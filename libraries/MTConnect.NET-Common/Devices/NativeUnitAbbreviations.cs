@@ -8,6 +8,11 @@ namespace MTConnect.Devices
     /// </summary>
     public static class NativeUnitAbbreviations
     {
+        /// <summary>
+        /// Returns the short display abbreviation for the given MTConnect NativeUnits value.
+        /// </summary>
+        /// <param name="units">The MTConnect NativeUnits identifier.</param>
+        /// <returns>The display abbreviation, or null when the NativeUnits value is not recognized.</returns>
         public static string Get(string units)
         {
             switch (units)

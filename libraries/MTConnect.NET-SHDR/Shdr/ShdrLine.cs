@@ -13,7 +13,10 @@ namespace MTConnect.Shdr
     /// </summary>
     public static class ShdrLine
     {
+        /// <summary>The SHDR field separator (pipe) used between fields within an SHDR line.</summary>
         public const char PipeDelimiter = '|';
+
+        /// <summary>The SHDR line terminator (CR LF) appended to every line written to the adapter socket.</summary>
         public const string LineTerminator = "\r\n";
 
         private const string _emptySingleEntryPattern = @"([^=\s]+)\={0,1}$";

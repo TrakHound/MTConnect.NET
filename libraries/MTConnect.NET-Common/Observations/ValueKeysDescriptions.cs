@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations
 {
+    /// <summary>
+    /// Provides the human-readable description for each well-known Observation value key.
+    /// </summary>
     public static class ValueKeysDescriptions
     {
         /// <summary>
@@ -31,6 +34,11 @@ namespace MTConnect.Observations
         public const string Qualifier = "Qualifies the Condition and adds context or additional clarification.";
 
 
+        /// <summary>
+        /// Returns the human-readable description for the given Observation value key.
+        /// </summary>
+        /// <param name="valueKey">The value key to describe.</param>
+        /// <returns>The description text, or an empty string for an unrecognized key.</returns>
         public static string Get(string valueKey)
         {
             switch (valueKey)

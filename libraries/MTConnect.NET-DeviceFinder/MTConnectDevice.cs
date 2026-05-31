@@ -62,6 +62,12 @@ namespace MTConnect.DeviceFinder
         public string Station { get; set; }
 
 
+        /// <summary>Constructs a discovered device record from the network-layer details and the UUID/name probed from the agent.</summary>
+        /// <param name="ipAddress">The IP address that responded to the probe.</param>
+        /// <param name="port">The TCP port the MTConnect agent is listening on.</param>
+        /// <param name="macAddress">The MAC address resolved for <paramref name="ipAddress"/> on the local segment.</param>
+        /// <param name="deviceUuid">The UUID returned in the probe response.</param>
+        /// <param name="deviceName">The device <c>name</c> returned in the probe response.</param>
         public MTConnectDevice(
             IPAddress ipAddress,
             int port,

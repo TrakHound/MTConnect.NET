@@ -8,14 +8,42 @@ using System.Linq;
 
 namespace MTConnect.SysML.CSharp
 {
+    /// <summary>
+    /// Template model for an MTConnect interface-tier data-item type.
+    /// Derives from <see cref="DataItemType"/> and renders against a
+    /// dedicated Scriban template so interface-level data items can
+    /// carry slightly different shape than core data items.
+    /// </summary>
     public class InterfaceDataItemType : DataItemType
     {
+        /// <summary>Parameterless constructor used by the reflection-
+        /// based <see cref="Create"/> factory.</summary>
         public InterfaceDataItemType() { }
 
+        /// <summary>
+        /// Constructs a model directly from an XMI document tree by
+        /// delegating to the base constructor.
+        /// </summary>
+        /// <param name="xmiDocument">Source XMI document.</param>
+        /// <param name="category">Data-item category.</param>
+        /// <param name="idPrefix">Identifier prefix.</param>
+        /// <param name="umlClass">Backing UML class.</param>
+        /// <param name="umlEnumerationLiteral">Backing enumeration
+        /// literal.</param>
+        /// <param name="subClasses">Optional sub-classes.</param>
         public InterfaceDataItemType(XmiDocument xmiDocument, string category, string idPrefix, UmlClass umlClass, UmlEnumerationLiteral umlEnumerationLiteral, IEnumerable<UmlClass> subClasses = null)
             : base (xmiDocument, category, idPrefix, umlClass, umlEnumerationLiteral, subClasses) { }
 
 
+        /// <summary>
+        /// Copies every matching property off <paramref name="importModel"/>
+        /// into a fresh <see cref="InterfaceDataItemType"/> and applies
+        /// the same Id / Name / ParentName <c>DataItem</c>-suffix fix-up
+        /// as the parent factory. Returns <c>null</c> when the input is
+        /// null.
+        /// </summary>
+        /// <param name="importModel">Generic SysML-import model.</param>
+        /// <returns>Emitter-aware model, or <c>null</c>.</returns>
         public static InterfaceDataItemType Create(MTConnectInterfaceDataItemType importModel)
         {
             if (importModel != null)
@@ -61,14 +89,17 @@ namespace MTConnect.SysML.CSharp
             return null;
         }
 
+        /// <inheritdoc />
         public override string RenderModel()
         {
             var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "Interfaces.InterfaceDataItemType.scriban");
             return template.Render(this);
         }
 
+        /// <inheritdoc cref="ITemplateModel.RenderInterface" />
         public new string RenderInterface() => null;
 
+        /// <inheritdoc cref="ITemplateModel.RenderDescriptions" />
         public new string RenderDescriptions() => null;
     }
 }

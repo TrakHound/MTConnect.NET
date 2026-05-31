@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// Description text for each property of <c>DataItemRelationship</c> as defined by the MTConnect Standard.
+    /// </summary>
     public static class DataItemRelationshipDescriptions
     {
         /// <summary>

@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// Description text for each <see cref="UncertaintyType"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class UncertaintyTypeDescriptions
     {
         /// <summary>
@@ -16,6 +19,9 @@ namespace MTConnect.Observations.Events
         public const string MEAN = "Standard uncertainty using arithmetic mean or average the observations. JCGM 100:2008 4.2";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="UncertaintyType"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(UncertaintyType value)
         {
             switch (value)

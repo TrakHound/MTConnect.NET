@@ -100,7 +100,7 @@ namespace Ceen.Httpd
             using (var cs = new CancellationTokenSource(m_idletime))
             using (cancellationToken.Register(() => cs.Cancel()))
             {
-                rtask = m_parent.ReadAsync(buffer, offset, (int) Math.Min(count, m_bytesleft), cs.Token);
+                rtask = m_parent.ReadAsync(buffer, offset, (int)Math.Min(count, m_bytesleft), cs.Token);
                 rt = await Task.WhenAny(m_timeouttask, m_stoptask, rtask);
             }
 
@@ -151,7 +151,7 @@ namespace Ceen.Httpd
                 return false;
 
             var buf = new byte[1024 * 8];
-            while(m_bytesleft > 0)
+            while (m_bytesleft > 0)
                 await ReadAsync(buf, 0, buf.Length, cancellationToken);
 
             return true;

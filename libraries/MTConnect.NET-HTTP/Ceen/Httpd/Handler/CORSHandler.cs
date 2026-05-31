@@ -48,7 +48,7 @@ namespace Ceen.Httpd.Handler
             if (Array.IndexOf(AllowedOrigins, "*") >= 0)
                 AllowedOrigins = new string[] { "*" };
 
-            m_originMatcher = 
+            m_originMatcher =
                 new System.Text.RegularExpressions.Regex(
                     string.Join("|",
                     AllowedOrigins
@@ -71,7 +71,7 @@ namespace Ceen.Httpd.Handler
             if (string.IsNullOrWhiteSpace(origin) || m_originMatcher.Match(origin).Length != origin.Length)
             {
                 context.Response.StatusCode = Ceen.HttpStatusCode.NotAcceptable;
-                return Task.FromResult(preflight);   
+                return Task.FromResult(preflight);
             }
 
             context.Response.Headers.Add("Access-Control-Allow-Origin", origin);

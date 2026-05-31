@@ -95,13 +95,22 @@ namespace MTConnect.Configurations
         public int ConfigurationFileRestartInterval { get; set; }
 
 
+        /// <summary>
+        /// The raw, untyped module configuration sections declared for the agent, each later resolved to a strongly typed configuration on demand.
+        /// </summary>
         [JsonPropertyName("modules")]
         public IEnumerable<object> Modules { get; set; }
 
+        /// <summary>
+        /// The raw, untyped processor configuration sections declared for the agent's observation/asset processing pipeline.
+        /// </summary>
         [JsonPropertyName("processors")]
         public IEnumerable<object> Processors { get; set; }
 
 
+        /// <summary>
+        /// Initializes a new instance on top of the base agent defaults, with no device path or service identity and configuration file monitoring enabled.
+        /// </summary>
         public AgentApplicationConfiguration() : base()
         {
             Devices = null;
@@ -114,6 +123,9 @@ namespace MTConnect.Configurations
         }
 
 
+        /// <summary>
+        /// Flattens every declared module section into a single map keyed by module identifier, or null when no modules are configured.
+        /// </summary>
         public Dictionary<object, object> GetModules()
         {
             if (!Modules.IsNullOrEmpty())
@@ -139,6 +151,10 @@ namespace MTConnect.Configurations
             return null;
         }
 
+        /// <summary>
+        /// Returns every module section declared under the given key as untyped objects, or null when the key is empty or no modules are configured.
+        /// </summary>
+        /// <param name="key">The module identifier whose sections are requested.</param>
         public IEnumerable<object> GetModules(string key)
         {
             if (!string.IsNullOrEmpty(key) && !Modules.IsNullOrEmpty())
@@ -168,6 +184,10 @@ namespace MTConnect.Configurations
             return null;
         }
 
+        /// <summary>
+        /// Counts the module sections declared under the given key; returns zero when the key is empty or no modules are configured.
+        /// </summary>
+        /// <param name="key">The module identifier to count sections for.</param>
         public int GetModuleCount(string key)
         {
             if (!string.IsNullOrEmpty(key) && !Modules.IsNullOrEmpty())
@@ -193,6 +213,11 @@ namespace MTConnect.Configurations
             return 0;
         }
 
+        /// <summary>
+        /// Returns every module section declared under the given key bound to <typeparamref name="TConfiguration"/>; sections present with no body yield a default-constructed instance, and sections that fail to bind are skipped.
+        /// </summary>
+        /// <typeparam name="TConfiguration">The strongly typed configuration the module sections are bound to.</typeparam>
+        /// <param name="key">The module identifier whose sections are requested.</param>
         public IEnumerable<TConfiguration> GetModules<TConfiguration>(string key)
         {
             if (!string.IsNullOrEmpty(key) && !Modules.IsNullOrEmpty())
@@ -249,6 +274,11 @@ namespace MTConnect.Configurations
             return null;
         }
 
+        /// <summary>
+        /// Appends a new module section under the given key to the existing module list, creating the list if necessary. No-ops when the key is empty.
+        /// </summary>
+        /// <param name="key">The module identifier the section is registered under.</param>
+        /// <param name="moduleConfiguration">The module configuration object to store.</param>
         public void AddModule(string key, object moduleConfiguration)
         {
             if (!string.IsNullOrEmpty(key))
@@ -263,26 +293,33 @@ namespace MTConnect.Configurations
             }
         }
 
+        /// <summary>
+        /// Indicates whether at least one module section is declared under the given key.
+        /// </summary>
+        /// <param name="key">The module identifier to test.</param>
         public bool IsModuleConfigured(string key)
-		{
-			if (!string.IsNullOrEmpty(key) && !Modules.IsNullOrEmpty())
-			{
-				foreach (var configurationObj in Modules)
-				{
-					try
-					{
-						var rootDictionary = (Dictionary<object, object>)configurationObj;
+        {
+            if (!string.IsNullOrEmpty(key) && !Modules.IsNullOrEmpty())
+            {
+                foreach (var configurationObj in Modules)
+                {
+                    try
+                    {
+                        var rootDictionary = (Dictionary<object, object>)configurationObj;
                         if (rootDictionary.ContainsKey(key)) return true;
-					}
-					catch { }
-				}
-			}
+                    }
+                    catch { }
+                }
+            }
 
-			return false;
-		}
+            return false;
+        }
 
 
 
+        /// <summary>
+        /// Flattens every declared processor section into a single map keyed by processor identifier, or null when no processors are configured.
+        /// </summary>
 		public Dictionary<object, object> GetProcessors()
         {
             if (!Processors.IsNullOrEmpty())
@@ -308,6 +345,10 @@ namespace MTConnect.Configurations
             return null;
         }
 
+        /// <summary>
+        /// Returns every processor section declared under the given key as untyped objects, or null when the key is empty or no processors are configured.
+        /// </summary>
+        /// <param name="key">The processor identifier whose sections are requested.</param>
         public IEnumerable<object> GetProcessors(string key)
         {
             if (!string.IsNullOrEmpty(key) && !Processors.IsNullOrEmpty())
@@ -337,6 +378,11 @@ namespace MTConnect.Configurations
             return null;
         }
 
+        /// <summary>
+        /// Returns every processor section declared under the given key, round-tripped through YAML to bind each to <typeparamref name="TConfiguration"/>. Sections that fail to bind are skipped.
+        /// </summary>
+        /// <typeparam name="TConfiguration">The strongly typed configuration the processor sections are bound to.</typeparam>
+        /// <param name="key">The processor identifier whose sections are requested.</param>
         public IEnumerable<TConfiguration> GetProcessors<TConfiguration>(string key)
         {
             if (!string.IsNullOrEmpty(key) && !Processors.IsNullOrEmpty())
@@ -385,6 +431,11 @@ namespace MTConnect.Configurations
         }
 
 
+        /// <summary>
+        /// Binds an arbitrary configuration object to <typeparamref name="TConfiguration"/> by round-tripping it through YAML; when the input is null a default-constructed instance is returned. Yields the type default when binding fails.
+        /// </summary>
+        /// <typeparam name="TConfiguration">The target configuration type.</typeparam>
+        /// <param name="controllerConfiguration">The loosely typed configuration object to convert, or null to construct a default.</param>
         public static TConfiguration GetConfiguration<TConfiguration>(object controllerConfiguration)
         {
             if (controllerConfiguration != null)

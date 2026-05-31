@@ -5,8 +5,18 @@ using System.Text.RegularExpressions;
 
 namespace MTConnect.SysML.Models.Devices
 {
+    /// <summary>
+    /// A parsed DataItem subtype: the trailing segment of the XMI class name
+    /// becomes the uppercase-underscore subtype constant, carried with its
+    /// introduced/deprecated versions and cleaned description.
+    /// </summary>
     public class MTConnectDataItemSubType : MTConnectSubclassModel
     {
+        /// <summary>
+        /// Parses a DataItem subtype from <paramref name="umlClass"/>, keying
+        /// it under <paramref name="idPrefix"/> and resolving its version
+        /// metadata and description from <paramref name="xmiDocument"/>.
+        /// </summary>
         public MTConnectDataItemSubType(XmiDocument xmiDocument, string idPrefix, UmlClass umlClass) : base(null)
         {
             UmlId = umlClass.Id;

@@ -18,7 +18,6 @@ namespace MTConnect.SysML.Xmi
         /// Constructs a new instance of the deserializer with a reference to the source document.
         /// </summary>
         /// <param name="xmlDocument">A source of XMI to deserialize</param>
-        /// <param name="logger"><inheritdoc cref="ILogger" path="/summary"/></param>
         public XmiDeserializer(XmlDocument xmlDocument)
         {
             xDoc = xmlDocument;
@@ -78,7 +77,6 @@ namespace MTConnect.SysML.Xmi
         /// Creates a <see cref="XmiDeserializer"/> from a reference to the filepath of a XMI document.
         /// </summary>
         /// <param name="filename">Filepath to a XMI-formatted XML document.</param>
-        /// <param name="logger"><inheritdoc cref="ILogger" path="/summary"/></param>
         /// <returns><inheritdoc cref="XmiDeserializer" path="/summary"/></returns>
         public static XmiDeserializer FromFile(string filename)
         {
@@ -106,7 +104,6 @@ namespace MTConnect.SysML.Xmi
         /// Creates a <see cref="XmiDeserializer"/> from raw XML.
         /// </summary>
         /// <param name="xml">Raw XML string</param>
-        /// <param name="logger"><inheritdoc cref="ILogger" path="/summary"/></param>
         /// <returns><inheritdoc cref="XmiDeserializer" path="/summary"/></returns>
         public static XmiDeserializer FromXml(string xml)
         {

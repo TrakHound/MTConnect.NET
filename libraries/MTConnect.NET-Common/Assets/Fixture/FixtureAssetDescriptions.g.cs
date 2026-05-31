@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.Fixture
 {
+    /// <summary>
+    /// Description text for each property of <c>FixtureAsset</c> as defined by the MTConnect Standard.
+    /// </summary>
     public static class FixtureAssetDescriptions
     {
         /// <summary>

@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// Description text for each <see cref="ControllerModeOverride"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class ControllerModeOverrideDescriptions
     {
         /// <summary>
@@ -16,6 +19,9 @@ namespace MTConnect.Observations.Events
         public const string OFF = "ControllerModeOverride is in the `OFF` state and the mode override is inactive.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="ControllerModeOverride"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(ControllerModeOverride value)
         {
             switch (value)

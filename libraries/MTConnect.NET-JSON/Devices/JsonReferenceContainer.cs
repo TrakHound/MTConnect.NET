@@ -7,17 +7,36 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate that groups the references of a component
+    /// or composition by referenced kind (component or data item). Each kind is
+    /// serialized as a separate JSON array.
+    /// </summary>
     public class JsonReferenceContainer
     {
+        /// <summary>
+        /// References pointing at other components.
+        /// </summary>
         [JsonPropertyName("componentReferences")]
         public List<JsonComponentReference> ComponentReferences { get; set; }
 
+        /// <summary>
+        /// References pointing at data items.
+        /// </summary>
         [JsonPropertyName("dataItemReferences")]
         public List<JsonDataItemReference> DataItemReferences { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty container.
+        /// </summary>
         public JsonReferenceContainer() { }
 
+        /// <summary>
+        /// Initializes the container by partitioning
+        /// <paramref name="references"/> into component and data item arrays
+        /// based on the concrete reference interface of each entry.
+        /// </summary>
         public JsonReferenceContainer(IEnumerable<IReference> references)
         {
             if (!references.IsNullOrEmpty())
@@ -42,6 +61,10 @@ namespace MTConnect.Devices.Json
             }
         }
 
+        /// <summary>
+        /// Flattens the component and data item arrays back into a single
+        /// reference collection.
+        /// </summary>
         public IEnumerable<IReference> ToReferences()
         {
             var references = new List<IReference>();

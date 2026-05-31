@@ -14,22 +14,49 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for a <c>Transformation</c>, the
+    /// translation and rotation that position a component relative to its
+    /// parent. Mirrors the on-the-wire element and converts to and from the
+    /// strongly-typed <see cref="Transformation"/> model.
+    /// </summary>
     [XmlRoot("Transformation")]
     public class XmlTransformation
     {
+        /// <summary>
+        /// The translation expressed as a coordinate triple; mutually
+        /// exclusive with <see cref="TranslationDataSet"/>.
+        /// </summary>
         [XmlElement("Translation")]
         public XmlTranslation Translation { get; set; }
 
+        /// <summary>
+        /// The translation expressed as a data set; mutually exclusive with
+        /// <see cref="Translation"/>.
+        /// </summary>
         [XmlElement("TranslationDataSet")]
         public XmlTranslationDataSet TranslationDataSet { get; set; }
 
+        /// <summary>
+        /// The rotation expressed as a coordinate triple; mutually exclusive
+        /// with <see cref="RotationDataSet"/>.
+        /// </summary>
         [XmlElement("Rotation")]
         public XmlRotation Rotation { get; set; }
 
+        /// <summary>
+        /// The rotation expressed as a data set; mutually exclusive with
+        /// <see cref="Rotation"/>.
+        /// </summary>
         [XmlElement("RotationDataSet")]
         public XmlRotationDataSet RotationDataSet { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate into the strongly-typed
+        /// <see cref="Transformation"/>, resolving the translation and rotation
+        /// choices in favour of the data-set form when present.
+        /// </summary>
         public ITransformation ToTransformation()
         {
             var transformation = new Transformation();
@@ -40,6 +67,12 @@ namespace MTConnect.Devices.Xml
             return transformation;
         }
 
+        /// <summary>
+        /// Writes the given <see cref="ITransformation"/> to
+        /// <paramref name="writer"/> as a <c>Transformation</c> element,
+        /// emitting the data-set form of translation and rotation when the
+        /// model carries it.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, ITransformation transformation)
         {
             if (transformation != null)

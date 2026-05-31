@@ -10,15 +10,35 @@ namespace MTConnect.Devices.Components
     /// </summary>
     public class PathComponent : Component
     {
+        /// <summary>
+        /// The MTConnect <c>type</c> value that identifies this Component.
+        /// </summary>
         public const string TypeId = "Path";
+
+        /// <summary>
+        /// The default <c>name</c> assigned to an instance of this Component.
+        /// </summary>
         public const string NameId = "path";
+
+        /// <summary>
+        /// The description of this Component as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Component that organizes an independent operation or function within a Controller.";
 
+        /// <summary>
+        /// The description of this Component as defined by the MTConnect Standard.
+        /// </summary>
         public override string TypeDescription => DescriptionText;
-        
-        public override System.Version MinimumVersion => MTConnectVersions.Version11; 
+
+        /// <summary>
+        /// The minimum MTConnect Version that introduced this Component.
+        /// </summary>
+        public override System.Version MinimumVersion => MTConnectVersions.Version11;
 
 
+        /// <summary>
+        /// Initializes a new instance with its <c>Type</c> set to <see cref="TypeId"/>.
+        /// </summary>
         public PathComponent()
         {
             Type = TypeId;

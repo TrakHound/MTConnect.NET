@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets
 {
+    /// <summary>
+    /// Description text for each property of <c>Asset</c> as defined by the MTConnect Standard.
+    /// </summary>
     public static class AssetDescriptions
     {
         /// <summary>

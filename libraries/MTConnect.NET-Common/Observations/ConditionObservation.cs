@@ -88,6 +88,9 @@ namespace MTConnect.Observations
         public override bool IsUnavailable => GetValue(ValueKeys.Level) == Unavailable;
 
 
+        /// <summary>
+        /// Initializes a new Condition Observation with the Condition category and VALUE representation.
+        /// </summary>
         public ConditionObservation()
         {
             _category = DataItemCategory.CONDITION;
@@ -95,6 +98,11 @@ namespace MTConnect.Observations
         }
 
 
+        /// <summary>
+        /// Creates a Condition Observation for the given DataItem, copying its identifying metadata.
+        /// </summary>
+        /// <param name="dataItem">The DataItem the Observation is created for.</param>
+        /// <returns>The Condition Observation, or null when <paramref name="dataItem"/> is null.</returns>
         public new static ConditionObservation Create(IDataItem dataItem)
         {
             if (dataItem != null)
@@ -113,6 +121,11 @@ namespace MTConnect.Observations
             return null;
         }
 
+        /// <summary>
+        /// Creates a Condition Observation from an existing Observation, copying its metadata and values.
+        /// </summary>
+        /// <param name="observation">The source Observation to copy.</param>
+        /// <returns>The Condition Observation, or null when <paramref name="observation"/> is null.</returns>
         public static ConditionObservation Create(IObservation observation)
         {
             if (observation != null)
@@ -136,6 +149,12 @@ namespace MTConnect.Observations
         }
 
 
+        /// <summary>
+        /// Creates the Condition Observation subclass matching the given type and representation.
+        /// </summary>
+        /// <param name="type">The DataItem Type identifier.</param>
+        /// <param name="representation">The DataItem representation.</param>
+        /// <returns>A type-specific Condition Observation, or a base ConditionObservation when the type is not recognized.</returns>
         public static ConditionObservation Create(string type, DataItemRepresentation representation)
         {
             if (!string.IsNullOrEmpty(type))

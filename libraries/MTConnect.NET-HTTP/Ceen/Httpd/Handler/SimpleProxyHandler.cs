@@ -65,10 +65,10 @@ namespace Ceen.Httpd.Handler
 
             wr.Method = context.Request.Method;
             if (context.Request.ContentLength > 0)
-                using(var rs = await wr.GetRequestStreamAsync())
+                using (var rs = await wr.GetRequestStreamAsync())
                     await context.Request.Body.CopyToAsync(rs);
 
-            using(var res = await GetResponseWithoutExceptionAsync(wr))
+            using (var res = await GetResponseWithoutExceptionAsync(wr))
             {
                 foreach (var key in res.Headers.AllKeys)
                     context.Response.Headers[key] = res.Headers[key];
@@ -82,7 +82,7 @@ namespace Ceen.Httpd.Handler
 
                 await context.Response.FlushHeadersAsync();
                 using (var r = context.Response.GetResponseStream())
-                using(var rr = res.GetResponseStream())
+                using (var rr = res.GetResponseStream())
 
 #if NET5_0_OR_GREATER
                     await rr.CopyToAsync(r, context.Request.TimeoutCancellationToken);

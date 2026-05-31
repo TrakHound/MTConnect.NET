@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.CuttingTools
 {
+    /// <summary>
+    /// Description text for each property of <c>CuttingToolDefinition</c> as defined by the MTConnect Standard.
+    /// </summary>
     public static class CuttingToolDefinitionDescriptions
     {
         /// <summary>

@@ -113,6 +113,10 @@ namespace MTConnect.Observations
         string GetValue(string valueKey);
 
 
+        /// <summary>
+        /// Validate this observation against the constraints of its DataItem.
+        /// </summary>
+        /// <returns>The validation result describing whether the observation is valid and, if not, why.</returns>
         ValidationResult Validate();
     }
 }

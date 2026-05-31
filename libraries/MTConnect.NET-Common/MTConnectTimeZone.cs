@@ -8,17 +8,37 @@ using System.Text.RegularExpressions;
 
 namespace MTConnect
 {
+    /// <summary>
+    /// A named time zone identified by an abbreviation and a UTC offset, with helpers to resolve it to a system <see cref="TimeZoneInfo"/> and to express UTC timestamps in that zone.
+    /// </summary>
     public class MTConnectTimeZone
     {
         private readonly static IEnumerable<MTConnectTimeZone> _timeZones = Init();
         private readonly static string _offsetParsePattern = "^(?:UTC)?\\s?([-+])([0-9]{1,2})(?::([0-9]{2}))?$";
 
 
+        /// <summary>
+        /// The short abbreviation for the zone (e.g. "CST").
+        /// </summary>
         public string Abbreviation { get; set; }
+
+        /// <summary>
+        /// The human-readable name of the zone (e.g. "Central Standard Time").
+        /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// The UTC offset in the textual "UTC+H:MM" form.
+        /// </summary>
         public string Offset { get; set; }
 
 
+        /// <summary>
+        /// Initializes a time zone from its abbreviation, name, and UTC offset.
+        /// </summary>
+        /// <param name="abbreviation">The short abbreviation.</param>
+        /// <param name="name">The human-readable name.</param>
+        /// <param name="offset">The UTC offset in "UTC+H:MM" form.</param>
         public MTConnectTimeZone(string abbreviation, string name, string offset)
         {
             Abbreviation = abbreviation;
@@ -26,11 +46,18 @@ namespace MTConnect
             Offset = offset;
         }
 
+        /// <summary>
+        /// Converts a UTC timestamp into a <see cref="DateTimeOffset"/> expressed in this zone, resolving to the best-matching system time zone.
+        /// </summary>
+        /// <param name="utcTimestamp">The UTC instant to convert.</param>
         public DateTimeOffset ToTimestamp(DateTime utcTimestamp)
         {
             return GetTimestamp(utcTimestamp, ToTimeZoneInfo());
         }
 
+        /// <summary>
+        /// Resolves this zone to the system <see cref="TimeZoneInfo"/> whose base UTC offset matches, breaking ties by the closest standard-name match; returns null when no match is found.
+        /// </summary>
         public TimeZoneInfo ToTimeZoneInfo()
         {
             try
@@ -50,6 +77,11 @@ namespace MTConnect
             return null;
         }
 
+        /// <summary>
+        /// Converts a UTC timestamp into a <see cref="DateTimeOffset"/> in the given time zone, normalizing the kind to Unspecified so the offset comes from the zone rather than local machine settings; falls back to the raw UTC value when no zone is supplied.
+        /// </summary>
+        /// <param name="utcTimestamp">The UTC instant to convert.</param>
+        /// <param name="timeZoneInfo">The target time zone, or null to use UTC.</param>
         public static DateTimeOffset GetTimestamp(DateTime utcTimestamp, TimeZoneInfo timeZoneInfo)
         {
             if (timeZoneInfo != null)
@@ -68,6 +100,10 @@ namespace MTConnect
         }
 
 
+        /// <summary>
+        /// Looks up a known time zone by abbreviation first, then by an equivalent UTC offset; returns null when the input is empty or matches nothing.
+        /// </summary>
+        /// <param name="input">A zone abbreviation or a UTC offset string.</param>
         public static MTConnectTimeZone Get(string input)
         {
             if (!string.IsNullOrEmpty(input))

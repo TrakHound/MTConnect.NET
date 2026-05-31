@@ -46,19 +46,25 @@ namespace MTConnect.Configurations
         public int Port { get; set; }
 
         /// <summary>
-        ///
+        /// The polling/streaming interval in milliseconds. For polling clients this is the wait
+        /// between successive <c>current</c>/<c>sample</c> requests; for streaming clients it is
+        /// the <c>interval</c> query parameter sent to the agent's <c>sample</c> long-poll.
         /// </summary>
         [JsonPropertyName("interval")]
         public int Interval { get; set; }
 
         /// <summary>
-        ///
+        /// The streaming heartbeat in milliseconds passed to the agent as the <c>heartbeat</c>
+        /// query parameter on <c>sample</c> long-poll requests. The agent emits an empty document
+        /// each heartbeat to keep the HTTP connection alive when no observations are produced.
         /// </summary>
         [JsonPropertyName("heartbeat")]
         public int Heartbeat { get; set; }
 
         /// <summary>
-        ///
+        /// When true, the client connects to the agent over <c>https://</c>; when false, over
+        /// <c>http://</c>. Any explicit scheme already present in <see cref="Address"/> is
+        /// rewritten to match this flag.
         /// </summary>
         [JsonPropertyName("useSSL")]
         public bool UseSSL { get; set; }
@@ -82,6 +88,11 @@ namespace MTConnect.Configurations
         public bool UseStreaming { get; set; }
 
 
+        /// <summary>
+        /// Initialises a new client configuration with the MTConnect-default port (5000), a 500 ms
+        /// interval, a 1000 ms heartbeat, connection-information output enabled, streaming sampling
+        /// enabled, and current-only mode disabled.
+        /// </summary>
         public HttpClientConfiguration()
         {
             Port = 5000;
@@ -93,6 +104,12 @@ namespace MTConnect.Configurations
         }
 
 
+        /// <summary>
+        /// Builds the agent base URI (scheme + host + port, no trailing slash, no path) from a
+        /// configuration instance. Any pre-existing <c>http://</c> or <c>https://</c> prefix in
+        /// <see cref="Address"/> is stripped and replaced according to <see cref="UseSSL"/>.
+        /// Returns <c>null</c> if <paramref name="configuration"/> is <c>null</c>.
+        /// </summary>
         public static string CreateBaseUri(HttpClientConfiguration configuration)
         {
             if (configuration != null)

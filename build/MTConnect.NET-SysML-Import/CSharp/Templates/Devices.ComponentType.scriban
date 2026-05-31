@@ -10,15 +10,44 @@ namespace MTConnect.Devices.Components
     /// </summary>
     public {{- if (is_abstract) }} abstract{{ end }} class {{name}} : {{ if (parent_type) }}{{parent_type}}{{else}}Component{{ end }} {{- if (is_organizer) }}, IOrganizerComponent{{ end }}
     {
+        /// <summary>
+        /// The MTConnect <c>type</c> value that identifies this Component.
+        /// </summary>
         public const string TypeId = "{{type}}";
+
+        /// <summary>
+        /// The default <c>name</c> assigned to an instance of this Component.
+        /// </summary>
         public const string NameId = "{{default_name}}";
+
+        /// <summary>
+        /// The description of this Component as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "{{description}}";
 
+        /// <summary>
+        /// The description of this Component as defined by the MTConnect Standard.
+        /// </summary>
         public override string TypeDescription => DescriptionText;
-        {{ if (maximum_version_enum) }}public override System.Version MaximumVersion => {{maximum_version_enum}};{{ end }}
-        {{ if (minimum_version_enum) }}public override System.Version MinimumVersion => {{minimum_version_enum}};{{ end }} 
+{{- if (maximum_version_enum) }}
+
+        /// <summary>
+        /// The maximum MTConnect Version that this Component is valid for; set when the type has been deprecated.
+        /// </summary>
+        public override System.Version MaximumVersion => {{ maximum_version_enum }};
+{{- end }}
+{{- if (minimum_version_enum) }}
+
+        /// <summary>
+        /// The minimum MTConnect Version that introduced this Component.
+        /// </summary>
+        public override System.Version MinimumVersion => {{ minimum_version_enum }};
+{{- end }}
 
 
+        /// <summary>
+        /// Initializes a new instance with its <c>Type</c> set to <see cref="TypeId"/>.
+        /// </summary>
         public {{name}}()
         {
             Type = TypeId;

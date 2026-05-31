@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.CuttingTools.Measurements
 {
+    /// <summary>
+    /// MeasurementCode string constants as defined by the MTConnect Standard.
+    /// </summary>
     public static class MeasurementCode
     {
         /// <summary>

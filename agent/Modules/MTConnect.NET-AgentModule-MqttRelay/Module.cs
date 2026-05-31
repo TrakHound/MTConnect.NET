@@ -24,8 +24,21 @@ using System.Threading.Tasks;
 
 namespace MTConnect
 {
+    /// <summary>
+    /// Agent module that relays observations + assets to a downstream
+    /// MQTT broker. Unlike the in-process broker module, the relay
+    /// connects out to an existing broker (configured via
+    /// <see cref="MqttRelayModuleConfiguration"/>) and publishes to
+    /// either document-shaped topics or entity-shaped topics.
+    /// Supports durable last-sent-sequence persistence so a relay can
+    /// resume from where it left off after a restart.
+    /// </summary>
     public class Module : MTConnectAgentModule
     {
+        /// <summary>
+        /// Token used in <c>agent.config.yaml</c> to bind this module
+        /// (<c>type: mqtt-relay</c>).
+        /// </summary>
         public const string ConfigurationTypeId = "mqtt-relay";
         private const string ModuleId = "MQTT Relay";
 
@@ -54,6 +67,16 @@ namespace MTConnect
         private const string DirectoryBuffer = "buffer";
         private const string LastSentSequenceFileName = "mqttrelay_last_sent.seq";
 
+        /// <summary>
+        /// Initialises the module, binds the supplied configuration
+        /// payload to <see cref="MqttRelayModuleConfiguration"/>, and
+        /// wires the document- or entity-shaped MQTT topic server to
+        /// the upstream agent's event stream.
+        /// </summary>
+        /// <param name="mtconnectAgent">Upstream agent broker the relay
+        /// reads observations + assets from.</param>
+        /// <param name="configuration">Raw configuration payload bound
+        /// to <see cref="MqttRelayModuleConfiguration"/>.</param>
         public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)
         {
             Id = ModuleId;
@@ -86,6 +109,14 @@ namespace MTConnect
         }
 
 
+        /// <summary>
+        /// Module lifecycle hook: starts the MQTT relay worker on a
+        /// background task. When <see cref="MqttRelayModuleConfiguration.DurableRelay"/>
+        /// is on, seeds the in-memory persister from disk so the first
+        /// post-restart batch resumes from the last successfully-relayed
+        /// sequence.
+        /// </summary>
+        /// <param name="initializeDataItems">Inherited flag; unused.</param>
         protected override void OnStartAfterLoad(bool initializeDataItems)
         {
             _stop = new CancellationTokenSource();
@@ -110,6 +141,14 @@ namespace MTConnect
             _ = Task.Run(Worker, _stop.Token);
         }
 
+        /// <summary>
+        /// Module lifecycle hook: stops the document- / entity-shaped
+        /// MQTT servers, cancels the relay worker, drains in-flight
+        /// observation handlers (up to
+        /// <see cref="HandlerDrainTimeout"/>), and flushes any pending
+        /// last-sent-sequence to disk so a restart resumes from the
+        /// correct point.
+        /// </summary>
         protected override void OnStop()
         {
             // Entity-mode constructs only _entityServer, so a bare

@@ -13,8 +13,19 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace MTConnect.Modules.Http
 {
+    /// <summary>
+    /// Agent module that hosts the Ceen-based HTTP server. Exposes the
+    /// standard MTConnect request types (<c>/probe</c>, <c>/current</c>,
+    /// <c>/sample</c>, <c>/assets</c>, <c>/asset/{id}</c>, and the per-
+    /// device variants) plus the configured XSL stylesheets and XSD
+    /// namespaces.
+    /// </summary>
     public class Module : MTConnectAgentModule
     {
+        /// <summary>
+        /// Token used in <c>agent.config.yaml</c> to bind this module
+        /// (<c>type: http-server</c>).
+        /// </summary>
         public const string ConfigurationTypeId = "http-server";
         private const string ModuleId = "HTTP Server";
         private const string HttpServerLogId = "HTTP-Server";
@@ -24,6 +35,16 @@ namespace MTConnect.Modules.Http
         private readonly IMTConnectAgentBroker _mtconnectAgent;
         private MTConnectHttpServer _httpServer;
 
+        /// <summary>
+        /// Initialises the module and binds the supplied controller-
+        /// configuration payload to <see cref="HttpServerModuleConfiguration"/>.
+        /// The HTTP server itself is created in
+        /// <see cref="OnStartAfterLoad"/>.
+        /// </summary>
+        /// <param name="mtconnectAgent">Agent broker the HTTP server
+        /// reads from.</param>
+        /// <param name="controllerConfiguration">Raw configuration
+        /// payload bound to <see cref="HttpServerModuleConfiguration"/>.</param>
         public Module(IMTConnectAgentBroker mtconnectAgent, object controllerConfiguration) : base(mtconnectAgent)
         {
             Id = ModuleId;
@@ -33,6 +54,14 @@ namespace MTConnect.Modules.Http
         }
 
 
+        /// <summary>
+        /// Module lifecycle hook: creates the bundled
+        /// <see cref="MTConnectShdrHttpAgentServer"/>, wires its
+        /// connection / response / error events to the module logger,
+        /// and starts listening.
+        /// </summary>
+        /// <param name="initializeDataItems">Inherited flag; unused by
+        /// this module.</param>
         protected override void OnStartAfterLoad(bool initializeDataItems)
         {
             // Intialize the Http Server
@@ -53,6 +82,11 @@ namespace MTConnect.Modules.Http
             _httpServer.Start();
         }
 
+        /// <summary>
+        /// Module lifecycle hook: stops the HTTP server and disposes
+        /// its underlying Ceen host. Idempotent if the server never
+        /// started.
+        /// </summary>
         protected override void OnStop()
         {
             if (_httpServer != null)

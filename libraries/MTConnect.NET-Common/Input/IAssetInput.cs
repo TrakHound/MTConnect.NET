@@ -5,6 +5,9 @@ using MTConnect.Assets;
 
 namespace MTConnect.Input
 {
+    /// <summary>
+    /// An Information Model Input that associates an Asset with a Device for reporting to an Agent.
+    /// </summary>
     public interface IAssetInput
     {
         /// <summary>

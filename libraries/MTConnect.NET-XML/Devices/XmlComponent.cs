@@ -12,62 +12,128 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for an MTConnect <c>Component</c>. Mirrors a
+    /// component element of an MTConnectDevices document so the XML serializer
+    /// can read and write the on-the-wire shape, then converts to and from the
+    /// strongly-typed <see cref="Component"/> model.
+    /// </summary>
     [XmlRoot("Component")]
     public class XmlComponent
     {
         private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(XmlComponent));
 
 
+        /// <summary>
+        /// The unique <c>id</c> of the component within the device.
+        /// </summary>
         [XmlAttribute("id")]
         public string Id { get; set; }
 
+        /// <summary>
+        /// The MTConnect component type. Carried out of band because the
+        /// element name itself encodes the type in the MTConnect XML schema.
+        /// </summary>
         [XmlIgnore]
         public string Type { get; set; }
 
+        /// <summary>
+        /// The optional human-readable <c>name</c> of the component.
+        /// </summary>
         [XmlAttribute("name")]
         public string Name { get; set; }
 
+        /// <summary>
+        /// The name the component is known by on its native control.
+        /// </summary>
         [XmlAttribute("nativeName")]
         public string NativeName { get; set; }
 
+        /// <summary>
+        /// The interval, in milliseconds, between samples the component reports.
+        /// </summary>
         [XmlAttribute("sampleInterval")]
         public double SampleInterval { get; set; }
 
+        /// <summary>
+        /// The deprecated sample rate, in samples per second; superseded by
+        /// <see cref="SampleInterval"/>.
+        /// </summary>
         [XmlAttribute("sampleRate")]
         public double SampleRate { get; set; }
 
+        /// <summary>
+        /// The optional globally unique <c>uuid</c> of the component.
+        /// </summary>
         [XmlAttribute("uuid")]
         public string Uuid { get; set; }
 
+        /// <summary>
+        /// Reference to the <c>id</c> of the CoordinateSystem the component's
+        /// values are expressed relative to.
+        /// </summary>
         [XmlAttribute("coordinateSystemIdRef")]
         public string CoordinateSystemIdRef { get; set; }
 
+        /// <summary>
+        /// The <c>Description</c> element carrying manufacturer, model, serial
+        /// number, and free-text description.
+        /// </summary>
         [XmlElement("Description")]
         public XmlDescription Description { get; set; }
 
+        /// <summary>
+        /// The <c>Configuration</c> element holding the component's
+        /// configuration sub-elements.
+        /// </summary>
         [XmlElement("Configuration")]
         public XmlConfiguration Configuration { get; set; }
 
+        /// <summary>
+        /// The <c>DataItems</c> the component reports directly.
+        /// </summary>
         [XmlArray("DataItems")]
         [XmlArrayItem("DataItem")]
         public List<XmlDataItem> DataItems { get; set; }
 
+        /// <summary>
+        /// The <c>Components</c> element containing the component's child
+        /// component tree.
+        /// </summary>
         [XmlElement("Components")]
         public XmlComponentCollection ComponentCollection { get; set; }
 
+        /// <summary>
+        /// The <c>Compositions</c> describing the lower-level structural parts
+        /// of the component.
+        /// </summary>
         [XmlArray("Compositions")]
         [XmlArrayItem("Composition")]
         public List<XmlComposition> Compositions { get; set; }
 
+        /// <summary>
+        /// The component and data-item <c>References</c> the component depends
+        /// on.
+        /// </summary>
         [XmlArray("References")]
         [XmlArrayItem("ComponentRef", typeof(XmlComponentReference))]
         [XmlArrayItem("DataItemRef", typeof(XmlDataItemReference))]
         public List<XmlReference> References { get; set; }
 
+        /// <summary>
+        /// The human-readable description of the component's type as defined by
+        /// the MTConnect Standard; emitted as an XML comment when requested.
+        /// </summary>
         [XmlIgnore]
         public string TypeDescription { get; set; }
 
 
+        /// <summary>
+        /// Converts this XML surrogate into the strongly-typed
+        /// <see cref="Component"/> model, optionally associating it with
+        /// <paramref name="device"/>, and recursively projecting data items,
+        /// compositions, and child components.
+        /// </summary>
         public Component ToComponent(IDevice device = null)
         {
             var component = Component.Create(Type);
@@ -138,6 +204,12 @@ namespace MTConnect.Devices.Xml
             return component;
         }
 
+        /// <summary>
+        /// Deserializes a single component XML document from
+        /// <paramref name="xmlBytes"/>, recovering the component type from the
+        /// root element name, and returns it as an <see cref="IComponent"/>, or
+        /// <c>null</c> when the bytes are empty or not well-formed.
+        /// </summary>
         public static IComponent FromXml(byte[] xmlBytes)
         {
             if (xmlBytes != null && xmlBytes.Length > 0)
@@ -220,6 +292,14 @@ namespace MTConnect.Devices.Xml
         //    return null;
         //}
 
+        /// <summary>
+        /// Writes <paramref name="component"/> as its MTConnect element to
+        /// <paramref name="writer"/>, emitting only the attributes that differ
+        /// from their defaults and recursing into description, configuration,
+        /// references, data items, compositions, and child components. When
+        /// <paramref name="outputComments"/> is <c>true</c>, the type
+        /// description is written as a preceding XML comment.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IComponent component, bool outputComments = false)
         {
             if (component != null)

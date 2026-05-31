@@ -16,24 +16,48 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Mqtt
 {
+    /// <summary>
+    /// JSON serialization surrogate for a group of asset inputs partitioned by
+    /// asset type. Used to carry multiple assets of different types in a single
+    /// JSON payload over transports such as MQTT.
+    /// </summary>
     public class JsonInputAssetGroup
     {
+        /// <summary>
+        /// The ComponentConfigurationParameters assets in the group.
+        /// </summary>
         [JsonPropertyName("componentConfigurationParameters")]
         public List<JsonComponentConfigurationParametersAsset> ComponentConfigurationParameters { get; set; }
 
+        /// <summary>
+        /// The CuttingTool assets in the group.
+        /// </summary>
         [JsonPropertyName("cuttingTool")]
         public List<JsonCuttingToolAsset> CuttingTools { get; set; }
 
+        /// <summary>
+        /// The File assets in the group.
+        /// </summary>
         [JsonPropertyName("file")]
         public List<JsonFileAsset> Files { get; set; }
 
+        /// <summary>
+        /// The RawMaterial assets in the group.
+        /// </summary>
         [JsonPropertyName("rawMaterials")]
         public List<JsonRawMaterialAsset> RawMaterials { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonInputAssetGroup() { }
 
-        public JsonInputAssetGroup(IEnumerable<IAssetInput> assets) 
+        /// <summary>
+        /// Initializes the surrogate from a collection of asset inputs,
+        /// dispatching each by its asset type to the matching surrogate list.
+        /// </summary>
+        public JsonInputAssetGroup(IEnumerable<IAssetInput> assets)
         {
             if (!assets.IsNullOrEmpty())
             {
@@ -85,6 +109,11 @@ namespace MTConnect.Mqtt
         }
 
 
+        /// <summary>
+        /// Flattens the type-partitioned surrogates of
+        /// <paramref name="inputAssetGroup"/> into a single asset collection by
+        /// converting each surrogate to its strongly-typed asset.
+        /// </summary>
         public static IEnumerable<IAsset> ToAssets(JsonInputAssetGroup inputAssetGroup)
         {
             var assets = new List<IAsset>();

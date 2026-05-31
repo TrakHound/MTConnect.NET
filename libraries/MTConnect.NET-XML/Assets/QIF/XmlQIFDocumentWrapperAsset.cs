@@ -7,15 +7,33 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.QIF
 {
+    /// <summary>
+    /// XML serialization surrogate for a <c>QIFDocumentWrapper</c> asset, which
+    /// embeds a foreign QIF (Quality Information Framework) document inside an
+    /// MTConnect asset envelope.
+    /// </summary>
     [XmlRoot("QIFDocumentWrapper")]
     public class XmlQIFDocumentWrapperAsset : XmlAsset
     {
+        /// <summary>
+        /// The QIF document classification, carried by the
+        /// <c>qifDocumentType</c> attribute.
+        /// </summary>
         [XmlAttribute("qifDocumentType")]
         public string QIFDocumentType { get; set; }
-  
+
+        /// <summary>
+        /// The embedded QIF document, captured verbatim as raw XML.
+        /// </summary>
         public XmlQIFDocument QIFDocument { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="QIFDocumentWrapperAsset"/>, copying the shared asset
+        /// fields, mapping the document type to its enumeration, and copying
+        /// the embedded QIF markup.
+        /// </summary>
         public override IAsset ToAsset()
         {
             var asset = new QIFDocumentWrapperAsset();
@@ -34,6 +52,11 @@ namespace MTConnect.Assets.QIF
             return asset;
         }
 
+        /// <summary>
+        /// Writes the <c>QIFDocumentWrapper</c> element, emitting the shared
+        /// asset attributes, the <c>qifDocumentType</c> attribute, and the
+        /// embedded QIF document as raw markup.
+        /// </summary>
         public static new void WriteXml(XmlWriter writer, IAsset asset)
         {
             if (asset != null)

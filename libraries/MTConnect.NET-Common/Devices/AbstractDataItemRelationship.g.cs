@@ -10,6 +10,9 @@ namespace MTConnect.Devices
     /// </summary>
     public abstract partial class AbstractDataItemRelationship : IAbstractDataItemRelationship
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Association between a DataItem and another entity.";
 
 
@@ -17,7 +20,7 @@ namespace MTConnect.Devices
         /// Reference to the related entity's `id`.
         /// </summary>
         public string IdRef { get; set; }
-        
+
         /// <summary>
         /// Descriptive name associated with this AbstractDataItemRelationship.
         /// </summary>

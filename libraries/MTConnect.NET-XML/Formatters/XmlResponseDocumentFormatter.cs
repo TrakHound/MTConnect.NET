@@ -19,13 +19,31 @@ using System.Xml;
 
 namespace MTConnect.Formatters.Xml
 {
+    /// <summary>
+    /// <see cref="IResponseDocumentFormatter"/> that serializes and
+    /// deserializes whole MTConnect response documents (Devices, Streams,
+    /// Assets, and Error) to and from the MTConnect XML representation, with
+    /// optional XSD validation and stylesheet linking.
+    /// </summary>
     public class XmlResponseDocumentFormatter : IResponseDocumentFormatter
     {
+        /// <summary>
+        /// The identifier this formatter is selected by; <c>XML</c>.
+        /// </summary>
         public string Id => "XML";
 
+        /// <summary>
+        /// The MIME content type the formatter produces;
+        /// <c>application/xml</c>.
+        /// </summary>
         public string ContentType => "application/xml";
 
 
+        /// <summary>
+        /// Serializes an <see cref="IDevicesResponseDocument"/> to XML,
+        /// honouring the indent, comment, stylesheet, and validation-level
+        /// options.
+        /// </summary>
         public FormatWriteResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read XSD Schema
@@ -87,6 +105,11 @@ namespace MTConnect.Formatters.Xml
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Serializes an <see cref="IStreamsResponseOutputDocument"/> to XML,
+        /// honouring the indent, comment, extended-namespace, stylesheet, and
+        /// validation-level options.
+        /// </summary>
         public FormatWriteResult Format(ref IStreamsResponseOutputDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read XSD Schema
@@ -151,6 +174,11 @@ namespace MTConnect.Formatters.Xml
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Serializes an <see cref="IAssetsResponseDocument"/> to XML,
+        /// honouring the indent, comment, stylesheet, and validation-level
+        /// options.
+        /// </summary>
         public FormatWriteResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read XSD Schema
@@ -212,6 +240,10 @@ namespace MTConnect.Formatters.Xml
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Serializes an <see cref="IErrorResponseDocument"/> to XML, honouring
+        /// the indent, comment, stylesheet, and validation-level options.
+        /// </summary>
         public FormatWriteResult Format(IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read XSD Schema
@@ -273,6 +305,12 @@ namespace MTConnect.Formatters.Xml
         }
 
 
+        /// <summary>
+        /// Deserializes an <see cref="IDevicesResponseDocument"/> from an XML
+        /// stream, optionally validating against the supplied XSD schemas and
+        /// reporting validation problems as warnings or errors per the
+        /// validation level.
+        /// </summary>
         public FormatReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             IDevicesResponseDocument document = null;
@@ -339,6 +377,12 @@ namespace MTConnect.Formatters.Xml
             return new FormatReadResult<IDevicesResponseDocument>(document, success, messages, warnings, errors);
         }
 
+        /// <summary>
+        /// Deserializes an <see cref="IStreamsResponseDocument"/> from an XML
+        /// stream, optionally validating against the supplied XSD schemas and
+        /// reporting validation problems as warnings or errors per the
+        /// validation level.
+        /// </summary>
         public FormatReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             IStreamsResponseDocument document = null;
@@ -396,10 +440,16 @@ namespace MTConnect.Formatters.Xml
                     innerException = innerException.InnerException;
                 }
             }
-            
+
             return new FormatReadResult<IStreamsResponseDocument>(document, success, messages, warnings, errors);
         }
 
+        /// <summary>
+        /// Deserializes an <see cref="IAssetsResponseDocument"/> from an XML
+        /// stream, optionally validating against the supplied XSD schemas and
+        /// reporting validation problems as warnings or errors per the
+        /// validation level.
+        /// </summary>
         public FormatReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             IAssetsResponseDocument document = null;
@@ -413,7 +463,7 @@ namespace MTConnect.Formatters.Xml
 
             // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
             var validationLevel = GetFormatterOption<int>(options, "validationLevel");
-            
+
             if (validationLevel > 0)
             {
                 // Validate XML against XSD Schema
@@ -466,6 +516,12 @@ namespace MTConnect.Formatters.Xml
             return new FormatReadResult<IAssetsResponseDocument>(document, success, messages, warnings, errors);
         }
 
+        /// <summary>
+        /// Deserializes an <see cref="IErrorResponseDocument"/> from an XML
+        /// stream, optionally validating against the supplied XSD schemas and
+        /// reporting validation problems as warnings or errors per the
+        /// validation level.
+        /// </summary>
         public FormatReadResult<IErrorResponseDocument> CreateErrorResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             IErrorResponseDocument document = null;

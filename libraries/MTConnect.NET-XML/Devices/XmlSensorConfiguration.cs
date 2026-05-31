@@ -9,26 +9,52 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for a <c>SensorConfiguration</c>, the
+    /// calibration metadata and channels of a sensor component. Mirrors the
+    /// on-the-wire element and converts to and from the strongly-typed
+    /// <see cref="SensorConfiguration"/> model.
+    /// </summary>
     [XmlRoot("SensorConfiguration")]
     public class XmlSensorConfiguration
     {
+        /// <summary>
+        /// The firmware version running on the sensor.
+        /// </summary>
         [XmlElement("FirmwareVersion")]
         public string FirmwareVersion { get; set; }
 
+        /// <summary>
+        /// The date the sensor was last calibrated.
+        /// </summary>
         [XmlElement("CalibrationDate")]
         public DateTime? CalibrationDate { get; set; }
 
+        /// <summary>
+        /// The date the sensor is next due for calibration.
+        /// </summary>
         [XmlElement("NextCalibrationDate")]
         public DateTime? NextCalibrationDate { get; set; }
 
+        /// <summary>
+        /// The initials of the person who performed the calibration.
+        /// </summary>
         [XmlElement("CalibrationInitials")]
         public string CalibrationInitials { get; set; }
 
+        /// <summary>
+        /// The individual calibrated input channels of the sensor.
+        /// </summary>
         [XmlArray("Channels")]
         [XmlArrayItem("Channel", typeof(XmlChannel))]
         public List<XmlChannel> Channels { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate into the strongly-typed
+        /// <see cref="SensorConfiguration"/>, projecting the channels into
+        /// their model representation.
+        /// </summary>
         public ISensorConfiguration ToSensorConfiguration()
         {
             var sensorConfiguration = new SensorConfiguration();
@@ -51,6 +77,11 @@ namespace MTConnect.Devices.Xml
             return sensorConfiguration;
         }
 
+        /// <summary>
+        /// Writes the given <see cref="ISensorConfiguration"/> to
+        /// <paramref name="writer"/> as a <c>SensorConfiguration</c> element,
+        /// omitting calibration metadata and channels that are not set.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, ISensorConfiguration sensorConfiguration)
         {
             if (sensorConfiguration != null)

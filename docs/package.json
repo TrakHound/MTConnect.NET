@@ -1,0 +1,17 @@
+{
+  "name": "mtconnect.net-docs",
+  "version": "0.1.0",
+  "description": "VitePress documentation site for MTConnect.NET",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "mermaid": "^11.0.0",
+    "vitepress": "^1.5.0",
+    "vitepress-plugin-mermaid": "^2.0.17"
+  }
+}

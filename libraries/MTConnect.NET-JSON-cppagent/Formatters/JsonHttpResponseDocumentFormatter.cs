@@ -17,13 +17,33 @@ using System.Text.Json;
 
 namespace MTConnect.Formatters
 {
+    /// <summary>
+    /// HTTP response document formatter that serializes and deserializes
+    /// MTConnect response documents using the cppagent-compatible JSON
+    /// shape. Routes each document family (Probe/Devices, Streams, Assets,
+    /// Error) through its dedicated surrogate model and obeys the
+    /// <c>indentOutput</c> formatter option to switch between compact and
+    /// pretty-printed output.
+    /// </summary>
     public class JsonHttpResponseDocumentFormatter : IResponseDocumentFormatter
     {
+        /// <summary>
+        /// The formatter identifier exposed to the agent's content-type
+        /// negotiation, distinguishing this formatter from the plain
+        /// MTConnect JSON formatter.
+        /// </summary>
         public virtual string Id => "JSON-cppagent";
 
+        /// <summary>
+        /// The HTTP <c>Content-Type</c> emitted by this formatter.
+        /// </summary>
         public virtual string ContentType => "application/json";
 
 
+        /// <summary>
+        /// Serializes a Probe/Devices response document using the
+        /// cppagent-compatible JSON surrogate.
+        /// </summary>
         public virtual FormatWriteResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Indent Option passed to Formatter
@@ -40,6 +60,12 @@ namespace MTConnect.Formatters
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Serializes a Streams response document using the
+        /// cppagent-compatible JSON surrogate. Accepts the output document
+        /// by reference to allow downstream consumers to mutate the source
+        /// without copying.
+        /// </summary>
         public virtual FormatWriteResult Format(ref IStreamsResponseOutputDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Indent Option passed to Formatter
@@ -56,6 +82,10 @@ namespace MTConnect.Formatters
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Serializes an Assets response document using the
+        /// cppagent-compatible JSON surrogate.
+        /// </summary>
         public virtual FormatWriteResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Indent Option passed to Formatter
@@ -72,6 +102,11 @@ namespace MTConnect.Formatters
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Serializes an Error response document as JSON. The error
+        /// document has no cppagent-specific surrogate shape so it is
+        /// written using its native model.
+        /// </summary>
         public FormatWriteResult Format(IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Indent Option passed to Formatter
@@ -89,6 +124,10 @@ namespace MTConnect.Formatters
         }
 
 
+        /// <summary>
+        /// Deserializes a Probe/Devices response document from a JSON
+        /// stream and reconstructs the strongly-typed model.
+        /// </summary>
         public virtual FormatReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
@@ -98,6 +137,10 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IDevicesResponseDocument>(document.ToDocument(), success);
         }
 
+        /// <summary>
+        /// Deserializes a Streams response document from a JSON stream and
+        /// reconstructs the strongly-typed model.
+        /// </summary>
         public virtual FormatReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
@@ -107,6 +150,10 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IStreamsResponseDocument>(document.ToStreamsDocument(), success);
         }
 
+        /// <summary>
+        /// Deserializes an Assets response document from a JSON stream and
+        /// reconstructs the strongly-typed model.
+        /// </summary>
         public virtual FormatReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
@@ -116,6 +163,10 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IAssetsResponseDocument>(document.ToAssetsDocument(), success);
         }
 
+        /// <summary>
+        /// Deserializes an Error response document from a JSON stream using
+        /// the native error model.
+        /// </summary>
         public FormatReadResult<IErrorResponseDocument> CreateErrorResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
@@ -126,6 +177,11 @@ namespace MTConnect.Formatters
         }
 
 
+        /// <summary>
+        /// Reads a single scalar formatter option by key and converts it to
+        /// the requested type, returning <c>default(T)</c> on absence or
+        /// conversion failure.
+        /// </summary>
         protected static T GetFormatterOption<T>(IEnumerable<KeyValuePair<string, string>> options, string key)
         {
             if (!options.IsNullOrEmpty())
@@ -144,6 +200,11 @@ namespace MTConnect.Formatters
             return default;
         }
 
+        /// <summary>
+        /// Reads every occurrence of a multi-valued formatter option by key
+        /// and converts each value to the requested type, skipping any
+        /// value that fails conversion.
+        /// </summary>
         protected static IEnumerable<T> GetFormatterOptions<T>(IEnumerable<KeyValuePair<string, string>> options, string key)
         {
             var l = new List<T>();

@@ -15,6 +15,9 @@ namespace MTConnect.Configurations
     /// </summary>
     public class DeviceConfiguration : Device
     {
+        /// <summary>
+        /// The conventional file name (<c>devices.xml</c>) used when no explicit device configuration path is supplied.
+        /// </summary>
         public const string DefaultFilename = "devices.xml";
 
 
@@ -24,8 +27,16 @@ namespace MTConnect.Configurations
         public string Path { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty device configuration, typically populated by a deserializer.
+        /// </summary>
         public DeviceConfiguration() { }
 
+        /// <summary>
+        /// Initializes a device configuration by copying the model of an existing device and recording the path it originated from.
+        /// </summary>
+        /// <param name="device">The source device whose information model is copied; when null no properties are copied.</param>
+        /// <param name="path">The file path the device was read from, retained for later save operations.</param>
         public DeviceConfiguration(IDevice device, string path = null)
         {
             if (device != null)
@@ -56,6 +67,7 @@ namespace MTConnect.Configurations
         /// Gets a list of Devices from the specified file (ex. devices.xml)
         /// </summary>
         /// <param name="filePath">The path to the Device Configuration file</param>
+        /// <param name="documentFormatterId">The ID of the formatter used to deserialize the device document (for example, <c>xml</c> or <c>json</c>).</param>
         public static IEnumerable<DeviceConfiguration> FromFile(string filePath, string documentFormatterId)
         {
             // Set the Filename
@@ -120,6 +132,7 @@ namespace MTConnect.Configurations
         /// Gets a list of Devices from the specified file (ex. devices.xml)
         /// </summary>
         /// <param name="filePath">The path to the Device Configuration file</param>
+        /// <param name="documentFormatterId">The ID of the formatter used to deserialize the device document (for example, <c>xml</c> or <c>json</c>).</param>
         public static async Task<IEnumerable<DeviceConfiguration>> FromFileAsync(string filePath, string documentFormatterId)
         {
             await Task.CompletedTask;
@@ -184,7 +197,8 @@ namespace MTConnect.Configurations
         /// <summary>
         /// Gets a list of Devices from files (ex. devices.xml) found in the specified directory path
         /// </summary>
-        /// <param name="dirPath">The path to the directory containing Device Configuration files</param>
+        /// <param name="path">The path to the directory containing Device Configuration files</param>
+        /// <param name="documentFormatterId">The ID of the formatter used to deserialize the device document (for example, <c>xml</c> or <c>json</c>).</param>
         public static IEnumerable<DeviceConfiguration> FromFiles(string path, string documentFormatterId)
         {
             if (!string.IsNullOrEmpty(path))
@@ -236,7 +250,8 @@ namespace MTConnect.Configurations
         /// <summary>
         /// Gets a list of Devices from files (ex. devices.xml) found in the specified directory path
         /// </summary>
-        /// <param name="dirPath">The path to the directory containing Device Configuration files</param>
+        /// <param name="path">The path to the directory containing Device Configuration files</param>
+        /// <param name="documentFormatterId">The ID of the formatter used to deserialize the device document (for example, <c>xml</c> or <c>json</c>).</param>
         public static async Task<IEnumerable<DeviceConfiguration>> FromFilesAsync(string path, string documentFormatterId)
         {
             if (!string.IsNullOrEmpty(path))

@@ -8,23 +8,53 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a CONDITION-category observation,
+    /// extending <see cref="JsonObservation"/> with the condition-specific
+    /// properties. Converts to and from the strongly-typed
+    /// <see cref="ConditionObservation"/> model.
+    /// </summary>
     public class JsonCondition : JsonObservation
     {
+        /// <summary>
+        /// The condition level (NORMAL, WARNING, FAULT, or UNAVAILABLE).
+        /// </summary>
         [JsonPropertyName("level")]
         public string Level { get; set; }
 
+        /// <summary>
+        /// The severity of the condition as reported by the native data
+        /// source.
+        /// </summary>
         [JsonPropertyName("nativeSeverity")]
         public string NativeSeverity { get; set; }
 
+        /// <summary>
+        /// The qualifier (for example HIGH or LOW) further classifying the
+        /// condition.
+        /// </summary>
         [JsonPropertyName("qualifier")]
         public string Qualifier { get; set; }
 
+        /// <summary>
+        /// The statistical operation associated with the condition, when
+        /// reported.
+        /// </summary>
         [JsonPropertyName("statistic")]
         public string Statistic { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonCondition() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed condition
+        /// <see cref="IObservation"/>, mapping the condition message to
+        /// <see cref="JsonObservation.Result"/> and optionally emitting the
+        /// category and instance id.
+        /// </summary>
         public JsonCondition(IObservation observation, bool categoryOutput = false, bool instanceIdOutput = false)
         {
             var condition = observation as ConditionObservation;
@@ -48,6 +78,12 @@ namespace MTConnect.Streams.Json
             }
         }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IObservationOutput"/>, reading the condition message,
+        /// level, native code, native severity, and qualifier from the
+        /// observation's values.
+        /// </summary>
         public JsonCondition(IObservationOutput condition)
         {
             if (condition != null)
@@ -84,6 +120,11 @@ namespace MTConnect.Streams.Json
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="IConditionObservation"/>, parsing the category, level,
+        /// and qualifier enumerations.
+        /// </summary>
         public IConditionObservation ToCondition()
         {
             var condition = new ConditionObservation();

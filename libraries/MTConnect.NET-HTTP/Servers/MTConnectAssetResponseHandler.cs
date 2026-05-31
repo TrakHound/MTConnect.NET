@@ -13,6 +13,15 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Servers
 {
+    /// <summary>
+    /// Ceen request handler for the single-asset MTConnect endpoint
+    /// (GET /asset/{assetId}). Returns an MTConnectAssets Response
+    /// Document containing the asset identified by the trailing path
+    /// segment, or an MTConnectError document with status 404 when no
+    /// such asset exists. The response document format is negotiated
+    /// via the documentFormat query parameter (xml | json |
+    /// json-cppagent) and defaults to XML.
+    /// </summary>
     class MTConnectAssetResponseHandler : MTConnectHttpResponseHandler
     {
         public MTConnectAssetResponseHandler(IHttpServerConfiguration serverConfiguration, IMTConnectAgentBroker mtconnectAgent) : base(serverConfiguration, mtconnectAgent) { }

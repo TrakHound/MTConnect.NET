@@ -7,25 +7,36 @@ using System.Text.RegularExpressions;
 
 namespace MTConnect.Shdr
 {
+    /// <summary>
+    /// SHDR-flavoured <see cref="TableEntry"/> that round-trips with the SHDR row syntax
+    /// <c>rowKey={cell1=v1 cell2=v2 ...}</c>; a removed row is encoded as <c>rowKey=</c> with an
+    /// empty value. The extra <see cref="IsSent"/> flag lets the adapter de-duplicate rows that
+    /// have already been transmitted in this update cycle.
+    /// </summary>
     public class ShdrTableEntry : TableEntry
     {
+        /// <summary>Adapter-local flag set once the entry has been written to the SHDR socket; used to suppress duplicate transmissions.</summary>
         public bool IsSent { get; set; }
 
 
+        /// <summary>Creates an empty entry for serialiser-driven construction.</summary>
         public ShdrTableEntry() { }
 
+        /// <summary>Creates a populated entry with a row key and the ordered list of cells.</summary>
         public ShdrTableEntry(string key, IEnumerable<ITableCell> cells)
         {
             Key = key;
             Cells = cells;
         }
 
+        /// <summary>Creates a tombstone entry that records the removal of the row identified by <paramref name="key"/>.</summary>
         public ShdrTableEntry(string key, bool removed)
         {
             Key = key;
             Removed = removed;
         }
 
+        /// <summary>Clones the supplied <see cref="ITableEntry"/> into a new SHDR-flavoured entry.</summary>
         public ShdrTableEntry(ITableEntry entry)
         {
             if (entry != null)
@@ -36,6 +47,7 @@ namespace MTConnect.Shdr
             }
         }
 
+        /// <summary>Serialises the entry to its SHDR <c>rowKey={cells}</c> textual form (or <c>rowKey=</c> when removed); returns the empty string when <see cref="TableEntry.Key"/> is empty.</summary>
         public override string ToString()
         {
             if (!string.IsNullOrEmpty(Key))
@@ -64,6 +76,7 @@ namespace MTConnect.Shdr
             return "";
         }
 
+        /// <summary>Parses a single SHDR <c>rowKey={cells}</c> segment back into an entry; returns <c>null</c> when <paramref name="segment"/> is empty or does not match the expected pattern.</summary>
         public static ShdrTableEntry FromString(string segment)
         {
             if (!string.IsNullOrEmpty(segment))

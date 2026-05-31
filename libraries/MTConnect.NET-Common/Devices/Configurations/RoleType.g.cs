@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices.Configurations
 {
+    /// <summary>
+    /// RoleType controlled vocabulary as defined by the MTConnect Standard.
+    /// </summary>
     public enum RoleType
     {
         /// <summary>

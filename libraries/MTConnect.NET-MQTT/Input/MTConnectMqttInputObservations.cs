@@ -8,15 +8,28 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Mqtt
 {
+    /// <summary>
+    /// MQTT-side container that groups a batch of <see cref="MTConnectMqttInputObservation"/>
+    /// values under a single timestamp. Downstream agents call <see cref="ToObservationInputs()"/>
+    /// to flatten the batch into the internal <see cref="IObservationInput"/> form and feed it
+    /// to the observation buffer.
+    /// </summary>
     public class MTConnectMqttInputObservations
     {
+        /// <summary>Wall-clock timestamp applied to every observation in <see cref="Observations"/> on conversion.</summary>
         [JsonPropertyName("timestamp")]
         public DateTime Timestamp { get; set; }
 
+        /// <summary>The observations carried by this batch; each is converted to an <see cref="IObservationInput"/> with <see cref="Timestamp"/> applied.</summary>
         [JsonPropertyName("observations")]
         public List<MTConnectMqttInputObservation> Observations { get; set; } = new List<MTConnectMqttInputObservation>();
 
 
+        /// <summary>
+        /// Flattens the batch into a list of <see cref="IObservationInput"/> instances, one per
+        /// member of <see cref="Observations"/>, with <see cref="Timestamp"/> applied (in Unix
+        /// time) to each. Observations missing a DataItem key or values are silently skipped.
+        /// </summary>
         public IEnumerable<IObservationInput> ToObservationInputs()
         {
             var observations = new List<IObservationInput>();

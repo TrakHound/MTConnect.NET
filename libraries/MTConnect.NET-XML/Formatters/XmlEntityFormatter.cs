@@ -15,13 +15,29 @@ using System.Xml;
 
 namespace MTConnect.Formatters.Xml
 {
+    /// <summary>
+    /// <see cref="IEntityFormatter"/> that serializes and deserializes
+    /// individual MTConnect entities (devices, observations, and assets) to and
+    /// from the MTConnect XML representation.
+    /// </summary>
     public class XmlEntityFormatter : IEntityFormatter
     {
+        /// <summary>
+        /// The identifier this formatter is selected by; <c>XML</c>.
+        /// </summary>
         public string Id => "XML";
 
+        /// <summary>
+        /// The MIME content type the formatter produces;
+        /// <c>application/xml</c>.
+        /// </summary>
         public string ContentType => "application/xml";
 
 
+        /// <summary>
+        /// Serializes a single <see cref="IDevice"/> to XML, honouring the
+        /// <c>indentOutput</c> option.
+        /// </summary>
         public FormatWriteResult Format(IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (device != null)
@@ -48,6 +64,10 @@ namespace MTConnect.Formatters.Xml
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Serializes a single <see cref="IObservation"/> to XML, honouring the
+        /// <c>indentOutput</c> option.
+        /// </summary>
         public FormatWriteResult Format(IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (observation != null)
@@ -74,6 +94,10 @@ namespace MTConnect.Formatters.Xml
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Serializes a sequence of <see cref="IObservation"/> values to a
+        /// single XML stream, honouring the <c>indentOutput</c> option.
+        /// </summary>
         public FormatWriteResult Format(IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (!observations.IsNullOrEmpty())
@@ -103,6 +127,9 @@ namespace MTConnect.Formatters.Xml
             return FormatWriteResult.Error();
         }
 
+        /// <summary>
+        /// Serializes a single <see cref="IAsset"/> to indented XML.
+        /// </summary>
         public FormatWriteResult Format(IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (asset != null)
@@ -115,6 +142,10 @@ namespace MTConnect.Formatters.Xml
         }
 
 
+        /// <summary>
+        /// Deserializes an <see cref="IDevice"/> from an XML stream, reporting
+        /// success when an entity was produced.
+        /// </summary>
         public FormatReadResult<IDevice> CreateDevice(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
@@ -135,6 +166,10 @@ namespace MTConnect.Formatters.Xml
             return new FormatReadResult<IDevice>(entity, success, messages, warnings, errors);
         }
 
+        /// <summary>
+        /// Deserializes an <see cref="IComponent"/> from an XML stream,
+        /// reporting success when an entity was produced.
+        /// </summary>
         public FormatReadResult<IComponent> CreateComponent(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
@@ -155,6 +190,10 @@ namespace MTConnect.Formatters.Xml
             return new FormatReadResult<IComponent>(entity, success, messages, warnings, errors);
         }
 
+        /// <summary>
+        /// Deserializes an <see cref="IComposition"/> from an XML stream,
+        /// reporting success when an entity was produced.
+        /// </summary>
         public FormatReadResult<IComposition> CreateComposition(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
@@ -175,6 +214,10 @@ namespace MTConnect.Formatters.Xml
             return new FormatReadResult<IComposition>(entity, success, messages, warnings, errors);
         }
 
+        /// <summary>
+        /// Deserializes an <see cref="IDataItem"/> from an XML stream,
+        /// reporting success when an entity was produced.
+        /// </summary>
         public FormatReadResult<IDataItem> CreateDataItem(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
@@ -195,6 +238,10 @@ namespace MTConnect.Formatters.Xml
             return new FormatReadResult<IDataItem>(entity, success, messages, warnings, errors);
         }
 
+        /// <summary>
+        /// Deserializes an <see cref="IAsset"/> of the named type from an XML
+        /// stream, reporting success when an entity was produced.
+        /// </summary>
         public FormatReadResult<IAsset> CreateAsset(string assetType, Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();

@@ -7,20 +7,46 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a <c>DeviceStream</c> in the
+    /// cppagent-compatible Streams shape. Holds every component stream
+    /// for a single device in a flat <c>ComponentStream</c> array
+    /// (note the singular JSON key) and drops any component stream
+    /// whose observations list is empty after partitioning. Converts to
+    /// and from the strongly-typed <see cref="DeviceStream"/> model.
+    /// </summary>
     public class JsonDeviceStream
     {
+        /// <summary>
+        /// The descriptive name of the device.
+        /// </summary>
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
+        /// <summary>
+        /// The UUID of the device.
+        /// </summary>
         [JsonPropertyName("uuid")]
         public string Uuid { get; set; }
 
+        /// <summary>
+        /// The component streams of this device, each carrying the
+        /// observations for one MTConnect component.
+        /// </summary>
         [JsonPropertyName("ComponentStream")]
         public List<JsonComponentStream> ComponentStreams { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonDeviceStream() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IDeviceStreamOutput"/>, skipping any component
+        /// stream whose observations list is empty after partitioning.
+        /// </summary>
         public JsonDeviceStream(IDeviceStreamOutput deviceStream)
         {
             if (deviceStream != null)
@@ -43,6 +69,10 @@ namespace MTConnect.Streams.Json
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="DeviceStream"/>.
+        /// </summary>
         public DeviceStream ToDeviceStream()
         {
             var deviceStream = new DeviceStream();

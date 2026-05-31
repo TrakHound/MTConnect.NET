@@ -9,17 +9,39 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for an EVENT observation carrying a
+    /// TABLE representation in the cppagent-compatible Streams shape.
+    /// Mirrors the SAMPLE table surrogate but emits under the EVENTS
+    /// branch of the parent <c>ComponentStream</c>.
+    /// </summary>
     public class JsonEventTable : JsonObservation
     {
+        /// <summary>
+        /// The keyed table rows, emitted as a nested JSON object or as
+        /// the <c>UNAVAILABLE</c> string sentinel.
+        /// </summary>
         [JsonPropertyName("value")]
         public JsonTableEntries Entries { get; set; }
 
+        /// <summary>
+        /// The number of rows in the table.
+        /// </summary>
         [JsonPropertyName("count")]
         public long? Count { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonEventTable() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed table event
+        /// <see cref="IObservation"/>, optionally surfacing category
+        /// and instance-id. Emits an unavailable marker when the source
+        /// has no rows.
+        /// </summary>
         public JsonEventTable(IObservation observation, bool categoryOutput = false, bool instanceIdOutput = false)
         {
             if (observation != null)
@@ -55,6 +77,11 @@ namespace MTConnect.Streams.Json
             }
         }
 
+        /// <summary>
+        /// Initializes the surrogate from a streaming
+        /// <see cref="IObservationOutput"/>, rehydrating the table rows
+        /// from the observation's value bag.
+        /// </summary>
         public JsonEventTable(IObservationOutput observation)
         {
             if (observation != null)
@@ -90,6 +117,13 @@ namespace MTConnect.Streams.Json
             }
         }
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="IEventTableObservation"/>, restoring the
+        /// data-item type from the supplied dictionary key, or emitting
+        /// the <c>UNAVAILABLE</c> result when the rows are marked
+        /// unavailable.
+        /// </summary>
         public IEventTableObservation ToObservation(string type)
         {
             // Route construction through the typed factory so the runtime

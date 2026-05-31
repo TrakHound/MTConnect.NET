@@ -15,8 +15,19 @@ using System.Linq;
 
 namespace MTConnect.Modules
 {
+    /// <summary>
+    /// Agent module that pulls observations + assets from one or more
+    /// upstream MTConnect agents over HTTP and routes them into the
+    /// local agent. Each configured device mapping spawns a dedicated
+    /// <see cref="MTConnectHttpClient"/> whose probe / current / sample
+    /// / assets responses are forwarded to the local agent broker.
+    /// </summary>
     public class Module : MTConnectAgentModule
     {
+        /// <summary>
+        /// Token used in <c>agent.config.yaml</c> to bind this module
+        /// (<c>type: http-adapter</c>).
+        /// </summary>
         public const string ConfigurationTypeId = "http-adapter";
         private const string ModuleId = "HTTP Adapter";
 
@@ -26,6 +37,17 @@ namespace MTConnect.Modules
         private readonly Dictionary<string, MTConnectClientInformation> _clientInformations = new Dictionary<string, MTConnectClientInformation>();
 
 
+        /// <summary>
+        /// Initialises the module and binds the supplied configuration
+        /// payload to <see cref="HttpAdapterModuleConfiguration"/>. The
+        /// upstream HTTP client connections are *not* opened here — that
+        /// happens in <see cref="OnStartAfterLoad"/> after the agent's
+        /// device catalogue is ready.
+        /// </summary>
+        /// <param name="mtconnectAgent">Upstream agent broker the
+        /// module writes into.</param>
+        /// <param name="configuration">Raw configuration payload bound
+        /// to <see cref="HttpAdapterModuleConfiguration"/>.</param>
         public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)
         {
             Id = ModuleId;
@@ -35,6 +57,13 @@ namespace MTConnect.Modules
         }
 
 
+        /// <summary>
+        /// Module lifecycle hook: opens the configured upstream HTTP
+        /// client connections and wires their probe / current / sample
+        /// / assets event streams to the local agent broker.
+        /// </summary>
+        /// <param name="initializeDataItems">Inherited flag; unused by
+        /// this module.</param>
         protected override void OnStartAfterLoad(bool initializeDataItems)
         {
             if (_configuration != null && !string.IsNullOrEmpty(_configuration.Address))
@@ -121,6 +150,10 @@ namespace MTConnect.Modules
             }
         }
 
+        /// <summary>
+        /// Module lifecycle hook: stops every upstream HTTP client.
+        /// Idempotent if the module never opened any clients.
+        /// </summary>
         protected override void OnStop()
         {
             if (!_clients.IsNullOrEmpty()) foreach (var client in _clients) client.Stop();

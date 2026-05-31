@@ -6,16 +6,35 @@ using System.Linq;
 
 namespace MTConnect.SysML
 {
+    /// <summary>
+    /// A parsed MTConnect class: its identity, inheritance (primary base plus
+    /// any additional generalizations rendered as marker interfaces),
+    /// properties, description, and valid version range. The cross-package
+    /// parent resolver (<see cref="ResolveDanglingParents"/>) operates on
+    /// instances of this type.
+    /// </summary>
     public class MTConnectClassModel : IMTConnectExportModel
     {
+        /// <inheritdoc/>
         public string UmlId { get; set; }
 
+        /// <inheritdoc/>
         public string Id { get; set; }
 
+        /// <summary>
+        /// True when the class is emitted as <c>abstract</c>.
+        /// </summary>
         public bool IsAbstract { get; set; }
 
+        /// <summary>
+        /// The class name as emitted in the generated C#.
+        /// </summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// The name of the primary base class (the single C# class base), or
+        /// <c>null</c> when the class is root-level.
+        /// </summary>
         public string ParentName { get; set; }
 
         /// <summary>
@@ -44,17 +63,41 @@ namespace MTConnect.SysML
         /// </summary>
         public List<string> AdditionalParentUmlIds { get; set; } = new();
 
+        /// <summary>
+        /// The cleaned description text emitted into the doc comment.
+        /// </summary>
         public string Description { get; set; }
 
+        /// <summary>
+        /// The class's properties, ordered by name.
+        /// </summary>
         public List<MTConnectPropertyModel> Properties { get; set; } = new();
 
+        /// <summary>
+        /// The MTConnect version this class was deprecated at, or
+        /// <c>null</c> when it is not deprecated.
+        /// </summary>
         public Version MaximumVersion { get; set; }
 
+        /// <summary>
+        /// The MTConnect version this class was introduced in, or
+        /// <c>null</c> when no introduction is recorded.
+        /// </summary>
         public Version MinimumVersion { get; set; }
 
 
+        /// <summary>
+        /// Creates an empty model for manual population.
+        /// </summary>
         public MTConnectClassModel() { }
 
+        /// <summary>
+        /// Parses a class from <paramref name="umlClass"/> under model id
+        /// <paramref name="id"/>: resolves its generalizations, cleans its
+        /// description, and parses its properties (excluding the derived
+        /// <c>made*</c>/<c>is*</c>/<c>observes*</c> navigations), ordered by
+        /// name.
+        /// </summary>
         public MTConnectClassModel(XmiDocument xmiDocument, string id, UmlClass umlClass)
         {
             if (umlClass != null)
@@ -164,6 +207,10 @@ namespace MTConnect.SysML
             }
         }
 
+        /// <summary>
+        /// Adds the given properties to this class, skipping any whose name
+        /// already exists so an inherited property is not duplicated.
+        /// </summary>
         public void AddProperties(IEnumerable<MTConnectPropertyModel> properties)
         {
             if (properties != null)
@@ -178,6 +225,12 @@ namespace MTConnect.SysML
             }
         }
 
+        /// <summary>
+        /// Parses every class in <paramref name="umlClasses"/> under
+        /// <paramref name="idPrefix"/>, skipping single-valued wrapper
+        /// classes (see <see cref="ModelHelper.IsValueClass"/>) which are
+        /// collapsed into scalar value types elsewhere.
+        /// </summary>
         public static IEnumerable<MTConnectClassModel> Parse(XmiDocument xmiDocument, string idPrefix, IEnumerable<UmlClass> umlClasses)
         {
             var models = new List<MTConnectClassModel>();

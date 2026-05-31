@@ -3,13 +3,27 @@ using MTConnect.SysML.Models.Assets;
 
 namespace MTConnect.SysML.CSharp
 {
+    /// <summary>
+    /// Template model for an MTConnect pallet-asset measurement.
+    /// Sibling to <see cref="CuttingToolMeasurementModel"/>; uses the
+    /// <c>Pallets.Measurement.scriban</c> template instead.
+    /// </summary>
     public class MeasurementModel : MTConnectMeasurementModel, ITemplateModel
     {
+        /// <summary>C# namespace the generated type belongs to.</summary>
         public string Namespace => NamespaceHelper.GetNamespace(Id);
 
+        /// <summary>XML-formatted description (XML doc-comment shape).</summary>
         public string XmlDescription { get; set; }
 
 
+        /// <summary>
+        /// Copies every matching property off <paramref name="importModel"/>
+        /// into a fresh <see cref="MeasurementModel"/>. Returns
+        /// <c>null</c> when the input is null.
+        /// </summary>
+        /// <param name="importModel">Generic SysML-import model.</param>
+        /// <returns>Emitter-aware model, or <c>null</c>.</returns>
         public static MeasurementModel Create(MTConnectMeasurementModel importModel)
         {
             if (importModel != null)
@@ -44,14 +58,17 @@ namespace MTConnect.SysML.CSharp
             return null;
         }
 
+        /// <inheritdoc />
         public string RenderModel()
         {
             var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "Pallets.Measurement.scriban");
             return template.Render(this);
         }
 
+        /// <inheritdoc />
         public string RenderInterface() => null;
 
+        /// <inheritdoc />
         public string RenderDescriptions() => null;
     }
 }

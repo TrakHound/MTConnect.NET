@@ -7,31 +7,65 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for an MTConnect <c>Specification</c>, the
+    /// set of limits a measured value is expected to fall within. Mirrors the
+    /// on-the-wire element and converts to the strongly-typed
+    /// <see cref="Specification"/> model.
+    /// </summary>
     [XmlRoot("Specification")]
     public class XmlSpecification : XmlAbstractSpecification
     {
+        /// <summary>
+        /// The upper conformance boundary; a value at or above this is
+        /// non-conforming.
+        /// </summary>
         [XmlElement("Maximum")]
         public double? Maximum { get; set; }
 
+        /// <summary>
+        /// The upper boundary of the in-specification range.
+        /// </summary>
         [XmlElement("UpperLimit")]
         public double? UpperLimit { get; set; }
 
+        /// <summary>
+        /// The upper boundary indicating a warning condition.
+        /// </summary>
         [XmlElement("UpperWarning")]
         public double? UpperWarning { get; set; }
 
+        /// <summary>
+        /// The ideal or target value.
+        /// </summary>
         [XmlElement("Nominal")]
         public double? Nominal { get; set; }
 
+        /// <summary>
+        /// The lower boundary of the in-specification range.
+        /// </summary>
         [XmlElement("LowerLimit")]
         public double? LowerLimit { get; set; }
 
+        /// <summary>
+        /// The lower boundary indicating a warning condition.
+        /// </summary>
         [XmlElement("LowerWarning")]
         public double? LowerWarning { get; set; }
 
+        /// <summary>
+        /// The lower conformance boundary; a value at or below this is
+        /// non-conforming.
+        /// </summary>
         [XmlElement("Minimum")]
-         public double? Minimum { get; set; }
+        public double? Minimum { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate into the strongly-typed
+        /// <see cref="Specification"/>, including the inherited identification
+        /// attributes and the numeric limits.
+        /// </summary>
         public override ISpecification ToSpecification()
         {
             var specification = new Specification();
@@ -54,6 +88,11 @@ namespace MTConnect.Devices.Xml
             return specification;
         }
 
+        /// <summary>
+        /// Writes the given <see cref="ISpecification"/> to
+        /// <paramref name="writer"/>, choosing the element name and the
+        /// limit-writing path that match the concrete specification kind.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, ISpecification specification)
         {
             if (specification != null)
@@ -75,6 +114,11 @@ namespace MTConnect.Devices.Xml
             }
         }
 
+        /// <summary>
+        /// Writes the identification attributes shared by every specification
+        /// kind, omitting the originator when it is the default
+        /// (<c>MANUFACTURER</c>).
+        /// </summary>
         public static void WriteAbstractXml(XmlWriter writer, ISpecification specification)
         {
             if (specification != null)
@@ -92,6 +136,10 @@ namespace MTConnect.Devices.Xml
             }
         }
 
+        /// <summary>
+        /// Writes the scalar limit elements of a plain
+        /// <see cref="ISpecification"/>, emitting only those that are set.
+        /// </summary>
         public static void WriteSpecificationXml(XmlWriter writer, ISpecification specification)
         {
             if (specification != null)
@@ -154,6 +202,11 @@ namespace MTConnect.Devices.Xml
             }
         }
 
+        /// <summary>
+        /// Writes the control, specification, and alarm limit groups of an
+        /// <see cref="IProcessSpecification"/>, emitting only the groups that
+        /// are present.
+        /// </summary>
         public static void WriteProcessSpecificationXml(XmlWriter writer, IProcessSpecification specification)
         {
             if (specification != null)

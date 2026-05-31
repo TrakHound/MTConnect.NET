@@ -14,6 +14,15 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Servers
 {
+    /// <summary>
+    /// Ceen request handler that serves static files configured via the
+    /// agent's HTTP server FileConfiguration entries (each entry maps a
+    /// URL path prefix to a directory or file on disk). The handler
+    /// resolves the requested path, applies the configured caching
+    /// policy, and streams the file bytes back with the appropriate
+    /// Content-Type. The endpoint surface is whatever path prefixes the
+    /// host configuration registers; there is no fixed route template.
+    /// </summary>
     class MTConnectStaticResponseHandler : MTConnectHttpResponseHandler
     {
         public Func<MTConnectStaticFileRequest, Stream> ProcessFunction { get; set; }

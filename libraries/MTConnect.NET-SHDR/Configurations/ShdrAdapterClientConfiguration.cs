@@ -48,6 +48,7 @@ namespace MTConnect.Configurations
         public bool IgnoreHeartbeatOnChange { get; set; }
 
 
+        /// <summary>Initialises the SHDR adapter-client configuration with the conventional defaults: connection state is not auto-marked Available, native timestamps are honoured, units are converted to the canonical MTConnect units, observation case is ignored when matching DataItem ids, connection information is emitted on the agent device, and heartbeat PINGs are suppressed while data is arriving.</summary>
         public ShdrAdapterClientConfiguration()
         {
             AvailableOnConnection = false;

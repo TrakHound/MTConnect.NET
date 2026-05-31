@@ -1,0 +1,16 @@
+apiRules:
+  - exclude:
+      uidRegex: ^Ceen($|\.)
+      type: Namespace
+  # The legacy JSON v1 codec and the cppagent v2 codec each ship a type
+  # named JsonProcessFeed{r,R}ate inside MTConnect.Assets.Json.CuttingTools.
+  # The two pages collide on case-insensitive output paths (and on
+  # VitePress's module resolver, which uses lowercase lookups), so the
+  # legacy v1 variant is excluded; the cppagent v2 type is the surface
+  # callers integrate against and stays in the reference.
+  - exclude:
+      uidRegex: ^MTConnect\.Assets\.Json\.CuttingTools\.JsonProcessFeedrate$
+      type: Type
+  - include:
+      uidRegex: ^MTConnect
+      type: Namespace

@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.CuttingTools
 {
+    /// <summary>
+    /// LocationType controlled vocabulary as defined by the MTConnect Standard.
+    /// </summary>
     public enum LocationType
     {
         /// <summary>

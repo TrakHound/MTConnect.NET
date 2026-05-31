@@ -13,6 +13,9 @@ namespace MTConnect.Observations
         /// </summary>
         string Key { get; }
 
+        /// <summary>
+        /// An optional human-readable description of the cell's <see cref="Key"/> (column).
+        /// </summary>
         string KeyDescription { get; set; }
 
         /// <summary>

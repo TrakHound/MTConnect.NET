@@ -10,6 +10,9 @@ namespace MTConnect.Assets.CuttingTools
     /// </summary>
     public class CuttingToolArchetypeReference : ICuttingToolArchetypeReference
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "AssetId and/or the URL of the data source of CuttingToolArchetype.";
 
 
@@ -17,7 +20,7 @@ namespace MTConnect.Assets.CuttingTools
         /// URL of the CuttingToolArchetype information model.
         /// </summary>
         public string Source { get; set; }
-        
+
         /// <summary>
         /// `assetId` of the related CuttingToolArchetype.
         /// </summary>

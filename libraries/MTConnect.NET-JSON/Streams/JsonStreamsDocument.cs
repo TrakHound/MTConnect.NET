@@ -25,8 +25,16 @@ namespace MTConnect.Streams.Json
         public List<JsonDeviceStream> Streams { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonStreamsDocument() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IStreamsResponseOutputDocument"/>, converting the header
+        /// and each device stream.
+        /// </summary>
         public JsonStreamsDocument(IStreamsResponseOutputDocument streamsDocument)
         {
             if (streamsDocument != null)
@@ -48,6 +56,11 @@ namespace MTConnect.Streams.Json
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="IStreamsResponseDocument"/>, converting the header and
+        /// each device stream.
+        /// </summary>
         public IStreamsResponseDocument ToStreamsDocument()
         {
             var streamsDocument = new StreamsResponseDocument();

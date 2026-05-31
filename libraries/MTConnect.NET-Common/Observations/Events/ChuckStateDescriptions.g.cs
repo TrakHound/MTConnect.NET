@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// Description text for each <see cref="ChuckState"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class ChuckStateDescriptions
     {
         /// <summary>
@@ -21,6 +24,9 @@ namespace MTConnect.Observations.Events
         public const string UNLATCHED = "Chuck is not closed to the point of a positive confirmation and not open to the point of a positive confirmation. It is in an intermediate position.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="ChuckState"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(ChuckState value)
         {
             switch (value)

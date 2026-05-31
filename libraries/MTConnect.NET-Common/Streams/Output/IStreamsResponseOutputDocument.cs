@@ -29,14 +29,23 @@ namespace MTConnect.Streams.Output
         Version Version { get; }
 
         /// <summary>
-        /// Gets All Observations (Samples, Events, & Conditions)
+        /// Gets All Observations (Samples, Events, and Conditions)
         /// </summary>
         IEnumerable<IObservationOutput> GetObservations();
 
+        /// <summary>
+        /// The sequence number of the earliest observation included in this document.
+        /// </summary>
         ulong FirstObservationSequence { get; }
 
+        /// <summary>
+        /// The sequence number of the latest observation included in this document.
+        /// </summary>
         ulong LastObservationSequence { get; }
 
+        /// <summary>
+        /// The total number of observations included in this document.
+        /// </summary>
         uint ObservationCount { get; }
     }
 }

@@ -10,15 +10,35 @@ namespace MTConnect.Devices.Components
     /// </summary>
     public class StockComponent : Component
     {
+        /// <summary>
+        /// The MTConnect <c>type</c> value that identifies this Component.
+        /// </summary>
         public const string TypeId = "Stock";
+
+        /// <summary>
+        /// The default <c>name</c> assigned to an instance of this Component.
+        /// </summary>
         public const string NameId = "stock";
+
+        /// <summary>
+        /// The description of this Component as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Material that is used in a manufacturing process and to which work is applied in a machine or piece of equipment to produce parts.";
 
+        /// <summary>
+        /// The description of this Component as defined by the MTConnect Standard.
+        /// </summary>
         public override string TypeDescription => DescriptionText;
-        
-        public override System.Version MinimumVersion => MTConnectVersions.Version13; 
+
+        /// <summary>
+        /// The minimum MTConnect Version that introduced this Component.
+        /// </summary>
+        public override System.Version MinimumVersion => MTConnectVersions.Version13;
 
 
+        /// <summary>
+        /// Initializes a new instance with its <c>Type</c> set to <see cref="TypeId"/>.
+        /// </summary>
         public StockComponent()
         {
             Type = TypeId;

@@ -31,6 +31,15 @@ namespace MTConnect.Clients
         private string _documentFormat = DocumentFormat.XML;
 
 
+        /// <summary>
+        /// Constructs an HTTP streaming reader for the MTConnect long-poll <c>sample</c> response
+        /// at <paramref name="url"/>. The stream assigns itself a fresh <see cref="Id"/>, defaults
+        /// the read timeout to five minutes, advertises the standard
+        /// <see cref="HttpContentEncodings.DefaultAccept"/> on <c>Accept-Encoding</c>, and picks
+        /// the matching <c>Accept</c> MIME type for <paramref name="documentFormat"/>.
+        /// </summary>
+        /// <param name="url">The fully built <c>sample</c> URL with <c>interval</c> / <c>heartbeat</c> parameters.</param>
+        /// <param name="documentFormat">Document format key (e.g. <c>xml</c>, <c>json</c>) to request and to parse the response with.</param>
         public MTConnectHttpClientStream(string url, string documentFormat = DocumentFormat.XML)
         {
             Id = Guid.NewGuid().ToString();
@@ -44,6 +53,7 @@ namespace MTConnect.Clients
             _httpClient.Timeout = TimeSpan.FromMilliseconds(DefaultTimeout);
         }
 
+        /// <summary>Disposes the underlying <see cref="HttpClient"/>. The stream itself should be <see cref="Stop"/>ped first; <see cref="Dispose"/> does not cancel pending reads.</summary>
         public void Dispose()
         {
             if (_httpClient != null) _httpClient.Dispose();
@@ -76,23 +86,37 @@ namespace MTConnect.Clients
         public string ContentType { get; set; }
 
 
+        /// <summary>Raised for every successfully parsed <c>MTConnectStreams</c> document received from the agent.</summary>
         public event EventHandler<IStreamsResponseDocument> DocumentReceived;
 
+        /// <summary>Raised when the agent returns a parsed <c>MTConnectError</c> document (e.g. invalid sequence number, no such device).</summary>
         public event EventHandler<IErrorResponseDocument> ErrorReceived;
 
+        /// <summary>Raised when an incoming multipart part could not be parsed in the configured <see cref="ContentType"/>.</summary>
         public event EventHandler<IFormatReadResult> FormatError;
 
+        /// <summary>Raised for unexpected exceptions inside the stream pump (parsing, timer callbacks, dispatch); the loop tries to keep running.</summary>
         public event EventHandler<Exception> InternalError;
 
+        /// <summary>Raised for transport-level failures (DNS, refused connection, TLS error) while opening or reading the HTTP response.</summary>
         public event EventHandler<Exception> ConnectionError;
 
+        /// <summary>Raised before the background read task is scheduled.</summary>
         public event EventHandler Starting;
+        /// <summary>Raised once the background read task has begun consuming the response body.</summary>
         public event EventHandler Started;
 
+        /// <summary>Raised when <see cref="Stop"/> is invoked, before the cancellation token is cancelled.</summary>
         public event EventHandler Stopping;
+        /// <summary>Raised after the background read task has exited cleanly.</summary>
         public event EventHandler Stopped;
 
 
+        /// <summary>
+        /// Starts the background read loop. <paramref name="cancellationToken"/> is wired so that
+        /// the stream stops cleanly when the caller's token is cancelled; <see cref="Stop"/> can
+        /// also be called directly. Raises <see cref="Starting"/> before the task is scheduled.
+        /// </summary>
         public void Start(CancellationToken cancellationToken)
         {
             _stop = new CancellationTokenSource();
@@ -104,6 +128,11 @@ namespace MTConnect.Clients
             _ = Task.Run(() => Run(_stop.Token));
         }
 
+        /// <summary>
+        /// Signals the background read loop to exit. Raises <see cref="Stopping"/> first, then
+        /// cancels the internal token. <see cref="Stopped"/> is raised by the background task
+        /// when it finally returns.
+        /// </summary>
         public void Stop()
         {
             // Raise Stopping Event
@@ -113,6 +142,14 @@ namespace MTConnect.Clients
         }
 
 
+        /// <summary>
+        /// The background read loop: opens the long-poll <c>sample</c> request to
+        /// <see cref="Url"/>, parses each MIME multipart part as an MTConnect document, raises
+        /// the appropriate <see cref="DocumentReceived"/> / <see cref="ErrorReceived"/> event,
+        /// and continues until <paramref name="cancellationToken"/> is cancelled or the agent
+        /// closes the response. Transport failures raise <see cref="ConnectionError"/>; the loop
+        /// then reconnects after a short delay so transient outages do not require restart.
+        /// </summary>
         public async Task Run(CancellationToken cancellationToken)
         {
             if (!string.IsNullOrEmpty(Url))
@@ -350,6 +387,15 @@ namespace MTConnect.Clients
             return null;
         }
 
+        /// <summary>
+        /// Decompresses <paramref name="responseBody"/> according to <paramref name="contentEncoding"/>
+        /// (the agent's <c>Content-Encoding</c> response header) and dispatches the resulting
+        /// MTConnect document to <see cref="DocumentReceived"/>, <see cref="ErrorReceived"/>, or
+        /// <see cref="FormatError"/> depending on the document type. Override to inject custom
+        /// per-part processing while preserving the standard event surface.
+        /// </summary>
+        /// <param name="responseBody">A single multipart part containing one formatted MTConnect document.</param>
+        /// <param name="contentEncoding">The agent-reported content encoding, or <c>null</c> when the part is uncompressed.</param>
         protected virtual void ProcessResponseBody(Stream responseBody, string contentEncoding = null)
         {
             if (responseBody != null && responseBody.Length > 0)

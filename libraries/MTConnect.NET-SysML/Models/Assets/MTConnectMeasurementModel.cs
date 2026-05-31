@@ -5,19 +5,48 @@ using System.Linq;
 
 namespace MTConnect.SysML.Models.Assets
 {
+    /// <summary>
+    /// A parsed cutting-tool measurement type, carrying its measurement
+    /// category, MTConnect type id, and the default code and units pulled
+    /// from the XMI default-value instances.
+    /// </summary>
     public class MTConnectMeasurementModel : MTConnectClassModel
     {
+        /// <summary>
+        /// The measurement category (for example the asset measurement
+        /// group this type belongs to).
+        /// </summary>
         public string MeasurementType { get; set; }
 
+        /// <summary>
+        /// The MTConnect type id of the measurement.
+        /// </summary>
         public string TypeId { get; set; }
 
+        /// <summary>
+        /// The default measurement code, resolved from the XMI
+        /// <c>code</c> default-value instance, or <c>null</c> when none is
+        /// declared.
+        /// </summary>
         public string CodeId { get; set; }
 
+        /// <summary>
+        /// The default units, resolved from the XMI <c>units</c>
+        /// default-value instance, or <c>null</c> when none is declared.
+        /// </summary>
         public string Units { get; set; }
 
 
+        /// <summary>
+        /// Creates an empty model for manual population.
+        /// </summary>
         public MTConnectMeasurementModel() { }
 
+        /// <summary>
+        /// Parses a measurement type from <paramref name="umlClass"/> under
+        /// <paramref name="idPrefix"/>, resolving its default code and units
+        /// from the XMI default-value instances.
+        /// </summary>
         public MTConnectMeasurementModel(XmiDocument xmiDocument, string measurementType, string idPrefix, UmlClass umlClass) : base(null, null, null)
         {
             if (umlClass != null)
@@ -65,6 +94,11 @@ namespace MTConnect.SysML.Models.Assets
             }
         }
 
+        /// <summary>
+        /// Parses every measurement type in <paramref name="umlClasses"/>
+        /// under <paramref name="idPrefix"/>, de-duplicating by id and
+        /// ordering by name.
+        /// </summary>
         public static IEnumerable<MTConnectMeasurementModel> Parse(XmiDocument xmiDocument, string measurementType, string idPrefix, IEnumerable<UmlClass> umlClasses)
         {
             var models = new List<MTConnectMeasurementModel>();

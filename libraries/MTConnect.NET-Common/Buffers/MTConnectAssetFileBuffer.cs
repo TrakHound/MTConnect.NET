@@ -16,10 +16,24 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Buffers
 {
+    /// <summary>
+    /// A durable <see cref="MTConnectAssetBuffer"/> that persists assets to disk so the buffer survives restarts, writing changes on a background thread and reloading them on startup.
+    /// </summary>
     public class MTConnectAssetFileBuffer : MTConnectAssetBuffer, IDisposable
     {
+        /// <summary>
+        /// The default number of assets read or written per page during load and flush operations.
+        /// </summary>
         public const int DefaultPageSize = 100;
+
+        /// <summary>
+        /// The root directory name under the application base directory that holds all durable buffer data.
+        /// </summary>
         public const string DirectoryBuffer = "buffer";
+
+        /// <summary>
+        /// The subdirectory name under the buffer root that holds persisted asset files.
+        /// </summary>
         public const string DirectoryAssets = "assets";
 
         private readonly string _basePath;
@@ -31,21 +45,45 @@ namespace MTConnect.Buffers
         private bool _isLoading;
         private ulong _pageIndex = 0;
 
+        /// <summary>
+        /// The interval, in milliseconds, between background flushes of queued asset changes to disk.
+        /// </summary>
         public int WriteInterval { get; set; } = 1000;
 
+        /// <summary>
+        /// The interval, in milliseconds, between retention passes that prune persisted assets no longer in the buffer.
+        /// </summary>
         public int RetentionInterval { get; set; } = 10000;
 
+        /// <summary>
+        /// The maximum number of queued asset changes written to disk in a single flush.
+        /// </summary>
         public uint MaxItemsPerWrite { get; set; } = 1000;
 
+        /// <summary>
+        /// The number of asset changes currently queued and awaiting a flush to disk.
+        /// </summary>
         public long QueuedItemCount => _items.Count;
 
+        /// <summary>
+        /// Indicates whether persisted asset files are GZip-compressed.
+        /// </summary>
         public bool UseCompression { get; set; } = true;
 
+        /// <summary>
+        /// Raised when the buffer begins reloading persisted assets from disk on startup.
+        /// </summary>
         public event EventHandler BufferLoadStarted;
 
+        /// <summary>
+        /// Raised when the startup reload completes, reporting the number of assets recovered and the elapsed time.
+        /// </summary>
         public event EventHandler<AssetBufferLoadArgs> BufferLoadCompleted;
 
 
+        /// <summary>
+        /// Initializes the durable asset buffer with default settings and starts the background write worker.
+        /// </summary>
         public MTConnectAssetFileBuffer()
         {
             _items = new MTConnectAssetQueue();
@@ -53,6 +91,11 @@ namespace MTConnect.Buffers
             Start();
         }
 
+        /// <summary>
+        /// Initializes the durable asset buffer from the supplied agent configuration, optionally rooting persistence at a custom base path, and starts the background write worker.
+        /// </summary>
+        /// <param name="configuration">The agent configuration controlling buffer capacity.</param>
+        /// <param name="basePath">An optional custom buffer root directory; when null the default location is used.</param>
         public MTConnectAssetFileBuffer(IAgentConfiguration configuration, string basePath = null) : base(configuration)
         {
             _basePath = basePath;
@@ -61,6 +104,12 @@ namespace MTConnect.Buffers
             Start();
         }
 
+        /// <summary>
+        /// Queues the added asset for persistence, unless the addition originated from the startup reload itself.
+        /// </summary>
+        /// <param name="bufferIndex">The slot the asset was stored at.</param>
+        /// <param name="asset">The asset that was added.</param>
+        /// <param name="originalIndex">The slot the asset previously occupied when it replaced an existing asset.</param>
         protected override void OnAssetAdd(uint bufferIndex, IAsset asset, uint originalIndex)
         {
             if (!_isLoading)
@@ -100,12 +149,19 @@ namespace MTConnect.Buffers
             }
         }
 
+        /// <summary>
+        /// Stops the background write worker, flushing any queued asset changes to disk before releasing resources.
+        /// </summary>
         public void Dispose()
         {
             Stop();
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Deletes the entire durable asset directory under the given buffer root. WARNING: this permanently clears all persisted assets.
+        /// </summary>
+        /// <param name="basePath">The buffer root directory; when null the default location is used.</param>
         public static void Reset(string basePath)
         {
             var dir = GetDirectory(basePath, false);
@@ -122,6 +178,13 @@ namespace MTConnect.Buffers
         }
 
 
+        /// <summary>
+        /// Enqueues an asset change to be flushed to disk by the background write worker.
+        /// </summary>
+        /// <param name="index">The buffer slot the asset occupies.</param>
+        /// <param name="asset">The asset to persist.</param>
+        /// <param name="originalIndex">The slot the asset previously occupied when it replaced an existing asset.</param>
+        /// <returns>True if the change was queued.</returns>
         public bool Add(uint index, IAsset asset, uint originalIndex)
         {
             // Add to internal Queue
@@ -131,6 +194,10 @@ namespace MTConnect.Buffers
 
         #region "Load"
 
+        /// <summary>
+        /// Reloads all persisted assets from disk back into the in-memory buffer, raising <see cref="BufferLoadStarted"/> and <see cref="BufferLoadCompleted"/> around the operation.
+        /// </summary>
+        /// <returns>True if at least one asset was recovered.</returns>
         public bool Load()
         {
             var found = false;
@@ -268,6 +335,9 @@ namespace MTConnect.Buffers
             }
         }
 
+        /// <summary>
+        /// Flushes every queued asset change to disk immediately, bypassing the timed write interval.
+        /// </summary>
         public void WriteAllItems()
         {
             _ = Task.Run(async () =>
@@ -424,7 +494,7 @@ namespace MTConnect.Buffers
             else
             {
                 baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DirectoryBuffer);
-            }           
+            }
 
             string dir = Path.Combine(baseDir, DirectoryAssets);
             if (createIfNotExists && !Directory.Exists(dir)) Directory.CreateDirectory(dir);

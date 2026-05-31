@@ -10,18 +10,40 @@ namespace MTConnect.Devices.DataItems
     /// </summary>
     public class AssociatedAssetIdDataItem : DataItem
     {
+        /// <summary>
+        /// The MTConnect <c>category</c> (SAMPLE, EVENT, or CONDITION) of this DataItem.
+        /// </summary>
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
+
+        /// <summary>
+        /// The MTConnect <c>type</c> value that identifies this DataItem.
+        /// </summary>
         public const string TypeId = "ASSOCIATED_ASSET_ID";
+
+        /// <summary>
+        /// The default <c>name</c> assigned to an instance of this DataItem.
+        /// </summary>
         public const string NameId = "associatedAssetId";
-             
-             
+
+        /// <summary>
+        /// The description of this DataItem as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "AssetId of the Assets associated with a Component.";
-        
+
+        /// <summary>
+        /// The description of this DataItem as defined by the MTConnect Standard.
+        /// </summary>
         public override string TypeDescription => DescriptionText;
-        
-        public override System.Version MinimumVersion => MTConnectVersions.Version26;       
+
+        /// <summary>
+        /// The minimum MTConnect Version that introduced this DataItem.
+        /// </summary>
+        public override System.Version MinimumVersion => MTConnectVersions.Version26;
 
 
+        /// <summary>
+        /// Initializes a new instance with its category, type, and name set to the defaults for this DataItem.
+        /// </summary>
         public AssociatedAssetIdDataItem()
         {
             Category = CategoryId;
@@ -31,13 +53,17 @@ namespace MTConnect.Devices.DataItems
             
         }
 
+        /// <summary>
+        /// Initializes a new instance scoped to the given device.
+        /// </summary>
+        /// <param name="deviceId">The Id of the device this DataItem belongs to.</param>
         public AssociatedAssetIdDataItem(string deviceId)
         {
             Id = CreateId(deviceId, NameId);
             Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-             
+            
             
         }
     }

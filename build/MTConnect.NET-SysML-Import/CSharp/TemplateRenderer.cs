@@ -5,8 +5,25 @@ using System.Collections;
 
 namespace MTConnect.SysML.CSharp
 {
+    /// <summary>
+    /// Orchestrator that loads every Scriban template under
+    /// <c>CSharp/Templates/</c> and emits the <c>*.g.cs</c> files for
+    /// devices, observations, assets, interfaces, and units into the
+    /// <c>libraries/MTConnect.NET-Common/</c> subtree of the output
+    /// directory.
+    /// </summary>
     public static class CSharpTemplateRenderer
     {
+        /// <summary>
+        /// Renders every C# artefact from the supplied SysML import
+        /// model. The output is partitioned by namespace under
+        /// <paramref name="outputPath"/>.
+        /// </summary>
+        /// <param name="mtconnectModel">Fully-loaded SysML import
+        /// model.</param>
+        /// <param name="outputPath">Repository root that the
+        /// <c>libraries/MTConnect.NET-Common/</c> subtree is written
+        /// into.</param>
         public static void Render(MTConnectModel mtconnectModel, string outputPath)
         {
             if (mtconnectModel != null && !string.IsNullOrEmpty(outputPath))
@@ -457,7 +474,7 @@ namespace MTConnect.SysML.CSharp
         };
 
         /// <summary>
-        /// Marks each <see cref="PropertyModel.IsInherited"/> flag on a class /
+        /// Marks each <see cref="MTConnectPropertyModel.IsInherited"/> flag on a class /
         /// interface template whose property name matches one declared on an
         /// ancestor. The C# templates use the flag to emit a <c>new</c>
         /// modifier on the redeclared member, suppressing CS0108 ("hides
@@ -483,7 +500,7 @@ namespace MTConnect.SysML.CSharp
         ///       <item>
         ///         The synthesized <c>Devices.Container</c> ClassModel —
         ///         <c>IContainer</c>'s hand-written partial extends
-        ///         <see cref="IMTConnectEntity"/>, so its <c>Uuid</c> hides
+        ///         <c>IMTConnectEntity</c>, so its <c>Uuid</c> hides
         ///         <c>IMTConnectEntity.Uuid</c>.
         ///       </item>
         ///       <item>

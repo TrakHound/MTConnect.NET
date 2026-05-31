@@ -27,13 +27,22 @@ namespace MTConnect.Agents.Metrics
         private double _lastAssetAverage = 0;
 
 
+        /// <summary>
+        /// The interval at which rates are recalculated.
+        /// </summary>
         public TimeSpan UpdateInterval => _updateInterval;
 
+        /// <summary>
+        /// The averaging window over which rates are exponentially smoothed.
+        /// </summary>
         public TimeSpan WindowInterval => _windowInterval;
 
+        /// <summary>
+        /// The number of observations recorded agent-wide since the last rate-update window.
+        /// </summary>
         public int ObservationDelta
         {
-            get 
+            get
             {
                 lock (_lock)
                 {
@@ -42,6 +51,9 @@ namespace MTConnect.Agents.Metrics
             }
         }
 
+        /// <summary>
+        /// The exponentially smoothed agent-wide observation update rate.
+        /// </summary>
         public double ObservationAverage
         {
             get
@@ -53,6 +65,9 @@ namespace MTConnect.Agents.Metrics
             }
         }
 
+        /// <summary>
+        /// The number of asset updates recorded agent-wide since the last rate-update window.
+        /// </summary>
         public int AssetDelta
         {
             get
@@ -64,6 +79,9 @@ namespace MTConnect.Agents.Metrics
             }
         }
 
+        /// <summary>
+        /// The exponentially smoothed agent-wide asset update rate.
+        /// </summary>
         public double AssetAverage
         {
             get
@@ -75,9 +93,17 @@ namespace MTConnect.Agents.Metrics
             }
         }
 
+        /// <summary>
+        /// Invoked for each device after every rate-update pass, supplying that device's refreshed metrics.
+        /// </summary>
         public EventHandler<DeviceMetrics> DeviceMetricsUpdated { get; set; }
 
 
+        /// <summary>
+        /// Starts a metrics handler that recalculates rates on the given interval, smoothing them over the given window.
+        /// </summary>
+        /// <param name="updateInterval">How often rates are recalculated.</param>
+        /// <param name="windowInterval">The averaging window for exponential smoothing.</param>
         public MTConnectAgentMetrics(TimeSpan updateInterval, TimeSpan windowInterval)
         {
             _updateTimer = new System.Timers.Timer();
@@ -93,6 +119,9 @@ namespace MTConnect.Agents.Metrics
         }
 
 
+        /// <summary>
+        /// Stops the rate-update timer and releases its resources.
+        /// </summary>
         public void Dispose()
         {
             if (_updateTimer != null) _updateTimer.Dispose();
@@ -134,6 +163,9 @@ namespace MTConnect.Agents.Metrics
         }
 
 
+        /// <summary>
+        /// Returns a snapshot of the per-device metrics aggregates.
+        /// </summary>
         public IEnumerable<DeviceMetrics> GetDeviceMetrics()
         {
             lock (_lock)
@@ -142,6 +174,10 @@ namespace MTConnect.Agents.Metrics
             }
         }
 
+        /// <summary>
+        /// Returns the metrics aggregate for the given Device, or null when none is tracked.
+        /// </summary>
+        /// <param name="deviceUuid">The Device UUID to look up.</param>
         public DeviceMetrics GetDeviceMetric(string deviceUuid)
         {
             if (!string.IsNullOrEmpty(deviceUuid))
@@ -159,6 +195,9 @@ namespace MTConnect.Agents.Metrics
         }
 
 
+        /// <summary>
+        /// Returns the total observation count summed across every tracked device.
+        /// </summary>
         public int GetObservationCount()
         {
             int count = 0;
@@ -175,6 +214,9 @@ namespace MTConnect.Agents.Metrics
             return count;
         }
 
+        /// <summary>
+        /// Returns the total asset-update count summed across every tracked device.
+        /// </summary>
         public int GetAssetCount()
         {
             int count = 0;
@@ -192,6 +234,11 @@ namespace MTConnect.Agents.Metrics
         }
 
 
+        /// <summary>
+        /// Records an observation for the given Device/DataItem, creating the device aggregate on first sighting.
+        /// </summary>
+        /// <param name="deviceUuid">The Device UUID that produced the observation.</param>
+        /// <param name="dataItemId">The DataItem ID that produced the observation.</param>
         public void UpdateObservation(string deviceUuid, string dataItemId)
         {
             if (!string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(dataItemId))
@@ -211,6 +258,11 @@ namespace MTConnect.Agents.Metrics
             }
         }
 
+        /// <summary>
+        /// Records an update for the given Device/Asset, creating the device aggregate on first sighting.
+        /// </summary>
+        /// <param name="deviceUuid">The Device UUID the asset belongs to.</param>
+        /// <param name="assetId">The Asset ID that was updated.</param>
         public void UpdateAsset(string deviceUuid, string assetId)
         {
             if (!string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(assetId))

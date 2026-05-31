@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.RawMaterials
 {
+    /// <summary>
+    /// Form controlled vocabulary as defined by the MTConnect Standard.
+    /// </summary>
     public enum Form
     {
         /// <summary>

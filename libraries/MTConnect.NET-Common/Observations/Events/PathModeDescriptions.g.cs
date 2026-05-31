@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// Description text for each <see cref="PathMode"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class PathModeDescriptions
     {
         /// <summary>
@@ -26,6 +29,9 @@ namespace MTConnect.Observations.Events
         public const string MIRROR = "Axes associated with the path are mirroring the motion of the `MASTER` path.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="PathMode"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(PathMode value)
         {
             switch (value)

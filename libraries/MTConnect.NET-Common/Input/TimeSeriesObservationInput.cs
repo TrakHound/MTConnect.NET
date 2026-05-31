@@ -56,8 +56,17 @@ namespace MTConnect.Input
         }
 
 
+        /// <summary>
+        /// Initializes a new, empty Time Series Observation with no DataItem key or samples.
+        /// </summary>
         public TimeSeriesObservationInput() { }
 
+        /// <summary>
+        /// Initializes a new Time Series Observation for the specified DataItem with the given samples and sample rate.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the DataItem the Observation applies to.</param>
+        /// <param name="samples">The values reported during the Observation, in time order.</param>
+        /// <param name="sampleRate">The frequency at which the samples were observed.</param>
         public TimeSeriesObservationInput(string dataItemKey, IEnumerable<double> samples, double sampleRate)
         {
             DataItemKey = dataItemKey;
@@ -65,6 +74,13 @@ namespace MTConnect.Input
             SampleRate = sampleRate;
         }
 
+        /// <summary>
+        /// Initializes a new Time Series Observation for the specified DataItem with the given samples, sample rate, and timestamp.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the DataItem the Observation applies to.</param>
+        /// <param name="samples">The values reported during the Observation, in time order.</param>
+        /// <param name="sampleRate">The frequency at which the samples were observed.</param>
+        /// <param name="timestamp">The observation timestamp as UnixTime in milliseconds.</param>
         public TimeSeriesObservationInput(string dataItemKey, IEnumerable<double> samples, double sampleRate, long timestamp)
         {
             DataItemKey = dataItemKey;
@@ -73,6 +89,13 @@ namespace MTConnect.Input
             Timestamp = timestamp;
         }
 
+        /// <summary>
+        /// Initializes a new Time Series Observation for the specified DataItem with the given samples, sample rate, and timestamp.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the DataItem the Observation applies to.</param>
+        /// <param name="samples">The values reported during the Observation, in time order.</param>
+        /// <param name="sampleRate">The frequency at which the samples were observed.</param>
+        /// <param name="timestamp">The observation timestamp, converted to UnixTime in milliseconds.</param>
         public TimeSeriesObservationInput(string dataItemKey, IEnumerable<double> samples, double sampleRate, DateTime timestamp)
         {
             DataItemKey = dataItemKey;
@@ -81,6 +104,10 @@ namespace MTConnect.Input
             Timestamp = timestamp.ToUnixTime();
         }
 
+        /// <summary>
+        /// Initializes a new Time Series Observation by copying the Device key, DataItem key, timestamp, and values from an existing Observation.
+        /// </summary>
+        /// <param name="observation">The source Observation to copy; a <c>null</c> argument leaves the new instance empty.</param>
         public TimeSeriesObservationInput(IObservationInput observation)
         {
             if (observation != null)

@@ -13,6 +13,16 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Servers
 {
+    /// <summary>
+    /// Ceen request handler for asset ingestion over HTTP POST (POST /
+    /// and POST /asset/{assetId}). Accepts an asset document in the
+    /// request body, parses it according to the negotiated
+    /// documentFormat, and forwards the result to the configured
+    /// ProcessFunction for storage in the agent's asset buffer. The
+    /// response carries an HTTP status (200 on accept, 400 on malformed
+    /// payload, 500 on storage failure) and an optional MTConnectError
+    /// body when negotiated.
+    /// </summary>
     class MTConnectPostResponseHandler : MTConnectHttpResponseHandler
     {
         public Func<MTConnectAssetInputArgs, bool> ProcessFunction { get; set; }

@@ -10,15 +10,35 @@ namespace MTConnect.Devices.Components
     /// </summary>
     public class BarFeederComponent : Component
     {
+        /// <summary>
+        /// The MTConnect <c>type</c> value that identifies this Component.
+        /// </summary>
         public const string TypeId = "BarFeeder";
+
+        /// <summary>
+        /// The default <c>name</c> assigned to an instance of this Component.
+        /// </summary>
         public const string NameId = "barFeeder";
+
+        /// <summary>
+        /// The description of this Component as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Loader that delivers bar stock to a piece of equipment.";
 
+        /// <summary>
+        /// The description of this Component as defined by the MTConnect Standard.
+        /// </summary>
         public override string TypeDescription => DescriptionText;
-        
-        public override System.Version MinimumVersion => MTConnectVersions.Version14; 
+
+        /// <summary>
+        /// The minimum MTConnect Version that introduced this Component.
+        /// </summary>
+        public override System.Version MinimumVersion => MTConnectVersions.Version14;
 
 
+        /// <summary>
+        /// Initializes a new instance with its <c>Type</c> set to <see cref="TypeId"/>.
+        /// </summary>
         public BarFeederComponent()
         {
             Type = TypeId;

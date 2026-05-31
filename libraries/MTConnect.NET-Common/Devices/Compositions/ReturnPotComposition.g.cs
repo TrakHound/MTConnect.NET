@@ -10,15 +10,35 @@ namespace MTConnect.Devices.Compositions
     /// </summary>
     public class ReturnPotComposition : Composition 
     {
+        /// <summary>
+        /// The MTConnect <c>type</c> value that identifies this Composition.
+        /// </summary>
         public const string TypeId = "RETURN_POT";
+
+        /// <summary>
+        /// The default <c>name</c> assigned to an instance of this Composition.
+        /// </summary>
         public const string NameId = "returnPotComposition";
+
+        /// <summary>
+        /// The description of this Composition as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Pot for a tool removed from spindle or Turret and awaiting for return to a ToolMagazine.";
 
+        /// <summary>
+        /// The description of this Composition as defined by the MTConnect Standard.
+        /// </summary>
         public override string TypeDescription => DescriptionText;
-        
-        public override System.Version MinimumVersion => MTConnectVersions.Version17; 
+
+        /// <summary>
+        /// The minimum MTConnect Version that introduced this Composition.
+        /// </summary>
+        public override System.Version MinimumVersion => MTConnectVersions.Version17;
 
 
-        public ReturnPotComposition()  { Type = TypeId; }
+        /// <summary>
+        /// Initializes a new instance with its <c>Type</c> set to <see cref="TypeId"/>.
+        /// </summary>
+        public ReturnPotComposition() { Type = TypeId; }
     }
 }

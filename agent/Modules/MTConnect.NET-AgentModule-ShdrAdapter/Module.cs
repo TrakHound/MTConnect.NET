@@ -15,8 +15,20 @@ using System.Linq;
 
 namespace MTConnect.Modules
 {
+    /// <summary>
+    /// Agent module that opens one or more SHDR-protocol TCP client
+    /// connections to upstream adapters. Each configured device (or
+    /// every device when <c>DeviceKey</c> is a wildcard) gets a
+    /// dedicated <see cref="ShdrAdapterClient"/> whose protocol /
+    /// connect / disconnect events are mirrored to the local agent
+    /// broker.
+    /// </summary>
     public class Module : MTConnectAgentModule
     {
+        /// <summary>
+        /// Token used in <c>agent.config.yaml</c> to bind this module
+        /// (<c>type: shdr-adapter</c>).
+        /// </summary>
         public const string ConfigurationTypeId = "shdr-adapter";
         private const string ModuleId = "SHDR Adapter";
 
@@ -25,6 +37,15 @@ namespace MTConnect.Modules
         private readonly List<ShdrAdapterClient> _adapters = new List<ShdrAdapterClient>();
 
 
+        /// <summary>
+        /// Initialises the module and binds the supplied configuration
+        /// payload to <see cref="ShdrAdapterModuleConfiguration"/>.
+        /// The SHDR client connections are opened in
+        /// <see cref="OnStartAfterLoad"/>.
+        /// </summary>
+        /// <param name="mtconnectAgent">Agent broker the SHDR clients
+        /// feed observations into.</param>
+        /// <param name="configuration">Raw configuration payload.</param>
         public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)
         {
             Id = ModuleId;
@@ -34,6 +55,16 @@ namespace MTConnect.Modules
         }
 
 
+        /// <summary>
+        /// Module lifecycle hook: opens an
+        /// <see cref="ShdrAdapterClient"/> per configured device (or
+        /// per discovered device when <c>DeviceKey</c> is a wildcard,
+        /// or a single generic client when
+        /// <see cref="ShdrAdapterModuleConfiguration.AllowShdrDevice"/>
+        /// is on and no devices are configured).
+        /// </summary>
+        /// <param name="initializeDataItems">Forwarded to each adapter
+        /// client; controls whether data items are seeded at start.</param>
         protected override void OnStartAfterLoad(bool initializeDataItems)
         {
             if (_configuration != null)
@@ -62,6 +93,11 @@ namespace MTConnect.Modules
             }
         }
 
+        /// <summary>
+        /// Module lifecycle hook: detaches every event handler from
+        /// each adapter client, stops the clients, and clears the
+        /// adapter list. Idempotent if no clients were created.
+        /// </summary>
         protected override void OnStop()
         {
             // Stop Adapter Clients

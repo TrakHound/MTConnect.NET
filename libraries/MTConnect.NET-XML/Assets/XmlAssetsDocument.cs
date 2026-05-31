@@ -18,16 +18,29 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for an <c>MTConnectAssets</c> response
+    /// document. Mirrors the on-the-wire document, dispatching each asset
+    /// element to its concrete surrogate, and converts to and from the
+    /// strongly-typed <see cref="AssetsResponseDocument"/> model.
+    /// </summary>
     [XmlRoot("MTConnectAssets")]
     public class XmlAssetsResponseDocument
     {
         private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(XmlAssetsResponseDocument));
 
 
+        /// <summary>
+        /// The document header carrying agent and buffer metadata.
+        /// </summary>
         [XmlElement("Header")]
         public XmlAssetsHeader Header { get; set; }
 
 
+        /// <summary>
+        /// The assets in the document, each mapped to its concrete surrogate by
+        /// element name.
+        /// </summary>
         [XmlArray("Assets")]
         [XmlArrayItem(typeof(XmlComponentConfigurationParametersAsset), ElementName = ComponentConfigurationParametersAsset.TypeId)]
         [XmlArrayItem(typeof(XmlCuttingToolAsset), ElementName = CuttingToolAsset.TypeId)]
@@ -36,10 +49,18 @@ namespace MTConnect.Assets.Xml
         [XmlArrayItem(typeof(XmlRawMaterialAsset), ElementName = RawMaterialAsset.TypeId)]
         public List<object> Assets { get; set; }
 
+        /// <summary>
+        /// The MTConnect version the document was produced for; not serialized.
+        /// </summary>
         [XmlIgnore]
         public Version Version { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate into the strongly-typed
+        /// <see cref="AssetsResponseDocument"/>, converting each asset via its
+        /// concrete surrogate.
+        /// </summary>
         public AssetsResponseDocument ToAssetsDocument()
         {
             var assetsDocument = new AssetsResponseDocument();
@@ -53,7 +74,7 @@ namespace MTConnect.Assets.Xml
                 foreach (var asset in Assets)
                 {
                     // ComponentConfigurationParameters
-                    if (asset.GetType() ==  typeof(XmlComponentConfigurationParametersAsset))
+                    if (asset.GetType() == typeof(XmlComponentConfigurationParametersAsset))
                     {
                         var componentConfigurationParametersAsset = ((XmlComponentConfigurationParametersAsset)asset).ToAsset();
                         if (componentConfigurationParametersAsset != null) assets.Add(componentConfigurationParametersAsset);
@@ -95,6 +116,12 @@ namespace MTConnect.Assets.Xml
         }
 
 
+        /// <summary>
+        /// Deserializes an <c>MTConnectAssets</c> XML document into a
+        /// strongly-typed <see cref="AssetsResponseDocument"/>, detecting the
+        /// MTConnect version and clearing namespaces first; returns <c>null</c>
+        /// if the input cannot be parsed.
+        /// </summary>
         public static AssetsResponseDocument FromXml(byte[] xmlBytes)
         {
             if (xmlBytes != null && xmlBytes.Length > 0)
@@ -128,6 +155,11 @@ namespace MTConnect.Assets.Xml
             return null;
         }
 
+        /// <summary>
+        /// Serializes the given <see cref="IAssetsResponseDocument"/> to a
+        /// <see cref="Stream"/> of XML, returning <c>null</c> when the document
+        /// or its header is missing.
+        /// </summary>
         public static Stream ToXmlStream(
             IAssetsResponseDocument document,
             bool indentOutput = false,
@@ -155,6 +187,13 @@ namespace MTConnect.Assets.Xml
             return null;
         }
 
+        /// <summary>
+        /// Writes the given <see cref="IAssetsResponseDocument"/> to
+        /// <paramref name="writer"/> as a complete <c>MTConnectAssets</c>
+        /// document, including the XML declaration, optional stylesheet
+        /// instruction, provenance comment, namespace declarations, header, and
+        /// assets.
+        /// </summary>
         public static void WriteXml(
             XmlWriter writer,
             IAssetsResponseDocument document,

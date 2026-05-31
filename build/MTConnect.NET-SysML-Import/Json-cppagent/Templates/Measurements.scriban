@@ -8,16 +8,34 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Assets.Json.CuttingTools
 {
+    /// <summary>
+    /// cppagent-style JSON representation of a cutting tool's measurements. Each
+    /// MTConnect measurement type is exposed as its own typed collection so the
+    /// serialized object shape matches the C++ reference agent's output.
+    /// </summary>
     public class JsonMeasurements
     {
 {{- for type in types }}
+        /// <summary>
+        /// The <c>{{type.type_id}}</c> measurements declared on the cutting tool.
+{{- if (type.description) }}
+        /// {{type.description}}
+{{- end }}
+        /// </summary>
         [JsonPropertyName("{{type.type_id}}")]
         public List<JsonMeasurement> {{type.name}}s { get; set; }
 
 {{ end }}
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonMeasurements() { }
 
+        /// <summary>
+        /// Initializes a new instance from a flat sequence of <paramref name="measurements"/>,
+        /// bucketing each one into the typed collection that matches its MTConnect type.
+        /// </summary>
         public JsonMeasurements(IEnumerable<IToolingMeasurement> measurements)
         {
             if (!measurements.IsNullOrEmpty())
@@ -32,20 +50,24 @@ namespace MTConnect.Assets.Json.CuttingTools
                             {{type.name}}s.Add(new JsonMeasurement(measurement));
                             break;
 
-{{ end }}                    
-                    }            
+{{ end }}
+                    }
                 }
-            }     
+            }
         }
 
 
+        /// <summary>
+        /// Flattens every typed measurement collection back into a single
+        /// <see cref="IToolingMeasurement"/> sequence, restoring each item's MTConnect type.
+        /// </summary>
         public IEnumerable<IToolingMeasurement> ToMeasurements()
         {
             var measurements = new List<IToolingMeasurement>();
-        
+
 {{ for type in types }}
             if (!{{type.name}}s.IsNullOrEmpty()) foreach (var measurement in {{type.name}}s) measurements.Add(measurement.ToMeasurement({{type.name}}.TypeId));
-{{- end }}            
+{{- end }}
 
             return measurements;
         }

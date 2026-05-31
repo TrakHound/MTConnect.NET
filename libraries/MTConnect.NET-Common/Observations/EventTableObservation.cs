@@ -32,12 +32,19 @@ namespace MTConnect.Observations
         }
 
 
+        /// <summary>
+        /// Initializes a new Event Observation that reports a TABLE representation.
+        /// </summary>
         public EventTableObservation() : base()
         {
             _representation = Devices.DataItemRepresentation.TABLE;
         }
 
 
+        /// <summary>
+        /// Invalidates the cached Table entries so they are rebuilt the next time they are read.
+        /// </summary>
+        /// <param name="observationValue">The value that was added.</param>
         protected override void OnValueAdded(ObservationValue observationValue)
         {
             _entries = null;

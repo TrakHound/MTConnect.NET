@@ -7,25 +7,51 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.Xml.CuttingTools
 {
+    /// <summary>
+    /// XML serialization surrogate for an MTConnect <c>CuttingToolArchetype</c>
+    /// asset, the template a physical cutting tool is instantiated from.
+    /// Mirrors the on-the-wire element and converts to and from the
+    /// strongly-typed <see cref="CuttingToolArchetypeAsset"/> model.
+    /// </summary>
     [XmlRoot("CuttingToolArchetype")]
     public class XmlCuttingToolArchetypeAsset : XmlAsset
     {
+        /// <summary>
+        /// The serial number of the archetype.
+        /// </summary>
         [XmlAttribute("serialNumber")]
         public string SerialNumber { get; set; }
 
+        /// <summary>
+        /// The identifier the tool is referenced by in programs.
+        /// </summary>
         [XmlAttribute("toolId")]
         public string ToolId { get; set; }
 
+        /// <summary>
+        /// The manufacturers of the archetype, as a comma-separated list.
+        /// </summary>
         [XmlAttribute("manufacturers")]
         public string Manufacturers { get; set; }
 
+        /// <summary>
+        /// The vendor-specific definition document describing the tool.
+        /// </summary>
         [XmlAttribute("CuttingToolDefinition")]
         public XmlCuttingToolDefinition CuttingToolDefinition { get; set; }
 
+        /// <summary>
+        /// The default life-cycle state the archetype prescribes.
+        /// </summary>
         [XmlElement("CuttingToolLifeCycle")]
         public XmlCuttingToolLifeCycle CuttingToolLifeCycle { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate into the strongly-typed
+        /// <see cref="CuttingToolArchetypeAsset"/>, splitting the
+        /// comma-separated manufacturers and projecting the nested elements.
+        /// </summary>
         public override IAsset ToAsset()
         {
             var asset = new CuttingToolArchetypeAsset();
@@ -48,6 +74,12 @@ namespace MTConnect.Assets.Xml.CuttingTools
             return asset;
         }
 
+        /// <summary>
+        /// Writes the given <see cref="ICuttingToolArchetypeAsset"/> to
+        /// <paramref name="writer"/> as a <c>CuttingToolArchetype</c> element,
+        /// joining the manufacturers list and omitting optional elements that
+        /// are not set.
+        /// </summary>
         public static new void WriteXml(XmlWriter writer, IAsset asset)
         {
             if (asset != null)

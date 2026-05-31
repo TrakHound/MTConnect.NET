@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// NativeUnits string constants as defined by the MTConnect Standard.
+    /// </summary>
     public static class NativeUnits
     {
         /// <summary>

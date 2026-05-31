@@ -18,6 +18,15 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Mqtt
 {
+    /// <summary>
+    /// Connects an in-process <see cref="IMTConnectAgent"/> to a remote MQTT broker, forwarding
+    /// device, observation, and asset additions as publishes under the configured topic prefix.
+    /// Unlike <see cref="MTConnectMqttBroker"/> the relay does not host its own broker; it owns
+    /// an <see cref="IMqttClient"/> and reconnects with exponential back-off (controlled by
+    /// <see cref="RetryInterval"/>) if the broker drops. The relay also drives a heartbeat timer
+    /// and optional observation-interval buckets so consumers can subscribe to coarse-grained
+    /// snapshots in addition to per-observation publishes.
+    /// </summary>
     public class MTConnectMqttRelay : IDisposable
     {
         private const string _documentFormat = "JSON";
@@ -38,10 +47,13 @@ namespace MTConnect.Mqtt
         private readonly System.Timers.Timer _heartbeatTimer = new System.Timers.Timer();
 
 
+        /// <summary>The remote MQTT broker hostname or IP the relay connects to.</summary>
         public string Server => _configuration.Server;
 
+        /// <summary>The remote MQTT broker TCP port the relay connects to.</summary>
         public int Port => _configuration.Port;
 
+        /// <summary>MQTT Quality of Service level applied to every publish from the relay.</summary>
         public int Qos => _configuration.Qos;
 
         /// <summary>
@@ -49,29 +61,48 @@ namespace MTConnect.Mqtt
         /// </summary>
         public int RetryInterval => _configuration.RetryInterval;
 
+        /// <summary>Heartbeat publish cadence in milliseconds; the relay emits the agent's <c>HeartbeatTimestamp</c> publish at this rate.</summary>
         public int HeartbeatInterval => _heartbeatInterval;
 
+        /// <summary>Topic layout (flat or hierarchy) used for observation publishes; defaults to <see cref="MTConnectMqttFormat.Hierarchy"/>.</summary>
         public MTConnectMqttFormat Format { get; set; }
 
+        /// <summary>Topic prefix used for all publishes (sourced from the client configuration).</summary>
         public string TopicPrefix => _configuration.TopicPrefix;
 
+        /// <summary>When true, publishes carry the MQTT retain flag so consumers see the most recent values on connect.</summary>
         public bool RetainMessages { get; set; }
 
+        /// <summary>When true, broker TLS certificates that fail validation are still accepted; sourced from the client configuration.</summary>
         public bool AllowUntrustedCertificates => _configuration.AllowUntrustedCertificates;
 
+        /// <summary>Raised once the relay establishes its session with the remote broker.</summary>
         public event EventHandler Connected;
 
+        /// <summary>Raised when the broker session is dropped (either by the relay, the broker, or a transport failure).</summary>
         public event EventHandler Disconnected;
 
         #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
+        /// <summary>Raised after each successful publish; the argument is the topic name.</summary>
         public event EventHandler<string> MessageSent;
         #pragma warning restore CS0067
 
+        /// <summary>Raised when establishing or maintaining the broker session throws.</summary>
         public event EventHandler<Exception> ConnectionError;
 
+        /// <summary>Raised when an individual publish throws after the session has been established.</summary>
         public event EventHandler<Exception> PublishError;
 
 
+        /// <summary>
+        /// Wires the relay to <paramref name="mtconnectAgent"/>'s add events and prepares the
+        /// MQTT client and heartbeat/observation-interval timers. Construction is non-blocking;
+        /// the broker connection is opened on <see cref="Start"/>.
+        /// </summary>
+        /// <param name="mtconnectAgent">The agent whose additions are forwarded to MQTT.</param>
+        /// <param name="configuration">Broker connection settings; null falls back to a fresh <see cref="MTConnectMqttClientConfiguration"/>.</param>
+        /// <param name="observationIntervals">Optional list of interval-bucket lengths in milliseconds for batched observation publishes.</param>
+        /// <param name="heartbeatInterval">Heartbeat publish cadence in milliseconds; defaults to one second.</param>
         public MTConnectMqttRelay(IMTConnectAgent mtconnectAgent, IMTConnectMqttClientConfiguration configuration, IEnumerable<int> observationIntervals = null, int heartbeatInterval = 1000)
         {
             _mtconnectAgent = mtconnectAgent;
@@ -102,6 +133,11 @@ namespace MTConnect.Mqtt
         }
 
 
+        /// <summary>
+        /// Opens the broker session on a background task, starts the heartbeat timer, and
+        /// schedules any observation-interval bucket timers. The method returns immediately;
+        /// <see cref="Connected"/> is raised when the broker session is up.
+        /// </summary>
         public void Start()
         {
             _stop = new CancellationTokenSource();
@@ -128,6 +164,11 @@ namespace MTConnect.Mqtt
             }
         }
 
+        /// <summary>
+        /// Cancels the relay worker, stops the heartbeat timer, disposes the observation-interval
+        /// bucket timers, and tears down the broker session. <see cref="Disconnected"/> is raised
+        /// once the session has been closed.
+        /// </summary>
         public void Stop()
         {
             if (_stop != null) _stop.Cancel();
@@ -265,6 +306,7 @@ namespace MTConnect.Mqtt
             } while (!_stop.Token.IsCancellationRequested);
         }
 
+        /// <summary>Disposes the underlying <see cref="IMqttClient"/>. Call <see cref="Stop"/> first to release the heartbeat and bucket timers.</summary>
         public void Dispose()
         {
             if (_mqttClient != null) _mqttClient.Dispose();

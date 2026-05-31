@@ -9,17 +9,40 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a SAMPLE observation carrying a
+    /// TABLE representation in the cppagent-compatible Streams shape.
+    /// The rows are emitted as a nested JSON object on the
+    /// <c>value</c> property (via <see cref="JsonTableEntries"/>) and
+    /// the row count is carried alongside.
+    /// </summary>
     public class JsonSampleTable : JsonObservation
     {
+        /// <summary>
+        /// The keyed table rows, emitted as a nested JSON object or as
+        /// the <c>UNAVAILABLE</c> string sentinel.
+        /// </summary>
         [JsonPropertyName("value")]
         public JsonTableEntries Entries { get; set; }
 
+        /// <summary>
+        /// The number of rows in the table.
+        /// </summary>
         [JsonPropertyName("count")]
         public long? Count { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonSampleTable() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed table sample
+        /// <see cref="IObservation"/>, optionally surfacing category and
+        /// instance-id. Emits an unavailable marker when the source has
+        /// no rows.
+        /// </summary>
         public JsonSampleTable(IObservation observation, bool categoryOutput = false, bool instanceIdOutput = false)
         {
             if (observation != null)
@@ -55,6 +78,11 @@ namespace MTConnect.Streams.Json
             }
         }
 
+        /// <summary>
+        /// Initializes the surrogate from a streaming
+        /// <see cref="IObservationOutput"/>, rehydrating the table rows
+        /// from the observation's value bag.
+        /// </summary>
         public JsonSampleTable(IObservationOutput observation)
         {
             if (observation != null)
@@ -90,6 +118,13 @@ namespace MTConnect.Streams.Json
             }
         }
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="ISampleTableObservation"/>, restoring the
+        /// data-item type from the supplied dictionary key, or emitting
+        /// the <c>UNAVAILABLE</c> result when the rows are marked
+        /// unavailable.
+        /// </summary>
         public ISampleTableObservation ToObservation(string type)
         {
             // Route construction through the typed factory so the runtime

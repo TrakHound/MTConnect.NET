@@ -5,6 +5,9 @@ using MTConnect.Observations;
 
 namespace MTConnect.Input
 {
+    /// <summary>
+    /// A single FaultState that contributes to a Condition Observation, describing the level, identifying codes, qualifier, and message of one condition activation.
+    /// </summary>
     public interface IConditionFaultStateObservationInput : IObservationInput
     {
         /// <summary>

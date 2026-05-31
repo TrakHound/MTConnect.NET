@@ -13,6 +13,20 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Servers
 {
+    /// <summary>
+    /// Ceen request handler for the MTConnect Sample endpoint
+    /// (GET /sample and GET /{deviceKey}/sample). Returns an
+    /// MTConnectStreams Response Document containing a slice of
+    /// historical observations bounded by the from / to / count query
+    /// parameters, optionally filtered by an XPath in path. When
+    /// interval is supplied, the handler upgrades the response to a
+    /// multipart x-mixed-replace stream and emits successive sample
+    /// windows every interval milliseconds, interleaved with
+    /// heartbeats. The response document format is negotiated via
+    /// documentFormat (xml | json | json-cppagent), defaulting to XML;
+    /// deviceType, version, indentOutput, and outputComments further
+    /// shape the payload.
+    /// </summary>
     class MTConnectSampleResponseHandler : MTConnectHttpResponseHandler
     {
         private const int _minimumHeartbeat = 500; // 500 ms
@@ -102,7 +116,7 @@ namespace MTConnect.Servers
                     var dataItemIds = PathProcessor.GetDataItemIds(_mtconnectAgent, path, documentFormat);
 
                     var sampleStream = new MTConnectHttpServerStream(
-						_serverConfiguration,
+                        _serverConfiguration,
                         _mtconnectAgent,
                         deviceKey,
                         dataItemIds,

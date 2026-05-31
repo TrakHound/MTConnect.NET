@@ -5,26 +5,53 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a component or device
+    /// <c>Description</c>, carrying manufacturer identification and free-text
+    /// notes.
+    /// </summary>
     public class JsonDescription
     {
+        /// <summary>
+        /// The manufacturer of the component or device.
+        /// </summary>
         [JsonPropertyName("manufacturer")]
         public string Manufacturer { get; set; }
 
+        /// <summary>
+        /// The manufacturer's model designation.
+        /// </summary>
         [JsonPropertyName("model")]
         public string Model { get; set; }
 
+        /// <summary>
+        /// The serial number of the component or device.
+        /// </summary>
         [JsonPropertyName("serialNumber")]
         public string SerialNumber { get; set; }
 
+        /// <summary>
+        /// The station the component or device belongs to.
+        /// </summary>
         [JsonPropertyName("station")]
         public string Station { get; set; }
 
+        /// <summary>
+        /// The free-text description body.
+        /// </summary>
         [JsonPropertyName("value")]
         public string Value { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonDescription() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IDescription"/>.
+        /// </summary>
         public JsonDescription(IDescription description)
         {
             if (description != null)
@@ -38,6 +65,9 @@ namespace MTConnect.Devices.Json
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed <see cref="Description"/>.
+        /// </summary>
         public IDescription ToDescription()
         {
             var description = new Description();

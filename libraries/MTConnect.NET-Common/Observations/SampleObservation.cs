@@ -78,12 +78,20 @@ namespace MTConnect.Observations
         }
 
 
+        /// <summary>
+        /// Initializes a new Sample Observation with the Sample category.
+        /// </summary>
         public SampleObservation()
         {
             _category = DataItemCategory.SAMPLE;
         }
 
 
+        /// <summary>
+        /// Creates a Sample Observation for the given DataItem, copying its identifying metadata.
+        /// </summary>
+        /// <param name="dataItem">The DataItem the Observation is created for.</param>
+        /// <returns>The Sample Observation, or null when <paramref name="dataItem"/> is null.</returns>
         public new static SampleObservation Create(IDataItem dataItem)
         {
             if (dataItem != null)
@@ -102,6 +110,11 @@ namespace MTConnect.Observations
             return null;
         }
 
+        /// <summary>
+        /// Creates a Sample Observation from an existing Observation, copying its metadata and values.
+        /// </summary>
+        /// <param name="observation">The source Observation to copy.</param>
+        /// <returns>The Sample Observation, or null when <paramref name="observation"/> is null.</returns>
         public static SampleObservation Create(IObservation observation)
         {
             if (observation != null)
@@ -125,6 +138,12 @@ namespace MTConnect.Observations
         }
 
 
+        /// <summary>
+        /// Creates the Sample Observation subclass matching the given type and representation.
+        /// </summary>
+        /// <param name="type">The DataItem Type identifier.</param>
+        /// <param name="representation">The DataItem representation.</param>
+        /// <returns>A type-specific Sample Observation, or a base SampleObservation when the type is not recognized.</returns>
         public static SampleObservation Create(string type, DataItemRepresentation representation)
         {
             Type dataItemType = null;

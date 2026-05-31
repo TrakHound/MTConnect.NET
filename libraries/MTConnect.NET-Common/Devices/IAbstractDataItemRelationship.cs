@@ -11,6 +11,10 @@ namespace MTConnect.Devices
         string Hash { get; }
 
 
+        /// <summary>
+        /// Computes a content hash for this relationship that changes whenever its hashed properties change.
+        /// </summary>
+        /// <returns>A SHA-1 hash string identifying the current state of this relationship.</returns>
         string GenerateHash();
     }
 }

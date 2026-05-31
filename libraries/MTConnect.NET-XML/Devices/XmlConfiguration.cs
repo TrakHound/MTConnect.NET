@@ -8,38 +8,69 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for a component's <c>Configuration</c>, the
+    /// container for its coordinate systems, motion, relationships, sensor
+    /// settings, geometry, and specifications. Mirrors the on-the-wire element
+    /// and converts to and from the strongly-typed <see cref="Configuration"/>
+    /// model.
+    /// </summary>
     [XmlRoot("Configuration")]
     public class XmlConfiguration
     {
+        /// <summary>
+        /// The coordinate systems the component's geometry is expressed in.
+        /// </summary>
         [XmlArray("CoordinateSystems")]
         [XmlArrayItem("CoordinateSystem", typeof(XmlCoordinateSystem))]
         public List<XmlCoordinateSystem> CoordinateSystems { get; set; }
 
+        /// <summary>
+        /// The kinematic relationship of the component to its parent.
+        /// </summary>
         [XmlElement("Motion")]
         public XmlMotion Motion { get; set; }
 
+        /// <summary>
+        /// The relationships from this component to assets, devices, and other
+        /// components.
+        /// </summary>
         [XmlArray("Relationships")]
         [XmlArrayItem("AssetRelationship", typeof(XmlAssetRelationship))]
         [XmlArrayItem("DeviceRelationship", typeof(XmlDeviceRelationship))]
         [XmlArrayItem("ComponentRelationship", typeof(XmlComponentRelationship))]
         public List<XmlConfigurationRelationship> Relationships { get; set; }
 
+        /// <summary>
+        /// The sensor calibration and channel settings of the component.
+        /// </summary>
         [XmlElement("SensorConfiguration")]
         public XmlSensorConfiguration SensorConfiguration { get; set; }
 
+        /// <summary>
+        /// The 3D geometry reference for the component.
+        /// </summary>
         [XmlElement("SolidModel")]
         public XmlSolidModel SolidModel { get; set; }
 
+        /// <summary>
+        /// The specifications constraining the component's measured values.
+        /// </summary>
         [XmlArray("Specifications")]
         [XmlArrayItem("Specification", typeof(XmlSpecification))]
         [XmlArrayItem("ProcessSpecification", typeof(XmlProcessSpecification))]
         public List<XmlAbstractSpecification> Specifications { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate into the strongly-typed
+        /// <see cref="Configuration"/>, projecting each nested collection into
+        /// its model representation.
+        /// </summary>
         public IConfiguration ToConfiguration()
         {
             var configuration = new Configuration();
-            
+
             // Coordinate Systems
             if (!CoordinateSystems.IsNullOrEmpty())
             {
@@ -94,6 +125,12 @@ namespace MTConnect.Devices.Xml
             return configuration;
         }
 
+        /// <summary>
+        /// Writes the given <see cref="IConfiguration"/> to
+        /// <paramref name="writer"/> as a <c>Configuration</c> element,
+        /// dispatching each relationship to its concrete writer and optionally
+        /// preceding the element with an explanatory comment.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IConfiguration configuration, bool outputComments)
         {
             if (configuration != null)

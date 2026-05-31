@@ -43,7 +43,7 @@ namespace MTConnect.Streams
         string Uuid { get; }
 
         /// <summary>
-        /// Gets All Observations (Samples, Events, & Conditions)
+        /// Gets All Observations (Samples, Events, and Conditions)
         /// </summary>
         IEnumerable<IObservation> Observations { get; }
 

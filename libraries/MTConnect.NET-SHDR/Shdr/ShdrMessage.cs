@@ -27,14 +27,17 @@ namespace MTConnect.Shdr
         }
 
 
+        /// <summary>Creates an empty MESSAGE-typed event for builder-style population.</summary>
         public ShdrMessage() { }
 
+        /// <summary>Creates a MESSAGE event scoped to a single DataItem key with no value yet set.</summary>
         public ShdrMessage(string dataItemKey)
         {
             DataItemKey = dataItemKey;
             Timestamp = 0;
         }
 
+        /// <summary>Creates a MESSAGE event with the supplied DataItem key and text value.</summary>
         public ShdrMessage(string dataItemKey, string value)
         {
             DataItemKey = dataItemKey;
@@ -45,6 +48,7 @@ namespace MTConnect.Shdr
             Timestamp = 0;
         }
 
+        /// <summary>Creates a MESSAGE event with the supplied DataItem key, text value, and native code.</summary>
         public ShdrMessage(string dataItemKey, string value, string nativeCode)
         {
             DataItemKey = dataItemKey;
@@ -55,6 +59,7 @@ namespace MTConnect.Shdr
             Timestamp = 0;
         }
 
+        /// <summary>Creates a MESSAGE event with an explicit Unix-time <paramref name="timestamp"/> (milliseconds since epoch).</summary>
         public ShdrMessage(string dataItemKey, string value, long timestamp)
         {
             DataItemKey = dataItemKey;
@@ -65,6 +70,7 @@ namespace MTConnect.Shdr
             Timestamp = timestamp;
         }
 
+        /// <summary>Creates a MESSAGE event with native code and an explicit Unix-time <paramref name="timestamp"/>.</summary>
         public ShdrMessage(string dataItemKey, string value, string nativeCode, long timestamp)
         {
             DataItemKey = dataItemKey;
@@ -75,6 +81,7 @@ namespace MTConnect.Shdr
             Timestamp = timestamp;
         }
 
+        /// <summary>Creates a MESSAGE event with an explicit <paramref name="timestamp"/>; converted to Unix UTC time during construction.</summary>
         public ShdrMessage(string dataItemKey, string value, DateTime timestamp)
         {
             DataItemKey = dataItemKey;
@@ -85,6 +92,7 @@ namespace MTConnect.Shdr
             Timestamp = timestamp.ToUnixUtcTime();
         }
 
+        /// <summary>Creates a MESSAGE event with native code and an explicit <paramref name="timestamp"/>; converted to Unix UTC time during construction.</summary>
         public ShdrMessage(string dataItemKey, string value, string nativeCode, DateTime timestamp)
         {
             DataItemKey = dataItemKey;
@@ -95,6 +103,7 @@ namespace MTConnect.Shdr
             Timestamp = timestamp.ToUnixUtcTime();
         }
 
+        /// <summary>Clones the supplied <see cref="IObservationInput"/> into an SHDR-flavoured MESSAGE event.</summary>
         public ShdrMessage(IObservationInput observation)
         {
             if (observation != null)

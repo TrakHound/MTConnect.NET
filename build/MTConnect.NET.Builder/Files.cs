@@ -6,8 +6,26 @@ using System.Text.RegularExpressions;
 
 namespace TrakHound.Builder
 {
+    /// <summary>
+    /// Filesystem helpers used by the release-builder script:
+    /// recursive copy / move with ignore patterns, zip / unzip, and a
+    /// directory-clear utility. Every method is best-effort —
+    /// transport failures are swallowed inside the method so the
+    /// builder script can continue.
+    /// </summary>
     public static class Files
     {
+        /// <summary>
+        /// Recursively copies every file from
+        /// <paramref name="sourceDirectory"/> to
+        /// <paramref name="destinationDirectory"/>, skipping any path
+        /// that matches one of the <paramref name="ignorePatterns"/>
+        /// regular-expression strings.
+        /// </summary>
+        /// <param name="sourceDirectory">Source root.</param>
+        /// <param name="destinationDirectory">Destination root.</param>
+        /// <param name="ignorePatterns">Regex patterns matched against
+        /// the full source path; matched paths are skipped.</param>
         public static void Copy(string sourceDirectory, string destinationDirectory, IEnumerable<string> ignorePatterns = null)
         {
             if (!string.IsNullOrEmpty(sourceDirectory) && !string.IsNullOrEmpty(destinationDirectory))
@@ -58,6 +76,15 @@ namespace TrakHound.Builder
             }
         }
 
+        /// <summary>
+        /// Recursively moves every file from
+        /// <paramref name="sourceDirectory"/> to
+        /// <paramref name="destinationDirectory"/>, skipping paths
+        /// matching <paramref name="ignorePatterns"/>.
+        /// </summary>
+        /// <param name="sourceDirectory">Source root.</param>
+        /// <param name="destinationDirectory">Destination root.</param>
+        /// <param name="ignorePatterns">Regex patterns to skip.</param>
         public static void Move(string sourceDirectory, string destinationDirectory, IEnumerable<string> ignorePatterns = null)
         {
             if (!string.IsNullOrEmpty(sourceDirectory) && !string.IsNullOrEmpty(destinationDirectory))
@@ -96,6 +123,12 @@ namespace TrakHound.Builder
             }
         }
 
+        /// <summary>
+        /// Zips the directory at <paramref name="sourcePath"/> into a
+        /// new in-memory byte array.
+        /// </summary>
+        /// <param name="sourcePath">Source directory.</param>
+        /// <returns>The zipped archive bytes.</returns>
         public static byte[] Zip(string sourcePath)
         {
             if (!string.IsNullOrEmpty(sourcePath))
@@ -127,6 +160,12 @@ namespace TrakHound.Builder
             return null;
         }
 
+        /// <summary>
+        /// Zips the directory at <paramref name="sourcePath"/> and
+        /// writes the archive to <paramref name="destinationPath"/>.
+        /// </summary>
+        /// <param name="sourcePath">Source directory.</param>
+        /// <param name="destinationPath">Destination archive path.</param>
         public static void Zip(string sourcePath, string destinationPath)
         {
             var bytes = Zip(sourcePath);
@@ -140,6 +179,12 @@ namespace TrakHound.Builder
             }
         }
 
+		/// <summary>
+		/// Extracts the supplied zip archive bytes into
+		/// <paramref name="destinationPath"/>.
+		/// </summary>
+		/// <param name="archivedBytes">In-memory zip archive.</param>
+		/// <param name="destinationPath">Target directory.</param>
 		public static void Unzip(byte[] archivedBytes, string destinationPath)
 		{
 			if (archivedBytes != null && !string.IsNullOrEmpty(destinationPath))
@@ -161,6 +206,12 @@ namespace TrakHound.Builder
 		}
 
 
+		/// <summary>
+		/// Recursively deletes every file and subdirectory under
+		/// <paramref name="directory"/>, leaving the directory itself
+		/// in place but empty. Best-effort — IO errors are swallowed.
+		/// </summary>
+		/// <param name="directory">Directory to clear.</param>
 		public static void Clear(string directory)
         {
             if (!string.IsNullOrEmpty(directory))

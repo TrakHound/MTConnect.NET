@@ -10,6 +10,9 @@ namespace MTConnect.Assets.ComponentConfigurationParameters
     /// </summary>
     public class Parameter : IParameter
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Property that determines the characteristic or behavior of an entity.";
 
 
@@ -17,32 +20,32 @@ namespace MTConnect.Assets.ComponentConfigurationParameters
         /// Internal identifier, register, or address.
         /// </summary>
         public string Identifier { get; set; }
-        
+
         /// <summary>
         /// Maximum allowed value.
         /// </summary>
         public double? Maximum { get; set; }
-        
+
         /// <summary>
         /// Minimal allowed value.
         /// </summary>
         public double? Minimum { get; set; }
-        
+
         /// <summary>
         /// Descriptive name.
         /// </summary>
         public string Name { get; set; }
-        
+
         /// <summary>
         /// Nominal value.
         /// </summary>
         public double? Nominal { get; set; }
-        
+
         /// <summary>
         /// Engineering units.units **SHOULD** be SI or MTConnect Units.
         /// </summary>
         public string Units { get; set; }
-        
+
         /// <summary>
         /// Configured value.
         /// </summary>

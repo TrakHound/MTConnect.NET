@@ -10,6 +10,9 @@ namespace MTConnect.Assets.CuttingTools
     /// </summary>
     public class CuttingToolDefinition : ICuttingToolDefinition
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Detailed structure of the cutting tool which is static during its lifecycle. ISO 13399.";
 
 
@@ -17,7 +20,7 @@ namespace MTConnect.Assets.CuttingTools
         /// Identifies the expected representation of the enclosed data.
         /// </summary>
         public MTConnect.Assets.CuttingTools.FormatType Format { get; set; }
-        
+
         /// <summary>
         /// Format.
         /// </summary>

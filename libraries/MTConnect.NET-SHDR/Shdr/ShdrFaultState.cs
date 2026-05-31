@@ -100,8 +100,10 @@ namespace MTConnect.Shdr
         internal bool IsSent { get; set; }
 
 
+        /// <summary>Creates an empty fault-state record for builder-style population.</summary>
         public ShdrFaultState() { }
 
+        /// <summary>Creates a fault state with the supplied level and optional native code/severity, qualifier, condition id, and message.</summary>
         public ShdrFaultState(
             ConditionLevel level,
             string message = null,
@@ -119,6 +121,7 @@ namespace MTConnect.Shdr
             if (!string.IsNullOrEmpty(message)) Message = message;
         }
 
+        /// <summary>Creates a fault state with an explicit Unix-time <paramref name="timestamp"/> (milliseconds since epoch).</summary>
         public ShdrFaultState(
             long timestamp,
             ConditionLevel level,
@@ -138,6 +141,7 @@ namespace MTConnect.Shdr
             Timestamp = timestamp;
         }
 
+        /// <summary>Creates a fault state with an explicit <paramref name="timestamp"/>; converted to Unix time during construction.</summary>
         public ShdrFaultState(
             DateTime timestamp,
             ConditionLevel level,
@@ -157,6 +161,7 @@ namespace MTConnect.Shdr
             Timestamp = timestamp.ToUnixTime();
         }
 
+        /// <summary>Clones the supplied condition-fault-state observation input into an SHDR-flavoured record.</summary>
         public ShdrFaultState(IConditionFaultStateObservationInput conditionObservation)
         {
             if (conditionObservation != null)
@@ -185,7 +190,7 @@ namespace MTConnect.Shdr
                 var target = DataItemKey;
                 if (!string.IsNullOrEmpty(DeviceKey)) target = $"{DeviceKey}:{target}";
 
-                
+
                 string identifier;
                 if (!string.IsNullOrEmpty(NativeCode))
                 {
@@ -198,7 +203,7 @@ namespace MTConnect.Shdr
 
                 // If no ConditionId or NativeCode specified, then create hash of Message
                 if (string.IsNullOrEmpty(identifier)) identifier = Message?.ToMD5Hash();
-                
+
                 var message = !string.IsNullOrEmpty(Message) ? Message.Replace("|", @"\|") : "";
                 var qualifier = Qualifier != ConditionQualifier.NOT_SPECIFIED ? Qualifier.ToString() : "";
 

@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// Description text for each <see cref="Availability"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class AvailabilityDescriptions
     {
         /// <summary>
@@ -16,6 +19,9 @@ namespace MTConnect.Observations.Events
         public const string UNAVAILABLE = "Data source is either inactive or not capable of providing data.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="Availability"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(Availability value)
         {
             switch (value)

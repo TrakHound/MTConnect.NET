@@ -11,8 +11,18 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
+    /// <summary>
+    /// cppagent-style JSON representation of the SAMPLE-category observations in a
+    /// stream. Every MTConnect sample type is exposed as four typed collections —
+    /// one each for the VALUE, DATA_SET, TABLE, and TIME_SERIES representations — so
+    /// the serialized object shape matches the C++ reference agent's output.
+    /// </summary>
     public class JsonSamples
     {
+        /// <summary>
+        /// Materializes every typed collection into a single flat list of
+        /// <see cref="IObservation"/>, restoring each observation's MTConnect type.
+        /// </summary>
         [JsonIgnore]
         public List<IObservation> Observations
         {
@@ -32,22 +42,48 @@ namespace MTConnect.Streams.Json
         }
 
 {{- for type in types }}
+        /// <summary>
+        /// The <c>{{type.name}}</c> samples reported with the scalar VALUE representation.
+{{- if (type.description) }}
+        /// {{type.description}}
+{{- end }}
+        /// </summary>
         [JsonPropertyName("{{type.name}}")]
         public IEnumerable<JsonSampleValue> {{type.name}} { get; set; }
 
+        /// <summary>
+        /// The <c>{{type.name}}</c> samples reported with the DATA_SET representation
+        /// (a set of key/value entries).
+        /// </summary>
         [JsonPropertyName("{{type.name}}DataSet")]
         public IEnumerable<JsonSampleDataSet> {{type.name}}DataSet { get; set; }
 
+        /// <summary>
+        /// The <c>{{type.name}}</c> samples reported with the TABLE representation
+        /// (a set of keyed rows of cells).
+        /// </summary>
         [JsonPropertyName("{{type.name}}Table")]
         public IEnumerable<JsonSampleTable> {{type.name}}Table { get; set; }
 
+        /// <summary>
+        /// The <c>{{type.name}}</c> samples reported with the TIME_SERIES representation
+        /// (a sequence of values sampled at a fixed rate).
+        /// </summary>
         [JsonPropertyName("{{type.name}}TimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> {{type.name}}TimeSeries { get; set; }
 
 {{ end }}
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonSamples() { }
 
+        /// <summary>
+        /// Initializes a new instance from a flat sequence of <paramref name="observations"/>,
+        /// routing each one into the typed collection matching its MTConnect type and
+        /// representation.
+        /// </summary>
         public JsonSamples(IEnumerable<IObservationOutput> observations)
         {
             if (observations != null)
@@ -109,5 +145,5 @@ namespace MTConnect.Streams.Json
                 }
             }
         }
-    }  
+    }
 }

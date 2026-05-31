@@ -8,14 +8,33 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for an EVENT observation carrying a
+    /// scalar value in the cppagent-compatible Streams shape. The
+    /// value is emitted under the <c>value</c> property as a free-form
+    /// JSON value (string, number, or boolean) to match cppagent's
+    /// loose event typing.
+    /// </summary>
     public class JsonEventValue : JsonObservation
     {
+        /// <summary>
+        /// The scalar value of the event.
+        /// </summary>
         [JsonPropertyName("value")]
         public object Value { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonEventValue() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed event
+        /// <see cref="IObservation"/>, optionally surfacing category and
+        /// instance-id, and pulling the value, reset trigger, native
+        /// code, and asset type from the observation's value bag.
+        /// </summary>
         public JsonEventValue(IObservation observation, bool categoryOutput = false, bool instanceIdOutput = false)
         {
             if (observation != null)
@@ -35,6 +54,11 @@ namespace MTConnect.Streams.Json
             }
         }
 
+        /// <summary>
+        /// Initializes the surrogate from a streaming
+        /// <see cref="IObservationOutput"/>, pulling the same value-bag
+        /// fields as the model-level constructor.
+        /// </summary>
         public JsonEventValue(IObservationOutput observation)
         {
             if (observation != null)
@@ -53,6 +77,11 @@ namespace MTConnect.Streams.Json
             }
         }
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="IEventValueObservation"/>, restoring the data-item
+        /// type from the supplied dictionary key.
+        /// </summary>
         public IEventValueObservation ToObservation(string type)
         {
             // Route construction through the typed factory so the runtime

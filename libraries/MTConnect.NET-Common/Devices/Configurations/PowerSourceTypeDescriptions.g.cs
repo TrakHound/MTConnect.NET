@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices.Configurations
 {
+    /// <summary>
+    /// Description text for each <see cref="PowerSourceType"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class PowerSourceTypeDescriptions
     {
         /// <summary>
@@ -21,6 +24,9 @@ namespace MTConnect.Devices.Configurations
         public const string STANDBY = "Held near at hand and ready for use and is uninterruptible.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="PowerSourceType"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(PowerSourceType value)
         {
             switch (value)

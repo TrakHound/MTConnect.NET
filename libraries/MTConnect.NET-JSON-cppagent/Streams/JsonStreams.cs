@@ -7,14 +7,29 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a typed container of device
+    /// streams inside <c>MTConnectStreams</c>, keyed by the singular
+    /// cppagent element name <c>DeviceStream</c>.
+    /// </summary>
     public class JsonStreams
     {
+        /// <summary>
+        /// The device streams in the document.
+        /// </summary>
         [JsonPropertyName("DeviceStream")]
         public List<JsonDeviceStream> DeviceStreams { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonStreams() { }
 
+        /// <summary>
+        /// Initializes the container from a strongly-typed streams
+        /// document.
+        /// </summary>
         public JsonStreams(IStreamsResponseOutputDocument streamsDocument)
         {
             if (streamsDocument != null)
@@ -34,6 +49,10 @@ namespace MTConnect.Streams.Json
         }
 
 
+        /// <summary>
+        /// Flattens the container back into a uniform
+        /// <see cref="IDeviceStream"/> sequence.
+        /// </summary>
         public IEnumerable<IDeviceStream> ToStreams()
         {
             if (!DeviceStreams.IsNullOrEmpty())

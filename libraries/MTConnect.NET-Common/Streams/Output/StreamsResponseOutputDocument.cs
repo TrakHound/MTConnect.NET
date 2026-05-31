@@ -28,16 +28,32 @@ namespace MTConnect.Streams.Output
         /// </summary>
         public Version Version { get; set; }
 
+        /// <summary>
+        /// The sequence number of the earliest observation included in this document.
+        /// </summary>
         public ulong FirstObservationSequence { get; set; }
 
+        /// <summary>
+        /// The sequence number of the latest observation included in this document.
+        /// </summary>
         public ulong LastObservationSequence { get; set; }
 
+        /// <summary>
+        /// The total number of observations included in this document.
+        /// </summary>
         public uint ObservationCount { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty streams output document.
+        /// </summary>
         public StreamsResponseOutputDocument() { }
 
-        public StreamsResponseOutputDocument(IStreamsResponseDocument document)  
+        /// <summary>
+        /// Builds an output document from a deserialized streams response, copying its header and version and projecting each device stream into its output representation; a null source yields an empty document.
+        /// </summary>
+        /// <param name="document">The source streams response document.</param>
+        public StreamsResponseOutputDocument(IStreamsResponseDocument document)
         {
             if (document != null)
             {
@@ -57,6 +73,9 @@ namespace MTConnect.Streams.Output
         }
 
 
+        /// <summary>
+        /// Flattens the document's device streams into a single sequence of all contained observation outputs.
+        /// </summary>
         public IEnumerable<IObservationOutput> GetObservations()
         {
             if (!Streams.IsNullOrEmpty())

@@ -14,13 +14,27 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for the <c>RotationDataSet</c> element, the
+    /// keyed-entry representation of a coordinate-system rotation where each
+    /// rotation component is carried as an <c>Entry</c> keyed <c>A</c>,
+    /// <c>B</c>, or <c>C</c>.
+    /// </summary>
     [XmlRoot("RotationDataSet")]
     public class XmlRotationDataSet
     {
+        /// <summary>
+        /// The per-axis rotation entries as serialized <c>Entry</c> elements.
+        /// </summary>
         [XmlElement("Entry")]
         public List<XmlEntry> Entries { get; set; }
 
 
+        /// <summary>
+        /// Converts the keyed entries to a strongly-typed
+        /// <see cref="RotationDataSet"/>, mapping each <c>A</c>/<c>B</c>/<c>C</c>
+        /// entry to its component property and ignoring unkeyed entries.
+        /// </summary>
         public IRotationDataSet ToRotationDataSet()
         {
             var dataSet = new RotationDataSet();
@@ -40,6 +54,10 @@ namespace MTConnect.Devices.Xml
             return dataSet;
         }
 
+        /// <summary>
+        /// Writes the <c>RotationDataSet</c> element, emitting one keyed
+        /// <c>Entry</c> per component and omitting components with no value.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IRotationDataSet dataSet)
         {
             if (dataSet != null)

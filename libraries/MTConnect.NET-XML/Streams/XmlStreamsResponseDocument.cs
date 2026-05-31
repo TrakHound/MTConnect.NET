@@ -11,11 +11,23 @@ using System.Xml;
 
 namespace MTConnect.Streams.Xml
 {
+    /// <summary>
+    /// Streaming XML reader/writer for the root <c>MTConnectStreams</c>
+    /// response document returned by the agent <c>current</c> and
+    /// <c>sample</c> requests. Uses an <see cref="XmlReader"/>/<see cref="XmlWriter"/>
+    /// rather than the XML serializer so very large observation streams can be
+    /// processed without materializing the whole document.
+    /// </summary>
     public static class XmlStreamsResponseDocument
     {
 
         #region "Read"
 
+        /// <summary>
+        /// Reads a complete <c>MTConnectStreams</c> document, detecting the
+        /// schema version from the root namespace, reading the header, and
+        /// reading each <c>DeviceStream</c> in turn.
+        /// </summary>
         public static IStreamsResponseDocument ReadXml(XmlReader reader)
         {
             var document = new StreamsResponseDocument();
@@ -47,6 +59,10 @@ namespace MTConnect.Streams.Xml
             return document;
         }
 
+        /// <summary>
+        /// Reads a single <c>DeviceStream</c>, capturing its <c>name</c> and
+        /// <c>uuid</c> and reading each contained <c>ComponentStream</c>.
+        /// </summary>
         public static IDeviceStream ReadDeviceStreamXml(XmlReader reader)
         {
             reader.ReadToDescendant("DeviceStream");
@@ -70,6 +86,11 @@ namespace MTConnect.Streams.Xml
             return deviceStream;
         }
 
+        /// <summary>
+        /// Reads a single <c>ComponentStream</c>, capturing its component
+        /// identification attributes and the observations grouped under its
+        /// <c>Samples</c>, <c>Events</c>, and <c>Condition</c> containers.
+        /// </summary>
         public static IComponentStream ReadComponentStreamXml(XmlReader reader)
         {
             reader.ReadToDescendant("ComponentStream");
@@ -113,6 +134,11 @@ namespace MTConnect.Streams.Xml
             return componentStream;
         }
 
+        /// <summary>
+        /// Reads the observations within a category container, selecting the
+        /// container element name (<c>Samples</c>, <c>Events</c>, or
+        /// <c>Condition</c>) from the supplied <paramref name="category"/>.
+        /// </summary>
         public static IEnumerable<IObservation> ReadObservationsXml(XmlReader reader, DataItemCategory category)
         {
             var observations = new List<IObservation>();
@@ -404,6 +430,11 @@ namespace MTConnect.Streams.Xml
 
         #region "Write"
 
+        /// <summary>
+        /// Serializes the streams response document to a new XML stream,
+        /// choosing indented or compact writer settings and optionally emitting
+        /// a stylesheet, header comment, and extended schema namespaces.
+        /// </summary>
         public static Stream ToXmlStream(
             ref IStreamsResponseOutputDocument document,
             IEnumerable<NamespaceConfiguration> extendedSchemas = null,
@@ -432,6 +463,12 @@ namespace MTConnect.Streams.Xml
             return null;
         }
 
+        /// <summary>
+        /// Writes the complete <c>MTConnectStreams</c> document, emitting the
+        /// version-specific namespace, optional extended schema namespaces and
+        /// schema location, the header, and each device stream. No document is
+        /// written when the response has no streams.
+        /// </summary>
         public static void WriteXml(
             XmlWriter writer,
             ref IStreamsResponseOutputDocument document,

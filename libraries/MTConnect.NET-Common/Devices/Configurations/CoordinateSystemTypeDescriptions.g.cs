@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices.Configurations
 {
+    /// <summary>
+    /// Description text for each <see cref="CoordinateSystemType"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class CoordinateSystemTypeDescriptions
     {
         /// <summary>
@@ -51,6 +54,9 @@ namespace MTConnect.Devices.Configurations
         public const string WORLD = "Stationary coordinate system referenced to earth, which is independent of the robot motion. ISO 9787:2013For non-robotic devices, stationary coordinate system referenced to earth, which is independent of the motion of a piece of equipment.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="CoordinateSystemType"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(CoordinateSystemType value)
         {
             switch (value)

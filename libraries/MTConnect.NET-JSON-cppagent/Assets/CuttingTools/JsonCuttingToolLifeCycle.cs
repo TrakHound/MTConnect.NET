@@ -7,44 +7,90 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Assets.Json.CuttingTools
 {
+    /// <summary>
+    /// JSON serialization surrogate for a <c>CuttingToolLifeCycle</c> in the
+    /// cppagent-compatible shape. Converts to and from the strongly-typed
+    /// <see cref="CuttingToolLifeCycle"/> model.
+    /// </summary>
     public class JsonCuttingToolLifeCycle
     {
+        /// <summary>
+        /// The program tool group the tool is assigned to.
+        /// </summary>
         [JsonPropertyName("ProgramToolGroup")]
         public string ProgramToolGroup { get; set; }
 
+        /// <summary>
+        /// The program tool number the tool is referenced by.
+        /// </summary>
         [JsonPropertyName("ProgramToolNumber")]
         public string ProgramToolNumber { get; set; }
 
+        /// <summary>
+        /// The connection code identifying the machine-side interface of the
+        /// tool.
+        /// </summary>
         [JsonPropertyName("ConnectionCodeMachineSide")]
         public string ConnectionCodeMachineSide { get; set; }
 
+        /// <summary>
+        /// The status values of the cutting tool.
+        /// </summary>
         [JsonPropertyName("CutterStatus")]
         public JsonCutterStatusCollection CutterStatus { get; set; }
 
+        /// <summary>
+        /// The number of times the tool has been reconditioned.
+        /// </summary>
         [JsonPropertyName("ReconditionCount")]
         public JsonReconditionCount ReconditionCount { get; set; }
 
+        /// <summary>
+        /// The measured and remaining tool life values.
+        /// </summary>
         [JsonPropertyName("ToolLife")]
         public IEnumerable<JsonToolLife> ToolLife { get; set; }
 
+        /// <summary>
+        /// The location of the tool in the machine.
+        /// </summary>
         [JsonPropertyName("Location")]
         public JsonLocation Location { get; set; }
 
+        /// <summary>
+        /// The spindle speed limits the tool is intended to operate within.
+        /// </summary>
         [JsonPropertyName("ProcessSpindleSpeed")]
         public JsonProcessSpindleSpeed ProcessSpindleSpeed { get; set; }
 
+        /// <summary>
+        /// The feed rate limits the tool is intended to operate within.
+        /// </summary>
         [JsonPropertyName("ProcessFeedRate")]
         public JsonProcessFeedRate ProcessFeedRate { get; set; }
 
+        /// <summary>
+        /// The dimensional measurements of the tool assembly.
+        /// </summary>
         [JsonPropertyName("Measurements")]
         public JsonMeasurements Measurements { get; set; }
 
+        /// <summary>
+        /// The cutting items making up the tool.
+        /// </summary>
         [JsonPropertyName("CuttingItems")]
         public JsonCuttingItemCollection CuttingItems { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonCuttingToolLifeCycle() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="ICuttingToolLifeCycle"/>.
+        /// </summary>
         public JsonCuttingToolLifeCycle(ICuttingToolLifeCycle cuttingToolLifeCycle)
         {
             if (cuttingToolLifeCycle != null)
@@ -89,6 +135,10 @@ namespace MTConnect.Assets.Json.CuttingTools
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="ICuttingToolLifeCycle"/>.
+        /// </summary>
         public ICuttingToolLifeCycle ToCuttingToolLifeCycle()
         {
             var cuttingToolLifeCycle = new CuttingToolLifeCycle();

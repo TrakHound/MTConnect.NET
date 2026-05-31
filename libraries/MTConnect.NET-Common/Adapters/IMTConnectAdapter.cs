@@ -6,6 +6,10 @@ using System;
 
 namespace MTConnect.Adapters
 {
+    /// <summary>
+    /// An MTConnect adapter: collects observations, assets, and devices from
+    /// a data source and streams them to one or more MTConnect Agents.
+    /// </summary>
     public interface IMTConnectAdapter
     {
         /// <summary>
@@ -60,6 +64,11 @@ namespace MTConnect.Adapters
         /// </summary>
         bool SendLast(long timestamp = 0);
 
+        /// <summary>
+        /// Flushes the entire buffered set of items, assets, and devices to
+        /// the Agent regardless of change state. Returns <c>true</c> when the
+        /// buffer was sent.
+        /// </summary>
         bool SendBuffer();
 
 
@@ -69,21 +78,70 @@ namespace MTConnect.Adapters
         void SetUnavailable(long timestamp = 0);
 
 
+        /// <summary>
+        /// Queues an observation for the given DataItem with the supplied
+        /// value, timestamped at the current time.
+        /// </summary>
+        /// <param name="dataItemId">The DataItem identifier.</param>
+        /// <param name="value">The observed value.</param>
         void AddObservation(string dataItemId, object value);
 
+        /// <summary>
+        /// Queues an observation for the given DataItem with the supplied
+        /// value and explicit timestamp.
+        /// </summary>
+        /// <param name="dataItemId">The DataItem identifier.</param>
+        /// <param name="value">The observed value.</param>
+        /// <param name="timestamp">The observation timestamp.</param>
         void AddObservation(string dataItemId, object value, DateTime timestamp);
 
+        /// <summary>
+        /// Queues an observation for the given DataItem with the supplied
+        /// value and a Unix-epoch timestamp.
+        /// </summary>
+        /// <param name="dataItemId">The DataItem identifier.</param>
+        /// <param name="value">The observed value.</param>
+        /// <param name="timestamp">The observation timestamp as Unix nanoseconds.</param>
         void AddObservation(string dataItemId, object value, long timestamp);
 
+        /// <summary>
+        /// Queues a fully formed observation input.
+        /// </summary>
+        /// <param name="observation">The observation to queue.</param>
         void AddObservation(IObservationInput observation);
 
 
+        /// <summary>
+        /// Queues and immediately sends an observation for the given DataItem,
+        /// timestamped at the current time. Returns <c>true</c> when sent.
+        /// </summary>
+        /// <param name="dataItemId">The DataItem identifier.</param>
+        /// <param name="value">The observed value.</param>
         bool SendObservation(string dataItemId, object value);
 
+        /// <summary>
+        /// Queues and immediately sends an observation for the given DataItem
+        /// with an explicit timestamp. Returns <c>true</c> when sent.
+        /// </summary>
+        /// <param name="dataItemId">The DataItem identifier.</param>
+        /// <param name="value">The observed value.</param>
+        /// <param name="timestamp">The observation timestamp.</param>
         bool SendObservation(string dataItemId, object value, DateTime timestamp);
 
+        /// <summary>
+        /// Queues and immediately sends an observation for the given DataItem
+        /// with a Unix-epoch timestamp. Returns <c>true</c> when sent.
+        /// </summary>
+        /// <param name="dataItemId">The DataItem identifier.</param>
+        /// <param name="value">The observed value.</param>
+        /// <param name="timestamp">The observation timestamp as Unix nanoseconds.</param>
         bool SendObservation(string dataItemId, object value, long timestamp);
 
+        /// <summary>
+        /// Queues and immediately sends a fully formed observation input.
+        /// Returns <c>true</c> when sent.
+        /// </summary>
+        /// <param name="observation">The observation to send.</param>
         bool SendObservation(IObservationInput observation);
 
 

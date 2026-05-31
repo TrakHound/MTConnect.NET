@@ -16,15 +16,33 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Assets.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for an MTConnectAssets response document,
+    /// carrying the header and a heterogeneous collection of asset surrogates.
+    /// Converts to and from the strongly-typed
+    /// <see cref="AssetsResponseDocument"/> model.
+    /// </summary>
     public class JsonAssetsDocument
     {
+        /// <summary>
+        /// The document header.
+        /// </summary>
         [JsonPropertyName("header")]
         public JsonAssetsHeader Header { get; set; }
 
+        /// <summary>
+        /// The asset surrogates reported in the document, each selected by the
+        /// source asset's type.
+        /// </summary>
         [JsonPropertyName("assets")]
         public List<object> Assets { get; set; }
 
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IAssetsResponseDocument"/>, dispatching each asset to the
+        /// surrogate that matches its type.
+        /// </summary>
         public JsonAssetsDocument(IAssetsResponseDocument assetsDocument)
         {
             if (assetsDocument != null)
@@ -56,6 +74,12 @@ namespace MTConnect.Assets.Json
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="AssetsResponseDocument"/>; currently restores the header
+        /// only, leaving the asset collection empty pending per-type
+        /// reconstitution.
+        /// </summary>
         public AssetsResponseDocument ToAssetsDocument()
         {
             var assetsDocument = new AssetsResponseDocument();

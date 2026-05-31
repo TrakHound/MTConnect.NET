@@ -55,8 +55,15 @@ namespace MTConnect.Streams.Output
         }
 
 
+        /// <summary>
+        /// Initializes an empty component stream output.
+        /// </summary>
         public ComponentStreamOutput() { }
 
+        /// <summary>
+        /// Builds a component stream output from a deserialized component stream, copying its component identity and observations; a null source leaves the output empty.
+        /// </summary>
+        /// <param name="componentStream">The source component stream.</param>
         public ComponentStreamOutput(IComponentStream componentStream)
         {
             if (componentStream != null)

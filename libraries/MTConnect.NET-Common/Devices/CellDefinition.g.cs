@@ -10,6 +10,9 @@ namespace MTConnect.Devices
     /// </summary>
     public class CellDefinition : ICellDefinition
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Semantic definition of a Cell.";
 
 
@@ -17,27 +20,27 @@ namespace MTConnect.Devices
         /// Textual description for CellDefinition.
         /// </summary>
         public string Description { get; set; }
-        
+
         /// <summary>
         /// Unique identification of the Cell in the Definition. key.
         /// </summary>
         public string Key { get; set; }
-        
+
         /// <summary>
         /// Key.
         /// </summary>
         public string KeyType { get; set; }
-        
+
         /// <summary>
         /// SubType. See DataItem.
         /// </summary>
         public string SubType { get; set; }
-        
+
         /// <summary>
         /// Type. See DataItem Types.
         /// </summary>
         public string Type { get; set; }
-        
+
         /// <summary>
         /// Units. See Value Properties of DataItem.
         /// </summary>

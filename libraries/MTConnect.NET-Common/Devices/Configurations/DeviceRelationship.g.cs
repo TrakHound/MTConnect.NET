@@ -10,6 +10,9 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public class DeviceRelationship : ConfigurationRelationship, IDeviceRelationship
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "ConfigurationRelationship that describes the association between a Component or an Asset and a Device.";
 
 
@@ -17,17 +20,17 @@ namespace MTConnect.Devices.Configurations
         /// Uuid of the associated piece of equipment.
         /// </summary>
         public string DeviceUuidRef { get; set; }
-        
+
         /// <summary>
         /// URI identifying the agent that is publishing information for the associated piece of equipment.
         /// </summary>
         public string Href { get; set; }
-        
+
         /// <summary>
         /// Defines the services or capabilities that the referenced piece of equipment provides relative to this piece of equipment.
         /// </summary>
         public MTConnect.Devices.Configurations.RoleType? Role { get; set; }
-        
+
         /// <summary>
         /// `xlink:type`**MUST** have a fixed value of `locator` as defined in W3C XLink 1.1 https://www.w3.org/TR/xlink11/.
         /// </summary>

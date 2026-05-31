@@ -10,6 +10,9 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public class ControlLimits : IControlLimits
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Set of limits that is used to indicate whether a process variable is stable and in control.";
 
 
@@ -17,22 +20,22 @@ namespace MTConnect.Devices.Configurations
         /// Lower conformance boundary for a variable.> Note: immediate concern or action may be required.
         /// </summary>
         public double? LowerLimit { get; set; }
-        
+
         /// <summary>
         /// Lower boundary indicating increased concern and supervision may be required.
         /// </summary>
         public double? LowerWarning { get; set; }
-        
+
         /// <summary>
         /// Numeric target or expected value.
         /// </summary>
         public double? Nominal { get; set; }
-        
+
         /// <summary>
         /// Upper conformance boundary for a variable.> Note: immediate concern or action may be required.
         /// </summary>
         public double? UpperLimit { get; set; }
-        
+
         /// <summary>
         /// Upper boundary indicating increased concern and supervision may be required.
         /// </summary>

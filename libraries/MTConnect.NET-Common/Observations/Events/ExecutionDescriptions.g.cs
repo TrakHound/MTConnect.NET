@@ -3,6 +3,9 @@
 
 namespace MTConnect.Observations.Events
 {
+    /// <summary>
+    /// Description text for each <see cref="Execution"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class ExecutionDescriptions
     {
         /// <summary>
@@ -56,6 +59,9 @@ namespace MTConnect.Observations.Events
         public const string PROGRAM_OPTIONAL_STOP = "Program has been intentionally optionally stopped using an M01 or similar code.**DEPRECATED** in *version 1.4* and replaced with `OPTIONAL_STOP`.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="Execution"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(Execution value)
         {
             switch (value)

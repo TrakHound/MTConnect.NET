@@ -3,6 +3,9 @@
 
 namespace MTConnect.Assets.CuttingTools
 {
+    /// <summary>
+    /// CutterStatusType controlled vocabulary as defined by the MTConnect Standard.
+    /// </summary>
     public enum CutterStatusType
     {
         /// <summary>

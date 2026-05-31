@@ -10,6 +10,9 @@ namespace MTConnect.Devices
     /// </summary>
     public class DataItemDefinition : IDataItemDefinition
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Representation is either `DATA_SET` or `TABLE`.";
 
 
@@ -17,12 +20,12 @@ namespace MTConnect.Devices
         /// Semantic definition of a Cell.
         /// </summary>
         public System.Collections.Generic.IEnumerable<MTConnect.Devices.ICellDefinition> CellDefinitions { get; set; }
-        
+
         /// <summary>
         /// Textual description for Definition.
         /// </summary>
         public string Description { get; set; }
-        
+
         /// <summary>
         /// Semantic definition of an Entry.
         /// </summary>

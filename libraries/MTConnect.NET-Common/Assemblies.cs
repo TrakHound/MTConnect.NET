@@ -11,6 +11,9 @@ using System.Reflection;
 
 namespace MTConnect
 {
+    /// <summary>
+    /// Discovers and caches the DLL assemblies in the application base directory so that plugin modules can be located via reflection.
+    /// </summary>
     public static class Assemblies
     {
         private static Assembly[] _assemblies;

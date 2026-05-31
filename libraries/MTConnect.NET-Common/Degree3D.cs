@@ -14,25 +14,47 @@ namespace MTConnect
         private static readonly Regex _regex = new Regex(@"([0-9\.]*) ([0-9\.]*) ([0-9\.]*)");
 
 
+        /// <summary>
+        /// The rotation in degrees about the X axis.
+        /// </summary>
         public double A { get; set; }
 
+        /// <summary>
+        /// The rotation in degrees about the Y axis.
+        /// </summary>
         public double B { get; set; }
 
+        /// <summary>
+        /// The rotation in degrees about the Z axis.
+        /// </summary>
         public double C { get; set; }
 
 
+        /// <summary>
+        /// Initializes an angular rotation from its three axis components in degrees.
+        /// </summary>
+        /// <param name="a">The rotation about the X axis.</param>
+        /// <param name="b">The rotation about the Y axis.</param>
+        /// <param name="c">The rotation about the Z axis.</param>
         public Degree3D(double a, double b, double c)
         {
             A = a;
-            B = b;  
+            B = b;
             C = c;
         }
 
+        /// <summary>
+        /// Renders the rotation in the MTConnect space-separated "A B C" form.
+        /// </summary>
         public override string ToString()
         {
             return $"{A} {B} {C}";
         }
 
+        /// <summary>
+        /// Parses a space-separated "A B C" string into an angular rotation; returns null when the input is empty or does not match the expected form.
+        /// </summary>
+        /// <param name="input">The space-separated rotation triple.</param>
         public static Degree3D FromString(string input)
         {
             if (!string.IsNullOrEmpty(input))

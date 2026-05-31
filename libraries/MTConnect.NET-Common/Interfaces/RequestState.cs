@@ -3,6 +3,9 @@
 
 namespace MTConnect.Interfaces
 {
+    /// <summary>
+    /// The state of the Requester side of an Interface handshake, tracking its progress from idle through an active service request to completion or failure.
+    /// </summary>
     public enum RequestState
     {
         /// <summary>

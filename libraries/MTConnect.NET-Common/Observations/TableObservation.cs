@@ -11,9 +11,17 @@ namespace MTConnect.Observations
     /// </summary>
     public static class TableObservation
     {
+        /// <summary>
+        /// The sentinel value stored for a Table row key to mark that the row was removed from the table.
+        /// </summary>
         public const string EntryRemovedValue = "[!ENTRY_REMOVED!]";
 
 
+        /// <summary>
+        /// Extracts the Table entries (rows and their cells) from a flat collection of Observation values.
+        /// </summary>
+        /// <param name="values">The Observation values to decode.</param>
+        /// <returns>The decoded Table entries.</returns>
         public static IEnumerable<ITableEntry> GetEntries(IEnumerable<ObservationValue> values)
         {
             var entries = new List<ITableEntry>();
@@ -78,6 +86,11 @@ namespace MTConnect.Observations
             return entries;
         }
 
+        /// <summary>
+        /// Encodes a set of Table entries into the flat Observation values that represent them.
+        /// </summary>
+        /// <param name="entries">The Table entries to encode.</param>
+        /// <returns>The Observation values, with removed rows encoded using the removal sentinel.</returns>
         public static IEnumerable<ObservationValue> SetEntries(IEnumerable<ITableEntry> entries)
         {
             if (!entries.IsNullOrEmpty())

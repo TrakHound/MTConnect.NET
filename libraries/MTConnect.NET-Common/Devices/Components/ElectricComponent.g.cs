@@ -10,15 +10,35 @@ namespace MTConnect.Devices.Components
     /// </summary>
     public class ElectricComponent : Component
     {
+        /// <summary>
+        /// The MTConnect <c>type</c> value that identifies this Component.
+        /// </summary>
         public const string TypeId = "Electric";
+
+        /// <summary>
+        /// The default <c>name</c> assigned to an instance of this Component.
+        /// </summary>
         public const string NameId = "electric";
+
+        /// <summary>
+        /// The description of this Component as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "System composed of the main power supply for the piece of equipment that provides distribution of that power throughout the equipment.";
 
+        /// <summary>
+        /// The description of this Component as defined by the MTConnect Standard.
+        /// </summary>
         public override string TypeDescription => DescriptionText;
-        
-        public override System.Version MinimumVersion => MTConnectVersions.Version11; 
+
+        /// <summary>
+        /// The minimum MTConnect Version that introduced this Component.
+        /// </summary>
+        public override System.Version MinimumVersion => MTConnectVersions.Version11;
 
 
+        /// <summary>
+        /// Initializes a new instance with its <c>Type</c> set to <see cref="TypeId"/>.
+        /// </summary>
         public ElectricComponent()
         {
             Type = TypeId;

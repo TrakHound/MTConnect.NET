@@ -13,6 +13,16 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Servers
 {
+    /// <summary>
+    /// Ceen request handler for the MTConnect Assets endpoint
+    /// (GET /assets and GET /{deviceKey}/assets). Returns an
+    /// MTConnectAssets Response Document containing the asset records
+    /// known to the agent. The optional leading path segment scopes the
+    /// response to assets owned by a specific device; the type, removed,
+    /// and count query parameters filter the asset set; documentFormat
+    /// (xml | json | json-cppagent, default XML) and indentOutput
+    /// negotiate the rendered representation.
+    /// </summary>
     class MTConnectAssetsResponseHandler : MTConnectHttpResponseHandler
     {
         public MTConnectAssetsResponseHandler(IHttpServerConfiguration serverConfiguration, IMTConnectAgentBroker mtconnectAgent) : base(serverConfiguration, mtconnectAgent) { }

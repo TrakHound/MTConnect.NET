@@ -15,6 +15,9 @@ namespace MTConnect.Observations
         /// </summary>
         string Key { get; }
 
+        /// <summary>
+        /// An optional human-readable description of the entry's <see cref="Key"/> (row).
+        /// </summary>
         string KeyDescription { get; }
 
         /// <summary>

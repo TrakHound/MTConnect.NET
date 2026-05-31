@@ -13,13 +13,24 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for the solid-model <c>Scale</c> element of a
+    /// Component <c>Configuration</c>, carrying the scale factor(s) applied to a
+    /// referenced solid model as simple element content.
+    /// </summary>
     [XmlRoot("Scale")]
     public class XmlScale
     {
+        /// <summary>
+        /// The scale value(s) as the raw, space-delimited element text content.
+        /// </summary>
         [XmlText]
         public string Value { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed <see cref="Scale"/>.
+        /// </summary>
         public IScale ToScale()
         {
             var scale = new Scale();
@@ -27,6 +38,10 @@ namespace MTConnect.Devices.Xml
             return scale;
         }
 
+        /// <summary>
+        /// Writes the <c>Scale</c> element for the supplied model, emitting the
+        /// value as element text and omitting an empty value.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, IScale scale)
         {
             if (scale != null)

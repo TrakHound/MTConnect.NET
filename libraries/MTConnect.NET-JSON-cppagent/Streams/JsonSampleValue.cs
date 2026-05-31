@@ -9,24 +9,58 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a SAMPLE observation carrying a
+    /// scalar value in the cppagent-compatible Streams shape. The
+    /// numeric value is emitted under the <c>value</c> property and
+    /// routed through <see cref="JsonSampleValueConverter"/> so that the
+    /// <c>UNAVAILABLE</c> sentinel can be round-tripped as a string while
+    /// regular readings stay numeric.
+    /// </summary>
     public class JsonSampleValue : JsonObservation
     {
+        /// <summary>
+        /// The sample rate the observation was reported at, in Hz.
+        /// </summary>
         [JsonPropertyName("sampleRate")]
         public double? SampleRate { get; set; }
 
+        /// <summary>
+        /// The statistical function applied to the underlying data (for
+        /// example AVERAGE, MAXIMUM).
+        /// </summary>
         [JsonPropertyName("statistic")]
         public string Statistic { get; set; }
 
+        /// <summary>
+        /// The time-window duration the statistic was computed over, in
+        /// seconds.
+        /// </summary>
         [JsonPropertyName("duration")]
         public double? Duration { get; set; }
 
+        /// <summary>
+        /// The scalar value of the sample, written as a number when
+        /// available and as the <c>UNAVAILABLE</c> string sentinel
+        /// otherwise.
+        /// </summary>
         [JsonPropertyName("value")]
         [JsonConverter(typeof(JsonSampleValueConverter))]
         public object Value { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonSampleValue() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed sample
+        /// <see cref="IObservation"/>, optionally surfacing category and
+        /// instance-id, and pulling the value, reset trigger, sample
+        /// rate, duration, and statistic from the observation's value
+        /// bag.
+        /// </summary>
         public JsonSampleValue(IObservation observation, bool categoryOutput = false, bool instanceIdOutput = false)
         {
             if (observation != null)
@@ -50,6 +84,11 @@ namespace MTConnect.Streams.Json
             }
         }
 
+        /// <summary>
+        /// Initializes the surrogate from a streaming
+        /// <see cref="IObservationOutput"/>, pulling the same value-bag
+        /// fields as the model-level constructor.
+        /// </summary>
         public JsonSampleValue(IObservationOutput observation)
         {
             if (observation != null)
@@ -72,6 +111,13 @@ namespace MTConnect.Streams.Json
             }
         }
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="ISampleValueObservation"/>, restoring the data-item
+        /// type from the supplied dictionary key and guarding the optional
+        /// reset-trigger/statistic fields so an absent JSON property does
+        /// not stamp a stray default enumeration value.
+        /// </summary>
         public ISampleValueObservation ToObservation(string type)
         {
             // Route construction through the typed factory so the runtime

@@ -9,23 +9,50 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a <c>ComponentStream</c>, the
+    /// observations reported for a single component within a device stream.
+    /// Mirrors the on-the-wire shape so the JSON serializer can read and write
+    /// it, then converts to and from the strongly-typed
+    /// <see cref="ComponentStream"/> model.
+    /// </summary>
     public class JsonComponentStream
     {
+        /// <summary>
+        /// The MTConnect type of the component the observations belong to.
+        /// </summary>
         [JsonPropertyName("component")]
         public string Component { get; set; }
 
+        /// <summary>
+        /// Reference to the <c>id</c> of the component the observations belong
+        /// to.
+        /// </summary>
         [JsonPropertyName("componentId")]
         public string ComponentId { get; set; }
 
+        /// <summary>
+        /// The name of the component the observations belong to.
+        /// </summary>
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
+        /// <summary>
+        /// The native name of the component the observations belong to.
+        /// </summary>
         [JsonPropertyName("nativeName")]
         public string NativeName { get; set; }
 
+        /// <summary>
+        /// The UUID of the component the observations belong to.
+        /// </summary>
         [JsonPropertyName("uuid")]
         public string Uuid { get; set; }
 
+        /// <summary>
+        /// The combined sample, event, and condition observations converted to
+        /// their strongly-typed form. Not serialized.
+        /// </summary>
         [JsonIgnore]
         public List<IObservation> Observations
         {
@@ -52,18 +79,37 @@ namespace MTConnect.Streams.Json
             }
         }
 
+        /// <summary>
+        /// The sample (SAMPLE category) observations reported for the
+        /// component.
+        /// </summary>
         [JsonPropertyName("samples")]
         public IEnumerable<JsonSample> Samples { get; set; }
 
+        /// <summary>
+        /// The event (EVENT category) observations reported for the component.
+        /// </summary>
         [JsonPropertyName("events")]
         public IEnumerable<JsonEvent> Events { get; set; }
 
+        /// <summary>
+        /// The condition (CONDITION category) observations reported for the
+        /// component.
+        /// </summary>
         [JsonPropertyName("condition")]
         public IEnumerable<JsonCondition> Conditions { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonComponentStream() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IComponentStreamOutput"/>, partitioning the observations
+        /// into samples, events, and conditions by category.
+        /// </summary>
         public JsonComponentStream(IComponentStreamOutput componentStream)
         {
             if (componentStream != null)
@@ -116,6 +162,11 @@ namespace MTConnect.Streams.Json
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="ComponentStream"/>, merging the samples, events, and
+        /// conditions back into a single observation collection.
+        /// </summary>
         public ComponentStream ToComponentStream()
         {
             var componentStream = new ComponentStream();
@@ -165,5 +216,5 @@ namespace MTConnect.Streams.Json
 
             return componentStream;
         }
-    }  
+    }
 }

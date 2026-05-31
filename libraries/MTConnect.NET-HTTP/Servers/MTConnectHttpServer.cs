@@ -23,7 +23,10 @@ namespace MTConnect.Servers.Http
     /// </summary>
     public class MTConnectHttpServer : IDisposable
     {
+        /// <summary>The agent broker the server forwards parsed requests to and pulls response documents from.</summary>
         protected readonly IMTConnectAgentBroker _mtconnectAgent;
+
+        /// <summary>The HTTP-transport configuration that controls bind address, TLS, encoding, accept mappings, and PUT/POST policy.</summary>
         protected readonly IHttpServerConfiguration _configuration;
         private CancellationTokenSource _stop;
 
@@ -45,10 +48,12 @@ namespace MTConnect.Servers.Http
         /// <returns>URL Prefix that the HttpListener is listening for requests on</returns>
         public event EventHandler<string> ServerStopped;
 
+        /// <summary>Raised after the server loads its TLS certificate from <see cref="MTConnect.Tls.TlsConfiguration"/>; carries the resolved <see cref="X509Certificate2"/>.</summary>
         public event EventHandler<X509Certificate2> ServerCertificateLoaded;
 
 
         #pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
+        /// <summary>Raised for each diagnostic log line emitted by the underlying Ceen HTTP listener (intentionally spelled <c>ServerLogRecevied</c> for API compatibility).</summary>
         public event EventHandler<string> ServerLogRecevied;
         #pragma warning restore CS0067
 
@@ -74,6 +79,12 @@ namespace MTConnect.Servers.Http
         public event EventHandler<Exception> ClientException;
 
 
+        /// <summary>
+        /// Constructs the HTTP server bound to <paramref name="configuration"/> and the agent
+        /// reachable through <paramref name="mtconnectAgent"/>. Neither object is captured for
+        /// later disposal; the caller continues to own both. The server itself is started by a
+        /// subsequent <see cref="Start"/> call.
+        /// </summary>
         public MTConnectHttpServer(IHttpServerConfiguration configuration, IMTConnectAgentBroker mtconnectAgent)
         {
             _mtconnectAgent = mtconnectAgent;
@@ -109,6 +120,11 @@ namespace MTConnect.Servers.Http
         protected virtual List<KeyValuePair<string, string>> OnCreateFormatOptions(MTConnectFormatOptionsArgs args) { return null; }
 
 
+        /// <summary>
+        /// Starts the HTTP listener on a background task. The method is non-blocking and returns
+        /// immediately; <see cref="ServerStarted"/> is raised once the listener is bound. Has no
+        /// effect when <see cref="_configuration"/> is null.
+        /// </summary>
         public void Start()
         {
             _stop = new CancellationTokenSource();
@@ -119,11 +135,16 @@ namespace MTConnect.Servers.Http
             }
         }
 
+        /// <summary>
+        /// Signals the listener task to shut down. <see cref="ServerStopped"/> is raised once the
+        /// background task exits. Safe to call before <see cref="Start"/>.
+        /// </summary>
         public void Stop()
         {
             if (_stop != null) _stop.Cancel();
         }
 
+        /// <summary>Calls <see cref="Stop"/> to release the listener; the agent broker is not disposed by this server.</summary>
         public void Dispose() { Stop(); }
 
 
@@ -195,9 +216,9 @@ namespace MTConnect.Servers.Http
                             if (ServerStarted != null) ServerStarted.Invoke(this, endpointId);
 
                             await HttpServer.ListenAsync(
-                                endpoint, 
-                                useSsl, 
-                                config, 
+                                endpoint,
+                                useSsl,
+                                config,
                                 cancellationToken);
                         }
                         catch (Exception ex)
@@ -271,26 +292,26 @@ namespace MTConnect.Servers.Http
             assetHandler.ClientException += ClientException;
             assetHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
-			// Setup the Put Request Handler
-			var putHandler = new MTConnectPutResponseHandler(serverConfiguration, _mtconnectAgent);
-			putHandler.ResponseSent += ResponseSent;
-			putHandler.ClientConnected += ClientConnected;
-			putHandler.ClientDisconnected += ClientDisconnected;
-			putHandler.ClientException += ClientException;
-			putHandler.ProcessFunction = OnObservationInput;
-			putHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
+            // Setup the Put Request Handler
+            var putHandler = new MTConnectPutResponseHandler(serverConfiguration, _mtconnectAgent);
+            putHandler.ResponseSent += ResponseSent;
+            putHandler.ClientConnected += ClientConnected;
+            putHandler.ClientDisconnected += ClientDisconnected;
+            putHandler.ClientException += ClientException;
+            putHandler.ProcessFunction = OnObservationInput;
+            putHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
-			// Setup the Post Request Handler
-			var postHandler = new MTConnectPostResponseHandler(serverConfiguration, _mtconnectAgent);
-			postHandler.ResponseSent += ResponseSent;
-			postHandler.ClientConnected += ClientConnected;
-			postHandler.ClientDisconnected += ClientDisconnected;
-			postHandler.ClientException += ClientException;
-			postHandler.ProcessFunction = OnAssetInput;
-			postHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
+            // Setup the Post Request Handler
+            var postHandler = new MTConnectPostResponseHandler(serverConfiguration, _mtconnectAgent);
+            postHandler.ResponseSent += ResponseSent;
+            postHandler.ClientConnected += ClientConnected;
+            postHandler.ClientDisconnected += ClientDisconnected;
+            postHandler.ClientException += ClientException;
+            postHandler.ProcessFunction = OnAssetInput;
+            postHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
-			// Setup the Static Request Handler
-			var staticHandler = new MTConnectStaticResponseHandler(serverConfiguration, _mtconnectAgent);
+            // Setup the Static Request Handler
+            var staticHandler = new MTConnectStaticResponseHandler(serverConfiguration, _mtconnectAgent);
             staticHandler.ResponseSent += ResponseSent;
             staticHandler.ClientConnected += ClientConnected;
             staticHandler.ClientDisconnected += ClientDisconnected;
@@ -303,15 +324,15 @@ namespace MTConnect.Servers.Http
             {
                 return await DeviceRootHandler(probeHandler, context);
             });
-			serverConfig.AddRoute(async (context) =>
-			{
-				return await PutHandler(putHandler, context);
-			});
+            serverConfig.AddRoute(async (context) =>
+            {
+                return await PutHandler(putHandler, context);
+            });
             serverConfig.AddRoute(async (context) =>
             {
                 return await PostHandler(postHandler, context);
             });
-			serverConfig.AddRoute("/", probeHandler);
+            serverConfig.AddRoute("/", probeHandler);
             serverConfig.AddRoute("/probe", probeHandler);
             serverConfig.AddRoute("/*/probe", probeHandler);
             serverConfig.AddRoute("/current", currentHandler);

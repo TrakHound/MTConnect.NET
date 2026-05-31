@@ -6,11 +6,22 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for an MTConnectDevices response
+    /// document, carrying the header and the device collection. Converts to
+    /// and from the strongly-typed <see cref="DevicesResponseDocument"/> model.
+    /// </summary>
     public class JsonDevicesDocument
     {
+        /// <summary>
+        /// The document header.
+        /// </summary>
         [JsonPropertyName("header")]
         public JsonDevicesHeader Header { get; set; }
 
+        /// <summary>
+        /// The devices reported in the document.
+        /// </summary>
         [JsonPropertyName("devices")]
         public IEnumerable<JsonDevice> Devices { get; set; }
 
@@ -18,8 +29,16 @@ namespace MTConnect.Devices.Json
         //public IEnumerable<IInterface> Interfaces { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonDevicesDocument() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IDevicesResponseDocument"/>, converting the header and
+        /// each device.
+        /// </summary>
         public JsonDevicesDocument(IDevicesResponseDocument document)
         {
             if (document != null)
@@ -40,6 +59,11 @@ namespace MTConnect.Devices.Json
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed
+        /// <see cref="DevicesResponseDocument"/>, converting the header and
+        /// each device.
+        /// </summary>
         public DevicesResponseDocument ToDocument()
         {
             var document = new DevicesResponseDocument();

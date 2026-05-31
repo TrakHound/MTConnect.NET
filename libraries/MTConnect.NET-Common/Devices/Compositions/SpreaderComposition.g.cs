@@ -10,15 +10,35 @@ namespace MTConnect.Devices.Compositions
     /// </summary>
     public class SpreaderComposition : Composition 
     {
+        /// <summary>
+        /// The MTConnect <c>type</c> value that identifies this Composition.
+        /// </summary>
         public const string TypeId = "SPREADER";
+
+        /// <summary>
+        /// The default <c>name</c> assigned to an instance of this Composition.
+        /// </summary>
         public const string NameId = "spreaderComposition";
+
+        /// <summary>
+        /// The description of this Composition as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Composition composed of a mechanism that flattens or spreads materials.";
 
+        /// <summary>
+        /// The description of this Composition as defined by the MTConnect Standard.
+        /// </summary>
         public override string TypeDescription => DescriptionText;
-        
-        public override System.Version MinimumVersion => MTConnectVersions.Version15; 
+
+        /// <summary>
+        /// The minimum MTConnect Version that introduced this Composition.
+        /// </summary>
+        public override System.Version MinimumVersion => MTConnectVersions.Version15;
 
 
-        public SpreaderComposition()  { Type = TypeId; }
+        /// <summary>
+        /// Initializes a new instance with its <c>Type</c> set to <see cref="TypeId"/>.
+        /// </summary>
+        public SpreaderComposition() { Type = TypeId; }
     }
 }

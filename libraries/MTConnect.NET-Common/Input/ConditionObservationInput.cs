@@ -110,31 +110,59 @@ namespace MTConnect.Input
         public bool IsUnavailable { get; set; }
 
 
+        /// <summary>
+        /// Initializes a new, empty Condition Observation with no DataItem key or FaultStates.
+        /// </summary>
         public ConditionObservationInput() { }
 
+        /// <summary>
+        /// Initializes a new Condition Observation for the specified DataItem with no FaultStates.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the Condition DataItem the Observation applies to.</param>
         public ConditionObservationInput(string dataItemKey)
         {
             DataItemKey = dataItemKey;
         }
 
+        /// <summary>
+        /// Initializes a new Condition Observation for the specified DataItem with a single FaultState at the given level.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the Condition DataItem the Observation applies to.</param>
+        /// <param name="level">The Condition level of the initial FaultState.</param>
         public ConditionObservationInput(string dataItemKey, ConditionLevel level)
         {
             DataItemKey = dataItemKey;
             AddFaultState(new ConditionFaultStateObservationInput(dataItemKey, level));
         }
 
+        /// <summary>
+        /// Initializes a new Condition Observation for the specified DataItem with a single FaultState at the given level and timestamp.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the Condition DataItem the Observation applies to.</param>
+        /// <param name="level">The Condition level of the initial FaultState.</param>
+        /// <param name="timestamp">The observation timestamp as UnixTime in milliseconds.</param>
         public ConditionObservationInput(string dataItemKey, ConditionLevel level, long timestamp)
         {
             DataItemKey = dataItemKey;
             AddFaultState(new ConditionFaultStateObservationInput(dataItemKey, level, timestamp));
         }
 
+        /// <summary>
+        /// Initializes a new Condition Observation for the specified DataItem with a single FaultState at the given level and timestamp.
+        /// </summary>
+        /// <param name="dataItemKey">The (ID, Name, or Source) of the Condition DataItem the Observation applies to.</param>
+        /// <param name="level">The Condition level of the initial FaultState.</param>
+        /// <param name="timestamp">The observation timestamp, converted to UnixTime in milliseconds.</param>
         public ConditionObservationInput(string dataItemKey, ConditionLevel level, DateTime timestamp)
         {
             DataItemKey = dataItemKey;
             AddFaultState(new ConditionFaultStateObservationInput(dataItemKey, level, timestamp));
         }
 
+        /// <summary>
+        /// Initializes a new Condition Observation by copying the Device key, DataItem key, and FaultStates from an existing Condition.
+        /// </summary>
+        /// <param name="condition">The source Condition to copy; a <c>null</c> argument leaves the new instance empty.</param>
         public ConditionObservationInput(IConditionObservationInput condition)
         {
             if (condition != null)
@@ -414,6 +442,11 @@ namespace MTConnect.Input
         /// <summary>
         /// Add a FaultState to the Condition while retaining any other FaultStates
         /// </summary>
+        /// <summary>
+        /// Adds a FaultState to the Condition, propagating the Device and DataItem keys and removing any prior FaultState
+        /// that shares its NativeCode. A WARNING or FAULT with no NativeCode replaces all existing FaultStates.
+        /// </summary>
+        /// <param name="faultState">The FaultState to add. A <c>null</c> argument is ignored.</param>
         public void AddFaultState(IConditionFaultStateObservationInput faultState)
         {
             if (faultState != null)
@@ -445,6 +478,10 @@ namespace MTConnect.Input
         }
 
 
+        /// <summary>
+        /// Removes every FaultState whose NativeCode matches the specified value and resets cached change identifiers.
+        /// </summary>
+        /// <param name="nativeCode">The NativeCode whose FaultStates are removed.</param>
         public void ClearFaultStates(string nativeCode)
         {
             lock (_lock)
@@ -467,6 +504,9 @@ namespace MTConnect.Input
             _changeIdWithTimestamp = null;
         }
 
+        /// <summary>
+        /// Removes all FaultStates from the Condition and resets cached change identifiers.
+        /// </summary>
         public void ClearFaultStates()
         {
             lock (_lock) _faultStates = null;

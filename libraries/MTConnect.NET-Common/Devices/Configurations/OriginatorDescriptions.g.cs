@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices.Configurations
 {
+    /// <summary>
+    /// Description text for each <see cref="Originator"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class OriginatorDescriptions
     {
         /// <summary>
@@ -16,6 +19,9 @@ namespace MTConnect.Devices.Configurations
         public const string USER = "Owner or implementer of a piece of equipment or Component.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="Originator"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(Originator value)
         {
             switch (value)

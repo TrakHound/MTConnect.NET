@@ -9,18 +9,37 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Mqtt
 {
+    /// <summary>
+    /// JSON serialization surrogate for a group of observation inputs sharing
+    /// a single timestamp. Used to batch observations recorded at the same
+    /// instant in a single JSON payload over transports such as MQTT.
+    /// </summary>
     public class JsonInputObservationGroup
     {
+        /// <summary>
+        /// The timestamp at which the observations in the group were
+        /// recorded.
+        /// </summary>
         [JsonPropertyName("timestamp")]
         public DateTime Timestamp { get; set; }
 
+        /// <summary>
+        /// The observations sharing <see cref="Timestamp"/>.
+        /// </summary>
         [JsonPropertyName("observations")]
         public List<JsonInputObservation> Observations { get; set; } = new List<JsonInputObservation>();
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonInputObservationGroup() { }
 
-        public JsonInputObservationGroup(IObservationInput observation) 
+        /// <summary>
+        /// Initializes the surrogate as a single-observation group at the
+        /// observation's timestamp.
+        /// </summary>
+        public JsonInputObservationGroup(IObservationInput observation)
         {
             if (observation != null)
             {
@@ -32,6 +51,11 @@ namespace MTConnect.Mqtt
             }
         }
 
+        /// <summary>
+        /// Partitions <paramref name="observations"/> by distinct timestamp
+        /// and returns one group per timestamp, or null when the input is
+        /// empty.
+        /// </summary>
         public static IEnumerable<JsonInputObservationGroup> Create(IEnumerable<IObservationInput> observations)
         {
             if (!observations.IsNullOrEmpty())
@@ -62,6 +86,10 @@ namespace MTConnect.Mqtt
         }
 
 
+        /// <summary>
+        /// Converts the observations in this group to strongly-typed
+        /// observation inputs, applying <see cref="Timestamp"/> to each.
+        /// </summary>
         public IEnumerable<IObservationInput> ToObservationInputs()
         {
             var observations = new List<IObservationInput>();

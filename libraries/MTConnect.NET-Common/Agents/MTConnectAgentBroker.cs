@@ -29,7 +29,14 @@ namespace MTConnect.Agents
         private readonly IMTConnectObservationBuffer _observationBuffer;
         private readonly IMTConnectAssetBuffer _assetBuffer;
         private readonly List<AssetCount> _deviceAssetCounts = new List<AssetCount>();
+        /// <summary>
+        /// Backing store mapping Device UUID to its assigned buffer index; accessed under the broker lock.
+        /// </summary>
         protected Dictionary<string, int> _deviceIndexes = new Dictionary<string, int>();
+
+        /// <summary>
+        /// Backing store mapping DataItem key to its assigned buffer index; accessed under the broker lock.
+        /// </summary>
         protected Dictionary<string, int> _dataItemIndexes = new Dictionary<string, int>();
 
 
@@ -66,6 +73,7 @@ namespace MTConnect.Agents
         public ulong NextSequence => _observationBuffer != null ? _observationBuffer.NextSequence : 0;
 
 
+        /// <inheritdoc />
         public Dictionary<string, int> DeviceIndexes
         {
             get
@@ -81,6 +89,7 @@ namespace MTConnect.Agents
             }
         }
 
+        /// <inheritdoc />
         public Dictionary<string, int> DataItemIndexes
         {
             get
@@ -144,6 +153,13 @@ namespace MTConnect.Agents
 
         #region "Constructors"
 
+        /// <summary>
+        /// Initializes a new broker with default in-memory observation and Asset buffers and a default configuration.
+        /// </summary>
+        /// <param name="uuid">An optional UUID for the Agent; when omitted, one is generated.</param>
+        /// <param name="instanceId">The InstanceId identifying the lifetime of the Agent buffer.</param>
+        /// <param name="deviceModelChangeTime">The timestamp, in Unix ticks, of the most recent Device model change.</param>
+        /// <param name="initializeAgentDevice">When <c>true</c>, the built-in Agent Device is added during construction.</param>
         public MTConnectAgentBroker(
             string uuid = null,
             ulong instanceId = 0,
@@ -151,7 +167,7 @@ namespace MTConnect.Agents
             bool initializeAgentDevice = true
             ) : base(uuid, instanceId, deviceModelChangeTime, false)
         {
-            var config = new AgentConfiguration();       
+            var config = new AgentConfiguration();
             //_deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer();
             _assetBuffer = new MTConnectAssetBuffer();
@@ -159,6 +175,14 @@ namespace MTConnect.Agents
             InitializeAgentDevice(initializeAgentDevice);
         }
 
+        /// <summary>
+        /// Initializes a new broker that derives its buffer sizing from the supplied configuration.
+        /// </summary>
+        /// <param name="configuration">The Agent configuration; when <c>null</c>, a default configuration is used.</param>
+        /// <param name="uuid">An optional UUID for the Agent; when omitted, one is generated.</param>
+        /// <param name="instanceId">The InstanceId identifying the lifetime of the Agent buffer.</param>
+        /// <param name="deviceModelChangeTime">The timestamp, in Unix ticks, of the most recent Device model change.</param>
+        /// <param name="initializeAgentDevice">When <c>true</c>, the built-in Agent Device is added during construction.</param>
         public MTConnectAgentBroker(
             IAgentConfiguration configuration,
             string uuid = null,
@@ -175,6 +199,15 @@ namespace MTConnect.Agents
             InitializeAgentDevice(initializeAgentDevice);
         }
 
+        /// <summary>
+        /// Initializes a new broker backed by the supplied observation and Asset buffers.
+        /// </summary>
+        /// <param name="observationBuffer">The observation buffer to use; when <c>null</c>, a default in-memory buffer is created.</param>
+        /// <param name="assetBuffer">The Asset buffer to use; when <c>null</c>, a default in-memory buffer is created.</param>
+        /// <param name="uuid">An optional UUID for the Agent; when omitted, one is generated.</param>
+        /// <param name="instanceId">The InstanceId identifying the lifetime of the Agent buffer.</param>
+        /// <param name="deviceModelChangeTime">The timestamp, in Unix ticks, of the most recent Device model change.</param>
+        /// <param name="initializeAgentDevice">When <c>true</c>, the built-in Agent Device is added during construction.</param>
         public MTConnectAgentBroker(
             IMTConnectObservationBuffer observationBuffer,
             IMTConnectAssetBuffer assetBuffer,
@@ -191,6 +224,16 @@ namespace MTConnect.Agents
             InitializeAgentDevice(initializeAgentDevice);
         }
 
+        /// <summary>
+        /// Initializes a new broker with an explicit configuration and explicit observation and Asset buffers.
+        /// </summary>
+        /// <param name="configuration">The Agent configuration; when <c>null</c>, a default configuration is used.</param>
+        /// <param name="observationBuffer">The observation buffer to use; when <c>null</c>, a default buffer is created from the configuration.</param>
+        /// <param name="assetBuffer">The Asset buffer to use; when <c>null</c>, a default buffer is created from the configuration.</param>
+        /// <param name="uuid">An optional UUID for the Agent; when omitted, one is generated.</param>
+        /// <param name="instanceId">The InstanceId identifying the lifetime of the Agent buffer.</param>
+        /// <param name="deviceModelChangeTime">The timestamp, in Unix ticks, of the most recent Device model change.</param>
+        /// <param name="initializeAgentDevice">When <c>true</c>, the built-in Agent Device is added during construction.</param>
         public MTConnectAgentBroker(
             IAgentConfiguration configuration,
             IMTConnectObservationBuffer observationBuffer,
@@ -212,6 +255,10 @@ namespace MTConnect.Agents
 
         #region "Initialization"
 
+        /// <summary>
+        /// Restore the current observation and condition state from a set of persisted buffer observations, typically used when recovering a buffer on startup.
+        /// </summary>
+        /// <param name="bufferObservations">The persisted buffer observations to replay into the current-state caches.</param>
         public void InitializeCurrentObservations(IEnumerable<BufferObservation> bufferObservations)
         {
             if (!bufferObservations.IsNullOrEmpty())
@@ -247,6 +294,10 @@ namespace MTConnect.Agents
         }
 
 
+        /// <summary>
+        /// Seed the Device buffer-index lookup from previously persisted assignments so Devices retain their buffer slots across restarts.
+        /// </summary>
+        /// <param name="indexes">A mapping of Device UUID to its buffer index.</param>
         public void InitializeDeviceIndex(IDictionary<string, int> indexes)
         {
             if (!indexes.IsNullOrEmpty())
@@ -267,6 +318,10 @@ namespace MTConnect.Agents
             }
         }
 
+        /// <summary>
+        /// Seed the DataItem buffer-index lookup from previously persisted assignments so DataItems retain their buffer slots across restarts.
+        /// </summary>
+        /// <param name="indexes">A mapping of DataItem key to its buffer index.</param>
         public void InitializeDataItemIndex(IDictionary<string, int> indexes)
         {
             if (!indexes.IsNullOrEmpty())
@@ -315,7 +370,7 @@ namespace MTConnect.Agents
             {
                 // Read Cached DataItemIds for the Device
                 _deviceDataItemIds.TryGetValue(device.Uuid, out var dataItemIds);
-                
+
                 var bufferKeys = new List<int>();
                 if (!dataItemIds.IsNullOrEmpty())
                 {
@@ -358,6 +413,11 @@ namespace MTConnect.Agents
         }
 
 
+        /// <summary>
+        /// Resolve a Device buffer index back to its Device UUID.
+        /// </summary>
+        /// <param name="deviceIndex">The buffer index assigned to the Device.</param>
+        /// <returns>The Device UUID, or <c>null</c> if the index is not assigned.</returns>
         public string GetDeviceUuid(int deviceIndex)
         {
             if (_deviceUuids.TryGetValue(deviceIndex, out var deviceUuid))
@@ -368,6 +428,11 @@ namespace MTConnect.Agents
             return null;
         }
 
+        /// <summary>
+        /// Resolve a Device UUID to its buffer index, assigning and caching a new index if one does not yet exist.
+        /// </summary>
+        /// <param name="deviceUuid">The UUID of the Device.</param>
+        /// <returns>The buffer index for the Device, or <c>0</c> if the UUID is <c>null</c>.</returns>
         public int GetDeviceIndex(string deviceUuid)
         {
             var index = 0;
@@ -390,6 +455,11 @@ namespace MTConnect.Agents
             return index;
         }
 
+        /// <summary>
+        /// Resolve a set of Device UUIDs to their buffer indexes, assigning new indexes as needed.
+        /// </summary>
+        /// <param name="deviceUuids">The UUIDs of the Devices to resolve.</param>
+        /// <returns>The buffer indexes, in the same order as the supplied UUIDs.</returns>
         public IEnumerable<int> GetDeviceIndexes(IEnumerable<string> deviceUuids)
         {
             var indexes = new List<int>();
@@ -406,6 +476,11 @@ namespace MTConnect.Agents
         }
 
 
+        /// <summary>
+        /// Resolve a DataItem buffer index back to its DataItem Id.
+        /// </summary>
+        /// <param name="dataItemIndex">The buffer index assigned to the DataItem.</param>
+        /// <returns>The DataItem Id, or <c>null</c> if the index is not assigned.</returns>
         public string GetDataItemId(int dataItemIndex)
         {
             if (_dataItemIds.TryGetValue(dataItemIndex, out var dataItemId))
@@ -416,6 +491,11 @@ namespace MTConnect.Agents
             return null;
         }
 
+        /// <summary>
+        /// Extract the DataItem index encoded in a composite buffer key and resolve it to its DataItem Id.
+        /// </summary>
+        /// <param name="bufferKey">The composite buffer key that encodes both the Device and DataItem indexes.</param>
+        /// <returns>The DataItem Id, or <c>null</c> if the encoded index is not assigned.</returns>
         public string GetDataItemIdFromBufferKey(int bufferKey)
         {
             var dataItemIndex = BufferObservation.GetDataItemIndexFromBufferKey(bufferKey);
@@ -427,6 +507,12 @@ namespace MTConnect.Agents
             return null;
         }
 
+        /// <summary>
+        /// Resolve a Device-scoped DataItem to its buffer index, assigning and caching a new index if one does not yet exist.
+        /// </summary>
+        /// <param name="deviceUuid">The UUID of the Device that owns the DataItem.</param>
+        /// <param name="dataItemId">The Id of the DataItem.</param>
+        /// <returns>The buffer index for the DataItem, or <c>0</c> if the DataItem Id is <c>null</c>.</returns>
         public int GetDataItemIndex(string deviceUuid, string dataItemId)
         {
             var index = 0;
@@ -601,6 +687,7 @@ namespace MTConnect.Agents
         /// Get an MTConnectDevices Response Document containing the specified device.
         /// </summary>
         /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version; when <c>null</c>, the Agent's current Version is used.</param>
         /// <returns>MTConnectDevices Response Document</returns>
         public IDevicesResponseDocument GetDevicesResponseDocument(string deviceKey, Version mtconnectVersion = null)
         {
@@ -664,6 +751,8 @@ namespace MTConnect.Agents
         /// Get a MTConnectStreams Document containing all devices.
         /// </summary>
         /// <param name="count">The Maximum Number of DataItems to return</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version; when <c>null</c>, the Agent's current Version is used.</param>
+        /// <param name="deviceType">The Device type to filter by (for example, <c>Device</c> or <c>Agent</c>).</param>
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(uint count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
@@ -698,6 +787,8 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version; when <c>null</c>, the Agent's current Version is used.</param>
+        /// <param name="deviceType">The Device type to filter by (for example, <c>Device</c> or <c>Agent</c>).</param>
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(ulong at, uint count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
@@ -732,6 +823,8 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version; when <c>null</c>, the Agent's current Version is used.</param>
+        /// <param name="deviceType">The Device type to filter by (for example, <c>Device</c> or <c>Agent</c>).</param>
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, uint count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
@@ -772,6 +865,8 @@ namespace MTConnect.Agents
         /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version; when <c>null</c>, the Agent's current Version is used.</param>
+        /// <param name="deviceType">The Device type to filter by (for example, <c>Device</c> or <c>Agent</c>).</param>
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, ulong at, uint count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
@@ -812,6 +907,8 @@ namespace MTConnect.Agents
         /// <param name="from">The sequence number of the first observation to include in the response</param>
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version; when <c>null</c>, the Agent's current Version is used.</param>
+        /// <param name="deviceType">The Device type to filter by (for example, <c>Device</c> or <c>Agent</c>).</param>
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(ulong from, ulong to, uint count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
@@ -848,6 +945,8 @@ namespace MTConnect.Agents
         /// <param name="from">The sequence number of the first observation to include in the response</param>
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version; when <c>null</c>, the Agent's current Version is used.</param>
+        /// <param name="deviceType">The Device type to filter by (for example, <c>Device</c> or <c>Agent</c>).</param>
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, ulong from, ulong to, uint count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
@@ -883,6 +982,7 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version; when <c>null</c>, the Agent's current Version is used.</param>
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, uint count = 0, Version mtconnectVersion = null)
         {
@@ -918,6 +1018,7 @@ namespace MTConnect.Agents
         /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version; when <c>null</c>, the Agent's current Version is used.</param>
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, ulong at, uint count = 0, Version mtconnectVersion = null)
         {
@@ -953,6 +1054,7 @@ namespace MTConnect.Agents
         /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
         /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version; when <c>null</c>, the Agent's current Version is used.</param>
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, uint count = 0, Version mtconnectVersion = null)
         {
@@ -989,6 +1091,7 @@ namespace MTConnect.Agents
         /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version; when <c>null</c>, the Agent's current Version is used.</param>
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, ulong at, uint count = 0, Version mtconnectVersion = null)
         {
@@ -1025,6 +1128,7 @@ namespace MTConnect.Agents
         /// <param name="from">The sequence number of the first observation to include in the response</param>
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version; when <c>null</c>, the Agent's current Version is used.</param>
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, ulong from, ulong to, uint count = 0, Version mtconnectVersion = null)
         {
@@ -1062,6 +1166,7 @@ namespace MTConnect.Agents
         /// <param name="from">The sequence number of the first observation to include in the response</param>
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version; when <c>null</c>, the Agent's current Version is used.</param>
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, ulong from, ulong to, uint count = 0, Version mtconnectVersion = null)
         {
@@ -1309,6 +1414,7 @@ namespace MTConnect.Agents
         /// If the value of the removed parameter in the query is false, then Asset Documents for Assets that have been marked as removed from a piece of equipment will not be included in the Response Document.
         /// </param>
         /// <param name="count">Defines the maximum number of Asset Documents to return in an MTConnectAssets Response Document.</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version; when <c>null</c>, the Agent's current Version is used.</param>
         /// <returns>MTConnectAssets Response Document</returns>
         public IAssetsResponseDocument GetAssetsResponseDocument(string deviceKey = null, string type = null, bool removed = false, uint count = 0, Version mtconnectVersion = null)
         {
@@ -1358,6 +1464,7 @@ namespace MTConnect.Agents
         /// Get an MTConnectAssets Document containing the specified Asset
         /// </summary>
         /// <param name="assetIds">The IDs of the Assets to include in the response</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version; when <c>null</c>, the Agent's current Version is used.</param>
         /// <returns>MTConnectAssets Response Document</returns>
         public IAssetsResponseDocument GetAssetsResponseDocument(IEnumerable<string> assetIds, Version mtconnectVersion = null)
         {
@@ -1649,6 +1756,7 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="errorCode">Provides a descriptive code that indicates the type of error that was encountered by an Agent when attempting to respond to a Request for information.</param>
         /// <param name="value">A textual description of the error and any additional information an Agent is capable of providing regarding a specific error.</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version; when <c>null</c>, the Agent's current Version is used.</param>
         /// <returns>MTConnectError Response Document</returns>
         public IErrorResponseDocument GetErrorResponseDocument(ErrorCode errorCode, string value = null, Version mtconnectVersion = null)
         {
@@ -1672,6 +1780,7 @@ namespace MTConnect.Agents
         /// Get an MTConnectErrors Document containing the specified Errors
         /// </summary>
         /// <param name="errors">A list of Errors to include in the response Document</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version; when <c>null</c>, the Agent's current Version is used.</param>
         /// <returns>MTConnectError Response Document</returns>
         public IErrorResponseDocument GetErrorResponseDocument(IEnumerable<IError> errors, Version mtconnectVersion = null)
         {
@@ -1692,6 +1801,7 @@ namespace MTConnect.Agents
 
         #region "Add"
 
+        /// <inheritdoc />
         public override void InitializeDataItems(IDevice device, long timestamp = 0)
         {
             if (device != null && _observationBuffer != null)
@@ -1790,6 +1900,7 @@ namespace MTConnect.Agents
             }
         }
 
+        /// <inheritdoc />
         protected override ulong OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput)
         {
             if (_observationBuffer != null && dataItem != null && observationInput != null)
@@ -1833,11 +1944,13 @@ namespace MTConnect.Agents
             return 0;
         }
 
+        /// <inheritdoc />
         protected override bool OnAssetUpdate(IAsset asset)
         {
             return _assetBuffer.AddAsset(asset);
         }
 
+        /// <inheritdoc />
         protected override bool OnNewAssetAdded(IAsset asset)
         {
             if (asset != null)

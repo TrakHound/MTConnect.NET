@@ -10,6 +10,9 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public class ScaleDataSet : AbstractScale, IScaleDataSet, IDataSet
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Either a single multiplier applied to all three dimensions or a three space multiplier given in the X, Y, and Z dimensions in the coordinate system used for the SolidModel represented as a dataset.";
 
 
@@ -17,12 +20,12 @@ namespace MTConnect.Devices.Configurations
         /// Multiplier for X axis.
         /// </summary>
         public double X { get; set; }
-        
+
         /// <summary>
         /// Multiplier for Y axis.
         /// </summary>
         public double Y { get; set; }
-        
+
         /// <summary>
         /// Multiplier for Z axis.
         /// </summary>

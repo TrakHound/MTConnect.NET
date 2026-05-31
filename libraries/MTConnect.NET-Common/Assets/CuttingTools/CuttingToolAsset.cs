@@ -8,9 +8,15 @@ namespace MTConnect.Assets.CuttingTools
 {
     public partial class CuttingToolAsset
     {
+        /// <summary>
+        /// The fixed Asset type identifier ("CuttingTool") written to the Type attribute and used to recognize this asset during deserialization.
+        /// </summary>
         public const string TypeId = "CuttingTool";
 
 
+        /// <summary>
+        /// Initializes a new CuttingToolAsset, stamping the Asset Type with <see cref="TypeId"/> and allocating an empty life-cycle container.
+        /// </summary>
         public CuttingToolAsset()
         {
             Type = TypeId;
@@ -18,6 +24,10 @@ namespace MTConnect.Assets.CuttingTools
         }
 
 
+        /// <summary>
+        /// Produces a version-adjusted copy of the asset for inclusion in a response document: excluded entirely before 1.2, the device UUID is dropped at or before 1.3, the serial number defaults to the asset id when absent, and the life cycle is recursively processed. Returns null when the version predates 1.2.
+        /// </summary>
+        /// <param name="mtconnectVersion">The MTConnect version the response document targets.</param>
         protected override IAsset OnProcess(Version mtconnectVersion)
         {
             if (mtconnectVersion != null && mtconnectVersion >= MTConnectVersions.Version12)
@@ -46,6 +56,10 @@ namespace MTConnect.Assets.CuttingTools
             return null;         
         }
 
+        /// <summary>
+        /// Validates that the required SerialNumber and ToolId are present, reporting the first one missing.
+        /// </summary>
+        /// <param name="mtconnectVersion">The MTConnect version to validate against.</param>
         public override ValidationResult IsValid(Version mtconnectVersion)
         {
             var message = "";
@@ -66,11 +80,20 @@ namespace MTConnect.Assets.CuttingTools
         }
 
 
+		/// <summary>
+		/// Computes the content hash of this cutting tool asset; see <see cref="GenerateHash(CuttingToolAsset, bool)"/>.
+		/// </summary>
+		/// <param name="includeTimestamp">When true, the asset timestamp is folded into the hash.</param>
 		public override string GenerateHash(bool includeTimestamp = true)
 		{
 			return GenerateHash(this, includeTimestamp);
 		}
 
+		/// <summary>
+		/// Computes a SHA-1 content hash combining the asset's scalar properties with the hash of its life cycle; when <paramref name="includeTimestamp"/> is false the timestamp and UUID are excluded so equality is independent of when and where the asset was reported. Returns null for a null asset.
+		/// </summary>
+		/// <param name="asset">The cutting tool asset to hash.</param>
+		/// <param name="includeTimestamp">When true, the asset timestamp is folded into the hash.</param>
 		public static string GenerateHash(CuttingToolAsset asset, bool includeTimestamp = true)
 		{
 			if (asset != null)

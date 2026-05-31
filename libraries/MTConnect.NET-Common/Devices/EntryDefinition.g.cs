@@ -10,6 +10,9 @@ namespace MTConnect.Devices
     /// </summary>
     public class EntryDefinition : IEntryDefinition
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Semantic definition of an Entry.";
 
 
@@ -17,32 +20,32 @@ namespace MTConnect.Devices
         /// Semantic definition of a Cell.
         /// </summary>
         public System.Collections.Generic.IEnumerable<MTConnect.Devices.ICellDefinition> CellDefinitions { get; set; }
-        
+
         /// <summary>
         /// Textual description for EntryDefinition.
         /// </summary>
         public string Description { get; set; }
-        
+
         /// <summary>
         /// Unique identification of the Entry in the Definition. key.
         /// </summary>
         public string Key { get; set; }
-        
+
         /// <summary>
         /// Key.
         /// </summary>
         public string KeyType { get; set; }
-        
+
         /// <summary>
         /// SubType. See DataItem.
         /// </summary>
         public string SubType { get; set; }
-        
+
         /// <summary>
         /// Type. See DataItem Types.
         /// </summary>
         public string Type { get; set; }
-        
+
         /// <summary>
         /// Units. See Value Properties of DataItem.
         /// </summary>

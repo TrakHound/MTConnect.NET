@@ -5,6 +5,11 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Configurations
 {
+    /// <summary>
+    /// Default <see cref="INamespaceConfiguration"/> implementation, also
+    /// serializable to JSON so the extended schema namespace can be supplied
+    /// through agent configuration files.
+    /// </summary>
     public class NamespaceConfiguration : INamespaceConfiguration
     {
         /// <summary>
@@ -13,6 +18,9 @@ namespace MTConnect.Configurations
         [JsonPropertyName("alias")]
         public string Alias { get; set; }
 
+        /// <summary>
+        /// The URN that uniquely identifies the extended schema namespace.
+        /// </summary>
         [JsonPropertyName("urn")]
         public string Urn { get; set; }
 
@@ -22,6 +30,9 @@ namespace MTConnect.Configurations
         [JsonPropertyName("location")]
         public string Location { get; set; }
 
+        /// <summary>
+        /// The local file system path to the xsd file when it is served by the agent.
+        /// </summary>
         [JsonPropertyName("path")]
         public string Path { get; set; }
     }

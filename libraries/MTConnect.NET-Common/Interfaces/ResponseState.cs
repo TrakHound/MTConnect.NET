@@ -3,6 +3,9 @@
 
 namespace MTConnect.Interfaces
 {
+    /// <summary>
+    /// The state of the Responder side of an Interface handshake, tracking its progress from idle through accepting and performing a requested service to completion or failure.
+    /// </summary>
     public enum ResponseState
     {
         /// <summary>

@@ -10,6 +10,9 @@ namespace MTConnect.Assets.ComponentConfigurationParameters
     /// </summary>
     public partial class ComponentConfigurationParametersAsset : Asset, IComponentConfigurationParametersAsset
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Set of ParameterSets that govern the functionality of the related Component.";
 
 

@@ -10,15 +10,35 @@ namespace MTConnect.Devices.Compositions
     /// </summary>
     public class WaterComposition : Composition 
     {
+        /// <summary>
+        /// The MTConnect <c>type</c> value that identifies this Composition.
+        /// </summary>
         public const string TypeId = "WATER";
+
+        /// <summary>
+        /// The default <c>name</c> assigned to an instance of this Composition.
+        /// </summary>
         public const string NameId = "waterComposition";
+
+        /// <summary>
+        /// The description of this Composition as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Composition composed of a fluid.";
 
+        /// <summary>
+        /// The description of this Composition as defined by the MTConnect Standard.
+        /// </summary>
         public override string TypeDescription => DescriptionText;
-        
-        public override System.Version MinimumVersion => MTConnectVersions.Version14; 
+
+        /// <summary>
+        /// The minimum MTConnect Version that introduced this Composition.
+        /// </summary>
+        public override System.Version MinimumVersion => MTConnectVersions.Version14;
 
 
-        public WaterComposition()  { Type = TypeId; }
+        /// <summary>
+        /// Initializes a new instance with its <c>Type</c> set to <see cref="TypeId"/>.
+        /// </summary>
+        public WaterComposition() { Type = TypeId; }
     }
 }

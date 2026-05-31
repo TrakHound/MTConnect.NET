@@ -8,6 +8,9 @@ using System.Collections.Generic;
 
 namespace MTConnect.Agents
 {
+    /// <summary>
+    /// Discovers <see cref="IMTConnectAgentModule"/> implementations from loaded assemblies, instantiates the ones enabled in the Agent configuration, and relays their lifecycle calls and log events.
+    /// </summary>
     public class MTConnectAgentModules
     {
         private static readonly List<Type> _moduleTypes = new List<Type>();
@@ -18,17 +21,31 @@ namespace MTConnect.Agents
         private readonly IMTConnectAgentBroker _mtconnectAgent;
 
 
+        /// <summary>
+        /// Raised once for each module after it has been instantiated and is ready to be started.
+        /// </summary>
         public event EventHandler<IMTConnectAgentModule> ModuleLoaded;
 
+        /// <summary>
+        /// Raised when any hosted module emits a log entry.
+        /// </summary>
         public event MTConnectLogEventHandler LogReceived;
 
 
+        /// <summary>
+        /// Initializes a new instance bound to the given Agent configuration and Agent broker.
+        /// </summary>
+        /// <param name="configuration">The Agent configuration used to determine which modules are enabled and how many instances to create.</param>
+        /// <param name="mtconnectAgent">The Agent broker passed to each module instance.</param>
         public MTConnectAgentModules(IAgentApplicationConfiguration configuration, IMTConnectAgentBroker mtconnectAgent)
         {
             _configuration = configuration;
             _mtconnectAgent = mtconnectAgent;
         }
 
+        /// <summary>
+        /// Discover all available module types and create instances for every module that is enabled in the configuration.
+        /// </summary>
         public void Load()
         {
             InitializeModules();
@@ -86,13 +103,17 @@ namespace MTConnect.Agents
                                         catch { }
                                     }
                                 }
-							}
+                            }
                         }
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// Invoke <see cref="IMTConnectAgentModule.StartBeforeLoad(bool)"/> on every loaded module.
+        /// </summary>
+        /// <param name="initializeDataItems">When <c>true</c>, modules should initialize DataItems with their default observations.</param>
         public void StartBeforeLoad(bool initializeDataItems)
         {
             Dictionary<string, IMTConnectAgentModule> modules;
@@ -106,6 +127,10 @@ namespace MTConnect.Agents
             }
         }
 
+        /// <summary>
+        /// Invoke <see cref="IMTConnectAgentModule.StartAfterLoad(bool)"/> on every loaded module.
+        /// </summary>
+        /// <param name="initializeDataItems">When <c>true</c>, modules should initialize DataItems with their default observations.</param>
         public void StartAfterLoad(bool initializeDataItems)
         {
             Dictionary<string, IMTConnectAgentModule> modules;
@@ -119,6 +144,9 @@ namespace MTConnect.Agents
             }
         }
 
+        /// <summary>
+        /// Invoke <see cref="IMTConnectAgentModule.Stop"/> on every loaded module and clear the module cache.
+        /// </summary>
         public void Stop()
         {
             Dictionary<string, IMTConnectAgentModule> modules;

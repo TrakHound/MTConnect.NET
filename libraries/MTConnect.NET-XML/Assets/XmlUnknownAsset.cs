@@ -11,12 +11,27 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate used when an asset element is encountered
+    /// whose <c>assetType</c> is not recognized by the strongly-typed model.
+    /// The raw XML is retained so the asset can still be round-tripped or
+    /// resolved later once its concrete type is known.
+    /// </summary>
     public class XmlUnknownAsset : XmlAsset
     {
+        /// <summary>
+        /// The raw XML fragment of the unrecognized asset element, preserved
+        /// verbatim so no information is lost during deserialization.
+        /// </summary>
         [XmlIgnore]
         public string Xml { get; set; }
 
 
+        /// <summary>
+        /// Attempts to resolve the asset to its concrete type by name and
+        /// deserialize the supplied XML bytes; returns <c>null</c> when the
+        /// <paramref name="type"/> name is not a registered asset type.
+        /// </summary>
         public static new IAsset FromXml(string type, byte[] xmlBytes)
         {
             var asset = Asset.Create(type);

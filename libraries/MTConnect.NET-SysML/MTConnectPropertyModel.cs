@@ -4,22 +4,51 @@ using System.Linq;
 
 namespace MTConnect.SysML
 {
+    /// <summary>
+    /// A parsed class property: its emitted name and C# data type, whether
+    /// it is optional (nullable) or a collection, and its cleaned
+    /// description.
+    /// </summary>
     public class MTConnectPropertyModel : IMTConnectExportModel
     {
+        /// <inheritdoc/>
         public string UmlId { get; set; }
 
+        /// <inheritdoc/>
         public string Id { get; set; }
 
+        /// <summary>
+        /// The property name as emitted in the generated C#.
+        /// </summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// The cleaned description text emitted into the doc comment,
+        /// falling back to the description of the property's type when the
+        /// property itself has none.
+        /// </summary>
         public string Description { get; set; }
 
+        /// <summary>
+        /// The resolved C# data type of the property.
+        /// </summary>
         public string DataType { get; set; }
 
+        /// <summary>
+        /// The <c>xmi:id</c> of the property's declared type.
+        /// </summary>
         public string DataTypeUmlId { get; set; }
 
+        /// <summary>
+        /// True when the property is optional and must be emitted as a
+        /// nullable member.
+        /// </summary>
         public bool IsOptional { get; set; }
 
+        /// <summary>
+        /// True when the property is a collection and must be emitted as an
+        /// enumerable member.
+        /// </summary>
         public bool IsArray { get; set; }
 
         /// <summary>
@@ -50,9 +79,19 @@ namespace MTConnect.SysML
         public bool IsInheritedInInterface { get; set; }
 
 
+        /// <summary>
+        /// Creates an empty model for manual population.
+        /// </summary>
         public MTConnectPropertyModel() { }
 
-        public MTConnectPropertyModel(XmiDocument xmiDocument, string idPrefix, UmlProperty umlProperty) 
+        /// <summary>
+        /// Parses a property from <paramref name="umlProperty"/> under
+        /// <paramref name="idPrefix"/>: normalizes the name (strips a
+        /// leading <c>has</c>, maps <c>xlink:type</c>, pluralizes
+        /// collections), resolves the C# data type, and cleans the
+        /// description.
+        /// </summary>
+        public MTConnectPropertyModel(XmiDocument xmiDocument, string idPrefix, UmlProperty umlProperty)
         {
             UmlId = umlProperty.Id;
 
@@ -80,6 +119,12 @@ namespace MTConnect.SysML
             }
         }
 
+        /// <summary>
+        /// Resolves the C# data type for a property: applies the
+        /// per-property and per-type <c>xmi:id</c> overrides for the cases
+        /// the XMI types incorrectly, then maps primitive types, value
+        /// classes, and enumerations, defaulting to <c>string</c>.
+        /// </summary>
         internal static string ParseType(XmiDocument xmiDocument, string propertyId, string typeId)
         {
             if (xmiDocument != null && propertyId != null && typeId != null)

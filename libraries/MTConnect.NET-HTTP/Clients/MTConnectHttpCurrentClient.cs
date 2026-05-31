@@ -266,10 +266,23 @@ namespace MTConnect.Clients
         }
 
 
+        /// <summary>Builds the <c>current</c> request URI from the client's own <see cref="MTConnectHttpClientRequest.Authority"/>, <see cref="MTConnectHttpClientRequest.Device"/>, <see cref="MTConnectHttpClientRequest.Path"/>, <see cref="At"/>, and <see cref="MTConnectHttpClientRequest.DocumentFormat"/>.</summary>
         public Uri CreateUri() => CreateUri(Authority, Device, Path, At, DocumentFormat);
 
+        /// <summary>Convenience overload that passes <c>0</c> for <paramref name="port"/>, taking the port from <paramref name="hostname"/> if present.</summary>
+        /// <param name="hostname">Agent base URL or hostname.</param>
+        /// <param name="device">Optional device key; null requests an agent-scoped current.</param>
+        /// <param name="path">Optional XPath/JSONPath filter (becomes the <c>path</c> query parameter).</param>
+        /// <param name="at">The sequence number to snapshot at (<c>at</c> query parameter); <c>0</c> means unset.</param>
+        /// <param name="documentFormat">Optional document format (<c>documentFormat</c> query parameter).</param>
         public static Uri CreateUri(string hostname, string device = null, string path = null, long at = 0, string documentFormat = null) => CreateUri(hostname, 0, device, path, at, documentFormat);
 
+        /// <summary>
+        /// Builds the absolute <c>current</c> request URI. Combines <paramref name="hostname"/>
+        /// (with <paramref name="port"/> appended if positive) and the <paramref name="device"/>
+        /// segment, then adds <c>/current</c> together with the standard query parameters
+        /// <c>path</c>, <c>at</c>, and <c>documentFormat</c> for the supplied non-default values.
+        /// </summary>
         public static Uri CreateUri(string hostname, int port, string device = null, string path = null, long at = 0, string documentFormat = null)
         {
             if (!string.IsNullOrEmpty(hostname))

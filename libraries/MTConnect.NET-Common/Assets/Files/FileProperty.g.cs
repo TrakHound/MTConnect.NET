@@ -10,6 +10,9 @@ namespace MTConnect.Assets.Files
     /// </summary>
     public class FileProperty : IFileProperty
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public const string DescriptionText = "Key-value pair providing additional metadata about a File.";
 
 
@@ -17,7 +20,7 @@ namespace MTConnect.Assets.Files
         /// Name of the FileProperty.
         /// </summary>
         public string Name { get; set; }
-        
+
         /// <summary>
         /// The value of the FileProperty.
         /// </summary>

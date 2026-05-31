@@ -10,6 +10,9 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public class OriginDataSet : AbstractOrigin, IOriginDataSet, IDataSet
     {
+        /// <summary>
+        /// The description of this type as defined by the MTConnect Standard.
+        /// </summary>
         public new const string DescriptionText = "Coordinates of the origin position of a coordinate system represented as a dataset.";
 
 
@@ -17,12 +20,12 @@ namespace MTConnect.Devices.Configurations
         /// X-coordinate.
         /// </summary>
         public string X { get; set; }
-        
+
         /// <summary>
         /// Y-coordinate.
         /// </summary>
         public string Y { get; set; }
-        
+
         /// <summary>
         /// X-coordinate.
         /// </summary>

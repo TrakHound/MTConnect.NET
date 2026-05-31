@@ -11,11 +11,20 @@ using System.Xml.XPath;
 
 namespace MTConnect.Formatters.Xml
 {
+    /// <summary>
+    /// <see cref="IPathFormatter"/> that resolves an MTConnect <c>path</c>
+    /// request parameter against the XML representation of a device, returning
+    /// the ids of the data items selected by the supplied XPath expression.
+    /// </summary>
     public class XmlPathFormatter : IPathFormatter
     {
         private readonly Dictionary<string, byte[]> _documents = new Dictionary<string, byte[]>();
         private readonly object _lock = new object();
 
+        /// <summary>
+        /// The formatter identifier (<c>XML</c>) used to select this path
+        /// formatter for XML requests.
+        /// </summary>
         public string Id => "XML";
 
 
@@ -56,6 +65,13 @@ namespace MTConnect.Formatters.Xml
             return null;
         }
 
+        /// <summary>
+        /// Resolves the given XPath <paramref name="path"/> against the XML
+        /// rendering of each device in the document and returns the ids of the
+        /// matching data items. When a matched node is a component, the ids of
+        /// all of its data items are included. Unmatched or malformed
+        /// expressions yield an empty result.
+        /// </summary>
         public IEnumerable<string> GetDataItemIds(IDevicesResponseDocument devicesDocument, string path)
         {
             var dataItemIds = new List<string>();

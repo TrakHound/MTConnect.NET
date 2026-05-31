@@ -10,8 +10,14 @@ namespace MTConnect.Configurations
     /// </summary>
     public interface IConfigurationFileWatcher<T> : IDisposable
     {
+        /// <summary>
+        /// Raised when the watched file changes and is successfully re-read, supplying the freshly deserialized configuration of type <typeparamref name="T"/>.
+        /// </summary>
         event EventHandler<T> ConfigurationUpdated;
 
+        /// <summary>
+        /// Raised when a change is detected but the file cannot be read or deserialized; the event argument carries the error message.
+        /// </summary>
         event EventHandler<string> ErrorReceived;
     }
 }

@@ -14,11 +14,11 @@ using System.Collections.Generic;
 
 namespace MTConnect.Agents
 {
-	/// <summary>
-	/// An Agent is the centerpiece of an MTConnect implementation. 
-	/// It organizes and manages individual pieces of information published by one or more pieces of equipment.
-	/// </summary>
-	public interface IMTConnectAgent
+    /// <summary>
+    /// An Agent is the centerpiece of an MTConnect implementation. 
+    /// It organizes and manages individual pieces of information published by one or more pieces of equipment.
+    /// </summary>
+    public interface IMTConnectAgent
     {
         /// <summary>
         /// Gets the Device that represents the Agent in the Information Model
@@ -143,31 +143,97 @@ namespace MTConnect.Agents
 
         #region "Entities"
 
+        /// <summary>
+        /// Get the Device with the specified key.
+        /// </summary>
+        /// <param name="deviceKey">The Name or Uuid of the requested Device.</param>
+        /// <returns>The matching Device, or <c>null</c> if no Device with the key exists.</returns>
         IDevice GetDevice(string deviceKey);
 
+        /// <summary>
+        /// Get the Device with the specified key, projected to the given MTConnect Version.
+        /// </summary>
+        /// <param name="deviceKey">The Name or Uuid of the requested Device.</param>
+        /// <param name="mtconnectVersion">The MTConnect Version the returned Device is projected to.</param>
+        /// <returns>The matching Device, or <c>null</c> if no Device with the key exists.</returns>
         IDevice GetDevice(string deviceKey, Version mtconnectVersion);
 
+        /// <summary>
+        /// Get all Devices held by the Agent.
+        /// </summary>
+        /// <returns>The collection of Devices.</returns>
         IEnumerable<IDevice> GetDevices();
 
+        /// <summary>
+        /// Get all Devices held by the Agent, projected to the given MTConnect Version.
+        /// </summary>
+        /// <param name="mtconnectVersion">The MTConnect Version the returned Devices are projected to.</param>
+        /// <returns>The collection of Devices.</returns>
         IEnumerable<IDevice> GetDevices(Version mtconnectVersion);
 
+        /// <summary>
+        /// Get all Devices of the specified Device type.
+        /// </summary>
+        /// <param name="deviceType">The Device type to filter by (for example, <c>Device</c> or <c>Agent</c>).</param>
+        /// <returns>The collection of matching Devices.</returns>
         IEnumerable<IDevice> GetDevices(string deviceType);
 
+        /// <summary>
+        /// Get all Devices of the specified Device type, projected to the given MTConnect Version.
+        /// </summary>
+        /// <param name="deviceType">The Device type to filter by (for example, <c>Device</c> or <c>Agent</c>).</param>
+        /// <param name="mtconnectVersion">The MTConnect Version the returned Devices are projected to.</param>
+        /// <returns>The collection of matching Devices.</returns>
         IEnumerable<IDevice> GetDevices(string deviceType, Version mtconnectVersion);
 
 
+        /// <summary>
+        /// Get a specific DataItem belonging to the given Device.
+        /// </summary>
+        /// <param name="deviceKey">The Name or Uuid of the Device that owns the DataItem.</param>
+        /// <param name="dataItemKey">The Id or Name of the requested DataItem.</param>
+        /// <returns>The matching DataItem, or <c>null</c> if it cannot be resolved.</returns>
         IDataItem GetDataItem(string deviceKey, string dataItemKey);
 
 
+        /// <summary>
+        /// Get the most recent observation for every DataItem across all Devices.
+        /// </summary>
+        /// <param name="mtconnectVersion">The MTConnect Version the returned observations are projected to.</param>
+        /// <returns>The current observations.</returns>
         IEnumerable<IObservationOutput> GetCurrentObservations(Version mtconnectVersion = null);
 
+        /// <summary>
+        /// Get the most recent observation for every DataItem belonging to the specified Device.
+        /// </summary>
+        /// <param name="deviceKey">The Name or Uuid of the Device.</param>
+        /// <param name="mtconnectVersion">The MTConnect Version the returned observations are projected to.</param>
+        /// <returns>The current observations for the Device.</returns>
         IEnumerable<IObservationOutput> GetCurrentObservations(string deviceKey, Version mtconnectVersion = null);
 
+        /// <summary>
+        /// Get the most recent observation for a specific DataItem belonging to the specified Device.
+        /// </summary>
+        /// <param name="deviceKey">The Name or Uuid of the Device.</param>
+        /// <param name="dataItemKey">The Id or Name of the DataItem.</param>
+        /// <param name="mtconnectVersion">The MTConnect Version the returned observations are projected to.</param>
+        /// <returns>The current observations for the DataItem.</returns>
         IEnumerable<IObservationOutput> GetCurrentObservations(string deviceKey, string dataItemKey, Version mtconnectVersion = null);
 
 
+        /// <summary>
+        /// Get all Assets held by the Agent.
+        /// </summary>
+        /// <param name="mtconnectVersion">The MTConnect Version the returned Assets are projected to.</param>
+        /// <returns>The collection of Assets.</returns>
         IEnumerable<IAsset> GetAssets(Version mtconnectVersion = null);
 
+        /// <summary>
+        /// Get all Assets associated with the specified Device.
+        /// </summary>
+        /// <param name="deviceKey">The Name or Uuid of the Device.</param>
+        /// <param name="mtconnectVersion">The MTConnect Version the returned Assets are projected to.</param>
+        /// <returns>The collection of Assets for the Device.</returns>
         IEnumerable<IAsset> GetAssets(string deviceKey, Version mtconnectVersion = null);
 
         /// <summary>
@@ -203,20 +269,20 @@ namespace MTConnect.Agents
         /// <returns>Returns True if the Assets were successfully removed</returns>
         bool RemoveAllAssets(string assetType, DateTime timestamp);
 
-		#endregion
+        #endregion
 
 
-		#region "Add"
+        #region "Add"
 
-		/// <summary>
-		/// Add a new MTConnectDevice to the Agent's Buffer
-		/// </summary>
-		IDevice AddDevice(IDevice device, bool intializeDataItems = true);
+        /// <summary>
+        /// Add a new MTConnectDevice to the Agent's Buffer
+        /// </summary>
+        IDevice AddDevice(IDevice device, bool intializeDataItems = true);
 
-		/// <summary>
-		/// Add new MTConnectDevices to the Agent's Buffer
-		/// </summary>
-		IEnumerable<IDevice> AddDevices(IEnumerable<IDevice> devices, bool intializeDataItems = true);
+        /// <summary>
+        /// Add new MTConnectDevices to the Agent's Buffer
+        /// </summary>
+        IEnumerable<IDevice> AddDevices(IEnumerable<IDevice> devices, bool intializeDataItems = true);
 
 
         /// <summary>
@@ -357,15 +423,15 @@ namespace MTConnect.Agents
         /// <returns>True if the Observation was added successfully</returns>
         bool AddObservation(string deviceKey, IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false);
 
-		/// <summary>
-		/// Add new Observations to the Agent for the specified Device
-		/// </summary>
-		bool AddObservations(IEnumerable<IObservationInput> observationInputs);
+        /// <summary>
+        /// Add new Observations to the Agent for the specified Device
+        /// </summary>
+        bool AddObservations(IEnumerable<IObservationInput> observationInputs);
 
-		/// <summary>
-		/// Add new Observations for DataItems to the Agent using the "deviceKey" property to override the DeviceKey set in each ObservationInput
-		/// </summary>
-		bool AddObservations(string deviceKey, IEnumerable<IObservationInput> observationInputs);
+        /// <summary>
+        /// Add new Observations for DataItems to the Agent using the "deviceKey" property to override the DeviceKey set in each ObservationInput
+        /// </summary>
+        bool AddObservations(string deviceKey, IEnumerable<IObservationInput> observationInputs);
 
 
         /// <summary>
@@ -386,8 +452,18 @@ namespace MTConnect.Agents
         bool AddAssets(string deviceKey, IEnumerable<IAsset> assets);
 
 
+        /// <summary>
+        /// Notify the Agent that an observation has been added so that downstream consumers and events can be triggered.
+        /// </summary>
+        /// <param name="observation">The observation that was added.</param>
         void OnObservationAdded(IObservation observation);
 
+        /// <summary>
+        /// Notify the Agent that an observation was rejected because it failed validation.
+        /// </summary>
+        /// <param name="deviceUuid">The Uuid of the Device the observation was intended for.</param>
+        /// <param name="dataItemId">The Id of the DataItem the observation was intended for.</param>
+        /// <param name="result">The validation result describing why the observation was rejected.</param>
         void OnInvalidObservationAdded(string deviceUuid, string dataItemId, ValidationResult result);
 
         /// <summary>

@@ -13,14 +13,14 @@ namespace MTConnect
 
                     switch (minorVersion)
                     {
-                        case 1: return Version11.Devices;                  
-                        case 2: return Version12.Devices;                  
-                        case 3: return Version13.Devices;                  
-                        case 4: return Version14.Devices;                  
-                        case 5: return Version15.Devices;                  
-                        case 6: return Version16.Devices;                  
-                        case 7: return Version17.Devices;                  
-                        case 8: return Version18.Devices;                                  
+                        case 1: return Version11.Devices;
+                        case 2: return Version12.Devices;
+                        case 3: return Version13.Devices;
+                        case 4: return Version14.Devices;
+                        case 5: return Version15.Devices;
+                        case 6: return Version16.Devices;
+                        case 7: return Version17.Devices;
+                        case 8: return Version18.Devices;
                     }
 
                     break;

@@ -3,6 +3,9 @@
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// Description text for each <see cref="DataItemFilterType"/> value as defined by the MTConnect Standard.
+    /// </summary>
     public static class DataItemFilterTypeDescriptions
     {
         /// <summary>
@@ -16,6 +19,9 @@ namespace MTConnect.Devices
         public const string PERIOD = "Data reported for a data item is provided on a periodic basis. The `PERIOD` for reporting data is defined in the value of the Filter.The value of Filter **MUST** be an absolute value reported in seconds representing the time between reported samples of the value of the data item.";
 
 
+        /// <summary>
+        /// Returns the MTConnect Standard description text for the specified <see cref="DataItemFilterType"/> value, or <c>null</c> when none is defined.
+        /// </summary>
         public static string Get(DataItemFilterType value)
         {
             switch (value)

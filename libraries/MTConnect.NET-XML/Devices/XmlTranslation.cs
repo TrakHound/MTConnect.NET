@@ -12,13 +12,25 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
+    /// <summary>
+    /// XML serialization surrogate for the <c>Translation</c> element of a
+    /// Component <c>Configuration</c> <c>CoordinateSystem</c>, carrying the
+    /// translation vector relative to the parent coordinate system as simple
+    /// element content.
+    /// </summary>
     [XmlRoot("Translation")]
     public class XmlTranslation
     {
+        /// <summary>
+        /// The translation values as the raw, space-delimited element text content.
+        /// </summary>
         [XmlText]
         public string Value { get; set; }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed <see cref="Translation"/>.
+        /// </summary>
         public ITranslation ToTranslation()
         {
             var translation = new Translation();
@@ -26,6 +38,10 @@ namespace MTConnect.Devices.Xml
             return translation;
         }
 
+        /// <summary>
+        /// Writes the <c>Translation</c> element for the supplied model,
+        /// emitting the value as element text and omitting an empty value.
+        /// </summary>
         public static void WriteXml(XmlWriter writer, ITranslation translation)
         {
             if (translation != null)

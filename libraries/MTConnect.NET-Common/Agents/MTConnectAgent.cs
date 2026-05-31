@@ -28,18 +28,55 @@ namespace MTConnect.Agents
         private readonly IAgentConfiguration _configuration;
         private readonly MTConnectAgentInformation _information;
 
+        /// <summary>
+        /// Reverse lookup of Device buffer index to Device UUID.
+        /// </summary>
         protected readonly Dictionary<int, string> _deviceUuids = new Dictionary<int, string>();
+
+        /// <summary>
+        /// Reverse lookup of DataItem buffer index to DataItem Id.
+        /// </summary>
         protected readonly Dictionary<int, string> _dataItemIds = new Dictionary<int, string>();
+
+        /// <summary>
+        /// The highest Device buffer index allocated so far; incremented when a new Device is encountered.
+        /// </summary>
         protected int _lastDeviceIndex = 0;
+
+        /// <summary>
+        /// The highest DataItem buffer index allocated so far; incremented when a new DataItem is encountered.
+        /// </summary>
         protected int _lastDataItemIndex = 0;
 
-        protected readonly ConcurrentDictionary<string, string> _deviceKeys = new ConcurrentDictionary<string, string>(); // Resolves either the Device Name or UUID to the Device UUID
-        protected readonly ConcurrentDictionary<string, IDevice> _devices = new ConcurrentDictionary<string, IDevice>(); // Resolves either the Device Name or UUID to the Device
+        /// <summary>
+        /// Resolves either a Device Name or UUID to the canonical Device UUID.
+        /// </summary>
+        protected readonly ConcurrentDictionary<string, string> _deviceKeys = new ConcurrentDictionary<string, string>();
+
+        /// <summary>
+        /// Resolves either a Device Name or UUID to the corresponding Device.
+        /// </summary>
+        protected readonly ConcurrentDictionary<string, IDevice> _devices = new ConcurrentDictionary<string, IDevice>();
+
+        /// <summary>
+        /// Caches the DataItems belonging to each Device, keyed by Device UUID.
+        /// </summary>
         protected readonly ConcurrentDictionary<string, IEnumerable<IDataItem>> _deviceDataItems = new ConcurrentDictionary<string, IEnumerable<IDataItem>>();
+
+        /// <summary>
+        /// Caches the DataItem Ids belonging to each Device, keyed by Device UUID.
+        /// </summary>
         protected readonly ConcurrentDictionary<string, IEnumerable<string>> _deviceDataItemIds = new ConcurrentDictionary<string, IEnumerable<string>>();
 
-        protected readonly ConcurrentDictionary<string, string> _dataItemKeys = new ConcurrentDictionary<string, string>(); // Caches DeviceUuid:DataItemKey to DeviceUuid:DataItemId
-        protected readonly ConcurrentDictionary<string, IDataItem> _dataItems = new ConcurrentDictionary<string, IDataItem>(); // Key = DeviceUuid:DataItemId
+        /// <summary>
+        /// Caches the resolution of a <c>DeviceUuid:DataItemKey</c> pair to its canonical <c>DeviceUuid:DataItemId</c> form.
+        /// </summary>
+        protected readonly ConcurrentDictionary<string, string> _dataItemKeys = new ConcurrentDictionary<string, string>();
+
+        /// <summary>
+        /// Caches DataItems by their canonical <c>DeviceUuid:DataItemId</c> key.
+        /// </summary>
+        protected readonly ConcurrentDictionary<string, IDataItem> _dataItems = new ConcurrentDictionary<string, IDataItem>();
 
         private readonly ConcurrentDictionary<string, IObservation> _currentObservations = new ConcurrentDictionary<string, IObservation>();
         private readonly ConcurrentDictionary<string, IEnumerable<IObservation>> _currentConditions = new ConcurrentDictionary<string, IEnumerable<IObservation>>();
@@ -209,6 +246,13 @@ namespace MTConnect.Agents
 
         #region "Constructors"
 
+        /// <summary>
+        /// Initializes a new Agent with a default configuration.
+        /// </summary>
+        /// <param name="uuid">An optional UUID for the Agent; when omitted, one is generated.</param>
+        /// <param name="instanceId">The InstanceId identifying the lifetime of the Agent buffer; when <c>0</c>, a new value is created.</param>
+        /// <param name="deviceModelChangeTime">The timestamp, in Unix ticks, of the most recent Device model change.</param>
+        /// <param name="initializeAgentDevice">When <c>true</c>, the built-in Agent Device is added during construction.</param>
         public MTConnectAgent(
             string uuid = null,
             ulong instanceId = 0,
@@ -227,6 +271,14 @@ namespace MTConnect.Agents
             InitializeAgentDevice(initializeAgentDevice);
         }
 
+        /// <summary>
+        /// Initializes a new Agent with an explicit configuration.
+        /// </summary>
+        /// <param name="configuration">The Agent configuration; when <c>null</c>, a default configuration is used.</param>
+        /// <param name="uuid">An optional UUID for the Agent; when omitted, one is generated.</param>
+        /// <param name="instanceId">The InstanceId identifying the lifetime of the Agent buffer; when <c>0</c>, a new value is created.</param>
+        /// <param name="deviceModelChangeTime">The timestamp, in Unix ticks, of the most recent Device model change.</param>
+        /// <param name="initializeAgentDevice">When <c>true</c>, the built-in Agent Device is added during construction.</param>
         public MTConnectAgent(
             IAgentConfiguration configuration,
             string uuid = null,
@@ -271,6 +323,9 @@ namespace MTConnect.Agents
             StopAgentInformationUpdateTimer();
         }
 
+        /// <summary>
+        /// Stop the Agent and release shared resources held by the garbage collector helper.
+        /// </summary>
         public void Dispose()
         {
             Stop();
@@ -281,6 +336,10 @@ namespace MTConnect.Agents
 
         #region "Initialization"
 
+        /// <summary>
+        /// Create the built-in Agent Device that represents the Agent itself in the Information Model and register its keys.
+        /// </summary>
+        /// <param name="initializeDataItems">When <c>true</c>, the Agent Device DataItems are initialized with their default observations.</param>
         protected void InitializeAgentDevice(bool initializeDataItems = true)
         {
             if (_configuration.EnableAgentDevice)
@@ -324,6 +383,11 @@ namespace MTConnect.Agents
 
         #region "Entities"
 
+        /// <summary>
+        /// Resolve a Device key to its canonical Device UUID, accepting either a Device Name or UUID and falling back to a case-insensitive Name match.
+        /// </summary>
+        /// <param name="deviceKey">The Name or UUID of the Device.</param>
+        /// <returns>The canonical Device UUID, or <c>null</c> if the key cannot be resolved.</returns>
         public string GetDeviceUuid(string deviceKey)
         {
             if (!string.IsNullOrEmpty(deviceKey))
@@ -344,6 +408,12 @@ namespace MTConnect.Agents
             return null;
         }
 
+        /// <summary>
+        /// Project a set of Devices to the requested MTConnect Version, dropping any Device that is not valid for that Version.
+        /// </summary>
+        /// <param name="devices">The Devices to project.</param>
+        /// <param name="mtconnectVersion">The target MTConnect Version; when <c>null</c>, the Agent's current Version is used.</param>
+        /// <returns>The projected Devices.</returns>
         protected List<IDevice> ProcessDevices(IEnumerable<IDevice> devices, Version mtconnectVersion = null)
         {
             var objs = new List<IDevice>();
@@ -361,6 +431,7 @@ namespace MTConnect.Agents
         }
 
 
+        /// <inheritdoc />
         public IDevice GetDevice(string deviceKey)
         {
             var deviceUuid = GetDeviceUuid(deviceKey);
@@ -378,6 +449,7 @@ namespace MTConnect.Agents
             return null;
         }
 
+        /// <inheritdoc />
         public IDevice GetDevice(string deviceKey, Version mtconnectVersion)
         {
             var deviceUuid = GetDeviceUuid(deviceKey);
@@ -395,6 +467,7 @@ namespace MTConnect.Agents
             return null;
         }
 
+        /// <inheritdoc />
         public IEnumerable<IDevice> GetDevices()
         {
             var allDevices = new List<IDevice>();
@@ -410,6 +483,7 @@ namespace MTConnect.Agents
             return null;
         }
 
+        /// <inheritdoc />
         public IEnumerable<IDevice> GetDevices(Version mtconnectVersion)
         {
             var allDevices = new List<IDevice>();
@@ -425,6 +499,7 @@ namespace MTConnect.Agents
             return null;
         }
 
+        /// <inheritdoc />
         public IEnumerable<IDevice> GetDevices(string deviceType)
         {
             var allDevices = new List<IDevice>();
@@ -434,7 +509,7 @@ namespace MTConnect.Agents
                 switch (deviceType)
                 {
                     case Agent.TypeId:
-                        if (_agent != null) allDevices.Add(_agent); 
+                        if (_agent != null) allDevices.Add(_agent);
                         break;
 
                     case Device.TypeId:
@@ -458,6 +533,7 @@ namespace MTConnect.Agents
             return null;
         }
 
+        /// <inheritdoc />
         public IEnumerable<IDevice> GetDevices(string deviceType, Version mtconnectVersion)
         {
             var allDevices = new List<IDevice>();
@@ -474,7 +550,7 @@ namespace MTConnect.Agents
                         var devices = _devices.Select(o => o.Value).ToList();
                         if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
                         break;
-                }             
+                }
             }
             else
             {
@@ -492,6 +568,7 @@ namespace MTConnect.Agents
         }
 
 
+        /// <inheritdoc />
         public IDataItem GetDataItem(string deviceKey, string dataItemKey)
         {
             if (!string.IsNullOrEmpty(deviceKey) && !string.IsNullOrEmpty(dataItemKey))
@@ -567,6 +644,11 @@ namespace MTConnect.Agents
             return null;
         }
 
+        /// <summary>
+        /// Get all DataItems belonging to the specified Device.
+        /// </summary>
+        /// <param name="deviceKey">The Name or UUID of the Device.</param>
+        /// <returns>The Device's DataItems, or <c>null</c> if the Device cannot be resolved.</returns>
         public IEnumerable<IDataItem> GetDataItems(string deviceKey)
         {
             if (!string.IsNullOrEmpty(deviceKey))
@@ -586,6 +668,7 @@ namespace MTConnect.Agents
         }
 
 
+        /// <inheritdoc />
         public IEnumerable<IObservationOutput> GetCurrentObservations(Version mtconnectVersion = null)
         {
             var observations = new List<IObservationOutput>();
@@ -608,6 +691,7 @@ namespace MTConnect.Agents
             return observations;
         }
 
+        /// <inheritdoc />
         public IEnumerable<IObservationOutput> GetCurrentObservations(string deviceKey, Version mtconnectVersion = null)
         {
             var observations = new List<IObservationOutput>();
@@ -651,6 +735,7 @@ namespace MTConnect.Agents
             return observations;
         }
 
+        /// <inheritdoc />
         public IEnumerable<IObservationOutput> GetCurrentObservations(string deviceKey, string dataItemKey, Version mtconnectVersion = null)
         {
             var observations = new List<IObservationOutput>();
@@ -714,11 +799,13 @@ namespace MTConnect.Agents
         }
 
 
+        /// <inheritdoc />
         public virtual IEnumerable<IAsset> GetAssets(Version mtconnectVersion = null)
         {
             return null;
         }
 
+        /// <inheritdoc />
         public virtual IEnumerable<IAsset> GetAssets(string deviceKey, Version mtconnectVersion = null)
         {
             return null;
@@ -775,6 +862,11 @@ namespace MTConnect.Agents
 
         #region "Internal"
 
+        /// <summary>
+        /// Seed every DataItem of the given Device with an initial <c>UNAVAILABLE</c> observation so the Device has a complete current state immediately after it is added.
+        /// </summary>
+        /// <param name="device">The Device whose DataItems are initialized.</param>
+        /// <param name="timestamp">The timestamp, in Unix ticks, applied to the initial observations; when <c>0</c>, the current time is used.</param>
         public virtual void InitializeDataItems(IDevice device, long timestamp = 0)
         {
             if (device != null)
@@ -816,6 +908,13 @@ namespace MTConnect.Agents
         }
 
 
+        /// <summary>
+        /// Determine whether a new observation should be stored by applying the DataItem's period and delta filters against the current observation, always accepting Discrete DataItems and first observations.
+        /// </summary>
+        /// <param name="deviceUuid">The UUID of the Device that owns the DataItem.</param>
+        /// <param name="dataItem">The DataItem the observation is reported for.</param>
+        /// <param name="observation">The incoming observation input.</param>
+        /// <returns><c>true</c> if the observation passes the filters and should be stored; otherwise <c>false</c>.</returns>
         protected bool CheckCurrentObservation(string deviceUuid, IDataItem dataItem, IObservationInput observation)
         {
             if (_currentObservations != null && observation != null && !string.IsNullOrEmpty(deviceUuid) && dataItem != null)
@@ -849,6 +948,13 @@ namespace MTConnect.Agents
             return false;
         }
 
+        /// <summary>
+        /// Determine whether a new condition observation changes the current condition state for the DataItem and therefore should be stored.
+        /// </summary>
+        /// <param name="deviceUuid">The UUID of the Device that owns the DataItem.</param>
+        /// <param name="dataItem">The condition DataItem the observation is reported for.</param>
+        /// <param name="observation">The incoming condition observation input.</param>
+        /// <returns><c>true</c> if the condition state changes and the observation should be stored; otherwise <c>false</c>.</returns>
         protected bool CheckCurrentCondition(string deviceUuid, IDataItem dataItem, IObservationInput observation)
         {
             if (_currentConditions != null && observation != null && !string.IsNullOrEmpty(deviceUuid) && dataItem != null)
@@ -925,6 +1031,13 @@ namespace MTConnect.Agents
         }
 
 
+        /// <summary>
+        /// Replace the cached current observation for the given Device and DataItem with the supplied observation.
+        /// </summary>
+        /// <param name="deviceUuid">The UUID of the Device that owns the DataItem.</param>
+        /// <param name="dataItem">The DataItem the observation is reported for.</param>
+        /// <param name="observation">The observation to record as the current value.</param>
+        /// <returns><c>true</c> if the current observation cache was updated.</returns>
         protected bool UpdateCurrentObservation(string deviceUuid, IDataItem dataItem, IObservation observation)
         {
             if (_currentObservations != null && observation != null && !string.IsNullOrEmpty(deviceUuid) && dataItem != null)
@@ -938,6 +1051,13 @@ namespace MTConnect.Agents
             return false;
         }
 
+        /// <summary>
+        /// Update the cached current condition state for the given Device and DataItem with the supplied condition observation.
+        /// </summary>
+        /// <param name="deviceUuid">The UUID of the Device that owns the DataItem.</param>
+        /// <param name="dataItem">The condition DataItem the observation is reported for.</param>
+        /// <param name="observation">The condition observation to record in the current state.</param>
+        /// <returns><c>true</c> if the current condition cache was updated.</returns>
         protected bool UpdateCurrentCondition(string deviceUuid, IDataItem dataItem, IObservation observation)
         {
             if (_currentConditions != null && observation != null && !string.IsNullOrEmpty(deviceUuid) && dataItem != null)
@@ -1247,9 +1367,9 @@ namespace MTConnect.Agents
 
                     // Generate Device Hash
                     obj.Hash = obj.GenerateHash();
- 
+
                     return obj;
-                } 
+                }
             }
 
             return null;
@@ -1753,22 +1873,22 @@ namespace MTConnect.Agents
         /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
         /// <returns>True if the Observation was added successfully</returns>
         public bool AddObservation(IDataItem dataItem, object value, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false)
-		{
+        {
             if (dataItem != null && dataItem.Device != null && !string.IsNullOrEmpty(dataItem.Device.Uuid) && !string.IsNullOrEmpty(dataItem.Id))
             {
-				var input = new ObservationInput
-				{
-					DeviceKey = dataItem.Device.Uuid,
-					DataItemKey = dataItem.Id,
-					Values = new List<ObservationValue> { new ObservationValue(ValueKeys.Result, value) },
-					Timestamp = UnixDateTime.Now
-				};
+                var input = new ObservationInput
+                {
+                    DeviceKey = dataItem.Device.Uuid,
+                    DataItemKey = dataItem.Id,
+                    Values = new List<ObservationValue> { new ObservationValue(ValueKeys.Result, value) },
+                    Timestamp = UnixDateTime.Now
+                };
 
-				return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase, forceUpdate: forceUpdate);
-			}
+                return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase, forceUpdate: forceUpdate);
+            }
 
             return false;
-		}
+        }
 
         /// <summary>
         /// Add a new Observation to the Agent for the specified Device and DataItem
@@ -1790,7 +1910,7 @@ namespace MTConnect.Agents
                 Timestamp = UnixDateTime.Now
             };
 
-			return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase, forceUpdate: forceUpdate);
+            return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase, forceUpdate: forceUpdate);
         }
 
         /// <summary>
@@ -1804,22 +1924,22 @@ namespace MTConnect.Agents
         /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
         /// <returns>True if the Observation was added successfully</returns>
         public bool AddObservation(IDataItem dataItem, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false)
-		{
-			if (dataItem != null && dataItem.Device != null && !string.IsNullOrEmpty(dataItem.Device.Uuid) && !string.IsNullOrEmpty(dataItem.Id))
-			{
-				var input = new ObservationInput
-				{
-					DeviceKey = dataItem.Device.Uuid,
-					DataItemKey = dataItem.Id,
-					Values = new List<ObservationValue> { new ObservationValue(ValueKeys.Result, value) },
-					Timestamp = timestamp
-				};
+        {
+            if (dataItem != null && dataItem.Device != null && !string.IsNullOrEmpty(dataItem.Device.Uuid) && !string.IsNullOrEmpty(dataItem.Id))
+            {
+                var input = new ObservationInput
+                {
+                    DeviceKey = dataItem.Device.Uuid,
+                    DataItemKey = dataItem.Id,
+                    Values = new List<ObservationValue> { new ObservationValue(ValueKeys.Result, value) },
+                    Timestamp = timestamp
+                };
 
-				return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase, forceUpdate: forceUpdate);
-			}
+                return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase, forceUpdate: forceUpdate);
+            }
 
-			return false;
-		}
+            return false;
+        }
 
         /// <summary>
         /// Add a new Observation to the Agent for the specified Device and DataItem
@@ -1856,22 +1976,22 @@ namespace MTConnect.Agents
         /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
         /// <returns>True if the Observation was added successfully</returns>
         public bool AddObservation(IDataItem dataItem, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false)
-		{
-			if (dataItem != null && dataItem.Device != null && !string.IsNullOrEmpty(dataItem.Device.Uuid) && !string.IsNullOrEmpty(dataItem.Id))
-			{
-				var input = new ObservationInput
-				{
-					DeviceKey = dataItem.Device.Uuid,
-					DataItemKey = dataItem.Id,
-					Values = new List<ObservationValue> { new ObservationValue(ValueKeys.Result, value) },
-					Timestamp = timestamp.ToUnixTime()
-				};
+        {
+            if (dataItem != null && dataItem.Device != null && !string.IsNullOrEmpty(dataItem.Device.Uuid) && !string.IsNullOrEmpty(dataItem.Id))
+            {
+                var input = new ObservationInput
+                {
+                    DeviceKey = dataItem.Device.Uuid,
+                    DataItemKey = dataItem.Id,
+                    Values = new List<ObservationValue> { new ObservationValue(ValueKeys.Result, value) },
+                    Timestamp = timestamp.ToUnixTime()
+                };
 
-				return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase, forceUpdate: forceUpdate);
-			}
+                return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase, forceUpdate: forceUpdate);
+            }
 
-			return false;
-		}
+            return false;
+        }
 
         /// <summary>
         /// Add a new Observation to the Agent for the specified Device and DataItem
@@ -2177,32 +2297,40 @@ namespace MTConnect.Agents
             return false;
         }
 
-		/// <summary>
-		/// Add new Observations for DataItems to the Agent using the "deviceKey" property to override the DeviceKey set in each ObservationInput
-		/// </summary>
-		public bool AddObservations(string deviceKey, IEnumerable<IObservationInput> observationInputs)
-		{
-			if (!observationInputs.IsNullOrEmpty())
-			{
-				bool success = false;
+        /// <summary>
+        /// Add new Observations for DataItems to the Agent using the "deviceKey" property to override the DeviceKey set in each ObservationInput
+        /// </summary>
+        public bool AddObservations(string deviceKey, IEnumerable<IObservationInput> observationInputs)
+        {
+            if (!observationInputs.IsNullOrEmpty())
+            {
+                bool success = false;
 
-				foreach (var observationInput in observationInputs)
-				{
-					success = AddObservation(deviceKey, observationInput);
-					if (!success) break;
-				}
+                foreach (var observationInput in observationInputs)
+                {
+                    success = AddObservation(deviceKey, observationInput);
+                    if (!success) break;
+                }
 
-				return success;
-			}
+                return success;
+            }
 
-			return false;
-		}
+            return false;
+        }
 
-		protected virtual ulong OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput)
+        /// <summary>
+        /// Extension point invoked when an observation is added so a derived Agent can persist it to a buffer; the base implementation stores nothing and returns <c>0</c>.
+        /// </summary>
+        /// <param name="deviceUuid">The UUID of the Device that owns the DataItem.</param>
+        /// <param name="dataItem">The DataItem the observation is reported for.</param>
+        /// <param name="observationInput">The observation input being added.</param>
+        /// <returns>The sequence number assigned by the buffer, or <c>0</c> when the observation is not buffered.</returns>
+        protected virtual ulong OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput)
         {
             return 0;
         }
 
+        /// <inheritdoc />
         public void OnObservationAdded(IObservation observation)
         {
             if (ObservationAdded != null)
@@ -2211,6 +2339,7 @@ namespace MTConnect.Agents
             }
         }
 
+        /// <inheritdoc />
         public void OnInvalidObservationAdded(string deviceUuid, string dataItemId, ValidationResult result)
         {
             if (InvalidObservationAdded != null)
@@ -2219,6 +2348,7 @@ namespace MTConnect.Agents
             }
         }
 
+        /// <inheritdoc />
         public void OnInvalidDeviceAdded(IDevice device, ValidationResult result)
         {
             if (InvalidDeviceAdded != null)
@@ -2231,11 +2361,21 @@ namespace MTConnect.Agents
 
         #region "Assets"
 
+        /// <summary>
+        /// Extension point invoked when an existing Asset is updated so a derived Agent can persist the change; the base implementation does nothing and returns <c>true</c>.
+        /// </summary>
+        /// <param name="asset">The updated Asset.</param>
+        /// <returns><c>true</c> if the update was handled successfully.</returns>
         protected virtual bool OnAssetUpdate(IAsset asset)
         {
             return true;
         }
 
+        /// <summary>
+        /// Extension point invoked when a new Asset is added so a derived Agent can persist it; the base implementation does nothing and returns <c>true</c>.
+        /// </summary>
+        /// <param name="asset">The newly added Asset.</param>
+        /// <returns><c>true</c> if the Asset was handled successfully.</returns>
         protected virtual bool OnNewAssetAdded(IAsset asset)
         {
             return true;

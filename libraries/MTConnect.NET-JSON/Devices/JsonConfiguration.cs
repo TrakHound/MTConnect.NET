@@ -7,29 +7,61 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
 {
+    /// <summary>
+    /// JSON serialization surrogate for a Component <c>Configuration</c>, the
+    /// container for coordinate systems, motion, relationships, sensor and
+    /// solid-model configuration, and specifications.
+    /// </summary>
     public class JsonConfiguration
     {
+        /// <summary>
+        /// The coordinate systems defined on the component.
+        /// </summary>
         [JsonPropertyName("coordinateSystems")]
         public IEnumerable<JsonCoordinateSystem> CoordinateSystems { get; set; }
 
+        /// <summary>
+        /// The motion definition relating the component to its parent.
+        /// </summary>
         [JsonPropertyName("motion")]
         public JsonMotion Motion { get; set; }
 
+        /// <summary>
+        /// The relationships from the component to other components, data
+        /// items, devices, and specifications, grouped by relationship kind.
+        /// </summary>
         [JsonPropertyName("relationships")]
         public JsonRelationshipContainer Relationships { get; set; }
 
+        /// <summary>
+        /// The sensor configuration when the component is a sensor.
+        /// </summary>
         [JsonPropertyName("sensorConfiguration")]
         public JsonSensorConfiguration SensorConfiguration { get; set; }
 
+        /// <summary>
+        /// The solid-model reference describing the component geometry.
+        /// </summary>
         [JsonPropertyName("solidModel")]
         public JsonSolidModel SolidModel { get; set; }
 
+        /// <summary>
+        /// The specifications defined on the component.
+        /// </summary>
         [JsonPropertyName("specifications")]
         public IEnumerable<JsonAbstractSpecification> Specifications { get; set; }
 
 
+        /// <summary>
+        /// Initializes an empty instance for JSON deserialization.
+        /// </summary>
         public JsonConfiguration() { }
 
+        /// <summary>
+        /// Initializes the surrogate from a strongly-typed
+        /// <see cref="IConfiguration"/>, converting each child and grouping
+        /// relationships by their concrete relationship interface.
+        /// </summary>
         public JsonConfiguration(IConfiguration configuration)
         {
             if (configuration != null)
@@ -114,10 +146,15 @@ namespace MTConnect.Devices.Json
         }
 
 
+        /// <summary>
+        /// Converts this surrogate to a strongly-typed <see cref="Configuration"/>,
+        /// converting each child and flattening the grouped relationships back
+        /// into a single relationship collection.
+        /// </summary>
         public IConfiguration ToConfiguration()
         {
             var configuration = new Configuration();
-            
+
             // Coordinate Systems
             if (!CoordinateSystems.IsNullOrEmpty())
             {

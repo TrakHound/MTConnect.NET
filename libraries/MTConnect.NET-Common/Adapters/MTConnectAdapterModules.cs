@@ -7,6 +7,9 @@ using System.Collections.Generic;
 
 namespace MTConnect.Adapters
 {
+    /// <summary>
+    /// Discovers <see cref="IMTConnectAdapterModule"/> implementations across loaded assemblies, instantiates one per matching configuration entry, and drives their start/stop lifecycle as a group.
+    /// </summary>
     public class MTConnectAdapterModules
     {
         private static readonly List<Type> _moduleTypes = new List<Type>();
@@ -16,16 +19,29 @@ namespace MTConnect.Adapters
         private readonly IAdapterApplicationConfiguration _configuration;
 
 
+        /// <summary>
+        /// The currently loaded module instances.
+        /// </summary>
         public IEnumerable<IMTConnectAdapterModule> Modules = _modules.Values;
 
+        /// <summary>
+        /// Raised once for each module as it is instantiated during <see cref="Load"/>.
+        /// </summary>
         public event EventHandler<IMTConnectAdapterModule> ModuleLoaded;
 
 
+        /// <summary>
+        /// Initializes the loader with the application configuration that supplies per-module settings.
+        /// </summary>
+        /// <param name="configuration">The adapter application configuration.</param>
         public MTConnectAdapterModules(IAdapterApplicationConfiguration configuration)
         {
             _configuration = configuration;
         }
 
+        /// <summary>
+        /// Scans loaded assemblies for module types and creates one instance per matching configuration entry, raising <see cref="ModuleLoaded"/> for each; instantiation failures are swallowed so one bad module does not block the rest.
+        /// </summary>
         public void Load()
         {
             InitializeModules();
@@ -63,6 +79,9 @@ namespace MTConnect.Adapters
             }
         }
 
+        /// <summary>
+        /// Starts every loaded module.
+        /// </summary>
         public void Start()
         {
             Dictionary<string, IMTConnectAdapterModule> modules;
@@ -76,6 +95,9 @@ namespace MTConnect.Adapters
             }
         }
 
+        /// <summary>
+        /// Stops every loaded module and clears the loaded set.
+        /// </summary>
         public void Stop()
         {
             Dictionary<string, IMTConnectAdapterModule> modules;
