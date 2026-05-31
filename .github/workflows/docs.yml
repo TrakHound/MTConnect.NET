@@ -68,6 +68,10 @@ jobs:
       - name: Verify reference pages match source (drift gate)
         run: bash docs/scripts/generate-reference.sh --check
 
+      - name: Check internal links
+        working-directory: docs
+        run: npm run check-links
+
       # Only required on push-to-master (deploy path). Computes the correct
       # base-path for the Pages site and writes it where later steps see it.
       - name: Configure GitHub Pages
