@@ -77,6 +77,8 @@ jobs:
       - name: Build site
         working-directory: docs
         run: npm run build
+        env:
+          DOCS_BASE: /MTConnect.NET/
 
       # Upload the built artifact only on the deploy path. PR builds stop
       # after the build step (success / failure surfaces in the check).
