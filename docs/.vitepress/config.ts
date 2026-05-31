@@ -224,6 +224,7 @@ export default withMermaid(
           {
             text: 'Repository development',
             items: [
+              { text: 'Documentation site', link: '/development/docs-site' },
               { text: 'Release builder', link: '/development/builder' },
             ],
           },
