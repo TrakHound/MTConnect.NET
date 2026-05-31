@@ -16,7 +16,20 @@
             "libraries/MTConnect.NET-SysML/bin/Debug/net8.0/MTConnect.NET-SysML.dll",
             "libraries/MTConnect.NET-TLS/bin/Debug/net8.0/MTConnect.NET-TLS.dll",
             "libraries/MTConnect.NET-XML/bin/Debug/net8.0/MTConnect.NET-XML.dll",
-            "libraries/MTConnect.NET/bin/Debug/net8.0/MTConnect.NET.dll"
+            "libraries/MTConnect.NET/bin/Debug/net8.0/MTConnect.NET.dll",
+            "agent/MTConnect.NET-Agent/bin/Debug/net8.0/MTConnect.NET-Agent.dll",
+            "agent/MTConnect.NET-Applications-Agents/bin/Debug/net8.0/MTConnect.NET-Applications-Agents.dll",
+            "agent/Modules/MTConnect.NET-AgentModule-HttpServer/bin/Debug/net8.0/MTConnect.NET-AgentModule-HttpServer.dll",
+            "agent/Modules/MTConnect.NET-AgentModule-HttpAdapter/bin/Debug/net8.0/MTConnect.NET-AgentModule-HttpAdapter.dll",
+            "agent/Modules/MTConnect.NET-AgentModule-MqttAdapter/bin/Debug/net8.0/MTConnect.NET-AgentModule-MqttAdapter.dll",
+            "agent/Modules/MTConnect.NET-AgentModule-MqttBroker/bin/Debug/net8.0/MTConnect.NET-AgentModule-MqttBroker.dll",
+            "agent/Modules/MTConnect.NET-AgentModule-MqttRelay/bin/Debug/net8.0/MTConnect.NET-AgentModule-MqttRelay.dll",
+            "agent/Modules/MTConnect.NET-AgentModule-ShdrAdapter/bin/Debug/net8.0/MTConnect.NET-AgentModule-ShdrAdapter.dll",
+            "agent/Processors/MTConnect.NET-AgentProcessor-Python/bin/Debug/net8.0/MTConnect.NET-AgentProcessor-Python.dll",
+            "adapter/MTConnect.NET-Adapter/bin/Debug/net8.0/MTConnect.NET-Adapter.dll",
+            "adapter/MTConnect.NET-Applications-Adapter/bin/Debug/net8.0/MTConnect.NET-Applications-Adapter.dll",
+            "adapter/Modules/MTConnect.NET-AdapterModule-MQTT/bin/Debug/net8.0/MTConnect.NET-AdapterModule-MQTT.dll",
+            "adapter/Modules/MTConnect.NET-AdapterModule-SHDR/bin/Debug/net8.0/MTConnect.NET-AdapterModule-SHDR.dll"
           ],
           "src": "../.."
         }

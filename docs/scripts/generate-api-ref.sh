@@ -34,30 +34,44 @@ for arg in "$@"; do
   esac
 done
 
-libraries=(
-  "MTConnect.NET-Common"
-  "MTConnect.NET-DeviceFinder"
-  "MTConnect.NET-HTTP"
-  "MTConnect.NET-JSON"
-  "MTConnect.NET-JSON-cppagent"
-  "MTConnect.NET-MQTT"
-  "MTConnect.NET-Protobuf"
-  "MTConnect.NET-Services"
-  "MTConnect.NET-SHDR"
-  "MTConnect.NET-SysML"
-  "MTConnect.NET-TLS"
-  "MTConnect.NET-XML"
-  "MTConnect.NET"
+projects=(
+  "libraries/MTConnect.NET-Common"
+  "libraries/MTConnect.NET-DeviceFinder"
+  "libraries/MTConnect.NET-HTTP"
+  "libraries/MTConnect.NET-JSON"
+  "libraries/MTConnect.NET-JSON-cppagent"
+  "libraries/MTConnect.NET-MQTT"
+  "libraries/MTConnect.NET-Protobuf"
+  "libraries/MTConnect.NET-Services"
+  "libraries/MTConnect.NET-SHDR"
+  "libraries/MTConnect.NET-SysML"
+  "libraries/MTConnect.NET-TLS"
+  "libraries/MTConnect.NET-XML"
+  "libraries/MTConnect.NET"
+  "agent/MTConnect.NET-Agent"
+  "agent/MTConnect.NET-Applications-Agents"
+  "agent/Modules/MTConnect.NET-AgentModule-HttpServer"
+  "agent/Modules/MTConnect.NET-AgentModule-HttpAdapter"
+  "agent/Modules/MTConnect.NET-AgentModule-MqttAdapter"
+  "agent/Modules/MTConnect.NET-AgentModule-MqttBroker"
+  "agent/Modules/MTConnect.NET-AgentModule-MqttRelay"
+  "agent/Modules/MTConnect.NET-AgentModule-ShdrAdapter"
+  "agent/Processors/MTConnect.NET-AgentProcessor-Python"
+  "adapter/MTConnect.NET-Adapter"
+  "adapter/MTConnect.NET-Applications-Adapter"
+  "adapter/Modules/MTConnect.NET-AdapterModule-MQTT"
+  "adapter/Modules/MTConnect.NET-AdapterModule-SHDR"
 )
 
 if ! "${skip_build}"; then
-  echo "==> building libraries in Debug for net8.0"
+  echo "==> building projects in Debug for net8.0"
   # Debug is the multi-target config that compiles ONLY net8.0 on every
   # project — Release multi-targets net4.6.1..net9.0 and fails on SDKs
   # that lack the legacy reference assemblies. The reference is content,
   # not packaged output, so a Debug build is fine.
-  for lib in "${libraries[@]}"; do
-    dotnet build "libraries/${lib}/${lib}.csproj" \
+  for proj in "${projects[@]}"; do
+    name="$(basename "${proj}")"
+    dotnet build "${proj}/${name}.csproj" \
       -c Debug \
       -p:GenerateDocumentationFile=true \
       -p:AdditionalNoWarn=CS1591 \
