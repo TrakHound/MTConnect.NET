@@ -139,7 +139,7 @@ Multiple instances of the same module are allowed — each entry produces a dist
 
 ### Devices file
 
-The `devices` key points at one `Devices.xml` file or at a directory containing several. The schema is the MTConnect Devices envelope; each device's `<Components>` and `<DataItems>` graph drives what the agent exposes on `/probe`. The agent re-reads the device file when `monitorConfigurationFiles: true` is set. See [Configure & Use → Configure an agent](/configure/agent) for an annotated `Devices.xml` example.
+The `devices` key points at one `Devices.xml` file or at a directory containing several. The schema is the MTConnect Devices envelope; each device's `<Components>` and `<DataItems>` graph drives what the agent exposes on `/probe`. The agent re-reads the device file when `monitorConfigurationFiles: true` is set. See [Configure & Use → Configure an agent](/configure/agent-config) for an annotated `Devices.xml` example.
 
 ## NLog configuration
 
@@ -164,8 +164,8 @@ To raise the console target to `Debug` or `Trace` on a single run without editin
 
 ## See also
 
-- [Configure & Use → Configure an agent](/configure/agent) — annotated end-to-end `agent.config.yaml` walkthrough.
-- [Configure & Use → Run](/configure/run) — local-dev, Docker, Windows-service, and systemd-unit deployment.
+- [Configure & Use → Configure an agent](/configure/agent-config) — annotated end-to-end `agent.config.yaml` walkthrough.
+- Configure & Use → Run — local-dev, Docker, Windows-service, and systemd-unit deployment.
 - [Modules](/modules/) — per-module configuration schemas referenced by the `modules:` list.
 - [API reference → `MTConnect.Applications.MTConnectAgentApplication`](/api/) — the C# class that backs the CLI.
 - [API reference → `MTConnect.Configurations.AgentApplicationConfiguration`](/api/) — the configuration POCO the YAML deserializes into.

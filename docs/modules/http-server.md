@@ -119,7 +119,7 @@ modules:
 
 ## Troubleshooting
 
-- **XSD validation failures** — see [XSD validation failures](/troubleshooting/#xsd-validation-failures). The .NET BCL ships XSD 1.0 features only; the v2.x MTConnect schemas use XSD 1.1 constructs.
+- **XSD validation failures** — see [XSD validation failures](/troubleshooting/xsd-validation-failures). The .NET BCL ships XSD 1.0 features only; the v2.x MTConnect schemas use XSD 1.1 constructs.
 - **MQTT TLS handshake failures** apply to the broker / relay modules; for HTTPS handshake failures the certificate must be readable by the agent's user account and the `tls.pfx.certificatePassword` must decrypt the PFX bundle.
 - **Schema-version mismatches** — set `defaultVersion` to the MTConnect version the consumer expects when the consumer does not send a version parameter.
 

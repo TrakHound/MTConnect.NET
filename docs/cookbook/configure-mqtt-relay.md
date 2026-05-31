@@ -193,5 +193,5 @@ The retained-message + LWT pattern lets a subscriber that connects after the age
 
 - [Cookbook: Write a JSON-MQTT consumer](/cookbook/write-a-json-mqtt-consumer) — the consumer side, with parsing code.
 - [Configure modules: MQTT relay](/configure/module-config#mqtt-relay) — the full key reference.
-- [Wire formats: JSON-CPPAGENT-MQTT](/wire-formats/json-cppagent-mqtt) — the on-the-wire payload shape.
+- [Wire formats: JSON-CPPAGENT-MQTT](/wire-formats/json-v2-cppagent-mqtt) — the on-the-wire payload shape.
 - [Troubleshooting: MQTT TLS handshake](/troubleshooting/mqtt-tls-handshake) — TLS connection diagnostics.

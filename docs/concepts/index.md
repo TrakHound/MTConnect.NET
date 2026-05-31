@@ -76,5 +76,5 @@ sequenceDiagram
 
 - **The data model in code**: see the API pages for `Device`, `Component`, `DataItem`, `Observation`, and `Asset`. Each page lists the spec versions in which the type appears and the wire codecs that serialize it.
 - **The MTConnect Standard prose**: <https://www.mtconnect.org/standard>.
-- **Validating that your configured devices match the spec**: see the [`Devices.xml` validation guide](/configure/agent) under Configure & Use.
+- **Validating that your configured devices match the spec**: see the [`Devices.xml` validation guide](/configure/agent-config) under Configure & Use.
 - **Recipes that use these concepts**: [Cookbook](/cookbook/).

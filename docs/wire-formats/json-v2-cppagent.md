@@ -16,14 +16,14 @@ The codec registers as `JSON-cppagent` in the formatter registry.
 
 | Class | Role |
 |---|---|
-| [`MTConnect.Formatters.JsonHttpResponseDocumentFormatter`](/api/mtconnect-formatters/JsonHttpResponseDocumentFormatter) | Top-level `IResponseDocumentFormatter` for the four envelope kinds. Returns `application/json`. |
-| [`MTConnect.Formatters.JsonHttpEntityFormatter`](/api/mtconnect-formatters/JsonHttpEntityFormatter) | Per-entity formatter (single Observation, single Asset) for callers that splice individual entities into a larger document. |
-| [`MTConnect.Streams.Json.JsonStreamsResponseDocument`](/api/mtconnect-streams-json/JsonStreamsResponseDocument) | DTO that mirrors the `MTConnectStreams` envelope. |
-| [`MTConnect.Devices.Json.JsonDevicesResponseDocument`](/api/mtconnect-devices-json/JsonDevicesResponseDocument) | DTO that mirrors the `MTConnectDevices` envelope. |
-| [`MTConnect.Assets.Json.JsonAssetsResponseDocument`](/api/mtconnect-assets-json/JsonAssetsResponseDocument) | DTO that mirrors the `MTConnectAssets` envelope. |
-| [`MTConnect.Streams.Json.JsonDeviceStream`](/api/mtconnect-streams-json/JsonDeviceStream) / [`JsonComponentStream`](/api/mtconnect-streams-json/JsonComponentStream) | Per-device + per-component stream containers. |
-| [`MTConnect.Streams.Json.JsonObservation`](/api/mtconnect-streams-json/JsonObservation) | Base shape for every observation under `Events`, `Samples`, and `Condition`. |
-| [`MTConnect.JsonFunctions`](/api/mtconnect/JsonFunctions) | Serializer options bundle (default vs indented) shared across the codec. |
+| [`MTConnect.Formatters.JsonHttpResponseDocumentFormatter`](/api/MTConnect.Formatters.JsonHttpResponseDocumentFormatter) | Top-level `IResponseDocumentFormatter` for the four envelope kinds. Returns `application/json`. |
+| [`MTConnect.Formatters.JsonHttpEntityFormatter`](/api/MTConnect.Formatters.JsonHttpEntityFormatter) | Per-entity formatter (single Observation, single Asset) for callers that splice individual entities into a larger document. |
+| [`MTConnect.Streams.Json.JsonStreamsResponseDocument`](/api/MTConnect.Streams.Json.JsonStreamsResponseDocument) | DTO that mirrors the `MTConnectStreams` envelope. |
+| [`MTConnect.Devices.Json.JsonDevicesResponseDocument`](/api/MTConnect.Devices.Json.JsonDevicesResponseDocument) | DTO that mirrors the `MTConnectDevices` envelope. |
+| [`MTConnect.Assets.Json.JsonAssetsResponseDocument`](/api/MTConnect.Assets.Json.JsonAssetsResponseDocument) | DTO that mirrors the `MTConnectAssets` envelope. |
+| [`MTConnect.Streams.Json.JsonDeviceStream`](/api/MTConnect.Streams.Json.JsonDeviceStream) / [`JsonComponentStream`](/api/MTConnect.Streams.Json.JsonComponentStream) | Per-device + per-component stream containers. |
+| [`MTConnect.Streams.Json.JsonObservation`](/api/MTConnect.Streams.Json.JsonObservation) | Base shape for every observation under `Events`, `Samples`, and `Condition`. |
+| [`MTConnect.JsonFunctions`](/api/MTConnect.JsonFunctions) | Serializer options bundle (default vs indented) shared across the codec. |
 
 ## Sample envelope
 
@@ -88,7 +88,7 @@ The fixture is `libraries/MTConnect.NET-JSON-cppagent/Examples/MTConnectStreamsR
 
 ## Spec-version compatibility
 
-cppagent's JSON v2 codec covers the same MTConnect data model as the XML codec, so the version coverage matches the XML page's table where the codec is implemented. The library currently targets MTConnect versions up to v2.5 (see [`MTConnectVersions.Max`](/api/mtconnect/MTConnectVersions)); the NuGet package's description states the same upper bound.
+cppagent's JSON v2 codec covers the same MTConnect data model as the XML codec, so the version coverage matches the XML page's table where the codec is implemented. The library currently targets MTConnect versions up to v2.5 (see [`MTConnectVersions.Max`](/api/MTConnect.MTConnectVersions)); the NuGet package's description states the same upper bound.
 
 | Spec version | Status in this library | Notes |
 |---|---|---|
@@ -120,7 +120,7 @@ sequenceDiagram
   Agent-->>Consumer: 200 OK + application/json body
 ```
 
-Reads run the same pipeline in reverse via [`JsonHttpResponseDocumentFormatter.CreateStreamsResponseDocument`](/api/mtconnect-formatters/JsonHttpResponseDocumentFormatter) (and the matching Devices / Assets methods): `System.Text.Json` deserializes into the `Json*ResponseDocument` DTOs, which then project back to the canonical `IStreamsResponseDocument` / `IDevicesResponseDocument` / `IAssetsResponseDocument` interfaces the rest of the library consumes.
+Reads run the same pipeline in reverse via [`JsonHttpResponseDocumentFormatter.CreateStreamsResponseDocument`](/api/MTConnect.Formatters.JsonHttpResponseDocumentFormatter) (and the matching Devices / Assets methods): `System.Text.Json` deserializes into the `Json*ResponseDocument` DTOs, which then project back to the canonical `IStreamsResponseDocument` / `IDevicesResponseDocument` / `IAssetsResponseDocument` interfaces the rest of the library consumes.
 
 ## Caveats and known divergences
 

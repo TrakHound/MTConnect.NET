@@ -95,7 +95,7 @@ A regeneration is considered clean when (a) the test suite is green at every pre
 
 ## See also
 
-- [Configure & Use → Run](/configure/run) — running the agent against the regenerated library to verify end-to-end behavior.
+- Configure & Use → Run — running the agent against the regenerated library to verify end-to-end behavior.
 - [Compliance](/compliance/) — the per-version compliance matrix that the regenerator advances.
 - [API reference → `MTConnect.SysML.MTConnectModel`](/api/) — the in-memory model the XMI parser produces and the renderers walk.
 - [API reference → `MTConnect.SysML.CSharp.CSharpTemplateRenderer`](/api/) — the C# renderer that produces `MTConnect.NET-Common`.

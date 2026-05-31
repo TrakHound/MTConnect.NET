@@ -56,7 +56,7 @@ Console.WriteLine("Connected; awaiting payloads. Ctrl-C to exit.");
 
 ## 3. Parse the payload
 
-The relay publishes JSON-CPPAGENT-MQTT (a JSON-CPPAGENT envelope wrapped for MQTT delivery). The library's [`JsonCppAgentFormatter`](/api/MTConnect.Formatters.JsonCppAgent/JsonCppAgentFormatter) parses it into typed `IStreamsResponseDocument`, `IDevicesResponseDocument`, and `IAssetsResponseDocument` instances:
+The relay publishes JSON-CPPAGENT-MQTT (a JSON-CPPAGENT envelope wrapped for MQTT delivery). The library's `JsonCppAgentFormatter` parses it into typed `IStreamsResponseDocument`, `IDevicesResponseDocument`, and `IAssetsResponseDocument` instances:
 
 ```csharp
 using MTConnect.Formatters.JsonCppAgent;
@@ -227,6 +227,6 @@ For InfluxDB specifically, see the [InfluxDB integration page](/configure/integr
 ## Where to next
 
 - [Cookbook: Configure MQTT relay](/cookbook/configure-mqtt-relay) — the agent side that publishes the messages this consumer reads.
-- [Wire formats: JSON-CPPAGENT-MQTT](/wire-formats/json-cppagent-mqtt) — payload shape reference.
-- [`JsonCppAgentFormatter` API reference](/api/MTConnect.Formatters.JsonCppAgent/JsonCppAgentFormatter).
+- [Wire formats: JSON-CPPAGENT-MQTT](/wire-formats/json-v2-cppagent-mqtt) — payload shape reference.
+- `JsonCppAgentFormatter` API reference.
 - [Configure & Use: integrations: InfluxDB](/configure/integrations/influxdb) — turn this consumer into a bridge.

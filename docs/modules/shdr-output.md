@@ -86,7 +86,7 @@ modules:
 - **Port already in use** — pick a different `port`. The MTConnect SHDR spec does not mandate `7878`; conventionally many CNC adapters use it.
 - **Agent shows the device as `UNAVAILABLE`** — the adapter-side module must be connected to a data source, and the data source must publish an `avail` observation (or set `availableOnConnection: true` on the agent's `shdr-adapter` to default to `AVAILABLE` whenever the TCP connection is up).
 - **Time-zone offset mismatch** — the `timeZoneOutput` of the adapter and the timestamp parsing in the agent must agree. `Z` (UTC) is the safest default.
-- **Asset count emitted as scalar EVENT** — see [Asset count emitted as scalar](/troubleshooting/#asset-count-emitted-as-a-scalar-event-instead-of-a-data_set); the adapter must emit asset counts as `DATA_SET` observations.
+- **Asset count emitted as scalar EVENT** — see [Asset count emitted as scalar](/troubleshooting/common-error-modes#asset_count-emitted-as-a-scalar-event-instead-of-a-data_set); the adapter must emit asset counts as `DATA_SET` observations.
 
 ## API reference
 

@@ -1,6 +1,6 @@
 # MQTT TLS handshake failures
 
-The `mqtt-relay`, `mqtt-broker`, and `mqtt-adapter` modules each support TLS termination through the shared [`TlsConfiguration`](/api/MTConnect.Tls/TlsConfiguration) class. When the TLS handshake fails, the agent logs a structured error and refuses to publish or subscribe. This page documents the common handshake failures and the resolution path for each.
+The `mqtt-relay`, `mqtt-broker`, and `mqtt-adapter` modules each support TLS termination through the shared [`TlsConfiguration`](/api/MTConnect.Tls.TlsConfiguration) class. When the TLS handshake fails, the agent logs a structured error and refuses to publish or subscribe. This page documents the common handshake failures and the resolution path for each.
 
 ## Symptoms
 

@@ -126,7 +126,7 @@ def process(observation):
 
 - The scripting engine is **IronPython**, the .NET implementation of Python 3. Standard library coverage is broad but not complete; CPython-only extensions (NumPy, SciPy, pandas, anything with native C extensions) are not available.
 - `clr.AddReference` exposes any assembly the agent has loaded. The `MTConnect.NET-Common` reference shown above brings `MTConnect.Input.*` into scope so a script can construct new observations directly.
-- The `observation` argument is a `ProcessObservation` (see [API reference](/api/MTConnect.Processors.html)). Its `Agent` property is the running `IMTConnectAgent`, so a script can call `AddObservation(deviceUuid, observationInput)` to inject a new observation without returning it from `process`.
+- The `observation` argument is a `ProcessObservation` (see [API reference](/api/MTConnect.Agents.MTConnectAgentProcessors)). Its `Agent` property is the running `IMTConnectAgent`, so a script can call `AddObservation(deviceUuid, observationInput)` to inject a new observation without returning it from `process`.
 - Returning `None` suppresses the write entirely — useful for filtering noise out of the buffer.
 
 ## Troubleshooting pointers
@@ -139,5 +139,5 @@ See the [Troubleshooting](/troubleshooting/) section for general observation-pip
 
 ## API reference
 
-- [`MTConnect.Processors`](/api/MTConnect.Processors.html) — the processor base class and the `ProcessObservation` model the scripts receive.
-- [`MTConnect.Input`](/api/MTConnect.Input.html) — the `ObservationInput` / `TimeSeriesObservationInput` types a script can construct and feed back into the agent via `AddObservation`.
+- [`MTConnect.Processors`](/api/MTConnect.Agents.MTConnectAgentProcessors) — the processor base class and the `ProcessObservation` model the scripts receive.
+- [`MTConnect.Input`](/api/MTConnect.Input) — the `ObservationInput` / `TimeSeriesObservationInput` types a script can construct and feed back into the agent via `AddObservation`.

@@ -13,9 +13,9 @@ v7 collapses all three into a single universal type — `MTConnect.ValidationRes
 
 | Pre-v7 type | Namespace | Replaced by |
 | --- | --- | --- |
-| `AssetValidationResult` | `MTConnect.Assets` | [`MTConnect.ValidationResult`](/api/MTConnect/ValidationResult) |
-| `ValidationResult` (DataItems) | `MTConnect.Devices.DataItems` | [`MTConnect.ValidationResult`](/api/MTConnect/ValidationResult) |
-| `ObservationValidationResult` | `MTConnect.Observations` | [`MTConnect.ValidationResult`](/api/MTConnect/ValidationResult) |
+| `AssetValidationResult` | `MTConnect.Assets` | [`MTConnect.ValidationResult`](/api/MTConnect.ValidationResult) |
+| `ValidationResult` (DataItems) | `MTConnect.Devices.DataItems` | [`MTConnect.ValidationResult`](/api/MTConnect.ValidationResult) |
+| `ObservationValidationResult` | `MTConnect.Observations` | [`MTConnect.ValidationResult`](/api/MTConnect.ValidationResult) |
 
 The three legacy structs are removed from the public surface. Any handler signature that mentioned one of them is now phrased in terms of the universal `MTConnect.ValidationResult`.
 
@@ -119,5 +119,5 @@ The structural change is type-name only; the per-asset validation logic is unaff
 ## See also
 
 - [Agent validation events](/concepts/agent-validation-events) — the family of `Invalid*Added` events that now carry the universal type.
-- [`MTConnect.ValidationResult`](/api/MTConnect/ValidationResult) — full API reference for the universal type.
+- [`MTConnect.ValidationResult`](/api/MTConnect.ValidationResult) — full API reference for the universal type.
 - [TrakHound/MTConnect.NET#169](https://github.com/TrakHound/MTConnect.NET/pull/169) — the PR that performed the consolidation, added `InvalidDeviceAdded`, and introduced `ValidateDevice` as a pre-flight helper.

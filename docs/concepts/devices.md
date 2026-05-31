@@ -1,6 +1,6 @@
 # Devices
 
-A **Device** is the top-level addressable entity that an MTConnect Agent emits observations for. Conceptually it is "one machine" — a CNC mill, a robot cell, a coordinate-measuring machine, a vibration sensor cluster — and in `MTConnect.NET` it maps directly to the [`MTConnect.Devices.Device`](/api/MTConnect.Devices/Device) class implementing `IDevice`. Every Device carries a UUID, a human-readable name, a type identifier, and a tree of [Components](/concepts/components), [Compositions](/concepts/components#compositions), and [DataItems](/concepts/data-items) underneath it.
+A **Device** is the top-level addressable entity that an MTConnect Agent emits observations for. Conceptually it is "one machine" — a CNC mill, a robot cell, a coordinate-measuring machine, a vibration sensor cluster — and in `MTConnect.NET` it maps directly to the [`MTConnect.Devices.Device`](/api/MTConnect.Devices.Device) class implementing `IDevice`. Every Device carries a UUID, a human-readable name, a type identifier, and a tree of [Components](/concepts/components), [Compositions](/concepts/components#compositions), and [DataItems](/concepts/data-items) underneath it.
 
 ## Identity and structure
 
@@ -57,7 +57,7 @@ controller.AddDataItem(new AvailabilityDataItem(controller.Id));
 device.AddComponent(controller);
 ```
 
-`AddComponent` is not just a list append. It walks the [Organizers](/api/MTConnect.Devices/Organizers) table to decide whether the child Component needs to nest under an Organizer Component (an `Axes` Organizer for an `Axis`, a `Controllers` Organizer for a `Controller`, etc.) and creates the Organizer on demand. The same logic runs for `AddDataItem`, which assigns the data item's `Container` to the Device and re-runs the `DataItemIdFormat` template (`Component._defaultDataItemIdFormat`) to derive a deterministic Id.
+`AddComponent` is not just a list append. It walks the [Organizers](/api/MTConnect.Devices.Organizers) table to decide whether the child Component needs to nest under an Organizer Component (an `Axes` Organizer for an `Axis`, a `Controllers` Organizer for a `Controller`, etc.) and creates the Organizer on demand. The same logic runs for `AddDataItem`, which assigns the data item's `Container` to the Device and re-runs the `DataItemIdFormat` template (`Component._defaultDataItemIdFormat`) to derive a deterministic Id.
 
 ## Authoring a Device in `Devices.xml`
 
@@ -118,5 +118,5 @@ var hashV2 = device.GenerateHash();
 - [Components](/concepts/components) — the recursively-nested machine pieces.
 - [DataItems](/concepts/data-items) — the primitive observable points.
 - [Observations](/concepts/observations) — the time-stamped values flowing through DataItems.
-- [`IDevice` API reference](/api/MTConnect.Devices/IDevice) — every property, every method.
+- [`IDevice` API reference](/api/MTConnect.Devices.IDevice) — every property, every method.
 - [Cookbook: Write an agent](/cookbook/write-an-agent) — a hands-on walk-through.

@@ -169,8 +169,8 @@ To raise the console target to debug-level on a single run, use the `debug` comm
 
 ## See also
 
-- [Configure & Use → Configure an adapter](/configure/adapter) — annotated end-to-end `adapter.config.yaml` walkthrough plus data-source bring-up.
-- [Configure & Use → Run](/configure/run) — local-dev, Windows-service, and systemd-unit deployment.
+- [Configure & Use → Configure an adapter](/configure/adapter-config) — annotated end-to-end `adapter.config.yaml` walkthrough plus data-source bring-up.
+- Configure & Use → Run — local-dev, Windows-service, and systemd-unit deployment.
 - [Modules](/modules/) — per-module configuration schemas referenced by the `modules:` list.
 - [API reference → `MTConnect.Applications.MTConnectAdapterApplication`](/api/) — the C# class that backs the CLI.
 - [API reference → `MTConnect.Configurations.AdapterApplicationConfiguration`](/api/) — the configuration POCO the YAML deserializes into.

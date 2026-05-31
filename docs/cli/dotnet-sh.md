@@ -118,5 +118,5 @@ fi
 ## See also
 
 - [`tools/test.sh`](./test-sh) — the test entry point that invokes this wrapper for every `dotnet test` run.
-- [Configure & Use → Run](/configure/run) — running the shipped agent and adapter (where end users do not need this wrapper).
+- Configure & Use → Run — running the shipped agent and adapter (where end users do not need this wrapper).
 - [Compliance → Test harness](/compliance/test-harness) — running the per-spec-version conformance suite (uses `tools/test.sh --compliance`, which routes through this wrapper).

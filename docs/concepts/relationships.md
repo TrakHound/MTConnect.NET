@@ -20,7 +20,7 @@ public class DataItemRelationship : AbstractDataItemRelationship
 }
 ```
 
-The relationship type ([`DataItemRelationshipType`](/api/MTConnect.Devices/DataItemRelationshipType)) is one of:
+The relationship type ([`DataItemRelationshipType`](/api/MTConnect.Devices.DataItemRelationshipType)) is one of:
 
 - **`LIMIT`** — the source DataItem's value is bounded by the target's value.
 - **`OBSERVATION`** — the source is observationally dependent on the target.
@@ -53,7 +53,7 @@ The `Specification` carries the spec-declared `Maximum`, `Minimum`, `Nominal`, `
 
 ## Component relationships
 
-A Component can declare a `ComponentRelationship` to another Component — the spec models siblings that "belong together" but do not strictly nest, like a Path and the Controller that runs it. The relationship type ([`ComponentRelationshipType`](/api/MTConnect.Devices.Configurations/ComponentRelationshipType)) is one of `PARENT`, `CHILD`, `PEER`. Authored under the Component's `Configuration.Relationships`:
+A Component can declare a `ComponentRelationship` to another Component — the spec models siblings that "belong together" but do not strictly nest, like a Path and the Controller that runs it. The relationship type (`ComponentRelationshipType`) is one of `PARENT`, `CHILD`, `PEER`. Authored under the Component's `Configuration.Relationships`:
 
 ```xml
 <Component>
@@ -109,7 +109,7 @@ flowchart LR
   AssetA[Asset: CuttingTool TOOL-1] -- ArchetypeIdRef --> AssetB[Asset: CuttingToolArchetype TOOL-1-A]
 ```
 
-Every Relationship resolves by `IdRef` — the textual ID of the referenced entity — not by a hard reference to an object. This is by design: agents pass models around as serialised XML / JSON, and IDs survive serialization where in-memory pointers do not. `MTConnect.NET` does not auto-resolve relationships when deserializing a model; callers resolve via [`Device.GetDataItemByKey(idRef)`](/api/MTConnect.Devices/Device#GetDataItemByKey) and friends when the relationship is needed.
+Every Relationship resolves by `IdRef` — the textual ID of the referenced entity — not by a hard reference to an object. This is by design: agents pass models around as serialised XML / JSON, and IDs survive serialization where in-memory pointers do not. `MTConnect.NET` does not auto-resolve relationships when deserializing a model; callers resolve via [`Device.GetDataItemByKey(idRef)`](/api/MTConnect.Devices.Device) and friends when the relationship is needed.
 
 ## Version gating across relationships
 
@@ -127,4 +127,4 @@ Relationship types are version-gated like DataItem types:
 - [Devices](/concepts/devices) — the containment tree Relationships layer over.
 - [Components](/concepts/components) — the Components that author Configuration.
 - [DataItems](/concepts/data-items) — the DataItems that emit Relationships.
-- [`DataItemRelationship` API reference](/api/MTConnect.Devices/DataItemRelationship).
+- [`DataItemRelationship` API reference](/api/MTConnect.Devices.DataItemRelationship).

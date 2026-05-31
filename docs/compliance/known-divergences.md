@@ -34,7 +34,7 @@ The published v2.6 SysML XMI file (`MTConnectSysMLModel_V2.6.xml`) is byte-ident
 
 For DataItems with `representation="DATA_SET"` or `representation="TABLE"`, the SysML XMI declares the `result` property's type as a single `DataSet` class shared between the two representations, while the XSD declares two distinct complex types (`DataSetType` and `TableType`) with non-overlapping element shapes.
 
-**Library posture**: follows the XSD's two-class shape — `DataSetEntry` and `TableEntry` are distinct classes ([`MTConnect.Observations.DataSetEntry`](/api/MTConnect.Observations/DataSetEntry), [`MTConnect.Observations.TableEntry`](/api/MTConnect.Observations/TableEntry)). The on-the-wire output is XSD-validated; consumers parsing the XML never see ambiguity.
+**Library posture**: follows the XSD's two-class shape — `DataSetEntry` and `TableEntry` are distinct classes ([`MTConnect.Observations.DataSetEntry`](/api/MTConnect.Observations.DataSetEntry), [`MTConnect.Observations.TableEntry`](/api/MTConnect.Observations.TableEntry)). The on-the-wire output is XSD-validated; consumers parsing the XML never see ambiguity.
 
 **Filed**: [Redmine #3893](https://projects.mtconnect.org/issues/3893) (SysML Model Related Issues).
 

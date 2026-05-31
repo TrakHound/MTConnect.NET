@@ -1,6 +1,6 @@
 # Components
 
-A **Component** is a recursively-nested machine piece under a [Device](/concepts/devices). Components model the physical and logical breakdown of equipment — an Axis, a Path, a Spindle, a Coolant subsystem, a Door — and they carry the [DataItems](/concepts/data-items) that observe each piece. `MTConnect.NET` represents a Component with the [`MTConnect.Devices.Component`](/api/MTConnect.Devices/Component) class implementing `IComponent`, and ships one concrete subclass per Component type defined in the MTConnect SysML model (`AxisComponent`, `ControllerComponent`, `LinearComponent`, `RotaryComponent`, `SpindleComponent`, and so on, generated from the SysML XMI into `.g.cs` files under `libraries/MTConnect.NET-Common/Devices/Components/`).
+A **Component** is a recursively-nested machine piece under a [Device](/concepts/devices). Components model the physical and logical breakdown of equipment — an Axis, a Path, a Spindle, a Coolant subsystem, a Door — and they carry the [DataItems](/concepts/data-items) that observe each piece. `MTConnect.NET` represents a Component with the [`MTConnect.Devices.Component`](/api/MTConnect.Devices.Component) class implementing `IComponent`, and ships one concrete subclass per Component type defined in the MTConnect SysML model (`AxisComponent`, `ControllerComponent`, `LinearComponent`, `RotaryComponent`, `SpindleComponent`, and so on, generated from the SysML XMI into `.g.cs` files under `libraries/MTConnect.NET-Common/Devices/Components/`).
 
 ## The Component tree
 
@@ -49,7 +49,7 @@ The `Type` string is canonical — it is the camel-case `TypeId` constant on the
 
 ## Organizer Components
 
-A few Components exist solely as containers for siblings of the same logical kind: an `Axes` Organizer holds `Axis` children, a `Controllers` Organizer holds `Controller` children, an `Auxiliaries` Organizer holds auxiliary subsystems. The MTConnect Standard treats Organizers as required wrappers — an `Axis` must live under an `Axes`, not directly under a `Device` — and `MTConnect.NET` enforces this in [`Device.AddComponent`](/api/MTConnect.Devices/Device#AddComponent) and `Component.AddComponent`: passing a non-organizer Component whose type has an associated Organizer triggers auto-creation of the Organizer wrapper if none is present.
+A few Components exist solely as containers for siblings of the same logical kind: an `Axes` Organizer holds `Axis` children, a `Controllers` Organizer holds `Controller` children, an `Auxiliaries` Organizer holds auxiliary subsystems. The MTConnect Standard treats Organizers as required wrappers — an `Axis` must live under an `Axes`, not directly under a `Device` — and `MTConnect.NET` enforces this in [`Device.AddComponent`](/api/MTConnect.Devices.Device) and `Component.AddComponent`: passing a non-organizer Component whose type has an associated Organizer triggers auto-creation of the Organizer wrapper if none is present.
 
 ```csharp
 using MTConnect.Devices;
@@ -63,7 +63,7 @@ device.AddComponent(xAxis);
 // The Axes organizer was created automatically.
 ```
 
-The Organizer lookup runs through [`MTConnect.Devices.Organizers`](/api/MTConnect.Devices/Organizers), a static table that maps a Component type to its required Organizer type. `IComponent.IsOrganizer` flags Organizer instances so traversal code can skip past them when presenting a "logical" device tree to a UI.
+The Organizer lookup runs through [`MTConnect.Devices.Organizers`](/api/MTConnect.Devices.Organizers), a static table that maps a Component type to its required Organizer type. `IComponent.IsOrganizer` flags Organizer instances so traversal code can skip past them when presenting a "logical" device tree to a UI.
 
 ## Compositions
 
@@ -124,5 +124,5 @@ Every Component class declares `MinimumVersion` and (optionally) `MaximumVersion
 
 - [DataItems](/concepts/data-items) — the primitive observable points hanging off Components.
 - [Relationships](/concepts/relationships) — cross-Component links (parent, coordinate-system, ID-references).
-- [`IComponent` API reference](/api/MTConnect.Devices/IComponent).
+- [`IComponent` API reference](/api/MTConnect.Devices.IComponent).
 - [Cookbook: Write an agent](/cookbook/write-an-agent) — building a model from scratch.

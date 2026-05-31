@@ -2,15 +2,15 @@
 
 An **Asset** is a non-observation entity the device tracks: a cutting tool, a pallet, a fixture, a raw-material billet, an uploaded file. Assets exist outside the time-series stream — they are addressable by `AssetId`, they carry their own version history, and they are retrievable from the agent's `/asset/<assetId>` endpoint independently of any DataItem.
 
-`MTConnect.NET` represents an Asset with [`MTConnect.Assets.Asset`](/api/MTConnect.Assets/Asset) implementing `IAsset`, and ships one concrete subclass per spec-defined Asset type:
+`MTConnect.NET` represents an Asset with [`MTConnect.Assets.Asset`](/api/MTConnect.Assets.Asset) implementing `IAsset`, and ships one concrete subclass per spec-defined Asset type:
 
-- [`CuttingToolAsset`](/api/MTConnect.Assets.CuttingTools/CuttingToolAsset) and its archetype variant `CuttingToolArchetypeAsset`.
-- [`PalletAsset`](/api/MTConnect.Assets.Pallet/PalletAsset).
-- [`FileAsset`](/api/MTConnect.Assets.Files/FileAsset) and its archetype variant `FileArchetypeAsset`.
-- [`RawMaterialAsset`](/api/MTConnect.Assets.RawMaterials/RawMaterialAsset).
-- [`FixtureAsset`](/api/MTConnect.Assets.Fixture/FixtureAsset).
-- [`ComponentConfigurationParametersAsset`](/api/MTConnect.Assets.ComponentConfigurationParameters/ComponentConfigurationParametersAsset).
-- [`QIFDocumentWrapperAsset`](/api/MTConnect.Assets.QIF/QIFDocumentWrapperAsset).
+- [`CuttingToolAsset`](/api/MTConnect.Assets.CuttingTools.CuttingToolAsset) and its archetype variant `CuttingToolArchetypeAsset`.
+- [`PalletAsset`](/api/MTConnect.Assets.Pallet.PalletAsset).
+- [`FileAsset`](/api/MTConnect.Assets.Files.FileAsset) and its archetype variant `FileArchetypeAsset`.
+- [`RawMaterialAsset`](/api/MTConnect.Assets.RawMaterials.RawMaterialAsset).
+- [`FixtureAsset`](/api/MTConnect.Assets.Fixture.FixtureAsset).
+- [`ComponentConfigurationParametersAsset`](/api/MTConnect.Assets.ComponentConfigurationParameters.ComponentConfigurationParametersAsset).
+- [`QIFDocumentWrapperAsset`](/api/MTConnect.Assets.QIF.QIFDocumentWrapperAsset).
 
 ## Identity
 
@@ -71,7 +71,7 @@ A `PalletAsset` describes a pallet on a transfer system: its dimensions, its loa
 - `HeightMeasurement`, `WidthMeasurement`, `LengthMeasurement`, `WeightMeasurement`, `SwingMeasurement` — pallet-empty geometry.
 - `LoadedHeightMeasurement`, `LoadedWidthMeasurement`, `LoadedLengthMeasurement`, `LoadedWeightMeasurement`, `LoadedSwingMeasurement` — pallet-with-workpiece geometry.
 
-Each measurement is a separate concrete class with a `Value` (decimal), an optional `NativeUnits`, an optional `Code`, and `Units` defaulted from the spec ([`MTConnect.Assets.Pallet.HeightMeasurement`](/api/MTConnect.Assets.Pallet/HeightMeasurement) etc.). Older models with a free-form `Measurement` child still deserialize for backward compatibility.
+Each measurement is a separate concrete class with a `Value` (decimal), an optional `NativeUnits`, an optional `Code`, and `Units` defaulted from the spec ([`MTConnect.Assets.Pallet.HeightMeasurement`](/api/MTConnect.Assets.Pallet.HeightMeasurement) etc.). Older models with a free-form `Measurement` child still deserialize for backward compatibility.
 
 ```csharp
 using MTConnect.Assets.Pallet;
@@ -136,6 +136,6 @@ Assets serialize through the `MTConnectAssets_<version>.xsd` envelope. The XML c
 
 ## Where to next
 
-- [`IAsset` API reference](/api/MTConnect.Assets/IAsset).
+- [`IAsset` API reference](/api/MTConnect.Assets.IAsset).
 - [Cookbook: Write an agent](/cookbook/write-an-agent) — agents that emit Assets.
 - [Compliance: Per-version matrix](/compliance/per-version-matrix) — which Asset types ship in which spec version.

@@ -20,7 +20,7 @@ The `MTConnect.NET-SHDR` package contains the SHDR codec — parser, writer, hea
 
 ## 2. Build a minimal adapter
 
-The library's [`ShdrAdapter`](/api/MTConnect.Shdr/ShdrAdapter) class implements an SHDR TCP server. Instantiate it with a device key and a port:
+The library's [`ShdrAdapter`](/api/MTConnect.Adapters.ShdrAdapter) class implements an SHDR TCP server. Instantiate it with a device key and a port:
 
 ```csharp
 using MTConnect.Shdr;
@@ -121,7 +121,7 @@ modules:
     connectionTimeout: 1000
 ```
 
-The agent's `shdr-adapter` module connects to `localhost:7878`, consumes the SHDR lines, looks up each `dataItemKey` against the Device's model ([`Device.GetDataItemByKey`](/api/MTConnect.Devices/Device#GetDataItemByKey) checks `Id`, then `Name`, then `Source.DataItemId`, then `Source.Value`), and writes the resulting Observation into the agent's buffer.
+The agent's `shdr-adapter` module connects to `localhost:7878`, consumes the SHDR lines, looks up each `dataItemKey` against the Device's model ([`Device.GetDataItemByKey`](/api/MTConnect.Devices.Device) checks `Id`, then `Name`, then `Source.DataItemId`, then `Source.Value`), and writes the resulting Observation into the agent's buffer.
 
 A flow diagram:
 

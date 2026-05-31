@@ -6,8 +6,8 @@
 
 - **[XML](./xml)** — the canonical wire format defined by the per-version XSDs (`MTConnectStreams_<ver>.xsd`, `MTConnectDevices_<ver>.xsd`, `MTConnectAssets_<ver>.xsd`, `MTConnectError_<ver>.xsd`). Codec lives in `MTConnect.NET-XML`. Validated at write-time against the corresponding XSD.
 - **[JSON v1](./json-v1)** — the legacy JSON codec, object-keyed everywhere. Pre-dates the formal cppagent JSON v2 codec; shipped for compatibility with consumers built against early MTConnect.NET releases. Codec lives in `MTConnect.NET-JSON`.
-- **[JSON-CPPAGENT (v2)](./json-cppagent)** — the cppagent reference's current JSON codec. Array-of-wrappers where order matters; object-keyed where it doesn't. Byte-for-byte cppagent parity is the library's compliance target. Codec lives in `MTConnect.NET-JSON-cppagent`.
-- **[JSON-CPPAGENT-MQTT](./json-cppagent-mqtt)** — JSON-CPPAGENT v2 envelopes published over MQTT topics with a documented topic tree. Codec lives in `MTConnect.NET-JSON-cppagent` plus the `MTConnect.NET-MQTT` transport layer.
+- **[JSON-CPPAGENT (v2)](./json-v2-cppagent)** — the cppagent reference's current JSON codec. Array-of-wrappers where order matters; object-keyed where it doesn't. Byte-for-byte cppagent parity is the library's compliance target. Codec lives in `MTConnect.NET-JSON-cppagent`.
+- **[JSON-CPPAGENT-MQTT](./json-v2-cppagent-mqtt)** — JSON-CPPAGENT v2 envelopes published over MQTT topics with a documented topic tree. Codec lives in `MTConnect.NET-JSON-cppagent` plus the `MTConnect.NET-MQTT` transport layer.
 - **[SHDR](./shdr)** — the Simple Hierarchical Data Representation; the line-oriented adapter protocol that ships values from a PLC reader into the agent. Codec lives in `MTConnect.NET-SHDR`.
 
 ## Picking a format
