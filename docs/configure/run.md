@@ -79,13 +79,15 @@ Volumes:
 
 The default container exposes port `5000` and runs the `run` verb. Override with `--entrypoint MTConnect.NET-Agent` and a fresh `CMD` to switch to `debug` or `trace` while diagnosing.
 
+The example above publishes port `5000` without TLS or authentication. For anything beyond a trusted local network, terminate TLS in front of the container (reverse proxy, Kubernetes Ingress, etc.) or enable the HTTP server module's TLS + auth blocks — see [Module configuration: HTTP server](/configure/module-config#http-server).
+
 ## Windows service
 
 ```cmd
 MTConnect.NET-Agent install-start
 ```
 
-The verb creates a Windows service named `MTConnect.NET-Agent` (overridable via the `serviceName:` key in `agent.config.yaml`), sets the start-type to `Automatic`, and starts the service. The service runs under the `LocalSystem` account by default; an explicit account can be configured by editing the service after install (`sc config MTConnect.NET-Agent obj=<account>`).
+The verb creates a Windows service named `MTConnect.NET-Agent` (overridable via the `serviceName:` key in `agent.config.yaml`), sets the start-type to `Automatic`, and starts the service. The service runs under the `LocalSystem` account by default; an explicit account can be configured by editing the service after install (`sc config MTConnect.NET-Agent obj=<account>`). `LocalSystem` is convenient for evaluation; a dedicated low-privilege service account is preferred for production deployments.
 
 To stop or uninstall:
 
