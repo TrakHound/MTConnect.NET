@@ -28,6 +28,7 @@ namespace MTConnect.Tests.Integration.Workflows
     // ClientAgentCommunicationTests fixture uses, and asserts the /probe
     // endpoint returns a 200 with a devices envelope referencing the
     // seeded device by uuid + name.
+    /// <summary>Represents the http probe workflow tests.</summary>
     [Trait("Category", "E2E")]
     public sealed class HttpProbeWorkflowTests : IDisposable
     {
@@ -37,6 +38,7 @@ namespace MTConnect.Tests.Integration.Workflows
         private readonly string _machineId;
         private readonly string _machineName;
 
+        /// <summary>Initialises a new instance of the http probe workflow tests type.</summary>
         public HttpProbeWorkflowTests()
         {
             // Pick a free loopback port at fixture-creation time so
@@ -93,12 +95,15 @@ namespace MTConnect.Tests.Integration.Workflows
             }
         }
 
+        /// <summary>Runs the dispose operation.</summary>
         public void Dispose()
         {
             _server?.Stop();
             _agent?.Stop();
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: probe returns seeded device.</summary>
+        /// <returns>The result of the operation.</returns>
         [Fact]
         public async Task Probe_returns_seeded_device()
         {
@@ -120,6 +125,8 @@ namespace MTConnect.Tests.Integration.Workflows
             Assert.Contains(_machineId, body);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: probe with unknown device returns error envelope.</summary>
+        /// <returns>The result of the operation.</returns>
         [Fact]
         public async Task Probe_with_unknown_device_returns_error_envelope()
         {

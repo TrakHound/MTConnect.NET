@@ -20,18 +20,26 @@ namespace MTConnect.Tests.Integration.Workflows
     //     MTConnectMqttRelay implements.
     //   - https://mqtt.org/mqtt-specification/ — the wire protocol that the
     //     Testcontainers Mosquitto + the in-process MQTTnet client speak.
+    /// <summary>Represents the mqtt broker fixture.</summary>
     public sealed class MqttBrokerFixture : IAsyncLifetime
     {
+        /// <summary>The image tag.</summary>
         public const string ImageTag = "eclipse-mosquitto:2.0.22";
         private const int InternalPort = 1883;
 
         private IContainer? _container;
 
+        /// <summary>Gets or sets the host.</summary>
         public string Host => _container?.Hostname ?? "127.0.0.1";
 
+        /// <summary>Runs the port operation.</summary>
+        /// <param name="InternalPort">The internal port.</param>
+        /// <returns>The result of the operation.</returns>
         public int Port => _container?.GetMappedPublicPort(InternalPort)
             ?? throw new InvalidOperationException("Container has not been started.");
 
+        /// <summary>Runs the initialize async operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public async Task InitializeAsync()
         {
             // Mosquitto 2.x refuses anonymous remote connections by default.
@@ -61,6 +69,8 @@ namespace MTConnect.Tests.Integration.Workflows
             await _container.StartAsync().ConfigureAwait(false);
         }
 
+        /// <summary>Runs the dispose async operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public async Task DisposeAsync()
         {
             if (_container != null)

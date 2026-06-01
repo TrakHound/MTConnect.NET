@@ -25,6 +25,7 @@ namespace MTConnect.Tests.Integration.Workflows
     // Boots an in-process agent + HTTP server, seeds it with a CuttingTool
     // asset via the broker's AddAsset path, and asserts /assets returns
     // an envelope referencing the asset's id.
+    /// <summary>Represents the http asset workflow tests.</summary>
     [Trait("Category", "E2E")]
     public sealed class HttpAssetWorkflowTests : IDisposable
     {
@@ -35,6 +36,7 @@ namespace MTConnect.Tests.Integration.Workflows
         private const string DeviceUuid = "workflow-asset-device";
         private const string DeviceName = "WorkflowAssetDevice";
 
+        /// <summary>Initialises a new instance of the http asset workflow tests type.</summary>
         public HttpAssetWorkflowTests()
         {
             _port = AllocateLoopbackPort();
@@ -83,12 +85,15 @@ namespace MTConnect.Tests.Integration.Workflows
             WaitForListener("127.0.0.1", _port, TimeSpan.FromSeconds(30), () => startupException);
         }
 
+        /// <summary>Runs the dispose operation.</summary>
         public void Dispose()
         {
             _server?.Stop();
             _agent?.Stop();
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: asset request returns seeded asset id.</summary>
+        /// <returns>The result of the operation.</returns>
         [Fact]
         public async Task Asset_request_returns_seeded_asset_id()
         {
@@ -108,6 +113,8 @@ namespace MTConnect.Tests.Integration.Workflows
             Assert.Contains(AssetId, body);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: specific asset id request returns targeted asset.</summary>
+        /// <returns>The result of the operation.</returns>
         [Fact]
         public async Task Specific_asset_id_request_returns_targeted_asset()
         {

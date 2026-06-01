@@ -9,10 +9,12 @@ namespace MTConnect.Tests.Integration
     // fileName argument; earlier revisions hard-coded "devices.xml" inside
     // File.Create(...) so the argument was silently ignored. These tests pin
     // the contract that the file is created at the requested path.
+    /// <summary>Represents the generate devices xml tests.</summary>
     public class GenerateDevicesXmlTests : IDisposable
     {
         private readonly string _tempDir;
 
+        /// <summary>Initialises a new instance of the generate devices xml tests type.</summary>
         public GenerateDevicesXmlTests()
         {
             _tempDir = Path.Combine(
@@ -21,6 +23,7 @@ namespace MTConnect.Tests.Integration
             Directory.CreateDirectory(_tempDir);
         }
 
+        /// <summary>Runs the dispose operation.</summary>
         public void Dispose()
         {
             try
@@ -36,6 +39,7 @@ namespace MTConnect.Tests.Integration
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: generate devices xml honours file name argument.</summary>
         [Fact]
         public void GenerateDevicesXml_HonoursFileNameArgument()
         {

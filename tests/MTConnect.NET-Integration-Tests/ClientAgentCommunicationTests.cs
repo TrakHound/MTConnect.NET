@@ -26,6 +26,7 @@ using MTConnect.Assets.CuttingTools;
 
 namespace MTConnect.Tests.Integration
 {
+    /// <summary>Represents the m t agent fixture.</summary>
     public class MTAgentFixture
     {
         // Hands out a distinct OS-assigned free loopback TCP port on each call.
@@ -35,6 +36,8 @@ namespace MTConnect.Tests.Integration
         // own port, so no two tests (in this run or a concurrent/back-to-back
         // run) ever contend for a fixed number — the start-up "Address already
         // in use" race that a hard-coded port causes is removed at the root.
+        /// <summary>Runs the get free port operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public static int GetFreePort()
         {
             using var probe = new System.Net.Sockets.Socket(
@@ -47,6 +50,7 @@ namespace MTConnect.Tests.Integration
         }
     }
 
+    /// <summary>Represents the client agent communication tests.</summary>
     public class ClientAgentCommunicationTests : IClassFixture<MTAgentFixture>, IDisposable
     {
         #region Fields
@@ -114,6 +118,9 @@ namespace MTConnect.Tests.Integration
 
         #endregion
 
+        /// <summary>Initialises a new instance of the client agent communication tests type.</summary>
+        /// <param name="fixture">The fixture.</param>
+        /// <param name="testOutputHelper">The test output helper.</param>
         public ClientAgentCommunicationTests(
             MTAgentFixture fixture,
             ITestOutputHelper testOutputHelper)
@@ -256,6 +263,7 @@ namespace MTConnect.Tests.Integration
                 + (lastError != null ? $" (last error: {lastError.Message})." : "."));
         }
 
+        /// <summary>Runs the dispose operation.</summary>
         public void Dispose()
         {
             _agent.Stop();
@@ -467,6 +475,8 @@ namespace MTConnect.Tests.Integration
 
         #endregion
 
+        /// <summary>Pins the behaviour expressed by the test name: get current field should return updated value.</summary>
+        /// <returns>The result of the operation.</returns>
         [Fact]
         public async Task GetCurrentFieldShouldReturnUpdatedValue()
         {
@@ -521,6 +531,8 @@ namespace MTConnect.Tests.Integration
             Assert.Equal("SuperProg42", current);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: wait for sample should succeed after first item is sent.</summary>
+        /// <returns>The result of the operation.</returns>
         [Fact]
         public async Task WaitForSampleShouldSucceedAfterFirstItemIsSent()
         {
