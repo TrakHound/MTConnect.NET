@@ -31,10 +31,8 @@ export default withMermaid(
     // overriding here is unnecessary unless we deploy from elsewhere.
     // outDir: '.vitepress/dist',
 
-    // Base path. Defaults to '/'. If GitHub Pages publishes under a project
-    // path (e.g. `/MTConnect.NET/`), this will need to be set at deploy
-    // time. Left as the default for now.
-    // base: '/',
+    // Defaults to '/' for local dev; CI sets DOCS_BASE for GitHub Pages.
+    base: process.env.DOCS_BASE ?? '/',
 
     cleanUrls: true,
 
@@ -226,6 +224,7 @@ export default withMermaid(
           {
             text: 'Repository development',
             items: [
+              { text: 'Documentation site', link: '/development/docs-site' },
               { text: 'Release builder', link: '/development/builder' },
             ],
           },
