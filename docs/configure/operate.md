@@ -21,7 +21,7 @@ Every file rolls daily and keeps 90 archives by default. Edit `NLog.config` to r
 
 ### Raising the console log level
 
-The `debug` and `trace` CLI verbs (see [Run](./run)) raise the console-target log level on a single foreground run without editing `NLog.config`. For a service deployment, edit `NLog.config` directly — the agent re-reads it without a restart when `internalLoggingLevel` is set to `Trace`.
+The `debug` and `trace` CLI verbs (see [Run](./run)) raise the console-target log level on a single foreground run without editing `NLog.config`. For a service deployment, edit `NLog.config` directly — to pick up edits without a process restart, set `autoReload="true"` on the `<nlog>` root element (this is NLog's hot-reload lever; the shipped configuration leaves it off so an edit-and-restart cycle is the default).
 
 ### NLog at a glance
 
@@ -44,13 +44,7 @@ agent-metrics | Debug | Assets - Delta for last 10 seconds: 0
 agent-metrics | Debug | Assets - Average for last 5 minutes: 0.13
 ```
 
-The tick interval (`updateInterval`) and the window length (`windowInterval`) come from the agent's `metrics:` block in `agent.config.yaml`:
-
-```yaml
-metrics:
-  updateInterval: 10        # seconds between emit ticks
-  windowInterval: 5         # minutes for the rolling average
-```
+The metrics emitter is gated by a single switch — `enableMetrics: true` in `agent.config.yaml` (the shipped default; set to `false` to suppress the periodic emits entirely). The tick interval and the rolling-window length are fixed at construction time by the agent host; the YAML surface does not expose them today.
 
 For machine-readable metrics, query the agent's `/probe` self-describing Agent Device when `enableAgentDevice: true` is set. The Agent Device emits `AVAILABILITY`, `ASSET_CHANGED`, `ASSET_REMOVED`, `MTCONNECT_VERSION`, and a battery of internal observations. Probes / current / sample work on the Agent Device the same way as any other device:
 
@@ -95,7 +89,7 @@ Operational notes:
 
 - **Tail the agent log in production**: `tail -F logs/agent-$(date +%F).log` (Linux) or `Get-Content -Tail 50 -Wait logs\agent-(Get-Date -Format yyyy-MM-dd).log` (PowerShell).
 - **Tail validation rejections only**: `tail -F logs/agent-validation-$(date +%F).log`. A spike here signals a misconfigured adapter or a Devices.xml drift.
-- **Diagnose a single module without restarting**: enable the module's debug level by editing `NLog.config`'s per-module rule. NLog reloads the config automatically.
+- **Diagnose a single module without restarting**: enable the module's debug level by editing `NLog.config`'s per-module rule. Hot-reload requires `autoReload="true"` on the `<nlog>` root; otherwise restart the agent for the new rule to apply.
 - **Test the agent's reachability from inside a Docker network**: `docker exec mtc-agent curl -sf http://localhost:5000/probe > /dev/null`. A non-zero exit means the in-container HTTP server is down even if the host-side port mapping appears healthy.
 
 ## See also
