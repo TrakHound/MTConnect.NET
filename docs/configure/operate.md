@@ -35,7 +35,7 @@ Pipe-separated; columns are time, event-ID, level, logger, message + optional ex
 
 ## Metrics
 
-The agent runs a built-in metrics timer (see [`MTConnectAgentMetrics`](/api/MTConnect.Agents.Metrics.MTConnectAgentMetrics)). On each tick it reads the current observation count, the current asset count, the rolling-window averages, and emits debug-level lines through the `agent-metrics` logger:
+The agent runs a built-in metrics timer in the [`MTConnect.Agents.Metrics`](/api/MTConnect.Agents.Metrics) namespace. On each tick it reads the current observation count, the current asset count, the rolling-window averages, and emits debug-level lines through the `agent-metrics` logger:
 
 ```
 agent-metrics | Debug | Observations - Delta for last 10 seconds: 423
