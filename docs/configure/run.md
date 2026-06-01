@@ -6,7 +6,7 @@ The previous pages — [Install](./install), [Configure an agent](./agent-config
 
 ## CLI verbs
 
-The shipped agent (`MTConnect.NET-Agent`) and adapter (`MTConnect.NET-Adapter`) accept the same command set. Each verb maps to a behavior the underlying [`MTConnectAgentApplication`](/api/MTConnect.Applications.MTConnectAgentApplication) (or the adapter equivalent) implements.
+The shipped agent (`MTConnect.NET-Agent`) and adapter (`MTConnect.NET-Adapter`) accept the same command set. Each verb maps to a behavior the underlying agent application (or the adapter equivalent) implements.
 
 | Verb | Behavior |
 |---|---|
