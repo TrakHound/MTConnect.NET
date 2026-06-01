@@ -83,7 +83,7 @@ The client handles reconnects on the consumer's behalf; the `ConnectionError` ev
 
 ## MQTT — the cppagent-parity broker / relay tree
 
-When the agent runs an `mqtt-broker` module or relays through `mqtt-relay`, every observation is published to an MQTT topic in the [cppagent JSON v2 MQTT](/wire-formats/json-v2-cppagent-mqtt) shape. Two topic layouts are published in parallel: the document-server layout (whole-envelope publishes keyed by device) from [`MTConnect.MTConnectMqttDocumentServer`](/api/MTConnect.md), and the entity-server layout (per-data-item, per-asset publishes) from [`MTConnect.MTConnectMqttEntityServer`](/api/MTConnect.md).
+When the agent runs an `mqtt-broker` module or relays through `mqtt-relay`, every observation is published to an MQTT topic in the [cppagent JSON v2 MQTT](/wire-formats/json-v2-cppagent-mqtt) shape. Two topic layouts are published in parallel: the document-server layout (whole-envelope publishes keyed by device) from [`MTConnect.MTConnectMqttDocumentServer`](/api/MTConnect.MTConnectMqttDocumentServer), and the entity-server layout (per-data-item, per-asset publishes) from [`MTConnect.Clients.MTConnectMqttEntityServer`](/api/MTConnect.Clients.MTConnectMqttEntityServer).
 
 Document-server topics (envelope payloads, one publish per device):
 
