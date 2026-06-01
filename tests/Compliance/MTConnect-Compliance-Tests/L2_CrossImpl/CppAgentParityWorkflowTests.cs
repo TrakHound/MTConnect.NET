@@ -40,6 +40,7 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
     //     to match.
     //   - https://schemas.mtconnect.org/schemas/MTConnectDevices_2.5.xsd
     //     and MTConnectStreams_2.5.xsd — the shape both agents emit.
+    /// <summary>Pins the behaviour expressed by the test name: cpp agent parity workflow tests.</summary>
     [TestFixture]
     [Category("RequiresDocker")]
     [Category("E2E")]
@@ -62,6 +63,8 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
         private string? _stagingDir;
         private Whitelist? _whitelist;
 
+        /// <summary>Sets up the fixture before each test.</summary>
+        /// <returns>The result of the operation.</returns>
         [OneTimeSetUp]
         public async Task GlobalSetUp()
         {
@@ -177,6 +180,8 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
             }
         }
 
+        /// <summary>Tears down the fixture after each test.</summary>
+        /// <returns>The result of the operation.</returns>
         [OneTimeTearDown]
         public async Task GlobalTearDown()
         {
@@ -195,18 +200,24 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: probe envelope byte diff is empty modulo whitelist.</summary>
+        /// <returns>The result of the operation.</returns>
         [Test]
         public async Task Probe_envelope_byte_diff_is_empty_modulo_whitelist()
         {
             await CompareEnvelopes("/probe", "MTConnectDevices").ConfigureAwait(false);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: current envelope byte diff is empty modulo whitelist.</summary>
+        /// <returns>The result of the operation.</returns>
         [Test]
         public async Task Current_envelope_byte_diff_is_empty_modulo_whitelist()
         {
             await CompareEnvelopes("/current", "MTConnectStreams").ConfigureAwait(false);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: sample envelope byte diff is empty modulo whitelist.</summary>
+        /// <returns>The result of the operation.</returns>
         [Test]
         public async Task Sample_envelope_byte_diff_is_empty_modulo_whitelist()
         {

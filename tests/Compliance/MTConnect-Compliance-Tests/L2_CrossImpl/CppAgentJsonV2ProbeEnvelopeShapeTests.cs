@@ -41,6 +41,7 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
     // emitted JSON's structural shape matches a frozen reference. The
     // Docker-bound full cross-impl parity workflow lives in
     // CppAgentParityWorkflowTests (Category=RequiresDocker,E2E).
+    /// <summary>Pins the behaviour expressed by the test name: cpp agent json v2 probe envelope shape tests.</summary>
     [TestFixture]
     [Category("CppAgentJsonV2Envelope")]
     public class CppAgentJsonV2ProbeEnvelopeShapeTests
@@ -82,6 +83,7 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: probe envelope matches cppagent j s o n v2 keyed object shape.</summary>
         [Test]
         public void Probe_envelope_matches_cppagent_JSON_v2_keyed_object_shape()
         {
@@ -126,6 +128,7 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: probe envelope agent element under devices matches x s d v2 7 devices type.</summary>
         [Test]
         public void Probe_envelope_Agent_element_under_Devices_matches_XSD_v2_7_DevicesType()
         {
@@ -156,6 +159,7 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: probe envelope agent name preserves case per w3 c x m l 1 0 section 2 3.</summary>
         [Test]
         public void Probe_envelope_Agent_name_preserves_case_per_W3C_XML_1_0_section_2_3()
         {
@@ -183,6 +187,7 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: probe envelope round trip through named formatter matches emitted shape.</summary>
         [Test]
         public void Probe_envelope_round_trip_through_named_formatter_matches_emitted_shape()
         {

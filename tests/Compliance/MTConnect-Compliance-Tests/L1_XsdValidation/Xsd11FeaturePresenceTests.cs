@@ -52,6 +52,8 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
         private const string XsdNamespace = "http://www.w3.org/2001/XMLSchema";
         private const string ResourcePrefix = "MTConnect.Compliance.Tests.Schemas.";
 
+        /// <summary>Runs the xsd11 blocked display paths operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public static IEnumerable<TestCaseData> Xsd11BlockedDisplayPaths()
         {
             // Drive the parametrisation off SchemaLoadTests.Xsd11BlockedSchemas
@@ -71,6 +73,8 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
         // + maxOccurs > 1; Error: xs:any inside xs:all) without per-family
         // case-pinning that would fragility-couple to upstream's editing
         // style.
+        /// <summary>Pins the behaviour expressed by the test name: schema carries at least one xsd 1 1 feature.</summary>
+        /// <param name="displayPath">The display path.</param>
         [TestCaseSource(nameof(Xsd11BlockedDisplayPaths))]
         public void Schema_carries_at_least_one_xsd_1_1_feature(string displayPath)
         {
@@ -121,6 +125,7 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
         // them, this test will fail and the preprocessor's handling can
         // be exercised end-to-end (the preprocessor already strips both;
         // the test surfaces that the schemas now exercise the path).
+        /// <summary>Pins the behaviour expressed by the test name: no schema carries xs assert or xs override yet.</summary>
         [Test]
         public void No_schema_carries_xs_assert_or_xs_override_yet()
         {
@@ -152,6 +157,7 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
         // namespace". A future WG-side change to '##other' or to a
         // literal URI list is structurally fine but worth pinning so a
         // typo (e.g. '#targetNamespace') surfaces here.
+        /// <summary>Pins the behaviour expressed by the test name: not namespace attribute value is target namespace token.</summary>
         [Test]
         public void notNamespace_attribute_value_is_targetNamespace_token()
         {
