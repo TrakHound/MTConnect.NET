@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitepress';
 import { withMermaid } from 'vitepress-plugin-mermaid';
+import { apiSidebar, referenceSidebar } from './sidebar';
 
 /**
  * VitePress config for the MTConnect.NET documentation site.
@@ -13,10 +14,15 @@ import { withMermaid } from 'vitepress-plugin-mermaid';
  *
  * @remarks
  * The auto-generated reference section (`/reference/`) is produced by
- * `build/MTConnect.NET-DocsGen` at docs-build time; do not edit those
- * pages by hand. Adding a new section here that should also feed the
- * sidebar — extend both the top `nav:` list and the matching entry in
- * `sidebar:`.
+ * `build/MTConnect.NET-DocsGen` at docs-build time; the docfx-driven
+ * API reference (`/api/`) is produced by `docs/scripts/generate-api-ref.sh`.
+ * Do not edit those pages by hand. Both sidebars are derived from
+ * the generated output by `./sidebar.ts` — adding a new generated
+ * page surfaces automatically once the regen scripts have produced
+ * it (the npm `predev` / `prebuild` hooks run them on every dev
+ * server boot and build). Hand-curated narrative sections still
+ * extend the top `nav:` list plus the matching `sidebar:` entry
+ * below.
  *
  * @see {@link https://vitepress.dev/reference/site-config}
  */
@@ -124,24 +130,14 @@ export default withMermaid(
             ],
           },
         ],
-        '/api/': [
-          {
-            text: 'API reference',
-            items: [{ text: 'Overview', link: '/api/' }],
-          },
-        ],
-        '/reference/': [
-          {
-            text: 'Auto-generated reference',
-            items: [
-              { text: 'Overview', link: '/reference/' },
-              { text: 'HTTP API', link: '/reference/http-api' },
-              { text: 'Environment variables', link: '/reference/environment-variables' },
-              { text: 'Configuration schema', link: '/reference/configuration' },
-              { text: 'CLI reference', link: '/reference/cli' },
-            ],
-          },
-        ],
+        // Auto-derived from docfx's toc.yml under docs/api/. Hierarchical
+        // by namespace dots, collapsed by default so the 1800-odd type
+        // pages do not flood the viewport.
+        '/api/': apiSidebar(),
+        // Auto-derived from the .md files under docs/reference/. Flat
+        // alphabetical list so a future page emitted by DocsGen surfaces
+        // without a config-side edit.
+        '/reference/': referenceSidebar(),
         '/wire-formats/': [
           {
             text: 'Wire formats',
