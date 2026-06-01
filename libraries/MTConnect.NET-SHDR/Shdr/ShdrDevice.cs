@@ -83,7 +83,7 @@ namespace MTConnect.Shdr
             Xml = xml;
         }
 
-        /// <summary>Creates an SHDR device wrapping the supplied <see cref="IDevice"/>; if its <see cref="IDevice.Uuid"/> is empty a fresh GUID is assigned.</summary>
+        /// <summary>Creates an SHDR device wrapping the supplied <see cref="IDevice"/>; if its <see cref="IContainer.Uuid"/> is empty a fresh GUID is assigned.</summary>
         public ShdrDevice(IDevice device)
         {
             if (device != null)

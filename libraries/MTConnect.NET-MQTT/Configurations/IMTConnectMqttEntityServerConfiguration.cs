@@ -4,7 +4,7 @@
 namespace MTConnect.Configurations
 {
     /// <summary>
-    /// Settings consumed by <see cref="MTConnect.Mqtt.MTConnectMqttEntityServer"/> that publish
+    /// Settings consumed by <c>MTConnect.Mqtt.MTConnectMqttEntityServer</c> (defined in the agent MQTT modules) that publish
     /// individual MTConnect entities (devices, observations, assets) under per-entity topics
     /// rather than as packaged response documents. Configures the topic prefix, the serialisation
     /// format, and the MQTT QoS for all entity publishes.

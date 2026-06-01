@@ -23,7 +23,7 @@ namespace MTConnect.Tests.Common.Agents
     /// <c>name_generator</c> prior art.
     ///
     /// These tests do not drive <c>MTConnectAgentApplication.StartAgent</c>
-    /// end-to-end. Instead, <see cref="SimulateBoot"/> replays the fresh-construction
+    /// end-to-end. Instead, a <c>SimulateBoot</c> helper replays the fresh-construction
     /// path deterministically so the invariants are pinned at the unit level.
     /// </summary>
     [TestFixture]
@@ -130,7 +130,7 @@ namespace MTConnect.Tests.Common.Agents
 
         /// <summary>
         /// Two consecutive fresh boots (no state file, no config override)
-        /// with the same <paramref name="agentName"/> must produce identical
+        /// with the same <c>agentName</c> must produce identical
         /// UUIDs — satisfying <c>UuidType</c>'s "for it's entire life" annotation
         /// across ephemeral-container restarts.
         /// </summary>
@@ -177,7 +177,7 @@ namespace MTConnect.Tests.Common.Agents
         }
 
         /// <summary>
-        /// Two fresh boots with distinct <paramref name="agentName"/> values must
+        /// Two fresh boots with distinct <c>agentName</c> values must
         /// produce distinct UUIDs, confirming that the seed differentiates agents.
         /// </summary>
         [Test]

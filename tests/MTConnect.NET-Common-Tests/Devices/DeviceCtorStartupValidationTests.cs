@@ -9,7 +9,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
 {
     /// <summary>
     /// Pins the startup-time invariant that <see cref="MTConnectAgent.AddDevice"/>
-    /// rejects any Device whose <see cref="IDevice.Uuid"/> is null or empty.
+    /// rejects any Device whose <see cref="IContainer.Uuid"/> is null or empty.
     ///
     /// Background: the parameterless <see cref="Device"/> ctor leaves
     /// <c>Id</c>, <c>Name</c>, and <c>Uuid</c> all null so the ctor does

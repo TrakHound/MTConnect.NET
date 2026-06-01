@@ -4,7 +4,7 @@
 namespace MTConnect.Configurations
 {
     /// <summary>
-    /// Settings consumed by <see cref="MTConnect.Mqtt.MTConnectMqttDocumentServer"/> that publish
+    /// Settings consumed by <c>MTConnect.Mqtt.MTConnectMqttDocumentServer</c> (defined in the agent MQTT modules) that publish
     /// the full MTConnect response documents (Probe, Current, Sample, Asset) over MQTT rather
     /// than individual observation topics. Configures only the publish cadence; the topic layout
     /// is defined by the concrete configuration class.

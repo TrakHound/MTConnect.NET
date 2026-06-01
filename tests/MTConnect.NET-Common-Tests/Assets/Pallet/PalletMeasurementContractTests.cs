@@ -31,7 +31,7 @@ namespace MTConnect.Tests.Common.Assets.Pallet
     /// </list>
     ///
     /// Sources:
-    /// - SysML XMI: <https://github.com/mtconnect/mtconnect_sysml_model>
+    /// - SysML XMI: https://github.com/mtconnect/mtconnect_sysml_model
     ///   v2.7. The Pallet measurement subclasses sit under UML package
     ///   "Asset Information Model > Pallet > Measurements" with the
     ///   abstract base UML ID

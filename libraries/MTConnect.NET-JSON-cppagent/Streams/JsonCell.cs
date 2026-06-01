@@ -10,7 +10,7 @@ namespace MTConnect.Streams.Json
     /// JSON serialization surrogate for a single cell of a table-entry
     /// observation. Carried inside a <see cref="JsonEntry"/>'s cell
     /// list when expressed as discrete cell objects, before the parent
-    /// <see cref="JsonTableEntries"/> converter collapses cells into
+    /// <see cref="MTConnect.NET_JSON_cppagent.Streams.JsonTableEntries"/> converter collapses cells into
     /// the row dictionary on emission.
     /// </summary>
     public class JsonCell

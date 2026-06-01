@@ -10,7 +10,7 @@ namespace MTConnect.Tests.Common.TestHelpers
     /// <summary>
     /// Walks a Device component tree depth-first and returns the depth
     /// (1-based) of the first <see cref="IComponent"/> whose
-    /// <c>Type</c> equals <paramref name="targetTypeId"/>. Returns
+    /// <c>Type</c> equals the supplied <c>targetTypeId</c>. Returns
     /// <c>-1</c> when the target is not present in the subtree.
     ///
     /// Tests that need to assert tree-depth invariants for the auto-wrap
