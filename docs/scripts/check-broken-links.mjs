@@ -269,7 +269,7 @@ const runWithConcurrency = async (items, limit, worker) => {
         const promise = (async () => worker(item))()
             .catch((error) => {
                 const message = error instanceof Error ? error.message : String(error);
-                recordBrokenLink({ sourceFile: item, position: ZERO_POSITION, url: `<worker failure: ${message}>` });
+                recordBrokenLink({ sourceFile: item, position: ZERO_POSITION, url: `(worker failure: ${message})` });
             })
             .finally(() => inFlight.delete(promise));
         inFlight.add(promise);
