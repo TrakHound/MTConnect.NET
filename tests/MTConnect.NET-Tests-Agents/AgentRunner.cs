@@ -11,6 +11,7 @@ using System.Net.Sockets;
 
 namespace MTConnect.Tests.Agents
 {
+    /// <summary>Represents the agent runner.</summary>
     public class AgentRunner : IDisposable
     {
         // Generous, CI-safe bounds. The embedded HTTP server's Start() is
@@ -27,20 +28,32 @@ namespace MTConnect.Tests.Agents
         private readonly string _hostname;
         private readonly int _port;
 
+        /// <summary>Gets or sets the agent.</summary>
         public MTConnectAgentBroker Agent => _agent;
 
+        /// <summary>Gets or sets the http server.</summary>
         public MTConnectHttpServer HttpServer => _httpServer;
 
+        /// <summary>Gets or sets the devices.</summary>
         public IEnumerable<IDevice> Devices => _devices;
 
+        /// <summary>Gets or sets the hostname.</summary>
         public string Hostname => _hostname;
 
+        /// <summary>Gets or sets the port.</summary>
         public int Port => _port;
 
 
+        /// <summary>Initialises a new instance of the agent runner type.</summary>
+        /// <param name="port">The port.</param>
+        /// <param name="mtconnectVersion">The mtconnect version.</param>
         public AgentRunner(int port, Version? mtconnectVersion = null)
             : this(IPAddress.Loopback.ToString(), port, mtconnectVersion) { }
 
+        /// <summary>Initialises a new instance of the agent runner type.</summary>
+        /// <param name="hostname">The hostname.</param>
+        /// <param name="port">The port.</param>
+        /// <param name="mtconnectVersion">The mtconnect version.</param>
         public AgentRunner(string hostname, int port = 5000, Version? mtconnectVersion = null)
         {
             _hostname = hostname;
@@ -82,6 +95,8 @@ namespace MTConnect.Tests.Agents
 
         // Picks a TCP port the OS confirms is free, so concurrently
         // constructed fixtures never collide on a hard-coded port.
+        /// <summary>Runs the get free port operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public static int GetFreePort()
         {
             var listener = new TcpListener(IPAddress.Loopback, 0);
@@ -96,6 +111,7 @@ namespace MTConnect.Tests.Agents
             }
         }
 
+        /// <summary>Runs the start operation.</summary>
         public void Start()
         {
             _agent.Start();
@@ -107,6 +123,7 @@ namespace MTConnect.Tests.Agents
         // CI-safe bound elapses. Polling the actual endpoint proves end to end
         // that the listener is bound and the agent is serving, removing the
         // start-up race that otherwise lets a client's first request fail.
+        /// <summary>Runs the wait for ready operation.</summary>
         public void WaitForReady()
         {
             var deadline = DateTime.UtcNow.AddMilliseconds(ServerReadyTimeoutMs);
@@ -138,6 +155,7 @@ namespace MTConnect.Tests.Agents
                 + (lastError != null ? $" (last error: {lastError.Message})." : "."));
         }
 
+        /// <summary>Runs the stop operation.</summary>
         public void Stop()
         {
             _agent.Stop();
@@ -172,6 +190,7 @@ namespace MTConnect.Tests.Agents
             }
         }
 
+        /// <summary>Runs the dispose operation.</summary>
         public void Dispose()
         {
             _httpServer.Dispose();
