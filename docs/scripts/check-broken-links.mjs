@@ -96,7 +96,8 @@ const FENCED_CODE_PATTERN = /^([ \t]*)(`{3,}|~{3,})[^\n]*\n[\s\S]*?\n\1\2[ \t]*$
 const stripFencedCode = (content) => content.replace(FENCED_CODE_PATTERN, '');
 
 const computeAnchorSet = async (targetFile) => {
-    const content = await readFile(targetFile, 'utf8');
+    const raw = await readFile(targetFile, 'utf8');
+    const content = raw.replace(/\r\n/g, '\n');
     const processor = unified().use(parse).use(gfm).use(rehype, { allowDangerousHtml: true }).use(slug).use(stringify);
     const tree = await processor.run(processor.parse(content));
     const ids = new Set();
@@ -217,7 +218,8 @@ const checkLink = async ({ sourceFile, url, position, basePath, docsRoot }) => {
 };
 
 const processFile = async (filePath, docsRoot) => {
-    const content = await readFile(filePath, 'utf8');
+    const raw = await readFile(filePath, 'utf8');
+    const content = raw.replace(/\r\n/g, '\n');
     const basePath = dirname(filePath);
 
     const processor = unified().use(parse).use(gfm).use(rehype, { allowDangerousHtml: true }).use(slug).use(stringify);
