@@ -46,6 +46,7 @@ public class DocsReferenceGenerationTests
         }
     }
 
+    /// <summary>Pins the behaviour expressed by the test name: http api page is in sync with source.</summary>
     [Test]
     public void HttpApi_Page_Is_In_Sync_With_Source()
     {
@@ -63,6 +64,7 @@ public class DocsReferenceGenerationTests
         }
     }
 
+    /// <summary>Pins the behaviour expressed by the test name: environment variables page is in sync with source.</summary>
     [Test]
     public void EnvironmentVariables_Page_Is_In_Sync_With_Source()
     {
@@ -79,6 +81,7 @@ public class DocsReferenceGenerationTests
         }
     }
 
+    /// <summary>Pins the behaviour expressed by the test name: configuration page is in sync with source.</summary>
     [Test]
     public void Configuration_Page_Is_In_Sync_With_Source()
     {
@@ -96,6 +99,7 @@ public class DocsReferenceGenerationTests
         }
     }
 
+    /// <summary>Pins the behaviour expressed by the test name: cli page is in sync with source.</summary>
     [Test]
     public void Cli_Page_Is_In_Sync_With_Source()
     {
@@ -120,6 +124,7 @@ public class DocsReferenceGenerationTests
         }
     }
 
+    /// <summary>Pins the behaviour expressed by the test name: endpoint code has no stale entries in markdown.</summary>
     [Test]
     public void Endpoint_Code_Has_No_Stale_Entries_In_Markdown()
     {
@@ -150,6 +155,7 @@ public class DocsReferenceGenerationTests
         }
     }
 
+    /// <summary>Pins the behaviour expressed by the test name: index page is in sync.</summary>
     [Test]
     public void Index_Page_Is_In_Sync()
     {
