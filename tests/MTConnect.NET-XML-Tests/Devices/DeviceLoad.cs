@@ -5,15 +5,18 @@ using NUnit.Framework;
 
 namespace MTConnect.Tests.XML.Devices
 {
+    /// <summary>Represents the device files.</summary>
     public class DeviceFiles
     {
         private const string DevicesDirectory = "Device-Files";
         private const string DevicesFilename = "devices-okuma-lathe.xml";
 
 
+        /// <summary>Sets up the fixture before each test.</summary>
         [SetUp]
         public void Setup() { }
 
+        /// <summary>Pins the behaviour expressed by the test name: load file.</summary>
         [Test]
         public void LoadFile()
         {
@@ -37,6 +40,7 @@ namespace MTConnect.Tests.XML.Devices
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: load files.</summary>
         [Test]
         public void LoadFiles()
         {

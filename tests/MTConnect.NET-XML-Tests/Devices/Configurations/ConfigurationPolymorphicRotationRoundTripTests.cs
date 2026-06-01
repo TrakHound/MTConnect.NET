@@ -30,6 +30,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
     {
         // ---------------- positive: simple Rotation ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: simple rotation serialises to text element.</summary>
         [Test]
         public void Simple_Rotation_serialises_to_text_element()
         {
@@ -44,6 +45,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Not.Contain("<RotationDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: simple rotation deserialises to i rotation.</summary>
         [Test]
         public void Simple_Rotation_deserialises_to_IRotation()
         {
@@ -60,6 +62,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
 
         // ---------------- positive: RotationDataSet ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: rotation data set serialises to keyed entries.</summary>
         [Test]
         public void RotationDataSet_serialises_to_keyed_entries()
         {
@@ -76,6 +79,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Contain("<Entry key=\"C\">30</Entry>"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: rotation data set deserialises to i rotation data set.</summary>
         [Test]
         public void RotationDataSet_deserialises_to_IRotationDataSet()
         {
@@ -98,6 +102,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
 
         // ---------------- negative ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: rotation data set with x key drops value without corruption.</summary>
         [Test]
         public void RotationDataSet_with_X_key_drops_value_without_corruption()
         {
@@ -116,6 +121,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(ds.C, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: empty rotation yields empty string value.</summary>
         [Test]
         public void Empty_Rotation_yields_empty_string_value()
         {
@@ -127,6 +133,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(r.Value, Is.Null.Or.Empty);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null rotation property emits no rotation element.</summary>
         [Test]
         public void Null_rotation_property_emits_no_Rotation_element()
         {
@@ -143,6 +150,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Contain("<Translation>1 2 3</Translation>"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: both rotation and rotation data set present data set wins.</summary>
         [Test]
         public void Both_Rotation_and_RotationDataSet_present_DataSet_wins()
         {
@@ -161,6 +169,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(((IRotationDataSet)t.Rotation).A, Is.EqualTo("9"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null transformation writes nothing.</summary>
         [Test]
         public void Null_transformation_writes_nothing()
         {
@@ -168,6 +177,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Is.Empty);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: rotation writes nothing for null input.</summary>
         [Test]
         public void Rotation_writes_nothing_for_null_input()
         {
@@ -175,6 +185,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Is.Empty);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: rotation data set writes nothing for null input.</summary>
         [Test]
         public void RotationDataSet_writes_nothing_for_null_input()
         {
@@ -182,6 +193,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Is.Empty);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: rotation data set skips null or empty values on write.</summary>
         [Test]
         public void RotationDataSet_skips_null_or_empty_values_on_write()
         {

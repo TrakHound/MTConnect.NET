@@ -10,8 +10,10 @@ using NUnit.Framework;
 
 namespace MTConnect.Tests.XML
 {
+    /// <summary>Represents the xml streams response document tests.</summary>
     public sealed class XmlStreamsResponseDocumentTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: two conditions should be parsed.</summary>
         [Test]
         public void TwoConditionsShouldBeParsed()
         {
