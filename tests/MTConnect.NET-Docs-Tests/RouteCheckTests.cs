@@ -49,6 +49,7 @@ public class RouteCheckTests
     private IBrowser? _browser;
     private string _baseUrl = string.Empty;
     private string _docsRoot = string.Empty;
+    private readonly System.Text.StringBuilder _previewLog = new();
 
     private static string RepoRoot
     {
@@ -74,8 +75,11 @@ public class RouteCheckTests
         // doesn't already exist, run `npm ci && npm run build` from
         // docs/ to produce it. `npm run build` invokes the `prebuild`
         // hook (regenerate api + reference), so the rendered site
-        // matches what CI builds on every push.
-        if (!Directory.Exists(distDir) || !Directory.EnumerateFileSystemEntries(distDir).Any())
+        // matches what CI builds on every push. The presence check
+        // looks for index.html specifically because a partial /
+        // stale dist tree (e.g. just an assets/ subdirectory left
+        // from a prior aborted run) is not a usable preview target.
+        if (!File.Exists(Path.Combine(distDir, "index.html")))
         {
             RunNpm("ci", _docsRoot);
             RunNpm("run build", _docsRoot);
@@ -91,8 +95,8 @@ public class RouteCheckTests
 
         var port = FindFreePort();
         _baseUrl = $"http://127.0.0.1:{port}";
-        _previewServer = StartPreviewServer(port, distDir, _docsRoot);
-        await WaitForServerAsync(port);
+        _previewServer = StartPreviewServer(port, distDir, _docsRoot, _previewLog);
+        await WaitForServerAsync(port, _previewServer, _previewLog);
 
         _playwright = await Playwright.CreateAsync();
         _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
@@ -245,7 +249,7 @@ public class RouteCheckTests
         return port;
     }
 
-    private static Process StartPreviewServer(int port, string distDir, string docsRoot)
+    private static Process StartPreviewServer(int port, string distDir, string docsRoot, System.Text.StringBuilder log)
     {
         // Use `npx vitepress preview` so the local node_modules copy
         // is invoked without needing a global install. On Windows the
@@ -273,27 +277,52 @@ public class RouteCheckTests
         var proc = Process.Start(psi)
             ?? throw new InvalidOperationException("Failed to start `vitepress preview` process");
 
-        // Drain stdout/stderr so the child doesn't block on a full
-        // pipe; discard the output (preview's banner is noise).
+        // Drain stdout/stderr into the shared log buffer so the
+        // child doesn't block on a full pipe and so the readiness
+        // wait can surface the actual error if the preview fails
+        // before binding (e.g. dist/ missing, port collision the
+        // free-port finder lost the race to, vitepress CLI usage
+        // error).
         _ = Task.Run(async () =>
         {
-            try { while (await proc.StandardOutput.ReadLineAsync() is not null) { } }
+            try
+            {
+                string? line;
+                while ((line = await proc.StandardOutput.ReadLineAsync()) is not null)
+                {
+                    lock (log) log.AppendLine("[stdout] " + line);
+                }
+            }
             catch { /* process exited */ }
         });
         _ = Task.Run(async () =>
         {
-            try { while (await proc.StandardError.ReadLineAsync() is not null) { } }
+            try
+            {
+                string? line;
+                while ((line = await proc.StandardError.ReadLineAsync()) is not null)
+                {
+                    lock (log) log.AppendLine("[stderr] " + line);
+                }
+            }
             catch { /* process exited */ }
         });
 
         return proc;
     }
 
-    private static async Task WaitForServerAsync(int port)
+    private static async Task WaitForServerAsync(int port, Process proc, System.Text.StringBuilder log)
     {
         var deadline = DateTime.UtcNow.AddMilliseconds(ServerReadyTimeoutMs);
         while (DateTime.UtcNow < deadline)
         {
+            if (proc.HasExited)
+            {
+                string snapshot;
+                lock (log) snapshot = log.ToString();
+                throw new InvalidOperationException(
+                    $"vitepress preview exited prematurely with code {proc.ExitCode} before binding to 127.0.0.1:{port}.{Environment.NewLine}{snapshot}");
+            }
             try
             {
                 using var client = new TcpClient();
@@ -305,7 +334,10 @@ public class RouteCheckTests
                 await Task.Delay(ServerReadyPollMs);
             }
         }
-        throw new TimeoutException($"vitepress preview did not bind to 127.0.0.1:{port} within {ServerReadyTimeoutMs / 1000}s");
+        string finalSnapshot;
+        lock (log) finalSnapshot = log.ToString();
+        throw new TimeoutException(
+            $"vitepress preview did not bind to 127.0.0.1:{port} within {ServerReadyTimeoutMs / 1000}s.{Environment.NewLine}{finalSnapshot}");
     }
 
     private static void StopPreviewServer(Process? proc)
