@@ -68,6 +68,13 @@ jobs:
       - name: Verify reference pages match source (drift gate)
         run: bash docs/scripts/generate-reference.sh --check
 
+      # upload-artifact@v4 strips the longest common prefix from the path list
+      # (here: 'docs/'), so the artifact root contains 'api/' + 'reference/'
+      # rather than 'docs/api/' + 'docs/reference/'. The downstream
+      # download-artifact steps in the build and check-links jobs restore the
+      # 'docs/' prefix via 'path: docs'. This v4 behaviour differs from v3
+      # (which preserved the upload paths verbatim), so the two ends must stay
+      # in sync if either is touched.
       - name: Upload generated docs
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
