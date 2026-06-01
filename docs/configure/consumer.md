@@ -22,7 +22,7 @@ Each path also accepts a device-scoped prefix: `/MyDevice/probe`, `/MyDevice/cur
 A polling consumer hits `/current` on its own schedule:
 
 ```sh
-curl -s 'http://agent.local:5000/current?deviceName=Mill-1'
+curl -s 'http://agent.local:5000/Mill-1/current'
 ```
 
 The response is `<MTConnectStreams>`; each `<ComponentStream>` carries the most-recent observation per DataItem. Polling is simplest and tolerates network drops gracefully — every poll is independent.
@@ -68,7 +68,7 @@ For a .NET consumer, the [`MTConnectHttpClient`](/api/MTConnect.Clients.MTConnec
 using MTConnect.Clients;
 
 var client = new MTConnectHttpClient("http://agent.local:5000");
-client.OnCurrentReceived += (sender, doc) =>
+client.CurrentReceived += (sender, doc) =>
 {
     foreach (var device in doc.Streams)
     foreach (var component in device.ComponentStreams)
@@ -76,10 +76,10 @@ client.OnCurrentReceived += (sender, doc) =>
         Console.WriteLine($"{component.Name}.{observation.DataItemId} = {observation.Result}");
 };
 
-await client.StartAsync();
+client.Start();
 ```
 
-The client handles reconnects on the consumer's behalf; the `OnError` event fires on transport failures and the client backs off and retries.
+The client handles reconnects on the consumer's behalf; the `ConnectionError` event fires on transport failures and the client backs off and retries. Parsing or dispatch failures surface through `InternalError`.
 
 ## MQTT — the cppagent-parity broker / relay tree
 
