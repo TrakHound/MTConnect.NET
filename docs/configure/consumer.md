@@ -1,16 +1,16 @@
 # Connect a consumer
 
-A running MTConnect agent exposes its device model, observations, and assets over two transports: HTTP (the canonical MTConnect REST protocol) and MQTT (the cppagent-parity broker / relay shape). This page covers both — the endpoints + topics a consumer connects to, the polling vs streaming patterns, and the parsing primitives the library ships for .NET consumers.
+A running MTConnect agent exposes its device model, observations, and assets over two transports: HTTP (the canonical MTConnect REST protocol) and MQTT (the cppagent-parity broker / relay shape). This page covers both—the endpoints + topics a consumer connects to, the polling vs streaming patterns, and the parsing primitives the library ships for .NET consumers.
 
 The previous page, [Run](./run), assumes the agent is up and serving. This page picks up at "the agent is running; how do I read from it?"
 
-## HTTP — the MTConnect REST protocol
+## HTTP—the MTConnect REST protocol
 
 The HTTP server module (`http-server`) exposes four canonical endpoints under the configured port (default `5000`).
 
 | Path | Purpose | Typical use |
 |---|---|---|
-| `/probe` | Returns `<MTConnectDevices>` — the full device model the agent loaded. | Discovery; the consumer reads this once at startup to learn the available DataItems. |
+| `/probe` | Returns `<MTConnectDevices>`—the full device model the agent loaded. | Discovery; the consumer reads this once at startup to learn the available DataItems. |
 | `/current` | Returns `<MTConnectStreams>` with the most-recent observation per DataItem. | Snapshot of the live state. |
 | `/sample` | Returns `<MTConnectStreams>` with every observation in a sequence range. | Time-series replay; pagination via the `nextSequence` cursor in the response Header. |
 | `/asset/<assetId>` | Returns `<MTConnectAssets>` carrying one asset. | Asset retrieval by ID. The `/assets` endpoint (no ID) returns every active asset. |
@@ -25,7 +25,7 @@ A polling consumer hits `/current` on its own schedule:
 curl -s 'http://agent.local:5000/Mill-1/current'
 ```
 
-The response is `<MTConnectStreams>`; each `<ComponentStream>` carries the most-recent observation per DataItem. Polling is simplest and tolerates network drops gracefully — every poll is independent.
+The response is `<MTConnectStreams>`; each `<ComponentStream>` carries the most-recent observation per DataItem. Polling is simplest and tolerates network drops gracefully—every poll is independent.
 
 ### Streaming
 
@@ -37,7 +37,7 @@ curl -N 'http://agent.local:5000/sample?from=12345&interval=100&heartbeat=10000'
 
 The server emits an HTTP `multipart/x-mixed-replace` stream; each part is one `<MTConnectStreams>` envelope. Disconnects are detected via the heartbeat (the agent sends a heartbeat chunk every `heartbeat` ms when no observations are pending); a consumer that misses a heartbeat reconnects from the last seen `nextSequence`.
 
-The MTConnect Standard caps the maximum `interval` to keep slow consumers from monopolizing the connection. The current agent honors the spec minimum / maximum at [Part 1.0 — HTTP protocol on docs.mtconnect.org](https://docs.mtconnect.org/) (see [Compliance: Wire format](/compliance/wire-format)).
+The MTConnect Standard caps the maximum `interval` to keep slow consumers from monopolizing the connection. The current agent honors the spec minimum / maximum at [Part 1.0—HTTP protocol on docs.mtconnect.org](https://docs.mtconnect.org/) (see [Compliance: Wire format](/compliance/wire-format)).
 
 ### Spec-version negotiation
 
@@ -47,7 +47,7 @@ A `version=` query parameter pins the envelope shape:
 curl -s 'http://agent.local:5000/probe?version=2.5'
 ```
 
-Without `version=`, the agent serves its `defaultVersion` (from `agent.config.yaml`, defaulting to `MTConnectVersions.Max`). The version pin determines which DataItems / Asset types / Component types are pruned out of the response — the library walks each entity's `MinimumVersion` / `MaximumVersion` and emits only what the requested version supports.
+Without `version=`, the agent serves its `defaultVersion` (from `agent.config.yaml`, defaulting to `MTConnectVersions.Max`). The version pin determines which DataItems / Asset types / Component types are pruned out of the response—the library walks each entity's `MinimumVersion` / `MaximumVersion` and emits only what the requested version supports.
 
 ### Content-type negotiation
 
@@ -79,11 +79,11 @@ client.CurrentReceived += (sender, doc) =>
 client.Start();
 ```
 
-`CurrentReceived` fires once on stream initialization — `Start()` drives the `/sample` long-poll, not periodic `/current` polling. For periodic snapshots, call `GetCurrent()` directly on a timer; for the streaming case, subscribe to `SampleReceived`.
+`CurrentReceived` fires once on stream initialization—`Start()` drives the `/sample` long-poll, not periodic `/current` polling. For periodic snapshots, call `GetCurrent()` directly on a timer; for the streaming case, subscribe to `SampleReceived`.
 
 The client handles reconnects on the consumer's behalf; the `ConnectionError` event fires on transport failures and the client backs off and retries. Parsing or dispatch failures surface through `InternalError`.
 
-## MQTT — the cppagent-parity broker / relay tree
+## MQTT—the cppagent-parity broker / relay tree
 
 When the agent runs an `mqtt-broker` module or relays through `mqtt-relay`, every observation is published to an MQTT topic in the [cppagent JSON v2 MQTT](/wire-formats/json-v2-cppagent-mqtt) shape. Two topic layouts are published in parallel: the document-server layout (whole-envelope publishes keyed by device) from [`MTConnect.MTConnectMqttDocumentServer`](/api/MTConnect.MTConnectMqttDocumentServer), and the entity-server layout (per-data-item, per-asset publishes) from [`MTConnect.Clients.MTConnectMqttEntityServer`](/api/MTConnect.Clients.MTConnectMqttEntityServer).
 
@@ -91,10 +91,10 @@ Document-server topics (envelope payloads, one publish per device):
 
 | Topic | Payload | Retained |
 |---|---|---|
-| `MTConnect/Probe/<deviceUuid>` | `<MTConnectDevices>` envelope for one device | Yes — late subscribers immediately receive the device model. |
-| `MTConnect/Current/<deviceUuid>` | `<MTConnectStreams>` snapshot for one device | Yes — late subscribers receive the most-recent state. |
-| `MTConnect/Sample/<deviceUuid>` | `<MTConnectStreams>` delta since the last publish | No — pure event stream. |
-| `MTConnect/Asset/<deviceUuid>/<assetId>` | Asset payload for one asset | Yes — late subscribers receive every active asset. |
+| `MTConnect/Probe/<deviceUuid>` | `<MTConnectDevices>` envelope for one device | Yes—late subscribers immediately receive the device model. |
+| `MTConnect/Current/<deviceUuid>` | `<MTConnectStreams>` snapshot for one device | Yes—late subscribers receive the most-recent state. |
+| `MTConnect/Sample/<deviceUuid>` | `<MTConnectStreams>` delta since the last publish | No—pure event stream. |
+| `MTConnect/Asset/<deviceUuid>/<assetId>` | Asset payload for one asset | Yes—late subscribers receive every active asset. |
 
 Entity-server topics (per-data-item, per-asset payloads):
 
@@ -170,15 +170,15 @@ The three patterns trade off in predictable ways:
 
 ## Spec-source-of-record
 
-The HTTP REST protocol is documented at [`Part_1.0` REST API](https://docs.mtconnect.org/) (the MTConnect Standard's normative prose). The library's compliance posture is tracked under [Compliance: Wire format](/compliance/wire-format). The JSON v2 MQTT shape is the cppagent reference implementation's broker output — see the [Compliance: Known divergences](/compliance/known-divergences) page for current parity gaps.
+The HTTP REST protocol is documented at [`Part_1.0` REST API](https://docs.mtconnect.org/) (the MTConnect Standard's normative prose). The library's compliance posture is tracked under [Compliance: Wire format](/compliance/wire-format). The JSON v2 MQTT shape is the cppagent reference implementation's broker output—see the [Compliance: Known divergences](/compliance/known-divergences) page for current parity gaps.
 
 ## See also
 
-- [Configure an agent](./agent-config) — the agent's HTTP / MQTT module configuration.
-- [Configure an adapter](./adapter-config) — adapter-side configuration for SHDR-chain consumers tracing back to the equipment.
-- [Run](./run) — starting the agent the consumer connects to.
-- [Operate](./operate) — observability and operational signals on the agent side.
-- [Cookbook: Write a JSON-MQTT consumer](/cookbook/write-a-json-mqtt-consumer) — end-to-end MQTT consumer walkthrough.
-- [Wire formats: XML](/wire-formats/xml) — the canonical wire format.
-- [Wire formats: JSON-CPPAGENT (v2)](/wire-formats/json-v2-cppagent) — the JSON v2 wire format.
-- [Wire formats: JSON-CPPAGENT-MQTT](/wire-formats/json-v2-cppagent-mqtt) — the MQTT topic + payload shape.
+- [Configure an agent](./agent-config)—the agent's HTTP / MQTT module configuration.
+- [Configure an adapter](./adapter-config)—adapter-side configuration for SHDR-chain consumers tracing back to the equipment.
+- [Run](./run)—starting the agent the consumer connects to.
+- [Operate](./operate)—observability and operational signals on the agent side.
+- [Cookbook: Write a JSON-MQTT consumer](/cookbook/write-a-json-mqtt-consumer)—end-to-end MQTT consumer walkthrough.
+- [Wire formats: XML](/wire-formats/xml)—the canonical wire format.
+- [Wire formats: JSON-CPPAGENT (v2)](/wire-formats/json-v2-cppagent)—the JSON v2 wire format.
+- [Wire formats: JSON-CPPAGENT-MQTT](/wire-formats/json-v2-cppagent-mqtt)—the MQTT topic + payload shape.

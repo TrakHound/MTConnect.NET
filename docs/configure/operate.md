@@ -1,8 +1,8 @@
 # Operate
 
-This page covers the operational surface of a running agent or adapter — logs (where they land, what each logger reports), metrics (observation rate, asset count), health checks, reload + restart semantics, and durable-buffer handling. It is the page an on-call operator opens at 03:00 when something is unhappy.
+This page covers the operational surface of a running agent or adapter—logs (where they land, what each logger reports), metrics (observation rate, asset count), health checks, reload + restart semantics, and durable-buffer handling. It is the page an on-call operator opens at 03:00 when something is unhappy.
 
-The previous page, [Connect a consumer](./consumer), covers the data plane. This page covers the control plane — everything the operator (not the consumer) needs to know.
+The previous page, [Connect a consumer](./consumer), covers the data plane. This page covers the control plane—everything the operator (not the consumer) needs to know.
 
 ## Logs
 
@@ -14,14 +14,14 @@ Logging is provided by NLog. The shipped `NLog.config` next to the agent / adapt
 | `agent-logger` | Agent broker internals (device add, observation enqueue, buffer events). | `logs/agent-<YYYY-MM-DD>.log` |
 | `agent-validation` | Input validation issues (rejected observations, type mismatches). | `logs/agent-validation-<YYYY-MM-DD>.log` |
 | `agent-metrics` | Periodic agent-metrics emitter (observation rate, asset rate). | Routed to its own file when configured; otherwise rolls into `agent-`. |
-| `modules.<module-id>` | One file per loaded module (the logger name is `modules.` prefixed onto the module key — `modules.mqtt-relay`, `modules.shdr-adapter`, etc.). | `logs/modules.<module-id>-<YYYY-MM-DD>.log` |
+| `modules.<module-id>` | One file per loaded module (the logger name is `modules.` prefixed onto the module key—`modules.mqtt-relay`, `modules.shdr-adapter`, etc.). | `logs/modules.<module-id>-<YYYY-MM-DD>.log` |
 | `processors.<processor-id>` | One file per loaded processor (e.g. `processors.agent-processor-python`). | `logs/processors.<processor-id>-<YYYY-MM-DD>.log` |
 
-Every file rolls daily and keeps 90 archives by default. Edit `NLog.config` to raise the archive count, change the layout, or add a Syslog / TCP / cloud target — the shipped configuration is intended as a working starting point, not a frozen contract.
+Every file rolls daily and keeps 90 archives by default. Edit `NLog.config` to raise the archive count, change the layout, or add a Syslog / TCP / cloud target—the shipped configuration is intended as a working starting point, not a frozen contract.
 
 ### Raising the console log level
 
-The `debug` and `trace` CLI verbs (see [Run](./run)) raise the console-target log level on a single foreground run without editing `NLog.config`. For a service deployment, edit `NLog.config` directly — to pick up edits without a process restart, set `autoReload="true"` on the `<nlog>` root element (this is NLog's hot-reload lever; the shipped configuration leaves it off so an edit-and-restart cycle is the default).
+The `debug` and `trace` CLI verbs (see [Run](./run)) raise the console-target log level on a single foreground run without editing `NLog.config`. For a service deployment, edit `NLog.config` directly—to pick up edits without a process restart, set `autoReload="true"` on the `<nlog>` root element (this is NLog's hot-reload lever; the shipped configuration leaves it off so an edit-and-restart cycle is the default).
 
 ### NLog at a glance
 
@@ -31,7 +31,7 @@ The shipped file targets use the layout:
 ${longdate}|${event-properties:item=EventId_Id:whenEmpty=0}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}
 ```
 
-Pipe-separated; columns are time, event-ID, level, logger, message + optional exception. The format ingests cleanly into typical log-aggregation pipelines (Elastic / Loki / Datadog) — point a parser at the `logs/` directory and parse on the pipe character.
+Pipe-separated; columns are time, event-ID, level, logger, message + optional exception. The format ingests cleanly into typical log-aggregation pipelines (Elastic / Loki / Datadog)—point a parser at the `logs/` directory and parse on the pipe character.
 
 ## Metrics
 
@@ -44,7 +44,7 @@ agent-metrics | Debug | Assets - Delta for last 10 seconds: 0
 agent-metrics | Debug | Assets - Average for last 5 minutes: 0.13
 ```
 
-The metrics emitter is gated by a single switch — `enableMetrics: true` in `agent.config.yaml` (the shipped default; set to `false` to suppress the periodic emits entirely). The tick interval and the rolling-window length are fixed at construction time by the agent host; the YAML surface does not expose them today.
+The metrics emitter is gated by a single switch—`enableMetrics: true` in `agent.config.yaml` (the shipped default; set to `false` to suppress the periodic emits entirely). The tick interval and the rolling-window length are fixed at construction time by the agent host; the YAML surface does not expose them today.
 
 For machine-readable metrics, query the agent's `/probe` self-describing Agent Device when `enableAgentDevice: true` is set. The Agent Device emits `AVAILABILITY`, `ASSET_CHANGED`, `ASSET_REMOVED`, `MTCONNECT_VERSION`, and a battery of internal observations. Probes / current / sample work on the Agent Device the same way as any other device:
 
@@ -68,8 +68,8 @@ A `200` confirms the HTTP server is responding without exercising any device-mod
 
 The agent supports two restart shapes:
 
-1. **Soft reload** — set `monitorConfigurationFiles: true` in `agent.config.yaml`. The agent watches `agent.config.yaml` and every `Devices.xml` file under `devices:` and reloads automatically when any of them changes (debounced by `configurationFileRestartInterval`, default 2 seconds). The HTTP server keeps its port; existing long-poll connections are gracefully closed and reconnect from the consumer side.
-2. **Hard restart** — the OS-level mechanism: `systemctl restart mtconnect-agent` on Linux; `sc stop / sc start MTConnect.NET-Agent` (or the bundled `MTConnect.NET-Agent stop` + `start` verbs) on Windows.
+1. **Soft reload**—set `monitorConfigurationFiles: true` in `agent.config.yaml`. The agent watches `agent.config.yaml` and every `Devices.xml` file under `devices:` and reloads automatically when any of them changes (debounced by `configurationFileRestartInterval`, default 2 seconds). The HTTP server keeps its port; existing long-poll connections are gracefully closed and reconnect from the consumer side.
+2. **Hard restart**—the OS-level mechanism: `systemctl restart mtconnect-agent` on Linux; `sc stop / sc start MTConnect.NET-Agent` (or the bundled `MTConnect.NET-Agent stop` + `start` verbs) on Windows.
 
 The soft reload preserves the in-memory buffer; the hard restart loses it unless `durable: true` is set (see below).
 
@@ -95,8 +95,8 @@ Operational notes:
 
 ## See also
 
-- [Install](./install) — installer / package bring-up that this page assumes is complete.
-- [Configure an adapter](./adapter-config) — adapter-side `adapter.config.yaml` reference; an unhappy adapter is the most common driver of an unhappy agent.
-- [Run](./run) — starting and stopping the agent.
-- [Connect a consumer](./consumer) — the consumer side of the running agent.
-- [Configure an agent](./agent-config) — every `agent.config.yaml` key including the operational ones (`durable`, `metrics`, `monitorConfigurationFiles`).
+- [Install](./install)—installer / package bring-up that this page assumes is complete.
+- [Configure an adapter](./adapter-config)—adapter-side `adapter.config.yaml` reference; an unhappy adapter is the most common driver of an unhappy agent.
+- [Run](./run)—starting and stopping the agent.
+- [Connect a consumer](./consumer)—the consumer side of the running agent.
+- [Configure an agent](./agent-config)—every `agent.config.yaml` key including the operational ones (`durable`, `metrics`, `monitorConfigurationFiles`).
