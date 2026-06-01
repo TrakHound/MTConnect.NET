@@ -81,7 +81,7 @@ When `durable: true` is set, the agent writes its observation buffer pages to `d
 
 Operational notes:
 
-- The buffer directory grows with `observationBufferSize` * the per-observation page size; provision disk accordingly. The shipped default of `observationBufferSize: 150000` typically occupies tens of megabytes.
+- The buffer directory grows with `observationBufferSize` * the per-observation page size; provision disk accordingly. The shipped default of `observationBufferSize: 131072` typically occupies tens of megabytes.
 - A corrupted buffer (truncated page, disk-full mid-write) prevents startup. The `reset` CLI verb (see [Run](./run)) wipes the buffer and clears the instance state so the agent can boot fresh.
 - The buffer is not backed up to off-machine storage by default. For deployments where buffer survival across machine failure matters, snapshot the `buffer/` directory through the usual filesystem-snapshot machinery (LVM, ZFS, EBS snapshots).
 
@@ -99,5 +99,3 @@ Operational notes:
 - [Run](./run) — starting and stopping the agent.
 - [Connect a consumer](./consumer) — the consumer side of the running agent.
 - [Configure an agent](./agent-config) — every `agent.config.yaml` key including the operational ones (`durable`, `metrics`, `monitorConfigurationFiles`).
-- [Troubleshooting overview](/troubleshooting/) — diagnosis playbooks for the common failure modes.
-- [Concepts: Agent validation events](/concepts/agent-validation-events) — the in-process event family the `agent-validation` logger writes from.
