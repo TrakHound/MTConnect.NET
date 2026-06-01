@@ -8,7 +8,7 @@ The previous pages — [Install](./install), [Configure an agent](./agent-config
 
 The shipped agent (`MTConnect.NET-Agent`) and adapter (`MTConnect.NET-Adapter`) accept the same command set. Each verb maps to a behavior the underlying [`MTConnectAgentApplication`](/api/MTConnect.Applications.MTConnectAgentApplication) (or the adapter equivalent) implements.
 
-| Verb | Behaviour |
+| Verb | Behavior |
 |---|---|
 | `run` | Foreground execution with the standard log levels. The default when no verb is passed. |
 | `debug` | Foreground execution with the console log level raised to `Debug` for the duration of the run. |
