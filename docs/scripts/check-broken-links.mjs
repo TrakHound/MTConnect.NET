@@ -50,8 +50,20 @@ const isSkippedDir = (parentPath, name) => {
     return false;
 };
 
+// Directories the walker could not read (permission tweak mid-run, race
+// condition on a transient checkout) are recorded here and surfaced at
+// report time so the operator sees what was skipped.
+const skippedDirectories = [];
+
 const getMarkdownFiles = async (directory) => {
-    const entries = await readdir(directory, { withFileTypes: true });
+    let entries;
+    try {
+        entries = await readdir(directory, { withFileTypes: true });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        skippedDirectories.push({ directory, message });
+        return [];
+    }
     const markdownFiles = [];
 
     for (const entry of entries) {
@@ -244,6 +256,9 @@ const processFile = async (filePath, docsRoot) => {
 // Bounded concurrency for the file walk. The original serial loop was the
 // single biggest contributor to runtime; running ~ cpu-count parses at
 // once cuts the 2k-file pass materially without overwhelming the FS cache.
+// Every launched promise carries its own .catch so a transient rejection
+// (FS hiccup mid-parse, etc.) does not leak as an unhandled rejection nor
+// abort the rest of the pass.
 const runWithConcurrency = async (items, limit, worker) => {
     const queue = items.slice();
     const inFlight = new Set();
@@ -251,7 +266,12 @@ const runWithConcurrency = async (items, limit, worker) => {
     const launch = () => {
         if (queue.length === 0) return null;
         const item = queue.shift();
-        const promise = (async () => worker(item))().finally(() => inFlight.delete(promise));
+        const promise = (async () => worker(item))()
+            .catch((error) => {
+                const message = error instanceof Error ? error.message : String(error);
+                recordBrokenLink({ sourceFile: item, position: ZERO_POSITION, url: `<worker failure: ${message}>` });
+            })
+            .finally(() => inFlight.delete(promise));
         inFlight.add(promise);
         return promise;
     };
@@ -301,6 +321,14 @@ const checkLinks = async ({ root }) => {
 };
 
 const reportAndExit = (docsRoot) => {
+    if (skippedDirectories.length > 0) {
+        console.error(`Skipped ${skippedDirectories.length} directories that could not be read:`);
+        for (const skipped of skippedDirectories) {
+            const rel = relative(docsRoot, skipped.directory) || skipped.directory;
+            console.error(`  ${rel}: ${skipped.message}`);
+        }
+    }
+
     if (brokenLinks.length === 0) {
         console.info('No broken links found.');
         process.exit(0);
