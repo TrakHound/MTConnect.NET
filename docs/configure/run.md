@@ -33,13 +33,13 @@ The agent reads `agent.config.yaml` from these locations in order, stopping at t
 
 The adapter resolves `adapter.config.yaml` against the same three locations.
 
-The Docker image at `trakhound/mtconnect.net-agent` sets `WORKDIR /app` and expects `agent.config.yaml` to be bind-mounted at `/config/agent.config.yaml`. The image's entry-point passes `/config/agent.config.yaml` to the binary, so a missing bind mount falls through to the shipped default.
+The Docker image at `trakhound/mtconnect.net-agent` sets `WORKDIR /app` and uses `ENTRYPOINT ["dotnet", "agent.dll"]` with a default `CMD ["debug"]`. `agent.config.yaml` is loaded from the `/app` working directory, so a deployment that wants to override the shipped default bind-mounts its own `agent.config.yaml` over `/app/agent.config.yaml`.
 
 ## Local development
 
 ```sh
 # From a source clone.
-dotnet run --project agent/MTConnect.NET-Agent
+dotnet run --project agent/MTConnect.NET-Agent/MTConnect.NET-Agent.csproj
 
 # From an installed package.
 MTConnect.NET-Agent run
@@ -66,16 +66,16 @@ A `<MTConnectDevices>` envelope listing every device the agent loaded confirms e
 ```sh
 docker run --rm -d --name mtc-agent \
   -p 5000:5000 \
-  -v "$PWD/agent.config.yaml:/config/agent.config.yaml:ro" \
-  -v "$PWD/devices:/config/devices:ro" \
+  -v "$PWD/agent.config.yaml:/app/agent.config.yaml:ro" \
+  -v "$PWD/devices:/app/devices:ro" \
   trakhound/mtconnect.net-agent:latest
 ```
 
 Volumes:
 
-- `/config/agent.config.yaml` — the agent's main configuration file.
-- `/config/devices` — the directory the `devices:` key in `agent.config.yaml` points at. Mount as read-only for production deployments; mount read-write only when `monitorConfigurationFiles: true` and the device files must be editable at runtime.
-- `/config/buffer` — durable-buffer storage. Mount only when `durable: true` and the buffer must survive container restarts.
+- `/app/agent.config.yaml` — the agent's main configuration file.
+- `/app/devices` — the directory the `devices:` key in `agent.config.yaml` points at. Mount as read-only for production deployments; mount read-write only when `monitorConfigurationFiles: true` and the device files must be editable at runtime.
+- `/app/buffer` — durable-buffer storage. Mount only when `durable: true` and the buffer must survive container restarts.
 
 The default container exposes port `5000` and runs the `run` verb. Override with `--entrypoint MTConnect.NET-Agent` and a fresh `CMD` to switch to `debug` or `trace` while diagnosing.
 
