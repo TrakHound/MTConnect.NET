@@ -181,17 +181,26 @@ namespace MTConnect.Clients
 
         /// <summary>
         /// A snapshot of the device model received from the most recent Probe response,
-        /// keyed by device UUID. The dictionary is empty until the first probe succeeds,
-        /// and is replaced on every subsequent probe. Each <see cref="IDevice"/>'s
-        /// DataItems carry the fully wired <see cref="IDataItem.Container"/> and
-        /// <see cref="IDataItem.Device"/> back-pointers set during parsing, so consumers
-        /// can walk the component ancestry of any DataItem without re-parsing the
-        /// document.
+        /// keyed by device UUID. The dictionary is empty until the first probe succeeds.
+        /// Each call returns a fresh snapshot reflecting the most recently completed probe;
+        /// previously returned snapshots are unaffected by subsequent probes. Each
+        /// <see cref="IDevice"/>'s DataItems carry the fully wired
+        /// <see cref="IDataItem.Container"/> and <see cref="IDataItem.Device"/>
+        /// back-pointers set during parsing, so consumers can walk the component ancestry
+        /// of any DataItem without re-parsing the document.
         /// </summary>
         /// <remarks>
-        /// The accessor returns an independent copy under the client's internal lock,
-        /// so callers may enumerate the snapshot without synchronising against the
-        /// worker thread that processes subsequent probes.
+        /// <para>
+        /// The dictionary returned by each call is a fresh allocation independent of the
+        /// cache; the <see cref="IDevice"/> values within are shared references to cached
+        /// instances that the client replaces wholesale on each probe. The accessor
+        /// acquires the client's internal lock, so callers may enumerate the snapshot
+        /// without synchronizing against the worker thread that processes subsequent probes.
+        /// </para>
+        /// <para>
+        /// Each access allocates a fresh dictionary. Cache the returned reference if you
+        /// read repeatedly between probes.
+        /// </para>
         /// </remarks>
         public IReadOnlyDictionary<string, IDevice> Devices
         {
@@ -214,6 +223,11 @@ namespace MTConnect.Clients
         /// its DataItems' <see cref="IDataItem.Container"/> and <see cref="IDataItem.Device"/>
         /// back-pointers set, and the agent's <c>InstanceId</c> stamped on each DataItem.
         /// </summary>
+        /// <remarks>
+        /// Handlers fire in document order while the cache is still being populated.
+        /// Subscribe to <see cref="ProbeReceived"/> to receive notification after the full
+        /// probe response has been processed.
+        /// </remarks>
         public event EventHandler<IDevice> DeviceReceived;
 
         /// <summary>
@@ -875,11 +889,7 @@ namespace MTConnect.Clients
                         _devices.Add(outputDevice.Uuid, outputDevice);
                     }
 
-                    // Raise DeviceReceived for each parsed device. The event was
-                    // previously raised against a separate list that was never
-                    // populated, so it did not fire in the field; folding the
-                    // invocation into the populate loop keeps the cache and the
-                    // event in lockstep.
+                    // Fire per-device inside the populate loop so the cache and event stay in lockstep.
                     DeviceReceived?.Invoke(this, outputDevice);
                 }
 
@@ -1122,6 +1132,7 @@ namespace MTConnect.Clients
             outputComponentStream.NativeName = inputComponentStream.NativeName;
             outputComponentStream.Uuid = inputComponentStream.Uuid;
 
+            // Fully-qualified to disambiguate from the Devices property below; the namespace using above is shadowed inside this class.
             if (inputComponentStream.ComponentType == Agent.TypeId || inputComponentStream.ComponentType == MTConnect.Devices.Device.TypeId)
             {
                 outputComponentStream.Component = GetCachedDevice(deviceUuid);
@@ -1178,6 +1189,7 @@ namespace MTConnect.Clients
         {
             if (observations != null && observations.Count() > 0)
             {
+                // Fully-qualified to disambiguate from the Devices property below; the namespace using above is shadowed inside this class.
                 var assetsChanged = observations.Where(o => o.Type.ToUnderscoreUpper() == MTConnect.Devices.DataItems.AssetChangedDataItem.TypeId);
                 if (assetsChanged != null)
                 {
