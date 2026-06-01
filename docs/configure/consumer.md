@@ -173,6 +173,7 @@ The HTTP REST protocol is documented at [`Part_1.0` REST API](https://docs.mtcon
 ## See also
 
 - [Configure an agent](./agent-config) — the agent's HTTP / MQTT module configuration.
+- [Configure an adapter](./adapter-config) — adapter-side configuration for SHDR-chain consumers tracing back to the equipment.
 - [Run](./run) — starting the agent the consumer connects to.
 - [Operate](./operate) — observability and operational signals on the agent side.
 - [Cookbook: Write a JSON-MQTT consumer](/cookbook/write-a-json-mqtt-consumer) — end-to-end MQTT consumer walkthrough.

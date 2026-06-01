@@ -94,6 +94,8 @@ Operational notes:
 
 ## See also
 
+- [Install](./install) — installer / package bring-up that this page assumes is complete.
+- [Configure an adapter](./adapter-config) — adapter-side `adapter.config.yaml` reference; an unhappy adapter is the most common driver of an unhappy agent.
 - [Run](./run) — starting and stopping the agent.
 - [Connect a consumer](./consumer) — the consumer side of the running agent.
 - [Configure an agent](./agent-config) — every `agent.config.yaml` key including the operational ones (`durable`, `metrics`, `monitorConfigurationFiles`).
