@@ -48,7 +48,7 @@ MTConnect.NET-Agent run
 The foreground process logs to stdout. A clean startup ends with the HTTP server module's `Listening at` line:
 
 ```
-agent-logger | Info | Listening at http://*:5000/..
+modules.http-server | Info | Listening at http://*:5000/..
 ```
 
 The agent is then accepting HTTP requests on the configured port (default `5000` from the shipped `agent.config.default.yaml`).
