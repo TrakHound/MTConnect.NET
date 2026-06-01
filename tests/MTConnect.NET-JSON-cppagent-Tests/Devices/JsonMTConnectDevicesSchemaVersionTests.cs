@@ -20,6 +20,8 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices
     [Category("SchemaVersionFromConfiguration")]
     public class JsonMTConnectDevicesSchemaVersionTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: devices envelope schema version equals configured release.</summary>
+        /// <param name="configured">The configured.</param>
         [TestCaseSource(typeof(VersionMatrix), nameof(VersionMatrix.All))]
         public void Devices_envelope_schemaVersion_equals_configured_release(Version configured)
         {

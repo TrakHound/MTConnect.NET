@@ -29,6 +29,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
     {
         // ---------------- positive: Motion + simple Origin ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: simple origin serialises as numeric array on motion.</summary>
         [Test]
         public void Simple_Origin_serialises_as_numeric_array_on_Motion()
         {
@@ -46,6 +47,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(json, Does.Not.Contain("OriginDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: simple origin round trips through numeric array on motion.</summary>
         [Test]
         public void Simple_Origin_round_trips_through_numeric_array_on_Motion()
         {
@@ -67,6 +69,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
 
         // ---------------- positive: Motion + OriginDataSet ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: origin data set serialises as flat pascalcase object on motion.</summary>
         [Test]
         public void OriginDataSet_serialises_as_flat_pascalcase_object_on_Motion()
         {
@@ -83,6 +86,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(json, Does.Contain("\"OriginDataSet\":{\"X\":\"1\",\"Y\":\"2\",\"Z\":\"3\"}"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: origin data set deserialises to i origin data set on motion.</summary>
         [Test]
         public void OriginDataSet_deserialises_to_IOriginDataSet_on_Motion()
         {
@@ -101,6 +105,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
 
         // ---------------- positive: CoordinateSystem ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: simple origin round trips on coordinate system.</summary>
         [Test]
         public void Simple_Origin_round_trips_on_CoordinateSystem()
         {
@@ -120,6 +125,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(((IOrigin)output.Origin).Value, Is.EqualTo("10 20 30"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: origin data set round trips on coordinate system.</summary>
         [Test]
         public void OriginDataSet_round_trips_on_CoordinateSystem()
         {
@@ -140,6 +146,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
 
         // ---------------- negative ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: both origin and origin data set present data set wins.</summary>
         [Test]
         public void Both_Origin_and_OriginDataSet_present_DataSet_wins()
         {
@@ -154,6 +161,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(((IOriginDataSet)motion.Origin).X, Is.EqualTo("9"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json origin data set default constructor yields null components.</summary>
         [Test]
         public void JsonOriginDataSet_default_constructor_yields_null_components()
         {
@@ -163,6 +171,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(ds.X, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json origin data set ctor with null input keeps default values.</summary>
         [Test]
         public void JsonOriginDataSet_ctor_with_null_input_keeps_default_values()
         {
@@ -170,6 +179,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(jo.X, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null coordinate system passed to ctor keeps default values.</summary>
         [Test]
         public void Null_coordinateSystem_passed_to_ctor_keeps_default_values()
         {

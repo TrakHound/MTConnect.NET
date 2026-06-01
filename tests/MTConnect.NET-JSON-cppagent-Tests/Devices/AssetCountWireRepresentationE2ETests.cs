@@ -54,6 +54,7 @@ namespace MTConnect.Tests.JsonCppagent.Devices
     [Category("AssetCountIsDataSet")]
     public class AssetCountWireRepresentationE2ETests
     {
+        /// <summary>Pins the behaviour expressed by the test name: probe response emits exactly one a s s e t c o u n t per device with d a t a s e t representation.</summary>
         [Test]
         public void Probe_response_emits_exactly_one_ASSET_COUNT_per_device_with_DATA_SET_representation()
         {
@@ -133,6 +134,7 @@ namespace MTConnect.Tests.JsonCppagent.Devices
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: probe response for agent device emits exactly one a s s e t c o u n t with d a t a s e t.</summary>
         [Test]
         public void Probe_response_for_agent_device_emits_exactly_one_ASSET_COUNT_with_DATA_SET()
         {
@@ -180,6 +182,7 @@ namespace MTConnect.Tests.JsonCppagent.Devices
                 "Agent device ASSET_COUNT representation is not DATA_SET on the wire.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: probe response string carries no v a l u e representation on any a s s e t c o u n t entry.</summary>
         [Test]
         public void Probe_response_string_carries_no_VALUE_representation_on_any_ASSET_COUNT_entry()
         {

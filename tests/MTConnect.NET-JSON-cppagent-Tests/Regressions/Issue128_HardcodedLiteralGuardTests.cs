@@ -22,6 +22,8 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
         private static readonly Regex HardcodedSchemaVersion =
             new(@"SchemaVersion\s*=\s*""[^""]+""\s*;", RegexOptions.Compiled);
 
+        /// <summary>Pins the behaviour expressed by the test name: source file must not hardcode schema version literal.</summary>
+        /// <param name="relativePath">The relative path.</param>
         [TestCase("Streams/JsonMTConnectStreams.cs")]
         [TestCase("Devices/JsonMTConnectDevices.cs")]
         public void Source_file_must_not_hardcode_schemaVersion_literal(string relativePath)

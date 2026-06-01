@@ -24,6 +24,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
     [TestFixture]
     public class SampleValueWriteStringValueGuardTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: json sample value does not write value directly as string.</summary>
         [Test]
         public void JsonSampleValue_does_not_write_value_directly_as_string()
         {
@@ -49,6 +50,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
                 "not inline string-token writes.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: sample value carrier uses dedicated converter attribute.</summary>
         [Test]
         public void Sample_value_carrier_uses_dedicated_converter_attribute()
         {

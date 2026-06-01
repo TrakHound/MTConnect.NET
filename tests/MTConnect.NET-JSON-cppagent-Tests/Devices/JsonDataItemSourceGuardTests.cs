@@ -29,6 +29,7 @@ namespace MTConnect.Tests.JsonCppagent.Devices
             "libraries/MTConnect.NET-JSON/Devices/JsonDataItem.cs"
         };
 
+        /// <summary>Pins the behaviour expressed by the test name: json data item constructors must not copy name unconditionally.</summary>
         [Test]
         public void JsonDataItem_constructors_must_not_copy_Name_unconditionally()
         {

@@ -36,6 +36,8 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             return doc.RootElement.GetProperty("value").Clone();
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: numeric string sample value emits number token.</summary>
+        /// <param name="numericLiteral">The numeric literal.</param>
         [TestCase("0")]
         [TestCase("42.5")]
         [TestCase("-17.0")]
@@ -52,6 +54,8 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(token.GetDouble(), Is.EqualTo(expected).Within(1e-9));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: double sample value emits number token.</summary>
+        /// <param name="numeric">The numeric.</param>
         [TestCase(42.5)]
         [TestCase(-17.0)]
         [TestCase(0.0)]
@@ -63,6 +67,8 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(token.GetDouble(), Is.EqualTo(numeric).Within(1e-9));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: integer sample value emits number token.</summary>
+        /// <param name="numeric">The numeric.</param>
         [TestCase(0)]
         [TestCase(-1)]
         [TestCase(2147483647)]
@@ -74,6 +80,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(token.GetInt32(), Is.EqualTo(numeric));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: three space string sample value emits string token.</summary>
         [Test]
         public void Three_space_string_sample_value_emits_string_token()
         {
@@ -86,6 +93,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(token.GetString(), Is.EqualTo("1.5 -2.5 3.5"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: unavailable sample value emits string token.</summary>
         [Test]
         public void Unavailable_sample_value_emits_string_token()
         {
@@ -95,6 +103,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(token.GetString(), Is.EqualTo("UNAVAILABLE"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null sample value is omitted.</summary>
         [Test]
         public void Null_sample_value_is_omitted()
         {
@@ -105,6 +114,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
                 "Null Value should be omitted by JsonIgnoreCondition.WhenWritingDefault");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: bool sample value emits string token via invariant format.</summary>
         [Test]
         public void Bool_sample_value_emits_string_token_via_invariant_format()
         {
@@ -117,6 +127,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(token.GetString(), Is.EqualTo("True"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: boxed null is written as null token when emitted.</summary>
         [Test]
         public void Boxed_null_is_written_as_null_token_when_emitted()
         {
@@ -135,6 +146,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(json, Is.EqualTo("null"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: read returns double for number token.</summary>
         [Test]
         public void Read_returns_double_for_number_token()
         {
@@ -151,6 +163,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That((double)result!, Is.EqualTo(42.5).Within(1e-9));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: read returns string for string token.</summary>
         [Test]
         public void Read_returns_string_for_string_token()
         {

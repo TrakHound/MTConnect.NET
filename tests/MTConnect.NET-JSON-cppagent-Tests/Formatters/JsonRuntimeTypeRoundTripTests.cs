@@ -31,6 +31,7 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
     {
         // ---- JsonComponent.ToComponent ----------------------------------
 
+        /// <summary>Pins the behaviour expressed by the test name: json component to component preserves runtime type for typed subclass.</summary>
         [Test]
         public void JsonComponent_ToComponent_preserves_runtime_type_for_typed_subclass()
         {
@@ -64,6 +65,7 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
             Assert.That(roundTripped.Uuid, Is.EqualTo("uuid-axes-1"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json component to component preserves runtime type for controller subclass.</summary>
         [Test]
         public void JsonComponent_ToComponent_preserves_runtime_type_for_Controller_subclass()
         {
@@ -87,6 +89,7 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
 
         // ---- JsonComposition.ToComposition ------------------------------
 
+        /// <summary>Pins the behaviour expressed by the test name: json composition to composition preserves runtime type for typed subclass.</summary>
         [Test]
         public void JsonComposition_ToComposition_preserves_runtime_type_for_typed_subclass()
         {
@@ -118,6 +121,7 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
 
         // ---- JsonCompositions.ToCompositions (latent empty-sink bug) ----
 
+        /// <summary>Pins the behaviour expressed by the test name: json compositions to compositions does not drop compositions on read path.</summary>
         [Test]
         public void JsonCompositions_ToCompositions_does_not_drop_compositions_on_read_path()
         {
@@ -153,6 +157,7 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
 
         // ---- JsonDataItem.ToDataItem (pre-existing CLEAN reference) -----
 
+        /// <summary>Pins the behaviour expressed by the test name: json data item to data item preserves runtime type for typed subclass.</summary>
         [Test]
         public void JsonDataItem_ToDataItem_preserves_runtime_type_for_typed_subclass()
         {
@@ -178,6 +183,7 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
 
         // ---- JsonEventValue.ToObservation -------------------------------
 
+        /// <summary>Pins the behaviour expressed by the test name: json event value to observation preserves runtime type for typed subclass.</summary>
         [Test]
         public void JsonEventValue_ToObservation_preserves_runtime_type_for_typed_subclass()
         {
@@ -206,6 +212,7 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
             Assert.That(observation.DataItemId, Is.EqualTo("msg-1"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json event value to observation preserves runtime type for asset changed.</summary>
         [Test]
         public void JsonEventValue_ToObservation_preserves_runtime_type_for_AssetChanged()
         {
@@ -227,6 +234,7 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
 
         // ---- JsonCondition.ToCondition ----------------------------------
 
+        /// <summary>Pins the behaviour expressed by the test name: json condition to condition preserves type string through envelope.</summary>
         [Test]
         public void JsonCondition_ToCondition_preserves_type_string_through_envelope()
         {

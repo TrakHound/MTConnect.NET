@@ -128,6 +128,7 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: mqtt probe formatter emits full envelope with agent and device keys.</summary>
         [Test]
         public void MqttProbeFormatter_emits_full_envelope_with_Agent_and_Device_keys()
         {
@@ -172,6 +173,7 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
                 "Devices.Device must contain both source Device entries; none may be dropped.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: mqtt probe formatter single device only emits device array only no agent key.</summary>
         [Test]
         public void MqttProbeFormatter_single_device_only_emits_Device_array_only_no_Agent_key()
         {
@@ -203,6 +205,7 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: mqtt probe formatter agent only emits agent array only no device key.</summary>
         [Test]
         public void MqttProbeFormatter_Agent_only_emits_Agent_array_only_no_Device_key()
         {
@@ -232,6 +235,7 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: mqtt probe formatter preserves device order within each array.</summary>
         [Test]
         public void MqttProbeFormatter_preserves_device_order_within_each_array()
         {
@@ -261,6 +265,7 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
                 "Devices.Device[2] must be the third source device.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: mqtt probe formatter emits header and m t connect devices wrapper.</summary>
         [Test]
         public void MqttProbeFormatter_emits_Header_and_MTConnectDevices_wrapper()
         {
@@ -290,6 +295,7 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
             Assert.That(devicesNode.ValueKind, Is.EqualTo(JsonValueKind.Object));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: mqtt probe formatter empty devices returns error result.</summary>
         [Test]
         public void MqttProbeFormatter_empty_devices_returns_error_result()
         {
@@ -306,6 +312,7 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
                 "Empty Devices must yield FormatWriteResult.Error(), not a successful empty envelope.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: mqtt probe formatter indented output option is respected.</summary>
         [Test]
         public void MqttProbeFormatter_indented_output_option_is_respected()
         {
@@ -341,6 +348,7 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
         // and Type-tag intact.
         // ---------------------------------------------------------------
 
+        /// <summary>Pins the behaviour expressed by the test name: mqtt probe formatter round trip envelope preserves multi device shape.</summary>
         [Test]
         public void MqttProbeFormatter_round_trip_envelope_preserves_multi_device_shape()
         {
@@ -384,6 +392,7 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: mqtt probe formatter round trip envelope preserves agent device typing.</summary>
         [Test]
         public void MqttProbeFormatter_round_trip_envelope_preserves_Agent_Device_typing()
         {
@@ -439,6 +448,7 @@ namespace MTConnect.Tests.JsonCppagent.Formatters
                 + "breaks the discriminator round-trip.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: mqtt probe formatter preserves agent name case in envelope output.</summary>
         [Test]
         public void MqttProbeFormatter_preserves_Agent_name_case_in_envelope_output()
         {

@@ -30,6 +30,9 @@ namespace MTConnect.Tests.JsonCppagent
     [Category("ComplianceMatrix")]
     public class JsonHeaderWireShapeE2ETests
     {
+        /// <summary>Pins the behaviour expressed by the test name: envelope carries schema version and test indicator.</summary>
+        /// <param name="envelopeKind">The envelope kind.</param>
+        /// <param name="schemaVersion">The schema version.</param>
         [TestCaseSource(typeof(JsonHeaderWireShapeMatrix), nameof(JsonHeaderWireShapeMatrix.Cases))]
         public void Envelope_carries_schemaVersion_and_testIndicator(string envelopeKind, string schemaVersion)
         {
@@ -67,6 +70,7 @@ namespace MTConnect.Tests.JsonCppagent
             Assert.That(doc.RootElement.GetProperty("testIndicator").GetBoolean(), Is.False);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: streams envelope round trip preserves both fields.</summary>
         [Test]
         public void Streams_envelope_round_trip_preserves_both_fields()
         {
@@ -82,6 +86,7 @@ namespace MTConnect.Tests.JsonCppagent
             Assert.That(roundTripped.TestIndicator, Is.True);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: devices envelope round trip preserves both fields.</summary>
         [Test]
         public void Devices_envelope_round_trip_preserves_both_fields()
         {
@@ -97,6 +102,7 @@ namespace MTConnect.Tests.JsonCppagent
             Assert.That(roundTripped.TestIndicator, Is.True);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: assets envelope round trip preserves both fields.</summary>
         [Test]
         public void Assets_envelope_round_trip_preserves_both_fields()
         {

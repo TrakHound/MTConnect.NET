@@ -14,6 +14,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.TestHelpers
     [TestFixture]
     public class RepoRootLocatorTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: helper class is internal static.</summary>
         [Test]
         public void Helper_class_is_internal_static()
         {
@@ -24,6 +25,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.TestHelpers
                 "RepoRootLocator must be internal to the test project.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: locate returns directory containing solution file.</summary>
         [Test]
         public void Locate_returns_directory_containing_solution_file()
         {

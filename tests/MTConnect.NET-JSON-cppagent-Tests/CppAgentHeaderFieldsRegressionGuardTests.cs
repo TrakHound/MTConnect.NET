@@ -32,6 +32,8 @@ namespace MTConnect.Tests.JsonCppagent
             typeof(JsonAssetsHeader),
         };
 
+        /// <summary>Pins the behaviour expressed by the test name: header dto exposes schema version property.</summary>
+        /// <param name="headerType">The header type.</param>
         [TestCaseSource(nameof(HeaderDtos))]
         public void Header_dto_exposes_schemaVersion_property(System.Type headerType)
         {
@@ -50,6 +52,8 @@ namespace MTConnect.Tests.JsonCppagent
                 $"{headerType.Name}.SchemaVersion must serialize as 'schemaVersion'.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: header dto exposes test indicator property.</summary>
+        /// <param name="headerType">The header type.</param>
         [TestCaseSource(nameof(HeaderDtos))]
         public void Header_dto_exposes_testIndicator_property(System.Type headerType)
         {

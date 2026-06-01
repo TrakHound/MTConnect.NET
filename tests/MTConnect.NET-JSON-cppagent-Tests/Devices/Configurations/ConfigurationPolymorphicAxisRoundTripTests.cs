@@ -31,6 +31,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
     {
         // ---------------- positive: simple Axis ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: simple axis serialises as numeric array.</summary>
         [Test]
         public void Simple_Axis_serialises_as_numeric_array()
         {
@@ -48,6 +49,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(json, Does.Not.Contain("AxisDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: simple axis round trips through numeric array.</summary>
         [Test]
         public void Simple_Axis_round_trips_through_numeric_array()
         {
@@ -70,6 +72,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
 
         // ---------------- positive: AxisDataSet ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: axis data set serialises as flat pascalcase object.</summary>
         [Test]
         public void AxisDataSet_serialises_as_flat_pascalcase_object()
         {
@@ -87,6 +90,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(json, Does.Not.Contain("\"Axis\":["));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: axis data set round trips through flat object.</summary>
         [Test]
         public void AxisDataSet_round_trips_through_flat_object()
         {
@@ -105,6 +109,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
 
         // ---------------- negative ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: both array and dataset present data set wins.</summary>
         [Test]
         public void Both_array_and_dataset_present_DataSet_wins()
         {
@@ -119,6 +124,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(((IAxisDataSet)motion.Axis).X, Is.EqualTo(9.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null axis property emits neither field.</summary>
         [Test]
         public void Null_axis_property_emits_neither_field()
         {
@@ -136,6 +142,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(json, Does.Not.Contain("AxisDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json axis data set default constructor yields zero components.</summary>
         [Test]
         public void JsonAxisDataSet_default_constructor_yields_zero_components()
         {
@@ -147,6 +154,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(ds.Z, Is.EqualTo(0.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json axis data set ctor with null input keeps default values.</summary>
         [Test]
         public void JsonAxisDataSet_ctor_with_null_input_keeps_default_values()
         {
@@ -154,6 +162,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(ja.X, Is.EqualTo(0.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null motion passed to ctor keeps default values.</summary>
         [Test]
         public void Null_motion_passed_to_ctor_keeps_default_values()
         {
@@ -162,6 +171,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(jm.AxisDataSet, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: empty array axis deserialises to null simple axis.</summary>
         [Test]
         public void Empty_array_axis_deserialises_to_null_simple_axis()
         {
@@ -177,6 +187,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(motion.Axis, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: numeric array round trip normalises invariant culture.</summary>
         [Test]
         public void Numeric_array_round_trip_normalises_invariant_culture()
         {
