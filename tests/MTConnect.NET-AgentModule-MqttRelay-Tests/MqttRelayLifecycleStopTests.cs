@@ -24,6 +24,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
     [TestFixture]
     public class MqttRelayLifecycleStopTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: stop servers does not throw when both servers null.</summary>
         [Test]
         public void StopServers_does_not_throw_when_both_servers_null()
         {
@@ -34,6 +35,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 () => MqttRelayLifecycle.StopServers(documentStop: null, entityStop: null));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: stop servers invokes document stop when provided.</summary>
         [Test]
         public void StopServers_invokes_document_stop_when_provided()
         {
@@ -46,6 +48,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 "Document-mode shutdown must invoke the document-server stop action.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: stop servers invokes entity stop when provided.</summary>
         [Test]
         public void StopServers_invokes_entity_stop_when_provided()
         {
@@ -58,6 +61,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 "Entity-mode shutdown must invoke the entity-server stop action.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: stop servers invokes both when both provided.</summary>
         [Test]
         public void StopServers_invokes_both_when_both_provided()
         {
@@ -72,6 +76,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             Assert.That(entityStopped, Is.True);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: stop servers swallows document stop exception and runs entity stop.</summary>
         [Test]
         public void StopServers_swallows_document_stop_exception_and_runs_entity_stop()
         {

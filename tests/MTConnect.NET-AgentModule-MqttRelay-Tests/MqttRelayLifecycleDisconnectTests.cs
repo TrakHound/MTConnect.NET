@@ -29,6 +29,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
     [TestFixture]
     public class MqttRelayLifecycleDisconnectTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: disconnect with timeout returns when disconnect completes.</summary>
         [Test]
         public void DisconnectWithTimeout_returns_when_disconnect_completes()
         {
@@ -45,6 +46,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 "Successful disconnect must not invoke the fault logger.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: disconnect with timeout logs fault when disconnect throws.</summary>
         [Test]
         public void DisconnectWithTimeout_logs_fault_when_disconnect_throws()
         {
@@ -59,6 +61,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 "A faulted disconnect Task must surface its exception to the logger.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: disconnect with timeout returns after timeout when disconnect hangs.</summary>
         [Test]
         public void DisconnectWithTimeout_returns_after_timeout_when_disconnect_hangs()
         {
@@ -77,6 +80,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 "Hung disconnect must bail out near the configured timeout.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: disconnect with timeout does not throw when disconnect factory throws synchronously.</summary>
         [Test]
         public void DisconnectWithTimeout_does_not_throw_when_disconnect_factory_throws_synchronously()
         {
@@ -93,6 +97,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             Assert.That(loggedFault, Is.EqualTo("sync throw"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: disconnect with timeout no ops when disconnect factory is null.</summary>
         [Test]
         public void DisconnectWithTimeout_no_ops_when_disconnect_factory_is_null()
         {
