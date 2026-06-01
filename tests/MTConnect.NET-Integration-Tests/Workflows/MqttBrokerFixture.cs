@@ -32,9 +32,7 @@ namespace MTConnect.Tests.Integration.Workflows
         /// <summary>Gets or sets the host.</summary>
         public string Host => _container?.Hostname ?? "127.0.0.1";
 
-        /// <summary>Runs the port operation.</summary>
-        /// <param name="InternalPort">The internal port.</param>
-        /// <returns>The result of the operation.</returns>
+        /// <summary>Gets the mapped public port the broker is listening on.</summary>
         public int Port => _container?.GetMappedPublicPort(InternalPort)
             ?? throw new InvalidOperationException("Container has not been started.");
 
