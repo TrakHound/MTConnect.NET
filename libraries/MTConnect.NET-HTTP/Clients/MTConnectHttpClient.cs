@@ -179,11 +179,40 @@ namespace MTConnect.Clients
         /// </summary>
         public bool UseStreaming { get; set; }
 
+        /// <summary>
+        /// A snapshot of the device model received from the most recent Probe response,
+        /// keyed by device UUID. The dictionary is empty until the first probe succeeds,
+        /// and is replaced on every subsequent probe. Each <see cref="IDevice"/>'s
+        /// DataItems carry the fully wired <see cref="IDataItem.Container"/> and
+        /// <see cref="IDataItem.Device"/> back-pointers set during parsing, so consumers
+        /// can walk the component ancestry of any DataItem without re-parsing the
+        /// document.
+        /// </summary>
+        /// <remarks>
+        /// The accessor returns an independent copy under the client's internal lock,
+        /// so callers may enumerate the snapshot without synchronising against the
+        /// worker thread that processes subsequent probes.
+        /// </remarks>
+        public IReadOnlyDictionary<string, IDevice> Devices
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return new Dictionary<string, IDevice>(_devices);
+                }
+            }
+        }
+
 
         #region "Events"
 
         /// <summary>
-        /// Raised when a Device is received
+        /// Raised once per parsed device for every Probe response the client receives,
+        /// carrying the fully wired <see cref="IDevice"/> instance — the same instance
+        /// the <see cref="Devices"/> snapshot accessor would return for that UUID — with
+        /// its DataItems' <see cref="IDataItem.Container"/> and <see cref="IDataItem.Device"/>
+        /// back-pointers set, and the agent's <c>InstanceId</c> stamped on each DataItem.
         /// </summary>
         public event EventHandler<IDevice> DeviceReceived;
 
@@ -835,7 +864,6 @@ namespace MTConnect.Clients
                     _cachedDataItems.Clear();
                 }
 
-                var outputDevices = new List<IDevice>();
                 foreach (var device in document.Devices)
                 {
                     var outputDevice = ProcessDevice(document.Header, device);
@@ -846,10 +874,12 @@ namespace MTConnect.Clients
                         _devices.Remove(outputDevice.Uuid);
                         _devices.Add(outputDevice.Uuid, outputDevice);
                     }
-                }
 
-                foreach (var outputDevice in outputDevices)
-                {
+                    // Raise DeviceReceived for each parsed device. The event was
+                    // previously raised against a separate list that was never
+                    // populated, so it did not fire in the field; folding the
+                    // invocation into the populate loop keeps the cache and the
+                    // event in lockstep.
                     DeviceReceived?.Invoke(this, outputDevice);
                 }
 
@@ -1092,7 +1122,7 @@ namespace MTConnect.Clients
             outputComponentStream.NativeName = inputComponentStream.NativeName;
             outputComponentStream.Uuid = inputComponentStream.Uuid;
 
-            if (inputComponentStream.ComponentType == Agent.TypeId || inputComponentStream.ComponentType == Devices.Device.TypeId)
+            if (inputComponentStream.ComponentType == Agent.TypeId || inputComponentStream.ComponentType == MTConnect.Devices.Device.TypeId)
             {
                 outputComponentStream.Component = GetCachedDevice(deviceUuid);
             }
@@ -1148,7 +1178,7 @@ namespace MTConnect.Clients
         {
             if (observations != null && observations.Count() > 0)
             {
-                var assetsChanged = observations.Where(o => o.Type.ToUnderscoreUpper() == Devices.DataItems.AssetChangedDataItem.TypeId);
+                var assetsChanged = observations.Where(o => o.Type.ToUnderscoreUpper() == MTConnect.Devices.DataItems.AssetChangedDataItem.TypeId);
                 if (assetsChanged != null)
                 {
                     foreach (var assetChanged in assetsChanged)
