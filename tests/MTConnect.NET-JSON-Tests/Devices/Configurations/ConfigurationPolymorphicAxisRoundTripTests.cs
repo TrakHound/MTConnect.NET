@@ -27,6 +27,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
     {
         // ---------------- positive: simple Axis ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: simple axis serialises to value field.</summary>
         [Test]
         public void Simple_Axis_serialises_to_value_field()
         {
@@ -44,6 +45,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(json, Does.Not.Contain("axisDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: simple axis deserialises to i axis.</summary>
         [Test]
         public void Simple_Axis_deserialises_to_IAxis()
         {
@@ -60,6 +62,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
 
         // ---------------- positive: AxisDataSet ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: axis data set serialises to xyz flat object.</summary>
         [Test]
         public void AxisDataSet_serialises_to_xyz_flat_object()
         {
@@ -77,6 +80,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(json, Does.Not.Contain("\"axis\":{"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: axis data set deserialises to i axis data set.</summary>
         [Test]
         public void AxisDataSet_deserialises_to_IAxisDataSet()
         {
@@ -95,6 +99,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
 
         // ---------------- negative ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: null axis property emits no axis field.</summary>
         [Test]
         public void Null_axis_property_emits_no_axis_field()
         {
@@ -112,6 +117,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(json, Does.Not.Contain("axisDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: both axis and axis data set present data set wins.</summary>
         [Test]
         public void Both_axis_and_axisDataSet_present_DataSet_wins()
         {
@@ -128,6 +134,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(((IAxisDataSet)motion.Axis).X, Is.EqualTo(9.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: default json axis constructor yields null value.</summary>
         [Test]
         public void Default_JsonAxis_constructor_yields_null_value()
         {
@@ -138,6 +145,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(ax.Value, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: default json axis data set constructor yields zero components.</summary>
         [Test]
         public void Default_JsonAxisDataSet_constructor_yields_zero_components()
         {
@@ -149,6 +157,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(ds.Z, Is.EqualTo(0.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json axis ctor with null input keeps default values.</summary>
         [Test]
         public void JsonAxis_ctor_with_null_input_keeps_default_values()
         {
@@ -157,6 +166,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(ja.Value, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json axis data set ctor with null input keeps default values.</summary>
         [Test]
         public void JsonAxisDataSet_ctor_with_null_input_keeps_default_values()
         {
@@ -165,6 +175,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(ja.X, Is.EqualTo(0.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: round trip preserves axis data set components.</summary>
         [Test]
         public void Round_trip_preserves_AxisDataSet_components()
         {
@@ -187,6 +198,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(ds.Z, Is.EqualTo(3.5));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null motion passed to json motion ctor keeps default values.</summary>
         [Test]
         public void Null_motion_passed_to_JsonMotion_ctor_keeps_default_values()
         {

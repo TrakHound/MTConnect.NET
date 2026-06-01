@@ -26,6 +26,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
     {
         // ---------------- positive: simple Scale ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: simple scale serialises to value field.</summary>
         [Test]
         public void Simple_Scale_serialises_to_value_field()
         {
@@ -42,6 +43,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(json, Does.Not.Contain("scaleDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: simple scale deserialises to i scale.</summary>
         [Test]
         public void Simple_Scale_deserialises_to_IScale()
         {
@@ -57,6 +59,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
 
         // ---------------- positive: ScaleDataSet ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: scale data set serialises to xyz object.</summary>
         [Test]
         public void ScaleDataSet_serialises_to_xyz_object()
         {
@@ -72,6 +75,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(json, Does.Contain("\"scaleDataSet\":{\"x\":1.5,\"y\":2.5,\"z\":3.5}"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: scale data set deserialises to i scale data set.</summary>
         [Test]
         public void ScaleDataSet_deserialises_to_IScaleDataSet()
         {
@@ -90,6 +94,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
 
         // ---------------- negative ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: both scale and scale data set present data set wins.</summary>
         [Test]
         public void Both_scale_and_scaleDataSet_present_DataSet_wins()
         {
@@ -104,6 +109,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(((IScaleDataSet)sm.Scale).X, Is.EqualTo(9.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null scale property emits no scale field.</summary>
         [Test]
         public void Null_scale_property_emits_no_scale_field()
         {
@@ -120,6 +126,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(json, Does.Not.Contain("scaleDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json scale default constructor yields null value.</summary>
         [Test]
         public void JsonScale_default_constructor_yields_null_value()
         {
@@ -130,6 +137,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(s.Value, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json scale data set default constructor yields zero components.</summary>
         [Test]
         public void JsonScaleDataSet_default_constructor_yields_zero_components()
         {
@@ -139,6 +147,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(ds.X, Is.EqualTo(0.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json scale ctor with null input keeps default values.</summary>
         [Test]
         public void JsonScale_ctor_with_null_input_keeps_default_values()
         {
@@ -146,6 +155,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(js.Value, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json scale data set ctor with null input keeps default values.</summary>
         [Test]
         public void JsonScaleDataSet_ctor_with_null_input_keeps_default_values()
         {
@@ -153,6 +163,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(js.X, Is.EqualTo(0.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null solid model passed to ctor keeps default values.</summary>
         [Test]
         public void Null_solidModel_passed_to_ctor_keeps_default_values()
         {

@@ -2,9 +2,11 @@ using NUnit.Framework;
 
 namespace MTConnect.NET_JSON_Tests
 {
+    /// <summary>Pins the behaviour expressed by the test name: sanity tests.</summary>
     [TestFixture]
     public class SanityTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: project loads and references m t connect n e t j s o n.</summary>
         [Test]
         public void Project_loads_and_references_MTConnect_NET_JSON()
         {

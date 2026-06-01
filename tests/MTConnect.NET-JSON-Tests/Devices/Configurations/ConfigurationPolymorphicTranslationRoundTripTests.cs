@@ -28,6 +28,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
     {
         // ---------------- positive: simple Translation ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: simple translation serialises to value field.</summary>
         [Test]
         public void Simple_Translation_serialises_to_value_field()
         {
@@ -42,6 +43,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(json, Does.Not.Contain("translationDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: simple translation deserialises to i translation.</summary>
         [Test]
         public void Simple_Translation_deserialises_to_ITranslation()
         {
@@ -56,6 +58,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
 
         // ---------------- positive: TranslationDataSet ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: translation data set serialises to xyz object.</summary>
         [Test]
         public void TranslationDataSet_serialises_to_xyz_object()
         {
@@ -69,6 +72,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(json, Does.Contain("\"translationDataSet\":{\"x\":\"1\",\"y\":\"2\",\"z\":\"3\"}"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: translation data set deserialises to i translation data set.</summary>
         [Test]
         public void TranslationDataSet_deserialises_to_ITranslationDataSet()
         {
@@ -86,6 +90,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
 
         // ---------------- negative ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: both translation and translation data set present data set wins.</summary>
         [Test]
         public void Both_translation_and_translationDataSet_present_DataSet_wins()
         {
@@ -99,6 +104,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(((ITranslationDataSet)t.Translation).X, Is.EqualTo("9"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json translation default constructor yields null value.</summary>
         [Test]
         public void JsonTranslation_default_constructor_yields_null_value()
         {
@@ -109,6 +115,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(t.Value, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json translation data set default constructor yields null components.</summary>
         [Test]
         public void JsonTranslationDataSet_default_constructor_yields_null_components()
         {
@@ -120,6 +127,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(ds.Z, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json translation ctor with null input keeps default values.</summary>
         [Test]
         public void JsonTranslation_ctor_with_null_input_keeps_default_values()
         {
@@ -127,6 +135,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(jt.Value, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json translation data set ctor with null input keeps default values.</summary>
         [Test]
         public void JsonTranslationDataSet_ctor_with_null_input_keeps_default_values()
         {
@@ -134,6 +143,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(jt.X, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: both translation and rotation data set round trip independently.</summary>
         [Test]
         public void Both_Translation_and_Rotation_DataSet_round_trip_independently()
         {
