@@ -101,17 +101,13 @@ if ! "${skip_build}"; then
     else
       csproj_name="$(basename "${proj_dir}").csproj"
     fi
-    # Suppress only CS1591 (missing XML doc on public surface). Every
-    # other XML-doc warning family is treated as a hard error so the
-    # regen surfaces broken comments rather than silently masking them.
-    # AdditionalNoWarn is honoured by libraries/Directory.Build.props but
-    # not by test/agent/adapter projects, so feed CS1591 to NoWarn
-    # directly to cover the whole tree.
+    # Pass no NoWarn overrides. TreatWarningsAsErrors=true in
+    # Directory.Build.props turns every XML-doc warning — including
+    # CS1591 (missing XML doc on a public surface) — into a build
+    # failure, which is the campaign's 100 % XML-doc-coverage gate.
     dotnet build "${proj_dir}/${csproj_name}" \
       -c Debug \
       -p:GenerateDocumentationFile=true \
-      -p:NoWarn=CS1591 \
-      -p:AdditionalNoWarn=CS1591 \
       --nologo \
       -v:quiet
   done
