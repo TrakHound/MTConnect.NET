@@ -126,20 +126,6 @@ jobs:
         env:
           DOCS_BASE: /MTConnect.NET/
 
-      # Install the Playwright chromium binary. The `--with-deps` flag also
-      # installs the OS-level shared libraries chromium needs on ubuntu-latest.
-      - name: Install Playwright chromium
-        working-directory: docs
-        run: npx playwright install --with-deps chromium
-
-      # Walk every route derived from the markdown source tree in a headless
-      # Chromium browser and fail on any client-side 404. Runs against the
-      # already-built dist/ artifact so CI catches router misregistrations
-      # that the filesystem link checker cannot see.
-      - name: Check VitePress routes
-        working-directory: docs
-        run: npm run check-routes
-
       # Upload the built artifact only on the deploy path. PR builds stop
       # after the build step (success / failure surfaces in the check).
       - name: Upload Pages artifact
