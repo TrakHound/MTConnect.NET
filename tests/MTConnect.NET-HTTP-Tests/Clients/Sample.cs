@@ -11,9 +11,11 @@ namespace MTConnect.Tests.Http.Clients
     // MTConnectHttpServer started by AgentRunner, exercising the HTTP sample
     // request/response path end to end for XML and JSON, all devices, a single
     // device and a device path filter.
+    /// <summary>Pins the behaviour expressed by the test name: sample.</summary>
     [TestFixture]
     public class Sample : HttpClientFixture
     {
+        /// <summary>Pins the behaviour expressed by the test name: run xml.</summary>
         [Test]
         public void RunXml()
         {
@@ -25,6 +27,7 @@ namespace MTConnect.Tests.Http.Clients
             Assert.That(response.Streams.Count(), Is.EqualTo(ExpectedDocumentEntryCount), "XML Sample did not return all device streams");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: run json.</summary>
         [Test]
         public void RunJson()
         {
@@ -36,6 +39,7 @@ namespace MTConnect.Tests.Http.Clients
             Assert.That(response.Streams.Count(), Is.EqualTo(ExpectedDocumentEntryCount), "JSON Sample did not return all device streams");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: run device xml.</summary>
         [Test]
         public void RunDeviceXml()
         {
@@ -47,6 +51,7 @@ namespace MTConnect.Tests.Http.Clients
             Assert.That(response.Streams.FirstOrDefault(o => o.Name == DeviceName), Is.Not.Null, $"XML Sample did not return device {DeviceName}");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: run device json.</summary>
         [Test]
         public void RunDeviceJson()
         {
@@ -58,6 +63,7 @@ namespace MTConnect.Tests.Http.Clients
             Assert.That(response.Streams.FirstOrDefault(o => o.Name == DeviceName), Is.Not.Null, $"JSON Sample did not return device {DeviceName}");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: run device path xml.</summary>
         [Test]
         public void RunDevicePathXml()
         {

@@ -15,22 +15,30 @@ namespace MTConnect.Tests.Http.Clients
     // per fixture removes that contention. AgentRunner.Start() blocks until the
     // server actually answers a Probe, so the first client request never races
     // the fire-and-forget socket bind.
+    /// <summary>Represents the http client fixture.</summary>
     public abstract class HttpClientFixture
     {
+        /// <summary>The hostname.</summary>
         protected const string Hostname = "127.0.0.1";
+        /// <summary>The device name.</summary>
         protected const string DeviceName = "OKUMA-Lathe";
+        /// <summary>The device uuid.</summary>
         protected const string DeviceUuid = "OKUMA.Lathe.123456";
 
+        /// <summary>Gets or sets the agent runner.</summary>
         protected AgentRunner AgentRunner { get; private set; } = null!;
 
+        /// <summary>Gets or sets the port.</summary>
         protected int Port { get; private set; }
 
         // Streams/devices include the implicit Agent device alongside the two
         // device files AgentRunner loads, so a full document carries one more
         // entry than AgentRunner.Devices.
+        /// <summary>Gets or sets the expected document entry count.</summary>
         protected int ExpectedDocumentEntryCount => AgentRunner.Devices.Count() + 1;
 
 
+        /// <summary>Sets up the fixture before each test.</summary>
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
@@ -39,6 +47,7 @@ namespace MTConnect.Tests.Http.Clients
             AgentRunner.Start();
         }
 
+        /// <summary>Tears down the fixture after each test.</summary>
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
