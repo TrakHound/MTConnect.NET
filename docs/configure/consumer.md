@@ -66,6 +66,7 @@ For a .NET consumer, the [`MTConnectHttpClient`](/api/MTConnect.Clients.MTConnec
 
 ```csharp
 using MTConnect.Clients;
+using MTConnect.Observations;
 
 var client = new MTConnectHttpClient("http://agent.local:5000");
 client.CurrentReceived += (sender, doc) =>
@@ -73,7 +74,7 @@ client.CurrentReceived += (sender, doc) =>
     foreach (var device in doc.Streams)
     foreach (var component in device.ComponentStreams)
     foreach (var observation in component.Observations)
-        Console.WriteLine($"{component.Name}.{observation.DataItemId} = {observation.GetValue("Result")}");
+        Console.WriteLine($"{component.Name}.{observation.DataItemId} = {observation.GetValue(ValueKeys.Result)}");
 };
 
 client.Start();
@@ -124,11 +125,12 @@ The [`MTConnectMqttClient`](/api/MTConnect.Clients.MTConnectMqttClient) class is
 
 ```csharp
 using MTConnect.Clients;
+using MTConnect.Observations;
 
 var client = new MTConnectMqttClient("broker.local", 1883);
 client.ObservationReceived += (sender, observation) =>
 {
-    Console.WriteLine($"{observation.DeviceUuid}/{observation.DataItemId} = {observation.GetValue("Result")}");
+    Console.WriteLine($"{observation.DeviceUuid}/{observation.DataItemId} = {observation.GetValue(ValueKeys.Result)}");
 };
 
 client.Start();
