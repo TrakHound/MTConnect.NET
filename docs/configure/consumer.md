@@ -73,7 +73,7 @@ client.CurrentReceived += (sender, doc) =>
     foreach (var device in doc.Streams)
     foreach (var component in device.ComponentStreams)
     foreach (var observation in component.Observations)
-        Console.WriteLine($"{component.Name}.{observation.DataItemId} = {observation.Result}");
+        Console.WriteLine($"{component.Name}.{observation.DataItemId} = {observation.GetValue("Result")}");
 };
 
 client.Start();
@@ -126,7 +126,7 @@ using MTConnect.Clients;
 var client = new MTConnectMqttClient("broker.local", 1883);
 client.ObservationReceived += (sender, observation) =>
 {
-    Console.WriteLine($"{observation.DeviceUuid}/{observation.DataItemId} = {observation.Result}");
+    Console.WriteLine($"{observation.DeviceUuid}/{observation.DataItemId} = {observation.GetValue("Result")}");
 };
 
 client.Start();
