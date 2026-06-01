@@ -68,10 +68,6 @@ jobs:
       - name: Verify reference pages match source (drift gate)
         run: bash docs/scripts/generate-reference.sh --check
 
-      - name: Check internal links
-        working-directory: docs
-        run: npm run check-links
-
       # Only required on push-to-master (deploy path). Computes the correct
       # base-path for the Pages site and writes it where later steps see it.
       - name: Configure GitHub Pages
@@ -91,6 +87,44 @@ jobs:
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
         with:
           path: docs/.vitepress/dist
+
+  check-links:
+    name: Check internal links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d  # v5.0.0
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install docfx
+        run: dotnet tool install -g docfx
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: docs/package-lock.json
+
+      - name: Install dependencies
+        working-directory: docs
+        run: npm ci
+
+      - name: Generate API reference
+        run: bash docs/scripts/generate-api-ref.sh
+
+      - name: Regenerate auto-generated reference pages
+        run: bash docs/scripts/generate-reference.sh
+
+      - name: Check internal links
+        working-directory: docs
+        run: npm run check-links
 
   deploy:
     name: Deploy to GitHub Pages
