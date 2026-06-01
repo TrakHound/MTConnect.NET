@@ -84,13 +84,13 @@ const getMarkdownFiles = async (directory, excludeFragments) => {
 const anchorCache = new Map();
 
 // Tightened raw-HTML id sweep:
-//  - (?<![\w-]) prevents data-id / aria-labelledby from matching the bare
-//    "id=" segment.
+//  - (?<![\w-:]) prevents data-id, aria-labelledby, and any namespaced
+//    *:id (xml:id, etc.) from matching the bare "id=" segment.
 //  - No whitespace in the captured value matches what a real anchor id
 //    would be.
 //  - Fenced code blocks are stripped before the sweep so an id="…" inside
 //    a code sample does not silently expand the anchor set.
-const RAW_ID_PATTERN = /(?<![\w-])id\s*=\s*["']([^"'\s]+)["']/g;
+const RAW_ID_PATTERN = /(?<![\w-:])id\s*=\s*["']([^"'\s]+)["']/g;
 const FENCED_CODE_PATTERN = /^([ \t]*)(`{3,}|~{3,})[^\n]*\n[\s\S]*?\n\1\2[ \t]*$/gm;
 
 const stripFencedCode = (content) => content.replace(FENCED_CODE_PATTERN, '');
