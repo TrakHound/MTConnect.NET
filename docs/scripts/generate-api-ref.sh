@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Generate the API reference Markdown under docs/api/.
 #
-# Compiles every shipped MTConnect.NET library in Release / net8.0,
-# then runs `docfx metadata` against the produced DLLs and XML doc
-# files. The output is a flat tree of `Namespace.Type.md` pages
+# Compiles every committed MTConnect.NET project (libraries, agent and
+# adapter applications and modules, in-tree build / generator tools,
+# examples, the embedded-agent template, and the test suites) in
+# Debug, then runs `docfx metadata` against the produced DLLs and XML
+# doc files. The output is a flat tree of `Namespace.Type.md` pages
 # alongside per-namespace landing pages.
 #
 # Usage:
@@ -24,7 +26,7 @@ for arg in "$@"; do
   case "${arg}" in
     --fast) skip_build=true ;;
     -h|--help)
-      sed -n '2,15p' "${BASH_SOURCE[0]}"
+      sed -n '2,17p' "${BASH_SOURCE[0]}"
       exit 0
       ;;
     *)
@@ -34,6 +36,9 @@ for arg in "$@"; do
   esac
 done
 
+# Path to the project directory. The csproj filename is inferred as
+# "<basename>.csproj" except where overridden in the matching entries
+# of csproj_overrides below.
 projects=(
   "libraries/MTConnect.NET-Common"
   "libraries/MTConnect.NET-DeviceFinder"
@@ -56,21 +61,47 @@ projects=(
   "agent/Modules/MTConnect.NET-AgentModule-MqttBroker"
   "agent/Modules/MTConnect.NET-AgentModule-MqttRelay"
   "agent/Modules/MTConnect.NET-AgentModule-ShdrAdapter"
+  "agent/Processors/MTConnect.NET-AgentProcessor-Python"
   "adapter/MTConnect.NET-Adapter"
   "adapter/MTConnect.NET-Applications-Adapter"
   "adapter/Modules/MTConnect.NET-AdapterModule-MQTT"
   "adapter/Modules/MTConnect.NET-AdapterModule-SHDR"
+  "build/MTConnect.NET-SysML-Import"
+  "build/MTConnect.NET-DocsGen"
+  "build/MTConnect.NET.Builder"
+  "examples/MTConnect.NET-Agent-Embedded"
+  "examples/MTConnect.NET-Client-HTTP"
+  "examples/MTConnect.NET-Client-MQTT"
+  "examples/MTConnect.NET-Client-SHDR"
+  "templates/mtconnect.net-agent/content/MTConnect.NET-Embedded-Agent:Agent.csproj"
+  "tests/Compliance/MTConnect-Compliance-Tests"
+  "tests/MTConnect.NET-AgentModule-MqttRelay-Tests"
+  "tests/MTConnect.NET-Common-Tests"
+  "tests/MTConnect.NET-Docs-Tests"
+  "tests/MTConnect.NET-HTTP-Tests"
+  "tests/MTConnect.NET-Integration-Tests"
+  "tests/MTConnect.NET-JSON-cppagent-Tests"
+  "tests/MTConnect.NET-JSON-Tests"
+  "tests/MTConnect.NET-SHDR-Tests"
+  "tests/MTConnect.NET-Tests-Agents"
+  "tests/MTConnect.NET-XML-Tests"
 )
 
 if ! "${skip_build}"; then
-  echo "==> building projects in Debug for net8.0"
-  # Debug is the multi-target config that compiles ONLY net8.0 on every
-  # project — Release multi-targets net4.6.1..net9.0 and fails on SDKs
-  # that lack the legacy reference assemblies. The reference is content,
-  # not packaged output, so a Debug build is fine.
-  for proj in "${projects[@]}"; do
-    name="$(basename "${proj}")"
-    dotnet build "${proj}/${name}.csproj" \
+  echo "==> building projects in Debug"
+  # Debug is the multi-target config that compiles ONLY net8.0 on
+  # every shipped project — Release multi-targets net4.6.1..net9.0 and
+  # fails on SDKs that lack the legacy reference assemblies. The
+  # reference is content, not packaged output, so a Debug build is
+  # fine.
+  for entry in "${projects[@]}"; do
+    proj_dir="${entry%%:*}"
+    if [[ "${entry}" == *:* ]]; then
+      csproj_name="${entry##*:}"
+    else
+      csproj_name="$(basename "${proj_dir}").csproj"
+    fi
+    dotnet build "${proj_dir}/${csproj_name}" \
       -c Debug \
       -p:GenerateDocumentationFile=true \
       -p:AdditionalNoWarn=CS1591 \
