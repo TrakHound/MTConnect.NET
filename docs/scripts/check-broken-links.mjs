@@ -173,13 +173,20 @@ const firstExistingFile = async (paths, docsRoot) => {
     return undefined;
 };
 
-// Strip the query string before splitting on '#': both '?…#…' and '#…?…'
-// shapes appear in the wild, but the on-disk lookup never cares about
-// either.
+// Split on '#' before stripping '?': both '?…#…' and '#…?…' shapes appear
+// in the wild. Splitting on '#' first preserves the fragment for the
+// 'path?query#anchor' case; the query is then stripped from each side so
+// the on-disk lookup never sees it.
+const stripQuery = (segment) => {
+    const [head] = segment.split('?');
+    return head;
+};
+
 const splitUrl = (url) => {
-    const queryStripped = url.split('?', 1)[0];
-    const [path, ...rest] = queryStripped.split('#');
-    return { path, anchor: rest.length > 0 ? rest.join('#') : '' };
+    const [head, ...frag] = url.split('#');
+    const path = stripQuery(head);
+    const anchor = frag.length > 0 ? stripQuery(frag.join('#')) : '';
+    return { path, anchor };
 };
 
 const checkLink = async ({ sourceFile, url, position, basePath, docsRoot }) => {
