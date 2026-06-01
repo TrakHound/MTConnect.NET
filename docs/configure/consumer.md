@@ -57,9 +57,8 @@ The default content type is `application/xml`. The agent also serves JSON when t
 |---|---|---|
 | `application/xml` (or no `Accept`) | XML | [`MTConnect.Formatters.Xml.XmlResponseDocumentFormatter`](/api/MTConnect.Formatters.Xml.XmlResponseDocumentFormatter) |
 | `application/json` | Legacy JSON v1 | [`MTConnect.Formatters.JsonResponseDocumentFormatter`](/api/MTConnect.Formatters.JsonResponseDocumentFormatter) |
-| `application/mtconnect+json` | JSON v2 (cppagent-parity) | [`MTConnect.Formatters.JsonHttpResponseDocumentFormatter`](/api/MTConnect.Formatters.JsonHttpResponseDocumentFormatter) |
 
-The `accept:` block in the `http-server` module config maps additional content types onto the same codecs (see [Module configuration: HTTP server](/configure/module-config#http-server)).
+The JSON v2 (cppagent-parity) codec is selected via the `documentFormat:` key on the HTTP server module config rather than through HTTP content negotiation; see [Module configuration: HTTP server](/configure/module-config#http-server) for the per-module `accept:` mapping.
 
 ### .NET HTTP client
 
@@ -84,14 +83,24 @@ The client handles reconnects on the consumer's behalf; the `OnError` event fire
 
 ## MQTT — the cppagent-parity broker / relay tree
 
-When the agent runs an `mqtt-broker` module or relays through `mqtt-relay`, every observation is published to an MQTT topic in the [cppagent JSON v2 MQTT](/wire-formats/json-v2-cppagent-mqtt) shape. The topic tree is published by [`MTConnect.MTConnectMqttDocumentServer`](/api/MTConnect.MTConnectMqttDocumentServer).
+When the agent runs an `mqtt-broker` module or relays through `mqtt-relay`, every observation is published to an MQTT topic in the [cppagent JSON v2 MQTT](/wire-formats/json-v2-cppagent-mqtt) shape. Two topic layouts are published in parallel: the document-server layout (whole-envelope publishes keyed by device) from [`MTConnect.MTConnectMqttDocumentServer`](/api/MTConnect.md), and the entity-server layout (per-data-item, per-asset publishes) from [`MTConnect.MTConnectMqttEntityServer`](/api/MTConnect.md).
+
+Document-server topics (envelope payloads, one publish per device):
 
 | Topic | Payload | Retained |
 |---|---|---|
-| `MTConnect/Probe/<deviceUuid>` | `<MTConnectDevices>` payload for one device | Yes — late subscribers immediately receive the device model. |
+| `MTConnect/Probe/<deviceUuid>` | `<MTConnectDevices>` envelope for one device | Yes — late subscribers immediately receive the device model. |
 | `MTConnect/Current/<deviceUuid>` | `<MTConnectStreams>` snapshot for one device | Yes — late subscribers receive the most-recent state. |
-| `MTConnect/Sample/<deviceUuid>/<dataItemId>` | One observation in JSON v2 shape | No — pure event stream. |
-| `MTConnect/Asset/<deviceUuid>/<assetId>` | One asset in JSON v2 shape | Yes — late subscribers receive every active asset. |
+| `MTConnect/Sample/<deviceUuid>` | `<MTConnectStreams>` delta since the last publish | No — pure event stream. |
+| `MTConnect/Asset/<deviceUuid>/<assetId>` | Asset payload for one asset | Yes — late subscribers receive every active asset. |
+
+Entity-server topics (per-data-item, per-asset payloads):
+
+| Topic | Payload |
+|---|---|
+| `MTConnect/Devices/<deviceUuid>/Device` | Single-device document payload. |
+| `MTConnect/Devices/<deviceUuid>/Observations/<dataItemId>` | One observation in JSON v2 shape. |
+| `MTConnect/Devices/<deviceUuid>/Assets/<assetId>` | One asset in JSON v2 shape. |
 
 The `<prefix>/` segment (`MTConnect/` above) is configurable via the `mqtt-broker` / `mqtt-relay` `topicPrefix:` key.
 
@@ -101,10 +110,10 @@ The `<prefix>/` segment (`MTConnect/` above) is configurable via the `mqtt-broke
 mosquitto_sub -h broker.local -t 'MTConnect/#' -v
 ```
 
-Every message the agent publishes flows through. For a single device, narrow the wildcard:
+Every message the agent publishes flows through. For a single device's per-data-item stream:
 
 ```sh
-mosquitto_sub -h broker.local -t 'MTConnect/Sample/Mill-1/#' -v
+mosquitto_sub -h broker.local -t 'MTConnect/Devices/Mill-1/Observations/#' -v
 ```
 
 ### .NET MQTT consumer
@@ -115,12 +124,12 @@ The [`MTConnectMqttClient`](/api/MTConnect.Clients.MTConnectMqttClient) class is
 using MTConnect.Clients;
 
 var client = new MTConnectMqttClient("broker.local", 1883);
-client.ObservationReceived += (deviceUuid, observation) =>
+client.ObservationReceived += (sender, observation) =>
 {
-    Console.WriteLine($"{deviceUuid}/{observation.DataItemId} = {observation.Result}");
+    Console.WriteLine($"{observation.DeviceUuid}/{observation.DataItemId} = {observation.Result}");
 };
 
-await client.StartAsync();
+client.Start();
 ```
 
 See [Cookbook: Write a JSON-MQTT consumer](/cookbook/write-a-json-mqtt-consumer) for an end-to-end consumer including reconnect handling.
@@ -135,13 +144,15 @@ import paho.mqtt.client as mqtt
 
 def on_message(client, userdata, msg):
     payload = json.loads(msg.payload)
-    # JSON v2 sample-topic shape: { "dataItemId": "...", "value": ..., "timestamp": "..." }
-    print(msg.topic, payload)
+    # MTConnect/Devices/+/Observations/<dataItemId> delivers one observation per message.
+    # The topic tail names the data-item; the payload carries the JSON v2 observation body.
+    data_item_id = msg.topic.rsplit('/', 1)[-1]
+    print(data_item_id, payload)
 
 client = mqtt.Client()
 client.on_message = on_message
 client.connect("broker.local", 1883)
-client.subscribe("MTConnect/Sample/#")
+client.subscribe("MTConnect/Devices/+/Observations/#")
 client.loop_forever()
 ```
 
