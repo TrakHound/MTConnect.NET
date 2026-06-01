@@ -91,6 +91,7 @@ namespace MTConnect.Tests.Common.Devices.Components
             return concreteSubclasses;
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: object initializer still sets component name.</summary>
         [Test]
         public void Object_initializer_still_sets_Component_Name()
         {
@@ -98,6 +99,7 @@ namespace MTConnect.Tests.Common.Devices.Components
             Assert.That(component.Name, Is.EqualTo("explicit"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: direct setter still sets component name.</summary>
         [Test]
         public void Direct_setter_still_sets_Component_Name()
         {

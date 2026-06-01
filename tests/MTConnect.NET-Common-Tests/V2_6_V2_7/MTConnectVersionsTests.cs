@@ -17,12 +17,14 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
     //   - Prose: MTConnect Standard `Part_1.0_Overview_v2.7.pdf` section 1 "Versioning"
     //            (the document numbering scheme — v1.0 through v2.7 with v1.9
     //            intentionally skipped — is described here.)
+    /// <summary>Pins the behaviour expressed by the test name: m t connect versions tests.</summary>
     [TestFixture]
     public class MTConnectVersionsTests
     {
         // Source: MTConnect SysML model, tag v2.6.
         // The model's version-list element introduces 2.6 between 2.5 and (later)
         // 2.7 with no in-between fractional versions.
+        /// <summary>Pins the behaviour expressed by the test name: version26 constant equals 2 6.</summary>
         [Test]
         public void Version26_constant_equals_2_6()
         {
@@ -30,6 +32,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
         }
 
         // Source: MTConnect SysML model, tag v2.7.
+        /// <summary>Pins the behaviour expressed by the test name: version27 constant equals 2 7.</summary>
         [Test]
         public void Version27_constant_equals_2_7()
         {
@@ -37,6 +40,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
         }
 
         // Locks Max to Version27 against accidental rollback.
+        /// <summary>Pins the behaviour expressed by the test name: max equals version27.</summary>
         [Test]
         public void Max_equals_Version27()
         {
@@ -48,6 +52,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
         // confirmed by the absence of an XMI tag `v1.9` in
         // `mtconnect/mtconnect_sysml_model` (tags: v2.5 b61907fb78,
         // v2.6 08185447bf, v2.7 25796ac591).
+        /// <summary>Pins the behaviour expressed by the test name: every published version constant is distinct and monotonic.</summary>
         [Test]
         public void Every_published_version_constant_is_distinct_and_monotonic()
         {
@@ -81,6 +86,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
         // Pin that no `Version19` constant exists. Asserts on the named field —
         // silent insertion would invalidate downstream matrices.
         // Source: MTConnect SysML model tag list — no `v1.9` tag.
+        /// <summary>Pins the behaviour expressed by the test name: version19 field does not exist.</summary>
         [Test]
         public void Version19_field_does_not_exist()
         {

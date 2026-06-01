@@ -18,6 +18,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
     [Category("DeviceComponentDefaultsRemoved")]
     public class DeviceCtorDefaultsTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: default constructor leaves id null.</summary>
         [Test]
         public void Default_constructor_leaves_Id_null()
         {
@@ -25,6 +26,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
             Assert.That(device.Id, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: default constructor leaves name null.</summary>
         [Test]
         public void Default_constructor_leaves_Name_null()
         {
@@ -32,6 +34,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
             Assert.That(device.Name, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: default constructor leaves uuid null.</summary>
         [Test]
         public void Default_constructor_leaves_Uuid_null()
         {
@@ -39,6 +42,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
             Assert.That(device.Uuid, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: object initializer still sets id.</summary>
         [Test]
         public void Object_initializer_still_sets_Id()
         {
@@ -46,6 +50,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
             Assert.That(device.Id, Is.EqualTo("device-1"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: object initializer still sets name.</summary>
         [Test]
         public void Object_initializer_still_sets_Name()
         {
@@ -53,6 +58,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
             Assert.That(device.Name, Is.EqualTo("spindle-A"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: object initializer still sets uuid.</summary>
         [Test]
         public void Object_initializer_still_sets_Uuid()
         {
@@ -60,6 +66,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
             Assert.That(device.Uuid, Is.EqualTo("F1"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: sequential default constructors produce identical null identity.</summary>
         [Test]
         public void Sequential_default_constructors_produce_identical_null_identity()
         {
@@ -74,6 +81,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
             Assert.That(second.Uuid, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: default constructor still sets type.</summary>
         [Test]
         public void Default_constructor_still_sets_Type()
         {
@@ -82,6 +90,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
             Assert.That(device.Type, Is.EqualTo(Device.TypeId));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: default constructor still initializes collections.</summary>
         [Test]
         public void Default_constructor_still_initializes_collections()
         {
@@ -92,6 +101,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
             Assert.That(device.Compositions, Is.Not.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: agent default constructor leaves uuid null.</summary>
         [Test]
         public void Agent_default_constructor_leaves_Uuid_null()
         {
@@ -99,6 +109,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
             Assert.That(agent.Uuid, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: agent default constructor leaves id null.</summary>
         [Test]
         public void Agent_default_constructor_leaves_Id_null()
         {
@@ -106,6 +117,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
             Assert.That(agent.Id, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: agent default constructor leaves name null.</summary>
         [Test]
         public void Agent_default_constructor_leaves_Name_null()
         {

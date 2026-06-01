@@ -30,6 +30,7 @@ namespace MTConnect.Tests.Common.Devices.Components
     [Category("ControllersComponentMinimumVersion")]
     public class ControllersComponentMinimumVersionTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: default constructor reports version20.</summary>
         [Test]
         public void Default_Constructor_Reports_Version20()
         {

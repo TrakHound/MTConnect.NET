@@ -64,6 +64,9 @@ namespace MTConnect.Tests.Common.Assets.Pallet
             _palletMeasurements.Select(p => new TestCaseData(p.Type, p.ExpectedTypeId)
                 .SetName($"{{m}}({p.Type.Name})"));
 
+        /// <summary>Pins the behaviour expressed by the test name: type id const equals sys m l class name.</summary>
+        /// <param name="measurementType">The measurement type.</param>
+        /// <param name="expectedTypeId">The expected type id.</param>
         [Test]
         [TestCaseSource(nameof(PalletMeasurementCases))]
         public void TypeId_Const_Equals_SysML_ClassName(Type measurementType, string expectedTypeId)
@@ -85,6 +88,9 @@ namespace MTConnect.Tests.Common.Assets.Pallet
                 $"{measurementType.Name}.TypeId must equal '{expectedTypeId}'");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: code id const is empty.</summary>
+        /// <param name="measurementType">The measurement type.</param>
+        /// <param name="expectedTypeId">The expected type id.</param>
         [Test]
         [TestCaseSource(nameof(PalletMeasurementCases))]
         public void CodeId_Const_Is_Empty(Type measurementType, string expectedTypeId)
@@ -106,6 +112,9 @@ namespace MTConnect.Tests.Common.Assets.Pallet
                 $"{measurementType.Name}.CodeId must be empty for Pallet measurements");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: default constructor stamps type.</summary>
+        /// <param name="measurementType">The measurement type.</param>
+        /// <param name="expectedTypeId">The expected type id.</param>
         [Test]
         [TestCaseSource(nameof(PalletMeasurementCases))]
         public void Default_Constructor_Stamps_Type(Type measurementType, string expectedTypeId)
@@ -120,6 +129,9 @@ namespace MTConnect.Tests.Common.Assets.Pallet
                 $"the default constructor must stamp Type = '{expectedTypeId}'");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: double value constructor stamps type and value.</summary>
+        /// <param name="measurementType">The measurement type.</param>
+        /// <param name="expectedTypeId">The expected type id.</param>
         [Test]
         [TestCaseSource(nameof(PalletMeasurementCases))]
         public void DoubleValue_Constructor_Stamps_Type_And_Value(Type measurementType, string expectedTypeId)
@@ -137,6 +149,9 @@ namespace MTConnect.Tests.Common.Assets.Pallet
                 $"the (double) constructor must stamp Value");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: i measurement constructor copies fields and stamps type.</summary>
+        /// <param name="measurementType">The measurement type.</param>
+        /// <param name="expectedTypeId">The expected type id.</param>
         [Test]
         [TestCaseSource(nameof(PalletMeasurementCases))]
         public void IMeasurement_Constructor_Copies_Fields_And_Stamps_Type(Type measurementType, string expectedTypeId)
@@ -180,6 +195,9 @@ namespace MTConnect.Tests.Common.Assets.Pallet
                 "Units must be copied from source");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: concrete subclass derives from base measurement.</summary>
+        /// <param name="measurementType">The measurement type.</param>
+        /// <param name="expectedTypeId">The expected type id.</param>
         [Test]
         [TestCaseSource(nameof(PalletMeasurementCases))]
         public void Concrete_Subclass_Derives_From_Base_Measurement(Type measurementType, string expectedTypeId)

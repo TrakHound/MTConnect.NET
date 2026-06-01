@@ -50,6 +50,8 @@ namespace MTConnect.Tests.Common.Headers
             return string.Empty;
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: header xmldoc example does not reference stale version 2 5.</summary>
+        /// <param name="relativePath">The relative path.</param>
         [TestCaseSource(nameof(HeaderFileRelativePaths))]
         public void Header_xmldoc_example_does_not_reference_stale_version_2_5(string relativePath)
         {

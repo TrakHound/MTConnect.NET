@@ -27,6 +27,7 @@ namespace MTConnect.Tests.Common.Regressions
     {
         // ---- Device ------------------------------------------------
 
+        /// <summary>Pins the behaviour expressed by the test name: device default constructor leaves identity fields null.</summary>
         [Test]
         public void Device_default_constructor_leaves_identity_fields_null()
         {
@@ -39,6 +40,7 @@ namespace MTConnect.Tests.Common.Regressions
             });
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: agent default constructor leaves identity fields null.</summary>
         [Test]
         public void Agent_default_constructor_leaves_identity_fields_null()
         {
@@ -51,6 +53,7 @@ namespace MTConnect.Tests.Common.Regressions
             });
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: sequential default devices share null uuid.</summary>
         [Test]
         public void Sequential_default_Devices_share_null_Uuid()
         {
@@ -63,6 +66,7 @@ namespace MTConnect.Tests.Common.Regressions
             Assert.That(second.Uuid, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: object initializer continues to set device identity.</summary>
         [Test]
         public void Object_initializer_continues_to_set_Device_identity()
         {
@@ -77,6 +81,7 @@ namespace MTConnect.Tests.Common.Regressions
 
         // ---- Reflection guard --------------------------------------
 
+        /// <summary>Pins the behaviour expressed by the test name: no device subclass default constructor back fills identity.</summary>
         [Test]
         public void No_Device_subclass_default_constructor_back_fills_identity()
         {
@@ -101,6 +106,7 @@ namespace MTConnect.Tests.Common.Regressions
             Assert.That(failures, Is.Empty, string.Join(Environment.NewLine, failures));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: no component subclass default constructor back fills name.</summary>
         [Test]
         public void No_Component_subclass_default_constructor_back_fills_Name()
         {
@@ -125,6 +131,7 @@ namespace MTConnect.Tests.Common.Regressions
             Assert.That(failures, Is.Empty, string.Join(Environment.NewLine, failures));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: reflection guard walks a meaningful set of component subclasses.</summary>
         [Test]
         public void Reflection_guard_walks_a_meaningful_set_of_Component_subclasses()
         {

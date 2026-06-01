@@ -16,6 +16,7 @@ using NUnit.Framework;
 
 namespace MTConnect.Tests.Common.Headers
 {
+    /// <summary>Pins the behaviour expressed by the test name: header version formatting cache tests.</summary>
     [TestFixture]
     public class HeaderVersionFormattingCacheTests
     {
@@ -35,6 +36,7 @@ namespace MTConnect.Tests.Common.Headers
             return (string)formatter.Invoke(null, new object[] { version })!;
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format header version returns same string instance on repeated calls for same version.</summary>
         [Test]
         public void FormatHeaderVersion_returns_same_string_instance_on_repeated_calls_for_same_version()
         {
@@ -48,6 +50,7 @@ namespace MTConnect.Tests.Common.Headers
                 "Repeated calls with the same Version must return the cached string instance, not allocate a new one.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format header version returns same string instance for distinct but equal version instances.</summary>
         [Test]
         public void FormatHeaderVersion_returns_same_string_instance_for_distinct_but_equal_version_instances()
         {
@@ -64,6 +67,7 @@ namespace MTConnect.Tests.Common.Headers
                 "Cache must key on Version equality, not reference identity, so equal Version instances reuse the formatted string.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format header version caches independently per version.</summary>
         [Test]
         public void FormatHeaderVersion_caches_independently_per_version()
         {

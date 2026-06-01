@@ -50,6 +50,8 @@ namespace MTConnect.Tests.Common.Interfaces
 
         private static System.Collections.Generic.IEnumerable<Type> InterfaceDataItemTypes => _interfaceDataItemTypes;
 
+        /// <summary>Pins the behaviour expressed by the test name: interface data item exposes sub types enum.</summary>
+        /// <param name="interfaceDataItemType">The interface data item type.</param>
         [Test]
         [TestCaseSource(nameof(InterfaceDataItemTypes))]
         public void Interface_DataItem_Exposes_SubTypes_Enum(Type interfaceDataItemType)
@@ -62,6 +64,8 @@ namespace MTConnect.Tests.Common.Interfaces
                 $"{interfaceDataItemType.Name}.SubTypes must be an enum");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: interface data item sub types contains request and response.</summary>
+        /// <param name="interfaceDataItemType">The interface data item type.</param>
         [Test]
         [TestCaseSource(nameof(InterfaceDataItemTypes))]
         public void Interface_DataItem_SubTypes_Contains_Request_And_Response(Type interfaceDataItemType)

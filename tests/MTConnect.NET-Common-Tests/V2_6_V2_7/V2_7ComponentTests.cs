@@ -13,9 +13,11 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
     //          (each TypeId appears in the ComponentType enumeration).
     //   - Prose: MTConnect Standard Part_2.0_Devices_v2.7 section 7 "Component
     //          types" — describes intended use of each Component subclass.
+    /// <summary>Pins the behaviour expressed by the test name: v2 7 component tests.</summary>
     [TestFixture]
     public class V2_7ComponentTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: pin tool component constructs with correct type.</summary>
         [Test]
         public void PinToolComponent_constructs_with_correct_type()
         {
@@ -26,6 +28,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
             Assert.That(PinToolComponent.NameId, Is.EqualTo("pinTool"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: tool holder component constructs with correct type.</summary>
         [Test]
         public void ToolHolderComponent_constructs_with_correct_type()
         {

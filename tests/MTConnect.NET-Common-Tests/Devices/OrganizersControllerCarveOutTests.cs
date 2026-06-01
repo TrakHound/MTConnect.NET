@@ -19,10 +19,12 @@ using NUnit.Framework;
 
 namespace MTConnect.Tests.Common.SystemsOrganizer
 {
+    /// <summary>Pins the behaviour expressed by the test name: organizers controller carve out tests.</summary>
     [TestFixture]
     [Category("OrganizersControllerCarveOut")]
     public class OrganizersControllerCarveOutTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: organizers systems does not list controller component.</summary>
         [Test]
         public void Organizers_Systems_does_not_list_ControllerComponent()
         {
@@ -35,6 +37,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 $"both makes `Organizers.GetOrganizerType()` order-dependent.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: organizers controllers lists controller component.</summary>
         [Test]
         public void Organizers_Controllers_lists_ControllerComponent()
         {
@@ -46,6 +49,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 $"`{ControllersComponent.TypeId}`.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: get organizer type for controller resolves to controllers independent of ordering.</summary>
         [Test]
         public void GetOrganizerType_for_Controller_resolves_to_Controllers_independent_of_ordering()
         {
@@ -62,6 +66,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 $"the underlying organizer lookup is implemented.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: controller appears in exactly one organizer list.</summary>
         [Test]
         public void Controller_appears_in_exactly_one_organizer_list()
         {

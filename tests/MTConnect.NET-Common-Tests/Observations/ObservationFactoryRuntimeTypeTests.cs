@@ -40,6 +40,7 @@ namespace MTConnect.Tests.Common.Observations
     {
         // ---- EventObservation.Create(string, DataItemRepresentation) ----
 
+        /// <summary>Pins the behaviour expressed by the test name: event observation create m e s s a g e v a l u e returns message value observation.</summary>
         [Test]
         public void EventObservation_Create_MESSAGE_VALUE_returns_MessageValueObservation()
         {
@@ -63,6 +64,7 @@ namespace MTConnect.Tests.Common.Observations
             // So we deliberately do NOT assert result.Type here.
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: event observation create a s s e t c h a n g e d v a l u e returns asset changed value observation.</summary>
         [Test]
         public void EventObservation_Create_ASSET_CHANGED_VALUE_returns_AssetChangedValueObservation()
         {
@@ -81,6 +83,7 @@ namespace MTConnect.Tests.Common.Observations
                 + "the hostile case for any key-format mismatch.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: event observation create unknown type falls back to event value observation.</summary>
         [Test]
         public void EventObservation_Create_unknown_type_falls_back_to_EventValueObservation()
         {
@@ -96,6 +99,7 @@ namespace MTConnect.Tests.Common.Observations
                 "Unknown EVENT/VALUE types must land on the abstract carrier.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: event observation create d a t a s e t returns event data set observation.</summary>
         [Test]
         public void EventObservation_Create_DATA_SET_returns_EventDataSetObservation()
         {
@@ -112,6 +116,7 @@ namespace MTConnect.Tests.Common.Observations
 
         // ---- SampleObservation.Create(string, DataItemRepresentation) ----
 
+        /// <summary>Pins the behaviour expressed by the test name: sample observation create v a l u e returns sample value observation.</summary>
         [Test]
         public void SampleObservation_Create_VALUE_returns_SampleValueObservation()
         {
@@ -127,6 +132,7 @@ namespace MTConnect.Tests.Common.Observations
                 "SAMPLE/VALUE must hydrate SampleValueObservation.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: sample observation create d a t a s e t returns sample data set observation.</summary>
         [Test]
         public void SampleObservation_Create_DATA_SET_returns_SampleDataSetObservation()
         {
@@ -138,6 +144,7 @@ namespace MTConnect.Tests.Common.Observations
                 "SAMPLE/DATA_SET must hydrate SampleDataSetObservation.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: sample observation create t a b l e returns sample table observation.</summary>
         [Test]
         public void SampleObservation_Create_TABLE_returns_SampleTableObservation()
         {
@@ -149,6 +156,7 @@ namespace MTConnect.Tests.Common.Observations
                 "SAMPLE/TABLE must hydrate SampleTableObservation.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: sample observation create t i m e s e r i e s returns sample time series observation.</summary>
         [Test]
         public void SampleObservation_Create_TIME_SERIES_returns_SampleTimeSeriesObservation()
         {
@@ -162,6 +170,7 @@ namespace MTConnect.Tests.Common.Observations
 
         // ---- ConditionObservation.Create(string, DataItemRepresentation) -
 
+        /// <summary>Pins the behaviour expressed by the test name: condition observation create returns condition observation carrier.</summary>
         [Test]
         public void ConditionObservation_Create_returns_ConditionObservation_carrier()
         {

@@ -16,10 +16,12 @@ using NUnit.Framework;
 
 namespace MTConnect.Tests.Common.SystemsOrganizer
 {
+    /// <summary>Pins the behaviour expressed by the test name: organizers accessors tests.</summary>
     [TestFixture]
     [Category("OrganizersAccessors")]
     public class OrganizersAccessorsTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: components lists every first class organizer.</summary>
         [Test]
         public void Components_lists_every_first_class_organizer()
         {
@@ -40,12 +42,14 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
             Assert.That(Organizers.Components, Is.EquivalentTo(expected));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: adapters lists adapter component.</summary>
         [Test]
         public void Adapters_lists_AdapterComponent()
         {
             Assert.That(Organizers.Adapters, Is.EquivalentTo(new[] { AdapterComponent.TypeId }));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: auxiliaries lists known auxiliary components.</summary>
         [Test]
         public void Auxiliaries_lists_known_auxiliary_components()
         {
@@ -59,6 +63,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
             }));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: axes lists linear and rotary.</summary>
         [Test]
         public void Axes_lists_Linear_and_Rotary()
         {
@@ -69,12 +74,14 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
             }));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: controllers lists controller component.</summary>
         [Test]
         public void Controllers_lists_ControllerComponent()
         {
             Assert.That(Organizers.Controllers, Is.EquivalentTo(new[] { ControllerComponent.TypeId }));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: interfaces lists known interface components.</summary>
         [Test]
         public void Interfaces_lists_known_interface_components()
         {
@@ -87,24 +94,28 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
             }));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: materials lists stock component.</summary>
         [Test]
         public void Materials_lists_StockComponent()
         {
             Assert.That(Organizers.Materials, Is.EquivalentTo(new[] { StockComponent.TypeId }));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: parts lists part occurrence component.</summary>
         [Test]
         public void Parts_lists_PartOccurrenceComponent()
         {
             Assert.That(Organizers.Parts, Is.EquivalentTo(new[] { PartOccurrenceComponent.TypeId }));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: processes lists process occurrence component.</summary>
         [Test]
         public void Processes_lists_ProcessOccurrenceComponent()
         {
             Assert.That(Organizers.Processes, Is.EquivalentTo(new[] { ProcessOccurrenceComponent.TypeId }));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: resources lists known resource components.</summary>
         [Test]
         public void Resources_lists_known_resource_components()
         {
@@ -115,6 +126,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
             }));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: structures lists link component.</summary>
         [Test]
         public void Structures_lists_LinkComponent()
         {
@@ -124,18 +136,22 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
         // GetOrganizerType — exhaustive branch coverage of the else-if chain.
         // Each test names one organizer family and supplies a representative
         // member from that family, so every branch in the chain executes.
+        /// <summary>Pins the behaviour expressed by the test name: get organizer type null input returns null.</summary>
+        /// <param name="typeId">The type id.</param>
         [TestCase(null)]
         public void GetOrganizerType_null_input_returns_null(string? typeId)
         {
             Assert.That(Organizers.GetOrganizerType(typeId), Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: get organizer type unknown type returns null.</summary>
         [Test]
         public void GetOrganizerType_unknown_type_returns_null()
         {
             Assert.That(Organizers.GetOrganizerType("ThisIsNotAnyKnownComponentType"), Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: get organizer type for adapter returns adapters.</summary>
         [Test]
         public void GetOrganizerType_for_adapter_returns_Adapters()
         {
@@ -143,6 +159,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 Is.EqualTo(AdaptersComponent.TypeId));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: get organizer type for auxiliary returns auxiliaries.</summary>
         [Test]
         public void GetOrganizerType_for_auxiliary_returns_Auxiliaries()
         {
@@ -150,6 +167,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 Is.EqualTo(AuxiliariesComponent.TypeId));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: get organizer type for axis returns axes.</summary>
         [Test]
         public void GetOrganizerType_for_axis_returns_Axes()
         {
@@ -157,6 +175,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 Is.EqualTo(AxesComponent.TypeId));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: get organizer type for interface returns interfaces.</summary>
         [Test]
         public void GetOrganizerType_for_interface_returns_Interfaces()
         {
@@ -164,6 +183,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 Is.EqualTo(InterfacesComponent.TypeId));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: get organizer type for material returns materials.</summary>
         [Test]
         public void GetOrganizerType_for_material_returns_Materials()
         {
@@ -171,6 +191,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 Is.EqualTo(MaterialsComponent.TypeId));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: get organizer type for part returns parts.</summary>
         [Test]
         public void GetOrganizerType_for_part_returns_Parts()
         {
@@ -178,6 +199,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 Is.EqualTo(PartsComponent.TypeId));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: get organizer type for process returns processes.</summary>
         [Test]
         public void GetOrganizerType_for_process_returns_Processes()
         {
@@ -185,6 +207,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 Is.EqualTo(ProcessesComponent.TypeId));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: get organizer type for resource returns resources.</summary>
         [Test]
         public void GetOrganizerType_for_resource_returns_Resources()
         {
@@ -192,6 +215,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 Is.EqualTo(ResourcesComponent.TypeId));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: get organizer type for structure returns structures.</summary>
         [Test]
         public void GetOrganizerType_for_structure_returns_Structures()
         {

@@ -26,6 +26,7 @@ using NUnit.Framework;
 
 namespace MTConnect.Tests.Common.SystemsOrganizer
 {
+    /// <summary>Pins the behaviour expressed by the test name: organizers systems end to end tests.</summary>
     [TestFixture]
     [Category("OrganizersSystemsEndToEnd")]
     public class OrganizersSystemsEndToEndTests
@@ -55,6 +56,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
             typeof(WorkEnvelopeComponent),
         };
 
+        /// <summary>Pins the behaviour expressed by the test name: all auto wrapped system peers land under single systems organizer.</summary>
         [Test]
         public void All_auto_wrapped_system_peers_land_under_single_Systems_organizer()
         {
@@ -87,6 +89,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 "The `<Systems>` organizer must enumerate every System peer as a direct child.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: heating and protective share systems organizer after separate add component calls.</summary>
         [Test]
         public void Heating_and_Protective_share_Systems_organizer_after_separate_AddComponent_calls()
         {
@@ -114,6 +117,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 "it is a System substitution-group member and must be auto-wrapped.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: programmatic device assembly produces systems at consistent depth.</summary>
         [Test]
         public void Programmatic_device_assembly_produces_systems_at_consistent_depth()
         {

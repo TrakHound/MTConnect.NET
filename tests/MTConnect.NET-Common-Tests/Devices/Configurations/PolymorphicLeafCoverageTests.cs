@@ -45,17 +45,25 @@ namespace MTConnect.NET_Common_Tests.Devices.Configurations
             (typeof(IAbstractTranslation), typeof(Translation), typeof(TranslationDataSet), typeof(ITranslation), typeof(ITranslationDataSet)),
         };
 
+        /// <summary>Runs the abstract interfaces operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public static IEnumerable<TestCaseData> AbstractInterfaces() =>
             LeafShapes.Select(s => new TestCaseData(s.Abstract).SetName(s.Abstract.Name));
 
+        /// <summary>Runs the simple leaves operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public static IEnumerable<TestCaseData> SimpleLeaves() =>
             LeafShapes.Select(s => new TestCaseData(s.Simple, s.Abstract, s.ISimple).SetName(s.Simple.Name));
 
+        /// <summary>Runs the data set leaves operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public static IEnumerable<TestCaseData> DataSetLeaves() =>
             LeafShapes.Select(s => new TestCaseData(s.DataSet, s.Abstract, s.ISimple, s.IDataSet).SetName(s.DataSet.Name));
 
         // ---------------- positive ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: abstract interface has exactly two implementing classes.</summary>
+        /// <param name="abstractInterface">The abstract interface.</param>
         [TestCaseSource(nameof(AbstractInterfaces))]
         public void Abstract_interface_has_exactly_two_implementing_classes(Type abstractInterface)
         {
@@ -69,6 +77,10 @@ namespace MTConnect.NET_Common_Tests.Devices.Configurations
                 + $"found {implementors.Count}: {string.Join(", ", implementors.Select(t => t.Name))}");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: simple leaf implements simple interface and inherits abstract interface.</summary>
+        /// <param name="simpleType">The simple type.</param>
+        /// <param name="abstractInterface">The abstract interface.</param>
+        /// <param name="simpleInterface">The simple interface.</param>
         [TestCaseSource(nameof(SimpleLeaves))]
         public void Simple_leaf_implements_simple_interface_and_inherits_abstract_interface(
             Type simpleType, Type abstractInterface, Type simpleInterface)
@@ -81,6 +93,10 @@ namespace MTConnect.NET_Common_Tests.Devices.Configurations
                 $"{simpleType.Name} must inherit {abstractInterface.Name}");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: simple leaf does not implement i data set.</summary>
+        /// <param name="simpleType">The simple type.</param>
+        /// <param name="abstractInterface">The abstract interface.</param>
+        /// <param name="simpleInterface">The simple interface.</param>
         [TestCaseSource(nameof(SimpleLeaves))]
         public void Simple_leaf_does_not_implement_IDataSet(
             Type simpleType, Type abstractInterface, Type simpleInterface)
@@ -89,6 +105,10 @@ namespace MTConnect.NET_Common_Tests.Devices.Configurations
                 $"{simpleType.Name} (simple variant) must NOT implement IDataSet");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: simple leaf constructs via parameterless ctor.</summary>
+        /// <param name="simpleType">The simple type.</param>
+        /// <param name="abstractInterface">The abstract interface.</param>
+        /// <param name="simpleInterface">The simple interface.</param>
         [TestCaseSource(nameof(SimpleLeaves))]
         public void Simple_leaf_constructs_via_parameterless_ctor(
             Type simpleType, Type abstractInterface, Type simpleInterface)
@@ -99,6 +119,11 @@ namespace MTConnect.NET_Common_Tests.Devices.Configurations
             Assert.That(instance, Is.Not.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: data set leaf implements dataset simple and abstract interfaces.</summary>
+        /// <param name="dataSetType">The data set type.</param>
+        /// <param name="abstractInterface">The abstract interface.</param>
+        /// <param name="simpleInterface">The simple interface.</param>
+        /// <param name="dataSetInterface">The data set interface.</param>
         [TestCaseSource(nameof(DataSetLeaves))]
         public void DataSet_leaf_implements_dataset_simple_and_abstract_interfaces(
             Type dataSetType, Type abstractInterface, Type simpleInterface, Type dataSetInterface)
@@ -111,6 +136,11 @@ namespace MTConnect.NET_Common_Tests.Devices.Configurations
                 $"{dataSetType.Name} must implement IDataSet");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: data set leaf constructs via parameterless ctor.</summary>
+        /// <param name="dataSetType">The data set type.</param>
+        /// <param name="abstractInterface">The abstract interface.</param>
+        /// <param name="simpleInterface">The simple interface.</param>
+        /// <param name="dataSetInterface">The data set interface.</param>
         [TestCaseSource(nameof(DataSetLeaves))]
         public void DataSet_leaf_constructs_via_parameterless_ctor(
             Type dataSetType, Type abstractInterface, Type simpleInterface, Type dataSetInterface)
@@ -123,6 +153,8 @@ namespace MTConnect.NET_Common_Tests.Devices.Configurations
 
         // ---------------- negative ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: abstract interface carries no member definitions.</summary>
+        /// <param name="abstractInterface">The abstract interface.</param>
         [TestCaseSource(nameof(AbstractInterfaces))]
         public void Abstract_interface_carries_no_member_definitions(Type abstractInterface)
         {
@@ -139,6 +171,10 @@ namespace MTConnect.NET_Common_Tests.Devices.Configurations
                 + string.Join(", ", members.Select(m => m.Name)));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: simple leaf inherits abstract base.</summary>
+        /// <param name="simpleType">The simple type.</param>
+        /// <param name="abstractInterface">The abstract interface.</param>
+        /// <param name="simpleInterface">The simple interface.</param>
         [TestCaseSource(nameof(SimpleLeaves))]
         public void Simple_leaf_inherits_AbstractBase(
             Type simpleType, Type abstractInterface, Type simpleInterface)
@@ -152,6 +188,11 @@ namespace MTConnect.NET_Common_Tests.Devices.Configurations
             Assert.That(simpleType.BaseType.Name, Does.StartWith("Abstract"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: data set leaf inherits abstract base.</summary>
+        /// <param name="dataSetType">The data set type.</param>
+        /// <param name="abstractInterface">The abstract interface.</param>
+        /// <param name="simpleInterface">The simple interface.</param>
+        /// <param name="dataSetInterface">The data set interface.</param>
         [TestCaseSource(nameof(DataSetLeaves))]
         public void DataSet_leaf_inherits_AbstractBase(
             Type dataSetType, Type abstractInterface, Type simpleInterface, Type dataSetInterface)

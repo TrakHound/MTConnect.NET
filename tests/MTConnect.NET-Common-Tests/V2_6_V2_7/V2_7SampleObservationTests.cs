@@ -25,6 +25,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
     // observation through the library's `SampleValueObservation` carrier and
     // confirm the (DataItem, Observation) pair carries the v2.7 type metadata
     // intact.
+    /// <summary>Pins the behaviour expressed by the test name: v2 7 sample observation tests.</summary>
     [TestFixture]
     public class V2_7SampleObservationTests
     {
@@ -34,6 +35,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
         // and reading back the value. If the library starts dropping the link
         // between the DataItem's TypeId and the observation's reported type,
         // this test catches it.
+        /// <summary>Pins the behaviour expressed by the test name: water hardness sample observation round trip.</summary>
         [Test]
         public void WaterHardness_sample_observation_round_trip()
         {

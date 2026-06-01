@@ -36,6 +36,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
     //     of a Component.
     //   - Prose: docs.mtconnect.org "Part 2.0 - Devices Information Model"
     //     §"Configuration" — defines the Configuration role.
+    /// <summary>Pins the behaviour expressed by the test name: regenerated configurations coverage tests.</summary>
     [TestFixture]
     public class RegeneratedConfigurationsCoverageTests
     {
@@ -51,6 +52,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 .OrderBy(t => t.FullName, StringComparer.Ordinal);
         }
 
+        /// <summary>Runs the configuration subtypes operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public static IEnumerable<TestCaseData> ConfigurationSubtypes()
         {
             foreach (var type in EnumerateConfigurationSubtypes())
@@ -60,6 +63,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: catalogue enumerates at least one configuration subtype.</summary>
         [Test]
         public void Catalogue_enumerates_at_least_one_configuration_subtype()
         {
@@ -68,6 +72,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 "MTConnect.Devices.Configurations produced fewer than 10 concrete subtypes — regenerator regression?");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: configuration subtype is constructible.</summary>
+        /// <param name="type">The type.</param>
         [Test]
         [TestCaseSource(nameof(ConfigurationSubtypes))]
         public void Configuration_subtype_is_constructible(Type type)
@@ -80,6 +86,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 $"{type.FullName} parameterless ctor returned null");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: configuration subtype string properties round trip.</summary>
+        /// <param name="type">The type.</param>
         [Test]
         [TestCaseSource(nameof(ConfigurationSubtypes))]
         public void Configuration_subtype_string_properties_round_trip(Type type)
