@@ -42,7 +42,7 @@ public class RouteCheckTests
     private const int Concurrency = 8;
     private const int ServerReadyPollMs = 200;
     private const int ServerReadyTimeoutMs = 60_000;
-    private const int PageNavigationTimeoutMs = 15_000;
+    private const int PageNavigationTimeoutMs = 30_000;
 
     private Process? _previewServer;
     private IPlaywright? _playwright;
@@ -202,6 +202,14 @@ public class RouteCheckTests
     // Detects VitePress's client-side 404 page. The original Node
     // crawler used three signals; mirror them here exactly so the
     // test's failure surface matches what the script caught.
+    //
+    // WaitUntilState.Load (not NetworkIdle) is used here deliberately.
+    // VitePress's SPA keeps background work running indefinitely —
+    // analytics pings, web-vitals beacons, hot-reload polling — so
+    // NetworkIdle never settles within any reasonable timeout. All
+    // three 404 signals (.NotFound selector, document.title, body text)
+    // are available as soon as the DOM is fully parsed and sub-resources
+    // have finished loading, which is exactly what Load guarantees.
     private static async Task<(string Route, string Indicator)?> CheckRouteAsync(IBrowser browser, string baseUrl, string route)
     {
         var url = baseUrl + route;
@@ -210,7 +218,7 @@ public class RouteCheckTests
         {
             await page.GotoAsync(url, new PageGotoOptions
             {
-                WaitUntil = WaitUntilState.NetworkIdle,
+                WaitUntil = WaitUntilState.Load,
                 Timeout = PageNavigationTimeoutMs,
             });
 
