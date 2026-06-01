@@ -5,11 +5,15 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "regen": "bash scripts/generate-api-ref.sh && bash scripts/generate-reference.sh",
+    "predev": "npm run regen",
     "dev": "vitepress dev",
+    "prebuild": "npm run regen",
     "build": "vitepress build",
     "preview": "vitepress preview",
     "check-links": "node scripts/check-broken-links.mjs .",
-    "check-routes": "node scripts/check-routes.mjs"
+    "check-routes": "node scripts/check-routes.mjs",
+    "check": "npm run check-routes"
   },
   "devDependencies": {
     "mermaid": "^11.0.0",
