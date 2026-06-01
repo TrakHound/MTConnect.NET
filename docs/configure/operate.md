@@ -14,8 +14,8 @@ Logging is provided by NLog. The shipped `NLog.config` next to the agent / adapt
 | `agent-logger` | Agent broker internals (device add, observation enqueue, buffer events). | `logs/agent-<YYYY-MM-DD>.log` |
 | `agent-validation` | Input validation issues (rejected observations, type mismatches). | `logs/agent-validation-<YYYY-MM-DD>.log` |
 | `agent-metrics` | Periodic agent-metrics emitter (observation rate, asset rate). | Routed to its own file when configured; otherwise rolls into `agent-`. |
-| `modules.<module-id>` | One file per loaded module (the logger name is `modules.` prefixed onto the module key — `modules.mqtt-relay`, `modules.shdr-adapter`, etc.). | `logs/<module-name>-<YYYY-MM-DD>.log` |
-| `processors.<processor-id>` | One file per loaded processor (e.g. `processors.agent-processor-python`). | `logs/<processor-name>-<YYYY-MM-DD>.log` |
+| `modules.<module-id>` | One file per loaded module (the logger name is `modules.` prefixed onto the module key — `modules.mqtt-relay`, `modules.shdr-adapter`, etc.). | `logs/modules.<module-id>-<YYYY-MM-DD>.log` |
+| `processors.<processor-id>` | One file per loaded processor (e.g. `processors.agent-processor-python`). | `logs/processors.<processor-id>-<YYYY-MM-DD>.log` |
 
 Every file rolls daily and keeps 90 archives by default. Edit `NLog.config` to raise the archive count, change the layout, or add a Syslog / TCP / cloud target — the shipped configuration is intended as a working starting point, not a frozen contract.
 
@@ -89,6 +89,7 @@ Operational notes:
 
 - **Tail the agent log in production**: `tail -F logs/agent-$(date +%F).log` (Linux) or `Get-Content -Tail 50 -Wait logs\agent-(Get-Date -Format yyyy-MM-dd).log` (PowerShell).
 - **Tail validation rejections only**: `tail -F logs/agent-validation-$(date +%F).log`. A spike here signals a misconfigured adapter or a Devices.xml drift.
+- **Tail a specific module or processor**: `tail -F logs/modules.<module-id>-$(date +%F).log` (e.g. `logs/modules.http-server-$(date +%F).log`); same shape for processors via `logs/processors.<processor-id>-$(date +%F).log`.
 - **Diagnose a single module without restarting**: enable the module's debug level by editing `NLog.config`'s per-module rule. Hot-reload requires `autoReload="true"` on the `<nlog>` root; otherwise restart the agent for the new rule to apply.
 - **Test the agent's reachability from inside a Docker network**: `docker exec mtc-agent curl -sf http://localhost:5000/probe > /dev/null`. A non-zero exit means the in-container HTTP server is down even if the host-side port mapping appears healthy.
 
