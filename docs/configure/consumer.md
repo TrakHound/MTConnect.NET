@@ -37,7 +37,7 @@ curl -N 'http://agent.local:5000/sample?from=12345&interval=100&heartbeat=10000'
 
 The server emits an HTTP `multipart/x-mixed-replace` stream; each part is one `<MTConnectStreams>` envelope. Disconnects are detected via the heartbeat (the agent sends a heartbeat chunk every `heartbeat` ms when no observations are pending); a consumer that misses a heartbeat reconnects from the last seen `nextSequence`.
 
-The MTConnect Standard caps the maximum `interval` to keep slow consumers from monopolising the connection. The current agent honours the spec minimum / maximum at `parts/2.0/HttpProtocol.md` (see [Compliance: Wire format](/compliance/wire-format)).
+The MTConnect Standard caps the maximum `interval` to keep slow consumers from monopolizing the connection. The current agent honors the spec minimum / maximum at [Part 1.0 — HTTP protocol on docs.mtconnect.org](https://docs.mtconnect.org/) (see [Compliance: Wire format](/compliance/wire-format)).
 
 ### Spec-version negotiation
 
