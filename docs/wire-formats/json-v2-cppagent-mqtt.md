@@ -10,15 +10,15 @@ The codec registers as `JSON-cppagent-mqtt` in the formatter registry. It inheri
 
 | Class | Role |
 |---|---|
-| [`MTConnect.Formatters.JsonMqttResponseDocumentFormatter`](/api/mtconnect-formatters/JsonMqttResponseDocumentFormatter) | MQTT-flavored `IResponseDocumentFormatter` derived from the HTTP codec. Overrides `Format(IDevicesResponseDocument)` to emit a single `JsonDeviceContainer` and `Format(IAssetsResponseDocument)` to emit a single asset per message. Returns `application/json`. |
-| [`MTConnect.Formatters.JsonMqttEntityFormatter`](/api/mtconnect-formatters/JsonMqttEntityFormatter) | Per-entity formatter for MQTT relays that publish per-observation messages. |
-| [`MTConnect.Devices.Json.JsonDeviceContainer`](/api/mtconnect-devices-json/JsonDeviceContainer) | Single-device wrapper the MQTT formatter emits in place of the multi-device `JsonDevicesResponseDocument`. |
-| [`MTConnect.Assets.Json.JsonAssetContainer`](/api/mtconnect-assets-json/JsonAssetContainer) | Single-asset wrapper the MQTT formatter emits per asset message. |
-| [`MTConnect.MTConnectMqttDocumentServer`](/api/mtconnect/MTConnectMqttDocumentServer) | Holds the topic constants — `Probe`, `Current`, `Sample`, `Asset` — that downstream agent modules use to build the published topic. |
+| [`MTConnect.Formatters.JsonMqttResponseDocumentFormatter`](/api/MTConnect.Formatters.JsonMqttResponseDocumentFormatter) | MQTT-flavored `IResponseDocumentFormatter` derived from the HTTP codec. Overrides `Format(IDevicesResponseDocument)` to emit a single `JsonDeviceContainer` and `Format(IAssetsResponseDocument)` to emit a single asset per message. Returns `application/json`. |
+| [`MTConnect.Formatters.JsonMqttEntityFormatter`](/api/MTConnect.Formatters.JsonMqttEntityFormatter) | Per-entity formatter for MQTT relays that publish per-observation messages. |
+| [`MTConnect.Devices.Json.JsonDeviceContainer`](/api/MTConnect.Devices.Json.JsonDeviceContainer) | Single-device wrapper the MQTT formatter emits in place of the multi-device `JsonDevicesResponseDocument`. |
+| [`MTConnect.Assets.Json.JsonAssetContainer`](/api/MTConnect.Assets.Json.JsonAssetContainer) | Single-asset wrapper the MQTT formatter emits per asset message. |
+| [`MTConnect.MTConnectMqttDocumentServer`](/api/MTConnect.MTConnectMqttDocumentServer) | Holds the topic constants — `Probe`, `Current`, `Sample`, `Asset` — that downstream agent modules use to build the published topic. |
 
 ## Topic tree
 
-The default topic tree, as composed by the [MqttBroker agent module](/modules/mqtt-broker) using [`MTConnectMqttDocumentServer`](/api/mtconnect/MTConnectMqttDocumentServer) constants:
+The default topic tree, as composed by the [MqttBroker agent module](/modules/mqtt-broker) using [`MTConnectMqttDocumentServer`](/api/MTConnect.MTConnectMqttDocumentServer) constants:
 
 | Topic pattern | Payload | Retained? |
 |---|---|---|
@@ -114,9 +114,9 @@ sequenceDiagram
   Consumer->>Consumer: Parse JSON-CPPAGENT v2 envelope
 ```
 
-For Sample-topic messages the same pipeline runs but with retain set false; for Asset-topic messages the broker module switches to the [`JsonAssetContainer`](/api/mtconnect-assets-json/JsonAssetContainer) per-asset shape via [`JsonMqttResponseDocumentFormatter.Format(IAssetsResponseDocument)`](/api/mtconnect-formatters/JsonMqttResponseDocumentFormatter) and publishes on `<prefix>/Asset/<device-uuid>/<asset-id>`.
+For Sample-topic messages the same pipeline runs but with retain set false; for Asset-topic messages the broker module switches to the [`JsonAssetContainer`](/api/MTConnect.Assets.Json.JsonAssetContainer) per-asset shape via [`JsonMqttResponseDocumentFormatter.Format(IAssetsResponseDocument)`](/api/MTConnect.Formatters.JsonMqttResponseDocumentFormatter) and publishes on `<prefix>/Asset/<device-uuid>/<asset-id>`.
 
-Reads (ingress) run via the [MqttAdapter agent module](/modules/mqtt-adapter): the module subscribes to `<prefix>/#`, routes each message to [`JsonMqttResponseDocumentFormatter.CreateDevicesResponseDocument`](/api/mtconnect-formatters/JsonMqttResponseDocumentFormatter) (or the Assets equivalent), and projects back to the canonical `IDevicesResponseDocument` / `IAssetsResponseDocument` interfaces.
+Reads (ingress) run via the [MqttAdapter agent module](/modules/mqtt-adapter): the module subscribes to `<prefix>/#`, routes each message to [`JsonMqttResponseDocumentFormatter.CreateDevicesResponseDocument`](/api/MTConnect.Formatters.JsonMqttResponseDocumentFormatter) (or the Assets equivalent), and projects back to the canonical `IDevicesResponseDocument` / `IAssetsResponseDocument` interfaces.
 
 ## Caveats and known divergences
 

@@ -21,8 +21,8 @@ A PowerShell sibling lives alongside each shell script (`tools/dotnet.ps1`, `too
 
 ## Cross-references
 
-- [Configure & Use → Configure an agent](/configure/agent) — how to author the `agent.config.yaml` file the agent CLI reads.
-- [Configure & Use → Configure an adapter](/configure/adapter) — how to author the `adapter.config.yaml` file the adapter CLI reads.
+- [Configure & Use → Configure an agent](/configure/agent-config) — how to author the `agent.config.yaml` file the agent CLI reads.
+- [Configure & Use → Configure an adapter](/configure/adapter-config) — how to author the `adapter.config.yaml` file the adapter CLI reads.
 - [Configure & Use → Run](/configure/run) — how to invoke the agent / adapter in development, in Docker, or as a Windows service / systemd unit.
 - [Modules](/modules/) — the per-module configuration the agent CLI loads at startup.
 - [API reference](/api/) — the C# types that back each CLI (e.g. `MTConnectAgentApplication`, `MTConnectAdapterApplication`, `AgentApplicationConfiguration`, `AdapterApplicationConfiguration`).

@@ -102,13 +102,13 @@ modules:
 
 ## Troubleshooting
 
-- **Schema-version mismatches** — see [Schema-version mismatches](/troubleshooting/#schema-version-mismatches). If the upstream agent serves a different MTConnect version than the local agent expects, observations may fail to deserialize.
+- **Schema-version mismatches** — see [Schema-version mismatches](/troubleshooting/schema-version-mismatches). If the upstream agent serves a different MTConnect version than the local agent expects, observations may fail to deserialize.
 - **Heartbeat / interval tuning** — the upstream agent enforces an MTConnect-spec minimum on the `heartbeat` and `interval` query parameters. The module passes the configured values through verbatim; out-of-range values produce a `MTConnect.Errors.OUT_OF_RANGE` response from the upstream and the module retries.
 - **Device-key mismatch** — `deviceKey` must match a device on the upstream agent. Use a browser to hit the upstream's `/probe` and confirm the device exists before configuring this module.
 - **TLS / certificate errors** under `useSSL: true` are surfaced as connection-level failures and retried at the module's reconnect interval.
 
 ## API reference
 
-- [`HttpAdapterModuleConfiguration`](/api/) — the module's configuration class.
-- [`HttpClientConfiguration`](/api/) — the base HTTP client configuration shape.
-- [`DeviceMappingConfiguration`](/api/) — the per-device mapping entry.
+- [`HttpAdapterModuleConfiguration`](/api/MTConnect.Configurations.HttpAdapterModuleConfiguration) — the module's configuration class.
+- [`HttpClientConfiguration`](/api/MTConnect.Configurations.HttpClientConfiguration) — the base HTTP client configuration shape.
+- [`DeviceMappingConfiguration`](/api/MTConnect.DeviceMappingConfiguration) — the per-device mapping entry.

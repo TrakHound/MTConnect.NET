@@ -53,7 +53,7 @@ Mermaid syntax is documented at <https://mermaid.js.org/intro/syntax-reference.h
 
 ## Authoring conventions
 
-- Internal links use site-relative paths (`/configure/agent`, not `../configure/agent.md`).
+- Internal links use site-relative paths (`/configure/agent-config`, not `../configure/agent-config.md`).
 - Code samples include the target language fence (` ```csharp `, ` ```bash `, ` ```yaml `).
 - External links use the full URL.
 - The site is configured with `cleanUrls: true`; pages are linked without the `.md` suffix.

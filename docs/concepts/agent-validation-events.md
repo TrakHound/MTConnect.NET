@@ -5,7 +5,7 @@ description: How MTConnectAgent surfaces validation failures via the Invalid*Add
 
 # Agent validation events
 
-[`MTConnectAgent`](/api/MTConnect.Agents/MTConnectAgent) raises a small, uniformly-shaped family of events whenever input rejected by its validation pipeline is added — invalid Components, Compositions, DataItems, Observations, and Assets. The agent does **not** throw; it raises an event, lets you log or react, and continues serving requests. Consumers wire one or more handlers; contributors extending the agent add a new entry to the family by following the same naming and call-site pattern.
+[`MTConnectAgent`](/api/MTConnect.Agents.MTConnectAgent) raises a small, uniformly-shaped family of events whenever input rejected by its validation pipeline is added — invalid Components, Compositions, DataItems, Observations, and Assets. The agent does **not** throw; it raises an event, lets you log or react, and continues serving requests. Consumers wire one or more handlers; contributors extending the agent add a new entry to the family by following the same naming and call-site pattern.
 
 ## The event family
 
@@ -13,14 +13,14 @@ The agent exposes one event per validatable element kind:
 
 | Event | Delegate | When it fires |
 | --- | --- | --- |
-| `InvalidDeviceAdded` | [`MTConnectDeviceValidationHandler`](/api/MTConnect/MTConnectDeviceValidationHandler) | `AddDevice(IDevice)` rejects a Device whose top-level validation does not pass — the Device is null, or its `Uuid` is null or empty. |
-| `InvalidComponentAdded` | [`MTConnectComponentValidationHandler`](/api/MTConnect/MTConnectComponentValidationHandler) | A generic `Component` (unknown `Type`) is encountered while initialising a Device. |
-| `InvalidCompositionAdded` | [`MTConnectCompositionValidationHandler`](/api/MTConnect/MTConnectCompositionValidationHandler) | A generic `Composition` is encountered while initialising a Device. |
-| `InvalidDataItemAdded` | [`MTConnectDataItemValidationHandler`](/api/MTConnect/MTConnectDataItemValidationHandler) | A generic `DataItem` (unknown `Type`) is encountered while initialising a Device. |
-| `InvalidObservationAdded` | [`MTConnectObservationValidationHandler`](/api/MTConnect/MTConnectObservationValidationHandler) | An observation value fails per-DataItem validation, or its `DataItemKey` is unknown. |
-| `InvalidAssetAdded` | [`MTConnectAssetValidationHandler`](/api/MTConnect/MTConnectAssetValidationHandler) | An asset fails its `Process(...)` validation pipeline. |
+| `InvalidDeviceAdded` | [`MTConnectDeviceValidationHandler`](/api/MTConnect.MTConnectDeviceValidationHandler) | `AddDevice(IDevice)` rejects a Device whose top-level validation does not pass — the Device is null, or its `Uuid` is null or empty. |
+| `InvalidComponentAdded` | [`MTConnectComponentValidationHandler`](/api/MTConnect.MTConnectComponentValidationHandler) | A generic `Component` (unknown `Type`) is encountered while initialising a Device. |
+| `InvalidCompositionAdded` | [`MTConnectCompositionValidationHandler`](/api/MTConnect.MTConnectCompositionValidationHandler) | A generic `Composition` is encountered while initialising a Device. |
+| `InvalidDataItemAdded` | [`MTConnectDataItemValidationHandler`](/api/MTConnect.MTConnectDataItemValidationHandler) | A generic `DataItem` (unknown `Type`) is encountered while initialising a Device. |
+| `InvalidObservationAdded` | [`MTConnectObservationValidationHandler`](/api/MTConnect.MTConnectObservationValidationHandler) | An observation value fails per-DataItem validation, or its `DataItemKey` is unknown. |
+| `InvalidAssetAdded` | [`MTConnectAssetValidationHandler`](/api/MTConnect.MTConnectAssetValidationHandler) | An asset fails its `Process(...)` validation pipeline. |
 
-The family is closed across the five Device-tree element kinds plus the top-level Device itself. Every entry carries a universal [`MTConnect.ValidationResult`](/api/MTConnect/ValidationResult) payload exposing `IsValid`, a machine-readable `Code`, and a human-readable `Message` — see [v7 migration: ValidationResult consolidation](/migration/v7-validation-result) for the pre-v7 per-domain structs this replaced.
+The family is closed across the five Device-tree element kinds plus the top-level Device itself. Every entry carries a universal [`MTConnect.ValidationResult`](/api/MTConnect.ValidationResult) payload exposing `IsValid`, a machine-readable `Code`, and a human-readable `Message` — see [v7 migration: ValidationResult consolidation](/migration/v7-validation-result) for the pre-v7 per-domain structs this replaced.
 
 ```mermaid
 flowchart TB
@@ -41,8 +41,8 @@ flowchart TB
 
 `MTConnectAgent` is a long-running service. Throwing on the first invalid Component or stray Observation would crash the host process and take the rest of the agent down with it. The event-based contract lets callers:
 
-- log the failure (with the rich [`ValidationResult`](/api/MTConnect.Devices/ValidationResult) payload) and keep serving valid data;
-- decide centrally how strict to be — set [`InputValidationLevel`](/api/MTConnect.Configurations/InputValidationLevel) to `Ignore`, `Warn`, `Remove`, or `Strict` on the agent configuration, and the same handler runs across every level above `Ignore`;
+- log the failure (with the rich [`ValidationResult`](/api/MTConnect.ValidationResult) payload) and keep serving valid data;
+- decide centrally how strict to be — set [`InputValidationLevel`](/api/MTConnect.Agents.InputValidationLevel) to `Ignore`, `Warn`, `Remove`, or `Strict` on the agent configuration, and the same handler runs across every level above `Ignore`;
 - attribute the failure to the source `deviceUuid` so multi-device hosts can route the diagnostic appropriately.
 
 ### Wire-up
@@ -83,7 +83,7 @@ agent.InvalidAssetAdded += (asset, result) =>
 
 ### Handler signatures
 
-The delegates are all defined in [`MTConnect.Delegates`](/api/MTConnect/Delegates) and follow a uniform shape — the offending element, plus a universal [`MTConnect.ValidationResult`](/api/MTConnect/ValidationResult) describing what failed:
+The delegates are all defined under the [`MTConnect`](/api/MTConnect) namespace and follow a uniform shape — the offending element, plus a universal [`MTConnect.ValidationResult`](/api/MTConnect.ValidationResult) describing what failed:
 
 ```csharp
 public delegate void MTConnectDeviceValidationHandler(IDevice device, ValidationResult validationResults);
@@ -109,7 +109,7 @@ public delegate void MTConnectAssetValidationHandler(IAsset asset, ValidationRes
 
 ### Pre-flight validation
 
-[`MTConnectAgent.ValidateDevice(IDevice)`](/api/MTConnect.Agents/MTConnectAgent) exposes the same check `AddDevice` runs internally, so callers can validate a Device *before* attempting registration — useful when reading from a config file or building a Device programmatically:
+[`MTConnectAgent.ValidateDevice(IDevice)`](/api/MTConnect.Agents.MTConnectAgent) exposes the same check `AddDevice` runs internally, so callers can validate a Device *before* attempting registration — useful when reading from a config file or building a Device programmatically:
 
 ```csharp
 var result = agent.ValidateDevice(device);
@@ -179,5 +179,5 @@ The event family is designed to grow. When a new element class becomes validatab
 
 - [v7 migration: ValidationResult consolidation](/migration/v7-validation-result) — how the three pre-v7 per-domain structs collapsed into the universal `MTConnect.ValidationResult` used by every member of this family.
 - [TrakHound/MTConnect.NET#169](https://github.com/TrakHound/MTConnect.NET/pull/169) — the canonical worked example of extending the family (adds `InvalidDeviceAdded`, `ValidateDevice`, and the `DeviceNull` / `DeviceUuidMissing` codes).
-- [`MTConnectAgent`](/api/MTConnect.Agents/MTConnectAgent) — the surface where every entry lives.
-- [`InputValidationLevel`](/api/MTConnect.Configurations/InputValidationLevel) — the agent-wide knob that gates whether the family fires at all.
+- [`MTConnectAgent`](/api/MTConnect.Agents.MTConnectAgent) — the surface where every entry lives.
+- [`InputValidationLevel`](/api/MTConnect.Agents.InputValidationLevel) — the agent-wide knob that gates whether the family fires at all.

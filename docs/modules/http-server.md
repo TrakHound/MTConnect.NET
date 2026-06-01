@@ -119,14 +119,14 @@ modules:
 
 ## Troubleshooting
 
-- **XSD validation failures** — see [XSD validation failures](/troubleshooting/#xsd-validation-failures). The .NET BCL ships XSD 1.0 features only; the v2.x MTConnect schemas use XSD 1.1 constructs.
+- **XSD validation failures** — see [XSD validation failures](/troubleshooting/xsd-validation-failures). The .NET BCL ships XSD 1.0 features only; the v2.x MTConnect schemas use XSD 1.1 constructs.
 - **MQTT TLS handshake failures** apply to the broker / relay modules; for HTTPS handshake failures the certificate must be readable by the agent's user account and the `tls.pfx.certificatePassword` must decrypt the PFX bundle.
 - **Schema-version mismatches** — set `defaultVersion` to the MTConnect version the consumer expects when the consumer does not send a version parameter.
 
 ## API reference
 
-- [`HttpServerModuleConfiguration`](/api/) — the module's configuration class.
-- [`HttpServerConfiguration`](/api/) — the base configuration shape this module extends.
-- [`MTConnectHttpServer`](/api/) — the runtime HTTP server the module wraps.
-- [`MTConnectShdrHttpAgentServer`](/api/) — the concrete server with SHDR-protocol `PUT` handling enabled.
-- [`TlsConfiguration`](/api/) — the TLS configuration schema.
+- [`HttpServerModuleConfiguration`](/api/MTConnect.Configurations.HttpServerModuleConfiguration) — the module's configuration class.
+- [`HttpServerConfiguration`](/api/MTConnect.Configurations.HttpServerConfiguration) — the base configuration shape this module extends.
+- [`MTConnectHttpServer`](/api/MTConnect.Servers.Http.MTConnectHttpServer) — the runtime HTTP server the module wraps.
+- [`MTConnectShdrHttpAgentServer`](/api/MTConnect.Modules.Http.MTConnectShdrHttpAgentServer) — the concrete server with SHDR-protocol `PUT` handling enabled.
+- [`TlsConfiguration`](/api/MTConnect.Tls.TlsConfiguration) — the TLS configuration schema.

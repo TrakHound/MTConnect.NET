@@ -91,6 +91,9 @@ export default withMermaid(
               { text: 'Agent configuration', link: '/configure/agent-config' },
               { text: 'Adapter configuration', link: '/configure/adapter-config' },
               { text: 'Module configuration', link: '/configure/module-config' },
+              { text: 'Run', link: '/configure/run' },
+              { text: 'Connect a consumer', link: '/configure/consumer' },
+              { text: 'Operate', link: '/configure/operate' },
             ],
           },
           {

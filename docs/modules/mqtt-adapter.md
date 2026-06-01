@@ -103,11 +103,11 @@ modules:
 
 ## Troubleshooting
 
-- **MQTT TLS handshake failures** — see [MQTT TLS handshake failures](/troubleshooting/#mqtt-tls-handshake-failures).
+- **MQTT TLS handshake failures** — see [MQTT TLS handshake failures](/troubleshooting/mqtt-tls-handshake).
 - **`deviceKey` mismatch** — the value must match a `Device@name` or `Device@uuid` in the agent's `Devices.xml`. A mismatch causes the agent to drop the inbound observations silently; verify with the `/probe` endpoint that the device is present.
 - **Payload-format mismatch** — `documentFormat` must match the encoding the remote producer publishes. The remote can be the [MQTT output adapter module](./mqtt-output), which publishes JSON.
 
 ## API reference
 
-- [`MqttAdapterModuleConfiguration`](/api/) — the module's configuration class.
-- [`MqttClientConfiguration`](/api/) — the base MQTT client configuration shape.
+- [`MqttAdapterModuleConfiguration`](/api/MTConnect.Configurations.MqttAdapterModuleConfiguration) — the module's configuration class.
+- [`MTConnectMqttClientConfiguration`](/api/MTConnect.Configurations.MTConnectMqttClientConfiguration) — the base MQTT client configuration shape.

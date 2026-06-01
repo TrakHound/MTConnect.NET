@@ -15,7 +15,7 @@ Each matrix lists every spec-defined element / attribute / enum value introduced
 The repo organizes tests into three tiers:
 
 1. **Unit + integration** — `tests/<library>-Tests/`. Fast (< 30 s on a clean run), runs by default in CI and on `tools/test.sh` / `tools/test.ps1`. Filtered by `Category!=XsdLoadStrict` so the strict XSD-load gate does not block the green path.
-2. **Compliance** — `tests/Compliance/MTConnect-Compliance-Tests/`. Layered (`L1_XsdValidation`, `L2_CrossImpl`); see [`tests/Compliance/MTConnect-Compliance-Tests/README.md`](../tests/Compliance/MTConnect-Compliance-Tests/README.md). Opt-in via `tools/test.sh --compliance` or `tools/test.ps1 -Compliance`.
+2. **Compliance** — `tests/Compliance/MTConnect-Compliance-Tests/`. Layered (`L1_XsdValidation`, `L2_CrossImpl`); see [`tests/Compliance/MTConnect-Compliance-Tests/README.md`](https://github.com/TrakHound/MTConnect.NET/blob/master/tests/Compliance/MTConnect-Compliance-Tests/README.md). Opt-in via `tools/test.sh --compliance` or `tools/test.ps1 -Compliance`.
 3. **E2E** — `tests/MTConnect.NET-Integration-Tests/` + `tests/E2E/**`. Docker-gated. Opt-in via `tools/test.sh --e2e` or `MTCONNECT_E2E_DOCKER=true`.
 
 ## Local entry points
@@ -26,7 +26,7 @@ The repo organizes tests into three tiers:
 
 ## CI
 
-GitHub Actions workflow at [`.github/workflows/dotnet.yml`](../.github/workflows/dotnet.yml). Matrix builds against `ubuntu-latest` and `windows-latest`, .NET 8.0.x + 9.0.x, uploads TRX + Cobertura coverage as artifacts, surfaces a coverage summary in the job log. See [`docs/testing/workflows.md`](testing/workflows.md) for the workflow catalog.
+GitHub Actions workflow at [`.github/workflows/dotnet.yml`](https://github.com/TrakHound/MTConnect.NET/blob/master/.github/workflows/dotnet.yml). Matrix builds against `ubuntu-latest` and `windows-latest`, .NET 8.0.x + 9.0.x, uploads TRX + Cobertura coverage as artifacts, surfaces a coverage summary in the job log. See [`docs/testing/workflows.md`](testing/workflows.md) for the workflow catalog.
 
 ## Coverage
 

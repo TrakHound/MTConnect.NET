@@ -1,10 +1,10 @@
 # Observations
 
-An **Observation** is the time-stamped value flowing through a [DataItem](/concepts/data-items). DataItems declare the shape; Observations carry the data. Every Observation in `MTConnect.NET` inherits from [`MTConnect.Observations.Observation`](/api/MTConnect.Observations/Observation) and is one of three concrete subclasses chosen by the DataItem's `Category`:
+An **Observation** is the time-stamped value flowing through a [DataItem](/concepts/data-items). DataItems declare the shape; Observations carry the data. Every Observation in `MTConnect.NET` inherits from [`MTConnect.Observations.Observation`](/api/MTConnect.Observations.Observation) and is one of three concrete subclasses chosen by the DataItem's `Category`:
 
-- [`SampleObservation`](/api/MTConnect.Observations/SampleObservation) for SAMPLE DataItems.
-- [`EventObservation`](/api/MTConnect.Observations/EventObservation) for EVENT DataItems.
-- [`ConditionObservation`](/api/MTConnect.Observations/ConditionObservation) for CONDITION DataItems.
+- [`SampleObservation`](/api/MTConnect.Observations.SampleObservation) for SAMPLE DataItems.
+- [`EventObservation`](/api/MTConnect.Observations.EventObservation) for EVENT DataItems.
+- [`ConditionObservation`](/api/MTConnect.Observations.ConditionObservation) for CONDITION DataItems.
 
 ```mermaid
 classDiagram
@@ -51,7 +51,7 @@ Every Observation carries:
 
 ## The Unavailable sentinel
 
-The MTConnect Standard mandates that when an agent cannot determine a valid value for a DataItem, the result MUST be reported as the literal string `UNAVAILABLE`. The library makes this a first-class constant on [`Observation.Unavailable`](/api/MTConnect.Observations/Observation):
+The MTConnect Standard mandates that when an agent cannot determine a valid value for a DataItem, the result MUST be reported as the literal string `UNAVAILABLE`. The library makes this a first-class constant on [`Observation.Unavailable`](/api/MTConnect.Observations.Observation):
 
 ```csharp
 public const string Unavailable = "UNAVAILABLE";
@@ -63,10 +63,10 @@ Every serializer, every codec, every Output transformer (under `MTConnect.NET-Co
 
 A SAMPLE observation carries a numeric value plus the SAMPLE-specific metadata that the DataItem declares. The four concrete sample subclasses map to the four DataItem `Representation` modes:
 
-- [`SampleValueObservation`](/api/MTConnect.Observations/SampleValueObservation) — one scalar. `CDATA = "1.5"` on the wire.
-- [`SampleDataSetObservation`](/api/MTConnect.Observations/SampleDataSetObservation) — entries-of-scalars.
-- [`SampleTableObservation`](/api/MTConnect.Observations/SampleTableObservation) — entries-of-entries-of-scalars.
-- [`SampleTimeSeriesObservation`](/api/MTConnect.Observations/SampleTimeSeriesObservation) — a fixed-cadence vector. Carries `SampleCount` and `SampleRate` attributes.
+- [`SampleValueObservation`](/api/MTConnect.Observations.SampleValueObservation) — one scalar. `CDATA = "1.5"` on the wire.
+- [`SampleDataSetObservation`](/api/MTConnect.Observations.SampleDataSetObservation) — entries-of-scalars.
+- [`SampleTableObservation`](/api/MTConnect.Observations.SampleTableObservation) — entries-of-entries-of-scalars.
+- [`SampleTimeSeriesObservation`](/api/MTConnect.Observations.SampleTimeSeriesObservation) — a fixed-cadence vector. Carries `SampleCount` and `SampleRate` attributes.
 
 A typical Sample creation in code:
 
@@ -105,7 +105,7 @@ agent.AddObservation(device.Uuid, avail);
 A CONDITION observation aggregates alarm-style state into a level: `NORMAL`, `WARNING`, `FAULT`, or `UNAVAILABLE`. Conditions deviate from Samples and Events in two ways:
 
 1. **Multiple actives**: a single CONDITION DataItem can hold many simultaneously-active condition observations, each keyed by `nativeCode`. Setting `NORMAL` with no `nativeCode` clears every active.
-2. **Auxiliary attributes**: a Condition carries `nativeCode` (vendor's alarm code), `qualifier` (`HIGH` / `LOW`, from [`ConditionQualifier`](/api/MTConnect.Observations/ConditionQualifier)), `nativeSeverity`, and `message` (human-readable text).
+2. **Auxiliary attributes**: a Condition carries `nativeCode` (vendor's alarm code), `qualifier` (`HIGH` / `LOW`, from [`ConditionQualifier`](/api/MTConnect.Observations.ConditionQualifier)), `nativeSeverity`, and `message` (human-readable text).
 
 Class shape:
 
@@ -165,5 +165,5 @@ The `Sequence` field is the cursor for `/sample`. A consumer that paginates call
 
 - [Assets](/concepts/assets) — non-observation entities the device tracks.
 - [Relationships](/concepts/relationships) — how DataItem-to-DataItem references thread through observations.
-- [`IObservation` API reference](/api/MTConnect.Observations/IObservation).
+- [`IObservation` API reference](/api/MTConnect.Observations.IObservation).
 - [Wire formats: JSON v1](/wire-formats/json-v1) — Observation serialization shapes.

@@ -4,7 +4,7 @@
 
 ## Spec versions supported
 
-The library tracks every published MTConnect spec version. The version constants live in [`MTConnect.MTConnectVersions`](/api/MTConnect/MTConnectVersions), and `MTConnectVersions.Max` advertises the latest one the library can serialize for.
+The library tracks every published MTConnect spec version. The version constants live in [`MTConnect.MTConnectVersions`](/api/MTConnect.MTConnectVersions), and `MTConnectVersions.Max` advertises the latest one the library can serialize for.
 
 | MTConnect version | Released by MTConnect | Library constant | Streams XSD | Devices XSD | Assets XSD | Error XSD |
 |---|---|---|---|---|---|---|
@@ -32,7 +32,7 @@ Note: v1.9 was never released — the MTConnect Standard's version numbering jum
 
 ## Per-envelope semantics
 
-Each cell in the matrix above means: the agent can be asked to emit the named envelope at the named spec version, and the output validates against the matching `MTConnect<Envelope>_<version>.xsd` schema published by the standard body. The version-aware serializers ([`Device.Process`](/api/MTConnect.Devices/Device#Process), [`DataItem.Process`](/api/MTConnect.Devices/DataItem#Process), [`Composition.Process`](/api/MTConnect.Devices/Composition#Process), and the per-envelope JSON / XML codecs) prune properties, DataItems, Components, and Assets whose `MinimumVersion` is above the target version, and prune any whose `MaximumVersion` is below it.
+Each cell in the matrix above means: the agent can be asked to emit the named envelope at the named spec version, and the output validates against the matching `MTConnect<Envelope>_<version>.xsd` schema published by the standard body. The version-aware serializers ([`Device.Process`](/api/MTConnect.Devices.Device), [`DataItem.Process`](/api/MTConnect.Devices.DataItem), [`Composition.Process`](/api/MTConnect.Devices.Composition), and the per-envelope JSON / XML codecs) prune properties, DataItems, Components, and Assets whose `MinimumVersion` is above the target version, and prune any whose `MaximumVersion` is below it.
 
 ## Type introduction inventory
 
@@ -58,7 +58,7 @@ Every introduction is auditable through the generated `.g.cs` files under `libra
 
 ## Header fields per version
 
-The `Header` element gains attributes over time. The library populates them based on the target version; the [`MTConnectAgentInformation`](/api/MTConnect.Agents/MTConnectAgentInformation) class is the source.
+The `Header` element gains attributes over time. The library populates them based on the target version; the [`MTConnectAgentInformation`](/api/MTConnect.Agents.MTConnectAgentInformation) class is the source.
 
 | Attribute | Introduced at | Notes |
 |---|---|---|

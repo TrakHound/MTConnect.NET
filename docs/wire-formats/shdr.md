@@ -27,20 +27,20 @@ The protocol layers four control idioms on top of that base:
 
 | Class | Role |
 |---|---|
-| [`MTConnect.Shdr.ShdrLine`](/api/mtconnect-shdr/ShdrLine) | Low-level line tokenizer. Splits a raw byte sequence on `\n`, separates the optional timestamp, and yields field tokens. |
-| [`MTConnect.Shdr.ShdrDataItem`](/api/mtconnect-shdr/ShdrDataItem) | Round-trip codec for the `VALUE` representation (Events + Samples). `ToString()` emits SHDR; `FromString()` parses. |
-| [`MTConnect.Shdr.ShdrCondition`](/api/mtconnect-shdr/ShdrCondition) | Codec for Conditions. Each fault state serializes as `<level>\|<nativeCode>\|<nativeSeverity>\|<qualifier>\|<message>`. |
-| [`MTConnect.Shdr.ShdrTimeSeries`](/api/mtconnect-shdr/ShdrTimeSeries) | Codec for the `TIME_SERIES` representation. Emits `<sampleCount>\|<sampleRate>\|<v1> <v2> … <vN>`. |
-| [`MTConnect.Shdr.ShdrDataSet`](/api/mtconnect-shdr/ShdrDataSet) | Codec for the `DATA_SET` representation. Emits space-separated `<key>=<value>` entries. |
-| [`MTConnect.Shdr.ShdrTable`](/api/mtconnect-shdr/ShdrTable) | Codec for the `TABLE` representation. Emits space-separated `<key>={<cellKey>=<cellValue>…}` entries. |
-| [`MTConnect.Shdr.ShdrAsset`](/api/mtconnect-shdr/ShdrAsset) | Codec for `@ASSET@` push lines, including the `--multiline--<token>` envelope for XML assets. |
-| [`MTConnect.Shdr.ShdrMessage`](/api/mtconnect-shdr/ShdrMessage) | Codec for `MESSAGE`-representation Events (which carry a native code alongside the value). |
-| [`MTConnect.Shdr.ShdrFaultState`](/api/mtconnect-shdr/ShdrFaultState) | Per-fault DTO used by `ShdrCondition`. |
-| [`MTConnect.Adapters.Shdr.ShdrAdapter`](/api/mtconnect-adapters-shdr/ShdrAdapter) | Adapter-side TCP server that serializes queued observations and publishes lines on connect / on change. |
-| [`MTConnect.Adapters.Shdr.ShdrIntervalAdapter`](/api/mtconnect-adapters-shdr/ShdrIntervalAdapter) | Adapter variant that flushes the most-recent value of each DataItem on a fixed interval. |
-| [`MTConnect.Adapters.Shdr.ShdrQueueAdapter`](/api/mtconnect-adapters-shdr/ShdrQueueAdapter) | Adapter variant that publishes every queued observation on `SendBuffer()`. |
-| [`MTConnect.Adapters.Shdr.ShdrIntervalQueueAdapter`](/api/mtconnect-adapters-shdr/ShdrIntervalQueueAdapter) | Adapter variant that flushes the full queue on a fixed interval. |
-| [`MTConnect.Shdr.ShdrClient`](/api/mtconnect-shdr/ShdrClient) | Agent-side TCP client that reads from an `ShdrAdapter`, parses each line, and pushes observations into an `IMTConnectAgent`. |
+| [`MTConnect.Shdr.ShdrLine`](/api/MTConnect.Shdr.ShdrLine) | Low-level line tokenizer. Splits a raw byte sequence on `\n`, separates the optional timestamp, and yields field tokens. |
+| [`MTConnect.Shdr.ShdrDataItem`](/api/MTConnect.Shdr.ShdrDataItem) | Round-trip codec for the `VALUE` representation (Events + Samples). `ToString()` emits SHDR; `FromString()` parses. |
+| [`MTConnect.Shdr.ShdrCondition`](/api/MTConnect.Shdr.ShdrCondition) | Codec for Conditions. Each fault state serializes as `<level>\|<nativeCode>\|<nativeSeverity>\|<qualifier>\|<message>`. |
+| [`MTConnect.Shdr.ShdrTimeSeries`](/api/MTConnect.Shdr.ShdrTimeSeries) | Codec for the `TIME_SERIES` representation. Emits `<sampleCount>\|<sampleRate>\|<v1> <v2> … <vN>`. |
+| [`MTConnect.Shdr.ShdrDataSet`](/api/MTConnect.Shdr.ShdrDataSet) | Codec for the `DATA_SET` representation. Emits space-separated `<key>=<value>` entries. |
+| [`MTConnect.Shdr.ShdrTable`](/api/MTConnect.Shdr.ShdrTable) | Codec for the `TABLE` representation. Emits space-separated `<key>={<cellKey>=<cellValue>…}` entries. |
+| [`MTConnect.Shdr.ShdrAsset`](/api/MTConnect.Shdr.ShdrAsset) | Codec for `@ASSET@` push lines, including the `--multiline--<token>` envelope for XML assets. |
+| [`MTConnect.Shdr.ShdrMessage`](/api/MTConnect.Shdr.ShdrMessage) | Codec for `MESSAGE`-representation Events (which carry a native code alongside the value). |
+| [`MTConnect.Shdr.ShdrFaultState`](/api/MTConnect.Shdr.ShdrFaultState) | Per-fault DTO used by `ShdrCondition`. |
+| [`MTConnect.Adapters.ShdrAdapter`](/api/MTConnect.Adapters.ShdrAdapter) | Adapter-side TCP server that serializes queued observations and publishes lines on connect / on change. |
+| [`MTConnect.Adapters.ShdrIntervalAdapter`](/api/MTConnect.Adapters.ShdrIntervalAdapter) | Adapter variant that flushes the most-recent value of each DataItem on a fixed interval. |
+| [`MTConnect.Adapters.ShdrQueueAdapter`](/api/MTConnect.Adapters.ShdrQueueAdapter) | Adapter variant that publishes every queued observation on `SendBuffer()`. |
+| [`MTConnect.Adapters.ShdrIntervalQueueAdapter`](/api/MTConnect.Adapters.ShdrIntervalQueueAdapter) | Adapter variant that flushes the full queue on a fixed interval. |
+| [`MTConnect.Shdr.ShdrClient`](/api/MTConnect.Shdr.ShdrClient) | Agent-side TCP client that reads from an `ShdrAdapter`, parses each line, and pushes observations into an `IMTConnectAgent`. |
 
 ## Sample lines
 
@@ -148,7 +148,7 @@ sequenceDiagram
   Client->>Agent: AddAsset(asset)
 ```
 
-The heartbeat exchange (`* heartbeat`, `* PING`, `* PONG`) is the protocol's connection-keepalive contract; the agent disconnects an adapter that stops PONGing within twice the negotiated heartbeat. The library's [`ShdrClient`](/api/mtconnect-shdr/ShdrClient) handles the keepalive on the agent side; the [`ShdrAdapter`](/api/mtconnect-adapters-shdr/ShdrAdapter) family handles it on the equipment side.
+The heartbeat exchange (`* heartbeat`, `* PING`, `* PONG`) is the protocol's connection-keepalive contract; the agent disconnects an adapter that stops PONGing within twice the negotiated heartbeat. The library's [`ShdrClient`](/api/MTConnect.Shdr.ShdrClient) handles the keepalive on the agent side; the [`ShdrAdapter`](/api/MTConnect.Adapters.ShdrAdapter) family handles it on the equipment side.
 
 ## Caveats and known divergences
 
@@ -156,9 +156,9 @@ The heartbeat exchange (`* heartbeat`, `* PING`, `* PONG`) is the protocol's con
 - **Pipe is reserved.** Values that include `|` must be escaped or the line will misparse. The library's `ShdrDataItem.ToString()` does not currently escape; producers passing pipe-bearing strings must encode them out-of-band (URL-encoding is the cppagent convention).
 - **Newline is reserved.** SHDR is strictly line-delimited; multi-line values use the `--multiline--<token>` framing exclusively for assets. Embedding a literal `\n` in a non-asset value will desynchronize the parser; producers must encode or strip them.
 - **`@ASSET@` payloads are XML even on JSON-CPPAGENT deployments.** The asset push payload is an XML fragment regardless of which HTTP wire format the agent serves. The agent re-serializes into JSON-CPPAGENT v2 (or XML, or both) on the egress side.
-- **Single-line vs multi-line assets is adapter-configured.** Setting `MultilineAssets = false` on the adapter inlines short asset XML on the same line; setting it to `true` (the default) uses the `--multiline--<token>` framing. The token is randomly generated per asset and must not appear inside the asset XML; the [`ShdrAsset`](/api/mtconnect-shdr/ShdrAsset) codec regenerates the token until it is unique against the payload.
+- **Single-line vs multi-line assets is adapter-configured.** Setting `MultilineAssets = false` on the adapter inlines short asset XML on the same line; setting it to `true` (the default) uses the `--multiline--<token>` framing. The token is randomly generated per asset and must not appear inside the asset XML; the [`ShdrAsset`](/api/MTConnect.Shdr.ShdrAsset) codec regenerates the token until it is unique against the payload.
 - **`@REMOVE_ALL_ASSETS@` targets a type, not a device.** The line `<timestamp>\|@REMOVE_ALL_ASSETS@\|File` removes every File asset on the device the adapter speaks for. There is no device-spanning variant; a multi-device adapter sends one removal per device-scoped key.
-- **Reconnect drops in-flight buffer.** When the TCP connection drops mid-stream, observations queued in the adapter's send buffer are lost unless the adapter is an [`ShdrQueueAdapter`](/api/mtconnect-adapters-shdr/ShdrQueueAdapter) variant. The agent does not back-fill; consumers who require zero loss should use the queue-adapter family or a transport with persistent delivery (e.g. the [MqttAdapter module](/modules/mqtt-adapter)).
+- **Reconnect drops in-flight buffer.** When the TCP connection drops mid-stream, observations queued in the adapter's send buffer are lost unless the adapter is an [`ShdrQueueAdapter`](/api/MTConnect.Adapters.ShdrQueueAdapter) variant. The agent does not back-fill; consumers who require zero loss should use the queue-adapter family or a transport with persistent delivery (e.g. the [MqttAdapter module](/modules/mqtt-adapter)).
 - **No native TLS.** SHDR is plaintext TCP. Deployments that require encryption tunnel through SSH, stunnel, a service mesh, or a TLS-terminating proxy. The library does not negotiate TLS on the SHDR socket directly.
 - **Adapter-side device push (`@DEVICE@`) is opt-in.** Most adapters keep Devices.xml on the agent side and let the agent's probe response describe the model. Adapters that ship the device model inline use `@DEVICE@`; consumers should confirm the deployment's source-of-truth before assuming either path.
 

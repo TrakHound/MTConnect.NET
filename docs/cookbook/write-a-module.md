@@ -1,6 +1,6 @@
 # Write a custom agent module
 
-A **module** is the agent's pluggable extension point. The shipped modules — HTTP server, MQTT broker, MQTT relay, MQTT adapter, SHDR adapter, HTTP adapter — all implement the same [`IMTConnectAgentModule`](/api/MTConnect.Agents/IMTConnectAgentModule) interface. This recipe shows how to write a custom module so an agent can publish to a destination the shipped modules do not cover (an InfluxDB bucket, a Kafka topic, a Postgres table, a webhook).
+A **module** is the agent's pluggable extension point. The shipped modules — HTTP server, MQTT broker, MQTT relay, MQTT adapter, SHDR adapter, HTTP adapter — all implement the same [`IMTConnectAgentModule`](/api/MTConnect.Agents.IMTConnectAgentModule) interface. This recipe shows how to write a custom module so an agent can publish to a destination the shipped modules do not cover (an InfluxDB bucket, a Kafka topic, a Postgres table, a webhook).
 
 By the end you have:
 
@@ -230,5 +230,5 @@ public class ConsoleSinkModuleTests
 
 - [Cookbook: Write an agent](/cookbook/write-an-agent) — the agent host the module plugs into.
 - [Configure modules](/configure/module-config) — the configuration shape every shipped module follows.
-- [`IMTConnectAgentModule` API reference](/api/MTConnect.Agents/IMTConnectAgentModule).
+- [`IMTConnectAgentModule` API reference](/api/MTConnect.Agents.IMTConnectAgentModule).
 - [Cookbook: Configure MQTT relay](/cookbook/configure-mqtt-relay) — a shipped-module example to study.

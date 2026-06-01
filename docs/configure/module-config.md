@@ -55,7 +55,7 @@ The `tls:` block configures TLS termination. Two shapes are supported:
 - `pem:` — PEM-encoded certificate chain and private key.
 - `pfx:` — PKCS#12 bundle.
 
-When TLS is enabled, the HTTP server accepts only HTTPS connections. The `tlsConfiguration` class is shared with the MQTT modules — see [`MTConnect.Tls.TlsConfiguration`](/api/MTConnect.Tls/TlsConfiguration).
+When TLS is enabled, the HTTP server accepts only HTTPS connections. The `tlsConfiguration` class is shared with the MQTT modules — see [`MTConnect.Tls.TlsConfiguration`](/api/MTConnect.Tls.TlsConfiguration).
 
 ## MQTT broker
 
@@ -91,7 +91,7 @@ The `Document` structure is the cppagent-MQTT parity shape; the `Entity` structu
 
 ## MQTT relay
 
-Publishes outbound MQTT messages to an external broker. The agent acts as a client. Module key: `mqtt-relay`. Implementation: `MTConnect.NET-AgentModule-MqttRelay`. The configuration object is [`MqttRelayModuleConfiguration`](/api/MTConnect.Configurations/MqttRelayModuleConfiguration).
+Publishes outbound MQTT messages to an external broker. The agent acts as a client. Module key: `mqtt-relay`. Implementation: `MTConnect.NET-AgentModule-MqttRelay`. The configuration object is [`MqttRelayModuleConfiguration`](/api/MTConnect.Configurations.MqttRelayModuleConfiguration).
 
 ```yaml
 - mqtt-relay:
@@ -199,12 +199,12 @@ Each module's YAML keys deserialize into a configuration class:
 
 | Module | Configuration class |
 |---|---|
-| `http-server` | [`MTConnect.Configurations.HttpServerModuleConfiguration`](/api/MTConnect.Configurations/HttpServerModuleConfiguration) |
-| `mqtt-broker` | [`MTConnect.Configurations.MqttBrokerModuleConfiguration`](/api/MTConnect.Configurations/MqttBrokerModuleConfiguration) |
-| `mqtt-relay` | [`MTConnect.Configurations.MqttRelayModuleConfiguration`](/api/MTConnect.Configurations/MqttRelayModuleConfiguration) |
-| `mqtt-adapter` | [`MTConnect.Configurations.MqttAdapterModuleConfiguration`](/api/MTConnect.Configurations/MqttAdapterModuleConfiguration) |
-| `shdr-adapter` | [`MTConnect.Configurations.ShdrAdapterModuleConfiguration`](/api/MTConnect.Configurations/ShdrAdapterModuleConfiguration) |
-| `http-adapter` | [`MTConnect.Configurations.HttpAdapterModuleConfiguration`](/api/MTConnect.Configurations/HttpAdapterModuleConfiguration) |
+| `http-server` | [`MTConnect.Configurations.HttpServerModuleConfiguration`](/api/MTConnect.Configurations.HttpServerModuleConfiguration) |
+| `mqtt-broker` | [`MTConnect.Configurations.MqttBrokerModuleConfiguration`](/api/MTConnect.Configurations.MqttBrokerModuleConfiguration) |
+| `mqtt-relay` | [`MTConnect.Configurations.MqttRelayModuleConfiguration`](/api/MTConnect.Configurations.MqttRelayModuleConfiguration) |
+| `mqtt-adapter` | [`MTConnect.Configurations.MqttAdapterModuleConfiguration`](/api/MTConnect.Configurations.MqttAdapterModuleConfiguration) |
+| `shdr-adapter` | [`MTConnect.Configurations.ShdrAdapterModuleConfiguration`](/api/MTConnect.Configurations.ShdrAdapterModuleConfiguration) |
+| `http-adapter` | [`MTConnect.Configurations.HttpAdapterModuleConfiguration`](/api/MTConnect.Configurations.HttpAdapterModuleConfiguration) |
 
 Programmatic configuration uses the class directly:
 

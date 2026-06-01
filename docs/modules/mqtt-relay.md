@@ -123,14 +123,14 @@ modules:
 
 ## Troubleshooting
 
-- **MQTT TLS handshake failures** — see [MQTT TLS handshake failures](/troubleshooting/#mqtt-tls-handshake-failures). The most common cause is a CA path that the agent cannot read or that does not chain to the broker's certificate.
+- **MQTT TLS handshake failures** — see [MQTT TLS handshake failures](/troubleshooting/mqtt-tls-handshake). The most common cause is a CA path that the agent cannot read or that does not chain to the broker's certificate.
 - **Reconnect loops** — when the broker rejects the connection (bad credentials, malformed client-id, IP not allow-listed), the module retries every `reconnectInterval` ms. Lower the interval during diagnostic runs so the error appears more frequently in the log.
 - **`durableRelay` backlog growth** — disk usage scales with the broker outage window. Monitor the spool directory and provision enough disk for the longest expected outage.
 - **AWS IoT-specific** integration walkthroughs live under [Configure & Use / Integrations](/configure/).
 
 ## API reference
 
-- [`MqttRelayModuleConfiguration`](/api/) — the module's configuration class.
-- [`MqttTopicStructure`](/api/) — the `Document` / `Entity` enum.
-- [`IMTConnectMqttDocumentServerConfiguration`](/api/) — the configuration interface this module implements.
-- [`TlsConfiguration`](/api/) — the TLS configuration schema.
+- [`MqttRelayModuleConfiguration`](/api/MTConnect.Configurations.MqttRelayModuleConfiguration) — the module's configuration class.
+- [`MqttTopicStructure`](/api/MTConnect.MqttTopicStructure) — the `Document` / `Entity` enum.
+- [`IMTConnectMqttDocumentServerConfiguration`](/api/MTConnect.Configurations.IMTConnectMqttDocumentServerConfiguration) — the configuration interface this module implements.
+- [`TlsConfiguration`](/api/MTConnect.Tls.TlsConfiguration) — the TLS configuration schema.

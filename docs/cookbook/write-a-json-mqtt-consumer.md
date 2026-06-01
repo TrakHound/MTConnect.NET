@@ -56,10 +56,13 @@ Console.WriteLine("Connected; awaiting payloads. Ctrl-C to exit.");
 
 ## 3. Parse the payload
 
-The relay publishes JSON-CPPAGENT-MQTT (a JSON-CPPAGENT envelope wrapped for MQTT delivery). The library's [`JsonCppAgentFormatter`](/api/MTConnect.Formatters.JsonCppAgent/JsonCppAgentFormatter) parses it into typed `IStreamsResponseDocument`, `IDevicesResponseDocument`, and `IAssetsResponseDocument` instances:
+The relay publishes JSON-CPPAGENT-MQTT (a JSON-CPPAGENT envelope wrapped for MQTT delivery). The library's [`JsonMqttResponseDocumentFormatter`](/api/MTConnect.Formatters.JsonMqttResponseDocumentFormatter) parses it into typed `IStreamsResponseDocument`, `IDevicesResponseDocument`, and `IAssetsResponseDocument` instances:
 
 ```csharp
-using MTConnect.Formatters.JsonCppAgent;
+using MTConnect.Formatters;
+using System.IO;
+
+var formatter = new JsonMqttResponseDocumentFormatter();
 
 client.ApplicationMessageReceivedAsync += async e =>
 {
@@ -69,10 +72,12 @@ client.ApplicationMessageReceivedAsync += async e =>
     if (topic.StartsWith("MTConnect/Document/Sample/") ||
         topic.StartsWith("MTConnect/Document/Current/"))
     {
-        var streams = new JsonCppAgentFormatter().DeserializeStreamsResponse(payload);
+        using var stream = new MemoryStream(payload);
+        var result = formatter.CreateStreamsResponseDocument(stream);
+        var streams = result.Document;
         if (streams is null) return;
 
-        foreach (var deviceStream in streams.Streams.DeviceStreams)
+        foreach (var deviceStream in streams.Streams)
         {
             foreach (var componentStream in deviceStream.ComponentStreams)
             {
@@ -104,7 +109,8 @@ await client.SubscribeAsync(
 // In the message handler:
 if (topic.StartsWith("MTConnect/Document/Asset/"))
 {
-    var assets = new JsonCppAgentFormatter().DeserializeAssetsResponse(payload);
+    using var stream = new MemoryStream(payload);
+    var assets = formatter.CreateAssetsResponseDocument(stream).Document;
     foreach (var asset in assets.Assets)
     {
         Console.WriteLine($"Asset {asset.AssetId} type={asset.Type} removed={asset.Removed}");
@@ -200,8 +206,9 @@ var queue = Channel.CreateBounded<IObservation>(10_000);
 
 client.ApplicationMessageReceivedAsync += async e =>
 {
-    var streams = new JsonCppAgentFormatter().DeserializeStreamsResponse(e.ApplicationMessage.PayloadSegment.ToArray());
-    foreach (var ds in streams.Streams.DeviceStreams)
+    using var stream = new MemoryStream(e.ApplicationMessage.PayloadSegment.ToArray());
+    var streams = formatter.CreateStreamsResponseDocument(stream).Document;
+    foreach (var ds in streams.Streams)
         foreach (var cs in ds.ComponentStreams)
             foreach (var obs in cs.Observations)
                 await queue.Writer.WriteAsync(obs);
@@ -227,6 +234,6 @@ For InfluxDB specifically, see the [InfluxDB integration page](/configure/integr
 ## Where to next
 
 - [Cookbook: Configure MQTT relay](/cookbook/configure-mqtt-relay) — the agent side that publishes the messages this consumer reads.
-- [Wire formats: JSON-CPPAGENT-MQTT](/wire-formats/json-cppagent-mqtt) — payload shape reference.
-- [`JsonCppAgentFormatter` API reference](/api/MTConnect.Formatters.JsonCppAgent/JsonCppAgentFormatter).
+- [Wire formats: JSON-CPPAGENT-MQTT](/wire-formats/json-v2-cppagent-mqtt) — payload shape reference.
+- [`JsonMqttResponseDocumentFormatter` API reference](/api/MTConnect.Formatters.JsonMqttResponseDocumentFormatter).
 - [Configure & Use: integrations: InfluxDB](/configure/integrations/influxdb) — turn this consumer into a bridge.

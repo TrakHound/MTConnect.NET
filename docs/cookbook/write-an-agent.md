@@ -52,7 +52,7 @@ device.AddComponent(controller);
 
 ## 3. Create the agent
 
-The agent is a [`MTConnectAgentBroker`](/api/MTConnect.Agents/MTConnectAgentBroker) instance — the broker subclass of [`MTConnectAgent`](/api/MTConnect.Agents/MTConnectAgent) that adds an observation buffer and an asset buffer:
+The agent is a [`MTConnectAgentBroker`](/api/MTConnect.Agents.MTConnectAgentBroker) instance — the broker subclass of [`MTConnectAgent`](/api/MTConnect.Agents.MTConnectAgent) that adds an observation buffer and an asset buffer:
 
 ```csharp
 using MTConnect.Agents;
@@ -162,7 +162,7 @@ A `/probe` response looks like:
 </MTConnectDevices>
 ```
 
-Note that the `Controllers` Organizer wrapped the Controller automatically — `Device.AddComponent` walks [`MTConnect.Devices.Organizers`](/api/MTConnect.Devices/Organizers) on insert and creates the Organizer where one is required.
+Note that the `Controllers` Organizer wrapped the Controller automatically — `Device.AddComponent` walks [`MTConnect.Devices.Organizers`](/api/MTConnect.Devices.Organizers) on insert and creates the Organizer where one is required.
 
 ## 7. Test it
 
@@ -187,7 +187,7 @@ The HTTP client returns the same XML envelope the agent serves to curl.
 ## Where to next
 
 - **Add an adapter**: see [Cookbook: Write an adapter](/cookbook/write-an-adapter) for the ingestion side.
-- **Switch to JSON output**: set `documentFormat: "json-cppAgent"` in the HTTP config and `Accept: application/mtconnect+json` on the request. See [Wire formats: JSON-CPPAGENT](/wire-formats/json-cppagent).
-- **Persist the buffer**: pass an [`IAgentConfiguration`](/api/MTConnect.Configurations/IAgentConfiguration) with `Durable = true` to enable on-disk durability.
+- **Switch to JSON output**: set `documentFormat: "json-cppAgent"` in the HTTP config and `Accept: application/mtconnect+json` on the request. See [Wire formats: JSON-CPPAGENT](/wire-formats/json-v2-cppagent).
+- **Persist the buffer**: pass an [`IAgentConfiguration`](/api/MTConnect.Configurations.IAgentConfiguration) with `Durable = true` to enable on-disk durability.
 - **Run it via YAML**: see [Configure an agent](/configure/agent-config) for the configuration-driven path that skips writing C# entirely.
 - **Add an MQTT relay**: see [Cookbook: Configure MQTT relay](/cookbook/configure-mqtt-relay).

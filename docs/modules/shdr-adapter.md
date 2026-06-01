@@ -104,14 +104,14 @@ modules:
 
 ## Troubleshooting
 
-- **Empty `name` attributes on probe DataItems** — see [Empty `name` attributes on probe DataItems](/troubleshooting/#empty-name-attributes-on-probe-dataitems). The SHDR protocol does not transmit DataItem metadata; the `name` attribute must exist in the agent's `Devices.xml`.
-- **Asset count emitted as a scalar EVENT instead of DATA_SET** — see [Asset count emitted as scalar](/troubleshooting/#asset-count-emitted-as-a-scalar-event-instead-of-a-data_set).
+- **Empty `name` attributes on probe DataItems** — see [Empty `name` attributes on probe DataItems](/troubleshooting/common-error-modes#empty-name-on-probe-dataitems). The SHDR protocol does not transmit DataItem metadata; the `name` attribute must exist in the agent's `Devices.xml`.
+- **Asset count emitted as a scalar EVENT instead of DATA_SET** — see [Asset count emitted as scalar](/troubleshooting/common-error-modes#asset_count-emitted-as-a-scalar-event-instead-of-a-data_set).
 - **Clock drift** — set `ignoreTimestamps: true` if the adapter's system clock cannot be kept in sync.
 - **Heartbeat tuning** — set `heartbeat: 0` to disable heartbeats entirely and rely on `connectionTimeout` only. This is rarely the right choice but is required for adapters that mis-handle `PING`.
 - **`deviceKey` mismatch** drops observations silently; verify against `/probe` output before declaring the deployment working.
 
 ## API reference
 
-- [`ShdrAdapterModuleConfiguration`](/api/) — the module's configuration class.
-- [`ShdrAdapterClientConfiguration`](/api/) — the base SHDR adapter-client configuration shape.
-- [`ShdrClientConfiguration`](/api/) — the SHDR client configuration shape.
+- [`ShdrAdapterModuleConfiguration`](/api/MTConnect.Configurations.ShdrAdapterModuleConfiguration) — the module's configuration class.
+- [`ShdrAdapterClientConfiguration`](/api/MTConnect.Configurations.ShdrAdapterClientConfiguration) — the base SHDR adapter-client configuration shape.
+- [`ShdrClientConfiguration`](/api/MTConnect.Configurations.ShdrClientConfiguration) — the SHDR client configuration shape.

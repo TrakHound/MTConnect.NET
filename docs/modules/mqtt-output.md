@@ -158,12 +158,12 @@ modules:
 
 ## Troubleshooting
 
-- **MQTT TLS handshake failures** — see [MQTT TLS handshake failures](/troubleshooting/#mqtt-tls-handshake-failures).
+- **MQTT TLS handshake failures** — see [MQTT TLS handshake failures](/troubleshooting/mqtt-tls-handshake).
 - **Topic mismatch** — the adapter's `topic` and the agent's `mqtt-adapter` `topicPrefix` must align. Conventionally the agent subscribes to `<topic>` and the adapter publishes at `<topic>/Observations`; verify against the agent module's [subscribed topics](./mqtt-adapter#subscribed-topics) list.
 - **Compression failures** — payloads are gzip-compressed; an agent that subscribes to the topic without gzip-decoding will see opaque binary. The agent's `mqtt-adapter` module handles gzip transparently.
 - **Reconnect loops** indicate broker-side rejection (bad credentials, malformed client-id, IP not allow-listed); enable verbose adapter logging to surface the CONNACK reason code.
 
 ## API reference
 
-- [`ModuleConfiguration`](/api/) — the adapter-side MQTT module configuration class (under `MTConnect.Configurations` in the `MTConnect.NET-AdapterModule-MQTT` assembly).
-- [`MTConnectAdapterModule`](/api/) — the base class adapter modules derive from.
+- [`ModuleConfiguration`](/api/MTConnect.Configurations.ModuleConfiguration) — the adapter-side MQTT module configuration class (under `MTConnect.Configurations` in the `MTConnect.NET-AdapterModule-MQTT` assembly).
+- [`MTConnectAdapterModule`](/api/MTConnect.Adapters.MTConnectAdapterModule) — the base class adapter modules derive from.

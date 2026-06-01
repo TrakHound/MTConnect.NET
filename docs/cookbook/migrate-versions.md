@@ -46,7 +46,7 @@ var version = MTConnectVersions.Version25;
 var device = Device.Process(myDevice, version);
 ```
 
-`Device.Process(IDevice, Version)` is the version-aware serializer. It prunes properties that did not exist at `version`, strips Components and DataItems whose `MinimumVersion` is above `version`, and emits the rest. The same call shapes JSON-cppagent serialization through `JsonCppAgentFormatter`.
+`Device.Process(IDevice, Version)` is the version-aware serializer. It prunes properties that did not exist at `version`, strips Components and DataItems whose `MinimumVersion` is above `version`, and emits the rest. The same call shapes JSON-cppagent serialization through `JsonHttpResponseDocumentFormatter`.
 
 ## Step 2: validate `Devices.xml` against the new XSD
 

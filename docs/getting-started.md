@@ -117,7 +117,7 @@ foreach (var device in probe.Devices)
 
 ## Next steps
 
-- Add real data: connect an [adapter](/configure/adapter) over SHDR or MQTT.
+- Add real data: connect an [adapter](/configure/adapter-config) over SHDR or MQTT.
 - Deploy for production: run the agent [as a service](/configure/run) on Windows or Linux.
 - Build a custom module: read the [Cookbook](/cookbook/) recipe for writing a module.
 - Understand the data model: read [Concepts](/concepts/) for Devices, Components, DataItems, Observations, and Assets.

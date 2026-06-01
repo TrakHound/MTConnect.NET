@@ -97,9 +97,8 @@ A regeneration is considered clean when (a) the test suite is green at every pre
 
 - [Configure & Use → Run](/configure/run) — running the agent against the regenerated library to verify end-to-end behavior.
 - [Compliance](/compliance/) — the per-version compliance matrix that the regenerator advances.
-- [API reference → `MTConnect.SysML.MTConnectModel`](/api/) — the in-memory model the XMI parser produces and the renderers walk.
-- [API reference → `MTConnect.SysML.CSharp.CSharpTemplateRenderer`](/api/) — the C# renderer that produces `MTConnect.NET-Common`.
-- [API reference → `MTConnect.SysML.Xml.XmlTemplateRenderer`](/api/) — the XML renderer that produces `MTConnect.NET-XML`.
-- [API reference → `MTConnect.SysML.Json_cppagent.JsonCppAgentTemplateRenderer`](/api/) — the JSON v2 renderer that produces `MTConnect.NET-JSON-cppagent`.
+- [API reference → `MTConnect.SysML.MTConnectModel`](/api/MTConnect.SysML.MTConnectModel) — the in-memory model the XMI parser produces and the renderers walk.
+- [API reference → `MTConnect.SysML.ModelHelper`](/api/MTConnect.SysML.ModelHelper) — the helper surface the per-language renderers call into.
+- [API reference → `MTConnect.SysML` namespace](/api/MTConnect.SysML) — the SysML model + per-renderer entry points.
 - [`tools/test.sh`](./test-sh) — runs after a regeneration to verify the suite stays green.
 - [`tools/dotnet.sh`](./dotnet-sh) — wraps the `dotnet run` invocation if the regeneration is being done inside a containerized SDK.

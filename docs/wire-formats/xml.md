@@ -2,7 +2,7 @@
 
 XML is the canonical MTConnect wire format. Every MTConnect Standard version (v1.0 through v2.5 in this library; v2.7 in the standard at large) defines an XSD set that pins the on-the-wire envelope shape — `MTConnectStreams_<ver>.xsd`, `MTConnectDevices_<ver>.xsd`, `MTConnectAssets_<ver>.xsd`, and `MTConnectError_<ver>.xsd`. The library's XML codec produces output that validates against the matching-version XSD published at [schemas.mtconnect.org](https://schemas.mtconnect.org/).
 
-The codec round-trips: it both reads agent output (e.g. an HTTP `GET /current` response) and writes envelopes for the agent to serve. Reads dispatch on the document's `xmlns` value to select the matching MTConnect version (see [`MTConnect.Namespaces`](/api/mtconnect/Namespaces) for the URI → version table).
+The codec round-trips: it both reads agent output (e.g. an HTTP `GET /current` response) and writes envelopes for the agent to serve. Reads dispatch on the document's `xmlns` value to select the matching MTConnect version (see [`MTConnect.Namespaces`](/api/MTConnect.Namespaces) for the URI → version table).
 
 ## Document format ID
 
@@ -12,14 +12,14 @@ The codec registers as `XML` in the formatter registry. Agent modules and adapte
 
 | Class | Role |
 |---|---|
-| [`MTConnect.Formatters.XmlResponseDocumentFormatter`](/api/mtconnect-formatters/XmlResponseDocumentFormatter) | Top-level `IResponseDocumentFormatter` for the four envelope kinds (Streams, Devices, Assets, Error). Returns `application/xml`. |
-| [`MTConnect.Formatters.XmlEntityFormatter`](/api/mtconnect-formatters/XmlEntityFormatter) | Per-entity formatter (single Observation, single Asset, etc.) for callers that splice individual entities into a larger document. |
-| [`MTConnect.Formatters.XmlPathFormatter`](/api/mtconnect-formatters/XmlPathFormatter) | XPath-style path resolver used by the `path=` query parameter on `/current` and `/sample`. |
-| [`MTConnect.Streams.Xml.XmlStreamsResponseDocument`](/api/mtconnect-streams-xml/XmlStreamsResponseDocument) | DTO that mirrors the `<MTConnectStreams>` envelope. |
-| [`MTConnect.Devices.Xml.XmlDevicesResponseDocument`](/api/mtconnect-devices-xml/XmlDevicesResponseDocument) | DTO that mirrors the `<MTConnectDevices>` envelope. |
-| [`MTConnect.Assets.Xml.XmlAssetsDocument`](/api/mtconnect-assets-xml/XmlAssetsDocument) | DTO that mirrors the `<MTConnectAssets>` envelope. |
-| [`MTConnect.Errors.Xml.XmlErrorDocument`](/api/mtconnect-errors-xml/XmlErrorDocument) | DTO that mirrors the `<MTConnectError>` envelope. |
-| [`MTConnect.XmlValidator`](/api/mtconnect/XmlValidator) | XSD validator that loads the embedded per-version schema set under [`MTConnect.Schemas`](/api/mtconnect/Schemas) and reports structural errors. |
+| [`MTConnect.Formatters.Xml.XmlResponseDocumentFormatter`](/api/MTConnect.Formatters.Xml.XmlResponseDocumentFormatter) | Top-level `IResponseDocumentFormatter` for the four envelope kinds (Streams, Devices, Assets, Error). Returns `application/xml`. |
+| [`MTConnect.Formatters.Xml.XmlEntityFormatter`](/api/MTConnect.Formatters.Xml.XmlEntityFormatter) | Per-entity formatter (single Observation, single Asset, etc.) for callers that splice individual entities into a larger document. |
+| [`MTConnect.Formatters.Xml.XmlPathFormatter`](/api/MTConnect.Formatters.Xml.XmlPathFormatter) | XPath-style path resolver used by the `path=` query parameter on `/current` and `/sample`. |
+| [`MTConnect.Streams.Xml.XmlStreamsResponseDocument`](/api/MTConnect.Streams.Xml.XmlStreamsResponseDocument) | DTO that mirrors the `<MTConnectStreams>` envelope. |
+| [`MTConnect.Devices.Xml.XmlDevicesResponseDocument`](/api/MTConnect.Devices.Xml.XmlDevicesResponseDocument) | DTO that mirrors the `<MTConnectDevices>` envelope. |
+| [`MTConnect.Assets.Xml.XmlAssetsResponseDocument`](/api/MTConnect.Assets.Xml.XmlAssetsResponseDocument) | DTO that mirrors the `<MTConnectAssets>` envelope. |
+| [`MTConnect.Errors.Xml.XmlErrorResponseDocument`](/api/MTConnect.Errors.Xml.XmlErrorResponseDocument) | DTO that mirrors the `<MTConnectError>` envelope. |
+| [`MTConnect.XmlValidator`](/api/MTConnect.XmlValidator) | XSD validator that loads the embedded per-version schema set under [`MTConnect.Schemas`](/api/MTConnect.Schemas) and reports structural errors. |
 
 ## Sample envelope
 
@@ -61,7 +61,7 @@ The fixture is `tests/MTConnect.NET-XML-Tests/Streams-Files/Current-Simple.xml`.
 
 ## Spec-version compatibility
 
-The codec walks the `xmlns` attribute on the root element to pick the version. The XSDs are embedded into `MTConnect.NET-XML.dll` and exposed via [`MTConnect.Schemas`](/api/mtconnect/Schemas); the [`MTConnect.XmlValidator`](/api/mtconnect/XmlValidator) class loads them on demand and runs structural validation against the matching version.
+The codec walks the `xmlns` attribute on the root element to pick the version. The XSDs are embedded into `MTConnect.NET-XML.dll` and exposed via [`MTConnect.Schemas`](/api/MTConnect.Schemas); the [`MTConnect.XmlValidator`](/api/MTConnect.XmlValidator) class loads them on demand and runs structural validation against the matching version.
 
 | Spec version | XML namespace | Status in this library |
 |---|---|---|
@@ -81,7 +81,7 @@ The codec walks the `xmlns` attribute on the root element to pick the version. T
 | v2.4 | `urn:mtconnect.org:MTConnectStreams:2.4` | Read + write. |
 | v2.5 | `urn:mtconnect.org:MTConnectStreams:2.5` | Read + write. The library's current `MTConnectVersions.Max`. |
 
-The per-envelope coverage rolls up to the same table — Streams, Devices, Assets, and Error all ship XSDs across the same version span. There is no v1.9 row because the MTConnect Standard skipped that number between v1.8 and v2.0; the XSD set has no `1.9` namespace and the library tracks the canonical gap. See the [`MTConnectVersions`](/api/mtconnect/MTConnectVersions) constants for the full enum.
+The per-envelope coverage rolls up to the same table — Streams, Devices, Assets, and Error all ship XSDs across the same version span. There is no v1.9 row because the MTConnect Standard skipped that number between v1.8 and v2.0; the XSD set has no `1.9` namespace and the library tracks the canonical gap. See the [`MTConnectVersions`](/api/MTConnect.MTConnectVersions) constants for the full enum.
 
 For v2.6 and v2.7 namespaces, the codec falls through to the v2.5 reader path; the library's compliance posture for those versions is tracked under [Compliance](/compliance/). Authoritative XSDs for every version are at [schemas.mtconnect.org](https://schemas.mtconnect.org/) and the normative SysML XMI is at [`mtconnect/mtconnect_sysml_model`](https://github.com/mtconnect/mtconnect_sysml_model). Prose narration lives at [docs.mtconnect.org](https://docs.mtconnect.org/) in Part 2.0 (Streams), Part 3.0 (Devices), and Part 4.0 (Assets).
 
@@ -109,11 +109,11 @@ sequenceDiagram
   Agent-->>Consumer: 200 OK + application/xml body
 ```
 
-Reads run the same pipeline in reverse: the agent (or an `XmlAdapter` peer) reads the response stream, [`MTConnect.MTConnectVersion`](/api/mtconnect/MTConnectVersion) walks the document's `xmlns` to pick the version, and the matching DTO deserializes the payload.
+Reads run the same pipeline in reverse: the agent (or an `XmlAdapter` peer) reads the response stream, [`MTConnect.MTConnectVersion`](/api/MTConnect.MTConnectVersion) walks the document's `xmlns` to pick the version, and the matching DTO deserializes the payload.
 
 ## Caveats and known divergences
 
-- **Schema validation is opt-in.** The codec emits XML unconditionally; it does not validate every write against the XSD. Call [`XmlValidator.ValidateXml`](/api/mtconnect/XmlValidator) explicitly when validation matters (e.g. before persisting an envelope or before relaying to a downstream consumer that gates on validation).
+- **Schema validation is opt-in.** The codec emits XML unconditionally; it does not validate every write against the XSD. Call [`XmlValidator.ValidateXml`](/api/MTConnect.XmlValidator) explicitly when validation matters (e.g. before persisting an envelope or before relaying to a downstream consumer that gates on validation).
 - **The v1.9 namespace does not exist.** The MTConnect Standard numbered v1.8 → v2.0 directly. A document carrying `urn:mtconnect.org:MTConnectStreams:1.9` is malformed by definition; the codec's namespace lookup returns the default empty `Version` for it, and downstream code paths treat the result as an unknown version.
 - **XSD 1.1 features are not enforced.** The published XSDs include XSD 1.1 assertions and conditional type assignments that .NET's `XmlReader` does not evaluate. Validation catches structural shape only; spec-prose rules (e.g. cross-element constraints not expressible in pure XSD 1.0) are enforced by the agent's typed object model, not by the validator. The compliance harness under `tests/Compliance/` carries the XSD 1.1 + xlink runner that fills the gap.
 - **Schema-pinned attribute order is not load-bearing.** The MTConnect XSDs declare attributes in a documented order, but XML itself is order-insensitive for attributes. The codec emits attributes in the order the DTOs declare them; consumers that gate on a particular ordering are non-conformant to the XML specification, not to MTConnect.

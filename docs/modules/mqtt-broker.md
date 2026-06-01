@@ -105,12 +105,12 @@ modules:
 ## Troubleshooting
 
 - **Bind failures** — the embedded broker shares the TCP port with no other process. If the port is already in use the module retries every `restartInterval` ms; raise `initialDelay` if a previous run's socket is in `TIME_WAIT`.
-- **MQTT TLS handshake failures** — see [MQTT TLS handshake failures](/troubleshooting/#mqtt-tls-handshake-failures).
+- **MQTT TLS handshake failures** — see [MQTT TLS handshake failures](/troubleshooting/mqtt-tls-handshake).
 - **Document format selection** — `json-cppagent` is byte-for-byte cppagent-parity for v2 envelopes; `XML` is the wire format defined by the MTConnect REST protocol; `JSON` is the legacy v1 JSON shape.
 
 ## API reference
 
-- [`MqttBrokerModuleConfiguration`](/api/) — the module's configuration class.
-- [`MqttTopicStructure`](/api/) — the `Document` / `Entity` enum.
-- [`IMTConnectMqttDocumentServerConfiguration`](/api/) — the configuration interface this module implements.
-- [`TlsConfiguration`](/api/) — the TLS configuration schema.
+- [`MqttBrokerModuleConfiguration`](/api/MTConnect.Configurations.MqttBrokerModuleConfiguration) — the module's configuration class.
+- [`MqttTopicStructure`](/api/MTConnect.MqttTopicStructure) — the `Document` / `Entity` enum.
+- [`IMTConnectMqttDocumentServerConfiguration`](/api/MTConnect.Configurations.IMTConnectMqttDocumentServerConfiguration) — the configuration interface this module implements.
+- [`TlsConfiguration`](/api/MTConnect.Tls.TlsConfiguration) — the TLS configuration schema.

@@ -6,15 +6,15 @@
 
 | Wire format | Reference | Posture | Codec class |
 |---|---|---|---|
-| XML | `MTConnect<Envelope>_<version>.xsd` from [schemas.mtconnect.org](https://schemas.mtconnect.org/) | XSD-validated, every envelope, every version v1.0 — v2.7 | [`MTConnect.Formatters.Xml.XmlFormatter`](/api/MTConnect.Formatters.Xml/XmlFormatter) |
-| JSON v1 | Library-defined (no normative JSON Schema exists) | Stable on the library, mirrors XML's object structure | [`MTConnect.Formatters.Json.JsonFormatter`](/api/MTConnect.Formatters.Json/JsonFormatter) |
-| JSON-CPPAGENT (v2) | cppagent's `application/mtconnect+json` output | Byte-for-byte cppagent-parity (array-of-wrappers canonical shape) | [`MTConnect.Formatters.JsonCppAgent.JsonCppAgentFormatter`](/api/MTConnect.Formatters.JsonCppAgent/JsonCppAgentFormatter) |
-| JSON-CPPAGENT-MQTT | cppagent's MQTT topic broker output | Byte-for-byte cppagent-parity (per-DataItem topic shape) | [`MTConnect.Formatters.JsonCppAgentMqtt.JsonCppAgentMqttFormatter`](/api/MTConnect.Formatters.JsonCppAgentMqtt/JsonCppAgentMqttFormatter) |
-| SHDR | `Part_5.0` Network spec prose | Spec-compliant; both as adapter producer and as adapter consumer | [`MTConnect.Shdr.ShdrAdapter`](/api/MTConnect.Shdr/ShdrAdapter) |
+| XML | `MTConnect<Envelope>_<version>.xsd` from [schemas.mtconnect.org](https://schemas.mtconnect.org/) | XSD-validated, every envelope, every version v1.0 — v2.7 | [`MTConnect.Formatters.Xml.XmlResponseDocumentFormatter`](/api/MTConnect.Formatters.Xml.XmlResponseDocumentFormatter) |
+| JSON v1 | Library-defined (no normative JSON Schema exists) | Stable on the library, mirrors XML's object structure | [`MTConnect.Formatters.JsonResponseDocumentFormatter`](/api/MTConnect.Formatters.JsonResponseDocumentFormatter) |
+| JSON-CPPAGENT (v2) | cppagent's `application/mtconnect+json` output | Byte-for-byte cppagent-parity (array-of-wrappers canonical shape) | [`MTConnect.Formatters.JsonHttpResponseDocumentFormatter`](/api/MTConnect.Formatters.JsonHttpResponseDocumentFormatter) |
+| JSON-CPPAGENT-MQTT | cppagent's MQTT topic broker output | Byte-for-byte cppagent-parity (per-DataItem topic shape) | [`MTConnect.Formatters.JsonMqttResponseDocumentFormatter`](/api/MTConnect.Formatters.JsonMqttResponseDocumentFormatter) |
+| SHDR | `Part_5.0` Network spec prose | Spec-compliant; both as adapter producer and as adapter consumer | [`MTConnect.Adapters.ShdrAdapter`](/api/MTConnect.Adapters.ShdrAdapter) |
 
 ## XML
 
-The XML output of every Streams / Devices / Assets / Error envelope validates against the matching `MTConnect<Envelope>_<version>.xsd` schema from [schemas.mtconnect.org](https://schemas.mtconnect.org/). The compliance test harness loads each shipped XSD as an embedded resource and validates a battery of golden-file fixtures against it (see [Test harness](/compliance/test-harness)). The XSDs are vendored unchanged into the test project, byte-identical to the upstream copies. Formatter pass: [`MTConnect.Formatters.Xml.XmlFormatter`](/api/MTConnect.Formatters.Xml/XmlFormatter) emits with `XmlWriterSettings.Indent = true` by default, configurable through the `IndentOutput` flag on each Module's configuration.
+The XML output of every Streams / Devices / Assets / Error envelope validates against the matching `MTConnect<Envelope>_<version>.xsd` schema from [schemas.mtconnect.org](https://schemas.mtconnect.org/). The compliance test harness loads each shipped XSD as an embedded resource and validates a battery of golden-file fixtures against it (see [Test harness](/compliance/test-harness)). The XSDs are vendored unchanged into the test project, byte-identical to the upstream copies. Formatter pass: [`MTConnect.Formatters.Xml.XmlResponseDocumentFormatter`](/api/MTConnect.Formatters.Xml.XmlResponseDocumentFormatter) emits with `XmlWriterSettings.Indent = true` by default, configurable through the `IndentOutput` flag on each Module's configuration.
 
 The library's XSD validator deliberately uses a permissive parser configuration to remain cross-platform. The .NET BCL ships an XSD 1.0 validator; a small set of XSD 1.1-only assertions in the published schemas (such as `xs:assert` for the `representation` enum) are not enforced at parse time, but the library injects the equivalent runtime checks. See [Troubleshooting: XSD validation failures](/troubleshooting/xsd-validation-failures) for the diagnostic pattern when a model fails validation locally that succeeded against an XSD 1.1 validator.
 
@@ -28,13 +28,13 @@ The JSON-CPPAGENT codec is the library's byte-for-byte parity target with the [c
 
 Round-trip parity test fixtures live in `tests/MTConnect.NET-Common-Tests/CppAgentParity/` (golden files captured from a published cppagent build, byte-compared against `MTConnect.NET`'s output). A successful run is the gate that any consumer parsing cppagent's output can swap in `MTConnect.NET`'s agent and observe no change.
 
-Documented at [Wire formats: JSON-CPPAGENT](/wire-formats/json-cppagent).
+Documented at [Wire formats: JSON-CPPAGENT](/wire-formats/json-v2-cppagent).
 
 ## JSON-CPPAGENT-MQTT
 
 The JSON-CPPAGENT-MQTT codec is the per-DataItem MQTT topic broker shape: every DataItem publishes to a topic of the form `<prefix>/Device/<deviceUuid>/<dataItemId>` with a JSON-CPPAGENT-formatted payload. The cppagent reference's MQTT broker (introduced in cppagent v2) defines the topic template; `MTConnect.NET`'s [MqttRelay](/modules/) and [MqttBroker](/modules/) modules both speak this format.
 
-Compliance is enforced by golden-file fixtures of cppagent's published MQTT output and round-trip parity tests. Documented at [Wire formats: JSON-CPPAGENT-MQTT](/wire-formats/json-cppagent-mqtt).
+Compliance is enforced by golden-file fixtures of cppagent's published MQTT output and round-trip parity tests. Documented at [Wire formats: JSON-CPPAGENT-MQTT](/wire-formats/json-v2-cppagent-mqtt).
 
 ## SHDR
 

@@ -73,7 +73,7 @@ The 'category' attribute is invalid. The value 'INFO' is invalid according to it
 The enumeration constraint failed.
 ```
 
-**Diagnosis**: an attribute carries a value not in the XSD's enumerated list. For `category`, the spec-defined values are `EVENT`, `SAMPLE`, `CONDITION` ([`MTConnect.Devices.DataItemCategory`](/api/MTConnect.Devices/DataItemCategory)). For `representation`, the values are `VALUE`, `DATA_SET`, `TABLE`, `TIME_SERIES` ([`MTConnect.Devices.DataItemRepresentation`](/api/MTConnect.Devices/DataItemRepresentation)).
+**Diagnosis**: an attribute carries a value not in the XSD's enumerated list. For `category`, the spec-defined values are `EVENT`, `SAMPLE`, `CONDITION` ([`MTConnect.Devices.DataItemCategory`](/api/MTConnect.Devices.DataItemCategory)). For `representation`, the values are `VALUE`, `DATA_SET`, `TABLE`, `TIME_SERIES` ([`MTConnect.Devices.DataItemRepresentation`](/api/MTConnect.Devices.DataItemRepresentation)).
 
 **Fix**:
 
