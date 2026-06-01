@@ -139,5 +139,5 @@ See the [Troubleshooting](/troubleshooting/) section for general observation-pip
 
 ## API reference
 
-- [`MTConnect.Processors`](/api/MTConnect.Processors) — the processor base class. [`ProcessObservation`](/api/MTConnect.Agents.ProcessObservation) is the per-call model the scripts receive.
+- [`MTConnect.Agents.MTConnectAgentProcessor`](/api/MTConnect.Agents.MTConnectAgentProcessor) — the processor base class. [`ProcessObservation`](/api/MTConnect.Agents.ProcessObservation) is the per-call model the scripts receive.
 - [`MTConnect.Input`](/api/MTConnect.Input) — the `ObservationInput` / `TimeSeriesObservationInput` types a script can construct and feed back into the agent via `AddObservation`.
