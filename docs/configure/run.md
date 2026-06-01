@@ -45,10 +45,10 @@ dotnet run --project agent/MTConnect.NET-Agent
 MTConnect.NET-Agent run
 ```
 
-The foreground process logs to stdout. A clean startup ends with a line of the form:
+The foreground process logs to stdout. A clean startup ends with the HTTP server module's `Listening at` line:
 
 ```
-agent-logger | Info | MTConnectAgent : Started on port 5000
+agent-logger | Info | Listening at http://*:5000/..
 ```
 
 The agent is then accepting HTTP requests on the configured port (default `5000` from the shipped `agent.config.default.yaml`).
@@ -135,7 +135,7 @@ The adapter is identical with `MTConnect.NET-Agent` replaced by `MTConnect.NET-A
 
 Symptoms the operator sees first, and where to look:
 
-- **No `Started on port N` line** — the configuration-load path failed. Look earlier in the log for `Failed to load configuration` or `Error parsing YAML`. A malformed `agent.config.yaml` aborts startup before the HTTP server binds.
+- **No `Listening at` line** — the configuration-load path failed. Look earlier in the log for `Failed to load configuration` or `Error parsing YAML`. A malformed `agent.config.yaml` aborts startup before the HTTP server binds.
 - **`Address already in use` on the agent's port** — another process is holding the port. The default is `5000`; reconfigure with `http-server: port:` in `agent.config.yaml`, or stop the conflicting process.
 - **`/probe` returns empty `<Devices/>`** — the `devices:` path resolved, but no `.xml` files parsed. Check the directory contents and look for `Failed to load device` messages. Common cause: an XSD-invalid `Devices.xml` (see [Troubleshooting: XSD validation failures](/troubleshooting/xsd-validation-failures)).
 - **Modules listed in `agent.config.yaml` not appearing in `/probe`** — the module-load path failed. Look for `Module load failed` lines naming the module key. Common causes: a missing `.dll` for an out-of-tree module, or a `tls:` block with an unreadable certificate path.
