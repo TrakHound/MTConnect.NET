@@ -88,6 +88,24 @@ jobs:
       - name: Build (Debug)
         run: dotnet build MTConnect.NET.sln --configuration Debug --no-restore
 
+      # Cache Playwright browser binaries so the Category=E2E
+      # [OneTimeSetUp] `playwright install chromium` call is a no-op on
+      # cache hit.  The key includes the test project's csproj hash so
+      # a Microsoft.Playwright NuGet version bump auto-invalidates.
+      # Both Linux (~/.cache/ms-playwright) and Windows
+      # (%USERPROFILE%\AppData\Local\ms-playwright) paths are listed;
+      # actions/cache restores only the path that exists on the running
+      # OS, so the multi-path entry is safe for both matrix legs.
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/ms-playwright
+            ~\AppData\Local\ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/tests/MTConnect.NET-Docs-Tests/MTConnect.NET-Docs-Tests.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
       # MTConnect.NET-Integration-Tests is skipped here (its
       # IsTestProject is false unless IntegrationCoverage=true) and run
       # in the dedicated step below so it can use its own
