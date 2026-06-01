@@ -104,14 +104,6 @@ const computeAnchorSet = async (targetFile) => {
     return ids;
 };
 
-const loadAnchorSet = (targetFile) => {
-    const cached = anchorCache.get(targetFile);
-    if (cached) return cached;
-    const pending = computeAnchorSet(targetFile);
-    anchorCache.set(targetFile, pending);
-    return pending;
-};
-
 const collectIds = (node, ids) => {
     if (!node) return;
     if (node.properties && typeof node.properties.id === 'string') ids.add(node.properties.id);
@@ -121,8 +113,12 @@ const collectIds = (node, ids) => {
 };
 
 const targetHasAnchor = async (targetFile, anchor) => {
-    const ids = await loadAnchorSet(targetFile);
-    return ids.has(anchor);
+    let pending = anchorCache.get(targetFile);
+    if (!pending) {
+        pending = computeAnchorSet(targetFile);
+        anchorCache.set(targetFile, pending);
+    }
+    return (await pending).has(anchor);
 };
 
 // Resolve a non-external link's filesystem candidates. VitePress allows
