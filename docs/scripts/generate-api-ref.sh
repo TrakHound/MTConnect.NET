@@ -105,9 +105,17 @@ if ! "${skip_build}"; then
     # Directory.Build.props turns every XML-doc warning — including
     # CS1591 (missing XML doc on a public surface) — into a build
     # failure, which is the campaign's 100 % XML-doc-coverage gate.
+    #
+    # --no-incremental forces a from-source recompile. Without it,
+    # an obj/ tree that was last produced under a CS1591-suppressed
+    # build remains current and silently masks missing-doc errors:
+    # MSBuild's up-to-date check looks at file timestamps and skips
+    # csc altogether, so neither the new compiler flags nor the
+    # diagnostic list takes effect.
     dotnet build "${proj_dir}/${csproj_name}" \
       -c Debug \
       -p:GenerateDocumentationFile=true \
+      --no-incremental \
       --nologo \
       -v:quiet
   done
