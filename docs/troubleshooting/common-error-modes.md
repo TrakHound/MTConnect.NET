@@ -115,7 +115,7 @@ var m = new Measurement
 
 **Cause**: a custom serializer was used that did not write `sequence`. The library always sets `Sequence` on every observation as it enters the buffer.
 
-**Fix**: use the library's `XmlFormatter`, `JsonFormatter`, or `JsonCppAgentFormatter` rather than a hand-rolled serializer. Each shipped formatter writes `sequence` on every observation as required by the XSD.
+**Fix**: use the library's `XmlResponseDocumentFormatter`, `JsonResponseDocumentFormatter`, or `JsonHttpResponseDocumentFormatter` rather than a hand-rolled serializer. Each shipped formatter writes `sequence` on every observation as required by the XSD.
 
 ## JSON-CPPAGENT response missing the array-of-wrappers shape
 

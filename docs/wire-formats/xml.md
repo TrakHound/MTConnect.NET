@@ -12,13 +12,13 @@ The codec registers as `XML` in the formatter registry. Agent modules and adapte
 
 | Class | Role |
 |---|---|
-| [`MTConnect.Formatters.XmlResponseDocumentFormatter`](/api/MTConnect.Formatters.Xml.XmlResponseDocumentFormatter) | Top-level `IResponseDocumentFormatter` for the four envelope kinds (Streams, Devices, Assets, Error). Returns `application/xml`. |
-| [`MTConnect.Formatters.XmlEntityFormatter`](/api/MTConnect.Formatters.Xml.XmlEntityFormatter) | Per-entity formatter (single Observation, single Asset, etc.) for callers that splice individual entities into a larger document. |
-| [`MTConnect.Formatters.XmlPathFormatter`](/api/MTConnect.Formatters.Xml.XmlPathFormatter) | XPath-style path resolver used by the `path=` query parameter on `/current` and `/sample`. |
+| [`MTConnect.Formatters.Xml.XmlResponseDocumentFormatter`](/api/MTConnect.Formatters.Xml.XmlResponseDocumentFormatter) | Top-level `IResponseDocumentFormatter` for the four envelope kinds (Streams, Devices, Assets, Error). Returns `application/xml`. |
+| [`MTConnect.Formatters.Xml.XmlEntityFormatter`](/api/MTConnect.Formatters.Xml.XmlEntityFormatter) | Per-entity formatter (single Observation, single Asset, etc.) for callers that splice individual entities into a larger document. |
+| [`MTConnect.Formatters.Xml.XmlPathFormatter`](/api/MTConnect.Formatters.Xml.XmlPathFormatter) | XPath-style path resolver used by the `path=` query parameter on `/current` and `/sample`. |
 | [`MTConnect.Streams.Xml.XmlStreamsResponseDocument`](/api/MTConnect.Streams.Xml.XmlStreamsResponseDocument) | DTO that mirrors the `<MTConnectStreams>` envelope. |
 | [`MTConnect.Devices.Xml.XmlDevicesResponseDocument`](/api/MTConnect.Devices.Xml.XmlDevicesResponseDocument) | DTO that mirrors the `<MTConnectDevices>` envelope. |
-| [`MTConnect.Assets.Xml.XmlAssetsDocument`](/api/MTConnect.Assets.Xml.XmlAssetsResponseDocument) | DTO that mirrors the `<MTConnectAssets>` envelope. |
-| [`MTConnect.Errors.Xml.XmlErrorDocument`](/api/MTConnect.Errors.Xml.XmlErrorResponseDocument) | DTO that mirrors the `<MTConnectError>` envelope. |
+| [`MTConnect.Assets.Xml.XmlAssetsResponseDocument`](/api/MTConnect.Assets.Xml.XmlAssetsResponseDocument) | DTO that mirrors the `<MTConnectAssets>` envelope. |
+| [`MTConnect.Errors.Xml.XmlErrorResponseDocument`](/api/MTConnect.Errors.Xml.XmlErrorResponseDocument) | DTO that mirrors the `<MTConnectError>` envelope. |
 | [`MTConnect.XmlValidator`](/api/MTConnect.XmlValidator) | XSD validator that loads the embedded per-version schema set under [`MTConnect.Schemas`](/api/MTConnect.Schemas) and reports structural errors. |
 
 ## Sample envelope

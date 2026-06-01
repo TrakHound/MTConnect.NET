@@ -10,7 +10,7 @@
 | JSON v1 | Library-defined (no normative JSON Schema exists) | Stable on the library, mirrors XML's object structure | [`MTConnect.Formatters.JsonResponseDocumentFormatter`](/api/MTConnect.Formatters.JsonResponseDocumentFormatter) |
 | JSON-CPPAGENT (v2) | cppagent's `application/mtconnect+json` output | Byte-for-byte cppagent-parity (array-of-wrappers canonical shape) | [`MTConnect.Formatters.JsonHttpResponseDocumentFormatter`](/api/MTConnect.Formatters.JsonHttpResponseDocumentFormatter) |
 | JSON-CPPAGENT-MQTT | cppagent's MQTT topic broker output | Byte-for-byte cppagent-parity (per-DataItem topic shape) | [`MTConnect.Formatters.JsonMqttResponseDocumentFormatter`](/api/MTConnect.Formatters.JsonMqttResponseDocumentFormatter) |
-| SHDR | `Part_5.0` Network spec prose | Spec-compliant; both as adapter producer and as adapter consumer | [`MTConnect.Shdr.ShdrAdapter`](/api/MTConnect.Adapters.ShdrAdapter) |
+| SHDR | `Part_5.0` Network spec prose | Spec-compliant; both as adapter producer and as adapter consumer | [`MTConnect.Adapters.ShdrAdapter`](/api/MTConnect.Adapters.ShdrAdapter) |
 
 ## XML
 

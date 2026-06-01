@@ -36,10 +36,10 @@ The protocol layers four control idioms on top of that base:
 | [`MTConnect.Shdr.ShdrAsset`](/api/MTConnect.Shdr.ShdrAsset) | Codec for `@ASSET@` push lines, including the `--multiline--<token>` envelope for XML assets. |
 | [`MTConnect.Shdr.ShdrMessage`](/api/MTConnect.Shdr.ShdrMessage) | Codec for `MESSAGE`-representation Events (which carry a native code alongside the value). |
 | [`MTConnect.Shdr.ShdrFaultState`](/api/MTConnect.Shdr.ShdrFaultState) | Per-fault DTO used by `ShdrCondition`. |
-| [`MTConnect.Adapters.Shdr.ShdrAdapter`](/api/MTConnect.Adapters.ShdrAdapter) | Adapter-side TCP server that serializes queued observations and publishes lines on connect / on change. |
-| [`MTConnect.Adapters.Shdr.ShdrIntervalAdapter`](/api/MTConnect.Adapters.ShdrIntervalAdapter) | Adapter variant that flushes the most-recent value of each DataItem on a fixed interval. |
-| [`MTConnect.Adapters.Shdr.ShdrQueueAdapter`](/api/MTConnect.Adapters.ShdrQueueAdapter) | Adapter variant that publishes every queued observation on `SendBuffer()`. |
-| [`MTConnect.Adapters.Shdr.ShdrIntervalQueueAdapter`](/api/MTConnect.Adapters.ShdrIntervalQueueAdapter) | Adapter variant that flushes the full queue on a fixed interval. |
+| [`MTConnect.Adapters.ShdrAdapter`](/api/MTConnect.Adapters.ShdrAdapter) | Adapter-side TCP server that serializes queued observations and publishes lines on connect / on change. |
+| [`MTConnect.Adapters.ShdrIntervalAdapter`](/api/MTConnect.Adapters.ShdrIntervalAdapter) | Adapter variant that flushes the most-recent value of each DataItem on a fixed interval. |
+| [`MTConnect.Adapters.ShdrQueueAdapter`](/api/MTConnect.Adapters.ShdrQueueAdapter) | Adapter variant that publishes every queued observation on `SendBuffer()`. |
+| [`MTConnect.Adapters.ShdrIntervalQueueAdapter`](/api/MTConnect.Adapters.ShdrIntervalQueueAdapter) | Adapter variant that flushes the full queue on a fixed interval. |
 | [`MTConnect.Shdr.ShdrClient`](/api/MTConnect.Shdr.ShdrClient) | Agent-side TCP client that reads from an `ShdrAdapter`, parses each line, and pushes observations into an `IMTConnectAgent`. |
 
 ## Sample lines
