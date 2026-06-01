@@ -79,6 +79,8 @@ client.CurrentReceived += (sender, doc) =>
 client.Start();
 ```
 
+`CurrentReceived` fires once on stream initialization — `Start()` drives the `/sample` long-poll, not periodic `/current` polling. For periodic snapshots, call `GetCurrent()` directly on a timer; for the streaming case, subscribe to `SampleReceived`.
+
 The client handles reconnects on the consumer's behalf; the `ConnectionError` event fires on transport failures and the client backs off and retries. Parsing or dispatch failures surface through `InternalError`.
 
 ## MQTT — the cppagent-parity broker / relay tree
