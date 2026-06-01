@@ -56,7 +56,6 @@ projects=(
   "agent/Modules/MTConnect.NET-AgentModule-MqttBroker"
   "agent/Modules/MTConnect.NET-AgentModule-MqttRelay"
   "agent/Modules/MTConnect.NET-AgentModule-ShdrAdapter"
-  "agent/Processors/MTConnect.NET-AgentProcessor-Python"
   "adapter/MTConnect.NET-Adapter"
   "adapter/MTConnect.NET-Applications-Adapter"
   "adapter/Modules/MTConnect.NET-AdapterModule-MQTT"
