@@ -272,6 +272,8 @@ public class RouteCheckTests
                 twitterCard: document.querySelector('meta[name=""twitter:card""]')?.getAttribute('content') ?? null,
                 twitterImage: document.querySelector('meta[name=""twitter:image""]')?.getAttribute('content') ?? null,
                 heroLogoSrc: document.querySelector('.VPNavBarTitle img.logo')?.getAttribute('src') ?? null,
+                heroImageSrc: (document.querySelector('.VPHero .VPImage')
+                    ?? document.querySelector('.VPHero img[src*=""logo""]'))?.getAttribute('src') ?? null,
                 downloadCtaHref: (() => {
                     const link = Array.from(document.querySelectorAll('.VPHero a, a'))
                         .find(a => /Download latest release/i.test(a.textContent ?? ''));
@@ -313,6 +315,17 @@ public class RouteCheckTests
                 "no <img> rendered inside .VPNavBarTitle — themeConfig.logo did not take effect");
             Assert.That(probes.HeroLogoSrc, Does.EndWith("/logo.png"),
                 $"nav logo src does not point at /logo.png — got '{probes.HeroLogoSrc}'");
+
+            // Hero image — pinned per §1.0d-trigies-semel (the maintainer-supplied
+            // logo must render in the landing hero block, not just the nav bar).
+            // VitePress's default home layout renders the hero image as
+            // .VPHero .VPImage when `hero.image.src` is set in index.md;
+            // the fallback `.VPHero img[src*='logo']` covers theme-overridden
+            // cases where a custom hero component is in play.
+            Assert.That(probes.HeroImageSrc, Is.Not.Null.And.Not.Empty,
+                "no image rendered inside .VPHero — hero.image did not take effect");
+            Assert.That(probes.HeroImageSrc, Does.EndWith("/logo.png"),
+                $"hero image src does not point at /logo.png — got '{probes.HeroImageSrc}'");
 
             // Hero 'Download latest release' CTA — text + canonical link.
             Assert.That(probes.DownloadCtaHref, Is.EqualTo(
@@ -370,8 +383,49 @@ public class RouteCheckTests
         [JsonPropertyName("heroLogoSrc")]
         public string? HeroLogoSrc { get; set; }
 
+        [JsonPropertyName("heroImageSrc")]
+        public string? HeroImageSrc { get; set; }
+
         [JsonPropertyName("downloadCtaHref")]
         public string? DownloadCtaHref { get; set; }
+    }
+
+    /// <summary>
+    /// Negative companion to <see cref="Landing_Page_Carries_The_House_Style_Surfaces"/>
+    /// per §10a: the positive test only proves the hero image
+    /// <c>src</c> attribute is wired through to <c>/logo.png</c>, not
+    /// that the asset is actually reachable. A future asset-pipeline
+    /// regression (renamed file, missed copy step, accidental
+    /// <c>.gitignore</c> entry) would pass the meta-/DOM-attribute
+    /// check above but break the hero image for end users. Fetching
+    /// the asset over HTTP and asserting <c>200 + image/png</c> closes
+    /// that gap.
+    /// </summary>
+    [Test]
+    public async Task Landing_Hero_Image_Asset_Resolves()
+    {
+        Assert.That(_browser, Is.Not.Null, "browser was not initialised");
+
+        var context = await _browser!.NewContextAsync();
+        try
+        {
+            // Reuse the Playwright APIRequest plumbing the favicon check
+            // in the positive test already exercises — keeps the
+            // negative test on the same HTTP transport as everything
+            // else in this fixture (no parallel HttpClient surface to
+            // keep in sync with the preview-server lifecycle).
+            var assetUrl = _baseUrl + "/logo.png";
+            var response = await context.APIRequest.GetAsync(assetUrl);
+            Assert.That(response.Status, Is.EqualTo(200),
+                $"the hero image asset at {assetUrl} returned HTTP {response.Status}");
+            var contentType = response.Headers.TryGetValue("content-type", out var ct) ? ct : null;
+            Assert.That(contentType, Is.Not.Null.And.StartsWith("image/png"),
+                $"the hero image asset content-type is '{contentType}', expected 'image/png'");
+        }
+        finally
+        {
+            await context.CloseAsync();
+        }
     }
 
     /// <summary>
