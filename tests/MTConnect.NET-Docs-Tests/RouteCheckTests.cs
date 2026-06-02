@@ -54,61 +54,96 @@ public class RouteCheckTests
     private Task? _previewStdoutDrain;
     private Task? _previewStderrDrain;
 
+    // Walk-up bound is intentionally large (32) rather than fitting the
+    // current `bin/Debug/netN.N/` suffix exactly. A deeper container path,
+    // a vendored / submoduled checkout, or a future test-output relayout
+    // can extend the chain without re-tripping this guard. The exception
+    // message names both the starting BaseDirectory and the depth walked
+    // so a future failure is diagnosable from the assertion alone.
+    private const int RepoRootMaxAncestorDepth = 32;
+
     private static string RepoRoot
     {
         get
         {
-            var dir = AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-            for (int i = 0; i < 10 && !string.IsNullOrEmpty(dir); i++)
+            var start = AppContext.BaseDirectory;
+            var dir = start.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            int depth;
+            for (depth = 0; depth < RepoRootMaxAncestorDepth && !string.IsNullOrEmpty(dir); depth++)
             {
                 if (File.Exists(Path.Combine(dir, "MTConnect.NET.sln"))) return dir;
                 dir = Path.GetDirectoryName(dir)!;
             }
-            throw new InvalidOperationException("Could not locate repository root from " + AppContext.BaseDirectory);
+            throw new InvalidOperationException(
+                $"Could not locate repository root: walked {depth} ancestor(s) up from BaseDirectory '{start}' without finding MTConnect.NET.sln.");
         }
     }
 
     [OneTimeSetUp]
     public async Task OneTimeSetUp()
     {
-        _docsRoot = Path.Combine(RepoRoot, "docs");
-        var distDir = Path.Combine(_docsRoot, ".vitepress", "dist");
-
-        // The test owns its build prerequisite. If the dist/ tree
-        // doesn't already exist, run `npm ci && npm run build` from
-        // docs/ to produce it. `npm run build` invokes the `prebuild`
-        // hook (regenerate api + reference), so the rendered site
-        // matches what CI builds on every push. The presence check
-        // looks for index.html specifically because a partial /
-        // stale dist tree (e.g. just an assets/ subdirectory left
-        // from a prior aborted run) is not a usable preview target.
-        if (!File.Exists(Path.Combine(distDir, "index.html")))
+        // Wrap the bootstrap so a partial failure (npm bootstrap throw,
+        // chromium-install non-zero exit, preview-server bind timeout)
+        // rethrows with whatever state was captured up to that point —
+        // the partial `_previewLog`, the bootstrap stage that failed —
+        // rather than a bare exception with no context. OneTimeTearDown
+        // runs unconditionally and cleans up whatever was allocated.
+        var stage = "init";
+        try
         {
-            RunNpm("ci", _docsRoot);
-            RunNpm("run build", _docsRoot);
-        }
+            _docsRoot = Path.Combine(RepoRoot, "docs");
+            var distDir = Path.Combine(_docsRoot, ".vitepress", "dist");
 
-        // Install the chromium binary the Playwright .NET binding drives.
-        // Idempotent: re-installs cleanly if the cache is already warm.
-        var installExit = Microsoft.Playwright.Program.Main(new[] { "install", "chromium" });
-        if (installExit != 0)
+            // The test owns its build prerequisite. If the dist/ tree
+            // doesn't already exist, run `npm ci && npm run build` from
+            // docs/ to produce it. `npm run build` invokes the `prebuild`
+            // hook (regenerate api + reference), so the rendered site
+            // matches what CI builds on every push. The presence check
+            // looks for index.html specifically because a partial /
+            // stale dist tree (e.g. just an assets/ subdirectory left
+            // from a prior aborted run) is not a usable preview target.
+            if (!File.Exists(Path.Combine(distDir, "index.html")))
+            {
+                stage = "npm ci";
+                RunNpm("ci", _docsRoot);
+                stage = "npm run build";
+                RunNpm("run build", _docsRoot);
+            }
+
+            // Install the chromium binary the Playwright .NET binding drives.
+            // Idempotent: re-installs cleanly if the cache is already warm.
+            stage = "playwright install chromium";
+            var installExit = Microsoft.Playwright.Program.Main(new[] { "install", "chromium" });
+            if (installExit != 0)
+            {
+                throw new InvalidOperationException($"`playwright install chromium` exited {installExit}");
+            }
+
+            // Hand the port allocation off to vitepress so there is no TOCTOU
+            // window between picking a free port and binding it. `--port 0` is
+            // a hint, not a guarantee — vitepress can ignore it and pick its
+            // own default (5173) — so the actual bound port is parsed off the
+            // drained startup banner (`Local: http://localhost:NNNN/`).
+            stage = "start preview server";
+            var port = FindFreePort();
+            (_previewServer, _previewStdoutDrain, _previewStderrDrain) =
+                StartPreviewServer(port, distDir, _docsRoot, _previewLog);
+            var boundPort = await WaitForServerAsync(port, _previewServer, _previewLog);
+            _baseUrl = $"http://127.0.0.1:{boundPort}";
+
+            stage = "launch chromium";
+            _playwright = await Playwright.CreateAsync();
+            _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
+        }
+        catch (Exception ex)
         {
-            throw new InvalidOperationException($"`playwright install chromium` exited {installExit}");
+            string snapshot;
+            lock (_previewLog) snapshot = _previewLog.ToString();
+            var context = string.IsNullOrEmpty(snapshot)
+                ? $"OneTimeSetUp failed at stage '{stage}' with no preview output captured."
+                : $"OneTimeSetUp failed at stage '{stage}'. Preview server output captured so far:{Environment.NewLine}{snapshot}";
+            throw new InvalidOperationException(context, ex);
         }
-
-        // Hand the port allocation off to vitepress so there is no TOCTOU
-        // window between picking a free port and binding it. `--port 0` is
-        // a hint, not a guarantee — vitepress can ignore it and pick its
-        // own default (5173) — so the actual bound port is parsed off the
-        // drained startup banner (`Local: http://localhost:NNNN/`).
-        var port = FindFreePort();
-        (_previewServer, _previewStdoutDrain, _previewStderrDrain) =
-            StartPreviewServer(port, distDir, _docsRoot, _previewLog);
-        var boundPort = await WaitForServerAsync(port, _previewServer, _previewLog);
-        _baseUrl = $"http://127.0.0.1:{boundPort}";
-
-        _playwright = await Playwright.CreateAsync();
-        _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
     }
 
     [OneTimeTearDown]
@@ -133,6 +168,30 @@ public class RouteCheckTests
             try { await drain; }
             catch (IOException) { /* pipe closed mid-read on Kill */ }
             catch (ObjectDisposedException) { /* process disposed */ }
+        }
+    }
+
+    [Test]
+    public async Task A_Synthetic_Unmapped_Route_Surfaces_As_A_404()
+    {
+        // Pins the detector itself per §10a. If a future Playwright / VitePress
+        // upgrade silently breaks one of the three signals (.NotFound element,
+        // document.title === '404', body-text 'PAGE NOT FOUND'), the positive
+        // test would still pass — every real markdown-backed route would
+        // continue to render fine — but a real 404 would go undetected. This
+        // test makes sure the detector fires on a URL that has no markdown
+        // source behind it.
+        Assert.That(_browser, Is.Not.Null, "browser was not initialised");
+        var context = await _browser!.NewContextAsync();
+        try
+        {
+            var failure = await CheckRouteAsync(context, _baseUrl, "/this-route-does-not-exist");
+            Assert.That(failure, Is.Not.Null,
+                "expected /this-route-does-not-exist to surface as a 404, but the detector returned no indicator");
+        }
+        finally
+        {
+            await context.CloseAsync();
         }
     }
 
