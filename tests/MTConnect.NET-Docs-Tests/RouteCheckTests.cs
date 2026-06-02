@@ -9,7 +9,6 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
@@ -82,25 +81,11 @@ public class RouteCheckTests
     // a vendored / submoduled checkout, or a future test-output relayout
     // can extend the chain without re-tripping this guard. The exception
     // message names both the starting BaseDirectory and the depth walked
-    // so a future failure is diagnosable from the assertion alone.
-    private const int RepoRootMaxAncestorDepth = 32;
-
-    private static string RepoRoot
-    {
-        get
-        {
-            var start = AppContext.BaseDirectory;
-            var dir = start.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-            int depth;
-            for (depth = 0; depth < RepoRootMaxAncestorDepth && !string.IsNullOrEmpty(dir); depth++)
-            {
-                if (File.Exists(Path.Combine(dir, "MTConnect.NET.sln"))) return dir;
-                dir = Path.GetDirectoryName(dir)!;
-            }
-            throw new InvalidOperationException(
-                $"Could not locate repository root: walked {depth} ancestor(s) up from BaseDirectory '{start}' without finding MTConnect.NET.sln.");
-        }
-    }
+    // so a future failure is diagnosable from the assertion alone. The
+    // walk itself lives in RouteCheckHelpers so it can be unit-tested
+    // without bootstrapping the Node + Playwright fixture.
+    private static string RepoRoot =>
+        RouteCheckHelpers.LocateRepoRoot(AppContext.BaseDirectory, "MTConnect.NET.sln");
 
     /// <summary>
     /// Build the docs site if needed, install the Playwright chromium
@@ -156,7 +141,7 @@ public class RouteCheckTests
             // own default (5173) — so the actual bound port is parsed off the
             // drained startup banner (`Local: http://localhost:NNNN/`).
             stage = "start preview server";
-            var port = FindFreePort();
+            var port = RouteCheckHelpers.FindFreePort();
             (_previewServer, _previewStdoutDrain, _previewStderrDrain) =
                 StartPreviewServer(port, distDir, _docsRoot, _previewLog);
             var boundPort = await WaitForServerAsync(port, _previewServer, _previewLog);
@@ -251,7 +236,7 @@ public class RouteCheckTests
     {
         Assert.That(_browser, Is.Not.Null, "browser was not initialised");
 
-        var routes = CollectRoutes(_docsRoot);
+        var routes = RouteCheckHelpers.CollectRoutes(_docsRoot);
         Assert.That(routes.Count, Is.GreaterThan(0), "expected at least one markdown-backed route");
 
         var failures = await WalkRoutesAsync(_browser!, _baseUrl, routes, Concurrency);
@@ -303,65 +288,6 @@ public class RouteCheckTests
 
         await Task.WhenAll(workers);
         return failures;
-    }
-
-    // ─── Route derivation ────────────────────────────────────────────────────
-
-    // Convert an absolute .md file path to the VitePress route it maps to.
-    // Mirrors the original Node crawler's mdFileToRoute:
-    //   docs/index.md           -> /
-    //   docs/getting-started.md -> /getting-started
-    //   docs/reference/index.md -> /reference/
-    //   docs/reference/cli.md   -> /reference/cli
-    private static string MdFileToRoute(string docsRoot, string absPath)
-    {
-        var rel = absPath.Substring(docsRoot.Length).Replace(Path.DirectorySeparatorChar, '/');
-        if (!rel.StartsWith('/')) rel = "/" + rel;
-        if (rel == "/index.md") return "/";
-        if (rel.EndsWith("/index.md", StringComparison.Ordinal))
-            return rel.Substring(0, rel.Length - "index.md".Length);
-        return rel.Substring(0, rel.Length - ".md".Length);
-    }
-
-    private static List<string> CollectRoutes(string docsRoot)
-    {
-        var files = new List<string>();
-        CollectMarkdownFiles(docsRoot, files);
-        return files
-            .Select(f => MdFileToRoute(docsRoot, f))
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(r => r, StringComparer.Ordinal)
-            .ToList();
-    }
-
-    // EnumerationOptions skips reparse points (symlinks, junctions) so a
-    // loop-back symlink in docs/ — `docs/loop -> docs/` — cannot drive
-    // the recursion into a stack overflow. The recursion stays explicit
-    // (RecurseSubdirectories = false) so the node_modules + dotfile
-    // skip rules apply at every level.
-    private static readonly EnumerationOptions MarkdownEnumeration = new()
-    {
-        RecurseSubdirectories = false,
-        AttributesToSkip = FileAttributes.ReparsePoint,
-    };
-
-    private static void CollectMarkdownFiles(string dir, List<string> results)
-    {
-        foreach (var entry in Directory.EnumerateFileSystemEntries(dir, "*", MarkdownEnumeration))
-        {
-            var name = Path.GetFileName(entry);
-            if (Directory.Exists(entry))
-            {
-                // Skip node_modules and any dot-prefixed directory
-                // (.vitepress carries the build cache + dist).
-                if (name == "node_modules" || name.StartsWith('.')) continue;
-                CollectMarkdownFiles(entry, results);
-            }
-            else if (File.Exists(entry) && entry.EndsWith(".md", StringComparison.OrdinalIgnoreCase))
-            {
-                results.Add(entry);
-            }
-        }
     }
 
     // ─── Route check ─────────────────────────────────────────────────────────
@@ -425,15 +351,6 @@ public class RouteCheckTests
 
     // ─── Preview server lifecycle ────────────────────────────────────────────
 
-    private static int FindFreePort()
-    {
-        var listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Loopback, 0);
-        listener.Start();
-        var port = ((System.Net.IPEndPoint)listener.LocalEndpoint).Port;
-        listener.Stop();
-        return port;
-    }
-
     private static (Process Process, Task StdoutDrain, Task StderrDrain) StartPreviewServer(int port, string distDir, string docsRoot, System.Text.StringBuilder log)
     {
         // Use `npx vitepress preview` so the local node_modules copy
@@ -493,14 +410,6 @@ public class RouteCheckTests
         });
     }
 
-    // Match the vitepress startup banner so we can confirm which port the
-    // child actually bound to. If the requested port was claimed by another
-    // process between FindFreePort returning and vitepress binding, the
-    // server's own log is the source of truth — not the port we asked for.
-    private static readonly Regex PreviewBannerPortRegex = new(
-        @"https?://(?:localhost|127\.0\.0\.1)(?::(?<port>\d+))?/?",
-        RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
     private static async Task<int> WaitForServerAsync(int requestedPort, Process proc, System.Text.StringBuilder log)
     {
         var deadline = DateTime.UtcNow.AddMilliseconds(ServerReadyTimeoutMs);
@@ -517,8 +426,9 @@ public class RouteCheckTests
             // Prefer the port reported in the startup banner — it is the
             // authoritative answer to "which port did the child actually
             // bind?". Falls back to the requested port if the banner has
-            // not yet been drained.
-            var observedPort = ExtractBannerPort(log) ?? requestedPort;
+            // not yet been drained. ExtractBannerPort lives in
+            // RouteCheckHelpers so the parse is unit-tested separately.
+            var observedPort = RouteCheckHelpers.ExtractBannerPort(log) ?? requestedPort;
             try
             {
                 using var client = new TcpClient();
@@ -534,22 +444,6 @@ public class RouteCheckTests
         lock (log) finalSnapshot = log.ToString();
         throw new TimeoutException(
             $"vitepress preview did not bind to 127.0.0.1:{requestedPort} within {ServerReadyTimeoutMs / 1000}s.{Environment.NewLine}{finalSnapshot}");
-    }
-
-    private static int? ExtractBannerPort(System.Text.StringBuilder log)
-    {
-        string snapshot;
-        lock (log) snapshot = log.ToString();
-        // vitepress prints something like:
-        //   ➜  Local:   http://localhost:4173/
-        // Scan every match and prefer the highest-port hit (the banner
-        // can also include the Network: line, both share the same port).
-        foreach (Match m in PreviewBannerPortRegex.Matches(snapshot))
-        {
-            var g = m.Groups["port"];
-            if (g.Success && int.TryParse(g.Value, out var p) && p > 0) return p;
-        }
-        return null;
     }
 
     private static void StopPreviewServer(Process? proc)
