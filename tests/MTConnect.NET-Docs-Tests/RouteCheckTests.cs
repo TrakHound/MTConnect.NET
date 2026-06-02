@@ -51,6 +51,8 @@ public class RouteCheckTests
     private string _baseUrl = string.Empty;
     private string _docsRoot = string.Empty;
     private readonly System.Text.StringBuilder _previewLog = new();
+    private Task? _previewStdoutDrain;
+    private Task? _previewStderrDrain;
 
     private static string RepoRoot
     {
@@ -100,7 +102,8 @@ public class RouteCheckTests
         // own default (5173) — so the actual bound port is parsed off the
         // drained startup banner (`Local: http://localhost:NNNN/`).
         var port = FindFreePort();
-        _previewServer = StartPreviewServer(port, distDir, _docsRoot, _previewLog);
+        (_previewServer, _previewStdoutDrain, _previewStderrDrain) =
+            StartPreviewServer(port, distDir, _docsRoot, _previewLog);
         var boundPort = await WaitForServerAsync(port, _previewServer, _previewLog);
         _baseUrl = $"http://127.0.0.1:{boundPort}";
 
@@ -114,6 +117,23 @@ public class RouteCheckTests
         if (_browser is not null) await _browser.CloseAsync();
         _playwright?.Dispose();
         StopPreviewServer(_previewServer);
+        // Drain tasks complete when ReadLineAsync returns null (the pipes
+        // close once Kill takes the child down). A small bounded wait stops
+        // a stuck reader from holding teardown indefinitely.
+        await AwaitDrainAsync(_previewStdoutDrain);
+        await AwaitDrainAsync(_previewStderrDrain);
+    }
+
+    private static async Task AwaitDrainAsync(Task? drain)
+    {
+        if (drain is null) return;
+        var completed = await Task.WhenAny(drain, Task.Delay(2_000));
+        if (completed == drain)
+        {
+            try { await drain; }
+            catch (IOException) { /* pipe closed mid-read on Kill */ }
+            catch (ObjectDisposedException) { /* process disposed */ }
+        }
     }
 
     [Test]
@@ -263,7 +283,7 @@ public class RouteCheckTests
         return port;
     }
 
-    private static Process StartPreviewServer(int port, string distDir, string docsRoot, System.Text.StringBuilder log)
+    private static (Process Process, Task StdoutDrain, Task StderrDrain) StartPreviewServer(int port, string distDir, string docsRoot, System.Text.StringBuilder log)
     {
         // Use `npx vitepress preview` so the local node_modules copy
         // is invoked without needing a global install. On Windows the
@@ -296,33 +316,30 @@ public class RouteCheckTests
         // wait can surface the actual error if the preview fails
         // before binding (e.g. dist/ missing, port collision the
         // free-port finder lost the race to, vitepress CLI usage
-        // error).
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                string? line;
-                while ((line = await proc.StandardOutput.ReadLineAsync()) is not null)
-                {
-                    lock (log) log.AppendLine("[stdout] " + line);
-                }
-            }
-            catch { /* process exited */ }
-        });
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                string? line;
-                while ((line = await proc.StandardError.ReadLineAsync()) is not null)
-                {
-                    lock (log) log.AppendLine("[stderr] " + line);
-                }
-            }
-            catch { /* process exited */ }
-        });
+        // error). The drain tasks are tracked so OneTimeTearDown can
+        // await them after Kill; an exception narrower than `catch`
+        // keeps real failures visible.
+        var stdoutDrain = DrainPipeAsync(proc.StandardOutput, log, "[stdout] ");
+        var stderrDrain = DrainPipeAsync(proc.StandardError, log, "[stderr] ");
 
-        return proc;
+        return (proc, stdoutDrain, stderrDrain);
+    }
+
+    private static Task DrainPipeAsync(System.IO.StreamReader reader, System.Text.StringBuilder log, string prefix)
+    {
+        return Task.Run(async () =>
+        {
+            try
+            {
+                string? line;
+                while ((line = await reader.ReadLineAsync()) is not null)
+                {
+                    lock (log) log.AppendLine(prefix + line);
+                }
+            }
+            catch (IOException) { /* pipe closed mid-read on Kill */ }
+            catch (ObjectDisposedException) { /* process disposed */ }
+        });
     }
 
     // Match the vitepress startup banner so we can confirm which port the
@@ -432,10 +449,16 @@ public class RouteCheckTests
         var proc = Process.Start(psi)
             ?? throw new InvalidOperationException($"Failed to start `npm {arguments}`");
 
-        // Drain both pipes so the child doesn't block; surface output
-        // on failure for diagnostics.
-        var stdout = proc.StandardOutput.ReadToEnd();
-        var stderr = proc.StandardError.ReadToEnd();
+        // Drain both pipes concurrently so the child doesn't block on a
+        // full stderr buffer while the parent waits on stdout — the
+        // classic pipe-deadlock pattern. `npm ci` emits stderr volume in
+        // the form of deprecation warnings and peer-dep notices that on a
+        // verbose run can exceed the OS pipe buffer (typically 64 KB).
+        var stdoutTask = proc.StandardOutput.ReadToEndAsync();
+        var stderrTask = proc.StandardError.ReadToEndAsync();
+        Task.WaitAll(stdoutTask, stderrTask);
+        var stdout = stdoutTask.Result;
+        var stderr = stderrTask.Result;
         proc.WaitForExit();
 
         if (proc.ExitCode != 0)
