@@ -182,13 +182,22 @@ while IFS= read -r -d '' md_file; do
     /^```/ { in_fence = !in_fence; print; next }
     in_fence { print; next }
     {
-      # Replace `<X` (uppercase) with `&lt;X` by walking each match.
+      # Replace `<X` (uppercase) or `<[` with `&lt;X` / `&lt;[` by
+      # walking each match.
       out = ""; s = $0
       while (match(s, /<([A-Z]|\[)/)) {
         out = out substr(s, 1, RSTART - 1) "&lt;" substr(s, RSTART + 1, RLENGTH - 1)
         s = substr(s, RSTART + RLENGTH)
       }
-      print out s
+      line = out s
+      # Replace `{{` with `&#123;&#123;` so Vue does not treat the
+      # token as a mustache interpolation. docfx preserves verbatim
+      # spec-marker text like `{{term(data set)}}` from XML doc
+      # comments, which Vue would otherwise try to parse as the
+      # JavaScript expression `term(data set)` and reject. The
+      # html-entity form survives the markdown -> HTML pipeline.
+      gsub(/\{\{/, "\\&#123;\\&#123;", line)
+      print line
     }
   ' "${md_file}" > "${md_file}.tmp" && mv "${md_file}.tmp" "${md_file}"
 done < <(find docs/api -name '*.md' -not -name 'index.md' -print0)
