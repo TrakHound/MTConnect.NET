@@ -196,7 +196,22 @@ while IFS= read -r -d '' md_file; do
       # JavaScript expression `term(data set)` and reject. The
       # html-entity form survives the markdown -> HTML pipeline.
       gsub(/\{\{/, "\\&#123;\\&#123;", line)
-      print line
+      # Escape `*` inside <code ...>...</code> spans as `&#42;`.
+      # Without this, two `<code>*.sh</code>` spans on a single line
+      # let markdown-it treat the `*` characters as the bookends of
+      # an `<em>` span, producing `<em>.sh</code> and <code v-pre></em>`
+      # in the rendered HTML -- with the `<code>` open/close braces
+      # spliced into broken positions -- which then trips Vue with
+      # "Element is missing end tag" during vitepress build.
+      out2 = ""; t = line
+      while (match(t, /<code( [^>]*)?>[^<]*<\/code>/)) {
+        prefix = substr(t, 1, RSTART - 1)
+        span = substr(t, RSTART, RLENGTH)
+        gsub(/\*/, "\\&#42;", span)
+        out2 = out2 prefix span
+        t = substr(t, RSTART + RLENGTH)
+      }
+      print out2 t
     }
   ' "${md_file}" > "${md_file}.tmp" && mv "${md_file}.tmp" "${md_file}"
 done < <(find docs/api -name '*.md' -not -name 'index.md' -print0)
