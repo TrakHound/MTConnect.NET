@@ -75,6 +75,8 @@ public class RouteCheckTests
     private readonly System.Text.StringBuilder _previewLog = new();
     private Task? _previewStdoutDrain;
     private Task? _previewStderrDrain;
+    private static DateTime _fixtureStartTime;
+    private static string _distDir = string.Empty;
 
     // Walk-up bound is intentionally large (32) rather than fitting the
     // current `bin/Debug/netN.N/` suffix exactly. A deeper container path,
@@ -98,6 +100,8 @@ public class RouteCheckTests
     [OneTimeSetUp]
     public async Task OneTimeSetUp()
     {
+        _fixtureStartTime = DateTime.UtcNow;
+
         // Wrap the bootstrap so a partial failure (npm bootstrap throw,
         // chromium-install non-zero exit, preview-server bind timeout)
         // rethrows with whatever state was captured up to that point —
@@ -109,22 +113,26 @@ public class RouteCheckTests
         {
             _docsRoot = Path.Combine(RepoRoot, "docs");
             var distDir = Path.Combine(_docsRoot, ".vitepress", "dist");
+            _distDir = distDir;
 
-            // The test owns its build prerequisite. If the dist/ tree
-            // doesn't already exist, run `npm ci && npm run build` from
-            // docs/ to produce it. `npm run build` invokes the `prebuild`
-            // hook (regenerate api + reference), so the rendered site
-            // matches what CI builds on every push. The presence check
-            // looks for index.html specifically because a partial /
-            // stale dist tree (e.g. just an assets/ subdirectory left
-            // from a prior aborted run) is not a usable preview target.
-            if (!File.Exists(Path.Combine(distDir, "index.html")))
+            // Install node_modules if the cache is missing (first run on a
+            // clean checkout or after `rm -rf node_modules`). Separated from
+            // the build step so a repeated local run skips the network-bound
+            // install while still always rebuilding the dist artefact.
+            if (!Directory.Exists(Path.Combine(_docsRoot, "node_modules")))
             {
                 stage = "npm ci";
                 RunNpm("ci", _docsRoot);
-                stage = "npm run build";
-                RunNpm("run build", _docsRoot);
             }
+
+            // Always rebuild dist so the test asserts against a tree generated
+            // from the current source, not a stale artefact from a prior run.
+            // CI starts every run with a clean checkout (dist never exists),
+            // so this only matters for repeated local invocations on a persistent
+            // clone — the 5-min cost is amortised across the whole fixture's
+            // OneTimeSetUp, not paid per test.
+            stage = "npm run build";
+            RunNpm("run build", _docsRoot);
 
             // Install the chromium binary the Playwright .NET binding drives.
             // Idempotent: re-installs cleanly if the cache is already warm.
@@ -426,6 +434,29 @@ public class RouteCheckTests
         {
             await context.CloseAsync();
         }
+    }
+
+    /// <summary>
+    /// Negative regression for the always-rebuild invariant per §10a:
+    /// asserts that <c>dist/index.html</c> was written during this fixture
+    /// invocation rather than reused from a prior run. A regression back
+    /// to "rebuild only if missing" would leave the mtime unchanged on a
+    /// persistent clone where dist already exists, causing the assertion
+    /// to fail and making the stale-dist defect observable in CI.
+    /// </summary>
+    [Test]
+    [Category("E2E")]
+    public void OneTimeSetUp_Rebuilds_Dist_Even_When_Index_Exists()
+    {
+        // Pin the contract: regardless of pre-existing dist artefacts, the
+        // fixture's OneTimeSetUp produces a fresh dist whose mtime is no
+        // older than the test fixture invocation start time. A regression
+        // back to "rebuild-if-missing" would let mtime fall behind.
+        var distIndex = Path.Combine(_distDir, "index.html");
+        var distMtime = File.GetLastWriteTimeUtc(distIndex);
+        Assert.That(distMtime, Is.GreaterThanOrEqualTo(_fixtureStartTime),
+            $"dist/index.html mtime {distMtime:O} is older than fixture start " +
+            $"{_fixtureStartTime:O} — OneTimeSetUp skipped the rebuild");
     }
 
     /// <summary>
