@@ -27,7 +27,7 @@ namespace MTConnect.NET_Docs_Tests;
 /// the original sidebar config), missing static assets, JS errors in
 /// custom theme components.
 ///
-/// Run locally:
+/// Run locally (from the repo root):
 ///
 ///   dotnet test tests/MTConnect.NET-Docs-Tests --filter Category=E2E
 ///
@@ -41,14 +41,31 @@ namespace MTConnect.NET_Docs_Tests;
 [Category("E2E")]
 public class RouteCheckTests
 {
-    // 8 is the empirical sweet spot on a high-core developer laptop —
-    // beyond that, vitepress preview's single Node event loop becomes
-    // the bottleneck and per-route wall time degrades. Capping at the
-    // visible CPU count keeps a 2-vCPU GitHub-hosted runner from
-    // over-subscribing (the cap collapses to ProcessorCount there).
+    /// <summary>Worker count for the parallel route walk. 8 is the
+    /// empirical sweet spot on a high-core developer laptop — beyond
+    /// that, vitepress preview's single Node event loop becomes the
+    /// bottleneck and per-route wall time degrades. Capping at the
+    /// visible CPU count keeps a 2-vCPU GitHub-hosted runner from
+    /// over-subscribing (the cap collapses to ProcessorCount there).</summary>
     private static readonly int Concurrency = Math.Min(8, Environment.ProcessorCount);
+
+    /// <summary>Backoff between TCP-probe attempts while waiting for
+    /// vitepress preview to bind its port. 200 ms keeps the busy-loop
+    /// cost trivial while still ringing the door bell ~5x per second.</summary>
     private const int ServerReadyPollMs = 200;
+
+    /// <summary>Hard deadline for the preview-server bind. 60 s
+    /// accommodates a cold CI runner where `npm ci` + `npm run build`
+    /// + vitepress startup land before the first port probe — anything
+    /// past that is a real failure (dist/ missing, port collision,
+    /// vitepress CLI usage error) worth surfacing as a TimeoutException
+    /// with the drained startup log.</summary>
     private const int ServerReadyTimeoutMs = 60_000;
+
+    /// <summary>Per-page navigation timeout. 30 s covers a slow runner
+    /// with a cold network cache; anything past that is a real failure
+    /// (vitepress hang, JS exception that prevents Load) worth failing
+    /// the route on rather than waiting indefinitely.</summary>
     private const int PageNavigationTimeoutMs = 30_000;
 
     private Process? _previewServer;
@@ -85,6 +102,14 @@ public class RouteCheckTests
         }
     }
 
+    /// <summary>
+    /// Build the docs site if needed, install the Playwright chromium
+    /// binary, spawn `vitepress preview` against the built dist/ tree,
+    /// and launch a headless browser ready for the route walk. Wraps
+    /// every stage in a try/catch that rethrows with stage context +
+    /// drained preview log so a partial failure is diagnosable from
+    /// the assertion message alone.
+    /// </summary>
     [OneTimeSetUp]
     public async Task OneTimeSetUp()
     {
@@ -152,6 +177,13 @@ public class RouteCheckTests
         }
     }
 
+    /// <summary>
+    /// Close the browser, dispose the Playwright runtime, kill the
+    /// preview-server process tree, and await the drain tasks with a
+    /// bounded timeout. Runs unconditionally — including after a
+    /// OneTimeSetUp failure — so a partially-allocated state still
+    /// gets torn down.
+    /// </summary>
     [OneTimeTearDown]
     public async Task OneTimeTearDown()
     {
@@ -177,6 +209,13 @@ public class RouteCheckTests
         }
     }
 
+    /// <summary>
+    /// Negative regression for the 404 detector: visits an unmapped
+    /// route and asserts at least one of the three signals (.NotFound
+    /// element, document.title === '404', body-text 'PAGE NOT FOUND')
+    /// fires. Without this, a future Playwright / VitePress upgrade
+    /// that broke a signal would silently pass-through every real 404.
+    /// </summary>
     [Test]
     public async Task A_Synthetic_Unmapped_Route_Surfaces_As_A_404()
     {
@@ -201,6 +240,12 @@ public class RouteCheckTests
         }
     }
 
+    /// <summary>
+    /// Walks every markdown-backed route the docs/ tree implies and
+    /// asserts none rendered a 404. Failures are collected across all
+    /// workers and reported in a single ordered summary so the diff
+    /// is reviewable in one assertion message.
+    /// </summary>
     [Test]
     public async Task Every_Markdown_Backed_Route_Resolves_Without_A_404()
     {

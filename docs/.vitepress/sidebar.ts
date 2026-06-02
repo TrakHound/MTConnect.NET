@@ -55,11 +55,14 @@ type ApiNode = {
   overview?: string;
 };
 
+/** Allocate an empty namespace-tree node — `children` empty, `types` empty,
+ *  no overview link yet. */
 const makeNode = (): ApiNode => ({ children: new Map(), types: [] });
 
-// Strip the `.md` extension and any leading `/` so the result is a
-// clean VitePress route, e.g. `MTConnect.Adapters.AgentClient.md` ->
-// `/api/MTConnect.Adapters.AgentClient`.
+/** Strip the `.md` extension and any leading `/` so the result is a clean
+ *  VitePress route, e.g. `MTConnect.Adapters.AgentClient.md` →
+ *  `/api/MTConnect.Adapters.AgentClient`. Input: docfx href; output:
+ *  VitePress route string. */
 const hrefToRoute = (href: string): string =>
   `/api/${href.replace(/\.md$/, '')}`;
 
@@ -77,6 +80,10 @@ const hrefToRoute = (href: string): string =>
 //     ...
 //   - name: <next namespace>
 //     ...
+/** Parse the docfx-emitted `toc.yml` body into a flat list of namespace
+ *  entries, each with its overview href and an ordered list of type
+ *  entries. Tolerates section dividers (`- name: Classes` without href)
+ *  by treating them as no-op pending entries. */
 const parseToc = (content: string) => {
   const namespaces: Array<{
     name: string;
@@ -88,6 +95,8 @@ const parseToc = (content: string) => {
   let pending: { name: string; href?: string } | null = null;
   let inItems = false;
 
+  /** Commit the buffered type entry to `current.types` if it has an href;
+   *  drop it silently if it was a section-divider (`- name: Classes`). */
   const flushPending = () => {
     if (!pending || !current || !pending.href) return;
     current.types.push({ name: pending.name, href: pending.href });
@@ -134,9 +143,11 @@ const parseToc = (content: string) => {
   return namespaces;
 };
 
-// Build the nested namespace tree by walking each namespace's
-// dot-separated path. Each segment becomes a child node; the final
-// segment receives the namespace's overview href and the type list.
+/** Build the nested namespace tree by walking each namespace's
+ *  dot-separated path. Each segment becomes a child node; the final
+ *  segment receives the namespace's overview href and the type list.
+ *  Returns the synthetic root whose children are the top-level segments
+ *  (`MTConnect`, …). */
 const buildApiTree = (
   namespaces: ReturnType<typeof parseToc>,
 ): ApiNode => {
@@ -160,16 +171,17 @@ const buildApiTree = (
   return root;
 };
 
-// Case-insensitive locale comparator so groups and types sort
-// predictably regardless of underlying string ordering quirks
-// (e.g. uppercase ASCII grouping ahead of lowercase).
+/** Case-insensitive locale comparator so groups and types sort predictably
+ *  regardless of underlying string ordering quirks (e.g. uppercase ASCII
+ *  grouping ahead of lowercase). Stable on equal-keyed inputs. */
 const byTextCI = (a: SidebarItem, b: SidebarItem) =>
   a.text.localeCompare(b.text, 'en', { sensitivity: 'base' });
 
-// Recursively project the tree into VitePress sidebar items. A node
-// with children becomes a collapsible group; types are sorted into
-// the group alongside any nested child groups. The namespace overview
-// (if present) leads the group as an "Overview" entry.
+/** Recursively project the tree into VitePress sidebar items. A node with
+ *  children becomes a collapsible group; types are sorted into the group
+ *  alongside any nested child groups. The namespace overview (if present)
+ *  leads the group as an "Overview" entry. Input: the path segment whose
+ *  node we are projecting + the node itself; output: one SidebarItem. */
 const projectNode = (segment: string, node: ApiNode): SidebarItem => {
   const items: SidebarItem[] = [];
   if (node.overview) {
@@ -245,14 +257,13 @@ export const apiSidebar = (): SidebarItem[] => {
 
 // ─── /reference/ — Roslyn-generated narrative ─────────────────────────────
 
-// Convert a file name like `environment-variables.md` to a sidebar
-// label like `Environment variables` (lower-case-with-hyphens to
-// sentence case, keeping mid-word capitals as-is for HTTP/CLI/etc.).
-// Overrides cover acronyms only; no trailing-word suffix is added —
-// the parent group ("Auto-generated reference") already supplies the
-// "reference" context, so adding it per-leaf is redundant and the
-// half-applied policy (only on `cli` and `configuration`) was the
-// worst of both worlds.
+/** Convert a file name like `environment-variables.md` to a sidebar label
+ *  like `Environment variables` (lower-case-with-hyphens to sentence case,
+ *  keeping mid-word capitals as-is for HTTP/CLI/etc.). Overrides cover
+ *  acronyms only; no trailing-word suffix is added — the parent group
+ *  ("Auto-generated reference") already supplies the "reference" context,
+ *  so adding it per-leaf is redundant and the half-applied policy (only on
+ *  `cli` and `configuration`) was the worst of both worlds. */
 const labelFor = (slug: string): string => {
   const overrides: Record<string, string> = {
     cli: 'CLI',
