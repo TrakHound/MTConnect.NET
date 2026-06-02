@@ -1,0 +1,24 @@
+/*
+ * Brand-palette override for the MTConnect.NET documentation site.
+ *
+ * The maintainer-supplied accent is #0073e6 (confirmed in discussion
+ * #184). VitePress derives the navigation highlight, link colour,
+ * active-state border, and CTA button fill from --vp-c-brand-1, with
+ * -2 and -3 used for hover / pressed states. Light mode darkens the
+ * shade as the index grows; dark mode lightens it. The soft variant
+ * is the same hue at ~14-16% alpha for surface tints.
+ */
+
+:root {
+  --vp-c-brand-1: #0073e6;
+  --vp-c-brand-2: #1f86eb;
+  --vp-c-brand-3: #4ba0f0;
+  --vp-c-brand-soft: rgba(0, 115, 230, 0.14);
+}
+
+.dark {
+  --vp-c-brand-1: #4ba0f0;
+  --vp-c-brand-2: #1f86eb;
+  --vp-c-brand-3: #0073e6;
+  --vp-c-brand-soft: rgba(75, 160, 240, 0.16);
+}

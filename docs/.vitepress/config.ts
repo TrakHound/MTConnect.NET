@@ -50,10 +50,39 @@ export default withMermaid(
     ignoreDeadLinks: true,
 
     head: [
-      ['meta', { name: 'theme-color', content: '#1f6feb' }],
+      ['meta', { name: 'theme-color', content: '#0073e6' }],
+      ['link', { rel: 'icon', type: 'image/png', href: '/logo.png' }],
+      ['meta', { property: 'og:type', content: 'website' }],
+      ['meta', { property: 'og:title', content: 'MTConnect.NET' }],
+      [
+        'meta',
+        {
+          property: 'og:description',
+          content:
+            'The .NET implementation of the MTConnect Standard — 100% public-surface API coverage, 100% MTConnect Standard compliance.',
+        },
+      ],
+      ['meta', { property: 'og:image', content: '/logo.png' }],
+      ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+      ['meta', { name: 'twitter:title', content: 'MTConnect.NET' }],
+      [
+        'meta',
+        {
+          name: 'twitter:description',
+          content: 'The .NET implementation of the MTConnect Standard.',
+        },
+      ],
+      ['meta', { name: 'twitter:image', content: '/logo.png' }],
     ],
 
     themeConfig: {
+      // The maintainer-supplied logo (`docs/img/mtconnect-net-03-md.png`,
+      // copied into `docs/public/logo.png`) already carries the
+      // 'mtconnect .NET' wordmark, so the text site title is hidden to
+      // avoid the wordmark rendering twice in the top nav.
+      logo: '/logo.png',
+      siteTitle: false,
+
       // Top nav: Compliance / Configure & Use / API / Concepts / Wire
       // formats / Modules / CLI / Cookbook / Troubleshooting.
       nav: [
