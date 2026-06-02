@@ -10,6 +10,9 @@ hero:
       text: Get started
       link: /getting-started
     - theme: alt
+      text: Download latest release
+      link: https://github.com/TrakHound/MTConnect.NET/releases/latest
+    - theme: alt
       text: View on GitHub
       link: https://github.com/TrakHound/MTConnect.NET
 
