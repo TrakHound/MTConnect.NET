@@ -79,6 +79,21 @@ jobs:
           cache: npm
           cache-dependency-path: docs/package-lock.json
 
+      # `npm run build` in docs/ invokes the `prebuild` hook
+      # (`npm run regen`), which calls `bash scripts/generate-api-ref.sh`
+      # → `docfx metadata` to produce the /api/ reference tree the
+      # VitePress site consumes. The Docs-site workflow installs docfx
+      # in its Prepare job; this workflow's E2E leg needs it for the
+      # same reason. Only the ubuntu-latest leg runs Category=E2E
+      # (windows-latest excludes it via testFilter), so docfx is only
+      # required there. Without this, RouteCheckTests.OneTimeSetUp
+      # fails with "docfx not found on PATH and ~/.dotnet/tools/docfx
+      # is missing" — see PR #181 run 26831500675 job 79113784371.
+      - name: Install docfx (docs e2e prerequisite)
+        if: matrix.os == 'ubuntu-latest'
+        run: dotnet tool install -g docfx
+        shell: bash
+
       - name: Restore dotnet tools (ReportGenerator)
         run: dotnet tool restore
 
