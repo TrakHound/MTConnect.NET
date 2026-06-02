@@ -149,4 +149,48 @@ find docs/api -mindepth 1 -maxdepth 1 -not -name 'index.md' -exec rm -rf {} +
 find docs/api -name '*.md' -not -name 'index.md' -print0 \
   | xargs -0 sed -i -E 's#<code( [^>]*)?>#<code v-pre\1>#g'
 
+# docfx emits two C#-generic patterns whose opening `<` is bare while
+# the closing `>` is markdown-escaped as `\>`. Vue's template compiler
+# then treats the bare `<` as the start tag of an element that never
+# closes (the escaped `\>` is rendered as a literal `>` in HTML, not
+# as an end-tag token), tripping "Element is missing end tag" at
+# vitepress build time. The two patterns are:
+#
+#   1. Heading text after the anchor close, e.g.
+#      `### <a id="…"></a> Collect\(string, List<EnvVarInfo\>\)`.
+#   2. Return / parameter blocks where docfx renders an outer-generic
+#      link followed by an inner-generic link, e.g.
+#      ` [List](url-of-list)<[EnvVarInfo](url-of-envvarinfo)\>`.
+#
+# Both forms feed the parser a `<` followed by either an uppercase
+# letter (heading-text type name) or a `[` (markdown link opener) and
+# never close it with a real `</tag>`. Rewrite both bare opens as
+# `&lt;` HTML entities so the markdown -> HTML pipeline can't re-emit
+# a literal `<` (a backslash-escape would survive markdown but the
+# Vue template parser sees the rendered HTML, where `\<` decodes to
+# `<` again and re-trips the same error). The `<a id="…"></a>` anchor
+# itself is intentionally not touched -- `a` is lowercase, so the
+# `<[A-Z]` alternative misses it, and the `<\[` alternative is
+# unambiguous. Fenced code blocks render via the highlighter, not
+# Vue's template parser, so the bare generics they contain (e.g.
+# `public IReadOnlyList<EnvVarInfo> Collect(...)`) do not need
+# escaping. A small awk pass tracks ```-fence state and skips lines
+# inside fences so code-block content stays untouched.
+while IFS= read -r -d '' md_file; do
+  awk '
+    BEGIN { in_fence = 0 }
+    /^```/ { in_fence = !in_fence; print; next }
+    in_fence { print; next }
+    {
+      # Replace `<X` (uppercase) with `&lt;X` by walking each match.
+      out = ""; s = $0
+      while (match(s, /<([A-Z]|\[)/)) {
+        out = out substr(s, 1, RSTART - 1) "&lt;" substr(s, RSTART + 1, RLENGTH - 1)
+        s = substr(s, RSTART + RLENGTH)
+      }
+      print out s
+    }
+  ' "${md_file}" > "${md_file}.tmp" && mv "${md_file}.tmp" "${md_file}"
+done < <(find docs/api -name '*.md' -not -name 'index.md' -print0)
+
 echo "==> done. $(find docs/api -name '*.md' -not -name 'index.md' | wc -l) pages generated."
