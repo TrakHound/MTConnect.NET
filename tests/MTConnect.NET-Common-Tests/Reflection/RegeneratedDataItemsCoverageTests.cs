@@ -33,6 +33,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
     //     — defines the wire-shape constraint on the type+category pair.
     //   - Prose: docs.mtconnect.org "Part 2.0 - Devices Information Model"
     //     §"DataItem" — defines the SAMPLE / EVENT / CONDITION semantics.
+    /// <summary>Pins the behaviour expressed by the test name: regenerated data items coverage tests.</summary>
     [TestFixture]
     public class RegeneratedDataItemsCoverageTests
     {
@@ -49,6 +50,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 .OrderBy(t => t.FullName, StringComparer.Ordinal);
         }
 
+        /// <summary>Runs the data item subtypes operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public static IEnumerable<TestCaseData> DataItemSubtypes()
         {
             foreach (var type in EnumerateDataItemSubtypes())
@@ -58,6 +61,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: catalogue enumerates at least one data item subtype.</summary>
         [Test]
         public void Catalogue_enumerates_at_least_one_data_item_subtype()
         {
@@ -68,6 +72,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 "MTConnect.Devices.DataItems produced fewer than 100 concrete subtypes — regenerator regression?");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: data item subtype exposes non empty type id.</summary>
+        /// <param name="type">The type.</param>
         [Test]
         [TestCaseSource(nameof(DataItemSubtypes))]
         public void DataItem_subtype_exposes_non_empty_TypeId(Type type)
@@ -85,6 +91,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 $"{type.FullName}.TypeId is null or empty");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: data item subtype type id is upper snake case.</summary>
+        /// <param name="type">The type.</param>
         [Test]
         [TestCaseSource(nameof(DataItemSubtypes))]
         public void DataItem_subtype_TypeId_is_upper_snake_case(Type type)
@@ -102,6 +110,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 $"{type.FullName}.TypeId = \"{value}\" violates the upper-snake-case wire-shape rule");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: data item subtype exposes known category id.</summary>
+        /// <param name="type">The type.</param>
         [Test]
         [TestCaseSource(nameof(DataItemSubtypes))]
         public void DataItem_subtype_exposes_known_CategoryId(Type type)
@@ -125,6 +135,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 $"{type.FullName}.CategoryId = {category} is not one of SAMPLE / EVENT / CONDITION");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: constructed data item subtype carries category and type from const pair.</summary>
+        /// <param name="type">The type.</param>
         [Test]
         [TestCaseSource(nameof(DataItemSubtypes))]
         public void Constructed_DataItem_subtype_carries_category_and_type_from_const_pair(Type type)
@@ -150,6 +162,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 $"{type.FullName} default ctor did not wire Category from CategoryId");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: data item subtype with unknown type id string is rejected at lookup.</summary>
         [Test]
         public void DataItem_subtype_with_unknown_TypeId_string_is_rejected_at_lookup()
         {

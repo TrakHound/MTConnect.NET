@@ -28,6 +28,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
     {
         // ---------------- positive: simple Scale ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: simple scale serialises to text element.</summary>
         [Test]
         public void Simple_Scale_serialises_to_text_element()
         {
@@ -44,6 +45,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Not.Contain("<ScaleDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: simple scale deserialises to i scale.</summary>
         [Test]
         public void Simple_Scale_deserialises_to_IScale()
         {
@@ -60,6 +62,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
 
         // ---------------- positive: ScaleDataSet ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: scale data set serialises to keyed entries.</summary>
         [Test]
         public void ScaleDataSet_serialises_to_keyed_entries()
         {
@@ -78,6 +81,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Contain("<Entry key=\"Z\">3.5</Entry>"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: scale data set deserialises to i scale data set.</summary>
         [Test]
         public void ScaleDataSet_deserialises_to_IScaleDataSet()
         {
@@ -100,6 +104,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
 
         // ---------------- negative ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: scale data set with illegal key drops value without corruption.</summary>
         [Test]
         public void ScaleDataSet_with_illegal_key_drops_value_without_corruption()
         {
@@ -116,6 +121,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(ds.Z, Is.EqualTo(0.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: scale data set with unparseable value falls back to zero.</summary>
         [Test]
         public void ScaleDataSet_with_unparseable_value_falls_back_to_zero()
         {
@@ -129,6 +135,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(ds.X, Is.EqualTo(0.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: scale data set with empty value text falls back to zero.</summary>
         [Test]
         public void ScaleDataSet_with_empty_value_text_falls_back_to_zero()
         {
@@ -142,6 +149,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(ds.X, Is.EqualTo(0.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: empty scale yields empty string value.</summary>
         [Test]
         public void Empty_Scale_yields_empty_string_value()
         {
@@ -153,6 +161,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(s.Value, Is.Null.Or.Empty);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null scale property emits no scale element.</summary>
         [Test]
         public void Null_scale_property_emits_no_Scale_element()
         {
@@ -169,6 +178,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Not.Contain("<ScaleDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: both scale and scale data set present data set wins.</summary>
         [Test]
         public void Both_Scale_and_ScaleDataSet_present_DataSet_wins()
         {
@@ -185,6 +195,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(((IScaleDataSet)sm.Scale).X, Is.EqualTo(9.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null solid model writes nothing.</summary>
         [Test]
         public void Null_solidModel_writes_nothing()
         {
@@ -192,6 +203,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Is.Empty);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: scale writes nothing for null input.</summary>
         [Test]
         public void Scale_writes_nothing_for_null_input()
         {
@@ -199,6 +211,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Is.Empty);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: scale data set writes nothing for null input.</summary>
         [Test]
         public void ScaleDataSet_writes_nothing_for_null_input()
         {
@@ -206,6 +219,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Is.Empty);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: scale data set with null entries list yields zero components.</summary>
         [Test]
         public void ScaleDataSet_with_null_entries_list_yields_zero_components()
         {

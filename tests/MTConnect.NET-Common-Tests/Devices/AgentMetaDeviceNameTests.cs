@@ -35,6 +35,7 @@ namespace MTConnect.Tests.Common.Devices
     [Category("AgentMetaDeviceNaming")]
     public class AgentMetaDeviceNameTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: agent meta device default name matches cppagent pascal case convention.</summary>
         [Test]
         public void Agent_meta_device_default_Name_matches_cppagent_pascal_case_convention()
         {
@@ -49,6 +50,7 @@ namespace MTConnect.Tests.Common.Devices
                 + "diverging from cppagent's verbatim-attribute behaviour).");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: agent meta device type remains agent type id.</summary>
         [Test]
         public void Agent_meta_device_Type_remains_Agent_TypeId()
         {

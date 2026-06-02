@@ -28,6 +28,7 @@ using NUnit.Framework;
 
 namespace MTConnect.Tests.Common.SystemsOrganizer
 {
+    /// <summary>Pins the behaviour expressed by the test name: organizers systems tests.</summary>
     [TestFixture]
     [Category("OrganizersSystemsSubstitutionGroup")]
     public class OrganizersSystemsTests
@@ -64,6 +65,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
             typeof(WorkEnvelopeComponent),
         };
 
+        /// <summary>Gets or sets the known system members.</summary>
         public static IEnumerable<string> KnownSystemMembers =>
             SystemMemberComponentTypes.Select(t => GetTypeIdFromComponent(t));
 
@@ -74,12 +76,14 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
         // `organizerType != ControllersComponent.TypeId` guard in
         // `Device.AddComponent()` and the carve-out invariant in
         // `OrganizersControllerCarveOutTests`.
+        /// <summary>Gets or sets the auto wrapped system member types.</summary>
         public static IEnumerable<Type> AutoWrappedSystemMemberTypes =>
             SystemMemberComponentTypes;
 
         // Pairs the issue calls out plus a few representative peers; every
         // pair is expected to land at equal tree depth after
         // `Device.AddComponent()`.
+        /// <summary>Gets or sets the equal depth peer pairs.</summary>
         public static IEnumerable<(Type Left, Type Right)> EqualDepthPeerPairs =>
             new[]
             {
@@ -90,6 +94,8 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 (typeof(AirHandlerComponent), typeof(EnclosureComponent)),
             };
 
+        /// <summary>Pins the behaviour expressed by the test name: system substitution group member listed in organizers systems.</summary>
+        /// <param name="typeId">The type id.</param>
         [TestCaseSource(nameof(KnownSystemMembers))]
         public void System_substitution_group_member_listed_in_Organizers_Systems(string typeId)
         {
@@ -103,9 +109,12 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
         // `Controllers` organizer because `Controller` is not listed in
         // `Organizers.Systems`. The auto-wrapped members below all resolve
         // to `Systems`.
+        /// <summary>Gets or sets the auto wrapped system member type ids.</summary>
         public static IEnumerable<string> AutoWrappedSystemMemberTypeIds =>
             AutoWrappedSystemMemberTypes.Select(t => GetTypeIdFromComponent(t));
 
+        /// <summary>Pins the behaviour expressed by the test name: get organizer type for auto wrapped system member returns systems.</summary>
+        /// <param name="typeId">The type id.</param>
         [TestCaseSource(nameof(AutoWrappedSystemMemberTypeIds))]
         public void GetOrganizerType_for_auto_wrapped_system_member_returns_Systems(string typeId)
         {
@@ -115,6 +124,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 $"the auto-wrap path in `Device.AddComponent()` fires.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: get organizer type for controller returns controllers not systems.</summary>
         [Test]
         public void GetOrganizerType_for_Controller_returns_Controllers_not_Systems()
         {
@@ -126,6 +136,8 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 Is.EqualTo(ControllersComponent.TypeId));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: peer system components sit at equal depth after add component.</summary>
+        /// <param name="pair">The pair.</param>
         [TestCaseSource(nameof(EqualDepthPeerPairs))]
         public void Peer_system_components_sit_at_equal_depth_after_AddComponent(
             (Type Left, Type Right) pair)
@@ -143,6 +155,8 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 $"Got `{pair.Left.Name}` depth={leftDepth}, `{pair.Right.Name}` depth={rightDepth}.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: auto wrapped system member lands under systems organizer.</summary>
+        /// <param name="componentType">The component type.</param>
         [TestCaseSource(nameof(AutoWrappedSystemMemberTypes))]
         public void Auto_wrapped_system_member_lands_under_Systems_organizer(Type componentType)
         {

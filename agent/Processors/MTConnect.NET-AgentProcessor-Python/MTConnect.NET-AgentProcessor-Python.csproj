@@ -41,6 +41,17 @@
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 		<PackageReference Include="NLog" Version="5.2.7" />
+		<!--
+		  IronPython's DynamicLanguageRuntime transitive (Microsoft.Scripting.dll)
+		  carries a strong-named reference to System.Configuration.ConfigurationManager
+		  8.0.0.0 even though its net8.0 nuspec drops the dependency (it was only
+		  declared on the netstandard2.0 group). Without an explicit reference here
+		  the assembly is never copied into bin/Debug/net8.0/, and `docfx metadata`
+		  emits `InvalidAssemblyReference` while walking the Python processor DLL's
+		  reference graph. Pinning it on the project that uses IronPython lands
+		  the assembly in the output directory so the docs build stays warning-free.
+		-->
+		<PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

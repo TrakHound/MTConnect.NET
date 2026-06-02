@@ -38,6 +38,7 @@ namespace MTConnect.Tests.Integration.Workflows
     // fires. The test waits for that envelope to land on the subscriber
     // and inspects the payload to confirm it carries the seeded
     // observation.
+    /// <summary>Represents the mqtt relay workflow tests.</summary>
     [Trait("Category", "RequiresDocker")]
     public sealed class MqttRelayWorkflowTests : IClassFixture<MqttBrokerFixture>, IDisposable
     {
@@ -53,6 +54,8 @@ namespace MTConnect.Tests.Integration.Workflows
         private readonly MethodInfo _startMethod;
         private readonly MethodInfo _stopMethod;
 
+        /// <summary>Initialises a new instance of the mqtt relay workflow tests type.</summary>
+        /// <param name="broker">The broker.</param>
         public MqttRelayWorkflowTests(MqttBrokerFixture broker)
         {
             _broker = broker;
@@ -98,6 +101,7 @@ namespace MTConnect.Tests.Integration.Workflows
             _startMethod.Invoke(_module, new object[] { true });
         }
 
+        /// <summary>Runs the dispose operation.</summary>
         public void Dispose()
         {
             try { _stopMethod.Invoke(_module, null); }
@@ -105,6 +109,8 @@ namespace MTConnect.Tests.Integration.Workflows
             _agent.Stop();
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: agent publishes observation consumer receives same payload.</summary>
+        /// <returns>The result of the operation.</returns>
         [Fact]
         public async Task Agent_publishes_observation_consumer_receives_same_payload()
         {
@@ -169,6 +175,8 @@ namespace MTConnect.Tests.Integration.Workflows
             Assert.Contains(InjectedSentinel, payload);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: consumer disconnects mid publish agent does not lose observations.</summary>
+        /// <returns>The result of the operation.</returns>
         [Fact]
         public async Task Consumer_disconnects_mid_publish_agent_does_not_lose_observations()
         {

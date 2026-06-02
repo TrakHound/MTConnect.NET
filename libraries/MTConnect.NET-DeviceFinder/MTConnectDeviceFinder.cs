@@ -125,7 +125,7 @@ namespace MTConnect.DeviceFinder
         public event RequestStatusHandler SearchCompleted;
 
 
-        /// <summary>Constructs the finder bound to the first reachable network interface; call <see cref="Start(int)"/> after configuring <see cref="Addresses"/> and <see cref="Ports"/>.</summary>
+        /// <summary>Constructs the finder bound to the first reachable network interface; call <see cref="Start(bool)"/> after configuring <see cref="Addresses"/> and <see cref="Ports"/>.</summary>
         public MTConnectDeviceFinder()
         {
             Init();

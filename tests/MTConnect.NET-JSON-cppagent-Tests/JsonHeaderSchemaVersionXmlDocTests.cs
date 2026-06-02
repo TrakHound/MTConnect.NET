@@ -10,9 +10,9 @@ namespace MTConnect.Tests.JsonCppagent
     /// <summary>
     /// Pins the XML-doc summary requirement on the SchemaVersion property in
     /// the three JSON-cppagent header DTO files. Each property must carry a
-    /// `<summary>` block immediately above the `[JsonPropertyName("schemaVersion")]`
-    /// attribute so consumers reading IntelliSense see the cppagent v2
-    /// wire-shape semantics inline.
+    /// <c>&lt;summary&gt;</c> block immediately above the
+    /// <c>[JsonPropertyName("schemaVersion")]</c> attribute so consumers
+    /// reading IntelliSense see the cppagent v2 wire-shape semantics inline.
     ///
     /// Files covered:
     /// - libraries/MTConnect.NET-JSON-cppagent/Assets/JsonAssetsHeader.cs
@@ -45,6 +45,8 @@ namespace MTConnect.Tests.JsonCppagent
             return string.Empty;
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: header dto schema version has xmldoc summary.</summary>
+        /// <param name="relativePath">The relative path.</param>
         [TestCaseSource(nameof(HeaderFileRelativePaths))]
         public void Header_dto_schemaVersion_has_xmldoc_summary(string relativePath)
         {

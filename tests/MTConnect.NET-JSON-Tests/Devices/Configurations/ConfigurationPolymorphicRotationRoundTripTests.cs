@@ -28,6 +28,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
     {
         // ---------------- positive: simple Rotation ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: simple rotation serialises to value field.</summary>
         [Test]
         public void Simple_Rotation_serialises_to_value_field()
         {
@@ -42,6 +43,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(json, Does.Not.Contain("rotationDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: simple rotation deserialises to i rotation.</summary>
         [Test]
         public void Simple_Rotation_deserialises_to_IRotation()
         {
@@ -56,6 +58,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
 
         // ---------------- positive: RotationDataSet ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: rotation data set serialises to abc object.</summary>
         [Test]
         public void RotationDataSet_serialises_to_abc_object()
         {
@@ -69,6 +72,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(json, Does.Contain("\"rotationDataSet\":{\"a\":\"10\",\"b\":\"20\",\"c\":\"30\"}"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: rotation data set deserialises to i rotation data set.</summary>
         [Test]
         public void RotationDataSet_deserialises_to_IRotationDataSet()
         {
@@ -86,6 +90,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
 
         // ---------------- negative ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: both rotation and rotation data set present data set wins.</summary>
         [Test]
         public void Both_rotation_and_rotationDataSet_present_DataSet_wins()
         {
@@ -99,6 +104,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(((IRotationDataSet)t.Rotation).A, Is.EqualTo("9"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json rotation default constructor yields null value.</summary>
         [Test]
         public void JsonRotation_default_constructor_yields_null_value()
         {
@@ -109,6 +115,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(r.Value, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json rotation data set default constructor yields null components.</summary>
         [Test]
         public void JsonRotationDataSet_default_constructor_yields_null_components()
         {
@@ -120,6 +127,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(ds.C, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json rotation ctor with null input keeps default values.</summary>
         [Test]
         public void JsonRotation_ctor_with_null_input_keeps_default_values()
         {
@@ -127,6 +135,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(jr.Value, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json rotation data set ctor with null input keeps default values.</summary>
         [Test]
         public void JsonRotationDataSet_ctor_with_null_input_keeps_default_values()
         {
@@ -134,6 +143,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(jr.A, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null transformation passed to ctor keeps default values.</summary>
         [Test]
         public void Null_transformation_passed_to_ctor_keeps_default_values()
         {
@@ -142,6 +152,7 @@ namespace MTConnect.NET_JSON_Tests.Devices.Configurations
             Assert.That(jt.RotationDataSet, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null rotation property emits no rotation field.</summary>
         [Test]
         public void Null_rotation_property_emits_no_rotation_field()
         {

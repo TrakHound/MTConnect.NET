@@ -20,6 +20,7 @@ namespace MTConnect.Tests.Http.Clients
     // asserts the streamed Sample delivers that observation back. This
     // exercises the broker ingest/sequence/buffer path and the HTTP server
     // stream + HTTP streaming-client per-chunk loop end to end.
+    /// <summary>Pins the behaviour expressed by the test name: sample client.</summary>
     [TestFixture]
     public class SampleClient
     {
@@ -37,6 +38,7 @@ namespace MTConnect.Tests.Http.Clients
         private readonly object _lock = new object();
 
 
+        /// <summary>Sets up the fixture before each test.</summary>
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
@@ -50,6 +52,7 @@ namespace MTConnect.Tests.Http.Clients
             _client.Start();
         }
 
+        /// <summary>Tears down the fixture after each test.</summary>
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
@@ -88,6 +91,7 @@ namespace MTConnect.Tests.Http.Clients
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: run.</summary>
         [Test]
         public void Run()
         {

@@ -283,7 +283,7 @@ namespace MTConnect.Clients
         }
 
 
-        /// <summary>Builds the <c>sample</c> request URI from the client's own <see cref="MTConnectHttpClientRequest.Authority"/>, <see cref="MTConnectHttpClientRequest.Device"/>, <see cref="MTConnectHttpClientRequest.Path"/>, <see cref="From"/>, <see cref="To"/>, <see cref="Count"/>, and <see cref="MTConnectHttpClientRequest.DocumentFormat"/>.</summary>
+        /// <summary>Builds the <c>sample</c> request URI from the client's own <see cref="Authority"/>, <see cref="Device"/>, <see cref="Path"/>, <see cref="From"/>, <see cref="To"/>, <see cref="Count"/>, and <see cref="DocumentFormat"/>.</summary>
         public Uri CreateUri() => CreateUri(Authority, Device, Path, From, To, Count, DocumentFormat);
 
         /// <summary>Convenience overload that passes <c>0</c> for <paramref name="port"/>, so the port is taken from <paramref name="hostname"/> if it carries one.</summary>

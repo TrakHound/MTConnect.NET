@@ -23,6 +23,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
     [TestFixture]
     public class LastSentSequencePersisterTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: update marks dirty and round trips through read.</summary>
         [Test]
         public void Update_marks_dirty_and_round_trips_through_read()
         {
@@ -35,6 +36,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 "An in-memory update must mark the persister dirty so the caller knows to flush.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: read does not clear dirty bit.</summary>
         [Test]
         public void Read_does_not_clear_dirty_bit()
         {
@@ -47,6 +49,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 "Read must not clear dirty: only Flush establishes durable persistence.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: try flush writes only when dirty and clears dirty on success.</summary>
         [Test]
         public void TryFlush_writes_only_when_dirty_and_clears_dirty_on_success()
         {
@@ -63,6 +66,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 "After a successful flush the persister must be clean so the next timer tick does not redundantly write.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: try flush no ops when not dirty.</summary>
         [Test]
         public void TryFlush_no_ops_when_not_dirty()
         {
@@ -76,6 +80,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 "A clean persister must not invoke the writer; that would burn IOPS for no progress.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: try flush keeps dirty when writer throws.</summary>
         [Test]
         public void TryFlush_keeps_dirty_when_writer_throws()
         {
@@ -92,6 +97,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             Assert.That(persister.Read(), Is.EqualTo(123UL));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: update is a last write wins overwrite.</summary>
         [Test]
         public void Update_is_a_last_write_wins_overwrite()
         {
@@ -103,6 +109,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 "Last write wins; the persister is not a max-watermark.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: initialize seeds value without marking dirty.</summary>
         [Test]
         public void Initialize_seeds_value_without_marking_dirty()
         {
@@ -118,6 +125,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 "Initialize seeds the in-memory value from disk and must not request a redundant flush.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: try flush no ops when writer is null.</summary>
         [Test]
         public void TryFlush_no_ops_when_writer_is_null()
         {

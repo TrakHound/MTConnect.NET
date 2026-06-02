@@ -27,6 +27,8 @@ namespace MTConnect.Tests.JsonCppagent.Devices
     [Category("ComplianceMatrix")]
     public class JsonDevicesHeaderSchemaVersionTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: constructor with source header copies schema version.</summary>
+        /// <param name="schemaVersion">The schema version.</param>
         [TestCaseSource(typeof(JsonHeaderWireShapeMatrix), nameof(JsonHeaderWireShapeMatrix.SchemaVersionCases))]
         public void Constructor_with_source_header_copies_schemaVersion(string schemaVersion)
         {
@@ -44,6 +46,8 @@ namespace MTConnect.Tests.JsonCppagent.Devices
                 "JsonDevicesHeader must copy SchemaVersion from the source IMTConnectDevicesHeader.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: serialized devices header emits schema version property.</summary>
+        /// <param name="schemaVersion">The schema version.</param>
         [TestCaseSource(typeof(JsonHeaderWireShapeMatrix), nameof(JsonHeaderWireShapeMatrix.SchemaVersionCases))]
         public void Serialized_devices_header_emits_schemaVersion_property(string schemaVersion)
         {
@@ -61,6 +65,7 @@ namespace MTConnect.Tests.JsonCppagent.Devices
             Assert.That(v.GetString(), Is.EqualTo(schemaVersion));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: serialized devices header emits test indicator property.</summary>
         [Test]
         public void Serialized_devices_header_emits_testIndicator_property()
         {
@@ -78,6 +83,7 @@ namespace MTConnect.Tests.JsonCppagent.Devices
             Assert.That(v.GetBoolean(), Is.False);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: reverse mapping round trips schema version.</summary>
         [Test]
         public void Reverse_mapping_round_trips_schemaVersion()
         {
@@ -92,6 +98,7 @@ namespace MTConnect.Tests.JsonCppagent.Devices
                 "ToDevicesHeader must preserve SchemaVersion through the round trip.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: constructor with null source does not throw.</summary>
         [Test]
         public void Constructor_with_null_source_does_not_throw()
         {
@@ -100,6 +107,7 @@ namespace MTConnect.Tests.JsonCppagent.Devices
             Assert.That(jsonHeader.SchemaVersion, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: default constructor leaves schema version unset.</summary>
         [Test]
         public void Default_constructor_leaves_schemaVersion_unset()
         {

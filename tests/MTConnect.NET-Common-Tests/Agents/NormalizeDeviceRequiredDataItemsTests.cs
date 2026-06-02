@@ -54,6 +54,8 @@ namespace MTConnect.Tests.Common.Agents
             };
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: add device backfills all required data items exactly once.</summary>
+        /// <param name="startingState">The starting state.</param>
         [TestCase("null")]
         [TestCase("empty")]
         [TestCase("with_availability")]
@@ -83,6 +85,7 @@ namespace MTConnect.Tests.Common.Agents
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: add device preserves user provided data items alongside required ones.</summary>
         [Test]
         public void AddDevice_preserves_user_provided_dataItems_alongside_required_ones()
         {

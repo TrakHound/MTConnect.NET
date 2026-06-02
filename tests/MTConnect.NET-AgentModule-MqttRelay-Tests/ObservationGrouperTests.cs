@@ -38,12 +38,14 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
     [TestFixture]
     public class ObservationGrouperTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: group by data item returns empty when input null.</summary>
         [Test]
         public void GroupByDataItem_returns_empty_when_input_null()
         {
             Assert.That(ObservationGrouper.GroupByDataItem(null), Is.Empty);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: group by data item returns empty when input empty.</summary>
         [Test]
         public void GroupByDataItem_returns_empty_when_input_empty()
         {
@@ -52,6 +54,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 Is.Empty);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: group by data item groups observations by data item id.</summary>
         [Test]
         public void GroupByDataItem_groups_observations_by_data_item_id()
         {
@@ -78,6 +81,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             Assert.That(groupC.Select(o => o.Sequence), Is.EquivalentTo(new ulong[] { 4 }));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: group by data item iterates source exactly once.</summary>
         [Test]
         public void GroupByDataItem_iterates_source_exactly_once()
         {
@@ -103,6 +107,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             Assert.That(groups, Has.Count.EqualTo(2));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: group by data item preserves first seen order per group.</summary>
         [Test]
         public void GroupByDataItem_preserves_first_seen_order_per_group()
         {
@@ -121,6 +126,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 Is.EqualTo(new ulong[] { 10, 11, 12 }));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: group by data item handles null data item id as distinct group.</summary>
         [Test]
         public void GroupByDataItem_handles_null_data_item_id_as_distinct_group()
         {

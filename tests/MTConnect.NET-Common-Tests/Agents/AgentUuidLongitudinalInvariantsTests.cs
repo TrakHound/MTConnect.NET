@@ -32,6 +32,7 @@ namespace MTConnect.Tests.Common.Agents
         private string? _stateFilePath;
         private string? _backupStateFile;
 
+        /// <summary>Sets up the fixture before each test.</summary>
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
@@ -46,6 +47,7 @@ namespace MTConnect.Tests.Common.Agents
             }
         }
 
+        /// <summary>Sets up the fixture before each test.</summary>
         [SetUp]
         public void SetUp()
         {
@@ -58,6 +60,7 @@ namespace MTConnect.Tests.Common.Agents
             }
         }
 
+        /// <summary>Tears down the fixture after each test.</summary>
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {

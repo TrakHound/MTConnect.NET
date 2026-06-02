@@ -33,6 +33,9 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
             return doc.RootElement.GetProperty("value").Clone();
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: float sample emits as json number.</summary>
+        /// <param name="input">The input.</param>
+        /// <param name="expected">The expected.</param>
         [TestCase("1586.66", 1586.66)]
         [TestCase("-42.0", -42.0)]
         [TestCase("0", 0.0)]
@@ -44,6 +47,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
             Assert.That(token.GetDouble(), Is.EqualTo(expected).Within(1e-9));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: unavailable still emits as string.</summary>
         [Test]
         public void Unavailable_still_emits_as_string()
         {
@@ -53,6 +57,8 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
             Assert.That(token.GetString(), Is.EqualTo("UNAVAILABLE"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: three space string value stays a string token.</summary>
+        /// <param name="input">The input.</param>
         [TestCase("0 0 0")]
         [TestCase("1.5 -2.5 3.5")]
         public void ThreeSpace_string_value_stays_a_string_token(string input)
@@ -66,6 +72,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
             Assert.That(token.GetString(), Is.EqualTo(input));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: boxed double emits as json number.</summary>
         [Test]
         public void Boxed_double_emits_as_json_number()
         {
@@ -75,6 +82,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
             Assert.That(token.GetDouble(), Is.EqualTo(3.14159).Within(1e-9));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: invariant culture parsing is unaffected by thread culture.</summary>
         [Test]
         public void Invariant_culture_parsing_is_unaffected_by_thread_culture()
         {

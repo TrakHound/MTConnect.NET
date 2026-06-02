@@ -2,6 +2,18 @@ apiRules:
   - exclude:
       uidRegex: ^Ceen($|\.)
       type: Namespace
+  # MTConnect.NET-DocsGen is the in-tree generator that produces the
+  # docs/api/ Markdown tree itself, not a shipped public surface. Its
+  # source DLL is intentionally absent from docfx.json, but the
+  # MTConnect.NET-Docs-Tests assembly references DocsGen, so its
+  # XML doc file (which embeds a six-space-indented bullet list of
+  # bare <c> tags that VitePress's Vue template parser rejects as
+  # "Element is missing end tag") is copy-local'd alongside the tests
+  # DLL and re-discovered by docfx. Filter out the namespace as the
+  # last-mile guard.
+  - exclude:
+      uidRegex: ^MTConnect\.NET_DocsGen($|\.)
+      type: Namespace
   # The legacy JSON v1 codec and the cppagent v2 codec each ship a type
   # named JsonProcessFeed{r,R}ate inside MTConnect.Assets.Json.CuttingTools.
   # The two pages collide on case-insensitive output paths (and on

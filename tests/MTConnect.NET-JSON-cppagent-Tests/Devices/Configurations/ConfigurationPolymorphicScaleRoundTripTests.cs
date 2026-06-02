@@ -28,6 +28,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
     {
         // ---------------- positive: simple Scale ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: simple scale serialises as numeric array.</summary>
         [Test]
         public void Simple_Scale_serialises_as_numeric_array()
         {
@@ -44,6 +45,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(json, Does.Not.Contain("ScaleDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: simple scale deserialises to i scale.</summary>
         [Test]
         public void Simple_Scale_deserialises_to_IScale()
         {
@@ -59,6 +61,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
 
         // ---------------- positive: ScaleDataSet ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: scale data set serialises as flat pascalcase object.</summary>
         [Test]
         public void ScaleDataSet_serialises_as_flat_pascalcase_object()
         {
@@ -74,6 +77,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(json, Does.Contain("\"ScaleDataSet\":{\"X\":1.5,\"Y\":2.5,\"Z\":3.5}"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: scale data set deserialises to i scale data set.</summary>
         [Test]
         public void ScaleDataSet_deserialises_to_IScaleDataSet()
         {
@@ -92,6 +96,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
 
         // ---------------- negative ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: both scale and scale data set present data set wins.</summary>
         [Test]
         public void Both_Scale_and_ScaleDataSet_present_DataSet_wins()
         {
@@ -106,6 +111,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(((IScaleDataSet)sm.Scale).X, Is.EqualTo(9.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null scale property emits neither field.</summary>
         [Test]
         public void Null_scale_property_emits_neither_field()
         {
@@ -122,6 +128,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(json, Does.Not.Contain("ScaleDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json scale data set default constructor yields zero components.</summary>
         [Test]
         public void JsonScaleDataSet_default_constructor_yields_zero_components()
         {
@@ -131,6 +138,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(ds.X, Is.EqualTo(0.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json scale data set ctor with null input keeps default values.</summary>
         [Test]
         public void JsonScaleDataSet_ctor_with_null_input_keeps_default_values()
         {
@@ -138,6 +146,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(js.X, Is.EqualTo(0.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null solid model passed to ctor keeps default values.</summary>
         [Test]
         public void Null_solidModel_passed_to_ctor_keeps_default_values()
         {

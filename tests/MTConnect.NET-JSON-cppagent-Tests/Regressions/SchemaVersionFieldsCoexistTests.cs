@@ -45,6 +45,9 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
     [Category("WireShape")]
     public class SchemaVersionFieldsCoexistTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: schema version property exists with camel case json key.</summary>
+        /// <param name="carrier">The carrier.</param>
+        /// <param name="surface">The surface.</param>
         [TestCase(typeof(JsonMTConnectStreams), "envelope")]
         [TestCase(typeof(JsonMTConnectDevices), "envelope")]
         [TestCase(typeof(JsonDevicesHeader),    "Header")]
@@ -67,6 +70,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
                 $"`schemaVersion` (the cppagent wire-shape convention for scalar attributes).");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: streams envelope and devices envelope carry independent schema version fields.</summary>
         [Test]
         public void Streams_envelope_and_devices_envelope_carry_independent_SchemaVersion_fields()
         {
@@ -88,6 +92,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
                 "not inherited from a shared base — the field is wired from document.Version.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: devices envelope schema version distinct from header schema version.</summary>
         [Test]
         public void Devices_envelope_SchemaVersion_distinct_from_Header_SchemaVersion()
         {
@@ -111,6 +116,9 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
         // The XML doc presence guard. Reads the committed source files
         // (XML doc XML output is not deployed) so a future maintainer
         // cannot delete the doc comments without tripping a guard.
+        /// <summary>Pins the behaviour expressed by the test name: schema version property carries envelope vs header xml doc.</summary>
+        /// <param name="relativeSourcePath">The relative source path.</param>
+        /// <param name="surface">The surface.</param>
         [TestCase(
             "libraries/MTConnect.NET-JSON-cppagent/Streams/JsonMTConnectStreams.cs",
             "envelope")]

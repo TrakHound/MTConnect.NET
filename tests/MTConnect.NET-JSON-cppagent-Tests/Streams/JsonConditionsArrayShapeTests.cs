@@ -28,6 +28,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
     // - Prose: MTConnect Standard Part 2 section 13 "Condition".
     // - cppagent reference (v2.7.0.7): printer/json_printer.cpp
     //   function print_condition.
+    /// <summary>Pins the behaviour expressed by the test name: json conditions array shape tests.</summary>
     [TestFixture]
     public class JsonConditionsArrayShapeTests
     {
@@ -50,6 +51,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
         }
 
         // Case 1 — empty conditions serialize as the array shape, not an object shape.
+        /// <summary>Pins the behaviour expressed by the test name: write empty conditions emits empty array.</summary>
         [Test]
         public void Write_EmptyConditions_EmitsEmptyArray()
         {
@@ -61,6 +63,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
         }
 
         // Case 2 — one Normal entry produces a 1-element array with a Normal wrapper.
+        /// <summary>Pins the behaviour expressed by the test name: write single normal emits one normal wrapper.</summary>
         [Test]
         public void Write_SingleNormal_EmitsOneNormalWrapper()
         {
@@ -83,6 +86,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
         }
 
         // Case 3 — Fault + Warning emit in Fault, Warning order per the converter.
+        /// <summary>Pins the behaviour expressed by the test name: write fault then warning emits in declared enumeration order.</summary>
         [Test]
         public void Write_FaultThenWarning_EmitsInDeclaredEnumerationOrder()
         {
@@ -103,6 +107,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
         }
 
         // Case 4 — all four levels populated emit in Fault, Warning, Normal, Unavailable order.
+        /// <summary>Pins the behaviour expressed by the test name: write all four levels emits in fault warning normal unavailable order.</summary>
         [Test]
         public void Write_AllFourLevels_EmitsInFaultWarningNormalUnavailableOrder()
         {
@@ -133,6 +138,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
         }
 
         // Case 5 — multiple entries on one level produce one wrapper each in source order.
+        /// <summary>Pins the behaviour expressed by the test name: write multiple faults emits one wrapper per entry.</summary>
         [Test]
         public void Write_MultipleFaults_EmitsOneWrapperPerEntry()
         {
@@ -167,6 +173,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
         // Normal, Unavailable) on write. Pins the documented non-byte-
         // identical round-trip for interleaved input — see the type
         // comment on JsonConditionsConverter for the design rationale.
+        /// <summary>Pins the behaviour expressed by the test name: read array shape mixed level interleaving buckets by level.</summary>
         [Test]
         public void Read_ArrayShape_MixedLevelInterleaving_BucketsByLevel()
         {
@@ -213,6 +220,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
         }
 
         // Case 6 — array JSON round-trips through Deserialize/Serialize without drift.
+        /// <summary>Pins the behaviour expressed by the test name: round trip array shape is byte identical modulo whitespace.</summary>
         [Test]
         public void RoundTrip_ArrayShape_IsByteIdenticalModuloWhitespace()
         {
@@ -232,6 +240,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
         }
 
         // Case 7 — legacy MTConnect JSON v1 object-keyed shape parses into the typed POCO.
+        /// <summary>Pins the behaviour expressed by the test name: read legacy object shape populates typed properties.</summary>
         [Test]
         public void Read_LegacyObjectShape_PopulatesTypedProperties()
         {
@@ -255,6 +264,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
         }
 
         // Case 8 — null write emits "null" and round-trips back to a null reference.
+        /// <summary>Pins the behaviour expressed by the test name: null write and read round trips to null.</summary>
         [Test]
         public void Null_WriteAndRead_RoundTripsToNull()
         {
@@ -266,6 +276,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
         }
 
         // Case 9 — invalid root token (number) raises JsonException with a recognisable message.
+        /// <summary>Pins the behaviour expressed by the test name: read invalid root token throws json exception.</summary>
         [Test]
         public void Read_InvalidRootToken_ThrowsJsonException()
         {
@@ -277,6 +288,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
 
         // Coverage filler — the array-shape read path also handles all four levels
         // and rejects unknown level names + malformed wrapper objects.
+        /// <summary>Pins the behaviour expressed by the test name: read array shape populates all four levels.</summary>
         [Test]
         public void Read_ArrayShape_PopulatesAllFourLevels()
         {
@@ -295,6 +307,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(parsed.Unavailable, Is.Not.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: read array shape unknown level throws json exception.</summary>
         [Test]
         public void Read_ArrayShape_UnknownLevel_ThrowsJsonException()
         {
@@ -306,6 +319,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(ex!.Message, Does.Contain("Unknown Condition level"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: read array shape non object element throws json exception.</summary>
         [Test]
         public void Read_ArrayShape_NonObjectElement_ThrowsJsonException()
         {
@@ -317,6 +331,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(ex!.Message, Does.Contain("expected object wrapper"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: read array shape wrapper without property name throws json exception.</summary>
         [Test]
         public void Read_ArrayShape_WrapperWithoutPropertyName_ThrowsJsonException()
         {
@@ -328,6 +343,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(ex!.Message, Does.Contain("Expected property name"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: read array shape wrapper with multiple properties throws json exception.</summary>
         [Test]
         public void Read_ArrayShape_WrapperWithMultipleProperties_ThrowsJsonException()
         {
@@ -339,6 +355,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(ex!.Message, Does.Contain("end of JsonConditions wrapper"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: read array shape null entry throws json exception.</summary>
         [Test]
         public void Read_ArrayShape_NullEntry_ThrowsJsonException()
         {
@@ -350,6 +367,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(ex!.Message, Does.Contain("Null Condition entry"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: read object shape unknown level throws json exception.</summary>
         [Test]
         public void Read_ObjectShape_UnknownLevel_ThrowsJsonException()
         {
@@ -361,6 +379,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(ex!.Message, Does.Contain("Unknown Condition level"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: read object shape populates all four levels.</summary>
         [Test]
         public void Read_ObjectShape_PopulatesAllFourLevels()
         {

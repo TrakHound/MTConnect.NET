@@ -31,6 +31,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
     [TestFixture]
     public class WorkerLoopExceptionLoggerTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: log skips task canceled exception.</summary>
         [Test]
         public void Log_skips_TaskCanceledException()
         {
@@ -44,6 +45,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 "TaskCanceledException is the orderly-shutdown signal; do not spam the log on every stop.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: log writes unexpected exception to callback.</summary>
         [Test]
         public void Log_writes_unexpected_exception_to_callback()
         {
@@ -58,6 +60,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 "The unexpected-exception message must include the exception text so the operator can diagnose the defect.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: log includes exception type name.</summary>
         [Test]
         public void Log_includes_exception_type_name()
         {
@@ -71,6 +74,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 "Type name aids in classifying the defect from log scrapes.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: log no ops when exception is null.</summary>
         [Test]
         public void Log_no_ops_when_exception_is_null()
         {
@@ -84,6 +88,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 "A null exception cannot be logged usefully; do not invoke the callback.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: log no ops when callback is null.</summary>
         [Test]
         public void Log_no_ops_when_callback_is_null()
         {
@@ -95,6 +100,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 onLog: null));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: log treats subclass of task canceled exception as cancellation.</summary>
         [Test]
         public void Log_treats_subclass_of_TaskCanceledException_as_cancellation()
         {

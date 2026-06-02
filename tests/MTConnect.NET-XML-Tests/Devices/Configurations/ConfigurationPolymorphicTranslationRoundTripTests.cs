@@ -29,6 +29,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
     {
         // ---------------- positive: simple Translation ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: simple translation serialises to text element.</summary>
         [Test]
         public void Simple_Translation_serialises_to_text_element()
         {
@@ -43,6 +44,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Not.Contain("<TranslationDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: simple translation deserialises to i translation.</summary>
         [Test]
         public void Simple_Translation_deserialises_to_ITranslation()
         {
@@ -59,6 +61,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
 
         // ---------------- positive: TranslationDataSet ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: translation data set serialises to keyed entries.</summary>
         [Test]
         public void TranslationDataSet_serialises_to_keyed_entries()
         {
@@ -75,6 +78,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Contain("<Entry key=\"Z\">3</Entry>"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: translation data set deserialises to i translation data set.</summary>
         [Test]
         public void TranslationDataSet_deserialises_to_ITranslationDataSet()
         {
@@ -97,6 +101,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
 
         // ---------------- negative ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: translation data set with illegal key drops value without corruption.</summary>
         [Test]
         public void TranslationDataSet_with_illegal_key_drops_value_without_corruption()
         {
@@ -113,6 +118,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(ds.Z, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: empty translation yields empty string value.</summary>
         [Test]
         public void Empty_Translation_yields_empty_string_value()
         {
@@ -124,6 +130,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(t.Value, Is.Null.Or.Empty);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null translation property emits no translation element.</summary>
         [Test]
         public void Null_translation_property_emits_no_Translation_element()
         {
@@ -140,6 +147,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Contain("<Rotation>1 2 3</Rotation>"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: both translation and translation data set present data set wins.</summary>
         [Test]
         public void Both_Translation_and_TranslationDataSet_present_DataSet_wins()
         {
@@ -156,6 +164,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(((ITranslationDataSet)t.Translation).X, Is.EqualTo("9"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: translation writes nothing for null input.</summary>
         [Test]
         public void Translation_writes_nothing_for_null_input()
         {
@@ -163,6 +172,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Is.Empty);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: translation data set writes nothing for null input.</summary>
         [Test]
         public void TranslationDataSet_writes_nothing_for_null_input()
         {
@@ -170,6 +180,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Is.Empty);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: translation data set skips null entries on write.</summary>
         [Test]
         public void TranslationDataSet_skips_null_entries_on_write()
         {
@@ -182,6 +193,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Not.Contain("key=\"Z\""));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: transformation round trip preserves both translation and rotation.</summary>
         [Test]
         public void Transformation_round_trip_preserves_both_Translation_and_Rotation()
         {

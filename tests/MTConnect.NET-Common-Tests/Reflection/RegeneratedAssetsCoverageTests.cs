@@ -33,6 +33,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
     //   - Prose: docs.mtconnect.org "Part 4.0 - Assets Information Model"
     //     §"Asset" — defines the asset-id / timestamp / deviceUuid
     //     wire-shape contract.
+    /// <summary>Pins the behaviour expressed by the test name: regenerated assets coverage tests.</summary>
     [TestFixture]
     public class RegeneratedAssetsCoverageTests
     {
@@ -62,6 +63,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 .OrderBy(t => t.FullName, StringComparer.Ordinal);
         }
 
+        /// <summary>Runs the asset subtypes operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public static IEnumerable<TestCaseData> AssetSubtypes()
         {
             foreach (var type in EnumerateAssetSubtypes())
@@ -71,6 +74,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: catalogue enumerates at least one asset subtype.</summary>
         [Test]
         public void Catalogue_enumerates_at_least_one_asset_subtype()
         {
@@ -81,6 +85,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 "MTConnect.Assets produced zero concrete subtypes — regenerator regression?");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: asset subtype is constructible.</summary>
+        /// <param name="type">The type.</param>
         [Test]
         [TestCaseSource(nameof(AssetSubtypes))]
         public void Asset_subtype_is_constructible(Type type)
@@ -93,6 +99,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 $"{type.FullName} parameterless ctor returned null");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: asset subtype inherits asset id round trip.</summary>
+        /// <param name="type">The type.</param>
         [Test]
         [TestCaseSource(nameof(AssetSubtypes))]
         public void Asset_subtype_inherits_AssetId_round_trip(Type type)
@@ -109,6 +117,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 $"{type.FullName}.AssetId did not round-trip");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: asset subtype inherits device uuid round trip.</summary>
+        /// <param name="type">The type.</param>
         [Test]
         [TestCaseSource(nameof(AssetSubtypes))]
         public void Asset_subtype_inherits_DeviceUuid_round_trip(Type type)
@@ -121,6 +131,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 $"{type.FullName}.DeviceUuid did not round-trip");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: asset subtype inherits timestamp round trip.</summary>
+        /// <param name="type">The type.</param>
         [Test]
         [TestCaseSource(nameof(AssetSubtypes))]
         public void Asset_subtype_inherits_Timestamp_round_trip(Type type)
@@ -133,6 +145,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 $"{type.FullName}.Timestamp did not round-trip");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: asset subtype exposes description text field.</summary>
+        /// <param name="type">The type.</param>
         [Test]
         [TestCaseSource(nameof(AssetSubtypes))]
         public void Asset_subtype_exposes_DescriptionText_field(Type type)

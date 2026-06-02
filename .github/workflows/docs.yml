@@ -139,6 +139,15 @@ jobs:
         run: npx vitepress build
         env:
           DOCS_BASE: /MTConnect.NET/
+          # The flat 2 000-page API reference plus the unified server +
+          # client bundles push rollup past the GitHub Actions runner's
+          # default Node heap (~4 GB) during the markdown -> Vue
+          # transform. The previous symptom was 'Ineffective
+          # mark-compacts near heap limit' aborting the build with
+          # exit 134 even though no page actually fails to parse. Lift
+          # the cap to 8 GB -- runners have 16 GB of RAM, so this is
+          # well within budget.
+          NODE_OPTIONS: --max-old-space-size=8192
 
       # Upload the built artifact only on the deploy path. PR builds stop
       # after the build step (success / failure surfaces in the check).

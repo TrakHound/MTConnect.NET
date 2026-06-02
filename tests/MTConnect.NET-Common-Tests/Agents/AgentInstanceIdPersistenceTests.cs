@@ -129,6 +129,7 @@ namespace MTConnect.Tests.Common.Agents
         // Test 1: persisted file must contain a non-zero InstanceId           //
         // ------------------------------------------------------------------ //
 
+        /// <summary>Pins the behaviour expressed by the test name: instance id reset must persist nonzero to state file.</summary>
         [Test]
         public void InstanceId_reset_must_persist_nonzero_to_state_file()
         {
@@ -157,6 +158,7 @@ namespace MTConnect.Tests.Common.Agents
         // Test 2: XSD xs:minInclusive value='1' must be satisfied             //
         // ------------------------------------------------------------------ //
 
+        /// <summary>Pins the behaviour expressed by the test name: instance id reset must be xsd spec compliant min inclusive 1.</summary>
         [Test]
         public void InstanceId_reset_must_be_xsd_spec_compliant_minInclusive_1()
         {
@@ -187,6 +189,7 @@ namespace MTConnect.Tests.Common.Agents
         //  resets fall within the same tick; passes with Math.Max counter)   //
         // ------------------------------------------------------------------ //
 
+        /// <summary>Pins the behaviour expressed by the test name: instance id two consecutive resets in same second must be strictly monotonic.</summary>
         [Test]
         public void InstanceId_two_consecutive_resets_in_same_second_must_be_strictly_monotonic()
         {
@@ -258,6 +261,7 @@ namespace MTConnect.Tests.Common.Agents
         // "collide_under_unix_second_resolution" documentation test)         //
         // ------------------------------------------------------------------ //
 
+        /// <summary>Pins the behaviour expressed by the test name: instance id two consecutive resets in same second must be strictly monotonic under counter floor.</summary>
         [Test]
         public void InstanceId_two_consecutive_resets_in_same_second_must_be_strictly_monotonic_under_counter_floor()
         {

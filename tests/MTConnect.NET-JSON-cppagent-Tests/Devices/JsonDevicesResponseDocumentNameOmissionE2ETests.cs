@@ -29,6 +29,7 @@ namespace MTConnect.Tests.JsonCppagent.Devices
     [TestFixture]
     public class JsonDevicesResponseDocumentNameOmissionE2ETests
     {
+        /// <summary>Pins the behaviour expressed by the test name: probe response omits name on unnamed dataitems keeps it on named.</summary>
         [Test]
         public void Probe_response_omits_name_on_unnamed_dataitems_keeps_it_on_named()
         {

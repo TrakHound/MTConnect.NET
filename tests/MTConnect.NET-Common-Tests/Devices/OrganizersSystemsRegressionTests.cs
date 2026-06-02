@@ -31,6 +31,7 @@ using NUnit.Framework;
 
 namespace MTConnect.Tests.Common.SystemsOrganizer
 {
+    /// <summary>Pins the behaviour expressed by the test name: organizers systems regression tests.</summary>
     [TestFixture]
     [Category("OrganizersSystemsRegressionGuard")]
     public class OrganizersSystemsRegressionTests
@@ -63,6 +64,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
             "WorkEnvelope",
         };
 
+        /// <summary>Pins the behaviour expressed by the test name: organizers systems matches pinned system substitution group.</summary>
         [Test]
         public void Organizers_Systems_matches_pinned_System_substitution_group()
         {
@@ -73,6 +75,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 "and `PinnedSystemMemberTypeIds` in this test.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: every system described component subclass is in organizers systems.</summary>
         [Test]
         public void Every_System_described_Component_subclass_is_in_Organizers_Systems()
         {

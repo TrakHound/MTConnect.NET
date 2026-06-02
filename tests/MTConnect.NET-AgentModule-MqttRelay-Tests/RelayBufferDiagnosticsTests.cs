@@ -24,6 +24,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
     [TestFixture]
     public class RelayBufferDiagnosticsTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: compute missed returns zero when last sent above to.</summary>
         [Test]
         public void ComputeMissed_returns_zero_when_last_sent_above_to()
         {
@@ -33,6 +34,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 "Underflow guard: when lastSent > to, missed must be 0.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: compute missed returns zero when last sent equals to.</summary>
         [Test]
         public void ComputeMissed_returns_zero_when_last_sent_equals_to()
         {
@@ -41,6 +43,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 Is.Zero);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: compute missed returns difference when last sent below to.</summary>
         [Test]
         public void ComputeMissed_returns_difference_when_last_sent_below_to()
         {
@@ -49,6 +52,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 Is.EqualTo(75L));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: compute missed handles zero last sent.</summary>
         [Test]
         public void ComputeMissed_handles_zero_last_sent()
         {
@@ -57,6 +61,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 Is.EqualTo(100L));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: compute missed round trips long max value difference.</summary>
         [Test]
         public void ComputeMissed_round_trips_long_max_value_difference()
         {

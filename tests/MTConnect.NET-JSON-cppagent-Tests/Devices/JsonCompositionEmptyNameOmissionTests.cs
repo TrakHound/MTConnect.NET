@@ -27,6 +27,7 @@ namespace MTConnect.Tests.JsonCppagent.Devices
     [Category("NameAttributeOmissionWhenUnsetOrEmpty")]
     public class JsonCompositionEmptyNameOmissionTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: constructor with null name source does not serialize name key.</summary>
         [Test]
         public void Constructor_with_null_Name_source_does_not_serialize_name_key()
         {
@@ -37,6 +38,7 @@ namespace MTConnect.Tests.JsonCppagent.Devices
                 "JSON-cppagent Probe Composition must omit 'name' when source Name is null");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: constructor with empty name source does not serialize name key.</summary>
         [Test]
         public void Constructor_with_empty_Name_source_does_not_serialize_name_key()
         {
@@ -47,6 +49,7 @@ namespace MTConnect.Tests.JsonCppagent.Devices
                 "JSON-cppagent Probe Composition must omit 'name' when source Name is empty");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: constructor with explicit name source serializes name key.</summary>
         [Test]
         public void Constructor_with_explicit_Name_source_serializes_name_key()
         {

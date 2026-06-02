@@ -22,6 +22,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
     //          enumerations.)
     //   - Prose: MTConnect Standard Part_2.0_Streams_v2.7 section 11/section 13 "Event/Sample
     //          types" — describes intended use of each type.
+    /// <summary>Pins the behaviour expressed by the test name: v2 7 data item type tests.</summary>
     [TestFixture]
     public class V2_7DataItemTypeTests
     {
@@ -29,6 +30,10 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
         // authority. Several types that look "measurement-y" (SwingAngle, Depth,
         // etc.) are EVENT in the spec rather than SAMPLE; locking them so a
         // future regen drift is caught immediately.
+        /// <summary>Pins the behaviour expressed by the test name: v2 7 data item constructs with correct metadata.</summary>
+        /// <param name="dataItemType">The data item type.</param>
+        /// <param name="expectedTypeId">The expected type id.</param>
+        /// <param name="expectedCategory">The expected category.</param>
         [TestCase(typeof(BindingStateDataItem), "BINDING_STATE", DataItemCategory.EVENT)]
         [TestCase(typeof(DepthDataItem), "DEPTH", DataItemCategory.EVENT)]
         [TestCase(typeof(FixtureAssetIdDataItem), "FIXTURE_ASSET_ID", DataItemCategory.EVENT)]

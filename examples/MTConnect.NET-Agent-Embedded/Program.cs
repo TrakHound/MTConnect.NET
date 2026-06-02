@@ -14,10 +14,14 @@ app.Run(args, true);
 
 // [ Module Configuration ]
 // This is where you can create a custom configuration section
+/// <summary>Represents the module configuration.</summary>
 public class ModuleConfiguration
 {
+    /// <summary>Gets or sets the device uuid.</summary>
     public string DeviceUuid { get; set; }
+    /// <summary>Gets or sets the device name.</summary>
     public string DeviceName { get; set; }
+    /// <summary>Gets or sets the serial number.</summary>
     public string SerialNumber { get; set; }
 }
 
@@ -25,13 +29,19 @@ public class ModuleConfiguration
 
 // [ Agent Module ]
 // This is the module that runs your code
+/// <summary>Represents the module.</summary>
 public class Module : MTConnectInputAgentModule
 {
+    /// <summary>The configuration type id.</summary>
     public const string ConfigurationTypeId = "datasource"; // This must match the module section in the 'agent.config.yaml' file
+    /// <summary>The default id.</summary>
     public const string DefaultId = "DataSource Module"; // The ID is mainly just used for logging.
     private readonly ModuleConfiguration _configuration;
 
 
+    /// <summary>Initialises a new instance of the module type.</summary>
+    /// <param name="agent">The agent.</param>
+    /// <param name="configuration">The configuration.</param>
     public Module(IMTConnectAgentBroker agent, object configuration) : base(agent)
     {
         Id = DefaultId;

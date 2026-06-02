@@ -30,6 +30,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
     {
         // ---------------- positive: Motion + simple Origin ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: simple origin serialises to text element on motion.</summary>
         [Test]
         public void Simple_Origin_serialises_to_text_element_on_Motion()
         {
@@ -47,6 +48,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Not.Contain("<OriginDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: simple origin deserialises to i origin on motion.</summary>
         [Test]
         public void Simple_Origin_deserialises_to_IOrigin_on_Motion()
         {
@@ -63,6 +65,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
 
         // ---------------- positive: Motion + OriginDataSet ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: origin data set serialises to keyed entries on motion.</summary>
         [Test]
         public void OriginDataSet_serialises_to_keyed_entries_on_Motion()
         {
@@ -82,6 +85,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Contain("<Entry key=\"Z\">3</Entry>"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: origin data set deserialises to i origin data set on motion.</summary>
         [Test]
         public void OriginDataSet_deserialises_to_IOriginDataSet_on_Motion()
         {
@@ -104,6 +108,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
 
         // ---------------- positive: CoordinateSystem + simple Origin ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: simple origin serialises to text element on coordinate system.</summary>
         [Test]
         public void Simple_Origin_serialises_to_text_element_on_CoordinateSystem()
         {
@@ -120,6 +125,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Not.Contain("<OriginDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: simple origin deserialises to i origin on coordinate system.</summary>
         [Test]
         public void Simple_Origin_deserialises_to_IOrigin_on_CoordinateSystem()
         {
@@ -135,6 +141,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
 
         // ---------------- positive: CoordinateSystem + OriginDataSet ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: origin data set serialises to keyed entries on coordinate system.</summary>
         [Test]
         public void OriginDataSet_serialises_to_keyed_entries_on_CoordinateSystem()
         {
@@ -151,6 +158,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Contain("<Entry key=\"X\">100</Entry>"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: origin data set deserialises to i origin data set on coordinate system.</summary>
         [Test]
         public void OriginDataSet_deserialises_to_IOriginDataSet_on_CoordinateSystem()
         {
@@ -173,6 +181,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
 
         // ---------------- negative ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: origin data set with illegal key drops value without corruption.</summary>
         [Test]
         public void OriginDataSet_with_illegal_key_drops_value_without_corruption()
         {
@@ -189,6 +198,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(ds.Z, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: empty origin yields empty string value.</summary>
         [Test]
         public void Empty_Origin_yields_empty_string_value()
         {
@@ -200,6 +210,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(origin.Value, Is.Null.Or.Empty);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null origin property emits no origin element on motion.</summary>
         [Test]
         public void Null_origin_property_emits_no_Origin_element_on_Motion()
         {
@@ -217,6 +228,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Not.Contain("<OriginDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null origin property emits no origin element on coordinate system.</summary>
         [Test]
         public void Null_origin_property_emits_no_Origin_element_on_CoordinateSystem()
         {
@@ -233,6 +245,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Not.Contain("<OriginDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: both origin and origin data set present data set wins.</summary>
         [Test]
         public void Both_Origin_and_OriginDataSet_present_DataSet_wins()
         {
@@ -252,6 +265,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(((IOriginDataSet)cs.Origin).X, Is.EqualTo("9"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null coordinate system writes nothing.</summary>
         [Test]
         public void Null_coordinateSystem_writes_nothing()
         {
@@ -259,6 +273,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Is.Empty);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: origin data set writes nothing for null input.</summary>
         [Test]
         public void OriginDataSet_writes_nothing_for_null_input()
         {
@@ -266,6 +281,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Is.Empty);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: origin writes nothing for null input.</summary>
         [Test]
         public void Origin_writes_nothing_for_null_input()
         {

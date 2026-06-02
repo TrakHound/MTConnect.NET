@@ -48,6 +48,7 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
     //     Protocol" — Probe topic structure and payload semantics.
     //   - https://github.com/mtconnect/cppagent — reference encoder whose
     //     JSON v2 shape the .NET formatter mirrors.
+    /// <summary>Pins the behaviour expressed by the test name: json mqtt probe envelope e2 e tests.</summary>
     [TestFixture]
     [Category("RequiresDocker")]
     [Category("E2E")]
@@ -72,6 +73,8 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
         private object? _module;
         private MethodInfo? _stopMethod;
 
+        /// <summary>Sets up the fixture before each test.</summary>
+        /// <returns>The result of the operation.</returns>
         [OneTimeSetUp]
         public async Task GlobalSetUp()
         {
@@ -131,6 +134,8 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
             startMethod.Invoke(_module, new object[] { true });
         }
 
+        /// <summary>Tears down the fixture after each test.</summary>
+        /// <returns>The result of the operation.</returns>
         [OneTimeTearDown]
         public async Task GlobalTearDown()
         {
@@ -148,6 +153,8 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: e2 e multi device probe envelope round trip through real broker.</summary>
+        /// <returns>The result of the operation.</returns>
         [Test]
         public async Task E2E_multi_device_Probe_envelope_round_trip_through_real_broker()
         {

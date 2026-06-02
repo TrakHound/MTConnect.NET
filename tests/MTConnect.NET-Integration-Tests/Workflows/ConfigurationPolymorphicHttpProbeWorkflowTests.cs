@@ -64,6 +64,7 @@ namespace MTConnect.Tests.Integration.Workflows
 
         // ---------------- W08: Motion + AxisDataSet ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: probe returns axis data set round tripped through h t t p.</summary>
         [Fact]
         public void Probe_returns_AxisDataSet_round_tripped_through_HTTP()
         {
@@ -96,6 +97,7 @@ namespace MTConnect.Tests.Integration.Workflows
 
         // ---------------- W09: CoordinateSystem + OriginDataSet ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: probe returns origin data set round tripped through h t t p.</summary>
         [Fact]
         public void Probe_returns_OriginDataSet_round_tripped_through_HTTP()
         {
@@ -132,6 +134,7 @@ namespace MTConnect.Tests.Integration.Workflows
 
         // ---------------- W10: Transformation + RotationDataSet ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: probe returns rotation data set round tripped through h t t p.</summary>
         [Fact]
         public void Probe_returns_RotationDataSet_round_tripped_through_HTTP()
         {
@@ -169,6 +172,7 @@ namespace MTConnect.Tests.Integration.Workflows
 
         // ---------------- negative-path: simple Axis still narrows correctly ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: probe returns simple axis not narrowed to data set.</summary>
         [Fact]
         public void Probe_returns_simple_Axis_not_narrowed_to_DataSet()
         {

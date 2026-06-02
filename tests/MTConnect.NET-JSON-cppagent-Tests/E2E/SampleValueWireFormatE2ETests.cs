@@ -46,6 +46,9 @@ namespace MTConnect.NET_JSON_cppagent_Tests.E2E
             return doc.RootElement.GetProperty("value").Clone();
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: numeric observation serializes as json number token.</summary>
+        /// <param name="dataItemId">The data item id.</param>
+        /// <param name="result">The result.</param>
         [TestCase("temp", "863.7060")]
         [TestCase("temp", "0.0001")]
         [TestCase("rotary-velocity", "12345")]
@@ -59,6 +62,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.E2E
                 $"got {token.ValueKind} instead.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: unavailable observation serializes as json string token.</summary>
         [Test]
         public void Unavailable_observation_serializes_as_json_string_token()
         {
@@ -68,6 +72,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.E2E
             Assert.That(token.GetString(), Is.EqualTo("UNAVAILABLE"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: three space observation preserves string token.</summary>
         [Test]
         public void Three_space_observation_preserves_string_token()
         {
@@ -80,6 +85,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.E2E
             Assert.That(token.GetString(), Is.EqualTo("1.5 -2.5 3.5"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: numeric value round trips to observation.</summary>
         [Test]
         public void Numeric_value_round_trips_to_observation()
         {

@@ -45,6 +45,8 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
 
         // ---- non-finite numeric strings round-trip as JSON string tokens ----
 
+        /// <summary>Pins the behaviour expressed by the test name: non finite numeric string emits as string token.</summary>
+        /// <param name="nonFiniteLiteral">The non finite literal.</param>
         [TestCase("NaN")]
         [TestCase("Infinity")]
         [TestCase("-Infinity")]
@@ -60,6 +62,8 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
 
         // ---- empty / whitespace-only strings emit a JSON null token ----
 
+        /// <summary>Pins the behaviour expressed by the test name: empty or whitespace string emits as null token.</summary>
+        /// <param name="blank">The blank.</param>
         [TestCase("")]
         [TestCase(" ")]
         [TestCase("\t")]
@@ -86,6 +90,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
 
         // ---- non-string / non-numeric fallback uses InvariantCulture ----
 
+        /// <summary>Pins the behaviour expressed by the test name: bool value fallback uses invariant culture.</summary>
         [Test]
         public void Bool_value_fallback_uses_invariant_culture()
         {
@@ -101,6 +106,8 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
 
         // ---- ThreeSpace value path short-circuits before TryParse(double) ----
 
+        /// <summary>Pins the behaviour expressed by the test name: three space string emits as string token.</summary>
+        /// <param name="threeSpace">The three space.</param>
         [TestCase("1.5 -2.5 3.5")]
         [TestCase("0 0 0")]
         [TestCase("12345 0 0")]
@@ -119,6 +126,8 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
 
         // ---- Read default branch throws JsonException on unsupported tokens ----
 
+        /// <summary>Pins the behaviour expressed by the test name: read throws for unsupported token.</summary>
+        /// <param name="payload">The payload.</param>
         [TestCase("true")]
         [TestCase("false")]
         [TestCase("[1,2,3]")]

@@ -84,7 +84,7 @@ Every environment-variable reference discovered in the source tree. Both the C# 
 
 | Kind | Source | Default / value | Context |
 | --- | --- | --- | --- |
-| `csharp-read` | [`tests/Compliance/MTConnect-Compliance-Tests/L2_CrossImpl/CppAgentParityWorkflowTests.cs:488`](https://github.com/TrakHound/MTConnect.NET/blob/master/tests/Compliance/MTConnect-Compliance-Tests/L2_CrossImpl/CppAgentParityWorkflowTests.cs#L488) |  | = Environment.GetEnvironmentVariable(FixtureDirEnv) |
+| `csharp-read` | [`tests/Compliance/MTConnect-Compliance-Tests/L2_CrossImpl/CppAgentParityWorkflowTests.cs:499`](https://github.com/TrakHound/MTConnect.NET/blob/master/tests/Compliance/MTConnect-Compliance-Tests/L2_CrossImpl/CppAgentParityWorkflowTests.cs#L499) |  | = Environment.GetEnvironmentVariable(FixtureDirEnv) |
 
 Adding a new `Environment.GetEnvironmentVariable("…")` call, a new `${MTCONNECT_…}` read in a contributor script, or a new `$env:MTCONNECT_…` reference in a PowerShell script without regenerating this page fails the validation test in CI.
 

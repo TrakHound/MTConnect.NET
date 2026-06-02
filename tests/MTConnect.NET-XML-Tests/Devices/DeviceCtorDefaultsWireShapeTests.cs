@@ -24,6 +24,7 @@ namespace MTConnect.Tests.XML.Devices
     [TestFixture]
     public class DeviceCtorDefaultsWireShapeTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: default constructed device emits empty identity attributes.</summary>
         [Test]
         public void Default_constructed_Device_emits_empty_identity_attributes()
         {
@@ -40,6 +41,7 @@ namespace MTConnect.Tests.XML.Devices
                 "Default ctor must not emit the placeholder name 'dev'.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: caller set identity round trips through x m l.</summary>
         [Test]
         public void Caller_set_identity_round_trips_through_XML()
         {
@@ -57,6 +59,7 @@ namespace MTConnect.Tests.XML.Devices
             Assert.That(xml, Does.Contain("uuid=\"uuid-A\""));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: sequential default devices emit identical empty uuid attributes.</summary>
         [Test]
         public void Sequential_default_Devices_emit_identical_empty_uuid_attributes()
         {

@@ -29,6 +29,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
     {
         // ---------------- positive: simple Rotation ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: simple rotation serialises as numeric array.</summary>
         [Test]
         public void Simple_Rotation_serialises_as_numeric_array()
         {
@@ -43,6 +44,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(json, Does.Not.Contain("RotationDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: simple rotation deserialises to i rotation.</summary>
         [Test]
         public void Simple_Rotation_deserialises_to_IRotation()
         {
@@ -57,6 +59,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
 
         // ---------------- positive: RotationDataSet ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: rotation data set serialises as flat pascalcase object.</summary>
         [Test]
         public void RotationDataSet_serialises_as_flat_pascalcase_object()
         {
@@ -70,6 +73,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(json, Does.Contain("\"RotationDataSet\":{\"A\":\"10\",\"B\":\"20\",\"C\":\"30\"}"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: rotation data set deserialises to i rotation data set.</summary>
         [Test]
         public void RotationDataSet_deserialises_to_IRotationDataSet()
         {
@@ -87,6 +91,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
 
         // ---------------- negative ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: both rotation and rotation data set present data set wins.</summary>
         [Test]
         public void Both_Rotation_and_RotationDataSet_present_DataSet_wins()
         {
@@ -100,6 +105,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(((IRotationDataSet)t.Rotation).A, Is.EqualTo("9"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json rotation data set default constructor yields null components.</summary>
         [Test]
         public void JsonRotationDataSet_default_constructor_yields_null_components()
         {
@@ -109,6 +115,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(ds.A, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: json rotation data set ctor with null input keeps default values.</summary>
         [Test]
         public void JsonRotationDataSet_ctor_with_null_input_keeps_default_values()
         {
@@ -116,6 +123,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(jr.A, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null transformation passed to ctor keeps default values.</summary>
         [Test]
         public void Null_transformation_passed_to_ctor_keeps_default_values()
         {
@@ -124,6 +132,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
             Assert.That(jt.RotationDataSet, Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null rotation property emits no rotation field.</summary>
         [Test]
         public void Null_rotation_property_emits_no_rotation_field()
         {

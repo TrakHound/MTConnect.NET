@@ -43,6 +43,7 @@ namespace MTConnect.Tests.Common.Devices.DataItems
     [Category("StructuredRepresentationClassifier")]
     public class StructuredRepresentationClassifierTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: alarm limits default representation is data set.</summary>
         [Test]
         public void AlarmLimits_DefaultRepresentation_Is_DataSet()
         {
@@ -51,6 +52,7 @@ namespace MTConnect.Tests.Common.Devices.DataItems
                 Is.EqualTo(DataItemRepresentation.DATA_SET));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: alarm limit default representation is data set.</summary>
         [Test]
         public void AlarmLimit_DefaultRepresentation_Is_DataSet()
         {
@@ -59,6 +61,7 @@ namespace MTConnect.Tests.Common.Devices.DataItems
                 Is.EqualTo(DataItemRepresentation.DATA_SET));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: control limits default representation is data set.</summary>
         [Test]
         public void ControlLimits_DefaultRepresentation_Is_DataSet()
         {
@@ -67,6 +70,7 @@ namespace MTConnect.Tests.Common.Devices.DataItems
                 Is.EqualTo(DataItemRepresentation.DATA_SET));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: control limit default representation is data set.</summary>
         [Test]
         public void ControlLimit_DefaultRepresentation_Is_DataSet()
         {
@@ -75,6 +79,7 @@ namespace MTConnect.Tests.Common.Devices.DataItems
                 Is.EqualTo(DataItemRepresentation.DATA_SET));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: location address default representation is data set.</summary>
         [Test]
         public void LocationAddress_DefaultRepresentation_Is_DataSet()
         {
@@ -83,6 +88,7 @@ namespace MTConnect.Tests.Common.Devices.DataItems
                 Is.EqualTo(DataItemRepresentation.DATA_SET));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: location spatial geographic default representation is data set.</summary>
         [Test]
         public void LocationSpatialGeographic_DefaultRepresentation_Is_DataSet()
         {
@@ -91,6 +97,7 @@ namespace MTConnect.Tests.Common.Devices.DataItems
                 Is.EqualTo(DataItemRepresentation.DATA_SET));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: specification limits default representation is data set.</summary>
         [Test]
         public void SpecificationLimits_DefaultRepresentation_Is_DataSet()
         {
@@ -99,6 +106,7 @@ namespace MTConnect.Tests.Common.Devices.DataItems
                 Is.EqualTo(DataItemRepresentation.DATA_SET));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: specification limit default representation is data set.</summary>
         [Test]
         public void SpecificationLimit_DefaultRepresentation_Is_DataSet()
         {
@@ -107,6 +115,7 @@ namespace MTConnect.Tests.Common.Devices.DataItems
                 Is.EqualTo(DataItemRepresentation.DATA_SET));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: sensor attachment default representation is data set.</summary>
         [Test]
         public void SensorAttachment_DefaultRepresentation_Is_DataSet()
         {
@@ -115,6 +124,7 @@ namespace MTConnect.Tests.Common.Devices.DataItems
                 Is.EqualTo(DataItemRepresentation.DATA_SET));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: feature measurement default representation stays table.</summary>
         [Test]
         public void FeatureMeasurement_DefaultRepresentation_Stays_Table()
         {
@@ -126,6 +136,7 @@ namespace MTConnect.Tests.Common.Devices.DataItems
                 Is.EqualTo(DataItemRepresentation.TABLE));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: maintenance list default representation stays table.</summary>
         [Test]
         public void MaintenanceList_DefaultRepresentation_Stays_Table()
         {

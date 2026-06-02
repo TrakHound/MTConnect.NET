@@ -21,6 +21,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
     [TestFixture]
     public class JsonSampleValueToObservationTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: to observation with null reset triggered does not store value.</summary>
         [Test]
         public void ToObservation_with_null_reset_triggered_does_not_store_value()
         {
@@ -56,6 +57,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
                 "stray default-enum value.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: to observation with supplied reset triggered sets enum.</summary>
         [Test]
         public void ToObservation_with_supplied_reset_triggered_sets_enum()
         {

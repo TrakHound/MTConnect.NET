@@ -19,6 +19,7 @@ namespace MTConnect.Tests.JsonCppagent.Devices
     [TestFixture]
     public class JsonDataItemRelationshipCategorizationTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: both abstract relationship kinds route to their matching container bucket.</summary>
         [Test]
         public void Both_abstract_relationship_kinds_route_to_their_matching_container_bucket()
         {
@@ -44,6 +45,7 @@ namespace MTConnect.Tests.JsonCppagent.Devices
             Assert.That(json.Relationships.SpecificationRelationships, Has.Count.EqualTo(1));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: empty relationships collection leaves container null.</summary>
         [Test]
         public void Empty_relationships_collection_leaves_container_null()
         {
@@ -60,6 +62,7 @@ namespace MTConnect.Tests.JsonCppagent.Devices
                 "JsonDataItem must skip the relationship container when the source has none.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: multiple relationships of same kind aggregate in their bucket.</summary>
         [Test]
         public void Multiple_relationships_of_same_kind_aggregate_in_their_bucket()
         {

@@ -9,7 +9,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
 {
     /// <summary>
     /// Pins the startup-time invariant that <see cref="MTConnectAgent.AddDevice"/>
-    /// rejects any Device whose <see cref="IDevice.Uuid"/> is null or empty.
+    /// rejects any Device whose <see cref="IContainer.Uuid"/> is null or empty.
     ///
     /// Background: the parameterless <see cref="Device"/> ctor leaves
     /// <c>Id</c>, <c>Name</c>, and <c>Uuid</c> all null so the ctor does
@@ -36,6 +36,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
     [Category("DeviceComponentDefaultsRemoved")]
     public class DeviceCtorStartupValidationTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: add device with null uuid raises invalid device added with clear message.</summary>
         [Test]
         public void AddDevice_with_null_uuid_raises_invalid_device_added_with_clear_message()
         {
@@ -77,6 +78,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
                 "ValidationResult.Message must name the offending Device's type so the operator can locate it in their config.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: add device with empty uuid raises invalid device added with clear message.</summary>
         [Test]
         public void AddDevice_with_empty_uuid_raises_invalid_device_added_with_clear_message()
         {
@@ -104,6 +106,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
             Assert.That(capturedResult.Message, Does.Contain("Uuid"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: add device with non null uuid does not raise invalid device added.</summary>
         [Test]
         public void AddDevice_with_non_null_uuid_does_not_raise_invalid_device_added()
         {
@@ -130,6 +133,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
                 "InvalidDeviceAdded must NOT fire when the Device's Uuid is well-formed.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: add device event message names registration index.</summary>
         [Test]
         public void AddDevice_event_message_names_registration_index()
         {
@@ -153,6 +157,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
                 "ValidationResult.Message must include the offending Device's registration index (1) so the operator can locate it.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: validate device returns invalid for null uuid without mutating buffer.</summary>
         [Test]
         public void ValidateDevice_returns_invalid_for_null_uuid_without_mutating_buffer()
         {
@@ -172,6 +177,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
                 "ValidateDevice must not register the Device, regardless of the validation outcome.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: validate device returns valid for well formed device.</summary>
         [Test]
         public void ValidateDevice_returns_valid_for_well_formed_device()
         {
@@ -184,6 +190,7 @@ namespace MTConnect.Tests.Common.DeviceCtorDefaults
             Assert.That(result.Message, Is.Null.Or.Empty);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: validate device returns invalid for null device.</summary>
         [Test]
         public void ValidateDevice_returns_invalid_for_null_device()
         {

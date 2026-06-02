@@ -32,6 +32,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
     [TestFixture]
     public class AvailabilityTopicTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: build returns topic outside probe wildcard.</summary>
         [Test]
         public void Build_returns_topic_outside_probe_wildcard()
         {
@@ -43,6 +44,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 "MqttRelay availability topic must not fall under the Probe/# wildcard.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: build uses dedicated agent segment.</summary>
         [Test]
         public void Build_uses_dedicated_agent_segment()
         {
@@ -57,6 +59,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             Assert.That(topic, Is.EqualTo("MTConnect/Agent/agent-uuid-1/Available"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: build preserves multi segment topic prefix.</summary>
         [Test]
         public void Build_preserves_multi_segment_topic_prefix()
         {
@@ -72,30 +75,35 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             Assert.That(topic, Does.Not.Contain("/Probe/"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: build returns null when topic prefix is null.</summary>
         [Test]
         public void Build_returns_null_when_topic_prefix_is_null()
         {
             Assert.That(AvailabilityTopic.Build(null, "agent-uuid-1"), Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: build returns null when topic prefix is empty.</summary>
         [Test]
         public void Build_returns_null_when_topic_prefix_is_empty()
         {
             Assert.That(AvailabilityTopic.Build(string.Empty, "agent-uuid-1"), Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: build returns null when agent uuid is null.</summary>
         [Test]
         public void Build_returns_null_when_agent_uuid_is_null()
         {
             Assert.That(AvailabilityTopic.Build("MTConnect", null), Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: build returns null when agent uuid is empty.</summary>
         [Test]
         public void Build_returns_null_when_agent_uuid_is_empty()
         {
             Assert.That(AvailabilityTopic.Build("MTConnect", string.Empty), Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: available segment constant pins trailing topic segment.</summary>
         [Test]
         public void AvailableSegment_constant_pins_trailing_topic_segment()
         {

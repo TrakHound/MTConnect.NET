@@ -31,6 +31,8 @@ namespace MTConnect.Tests.Common.Agents
     {
         private static readonly string[] _deviceIds = { "lathe-1", "mill-7", "robot-A" };
 
+        /// <summary>Pins the behaviour expressed by the test name: add device auto injects asset count with data set representation.</summary>
+        /// <param name="deviceId">The device id.</param>
         [TestCaseSource(nameof(_deviceIds))]
         public void AddDevice_AutoInjects_AssetCount_With_DataSet_Representation(string deviceId)
         {
@@ -56,6 +58,7 @@ namespace MTConnect.Tests.Common.Agents
                 Is.EqualTo(DataItemRepresentation.DATA_SET));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: add devices auto injects asset count with data set representation for every device.</summary>
         [Test]
         public void AddDevices_AutoInjects_AssetCount_With_DataSet_Representation_For_Every_Device()
         {
@@ -86,6 +89,7 @@ namespace MTConnect.Tests.Common.Agents
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: add device with configuration auto injects asset count with data set representation.</summary>
         [Test]
         public void AddDevice_With_Configuration_AutoInjects_AssetCount_With_DataSet_Representation()
         {

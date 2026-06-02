@@ -137,6 +137,8 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
              "//*[local-name()='SolidModel']", "ScaleDataSet", true, new[] { "Y" }, XyzAlphabet, null),
         };
 
+        /// <summary>Runs the all combinations operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public static IEnumerable<TestCaseData> AllCombinations()
         {
             foreach (var version in Versions)
@@ -149,6 +151,16 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: configuration polymorphism combination emits well formed xml.</summary>
+        /// <param name="version">The version.</param>
+        /// <param name="comboName">The combo name.</param>
+        /// <param name="body">The body.</param>
+        /// <param name="containerXp">The container xp.</param>
+        /// <param name="leafName">The leaf name.</param>
+        /// <param name="isDataSet">The is data set.</param>
+        /// <param name="expectedKeys">The expected keys.</param>
+        /// <param name="specAlphabet">The spec alphabet.</param>
+        /// <param name="expectedTextValue">The expected text value.</param>
         [TestCaseSource(nameof(AllCombinations))]
         public void Configuration_polymorphism_combination_emits_well_formed_xml(
             string version,
@@ -237,6 +249,10 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
         // form and the DataSet form of the same polymorphism leaf — the XSD's
         // <xs:choice> constraint forbids it. Pinning structurally so a future
         // wire-format regression that emits both is caught here.
+        /// <summary>Pins the behaviour expressed by the test name: configuration polymorphism choice forbids both forms in the same container.</summary>
+        /// <param name="simpleLeafName">The simple leaf name.</param>
+        /// <param name="dataSetLeafName">The data set leaf name.</param>
+        /// <param name="body">The body.</param>
         [TestCase("Origin", "OriginDataSet", "<CoordinateSystem id=\"cs1\" type=\"MACHINE\"><Origin>1 2 3</Origin><OriginDataSet><Entry key=\"X\">1</Entry></OriginDataSet></CoordinateSystem>",
             TestName = "CoordinateSystem cannot carry both Origin and OriginDataSet")]
         [TestCase("Axis", "AxisDataSet", "<Motion id=\"mx\" type=\"PRISMATIC\" actuation=\"DIRECT\" coordinateSystemIdRef=\"mc\"><Axis>1 2 3</Axis><AxisDataSet><Entry key=\"X\">1</Entry></AxisDataSet></Motion>",

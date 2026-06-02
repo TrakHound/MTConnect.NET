@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Generate the API reference Markdown under docs/api/.
 #
-# Compiles every shipped MTConnect.NET library in Release / net8.0,
-# then runs `docfx metadata` against the produced DLLs and XML doc
-# files. The output is a flat tree of `Namespace.Type.md` pages
+# Compiles every committed MTConnect.NET project (libraries, agent and
+# adapter applications and modules, in-tree build / generator tools,
+# examples, the embedded-agent template, and the test suites) in
+# Debug, then runs `docfx metadata` against the produced DLLs and XML
+# doc files. The output is a flat tree of `Namespace.Type.md` pages
 # alongside per-namespace landing pages.
 #
 # Usage:
@@ -24,7 +26,7 @@ for arg in "$@"; do
   case "${arg}" in
     --fast) skip_build=true ;;
     -h|--help)
-      sed -n '2,15p' "${BASH_SOURCE[0]}"
+      sed -n '2,17p' "${BASH_SOURCE[0]}"
       exit 0
       ;;
     *)
@@ -34,6 +36,9 @@ for arg in "$@"; do
   esac
 done
 
+# Path to the project directory. The csproj filename is inferred as
+# "<basename>.csproj" except where overridden in the matching entries
+# of csproj_overrides below.
 projects=(
   "libraries/MTConnect.NET-Common"
   "libraries/MTConnect.NET-DeviceFinder"
@@ -56,24 +61,60 @@ projects=(
   "agent/Modules/MTConnect.NET-AgentModule-MqttBroker"
   "agent/Modules/MTConnect.NET-AgentModule-MqttRelay"
   "agent/Modules/MTConnect.NET-AgentModule-ShdrAdapter"
+  "agent/Processors/MTConnect.NET-AgentProcessor-Python"
   "adapter/MTConnect.NET-Adapter"
   "adapter/MTConnect.NET-Applications-Adapter"
   "adapter/Modules/MTConnect.NET-AdapterModule-MQTT"
   "adapter/Modules/MTConnect.NET-AdapterModule-SHDR"
+  "build/MTConnect.NET-SysML-Import"
+  "build/MTConnect.NET.Builder"
+  "examples/MTConnect.NET-Agent-Embedded"
+  "examples/MTConnect.NET-Client-HTTP"
+  "examples/MTConnect.NET-Client-MQTT"
+  "examples/MTConnect.NET-Client-SHDR"
+  "templates/mtconnect.net-agent/content/MTConnect.NET-Embedded-Agent:Agent.csproj"
+  "tests/Compliance/MTConnect-Compliance-Tests"
+  "tests/MTConnect.NET-AgentModule-MqttRelay-Tests"
+  "tests/MTConnect.NET-Common-Tests"
+  "tests/MTConnect.NET-Docs-Tests"
+  "tests/MTConnect.NET-HTTP-Tests"
+  "tests/MTConnect.NET-Integration-Tests"
+  "tests/MTConnect.NET-JSON-cppagent-Tests"
+  "tests/MTConnect.NET-JSON-Tests"
+  "tests/MTConnect.NET-SHDR-Tests"
+  "tests/MTConnect.NET-Tests-Agents"
+  "tests/MTConnect.NET-XML-Tests"
 )
 
 if ! "${skip_build}"; then
-  echo "==> building projects in Debug for net8.0"
-  # Debug is the multi-target config that compiles ONLY net8.0 on every
-  # project — Release multi-targets net4.6.1..net9.0 and fails on SDKs
-  # that lack the legacy reference assemblies. The reference is content,
-  # not packaged output, so a Debug build is fine.
-  for proj in "${projects[@]}"; do
-    name="$(basename "${proj}")"
-    dotnet build "${proj}/${name}.csproj" \
+  echo "==> building projects in Debug"
+  # Debug is the multi-target config that compiles ONLY net8.0 on
+  # every shipped project — Release multi-targets net4.6.1..net9.0 and
+  # fails on SDKs that lack the legacy reference assemblies. The
+  # reference is content, not packaged output, so a Debug build is
+  # fine.
+  for entry in "${projects[@]}"; do
+    proj_dir="${entry%%:*}"
+    if [[ "${entry}" == *:* ]]; then
+      csproj_name="${entry##*:}"
+    else
+      csproj_name="$(basename "${proj_dir}").csproj"
+    fi
+    # Pass no NoWarn overrides. TreatWarningsAsErrors=true in
+    # Directory.Build.props turns every XML-doc warning — including
+    # CS1591 (missing XML doc on a public surface) — into a build
+    # failure, which is the campaign's 100 % XML-doc-coverage gate.
+    #
+    # --no-incremental forces a from-source recompile. Without it,
+    # an obj/ tree that was last produced under a CS1591-suppressed
+    # build remains current and silently masks missing-doc errors:
+    # MSBuild's up-to-date check looks at file timestamps and skips
+    # csc altogether, so neither the new compiler flags nor the
+    # diagnostic list takes effect.
+    dotnet build "${proj_dir}/${csproj_name}" \
       -c Debug \
       -p:GenerateDocumentationFile=true \
-      -p:AdditionalNoWarn=CS1591 \
+      --no-incremental \
       --nologo \
       -v:quiet
   done
@@ -106,5 +147,73 @@ find docs/api -mindepth 1 -maxdepth 1 -not -name 'index.md' -exec rm -rf {} +
 # output tree before docfx writes fresh files.
 find docs/api -name '*.md' -not -name 'index.md' -print0 \
   | xargs -0 sed -i -E 's#<code( [^>]*)?>#<code v-pre\1>#g'
+
+# docfx emits two C#-generic patterns whose opening `<` is bare while
+# the closing `>` is markdown-escaped as `\>`. Vue's template compiler
+# then treats the bare `<` as the start tag of an element that never
+# closes (the escaped `\>` is rendered as a literal `>` in HTML, not
+# as an end-tag token), tripping "Element is missing end tag" at
+# vitepress build time. The two patterns are:
+#
+#   1. Heading text after the anchor close, e.g.
+#      `### <a id="…"></a> Collect\(string, List<EnvVarInfo\>\)`.
+#   2. Return / parameter blocks where docfx renders an outer-generic
+#      link followed by an inner-generic link, e.g.
+#      ` [List](url-of-list)<[EnvVarInfo](url-of-envvarinfo)\>`.
+#
+# Both forms feed the parser a `<` followed by either an uppercase
+# letter (heading-text type name) or a `[` (markdown link opener) and
+# never close it with a real `</tag>`. Rewrite both bare opens as
+# `&lt;` HTML entities so the markdown -> HTML pipeline can't re-emit
+# a literal `<` (a backslash-escape would survive markdown but the
+# Vue template parser sees the rendered HTML, where `\<` decodes to
+# `<` again and re-trips the same error). The `<a id="…"></a>` anchor
+# itself is intentionally not touched -- `a` is lowercase, so the
+# `<[A-Z]` alternative misses it, and the `<\[` alternative is
+# unambiguous. Fenced code blocks render via the highlighter, not
+# Vue's template parser, so the bare generics they contain (e.g.
+# `public IReadOnlyList<EnvVarInfo> Collect(...)`) do not need
+# escaping. A small awk pass tracks ```-fence state and skips lines
+# inside fences so code-block content stays untouched.
+while IFS= read -r -d '' md_file; do
+  awk '
+    BEGIN { in_fence = 0 }
+    /^```/ { in_fence = !in_fence; print; next }
+    in_fence { print; next }
+    {
+      # Replace `<X` (uppercase) or `<[` with `&lt;X` / `&lt;[` by
+      # walking each match.
+      out = ""; s = $0
+      while (match(s, /<([A-Z]|\[)/)) {
+        out = out substr(s, 1, RSTART - 1) "&lt;" substr(s, RSTART + 1, RLENGTH - 1)
+        s = substr(s, RSTART + RLENGTH)
+      }
+      line = out s
+      # Replace `{{` with `&#123;&#123;` so Vue does not treat the
+      # token as a mustache interpolation. docfx preserves verbatim
+      # spec-marker text like `{{term(data set)}}` from XML doc
+      # comments, which Vue would otherwise try to parse as the
+      # JavaScript expression `term(data set)` and reject. The
+      # html-entity form survives the markdown -> HTML pipeline.
+      gsub(/\{\{/, "\\&#123;\\&#123;", line)
+      # Escape `*` inside <code ...>...</code> spans as `&#42;`.
+      # Without this, two `<code>*.sh</code>` spans on a single line
+      # let markdown-it treat the `*` characters as the bookends of
+      # an `<em>` span, producing `<em>.sh</code> and <code v-pre></em>`
+      # in the rendered HTML -- with the `<code>` open/close braces
+      # spliced into broken positions -- which then trips Vue with
+      # "Element is missing end tag" during vitepress build.
+      out2 = ""; t = line
+      while (match(t, /<code( [^>]*)?>[^<]*<\/code>/)) {
+        prefix = substr(t, 1, RSTART - 1)
+        span = substr(t, RSTART, RLENGTH)
+        gsub(/\*/, "\\&#42;", span)
+        out2 = out2 prefix span
+        t = substr(t, RSTART + RLENGTH)
+      }
+      print out2 t
+    }
+  ' "${md_file}" > "${md_file}.tmp" && mv "${md_file}.tmp" "${md_file}"
+done < <(find docs/api -name '*.md' -not -name 'index.md' -print0)
 
 echo "==> done. $(find docs/api -name '*.md' -not -name 'index.md' | wc -l) pages generated."

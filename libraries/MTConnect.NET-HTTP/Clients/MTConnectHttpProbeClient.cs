@@ -313,7 +313,7 @@ namespace MTConnect.Clients
         }
 
 
-        /// <summary>Builds the <c>probe</c> request URI from the client's own <see cref="MTConnectHttpClientRequest.Authority"/>, <see cref="MTConnectHttpClientRequest.Device"/>, and <see cref="MTConnectHttpClientRequest.DocumentFormat"/>.</summary>
+        /// <summary>Builds the <c>probe</c> request URI from the client's own <see cref="Authority"/>, <see cref="Device"/>, and <see cref="DocumentFormat"/>.</summary>
         public Uri CreateUri() => CreateUri(Authority, Device, DocumentFormat);
 
         /// <summary>Convenience overload that passes <c>0</c> for <paramref name="port"/>, taking the port from <paramref name="hostname"/> if present.</summary>

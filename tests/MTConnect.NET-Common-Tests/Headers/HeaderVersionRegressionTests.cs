@@ -26,6 +26,7 @@ using NUnit.Framework;
 
 namespace MTConnect.Tests.Common.Headers
 {
+    /// <summary>Pins the behaviour expressed by the test name: header version regression tests.</summary>
     [TestFixture]
     public class HeaderVersionRegressionTests
     {
@@ -61,6 +62,8 @@ namespace MTConnect.Tests.Common.Headers
             return broker;
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: devices header version equals configured mtconnect release.</summary>
+        /// <param name="configuredVersion">The configured version.</param>
         [TestCaseSource(typeof(MTConnectVersionMatrix), nameof(MTConnectVersionMatrix.All))]
         public void Devices_header_version_equals_configured_mtconnect_release(Version configuredVersion)
         {
@@ -75,6 +78,8 @@ namespace MTConnect.Tests.Common.Headers
                 Is.EqualTo(ExpectedHeaderVersion(configuredVersion)));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: assets header version equals configured mtconnect release.</summary>
+        /// <param name="configuredVersion">The configured version.</param>
         [TestCaseSource(typeof(MTConnectVersionMatrix), nameof(MTConnectVersionMatrix.All))]
         public void Assets_header_version_equals_configured_mtconnect_release(Version configuredVersion)
         {
@@ -89,6 +94,8 @@ namespace MTConnect.Tests.Common.Headers
                 Is.EqualTo(ExpectedHeaderVersion(configuredVersion)));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: error header version equals configured mtconnect release.</summary>
+        /// <param name="configuredVersion">The configured version.</param>
         [TestCaseSource(typeof(MTConnectVersionMatrix), nameof(MTConnectVersionMatrix.All))]
         public void Error_header_version_equals_configured_mtconnect_release(Version configuredVersion)
         {
@@ -102,6 +109,8 @@ namespace MTConnect.Tests.Common.Headers
                 Is.EqualTo(ExpectedHeaderVersion(configuredVersion)));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: devices header version equals configured release when passed explicitly.</summary>
+        /// <param name="configuredVersion">The configured version.</param>
         [TestCaseSource(typeof(MTConnectVersionMatrix), nameof(MTConnectVersionMatrix.All))]
         public void Devices_header_version_equals_configured_release_when_passed_explicitly(Version configuredVersion)
         {
@@ -119,6 +128,7 @@ namespace MTConnect.Tests.Common.Headers
                 Is.EqualTo(ExpectedHeaderVersion(configuredVersion)));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: no response envelope emits the library assembly version.</summary>
         [Test]
         public void No_response_envelope_emits_the_library_assembly_version()
         {

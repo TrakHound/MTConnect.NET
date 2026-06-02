@@ -28,6 +28,7 @@ namespace MTConnect.Tests.JsonCppagent.Devices
     [Category("NameAttributeOmissionWhenUnsetOrEmpty")]
     public class JsonCompositionNameAttributePinTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: name property carries json ignore when writing null attribute.</summary>
         [Test]
         public void Name_property_carries_JsonIgnore_WhenWritingNull_attribute()
         {
@@ -39,6 +40,7 @@ namespace MTConnect.Tests.JsonCppagent.Devices
                 "JsonComposition.Name [JsonIgnore] condition must be WhenWritingNull.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: raw system text json serialise omits name when null.</summary>
         [Test]
         public void Raw_System_Text_Json_serialise_omits_name_when_null()
         {

@@ -43,6 +43,7 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
     // Source for the embedded W3C XSDs:
     //   https://www.w3.org/1999/xlink.xsd
     //   https://www.w3.org/2001/xml.xsd
+    /// <summary>Pins the behaviour expressed by the test name: schema load tests.</summary>
     [TestFixture]
     public class SchemaLoadTests
     {
@@ -102,6 +103,8 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
             "v2_7/MTConnectDevices_2.7.xsd"
         };
 
+        /// <summary>Runs the all schemas operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public static IEnumerable<TestCaseData> AllSchemas()
         {
             var asm = typeof(SchemaLoadTests).Assembly;
@@ -154,6 +157,8 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
             return rest.Substring(0, firstDot) + "/" + rest.Substring(firstDot + 1);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: schema loads without errors.</summary>
+        /// <param name="resourceName">The resource name.</param>
         [TestCaseSource(nameof(AllSchemas))]
         public void Schema_loads_without_errors(string resourceName)
         {

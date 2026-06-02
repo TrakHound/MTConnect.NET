@@ -25,6 +25,7 @@ namespace MTConnect.Tests.JsonCppagent.Assets
     [Category("CppAgentHeaderFieldsPresent")]
     public class JsonAssetsHeaderValidationTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: constructor with source header copies validation.</summary>
         [Test]
         public void Constructor_with_source_header_copies_validation()
         {
@@ -43,6 +44,7 @@ namespace MTConnect.Tests.JsonCppagent.Assets
                 "JsonAssetsHeader must copy Validation from the source IMTConnectAssetsHeader.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: serialized assets header emits validation property.</summary>
         [Test]
         public void Serialized_assets_header_emits_validation_property()
         {
@@ -60,6 +62,7 @@ namespace MTConnect.Tests.JsonCppagent.Assets
             Assert.That(v.GetBoolean(), Is.True);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: reverse mapping round trips validation.</summary>
         [Test]
         public void Reverse_mapping_round_trips_validation()
         {

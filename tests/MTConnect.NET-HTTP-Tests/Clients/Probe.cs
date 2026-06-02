@@ -11,9 +11,11 @@ namespace MTConnect.Tests.Http.Clients
     // MTConnectHttpServer started by AgentRunner, exercising the HTTP probe
     // request/response path end to end for XML and JSON, all devices and a
     // single device.
+    /// <summary>Pins the behaviour expressed by the test name: probe.</summary>
     [TestFixture]
     public class Probe : HttpClientFixture
     {
+        /// <summary>Pins the behaviour expressed by the test name: run xml.</summary>
         [Test]
         public void RunXml()
         {
@@ -25,6 +27,7 @@ namespace MTConnect.Tests.Http.Clients
             Assert.That(response.Devices.Count(), Is.EqualTo(ExpectedDocumentEntryCount), "XML Probe did not return all devices");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: run json.</summary>
         [Test]
         public void RunJson()
         {
@@ -36,6 +39,7 @@ namespace MTConnect.Tests.Http.Clients
             Assert.That(response.Devices.Count(), Is.EqualTo(ExpectedDocumentEntryCount), "JSON Probe did not return all devices");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: run device xml.</summary>
         [Test]
         public void RunDeviceXml()
         {
@@ -47,6 +51,7 @@ namespace MTConnect.Tests.Http.Clients
             Assert.That(response.Devices.FirstOrDefault(o => o.Name == DeviceName), Is.Not.Null, $"XML Probe did not return device {DeviceName}");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: run device json.</summary>
         [Test]
         public void RunDeviceJson()
         {

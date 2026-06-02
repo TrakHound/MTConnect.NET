@@ -24,6 +24,7 @@ namespace MTConnect.Tests.JsonCppagent
     [Category("ComplianceMatrix")]
     public class JsonHeaderWireShapeMatrixTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: matrix exposes three envelope kinds.</summary>
         [Test]
         public void Matrix_exposes_three_envelope_kinds()
         {
@@ -36,6 +37,7 @@ namespace MTConnect.Tests.JsonCppagent
             Assert.That(kinds, Is.EqualTo(new[] { "Assets", "Devices", "Streams" }));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: matrix covers v20 v23 v25 for each envelope.</summary>
         [Test]
         public void Matrix_covers_v20_v23_v25_for_each_envelope()
         {
@@ -54,6 +56,7 @@ namespace MTConnect.Tests.JsonCppagent
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: matrix class is internal static.</summary>
         [Test]
         public void Matrix_class_is_internal_static()
         {

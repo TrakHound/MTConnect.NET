@@ -35,6 +35,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
     //   - Prose: docs.mtconnect.org "Part 2.0 - Devices Information Model"
     //     §"Component" — defines the Component / Composition / Device
     //     role hierarchy.
+    /// <summary>Pins the behaviour expressed by the test name: regenerated components coverage tests.</summary>
     [TestFixture]
     public class RegeneratedComponentsCoverageTests
     {
@@ -51,6 +52,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 .OrderBy(t => t.FullName, StringComparer.Ordinal);
         }
 
+        /// <summary>Runs the component subtypes operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public static IEnumerable<TestCaseData> ComponentSubtypes()
         {
             foreach (var type in EnumerateComponentSubtypes())
@@ -60,6 +63,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: catalogue enumerates at least one component subtype.</summary>
         [Test]
         public void Catalogue_enumerates_at_least_one_component_subtype()
         {
@@ -70,6 +74,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 "MTConnect.Devices.Components produced fewer than 50 concrete subtypes — regenerator regression?");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: component subtype exposes non empty type id.</summary>
+        /// <param name="type">The type.</param>
         [Test]
         [TestCaseSource(nameof(ComponentSubtypes))]
         public void Component_subtype_exposes_non_empty_TypeId(Type type)
@@ -87,6 +93,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 $"{type.FullName}.TypeId is null or empty");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: constructed component subtype carries type from const.</summary>
+        /// <param name="type">The type.</param>
         [Test]
         [TestCaseSource(nameof(ComponentSubtypes))]
         public void Constructed_Component_subtype_carries_Type_from_const(Type type)

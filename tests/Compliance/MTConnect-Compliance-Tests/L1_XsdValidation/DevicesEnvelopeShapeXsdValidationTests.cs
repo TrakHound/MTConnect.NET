@@ -28,6 +28,7 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
     //   - MTConnect v2.7 XSD MTConnectDevices_2.7.xsd lines 5029-5051
     //     (DevicesType complex type).
     //   - W3C XML 1.0 §2.3 (Names are case-sensitive).
+    /// <summary>Pins the behaviour expressed by the test name: devices envelope shape xsd validation tests.</summary>
     [TestFixture]
     [Category("CppAgentJsonV2Envelope")]
     public class DevicesEnvelopeShapeXsdValidationTests
@@ -60,6 +61,7 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: probe envelope has agent and device under devices per v2 7 devices type.</summary>
         [Test]
         public void Probe_envelope_has_Agent_and_Device_under_Devices_per_v2_7_DevicesType()
         {
@@ -96,6 +98,7 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: agent name attribute is case sensitive per w3 c x m l 1 0 section 2 3.</summary>
         [Test]
         public void Agent_name_attribute_is_case_sensitive_per_W3C_XML_1_0_section_2_3()
         {

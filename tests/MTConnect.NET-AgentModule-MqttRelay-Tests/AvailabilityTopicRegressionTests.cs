@@ -29,6 +29,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
     [TestFixture]
     public class AvailabilityTopicRegressionTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: topic never contains probe segment for any inputs.</summary>
         [Test]
         public void Topic_never_contains_probe_segment_for_any_inputs()
         {
@@ -75,6 +76,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: agent segment is distinct from probe constant.</summary>
         [Test]
         public void Agent_segment_is_distinct_from_probe_constant()
         {

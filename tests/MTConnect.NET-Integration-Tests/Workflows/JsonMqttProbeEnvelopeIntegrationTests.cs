@@ -42,6 +42,7 @@ namespace MTConnect.Tests.Integration.Workflows
     //     5029-5051): Agent (minOccurs=0, maxOccurs=1) and Device
     //     (minOccurs=1, maxOccurs=unbounded) are SEPARATE named child
     //     elements within the DevicesType sequence.
+    /// <summary>Represents the json mqtt probe envelope integration tests.</summary>
     [Trait("Category", "RequiresDocker")]
     public sealed class JsonMqttProbeEnvelopeIntegrationTests
         : IClassFixture<MqttBrokerFixture>, IDisposable
@@ -64,6 +65,8 @@ namespace MTConnect.Tests.Integration.Workflows
         private readonly object _module;
         private readonly MethodInfo _stopMethod;
 
+        /// <summary>Initialises a new instance of the json mqtt probe envelope integration tests type.</summary>
+        /// <param name="broker">The broker.</param>
         public JsonMqttProbeEnvelopeIntegrationTests(MqttBrokerFixture broker)
         {
             _broker = broker;
@@ -107,6 +110,7 @@ namespace MTConnect.Tests.Integration.Workflows
             startMethod.Invoke(_module, new object[] { true });
         }
 
+        /// <summary>Runs the dispose operation.</summary>
         public void Dispose()
         {
             try { _stopMethod.Invoke(_module, null); }
@@ -115,6 +119,8 @@ namespace MTConnect.Tests.Integration.Workflows
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: probe envelope multi device round trip preserves every device.</summary>
+        /// <returns>The result of the operation.</returns>
         [Fact]
         public async Task Probe_envelope_multi_device_round_trip_preserves_every_device()
         {
@@ -211,6 +217,8 @@ namespace MTConnect.Tests.Integration.Workflows
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: probe envelope round trip through formatter preserves agent name case.</summary>
+        /// <returns>The result of the operation.</returns>
         [Fact]
         public async Task Probe_envelope_round_trip_through_formatter_preserves_Agent_name_case()
         {

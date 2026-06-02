@@ -28,6 +28,7 @@ using NUnit.Framework;
 
 namespace MTConnect.Tests.Xml.Headers
 {
+    /// <summary>Pins the behaviour expressed by the test name: header version xml round trip tests.</summary>
     [TestFixture]
     public class HeaderVersionXmlRoundTripTests
     {
@@ -42,6 +43,8 @@ namespace MTConnect.Tests.Xml.Headers
         // library cannot serialize. Versions added beyond this set
         // require matching entries in Namespaces.cs and Schemas.cs
         // before the test case can be added here.
+        /// <summary>Runs the all supported versions operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public static System.Collections.Generic.IEnumerable<Version> AllSupportedVersions()
         {
             return new[]
@@ -73,6 +76,8 @@ namespace MTConnect.Tests.Xml.Headers
                 0).ToString();
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: devices xml payload carries configured mtconnect release in header version.</summary>
+        /// <param name="configuredVersion">The configured version.</param>
         [TestCaseSource(nameof(AllSupportedVersions))]
         public void Devices_xml_payload_carries_configured_mtconnect_release_in_header_version(Version configuredVersion)
         {

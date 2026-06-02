@@ -19,6 +19,8 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
     [TestFixture]
     public class Issue128_SchemaVersionConfiguredTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: streams schema version equals configured.</summary>
+        /// <param name="configured">The configured.</param>
         [TestCaseSource(typeof(VersionMatrix), nameof(VersionMatrix.All))]
         public void Streams_schemaVersion_equals_configured(Version configured)
         {
@@ -26,6 +28,8 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
             Assert.That(envelope.SchemaVersion, Is.EqualTo(configured.ToString()));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: devices schema version equals configured.</summary>
+        /// <param name="configured">The configured.</param>
         [TestCaseSource(typeof(VersionMatrix), nameof(VersionMatrix.All))]
         public void Devices_schemaVersion_equals_configured(Version configured)
         {

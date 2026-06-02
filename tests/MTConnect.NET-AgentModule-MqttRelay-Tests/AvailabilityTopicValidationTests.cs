@@ -26,6 +26,9 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
     [TestFixture]
     public class AvailabilityTopicValidationTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: build returns null when reserved character present.</summary>
+        /// <param name="topicPrefix">The topic prefix.</param>
+        /// <param name="agentUuid">The agent uuid.</param>
         [TestCase("MTConnect+", "agent-uuid-1")]
         [TestCase("MTConnect#", "agent-uuid-1")]
         [TestCase("MTConnect\0", "agent-uuid-1")]
@@ -41,6 +44,9 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 $"Build({topicPrefix}, {agentUuid}) should reject MQTT-reserved characters.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: build returns null when input is whitespace only.</summary>
+        /// <param name="topicPrefix">The topic prefix.</param>
+        /// <param name="agentUuid">The agent uuid.</param>
         [TestCase("   ", "agent-uuid-1")]
         [TestCase("MTConnect", "   ")]
         public void Build_returns_null_when_input_is_whitespace_only(
@@ -56,6 +62,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 $"Build({topicPrefix}, {agentUuid}) should reject whitespace-only input.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: build rejects slash inside agent uuid segment.</summary>
         [Test]
         public void Build_rejects_slash_inside_agent_uuid_segment()
         {
@@ -67,6 +74,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 Is.Null);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: build strips leading slash from topic prefix.</summary>
         [Test]
         public void Build_strips_leading_slash_from_topic_prefix()
         {
@@ -79,6 +87,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 Is.EqualTo("MTConnect/Agent/agent-1/Available"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: build strips trailing slash from topic prefix.</summary>
         [Test]
         public void Build_strips_trailing_slash_from_topic_prefix()
         {

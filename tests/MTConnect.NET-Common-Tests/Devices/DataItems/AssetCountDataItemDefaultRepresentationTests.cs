@@ -39,6 +39,7 @@ namespace MTConnect.Tests.Common.Devices.DataItems
     [Category("AssetCountIsDataSet")]
     public class AssetCountDataItemDefaultRepresentationTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: default representation const equals data set.</summary>
         [Test]
         public void DefaultRepresentation_Const_Equals_DataSet()
         {
@@ -48,6 +49,7 @@ namespace MTConnect.Tests.Common.Devices.DataItems
                 "AssetCountDataItem.DefaultRepresentation must equal DATA_SET");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: parameterless constructor stamps data set representation.</summary>
         [Test]
         public void Parameterless_Constructor_Stamps_DataSet_Representation()
         {
@@ -59,6 +61,7 @@ namespace MTConnect.Tests.Common.Devices.DataItems
                 "the parameterless constructor must stamp Representation = DATA_SET");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: device id constructor stamps data set representation.</summary>
         [Test]
         public void DeviceId_Constructor_Stamps_DataSet_Representation()
         {
@@ -70,6 +73,7 @@ namespace MTConnect.Tests.Common.Devices.DataItems
                 "the (deviceId) constructor must stamp Representation = DATA_SET");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: device id constructor builds v2 conformant id.</summary>
         [Test]
         public void DeviceId_Constructor_Builds_V2_Conformant_Id()
         {
@@ -84,6 +88,7 @@ namespace MTConnect.Tests.Common.Devices.DataItems
             Assert.That(item.Id, Is.EqualTo($"Device-1_{AssetCountDataItem.NameId}"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: minimum version reports version20.</summary>
         [Test]
         public void MinimumVersion_Reports_Version20()
         {
@@ -98,6 +103,7 @@ namespace MTConnect.Tests.Common.Devices.DataItems
             Assert.That(item.MinimumVersion, Is.EqualTo(MTConnectVersions.Version20));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: default representation field is public const data set.</summary>
         [Test]
         public void DefaultRepresentation_Field_Is_Public_Const_DataSet()
         {

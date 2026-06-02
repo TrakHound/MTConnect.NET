@@ -23,12 +23,14 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
     //   - Prose: MTConnect Standard Part_2.0_Devices_v2.7 section 10 "Configuration"
     //          — describes how Component-level Configuration carries the
     //          geometric primitives that locate a Component in space.
+    /// <summary>Pins the behaviour expressed by the test name: v2 7 configuration data set tests.</summary>
     [TestFixture]
     public class V2_7ConfigurationDataSetTests
     {
         // The DataSet base (grafted from Observation.Representations via the
         // universal resolver) compiles, instantiates, and surfaces its
         // const description.
+        /// <summary>Pins the behaviour expressed by the test name: data set base constructs and implements i data set.</summary>
         [Test]
         public void DataSet_base_constructs_and_implements_IDataSet()
         {
@@ -42,6 +44,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
         // not the concrete DataSet base — *DataSet types polymorphically
         // extend their Abstract<Leaf> base, gaining IDataSet as a marker
         // interface so XML/JSON serialisers can narrow on it).
+        /// <summary>Pins the behaviour expressed by the test name: axis data set has xyz fields and implements i data set.</summary>
         [Test]
         public void AxisDataSet_has_xyz_fields_and_implements_IDataSet()
         {
@@ -53,6 +56,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
             Assert.That(a.Z, Is.EqualTo(3.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: origin data set has xyz fields and implements i data set.</summary>
         [Test]
         public void OriginDataSet_has_xyz_fields_and_implements_IDataSet()
         {
@@ -61,6 +65,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
             Assert.That(o, Is.InstanceOf<IOriginDataSet>());
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: rotation data set has abc fields and implements i data set.</summary>
         [Test]
         public void RotationDataSet_has_abc_fields_and_implements_IDataSet()
         {
@@ -70,6 +75,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
             Assert.That(r, Is.InstanceOf<IRotationDataSet>());
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: scale data set implements i data set.</summary>
         [Test]
         public void ScaleDataSet_implements_IDataSet()
         {
@@ -78,6 +84,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
             Assert.That(s, Is.InstanceOf<IScaleDataSet>());
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: translation data set implements i data set.</summary>
         [Test]
         public void TranslationDataSet_implements_IDataSet()
         {
@@ -88,6 +95,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
 
         // Concrete (non-DataSet) representations of the same primitives, also
         // landed in v2.7 alongside their DataSet siblings.
+        /// <summary>Pins the behaviour expressed by the test name: axis inherits abstract axis and constructs.</summary>
         [Test]
         public void Axis_inherits_AbstractAxis_and_constructs()
         {
@@ -97,6 +105,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
             Assert.That(a.Value, Is.EqualTo("X"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: origin inherits abstract origin.</summary>
         [Test]
         public void Origin_inherits_AbstractOrigin()
         {
@@ -105,18 +114,21 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
             Assert.That(o, Is.InstanceOf<IOrigin>());
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: rotation inherits abstract rotation.</summary>
         [Test]
         public void Rotation_inherits_AbstractRotation()
         {
             Assert.That(new Rotation(), Is.InstanceOf<AbstractRotation>());
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: scale inherits abstract scale.</summary>
         [Test]
         public void Scale_inherits_AbstractScale()
         {
             Assert.That(new Scale(), Is.InstanceOf<AbstractScale>());
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: translation inherits abstract translation.</summary>
         [Test]
         public void Translation_inherits_AbstractTranslation()
         {
@@ -125,30 +137,35 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
 
         // The Abstract* bases are abstract — verify so a future regen that
         // accidentally drops the abstract modifier trips here.
+        /// <summary>Pins the behaviour expressed by the test name: abstract axis is abstract.</summary>
         [Test]
         public void AbstractAxis_is_abstract()
         {
             Assert.That(typeof(AbstractAxis).IsAbstract, Is.True);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: abstract origin is abstract.</summary>
         [Test]
         public void AbstractOrigin_is_abstract()
         {
             Assert.That(typeof(AbstractOrigin).IsAbstract, Is.True);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: abstract rotation is abstract.</summary>
         [Test]
         public void AbstractRotation_is_abstract()
         {
             Assert.That(typeof(AbstractRotation).IsAbstract, Is.True);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: abstract scale is abstract.</summary>
         [Test]
         public void AbstractScale_is_abstract()
         {
             Assert.That(typeof(AbstractScale).IsAbstract, Is.True);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: abstract translation is abstract.</summary>
         [Test]
         public void AbstractTranslation_is_abstract()
         {

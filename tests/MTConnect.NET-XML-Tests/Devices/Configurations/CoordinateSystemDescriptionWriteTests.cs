@@ -37,6 +37,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
     {
         // ---------------- Description child element ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: non empty description emits description element.</summary>
         [Test]
         public void NonEmpty_Description_emits_Description_element()
         {
@@ -52,6 +53,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Contain("<Description>primary machine frame</Description>"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null description emits no description element.</summary>
         [Test]
         public void Null_Description_emits_no_Description_element()
         {
@@ -67,6 +69,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Not.Contain("<Description"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: empty description emits no description element.</summary>
         [Test]
         public void Empty_Description_emits_no_Description_element()
         {
@@ -84,6 +87,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
 
         // ---------------- Optional name / nativeName / parentIdRef attributes ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: optional attributes emit when set.</summary>
         [Test]
         public void Optional_attributes_emit_when_set()
         {
@@ -107,6 +111,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
 
         // ---------------- Transformation child element ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: non null transformation emits transformation element on write.</summary>
         [Test]
         public void NonNull_Transformation_emits_Transformation_element_on_write()
         {
@@ -126,6 +131,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Contain("<Translation>1 2 3</Translation>"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: transformation round trips through to coordinate system.</summary>
         [Test]
         public void Transformation_round_trips_through_ToCoordinateSystem()
         {

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 
 namespace MTConnect.Tests.Shdr
 {
+    /// <summary>Represents the data item format.</summary>
     public class DataItemFormat
     {
         private const long BeforeY2KUnix = 9466847990000000;
@@ -45,6 +46,7 @@ namespace MTConnect.Tests.Shdr
 
         #region "Single"
 
+        /// <summary>Pins the behaviour expressed by the test name: format check single.</summary>
         [Test]
         public void FormatCheckSingle()
         {
@@ -63,6 +65,7 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format check single timestamp.</summary>
         [Test]
         public void FormatCheckSingleTimestamp()
         {
@@ -82,6 +85,7 @@ namespace MTConnect.Tests.Shdr
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: format check single quotes.</summary>
         [Test]
         public void FormatCheckSingleQuotes()
         {
@@ -100,6 +104,7 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format check single double quotes.</summary>
         [Test]
         public void FormatCheckSingleDoubleQuotes()
         {
@@ -118,6 +123,7 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format check single pipe.</summary>
         [Test]
         public void FormatCheckSinglePipe()
         {
@@ -136,6 +142,7 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format check single null.</summary>
         [Test]
         public void FormatCheckSingleNull()
         {
@@ -154,6 +161,7 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format check single empty.</summary>
         [Test]
         public void FormatCheckSingleEmpty()
         {
@@ -172,6 +180,7 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format check single whitespace.</summary>
         [Test]
         public void FormatCheckSingleWhitespace()
         {
@@ -190,6 +199,7 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format check single leading whitespace.</summary>
         [Test]
         public void FormatCheckSingleLeadingWhitespace()
         {
@@ -208,6 +218,7 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format check single trailing whitespace.</summary>
         [Test]
         public void FormatCheckSingleTrailingWhitespace()
         {
@@ -227,6 +238,7 @@ namespace MTConnect.Tests.Shdr
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: format check single duration.</summary>
         [Test]
         public void FormatCheckSingleDuration()
         {
@@ -246,6 +258,7 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format check single duration timestamp.</summary>
         [Test]
         public void FormatCheckSingleDurationTimestamp()
         {
@@ -266,6 +279,7 @@ namespace MTConnect.Tests.Shdr
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: format check single reset triggered.</summary>
         [Test]
         public void FormatCheckSingleResetTriggered()
         {
@@ -285,6 +299,7 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format check single reset triggered timestamp.</summary>
         [Test]
         public void FormatCheckSingleResetTriggeredTimestamp()
         {
@@ -305,6 +320,7 @@ namespace MTConnect.Tests.Shdr
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: format check single reset triggered duration.</summary>
         [Test]
         public void FormatCheckSingleResetTriggeredDuration()
         {
@@ -325,6 +341,7 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format check single reset triggered duration timestamp.</summary>
         [Test]
         public void FormatCheckSingleResetTriggeredDurationTimestamp()
         {
@@ -349,6 +366,7 @@ namespace MTConnect.Tests.Shdr
 
         #region "Multiple"
 
+        /// <summary>Pins the behaviour expressed by the test name: format check multiple.</summary>
         [Test]
         public void FormatCheckMultiple()
         {
@@ -371,6 +389,7 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format check multiple timestamps.</summary>
         [Test]
         public void FormatCheckMultipleTimestamps()
         {
@@ -393,6 +412,7 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format check multiple different timestamps.</summary>
         [Test]
         public void FormatCheckMultipleDifferentTimestamps()
         {
@@ -416,6 +436,7 @@ namespace MTConnect.Tests.Shdr
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: format check multiple quotes.</summary>
         [Test]
         public void FormatCheckMultipleQuotes()
         {
@@ -438,6 +459,7 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format check multiple double quotes.</summary>
         [Test]
         public void FormatCheckMultipleDoubleQuotes()
         {
@@ -460,6 +482,7 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format check multiple pipe.</summary>
         [Test]
         public void FormatCheckMultiplePipe()
         {
@@ -483,6 +506,7 @@ namespace MTConnect.Tests.Shdr
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: format check multiple null.</summary>
         [Test]
         public void FormatCheckMultipleNull()
         {
@@ -505,6 +529,7 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format check multiple empty.</summary>
         [Test]
         public void FormatCheckMultipleEmpty()
         {
@@ -528,6 +553,7 @@ namespace MTConnect.Tests.Shdr
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: format check multiple empty null.</summary>
         [Test]
         public void FormatCheckMultipleEmptyNull()
         {
@@ -550,6 +576,7 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: format check multiple empty all.</summary>
         [Test]
         public void FormatCheckMultipleEmptyAll()
         {
@@ -573,6 +600,7 @@ namespace MTConnect.Tests.Shdr
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: format check multiple reset triggered.</summary>
         [Test]
         public void FormatCheckMultipleResetTriggered()
         {

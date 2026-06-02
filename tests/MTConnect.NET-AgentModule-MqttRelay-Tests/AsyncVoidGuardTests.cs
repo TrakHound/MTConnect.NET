@@ -33,6 +33,8 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
     [TestFixture]
     public class AsyncVoidGuardTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: run completes normally when body succeeds.</summary>
+        /// <returns>The result of the operation.</returns>
         [Test]
         public async Task Run_completes_normally_when_body_succeeds()
         {
@@ -46,6 +48,8 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
                 "Successful body must not invoke the fault logger.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: run routes synchronous throw to logger.</summary>
+        /// <returns>The result of the operation.</returns>
         [Test]
         public async Task Run_routes_synchronous_throw_to_logger()
         {
@@ -58,6 +62,8 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             Assert.That(loggedFault, Is.EqualTo("sync throw"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: run routes async throw to logger.</summary>
+        /// <returns>The result of the operation.</returns>
         [Test]
         public async Task Run_routes_async_throw_to_logger()
         {
@@ -70,6 +76,8 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             Assert.That(loggedFault, Is.EqualTo("async throw"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: run does not rethrow when logger is null.</summary>
+        /// <returns>The result of the operation.</returns>
         [Test]
         public async Task Run_does_not_rethrow_when_logger_is_null()
         {
@@ -82,6 +90,8 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             Assert.Pass();
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: run does not rethrow when logger itself throws.</summary>
+        /// <returns>The result of the operation.</returns>
         [Test]
         public async Task Run_does_not_rethrow_when_logger_itself_throws()
         {
@@ -94,6 +104,8 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             Assert.Pass();
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: run no ops when body is null.</summary>
+        /// <returns>The result of the operation.</returns>
         [Test]
         public async Task Run_no_ops_when_body_is_null()
         {

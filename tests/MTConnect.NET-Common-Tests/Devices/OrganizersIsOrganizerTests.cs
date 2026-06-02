@@ -22,10 +22,13 @@ using NUnit.Framework;
 
 namespace MTConnect.Tests.Common.SystemsOrganizer
 {
+    /// <summary>Pins the behaviour expressed by the test name: organizers is organizer tests.</summary>
     [TestFixture]
     [Category("OrganizersIsOrganizer")]
     public class OrganizersIsOrganizerTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: is organizer returns true for each first class organizer.</summary>
+        /// <param name="organizerName">The organizer name.</param>
         [TestCase(nameof(AdaptersComponent))]
         [TestCase(nameof(AuxiliariesComponent))]
         [TestCase(nameof(AxesComponent))]
@@ -47,6 +50,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 $"`Organizers.IsOrganizer(\"{typeId}\")` must return true.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: is organizer returns false for member components.</summary>
         [Test]
         public void IsOrganizer_returns_false_for_member_components()
         {
@@ -57,18 +61,21 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
             Assert.That(Organizers.IsOrganizer(LinearComponent.TypeId), Is.False);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: is organizer returns false for unknown type.</summary>
         [Test]
         public void IsOrganizer_returns_false_for_unknown_type()
         {
             Assert.That(Organizers.IsOrganizer("ThisIsNotAnyKnownComponentType"), Is.False);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: is organizer returns false for null.</summary>
         [Test]
         public void IsOrganizer_returns_false_for_null()
         {
             Assert.That(Organizers.IsOrganizer(null), Is.False);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: is organizer returns false for empty string.</summary>
         [Test]
         public void IsOrganizer_returns_false_for_empty_string()
         {

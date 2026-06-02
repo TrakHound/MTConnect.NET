@@ -35,6 +35,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
     // assembly with public-type filters. New SysML regenerations therefore
     // pick up new coverage automatically without any test edit — that is the
     // mechanism by which "every public regenerated type" is gated.
+    /// <summary>Pins the behaviour expressed by the test name: regenerated types coverage tests.</summary>
     [TestFixture]
     public class RegeneratedTypesCoverageTests
     {
@@ -88,6 +89,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 .OrderBy(t => t.FullName, StringComparer.Ordinal);
         }
 
+        /// <summary>Runs the constructible types operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public static IEnumerable<TestCaseData> ConstructibleTypes()
         {
             foreach (var type in EnumeratePublicRegeneratedTypes())
@@ -116,6 +119,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
             }
         }
 
+        /// <summary>Runs the round trippable types operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public static IEnumerable<TestCaseData> RoundTrippableTypes()
         {
             foreach (var type in EnumeratePublicRegeneratedTypes())
@@ -145,6 +150,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
             }
         }
 
+        /// <summary>Runs the types with description text operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public static IEnumerable<TestCaseData> TypesWithDescriptionText()
         {
             foreach (var type in EnumeratePublicRegeneratedTypes())
@@ -173,6 +180,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
             "MTConnect.Assets.Fixture.FixtureAsset",
         };
 
+        /// <summary>Pins the behaviour expressed by the test name: known empty description types still emit an empty string.</summary>
         [Test]
         public void Known_empty_description_types_still_emit_an_empty_string()
         {
@@ -198,6 +206,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: type can be constructed.</summary>
+        /// <param name="type">The type.</param>
         [Test]
         [TestCaseSource(nameof(ConstructibleTypes))]
         public void Type_can_be_constructed(Type type)
@@ -215,6 +225,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 $"{type.FullName} parameterless ctor returned null");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: type round trips default property values.</summary>
+        /// <param name="type">The type.</param>
         [Test]
         [TestCaseSource(nameof(RoundTrippableTypes))]
         public void Type_round_trips_default_property_values(Type type)
@@ -273,6 +285,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: type has non empty description.</summary>
+        /// <param name="type">The type.</param>
         [Test]
         [TestCaseSource(nameof(TypesWithDescriptionText))]
         public void Type_has_non_empty_description(Type type)
@@ -286,6 +300,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
         // Smoke-test the catalog itself so the parametric sweep cannot
         // silently shrink to zero (e.g. namespace rename that drops every
         // anchor). At least one constructible type must exist.
+        /// <summary>Pins the behaviour expressed by the test name: catalog enumerates at least one type per namespace.</summary>
         [Test]
         public void Catalog_enumerates_at_least_one_type_per_namespace()
         {
@@ -423,9 +438,12 @@ namespace MTConnect.NET_Common_Tests.Reflection
     // demands one is a generator-side defect (see plan
     // 13-generator-improvements). Such defects are tracked there, NOT
     // patched in by silencing the parametric sweep.
+    /// <summary>Pins the behaviour expressed by the test name: regenerated type version annotation tests.</summary>
     [TestFixture]
     public class RegeneratedTypeVersionAnnotationTests
     {
+        /// <summary>Runs the types with minimum version override operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public static IEnumerable<TestCaseData> TypesWithMinimumVersionOverride()
         {
             foreach (var type in EnumeratePublicRegeneratedTypes())
@@ -476,6 +494,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
             }
         }
 
+        /// <summary>Runs the types with maximum version override operation.</summary>
+        /// <returns>The result of the operation.</returns>
         public static IEnumerable<TestCaseData> TypesWithMaximumVersionOverride()
         {
             foreach (var type in EnumeratePublicRegeneratedTypes())
@@ -531,6 +551,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: minimum version resolves to an advertised version.</summary>
+        /// <param name="type">The type.</param>
         [Test]
         [TestCaseSource(nameof(TypesWithMinimumVersionOverride))]
         public void MinimumVersion_resolves_to_an_advertised_version(Type type)
@@ -547,6 +569,8 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 $"{type.FullName}.MinimumVersion = {value} is not one of MTConnectVersions's advertised constants");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: maximum version resolves to an advertised version.</summary>
+        /// <param name="type">The type.</param>
         [Test]
         [TestCaseSource(nameof(TypesWithMaximumVersionOverride))]
         public void MaximumVersion_resolves_to_an_advertised_version(Type type)

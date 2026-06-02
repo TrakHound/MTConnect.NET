@@ -50,6 +50,8 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices
             return attribute!.Name;
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: complex object property uses pascal case json key.</summary>
+        /// <param name="entry">The entry.</param>
         [TestCaseSource(nameof(PascalCaseObjects))]
         public void Complex_object_property_uses_PascalCase_json_key((string Clr, string Json) entry)
         {
@@ -57,6 +59,8 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Devices
                 "Complex object members on JsonDataItem must remain PascalCase to match the cppagent JSON wire shape.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: scalar attribute property uses camel case json key.</summary>
+        /// <param name="entry">The entry.</param>
         [TestCaseSource(nameof(CamelCaseScalars))]
         public void Scalar_attribute_property_uses_camelCase_json_key((string Clr, string Json) entry)
         {

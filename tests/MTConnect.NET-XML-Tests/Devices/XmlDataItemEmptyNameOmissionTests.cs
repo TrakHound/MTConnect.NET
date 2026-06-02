@@ -27,6 +27,7 @@ namespace MTConnect.Tests.XML.Devices
     [TestFixture]
     public class XmlDataItemEmptyNameOmissionTests
     {
+        /// <summary>Pins the behaviour expressed by the test name: xml formatter omits name attribute when source name is null.</summary>
         [Test]
         public void Xml_formatter_omits_name_attribute_when_source_Name_is_null()
         {
@@ -44,6 +45,7 @@ namespace MTConnect.Tests.XML.Devices
                 "XmlDataItem must omit the 'name' attribute when source Name is null.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: xml formatter omits name attribute when source name is empty.</summary>
         [Test]
         public void Xml_formatter_omits_name_attribute_when_source_Name_is_empty()
         {
@@ -61,6 +63,7 @@ namespace MTConnect.Tests.XML.Devices
                 "XmlDataItem must omit the 'name' attribute when source Name is empty.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: xml formatter emits name attribute when source name is set.</summary>
         [Test]
         public void Xml_formatter_emits_name_attribute_when_source_Name_is_set()
         {

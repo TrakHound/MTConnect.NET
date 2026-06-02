@@ -33,6 +33,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
     {
         // ---------------- positive: simple Axis ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: simple axis serialises to text element.</summary>
         [Test]
         public void Simple_Axis_serialises_to_text_element()
         {
@@ -50,6 +51,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Not.Contain("<AxisDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: simple axis deserialises to i axis.</summary>
         [Test]
         public void Simple_Axis_deserialises_to_IAxis()
         {
@@ -67,6 +69,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
 
         // ---------------- positive: AxisDataSet ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: axis data set serialises to keyed entries.</summary>
         [Test]
         public void AxisDataSet_serialises_to_keyed_entries()
         {
@@ -87,6 +90,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Not.Contain("<Axis>"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: axis data set deserialises to i axis data set.</summary>
         [Test]
         public void AxisDataSet_deserialises_to_IAxisDataSet()
         {
@@ -113,6 +117,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
         // the XsdLoadStrict category so they participate in the opt-in
         // strict-load sweep once an XSD 1.1 validator wires in.
 
+        /// <summary>Pins the behaviour expressed by the test name: simple axis inside devices envelope is xsd valid.</summary>
         [Test]
         [Category("XsdLoadStrict")]
         public void Simple_Axis_inside_devices_envelope_is_xsd_valid()
@@ -127,6 +132,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
                 "XSD validation produced errors:\n  - " + string.Join("\n  - ", errors));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: axis data set inside devices envelope is xsd valid.</summary>
         [Test]
         [Category("XsdLoadStrict")]
         public void AxisDataSet_inside_devices_envelope_is_xsd_valid()
@@ -152,6 +158,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
 
         // ---------------- negative ----------------
 
+        /// <summary>Pins the behaviour expressed by the test name: axis data set with illegal w key is dropped and does not corrupt xyz.</summary>
         [Test]
         public void AxisDataSet_with_illegal_W_key_is_dropped_and_does_not_corrupt_xyz()
         {
@@ -171,6 +178,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(ds.Z, Is.EqualTo(0.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: axis data set with w key inside devices envelope is xsd valid at n m t o k e n layer.</summary>
         [Test]
         [Category("XsdLoadStrict")]
         public void AxisDataSet_with_W_key_inside_devices_envelope_is_xsd_valid_at_NMTOKEN_layer()
@@ -199,6 +207,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
                 + string.Join("\n  - ", errors));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: empty axis yields empty string value.</summary>
         [Test]
         public void Empty_Axis_yields_empty_string_value()
         {
@@ -210,6 +219,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(axis.Value, Is.Null.Or.Empty);
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null axis property emits no axis element.</summary>
         [Test]
         public void Null_axis_property_emits_no_Axis_element()
         {
@@ -227,6 +237,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(xml, Does.Not.Contain("<AxisDataSet"));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: both axis and axis data set present data set wins.</summary>
         [Test]
         public void Both_Axis_and_AxisDataSet_present_DataSet_wins()
         {
@@ -247,6 +258,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(((IAxisDataSet)motion.Axis).X, Is.EqualTo(9.0));
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: both axis and axis data set present inside envelope fails xsd.</summary>
         [Test]
         [Category("XsdLoadStrict")]
         public void Both_Axis_and_AxisDataSet_present_inside_envelope_fails_xsd()
@@ -267,6 +279,7 @@ namespace MTConnect.Tests.XML.Devices.Configurations
                 "XSD must reject both <Axis> and <AxisDataSet> in the same <Motion>.");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: null motion writes nothing.</summary>
         [Test]
         public void Null_motion_writes_nothing()
         {

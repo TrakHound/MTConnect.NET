@@ -9,8 +9,10 @@ using System.Xml;
 
 namespace MTConnect.Tests.XML.Streams
 {
+    /// <summary>Represents the current.</summary>
     public class Current
     {
+        /// <summary>Pins the behaviour expressed by the test name: read stream test files.</summary>
         [Test]
         public void ReadStreamTestFiles()
         {
