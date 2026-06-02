@@ -97,7 +97,11 @@ jobs:
       # invalidate by coincidence (a future PR adding an unrelated
       # PackageReference would invalidate; an SDK-side change to the
       # chromium revision would not). The step therefore runs AFTER
-      # `dotnet build` so the file exists.
+      # `dotnet build` so the file exists — placement before build
+      # would force the key off a workspace-internal artefact (hashFiles
+      # cannot reach the NuGet cache under ~/.nuget), so the
+      # micro-optimisation of overlapping cache restore with build is
+      # sacrificed for key correctness.
       # Both Linux (~/.cache/ms-playwright) and Windows
       # (%USERPROFILE%\AppData\Local\ms-playwright) paths are listed;
       # actions/cache restores only the path that exists on the running
