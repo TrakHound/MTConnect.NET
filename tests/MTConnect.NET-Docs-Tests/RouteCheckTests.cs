@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -344,10 +345,20 @@ public class RouteCheckTests
         }
     }
 
+    // The JS payload returned by EvaluateAsync uses camelCase keys
+    // (`hasClass`, `title404`, `bodyMatches`); pin them explicitly so
+    // a future Playwright upgrade that tightens case-insensitive
+    // deserialisation cannot silently turn every route into a
+    // no-detection pass-through (which would hide a real 404).
     private sealed class NotFoundDetection
     {
+        [JsonPropertyName("hasClass")]
         public bool HasClass { get; set; }
+
+        [JsonPropertyName("title404")]
         public bool Title404 { get; set; }
+
+        [JsonPropertyName("bodyMatches")]
         public bool BodyMatches { get; set; }
     }
 
