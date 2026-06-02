@@ -904,20 +904,43 @@ namespace MTConnect.Clients
                     }
 
                     // Fire per-device inside the populate loop so the cache and event stay in lockstep.
-                    // Isolate subscriber exceptions so one bad handler cannot abort the populate loop
-                    // or suppress ProbeReceived; route the fault through InternalError instead.
-                    try
-                    {
-                        DeviceReceived?.Invoke(this, outputDevice);
-                    }
-                    catch (Exception ex)
-                    {
-                        InternalError?.Invoke(this, ex);
-                    }
+                    // Isolate subscriber exceptions per delegate so one bad handler cannot abort the
+                    // populate loop, suppress ProbeReceived, or short-circuit later subscribers in the
+                    // invocation list; route each fault through InternalError instead.
+                    RaiseDeviceReceived(outputDevice);
                 }
 
                 // Raise ProbeReceived Event
                 ProbeReceived?.Invoke(this, document);
+            }
+        }
+
+        // Iterate the invocation list so one throwing subscriber cannot short-circuit the
+        // multicast and starve later subscribers. Each fault is forwarded through
+        // InternalError; if InternalError itself faults, swallow that secondary fault so the
+        // populate loop and remaining DeviceReceived subscribers still get every device.
+        private void RaiseDeviceReceived(IDevice device)
+        {
+            var handler = DeviceReceived;
+            if (handler == null) return;
+
+            foreach (var subscriber in handler.GetInvocationList())
+            {
+                try
+                {
+                    ((EventHandler<IDevice>)subscriber).Invoke(this, device);
+                }
+                catch (Exception ex)
+                {
+                    try
+                    {
+                        InternalError?.Invoke(this, ex);
+                    }
+                    catch
+                    {
+                        // A faulting InternalError handler must not break DeviceReceived fan-out.
+                    }
+                }
             }
         }
 
