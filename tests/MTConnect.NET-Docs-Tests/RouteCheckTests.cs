@@ -225,6 +225,156 @@ public class RouteCheckTests
     }
 
     /// <summary>
+    /// Pins the docs-site house-style surfaces the maintainer signed off
+    /// on in Discussion #184 (see <c>docs/development/house-style.md</c>):
+    /// the brand logo wired through <c>themeConfig.logo</c>, the favicon
+    /// link, the Open Graph + Twitter Card meta block, the
+    /// <c>theme-color</c> meta, and the 'Download latest release' hero
+    /// CTA pointing at the GitHub releases page.
+    /// </summary>
+    /// <remarks>
+    /// Each check is a focused property assertion on the rendered HTML
+    /// so the failure message names the missing surface directly
+    /// ('og:image meta tag missing', 'theme-color meta is #ffffff,
+    /// expected #0073e6'). A single bundled assertion would surface
+    /// 'page does not match expected snapshot' and force the reader
+    /// into a diff — the structured form is the §10a positive-+-negative
+    /// pin per surface, all in one test.
+    ///
+    /// The favicon asset is also fetched over HTTP to guarantee the
+    /// <c>href</c> resolves — a stale path that 404s would still
+    /// satisfy the meta-tag presence check, so the fetch closes the
+    /// gap between 'tag exists' and 'tag works'.
+    /// </remarks>
+    [Test]
+    public async Task Landing_Page_Carries_The_House_Style_Surfaces()
+    {
+        Assert.That(_browser, Is.Not.Null, "browser was not initialised");
+
+        var context = await _browser!.NewContextAsync();
+        try
+        {
+            var page = await context.NewPageAsync();
+            var response = await page.GotoAsync(_baseUrl + "/", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.Load,
+                Timeout = PageNavigationTimeoutMs,
+            });
+            Assert.That(response, Is.Not.Null, "homepage navigation returned no response");
+            Assert.That(response!.Ok, Is.True, $"homepage returned HTTP {response.Status}");
+
+            var probes = await page.EvaluateAsync<HouseStyleProbes>(@"() => ({
+                themeColor: document.querySelector('meta[name=""theme-color""]')?.getAttribute('content') ?? null,
+                faviconHref: document.querySelector('link[rel=""icon""]')?.getAttribute('href') ?? null,
+                faviconType: document.querySelector('link[rel=""icon""]')?.getAttribute('type') ?? null,
+                ogTitle: document.querySelector('meta[property=""og:title""]')?.getAttribute('content') ?? null,
+                ogImage: document.querySelector('meta[property=""og:image""]')?.getAttribute('content') ?? null,
+                twitterCard: document.querySelector('meta[name=""twitter:card""]')?.getAttribute('content') ?? null,
+                twitterImage: document.querySelector('meta[name=""twitter:image""]')?.getAttribute('content') ?? null,
+                heroLogoSrc: document.querySelector('.VPNavBarTitle img.logo')?.getAttribute('src') ?? null,
+                downloadCtaHref: (() => {
+                    const link = Array.from(document.querySelectorAll('.VPHero a, a'))
+                        .find(a => /Download latest release/i.test(a.textContent ?? ''));
+                    return link ? link.getAttribute('href') : null;
+                })()
+            })");
+
+            // theme-color — brand accent per Discussion #184.
+            Assert.That(probes.ThemeColor, Is.EqualTo("#0073e6"),
+                "theme-color meta does not match the maintainer-confirmed brand accent");
+
+            // Favicon — present, PNG, points at /logo.png (base-prefixed
+            // when DOCS_BASE is set, so endsWith() is the stable match).
+            Assert.That(probes.FaviconHref, Is.Not.Null.And.Not.Empty, "favicon <link rel=icon> missing");
+            Assert.That(probes.FaviconHref, Does.EndWith("/logo.png"),
+                $"favicon href does not point at /logo.png — got '{probes.FaviconHref}'");
+            Assert.That(probes.FaviconType, Is.EqualTo("image/png"),
+                "favicon type attribute is not 'image/png'");
+
+            // Open Graph — title + image surface so social previews render.
+            Assert.That(probes.OgTitle, Is.EqualTo("MTConnect.NET"),
+                "og:title meta does not match the expected site title");
+            Assert.That(probes.OgImage, Is.Not.Null.And.Not.Empty, "og:image meta missing");
+            Assert.That(probes.OgImage, Does.EndWith("/logo.png"),
+                $"og:image does not point at /logo.png — got '{probes.OgImage}'");
+
+            // Twitter Card — large summary card with the same image.
+            Assert.That(probes.TwitterCard, Is.EqualTo("summary_large_image"),
+                "twitter:card meta is not 'summary_large_image'");
+            Assert.That(probes.TwitterImage, Is.Not.Null.And.Not.Empty, "twitter:image meta missing");
+            Assert.That(probes.TwitterImage, Does.EndWith("/logo.png"),
+                $"twitter:image does not point at /logo.png — got '{probes.TwitterImage}'");
+
+            // themeConfig.logo — VitePress renders the logo as an <img>
+            // inside .VPNavBarTitle when themeConfig.logo is set. The
+            // text site title is hidden (themeConfig.siteTitle: false)
+            // because the logo PNG already carries the wordmark.
+            Assert.That(probes.HeroLogoSrc, Is.Not.Null.And.Not.Empty,
+                "no <img> rendered inside .VPNavBarTitle — themeConfig.logo did not take effect");
+            Assert.That(probes.HeroLogoSrc, Does.EndWith("/logo.png"),
+                $"nav logo src does not point at /logo.png — got '{probes.HeroLogoSrc}'");
+
+            // Hero 'Download latest release' CTA — text + canonical link.
+            Assert.That(probes.DownloadCtaHref, Is.EqualTo(
+                    "https://github.com/TrakHound/MTConnect.NET/releases/latest"),
+                "'Download latest release' hero CTA missing or points elsewhere");
+
+            // Closing the gap between 'tag present' and 'tag works':
+            // fetch the favicon over HTTP and assert it returns 200.
+            // A stale logo path (e.g. an old `/favicon.ico` reference
+            // after a rename) would satisfy the meta-tag check above
+            // but break the favicon for end users.
+            var faviconUrl = probes.FaviconHref!.StartsWith("http", StringComparison.Ordinal)
+                ? probes.FaviconHref
+                : _baseUrl + probes.FaviconHref;
+            var faviconResponse = await page.Context.APIRequest.GetAsync(faviconUrl);
+            Assert.That(faviconResponse.Status, Is.EqualTo(200),
+                $"favicon at {faviconUrl} returned HTTP {faviconResponse.Status}");
+
+            await page.CloseAsync();
+        }
+        finally
+        {
+            await context.CloseAsync();
+        }
+    }
+
+    // The JS payload returned by the house-style probe uses camelCase
+    // keys; pin them explicitly so a future Playwright upgrade that
+    // tightens case-insensitive deserialisation cannot silently turn
+    // every probe into a null pass-through (which would hide a
+    // regression in the rendered meta surface).
+    private sealed class HouseStyleProbes
+    {
+        [JsonPropertyName("themeColor")]
+        public string? ThemeColor { get; set; }
+
+        [JsonPropertyName("faviconHref")]
+        public string? FaviconHref { get; set; }
+
+        [JsonPropertyName("faviconType")]
+        public string? FaviconType { get; set; }
+
+        [JsonPropertyName("ogTitle")]
+        public string? OgTitle { get; set; }
+
+        [JsonPropertyName("ogImage")]
+        public string? OgImage { get; set; }
+
+        [JsonPropertyName("twitterCard")]
+        public string? TwitterCard { get; set; }
+
+        [JsonPropertyName("twitterImage")]
+        public string? TwitterImage { get; set; }
+
+        [JsonPropertyName("heroLogoSrc")]
+        public string? HeroLogoSrc { get; set; }
+
+        [JsonPropertyName("downloadCtaHref")]
+        public string? DownloadCtaHref { get; set; }
+    }
+
+    /// <summary>
     /// Walks every markdown-backed route the docs/ tree implies and
     /// asserts none rendered a 404. Failures are collected across all
     /// workers and reported in a single ordered summary so the diff
