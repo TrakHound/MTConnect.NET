@@ -15,8 +15,8 @@ namespace MTConnect.Tests.Common.Assets.Pallet
     /// scaffolding produced by the SysML measurement template, in
     /// parity with the long-standing CuttingTools measurement DTOs.
     ///
-    /// Per the MTConnect SysML model, the <c>PhysicalAsset &gt; Pallet
-    /// &gt; Measurements</c> package declares ten concrete measurement
+    /// Per the MTConnect SysML model, the <c>PhysicalAsset &gt; Pallet &gt; Measurements</c>
+    /// package declares ten concrete measurement
     /// subclasses (Weight, Height, Width, Length, Swing plus their
     /// Loaded* counterparts) that generalize from an abstract
     /// <c>Measurement</c> base. The C# generator must emit each one
