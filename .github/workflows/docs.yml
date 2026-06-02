@@ -59,14 +59,7 @@ jobs:
         working-directory: docs
         run: npm ci
 
-      # Drift gate first, before any regeneration: verifies the committed
-      # docs/reference/ pages already match what DocsGen would emit from
-      # the current source tree. The subsequent `npm run build` step
-      # invokes the `prebuild` hook (in docs/package.json), which runs
-      # generate-api-ref.sh + generate-reference.sh and overwrites the
-      # tree on disk — so checking drift after the build would always
-      # pass. The api/ tree is gitignored and regenerated unconditionally;
-      # only the reference/ tree carries committed content to drift-check.
+      # Drift gate runs before regen — rationale lives in generate-reference.sh.
       - name: Verify reference pages match source (drift gate)
         run: bash docs/scripts/generate-reference.sh --check
 
