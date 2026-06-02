@@ -41,7 +41,12 @@ namespace MTConnect.NET_Docs_Tests;
 [Category("E2E")]
 public class RouteCheckTests
 {
-    private const int Concurrency = 8;
+    // 8 is the empirical sweet spot on a high-core developer laptop —
+    // beyond that, vitepress preview's single Node event loop becomes
+    // the bottleneck and per-route wall time degrades. Capping at the
+    // visible CPU count keeps a 2-vCPU GitHub-hosted runner from
+    // over-subscribing (the cap collapses to ProcessorCount there).
+    private static readonly int Concurrency = Math.Min(8, Environment.ProcessorCount);
     private const int ServerReadyPollMs = 200;
     private const int ServerReadyTimeoutMs = 60_000;
     private const int PageNavigationTimeoutMs = 30_000;
@@ -284,9 +289,20 @@ public class RouteCheckTests
             .ToList();
     }
 
+    // EnumerationOptions skips reparse points (symlinks, junctions) so a
+    // loop-back symlink in docs/ — `docs/loop -> docs/` — cannot drive
+    // the recursion into a stack overflow. The recursion stays explicit
+    // (RecurseSubdirectories = false) so the node_modules + dotfile
+    // skip rules apply at every level.
+    private static readonly EnumerationOptions MarkdownEnumeration = new()
+    {
+        RecurseSubdirectories = false,
+        AttributesToSkip = FileAttributes.ReparsePoint,
+    };
+
     private static void CollectMarkdownFiles(string dir, List<string> results)
     {
-        foreach (var entry in Directory.EnumerateFileSystemEntries(dir))
+        foreach (var entry in Directory.EnumerateFileSystemEntries(dir, "*", MarkdownEnumeration))
         {
             var name = Path.GetFileName(entry);
             if (Directory.Exists(entry))
