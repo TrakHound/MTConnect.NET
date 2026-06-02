@@ -90,8 +90,14 @@ jobs:
 
       # Cache Playwright browser binaries so the Category=E2E
       # [OneTimeSetUp] `playwright install chromium` call is a no-op on
-      # cache hit.  The key includes the test project's csproj hash so
-      # a Microsoft.Playwright NuGet version bump auto-invalidates.
+      # cache hit. The key hashes the `playwright-core` package.json that
+      # the Microsoft.Playwright NuGet copies into the build output —
+      # that file's `version` field directly pins the chromium revision
+      # the .NET binding drives. Hashing the csproj instead would only
+      # invalidate by coincidence (a future PR adding an unrelated
+      # PackageReference would invalidate; an SDK-side change to the
+      # chromium revision would not). The step therefore runs AFTER
+      # `dotnet build` so the file exists.
       # Both Linux (~/.cache/ms-playwright) and Windows
       # (%USERPROFILE%\AppData\Local\ms-playwright) paths are listed;
       # actions/cache restores only the path that exists on the running
@@ -102,7 +108,7 @@ jobs:
           path: |
             ~/.cache/ms-playwright
             ~\AppData\Local\ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('**/tests/MTConnect.NET-Docs-Tests/MTConnect.NET-Docs-Tests.csproj') }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/tests/MTConnect.NET-Docs-Tests/bin/Debug/net8.0/.playwright/package/package.json') }}
           restore-keys: |
             ${{ runner.os }}-playwright-
 
