@@ -15,6 +15,22 @@
 #
 # Requirements:
 #   - dotnet 8 SDK
+#
+# Drift gate (`--check`) — why it runs before the build, not after:
+#
+# The VitePress build step in .github/workflows/docs.yml invokes the
+# `prebuild` npm hook, which calls this script in regenerate mode and
+# overwrites docs/reference/ on disk. A drift check after that step
+# would therefore always pass: the just-overwritten files are
+# byte-equivalent to whatever the generator just emitted, by
+# definition. The drift gate is meaningful only against the committed
+# state, so the workflow runs `--check` BEFORE the build.
+#
+# In `--check` mode the script exits non-zero when the committed
+# docs/reference/ pages do not match what DocsGen would emit from the
+# current source tree — surfacing as a CI failure that names the
+# stale page and the diff. The author then re-runs the script without
+# `--check`, commits the regenerated files, and pushes.
 
 set -euo pipefail
 

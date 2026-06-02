@@ -59,14 +59,24 @@ jobs:
         working-directory: docs
         run: npm ci
 
+      # Drift gate runs before regen — rationale lives in generate-reference.sh.
+      - name: Verify reference pages match source (drift gate)
+        run: bash docs/scripts/generate-reference.sh --check
+
+      # Generate the docfx-driven /api/ tree and the Roslyn-driven
+      # /reference/ tree HERE — in the only job that has both the .NET SDK
+      # and docfx installed. The downstream Build VitePress site and
+      # Check internal links jobs receive the populated tree via the
+      # `generated-docs` artefact; they neither install dotnet nor docfx,
+      # so they cannot regenerate. The `prebuild` npm hook in
+      # docs/package.json is for local dev only (where `npm run build`
+      # implicitly regenerates); the workflow's Build step invokes
+      # VitePress directly to skip that hook.
       - name: Generate API reference
         run: bash docs/scripts/generate-api-ref.sh
 
       - name: Regenerate auto-generated reference pages
         run: bash docs/scripts/generate-reference.sh
-
-      - name: Verify reference pages match source (drift gate)
-        run: bash docs/scripts/generate-reference.sh --check
 
       # upload-artifact@v4 strips the longest common prefix from the path list
       # (here: 'docs/'), so the artifact root contains 'api/' + 'reference/'
@@ -118,9 +128,15 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d  # v6.0.0
 
+      # Invoke VitePress directly rather than `npm run build` to skip the
+      # `prebuild` npm hook in docs/package.json. That hook regenerates
+      # the /api/ + /reference/ trees, which requires the .NET SDK and
+      # docfx — neither of which is installed in this job. The
+      # `generated-docs` artefact downloaded above already contains the
+      # freshly regenerated content from the prepare-docs job.
       - name: Build site
         working-directory: docs
-        run: npm run build
+        run: npx vitepress build
         env:
           DOCS_BASE: /MTConnect.NET/
 
