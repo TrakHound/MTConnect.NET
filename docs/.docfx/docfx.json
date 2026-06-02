@@ -31,7 +31,6 @@
             "adapter/Modules/MTConnect.NET-AdapterModule-MQTT/bin/Debug/net8.0/MTConnect.NET-AdapterModule-MQTT.dll",
             "adapter/Modules/MTConnect.NET-AdapterModule-SHDR/bin/Debug/net8.0/MTConnect.NET-AdapterModule-SHDR.dll",
             "build/MTConnect.NET-SysML-Import/bin/Debug/net8.0/MTConnect.NET-SysML-Import.dll",
-            "build/MTConnect.NET-DocsGen/bin/Debug/net8.0/MTConnect.NET-DocsGen.dll",
             "build/MTConnect.NET.Builder/bin/Debug/net8.0/MTConnect.NET.Builder.dll",
             "examples/MTConnect.NET-Agent-Embedded/bin/Debug/net8.0/MTConnect.NET-Agent-Embedded.dll",
             "examples/MTConnect.NET-Client-HTTP/bin/Debug/net8.0/MTConnect.NET-Client-HTTP.dll",

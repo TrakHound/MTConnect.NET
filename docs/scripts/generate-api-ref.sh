@@ -67,7 +67,6 @@ projects=(
   "adapter/Modules/MTConnect.NET-AdapterModule-MQTT"
   "adapter/Modules/MTConnect.NET-AdapterModule-SHDR"
   "build/MTConnect.NET-SysML-Import"
-  "build/MTConnect.NET-DocsGen"
   "build/MTConnect.NET.Builder"
   "examples/MTConnect.NET-Agent-Embedded"
   "examples/MTConnect.NET-Client-HTTP"
