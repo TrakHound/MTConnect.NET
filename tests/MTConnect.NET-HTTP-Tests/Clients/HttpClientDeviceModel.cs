@@ -11,17 +11,17 @@ using System.Threading;
 
 namespace MTConnect.Tests.Http.Clients
 {
-    // Drives the full MTConnectHttpClient (the streaming client, not the
-    // single-shot probe client) against the real embedded MTConnectHttpServer
-    // started by AgentRunner, pinning the two surfaces issue #176 added:
-    //
-    //   - the public Devices snapshot accessor, which exposes the post-probe
-    //     device cache that the client already maintains internally;
-    //   - the DeviceReceived event, which historically built an empty list
-    //     and iterated it, so it never fired in the field.
-    //
-    // Both invariants are exercised end to end through Start()/Stop(), so the
-    // probe round trip and the ProcessProbeDocument hand-off both run.
+    /// <summary>
+    /// Drives the full MTConnectHttpClient (the streaming client, not the
+    /// single-shot probe client) against the real embedded MTConnectHttpServer
+    /// started by AgentRunner, pinning the two surfaces issue #176 added:
+    /// the public Devices snapshot accessor (which exposes the post-probe
+    /// device cache the client already maintains internally) and the
+    /// DeviceReceived event (which historically built an empty list and
+    /// iterated it, so it never fired in the field). Both invariants are
+    /// exercised end to end through Start()/Stop(), so the probe round trip
+    /// and the ProcessProbeDocument hand-off both run.
+    /// </summary>
     [TestFixture]
     public class HttpClientDeviceModel : HttpClientFixture
     {
@@ -31,6 +31,7 @@ namespace MTConnect.Tests.Http.Clients
         private const int ProbeWaitTimeoutMs = 15000;
         private const int ProbeWaitPollMs = 50;
 
+        /// <summary>Pins the behaviour expressed by the test name: devices accessor is empty before probe.</summary>
         [Test]
         public void DevicesAccessorIsEmptyBeforeProbe()
         {
@@ -40,6 +41,7 @@ namespace MTConnect.Tests.Http.Clients
             Assert.That(client.Devices.Count, Is.EqualTo(0), "Devices accessor was non-empty before any probe ran");
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: devices accessor is populated after probe.</summary>
         [Test]
         public void DevicesAccessorIsPopulatedAfterProbe()
         {
@@ -68,6 +70,7 @@ namespace MTConnect.Tests.Http.Clients
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: devices accessor returns snapshot not live view.</summary>
         [Test]
         public void DevicesAccessorReturnsSnapshotNotLiveView()
         {
@@ -97,6 +100,7 @@ namespace MTConnect.Tests.Http.Clients
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: device received fires once per device on first probe.</summary>
         [Test]
         public void DeviceReceivedFiresOncePerDeviceOnFirstProbe()
         {
@@ -138,6 +142,7 @@ namespace MTConnect.Tests.Http.Clients
             }
         }
 
+        /// <summary>Pins the behaviour expressed by the test name: device received carries wired data item back pointers.</summary>
         [Test]
         public void DeviceReceivedCarriesWiredDataItemBackPointers()
         {
