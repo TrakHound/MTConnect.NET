@@ -190,5 +190,141 @@ namespace MTConnect.Tests.Http.Clients
                 client.Stop();
             }
         }
+
+        /// <summary>Pins the behaviour expressed by the test name: device received fires on every subsequent probe, not just the first.</summary>
+        [Test]
+        public void DeviceReceivedFiresOnEverySubsequentProbe()
+        {
+            var client = new MTConnectHttpClient(Hostname, Port);
+
+            using var firstProbeSignal = new ManualResetEventSlim(false);
+            using var secondProbeSignal = new ManualResetEventSlim(false);
+            var probeCount = 0;
+            client.ProbeReceived += (_, _) =>
+            {
+                var n = Interlocked.Increment(ref probeCount);
+                if (n == 1) firstProbeSignal.Set();
+                else if (n == 2) secondProbeSignal.Set();
+            };
+
+            var deviceFireCount = 0;
+            client.DeviceReceived += (_, _) => Interlocked.Increment(ref deviceFireCount);
+
+            try
+            {
+                client.Start();
+                Assert.That(firstProbeSignal.Wait(ProbeWaitTimeoutMs), Is.True, "First ProbeReceived did not fire within the timeout");
+
+                var firstFireCount = Volatile.Read(ref deviceFireCount);
+                Assert.That(firstFireCount, Is.EqualTo(ExpectedDocumentEntryCount), "DeviceReceived did not fire once per device on the first probe");
+            }
+            finally
+            {
+                client.Stop();
+            }
+
+            // Restart the client to force a second probe round-trip through the same
+            // agent; the event must fire again for every device in the second probe,
+            // not stay quiet.
+            try
+            {
+                client.Start();
+                Assert.That(secondProbeSignal.Wait(ProbeWaitTimeoutMs), Is.True, "Second ProbeReceived did not fire within the timeout");
+
+                var totalFireCount = Volatile.Read(ref deviceFireCount);
+                Assert.That(totalFireCount, Is.EqualTo(ExpectedDocumentEntryCount * 2), "DeviceReceived did not re-fire on the second probe");
+            }
+            finally
+            {
+                client.Stop();
+            }
+        }
+
+        /// <summary>Pins the behaviour expressed by the test name: devices accessor reflects the latest probe with stale entries evicted.</summary>
+        [Test]
+        public void DevicesAccessorReflectsLatestProbeWithStaleEntriesEvicted()
+        {
+            var client = new MTConnectHttpClient(Hostname, Port);
+
+            using var firstProbeSignal = new ManualResetEventSlim(false);
+            using var secondProbeSignal = new ManualResetEventSlim(false);
+            var probeCount = 0;
+            client.ProbeReceived += (_, _) =>
+            {
+                var n = Interlocked.Increment(ref probeCount);
+                if (n == 1) firstProbeSignal.Set();
+                else if (n == 2) secondProbeSignal.Set();
+            };
+
+            try
+            {
+                client.Start();
+                Assert.That(firstProbeSignal.Wait(ProbeWaitTimeoutMs), Is.True, "First ProbeReceived did not fire within the timeout");
+            }
+            finally
+            {
+                client.Stop();
+            }
+
+            try
+            {
+                client.Start();
+                Assert.That(secondProbeSignal.Wait(ProbeWaitTimeoutMs), Is.True, "Second ProbeReceived did not fire within the timeout");
+
+                // The cache is cleared at the start of every probe, so the post-second-probe
+                // snapshot count must equal the agent's device count, not double it. This
+                // pins the eviction-on-reprobe contract surfaced by the §19 review.
+                var snapshot = client.Devices;
+                Assert.That(snapshot.Count, Is.EqualTo(ExpectedDocumentEntryCount), "Devices accessor accumulated devices across probes instead of evicting stale entries");
+            }
+            finally
+            {
+                client.Stop();
+            }
+        }
+
+        /// <summary>Pins the behaviour expressed by the test name: device received handler throwing does not break cache population.</summary>
+        [Test]
+        public void DeviceReceivedHandlerThrowingDoesNotBreakCachePopulation()
+        {
+            var client = new MTConnectHttpClient(Hostname, Port);
+
+            var internalErrorCount = 0;
+            client.InternalError += (_, _) => Interlocked.Increment(ref internalErrorCount);
+
+            // First subscriber throws on every fan-out; second subscriber records every
+            // device it sees. With exception-isolation in place, the cache must still
+            // fully populate, the second subscriber must still see every device, and the
+            // throw must surface through InternalError.
+            client.DeviceReceived += (_, _) => throw new InvalidOperationException("intentional test fault");
+
+            var receivedDevices = new List<IDevice>();
+            var receivedLock = new object();
+            client.DeviceReceived += (_, device) =>
+            {
+                lock (receivedLock) { receivedDevices.Add(device); }
+            };
+
+            using var probeSignal = new ManualResetEventSlim(false);
+            client.ProbeReceived += (_, _) => probeSignal.Set();
+
+            try
+            {
+                client.Start();
+
+                Assert.That(probeSignal.Wait(ProbeWaitTimeoutMs), Is.True, "ProbeReceived did not fire within the timeout");
+
+                List<IDevice> snapshot;
+                lock (receivedLock) { snapshot = new List<IDevice>(receivedDevices); }
+
+                Assert.That(snapshot.Count, Is.EqualTo(ExpectedDocumentEntryCount), "Throwing handler suppressed downstream subscribers");
+                Assert.That(client.Devices.Count, Is.EqualTo(ExpectedDocumentEntryCount), "Throwing handler corrupted the cache fill");
+                Assert.That(Volatile.Read(ref internalErrorCount), Is.GreaterThanOrEqualTo(ExpectedDocumentEntryCount), "Throwing handler did not surface through InternalError");
+            }
+            finally
+            {
+                client.Stop();
+            }
+        }
     }
 }

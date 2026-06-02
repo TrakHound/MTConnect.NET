@@ -11,6 +11,7 @@ using MTConnect.Observations;
 using MTConnect.Streams;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -183,7 +184,9 @@ namespace MTConnect.Clients
         /// A snapshot of the device model received from the most recent Probe response,
         /// keyed by device UUID. The dictionary is empty until the first probe succeeds.
         /// Each call returns a fresh snapshot reflecting the most recently completed probe;
-        /// previously returned snapshots are unaffected by subsequent probes. Each
+        /// previously returned snapshots are unaffected by subsequent probes, and devices
+        /// that disappear between probes are evicted at the start of the next probe so the
+        /// snapshot never carries entries the agent no longer advertises. Each
         /// <see cref="IDevice"/>'s DataItems carry the fully wired
         /// <see cref="IDataItem.Container"/> and <see cref="IDataItem.Device"/>
         /// back-pointers set during parsing, so consumers can walk the component ancestry
@@ -192,14 +195,20 @@ namespace MTConnect.Clients
         /// <remarks>
         /// <para>
         /// The dictionary returned by each call is a fresh allocation independent of the
-        /// cache; the <see cref="IDevice"/> values within are shared references to cached
-        /// instances that the client replaces wholesale on each probe. The accessor
-        /// acquires the client's internal lock, so callers may enumerate the snapshot
-        /// without synchronizing against the worker thread that processes subsequent probes.
+        /// cache, wrapped in a <see cref="ReadOnlyDictionary{TKey, TValue}"/>
+        /// so consumers cannot mutate the snapshot through a downcast. The <see cref="IDevice"/>
+        /// values within are shared references to cached instances that the client replaces
+        /// wholesale on each probe. The accessor acquires the client's internal lock, so
+        /// callers may enumerate the snapshot without synchronizing against the worker thread
+        /// that processes subsequent probes.
         /// </para>
         /// <para>
         /// Each access allocates a fresh dictionary. Cache the returned reference if you
         /// read repeatedly between probes.
+        /// </para>
+        /// <para>
+        /// Empty probe responses (where the agent answers with no devices) do not clear the
+        /// cache; the previous snapshot stays presented until the next non-empty probe.
         /// </para>
         /// </remarks>
         public IReadOnlyDictionary<string, IDevice> Devices
@@ -208,7 +217,8 @@ namespace MTConnect.Clients
             {
                 lock (_lock)
                 {
-                    return new Dictionary<string, IDevice>(_devices);
+                    return new ReadOnlyDictionary<string, IDevice>(
+                        new Dictionary<string, IDevice>(_devices));
                 }
             }
         }
@@ -218,15 +228,17 @@ namespace MTConnect.Clients
 
         /// <summary>
         /// Raised once per parsed device for every Probe response the client receives,
-        /// carrying the fully wired <see cref="IDevice"/> instance — the same instance
-        /// the <see cref="Devices"/> snapshot accessor would return for that UUID — with
-        /// its DataItems' <see cref="IDataItem.Container"/> and <see cref="IDataItem.Device"/>
+        /// carrying the fully wired <see cref="IDevice"/> instance—the same instance the
+        /// <see cref="Devices"/> snapshot accessor would return for that UUID—with its
+        /// DataItems' <see cref="IDataItem.Container"/> and <see cref="IDataItem.Device"/>
         /// back-pointers set, and the agent's <c>InstanceId</c> stamped on each DataItem.
         /// </summary>
         /// <remarks>
         /// Handlers fire in document order while the cache is still being populated.
         /// Subscribe to <see cref="ProbeReceived"/> to receive notification after the full
-        /// probe response has been processed.
+        /// probe response has been processed. A handler that throws is isolated by the
+        /// client: the exception is forwarded through <see cref="InternalError"/> and the
+        /// cache fill plus subsequent fan-out continue normally.
         /// </remarks>
         public event EventHandler<IDevice> DeviceReceived;
 
@@ -871,11 +883,13 @@ namespace MTConnect.Clients
         {
             if (document != null && !document.Devices.IsNullOrEmpty())
             {
-                // Clear Cached DataItems and Components
+                // Clear cached DataItems, Components, and the device snapshot so devices
+                // the agent no longer advertises are evicted before the new probe is loaded.
                 lock (_lock)
                 {
                     _cachedComponents.Clear();
                     _cachedDataItems.Clear();
+                    _devices.Clear();
                 }
 
                 foreach (var device in document.Devices)
@@ -890,7 +904,16 @@ namespace MTConnect.Clients
                     }
 
                     // Fire per-device inside the populate loop so the cache and event stay in lockstep.
-                    DeviceReceived?.Invoke(this, outputDevice);
+                    // Isolate subscriber exceptions so one bad handler cannot abort the populate loop
+                    // or suppress ProbeReceived; route the fault through InternalError instead.
+                    try
+                    {
+                        DeviceReceived?.Invoke(this, outputDevice);
+                    }
+                    catch (Exception ex)
+                    {
+                        InternalError?.Invoke(this, ex);
+                    }
                 }
 
                 // Raise ProbeReceived Event
