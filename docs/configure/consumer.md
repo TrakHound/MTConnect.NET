@@ -82,7 +82,9 @@ client.Start();
 
 `CurrentReceived` fires once on stream initialization—`Start()` drives the `/sample` long-poll, not periodic `/current` polling. For periodic snapshots, call `GetCurrent()` directly on a timer; for the streaming case, subscribe to `SampleReceived`.
 
-The client handles reconnects on the consumer's behalf; the `ConnectionError` event fires on transport failures and the client backs off and retries. Parsing or dispatch failures surface through `InternalError`.
+The client also exposes the post-probe device model. `DeviceReceived` fires once per parsed device for every `/probe` response, carrying the fully wired [`IDevice`](/api/MTConnect.Devices.IDevice) instance with its DataItems' `Container` and `Device` back-pointers set. The `Devices` property returns a read-only snapshot of every device the most recent probe yielded, keyed by UUID; entries are replaced wholesale on each probe and devices the agent no longer advertises are evicted at the start of the next probe. Both surfaces were added per [issue #176](https://github.com/TrakHound/MTConnect.NET/issues/176).
+
+The client handles reconnects on the consumer's behalf; the `ConnectionError` event fires on transport failures and the client backs off and retries. Parsing or dispatch failures surface through `InternalError`. A `DeviceReceived` handler that throws is isolated: the exception is routed through `InternalError` and the cache fill plus the rest of the per-device fan-out continue normally.
 
 ## MQTT—the cppagent-parity broker / relay tree
 

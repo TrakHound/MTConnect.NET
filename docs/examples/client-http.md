@@ -50,7 +50,35 @@ client.CurrentReceived += (s, response) => { /* iterate response.Streams */ };
 client.Start();
 ```
 
-`MTConnectHttpClient` wraps the agent's HTTP endpoints (`/probe`, `/current`, `/sample`, `/asset`) and exposes them as a long-polling subscription with event hooks. The `Interval` property is the consumer-side sample interval — the client requests `/sample?interval=100` and receives each sequence batch through `CurrentReceived` (or `SampleReceived` if you wire that hook up instead).
+`MTConnectHttpClient` wraps the agent's HTTP endpoints (`/probe`, `/current`, `/sample`, `/asset`) and exposes them as a long-polling subscription with event hooks. The `Interval` property is the consumer-side sample interval—the client requests `/sample?interval=100` and receives each sequence batch through `CurrentReceived` (or `SampleReceived` if you wire that hook up instead).
+
+### Subscribing to the wired device model
+
+The client maintains a wired snapshot of every device it sees from `/probe` responses, keyed by UUID. Subscribe to `DeviceReceived` to react per-device while the snapshot is filling, and read the `Devices` accessor at any point to consult the post-probe model:
+
+```csharp
+client.DeviceReceived += (s, device) =>
+{
+    Console.WriteLine($"Device Received : {device.Uuid} : {device.Name}");
+    foreach (var dataItem in device.GetDataItems())
+    {
+        // Container + Device back-pointers are wired in by the parser.
+        Console.WriteLine($"  {dataItem.Id} : {dataItem.Type} : container={dataItem.Container?.Id}");
+    }
+};
+
+client.Start();
+
+// At any point after the first probe completes:
+foreach (var (uuid, device) in client.Devices)
+{
+    Console.WriteLine($"Cached device : {uuid} : {device.Name}");
+}
+```
+
+`DeviceReceived` fires once per parsed device for every Probe response, carrying the fully wired `IDevice` instance—the same one the `Devices` snapshot accessor returns for that UUID—with the agent's `InstanceId` stamped on each DataItem. A handler that throws is isolated by the client: the exception is forwarded through `InternalError` and the cache fill continues. `Devices` returns a fresh read-only snapshot on every read; cache the reference if you read repeatedly between probes. Devices that disappear between probes are evicted at the start of the next probe, so the snapshot never carries entries the agent no longer advertises.
+
+The `Devices` accessor and the `DeviceReceived` fan-out were added per [issue #176](https://github.com/TrakHound/MTConnect.NET/issues/176) (approved 2026-06-01 by @PatrickRitchie).
 
 ### Per-observation validation
 
