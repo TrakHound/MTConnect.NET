@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
@@ -93,10 +94,15 @@ public class RouteCheckTests
             throw new InvalidOperationException($"`playwright install chromium` exited {installExit}");
         }
 
+        // Hand the port allocation off to vitepress so there is no TOCTOU
+        // window between picking a free port and binding it. `--port 0` is
+        // a hint, not a guarantee — vitepress can ignore it and pick its
+        // own default (5173) — so the actual bound port is parsed off the
+        // drained startup banner (`Local: http://localhost:NNNN/`).
         var port = FindFreePort();
-        _baseUrl = $"http://127.0.0.1:{port}";
         _previewServer = StartPreviewServer(port, distDir, _docsRoot, _previewLog);
-        await WaitForServerAsync(port, _previewServer, _previewLog);
+        var boundPort = await WaitForServerAsync(port, _previewServer, _previewLog);
+        _baseUrl = $"http://127.0.0.1:{boundPort}";
 
         _playwright = await Playwright.CreateAsync();
         _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
@@ -319,7 +325,15 @@ public class RouteCheckTests
         return proc;
     }
 
-    private static async Task WaitForServerAsync(int port, Process proc, System.Text.StringBuilder log)
+    // Match the vitepress startup banner so we can confirm which port the
+    // child actually bound to. If the requested port was claimed by another
+    // process between FindFreePort returning and vitepress binding, the
+    // server's own log is the source of truth — not the port we asked for.
+    private static readonly Regex PreviewBannerPortRegex = new(
+        @"https?://(?:localhost|127\.0\.0\.1)(?::(?<port>\d+))?/?",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    private static async Task<int> WaitForServerAsync(int requestedPort, Process proc, System.Text.StringBuilder log)
     {
         var deadline = DateTime.UtcNow.AddMilliseconds(ServerReadyTimeoutMs);
         while (DateTime.UtcNow < deadline)
@@ -329,13 +343,19 @@ public class RouteCheckTests
                 string snapshot;
                 lock (log) snapshot = log.ToString();
                 throw new InvalidOperationException(
-                    $"vitepress preview exited prematurely with code {proc.ExitCode} before binding to 127.0.0.1:{port}.{Environment.NewLine}{snapshot}");
+                    $"vitepress preview exited prematurely with code {proc.ExitCode} before binding to 127.0.0.1:{requestedPort}.{Environment.NewLine}{snapshot}");
             }
+
+            // Prefer the port reported in the startup banner — it is the
+            // authoritative answer to "which port did the child actually
+            // bind?". Falls back to the requested port if the banner has
+            // not yet been drained.
+            var observedPort = ExtractBannerPort(log) ?? requestedPort;
             try
             {
                 using var client = new TcpClient();
-                await client.ConnectAsync(System.Net.IPAddress.Loopback, port);
-                return;
+                await client.ConnectAsync(System.Net.IPAddress.Loopback, observedPort);
+                return observedPort;
             }
             catch (SocketException)
             {
@@ -345,7 +365,23 @@ public class RouteCheckTests
         string finalSnapshot;
         lock (log) finalSnapshot = log.ToString();
         throw new TimeoutException(
-            $"vitepress preview did not bind to 127.0.0.1:{port} within {ServerReadyTimeoutMs / 1000}s.{Environment.NewLine}{finalSnapshot}");
+            $"vitepress preview did not bind to 127.0.0.1:{requestedPort} within {ServerReadyTimeoutMs / 1000}s.{Environment.NewLine}{finalSnapshot}");
+    }
+
+    private static int? ExtractBannerPort(System.Text.StringBuilder log)
+    {
+        string snapshot;
+        lock (log) snapshot = log.ToString();
+        // vitepress prints something like:
+        //   ➜  Local:   http://localhost:4173/
+        // Scan every match and prefer the highest-port hit (the banner
+        // can also include the Network: line, both share the same port).
+        foreach (Match m in PreviewBannerPortRegex.Matches(snapshot))
+        {
+            var g = m.Groups["port"];
+            if (g.Success && int.TryParse(g.Value, out var p) && p > 0) return p;
+        }
+        return null;
     }
 
     private static void StopPreviewServer(Process? proc)
