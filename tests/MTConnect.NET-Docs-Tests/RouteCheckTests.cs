@@ -144,28 +144,7 @@ public class RouteCheckTests
         var routes = CollectRoutes(_docsRoot);
         Assert.That(routes.Count, Is.GreaterThan(0), "expected at least one markdown-backed route");
 
-        var failures = new List<(string Route, string Indicator)>();
-        var failuresLock = new object();
-        using var semaphore = new SemaphoreSlim(Concurrency);
-
-        var tasks = routes.Select(async route =>
-        {
-            await semaphore.WaitAsync();
-            try
-            {
-                var failure = await CheckRouteAsync(_browser!, _baseUrl, route);
-                if (failure is not null)
-                {
-                    lock (failuresLock) failures.Add(failure.Value);
-                }
-            }
-            finally
-            {
-                semaphore.Release();
-            }
-        });
-
-        await Task.WhenAll(tasks);
+        var failures = await WalkRoutesAsync(_browser!, _baseUrl, routes, Concurrency);
 
         if (failures.Count > 0)
         {
@@ -173,6 +152,47 @@ public class RouteCheckTests
             var lines = string.Join(Environment.NewLine, ordered.Select(f => $"  {f.Route} — {f.Indicator}"));
             Assert.Fail($"{ordered.Count} route(s) returned a 404:{Environment.NewLine}{lines}");
         }
+    }
+
+    // Walk every route with one BrowserContext per worker. Allocating a
+    // context once per worker (vs once per route via Browser.NewPageAsync)
+    // amortises the ~0.5–1 s context-creation cost over the full share
+    // and exercises VitePress's warm-router path on the second visit
+    // onwards. Expected 5–10× wall-time reduction over per-route contexts.
+    private static async Task<List<(string Route, string Indicator)>> WalkRoutesAsync(
+        IBrowser browser, string baseUrl, List<string> routes, int workerCount)
+    {
+        var failures = new List<(string Route, string Indicator)>();
+        var failuresLock = new object();
+
+        // FIFO queue of routes; workers pull from the same queue so
+        // a slow page on one worker doesn't strand its pre-allocated
+        // share — work-stealing falls out for free.
+        var queue = new System.Collections.Concurrent.ConcurrentQueue<string>(routes);
+
+        var workers = Enumerable.Range(0, Math.Min(workerCount, routes.Count))
+            .Select(async _ =>
+            {
+                var context = await browser.NewContextAsync();
+                try
+                {
+                    while (queue.TryDequeue(out var route))
+                    {
+                        var failure = await CheckRouteAsync(context, baseUrl, route);
+                        if (failure is not null)
+                        {
+                            lock (failuresLock) failures.Add(failure.Value);
+                        }
+                    }
+                }
+                finally
+                {
+                    await context.CloseAsync();
+                }
+            });
+
+        await Task.WhenAll(workers);
+        return failures;
     }
 
     // ─── Route derivation ────────────────────────────────────────────────────
@@ -236,10 +256,10 @@ public class RouteCheckTests
     // three 404 signals (.NotFound selector, document.title, body text)
     // are available as soon as the DOM is fully parsed and sub-resources
     // have finished loading, which is exactly what Load guarantees.
-    private static async Task<(string Route, string Indicator)?> CheckRouteAsync(IBrowser browser, string baseUrl, string route)
+    private static async Task<(string Route, string Indicator)?> CheckRouteAsync(IBrowserContext context, string baseUrl, string route)
     {
         var url = baseUrl + route;
-        var page = await browser.NewPageAsync();
+        var page = await context.NewPageAsync();
         try
         {
             await page.GotoAsync(url, new PageGotoOptions
