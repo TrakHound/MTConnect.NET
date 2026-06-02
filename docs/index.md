@@ -5,6 +5,9 @@ hero:
   name: MTConnect.NET
   text: The .NET implementation of the MTConnect Standard
   tagline: 100% public-surface API coverage. 100% MTConnect Standard compliance.
+  image:
+    src: /logo.png
+    alt: MTConnect.NET
   actions:
     - theme: brand
       text: Get started
