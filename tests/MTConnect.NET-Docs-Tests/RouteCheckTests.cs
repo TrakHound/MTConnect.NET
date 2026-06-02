@@ -196,21 +196,20 @@ public class RouteCheckTests
 
     /// <summary>
     /// Negative regression for the 404 detector: visits an unmapped
-    /// route and asserts at least one of the three signals (.NotFound
-    /// element, document.title === '404', body-text 'PAGE NOT FOUND')
-    /// fires. Without this, a future Playwright / VitePress upgrade
-    /// that broke a signal would silently pass-through every real 404.
+    /// route and asserts at least one of the two signals (.NotFound
+    /// element, document.title starting with '404') fires. Without
+    /// this, a future Playwright / VitePress upgrade that broke a
+    /// signal would silently pass-through every real 404.
     /// </summary>
     [Test]
     public async Task A_Synthetic_Unmapped_Route_Surfaces_As_A_404()
     {
         // Pins the detector itself per §10a. If a future Playwright / VitePress
-        // upgrade silently breaks one of the three signals (.NotFound element,
-        // document.title === '404', body-text 'PAGE NOT FOUND'), the positive
-        // test would still pass — every real markdown-backed route would
-        // continue to render fine — but a real 404 would go undetected. This
-        // test makes sure the detector fires on a URL that has no markdown
-        // source behind it.
+        // upgrade silently breaks one of the two signals (.NotFound element,
+        // document.title startsWith '404'), the positive test would still pass
+        // — every real markdown-backed route would continue to render fine —
+        // but a real 404 would go undetected. This test makes sure the detector
+        // fires on a URL that has no markdown source behind it.
         Assert.That(_browser, Is.Not.Null, "browser was not initialised");
         var context = await _browser!.NewContextAsync();
         try
@@ -292,17 +291,29 @@ public class RouteCheckTests
 
     // ─── Route check ─────────────────────────────────────────────────────────
 
-    // Detects VitePress's client-side 404 page. The original Node
-    // crawler used three signals; mirror them here exactly so the
-    // test's failure surface matches what the script caught.
+    // Detects VitePress's client-side 404 page. Two signals are used:
+    // the `.NotFound` element rendered by the default theme's NotFound
+    // component, and the `<title>` element — which the static 404.html
+    // emits as `404 | <site title>` (e.g. `404 | MTConnect.NET`), so a
+    // prefix match on `404` catches the title regardless of the trailing
+    // site-title suffix.
+    //
+    // The original detector also checked for body text containing
+    // `PAGE NOT FOUND`, but that signal is too loose — a real
+    // markdown-backed route may quote the phrase in prose (e.g. the
+    // docs-site page that documents this very detector). Dropping it
+    // avoids false positives without sacrificing coverage: every real
+    // VitePress 404 still renders the `.NotFound` element and the
+    // `404 | ...` title.
     //
     // WaitUntilState.Load (not NetworkIdle) is used here deliberately.
     // VitePress's SPA keeps background work running indefinitely —
     // analytics pings, web-vitals beacons, hot-reload polling — so
-    // NetworkIdle never settles within any reasonable timeout. All
-    // three 404 signals (.NotFound selector, document.title, body text)
-    // are available as soon as the DOM is fully parsed and sub-resources
-    // have finished loading, which is exactly what Load guarantees.
+    // NetworkIdle never settles within any reasonable timeout. The
+    // `<title>` signal is server-rendered into the static 404.html so
+    // it is available at Load; the `.NotFound` signal appears once Vue
+    // hydrates, which on a built site happens during the Load event's
+    // sub-resource phase.
     private static async Task<(string Route, string Indicator)?> CheckRouteAsync(IBrowserContext context, string baseUrl, string route)
     {
         var url = baseUrl + route;
@@ -317,13 +328,11 @@ public class RouteCheckTests
 
             var detection = await page.EvaluateAsync<NotFoundDetection>(@"() => ({
                 hasClass: !!document.querySelector('.NotFound'),
-                title404: document.title === '404',
-                bodyMatches: (document.body?.innerText ?? '').toUpperCase().includes('PAGE NOT FOUND')
+                title404: (document.title ?? '').startsWith('404')
             })");
 
             if (detection.HasClass) return (route, ".NotFound element present");
-            if (detection.Title404) return (route, "document.title == '404'");
-            if (detection.BodyMatches) return (route, "body text contains 'PAGE NOT FOUND'");
+            if (detection.Title404) return (route, "document.title starts with '404'");
             return null;
         }
         finally
@@ -333,10 +342,10 @@ public class RouteCheckTests
     }
 
     // The JS payload returned by EvaluateAsync uses camelCase keys
-    // (`hasClass`, `title404`, `bodyMatches`); pin them explicitly so
-    // a future Playwright upgrade that tightens case-insensitive
-    // deserialisation cannot silently turn every route into a
-    // no-detection pass-through (which would hide a real 404).
+    // (`hasClass`, `title404`); pin them explicitly so a future
+    // Playwright upgrade that tightens case-insensitive deserialisation
+    // cannot silently turn every route into a no-detection pass-through
+    // (which would hide a real 404).
     private sealed class NotFoundDetection
     {
         [JsonPropertyName("hasClass")]
@@ -344,9 +353,6 @@ public class RouteCheckTests
 
         [JsonPropertyName("title404")]
         public bool Title404 { get; set; }
-
-        [JsonPropertyName("bodyMatches")]
-        public bool BodyMatches { get; set; }
     }
 
     // ─── Preview server lifecycle ────────────────────────────────────────────

@@ -71,7 +71,7 @@ dotnet test tests/MTConnect.NET-Docs-Tests --filter Category=E2E
 
 On the first run the fixture installs the chromium binary the Playwright .NET binding drives (~150 MB; cached on subsequent runs) and — if `docs/.vitepress/dist/` is missing — invokes `npm ci && npm run build` from `docs/` to produce a preview-able site. Subsequent runs reuse both, so a warm working tree completes in a couple of minutes; a cold checkout takes longer because the build artefact is rebuilt from scratch.
 
-Failure output names every route that surfaced as a 404 along with which of the three signals fired — the `.NotFound` element, `document.title === '404'`, or body text containing `PAGE NOT FOUND`. Typical fixes:
+Failure output names every route that surfaced as a 404 along with which of the two signals fired—the `.NotFound` element rendered by the VitePress default theme's NotFound component, or `document.title` starting with `404` (the static `404.html` emits `<title>404 | MTConnect.NET</title>`, so a prefix match catches it regardless of the trailing site-title suffix). Typical fixes:
 
 | Symptom | Probable cause | Fix |
 | --- | --- | --- |
@@ -80,7 +80,7 @@ Failure output names every route that surfaced as a 404 along with which of the 
 | "playwright install chromium exited NNN" | The chromium download was blocked or interrupted. | Re-run; if the install fails again, run `dotnet tool restore && npx playwright install chromium` manually and re-try. |
 | "port NNNN already in use" hang | Another process grabbed the free port between selection and bind (rare; mitigated by the banner-parse fallback). | Re-run the test — the next free port avoids the contended one. |
 
-The negative companion test (`A_Synthetic_Unmapped_Route_Surfaces_As_A_404`) pins the detector itself: a future Playwright or VitePress upgrade that breaks one of the three 404 signals would still see every real route render fine, but the negative test would go red and surface the regression before a real 404 slipped past.
+The negative companion test (`A_Synthetic_Unmapped_Route_Surfaces_As_A_404`) pins the detector itself: a future Playwright or VitePress upgrade that breaks one of the two 404 signals would still see every real route render fine, but the negative test would go red and surface the regression before a real 404 slipped past.
 
 ## See also
 
