@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, existsSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -190,6 +190,13 @@ const projectNode = (segment: string, node: ApiNode): SidebarItem => {
   };
 };
 
+// Module-level cache keyed on toc.yml mtime. VitePress hot-reloads the
+// config on any edit to config.ts; without the cache, each hot-reload
+// re-reads + re-parses the ~1800-namespace toc.yml. The mtime check
+// keeps the cache correct when `npm run regen` rewrites toc.yml in the
+// same Node process.
+let apiSidebarCache: { mtimeMs: number; sidebar: SidebarItem[] } | undefined;
+
 /**
  * Build the `/api/` sidebar from docfx's `toc.yml`. Returns a single
  * top-level "API reference" group whose items are the nested namespace
@@ -202,17 +209,38 @@ export const apiSidebar = (): SidebarItem[] => {
   if (!existsSync(tocPath)) {
     return [{ text: 'API reference', items: [overview] }];
   }
-  const namespaces = parseToc(readFileSync(tocPath, 'utf8'));
+  const mtimeMs = statSync(tocPath).mtimeMs;
+  if (apiSidebarCache && apiSidebarCache.mtimeMs === mtimeMs) {
+    return apiSidebarCache.sidebar;
+  }
+  const tocBody = readFileSync(tocPath, 'utf8');
+  const namespaces = parseToc(tocBody);
+
+  // Self-check: every top-level `- name:` line should produce exactly one
+  // parsed namespace. A mismatch means the hand-rolled YAML parser silently
+  // dropped entries — most likely a docfx output reformat (extra indent,
+  // BOM, quoted strings). Fail loudly rather than letting the sidebar
+  // surface a partial tree.
+  const nameLineCount = tocBody.split('\n').filter((l) => /^- name: /.test(l)).length;
+  if (nameLineCount !== namespaces.length) {
+    throw new Error(
+      `sidebar.ts: parsed ${namespaces.length} namespace(s) from api/toc.yml but counted ${nameLineCount} top-level entries. ` +
+        `The hand-rolled parser likely needs updating — check for indentation or quoting changes from docfx.`,
+    );
+  }
+
   const tree = buildApiTree(namespaces);
   const topLevel = [...tree.children.entries()]
     .map(([s, n]) => projectNode(s, n))
     .sort(byTextCI);
-  return [
+  const sidebar: SidebarItem[] = [
     {
       text: 'API reference',
       items: [overview, ...topLevel],
     },
   ];
+  apiSidebarCache = { mtimeMs, sidebar };
+  return sidebar;
 };
 
 // ─── /reference/ — Roslyn-generated narrative ─────────────────────────────
@@ -220,13 +248,17 @@ export const apiSidebar = (): SidebarItem[] => {
 // Convert a file name like `environment-variables.md` to a sidebar
 // label like `Environment variables` (lower-case-with-hyphens to
 // sentence case, keeping mid-word capitals as-is for HTTP/CLI/etc.).
+// Overrides cover acronyms only; no trailing-word suffix is added —
+// the parent group ("Auto-generated reference") already supplies the
+// "reference" context, so adding it per-leaf is redundant and the
+// half-applied policy (only on `cli` and `configuration`) was the
+// worst of both worlds.
 const labelFor = (slug: string): string => {
-  // Hand-tuned overrides for common acronyms / multi-cap labels.
   const overrides: Record<string, string> = {
-    cli: 'CLI reference',
+    cli: 'CLI',
     'http-api': 'HTTP API',
     'environment-variables': 'Environment variables',
-    configuration: 'Configuration schema',
+    configuration: 'Configuration',
   };
   if (overrides[slug]) return overrides[slug];
   const spaced = slug.replace(/-/g, ' ');
