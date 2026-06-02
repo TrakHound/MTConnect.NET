@@ -9,7 +9,7 @@
     "predev": "npm run regen",
     "dev": "vitepress dev",
     "prebuild": "npm run regen",
-    "build": "vitepress build",
+    "build": "node --max-old-space-size=8192 node_modules/vitepress/bin/vitepress.js build",
     "preview": "vitepress preview",
     "check-links": "node scripts/check-broken-links.mjs ."
   },
