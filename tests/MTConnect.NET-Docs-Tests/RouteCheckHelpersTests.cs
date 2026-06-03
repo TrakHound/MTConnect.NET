@@ -707,9 +707,9 @@ public class RouteCheckHelpersTests
 
     /// <summary>
     /// A null routes list throws <see cref="ArgumentNullException"/>
-    /// with the parameter name pinned per §10a — a future caller that
-    /// passes <c>null</c> by accident gets a typed failure naming the
-    /// argument rather than an opaque NRE.
+    /// with the parameter name pinned — a future caller that passes
+    /// <c>null</c> by accident gets a typed failure naming the argument
+    /// rather than an opaque NRE.
     /// </summary>
     [Test]
     public void ShardRoutes_NullRoutes_Throws()
