@@ -183,6 +183,94 @@ internal static class RouteCheckHelpers
     }
 
     /// <summary>
+    /// Partition <paramref name="routes"/> into <paramref name="total"/>
+    /// disjoint subsets and return the one identified by 1-based
+    /// <paramref name="index"/>. Distribution is round-robin on the
+    /// input's index — route at position <c>i</c> is assigned to shard
+    /// <c>(i % total) + 1</c> — so a CI matrix can run N shards in
+    /// parallel and the union of every shard equals the input set.
+    /// </summary>
+    /// <remarks>
+    /// Round-robin (over contiguous chunks) keeps the per-shard wall
+    /// clock balanced even when expensive routes cluster in the source
+    /// markdown tree (e.g. the long-tail of generated reference pages
+    /// that all live under <c>docs/reference/</c>). Within each shard
+    /// the input's relative order is preserved so failure summaries
+    /// align with the markdown source order.
+    ///
+    /// The 1-based <paramref name="index"/> matches the CI matrix
+    /// dimension's natural numbering (<c>shard: [1, 2, 3, 4]</c>) so
+    /// the env-var-to-helper mapping is identity.
+    /// </remarks>
+    /// <param name="routes">The full route list to partition. Must not be null.</param>
+    /// <param name="index">1-based shard index, in [1, total].</param>
+    /// <param name="total">Total number of shards, &gt; 0.</param>
+    /// <exception cref="ArgumentNullException">routes is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">total is &lt;= 0, or index is outside [1, total].</exception>
+    public static List<string> ShardRoutes(IReadOnlyList<string> routes, int index, int total)
+    {
+        if (routes is null) throw new ArgumentNullException(nameof(routes));
+        if (total <= 0)
+            throw new ArgumentOutOfRangeException(nameof(total), total,
+                "total must be greater than zero");
+        if (index < 1 || index > total)
+            throw new ArgumentOutOfRangeException(nameof(index), index,
+                $"index must satisfy 1 <= index <= total (total={total})");
+
+        var result = new List<string>(routes.Count / total + 1);
+        for (var i = 0; i < routes.Count; i++)
+        {
+            if (i % total == index - 1) result.Add(routes[i]);
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Default environment variable name carrying the 1-based shard
+    /// index. Unset (or unparseable) defaults to <c>1</c>.
+    /// </summary>
+    public const string ShardIndexEnvVar = "ROUTE_SHARD_INDEX";
+
+    /// <summary>
+    /// Default environment variable name carrying the shard total.
+    /// Unset (or unparseable) defaults to <c>1</c> (no sharding).
+    /// </summary>
+    public const string ShardTotalEnvVar = "ROUTE_SHARD_TOTAL";
+
+    /// <summary>
+    /// Read the shard index and total from the
+    /// <see cref="ShardIndexEnvVar"/> / <see cref="ShardTotalEnvVar"/>
+    /// environment variables, defaulting to <c>(1, 1)</c> when either
+    /// is unset or unparseable. Local invocations without
+    /// matrix-injected env vars therefore default to "run every route"
+    /// — the no-sharding identity path.
+    /// </summary>
+    /// <param name="environment">
+    /// Optional environment-variable accessor; defaults to
+    /// <see cref="Environment.GetEnvironmentVariable(string)"/> so tests
+    /// can inject deterministic values without mutating process state.
+    /// </param>
+    public static (int Index, int Total) ReadShardEnv(Func<string, string?>? environment = null)
+    {
+        environment ??= Environment.GetEnvironmentVariable;
+
+        var index = 1;
+        var total = 1;
+
+        if (int.TryParse(environment(ShardIndexEnvVar), out var parsedIndex) && parsedIndex >= 1)
+        {
+            index = parsedIndex;
+        }
+        if (int.TryParse(environment(ShardTotalEnvVar), out var parsedTotal) && parsedTotal >= 1)
+        {
+            total = parsedTotal;
+        }
+        if (index > total) index = total; // graceful clamp if env is half-set
+
+        return (index, total);
+    }
+
+    /// <summary>
     /// Ask the OS for a currently-free TCP port on the loopback interface
     /// by binding ephemerally, reading the assigned port, and releasing.
     /// The caller is responsible for handling the unavoidable TOCTOU

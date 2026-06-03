@@ -465,13 +465,39 @@ public class RouteCheckTests
     /// workers and reported in a single ordered summary so the diff
     /// is reviewable in one assertion message.
     /// </summary>
+    /// <remarks>
+    /// Honours the <c>ROUTE_SHARD_INDEX</c> / <c>ROUTE_SHARD_TOTAL</c>
+    /// environment variables so a CI matrix can parallelise the walk
+    /// across N legs. Unset env vars collapse to the no-sharding
+    /// identity path (<c>1 of 1</c> — every route on a single shard);
+    /// local <c>dotnet test</c> runs therefore exercise the full route
+    /// set without any extra ceremony.
+    /// </remarks>
     [Test]
     public async Task Every_Markdown_Backed_Route_Resolves_Without_A_404()
     {
         Assert.That(_browser, Is.Not.Null, "browser was not initialised");
 
-        var routes = RouteCheckHelpers.CollectRoutes(_docsRoot);
-        Assert.That(routes.Count, Is.GreaterThan(0), "expected at least one markdown-backed route");
+        var allRoutes = RouteCheckHelpers.CollectRoutes(_docsRoot);
+        Assert.That(allRoutes.Count, Is.GreaterThan(0), "expected at least one markdown-backed route");
+
+        // CI matrix dimension `shard: [1, 2, 3, 4]` injects the two env
+        // vars below; local runs leave them unset and walk every route.
+        // The helper returns (1, 1) on unset/unparseable input, so the
+        // shard slice collapses to the input on the no-sharding path.
+        var (shardIndex, shardTotal) = RouteCheckHelpers.ReadShardEnv();
+        var routes = RouteCheckHelpers.ShardRoutes(allRoutes, shardIndex, shardTotal);
+        TestContext.Out.WriteLine(
+            $"Route shard {shardIndex} of {shardTotal}: walking {routes.Count} of {allRoutes.Count} route(s)");
+
+        // A surplus shard (more shards than routes) legitimately walks
+        // zero routes; that is success, not failure.
+        if (routes.Count == 0)
+        {
+            TestContext.Out.WriteLine(
+                $"shard {shardIndex}/{shardTotal} is empty (more shards than routes); nothing to walk");
+            return;
+        }
 
         var failures = await WalkRoutesAsync(_browser!, _baseUrl, routes, Concurrency);
 

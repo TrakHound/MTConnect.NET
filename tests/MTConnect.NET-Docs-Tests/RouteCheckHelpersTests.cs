@@ -784,6 +784,117 @@ public class RouteCheckHelpersTests
         Assert.That(shard4, Is.Empty);
     }
 
+    // ─── ReadShardEnv ────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Both env vars set to representative values surface as a
+    /// <c>(index, total)</c> tuple. Pins the CI-matrix-injection
+    /// contract: <c>ROUTE_SHARD_INDEX=3</c> + <c>ROUTE_SHARD_TOTAL=4</c>
+    /// produces shard 3 of 4 regardless of process-level env state.
+    /// </summary>
+    [Test]
+    public void ReadShardEnv_BothSet_ReturnsParsedTuple()
+    {
+        string? Env(string key) => key switch
+        {
+            RouteCheckHelpers.ShardIndexEnvVar => "3",
+            RouteCheckHelpers.ShardTotalEnvVar => "4",
+            _ => null,
+        };
+        var (index, total) = RouteCheckHelpers.ReadShardEnv(Env);
+        Assert.That(index, Is.EqualTo(3));
+        Assert.That(total, Is.EqualTo(4));
+    }
+
+    /// <summary>
+    /// Unset env vars produce the no-sharding identity tuple
+    /// <c>(1, 1)</c>. Local <c>dotnet test</c> runs without
+    /// matrix-injected env vars therefore walk every route on a single
+    /// shard.
+    /// </summary>
+    [Test]
+    public void ReadShardEnv_BothUnset_ReturnsIdentityTuple()
+    {
+        string? Env(string key) => null;
+        var (index, total) = RouteCheckHelpers.ReadShardEnv(Env);
+        Assert.That(index, Is.EqualTo(1));
+        Assert.That(total, Is.EqualTo(1));
+    }
+
+    /// <summary>
+    /// Unparseable values fall back to the identity tuple — a
+    /// misconfigured CI matrix that injected an empty string or a
+    /// non-numeric token should walk every route rather than throw
+    /// during fixture init.
+    /// </summary>
+    [TestCase("", "")]
+    [TestCase("not-a-number", "also-not")]
+    [TestCase("0", "0")]
+    [TestCase("-1", "-1")]
+    public void ReadShardEnv_UnparseableValues_FallBackToIdentity(string indexValue, string totalValue)
+    {
+        string? Env(string key) => key switch
+        {
+            RouteCheckHelpers.ShardIndexEnvVar => indexValue,
+            RouteCheckHelpers.ShardTotalEnvVar => totalValue,
+            _ => null,
+        };
+        var (index, total) = RouteCheckHelpers.ReadShardEnv(Env);
+        Assert.That(index, Is.EqualTo(1));
+        Assert.That(total, Is.EqualTo(1));
+    }
+
+    /// <summary>
+    /// When <c>ROUTE_SHARD_INDEX</c> exceeds <c>ROUTE_SHARD_TOTAL</c>
+    /// (a half-set matrix, e.g. <c>index=5</c> with <c>total=4</c>),
+    /// the helper clamps the index to the total so the caller still
+    /// receives a valid shard rather than throwing out of
+    /// <see cref="RouteCheckHelpers.ShardRoutes"/> downstream. This
+    /// closes the gap between "env vars set" and "env vars consistent."
+    /// </summary>
+    [Test]
+    public void ReadShardEnv_IndexAboveTotal_ClampsToTotal()
+    {
+        string? Env(string key) => key switch
+        {
+            RouteCheckHelpers.ShardIndexEnvVar => "5",
+            RouteCheckHelpers.ShardTotalEnvVar => "4",
+            _ => null,
+        };
+        var (index, total) = RouteCheckHelpers.ReadShardEnv(Env);
+        Assert.That(index, Is.EqualTo(4));
+        Assert.That(total, Is.EqualTo(4));
+    }
+
+    /// <summary>
+    /// The default <see cref="RouteCheckHelpers.ReadShardEnv"/>
+    /// overload reads from <see cref="Environment.GetEnvironmentVariable(string)"/>.
+    /// Smoke-checking the unset-by-default path keeps the
+    /// process-level env-var access wired without forcing a separate
+    /// integration-tier setup.
+    /// </summary>
+    [Test]
+    public void ReadShardEnv_DefaultAccessor_ReadsProcessEnvironment()
+    {
+        // Save / restore so a parallel test in the same process never
+        // observes the mutation.
+        var savedIndex = Environment.GetEnvironmentVariable(RouteCheckHelpers.ShardIndexEnvVar);
+        var savedTotal = Environment.GetEnvironmentVariable(RouteCheckHelpers.ShardTotalEnvVar);
+        try
+        {
+            Environment.SetEnvironmentVariable(RouteCheckHelpers.ShardIndexEnvVar, "2");
+            Environment.SetEnvironmentVariable(RouteCheckHelpers.ShardTotalEnvVar, "4");
+            var (index, total) = RouteCheckHelpers.ReadShardEnv();
+            Assert.That(index, Is.EqualTo(2));
+            Assert.That(total, Is.EqualTo(4));
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable(RouteCheckHelpers.ShardIndexEnvVar, savedIndex);
+            Environment.SetEnvironmentVariable(RouteCheckHelpers.ShardTotalEnvVar, savedTotal);
+        }
+    }
+
     // ─── Helper: scoped temp directory ───────────────────────────────────────
 
     /// <summary>

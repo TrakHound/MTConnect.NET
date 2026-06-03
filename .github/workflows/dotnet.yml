@@ -25,7 +25,7 @@ on:
 
 jobs:
   build-and-test:
-    name: build-and-test-${{ matrix.os }}
+    name: build-and-test-${{ matrix.os }}-shard${{ matrix.shard }}of${{ matrix.shardTotal }}
     # Skip drafts: run only on push-to-master + ready (non-draft) PRs.
     # The pull_request `types` list above includes `ready_for_review` so
     # CI fires the moment a draft is flipped to ready.
@@ -34,7 +34,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # The ubuntu-latest leg runs Category=E2E, dominated wall-clock
+        # by the RouteCheckTests Playwright route walk. Sharding the
+        # walk across N parallel matrix entries on ubuntu drops the
+        # critical-path wall-clock from N*single-shard down to roughly
+        # single-shard; each shard env-injects ROUTE_SHARD_INDEX /
+        # ROUTE_SHARD_TOTAL into the test runner, and RouteCheckTests
+        # honours those via RouteCheckHelpers.ReadShardEnv +
+        # RouteCheckHelpers.ShardRoutes. windows-latest excludes
+        # Category=E2E altogether (no Docker for Linux images) so it
+        # has no shardable work; the exclude block below caps it at
+        # shard 1 of 4.
         os: [ubuntu-latest, windows-latest]
+        shard: [1, 2, 3, 4]
+        shardTotal: [4]
         include:
           # ubuntu-latest runs the full sweep: Docker is pre-installed
           # on GitHub-hosted Linux runners and Testcontainers can spawn
@@ -53,6 +66,18 @@ jobs:
           # platform dependency and still runs.
           - os: windows-latest
             testFilter: "Category!=RequiresDocker&Category!=E2E"
+        exclude:
+          # windows-latest never runs Category=E2E (testFilter excludes
+          # it). Running every windows shard would therefore re-run the
+          # same unit + integration suite four times for no coverage
+          # gain. Cap windows at shard 1 of 4 — the non-E2E suite still
+          # runs once; the E2E sharding is ubuntu-only.
+          - os: windows-latest
+            shard: 2
+          - os: windows-latest
+            shard: 3
+          - os: windows-latest
+            shard: 4
 
     steps:
       - name: Checkout
@@ -150,6 +175,16 @@ jobs:
       - name: Run unit tests with coverage
         env:
           TEST_FILTER: ${{ matrix.testFilter }}
+          # ROUTE_SHARD_INDEX / ROUTE_SHARD_TOTAL drive RouteCheckTests
+          # via RouteCheckHelpers.ReadShardEnv -> ShardRoutes, splitting
+          # the ~1,880-route Playwright walk across N parallel matrix
+          # entries. Unset / total=1 collapses to the no-sharding path,
+          # which is the local-invocation default. Integers come from
+          # the static strategy.matrix definition above, never from
+          # github.event.* untrusted input.
+          ROUTE_SHARD_INDEX: ${{ matrix.shard }}
+          ROUTE_SHARD_TOTAL: ${{ matrix.shardTotal }}
+          TRX_NAME: test-results-${{ matrix.os }}-shard${{ matrix.shard }}of${{ matrix.shardTotal }}.trx
         run: |
           if [ -n "$TEST_FILTER" ]; then
             dotnet test MTConnect.NET.sln \
@@ -157,7 +192,7 @@ jobs:
               --no-build \
               --settings tests/coverlet.runsettings \
               --results-directory TestResults \
-              --logger "trx;LogFileName=test-results-${{ matrix.os }}.trx" \
+              --logger "trx;LogFileName=${TRX_NAME}" \
               --filter "$TEST_FILTER"
           else
             dotnet test MTConnect.NET.sln \
@@ -165,7 +200,7 @@ jobs:
               --no-build \
               --settings tests/coverlet.runsettings \
               --results-directory TestResults \
-              --logger "trx;LogFileName=test-results-${{ matrix.os }}.trx"
+              --logger "trx;LogFileName=${TRX_NAME}"
           fi
         shell: bash
 
@@ -174,9 +209,11 @@ jobs:
       # eager filter that discovers nothing must hard-fail rather than
       # exit 0.
       - name: Guard — unit step executed > 0 tests
+        env:
+          TRX_NAME: test-results-${{ matrix.os }}-shard${{ matrix.shard }}of${{ matrix.shardTotal }}.trx
         run: |
           set -euo pipefail
-          trx="TestResults/test-results-${{ matrix.os }}.trx"
+          trx="TestResults/${TRX_NAME}"
           if [ ! -f "$trx" ]; then
             echo "::error::Unit TRX not found at $trx — the test step did not produce results."
             exit 1
@@ -244,6 +281,7 @@ jobs:
       - name: Run integration tests with coverage
         env:
           TEST_FILTER: ${{ matrix.testFilter }}
+          TRX_NAME: test-results-integration-${{ matrix.os }}-shard${{ matrix.shard }}of${{ matrix.shardTotal }}.trx
         run: |
           if [ -n "$TEST_FILTER" ]; then
             dotnet test tests/MTConnect.NET-Integration-Tests/MTConnect.NET-Integration-Tests.csproj \
@@ -252,7 +290,7 @@ jobs:
               -p:IntegrationCoverage=true \
               --settings tests/coverlet.integration.runsettings \
               --results-directory TestResults \
-              --logger "trx;LogFileName=test-results-integration-${{ matrix.os }}.trx" \
+              --logger "trx;LogFileName=${TRX_NAME}" \
               --filter "$TEST_FILTER"
           else
             dotnet test tests/MTConnect.NET-Integration-Tests/MTConnect.NET-Integration-Tests.csproj \
@@ -261,7 +299,7 @@ jobs:
               -p:IntegrationCoverage=true \
               --settings tests/coverlet.integration.runsettings \
               --results-directory TestResults \
-              --logger "trx;LogFileName=test-results-integration-${{ matrix.os }}.trx"
+              --logger "trx;LogFileName=${TRX_NAME}"
           fi
         shell: bash
 
@@ -272,9 +310,11 @@ jobs:
       # the TRX <Counters .../> total and fail when it is 0 or the
       # element is missing.
       - name: Guard — integration step executed > 0 tests
+        env:
+          TRX_NAME: test-results-integration-${{ matrix.os }}-shard${{ matrix.shard }}of${{ matrix.shardTotal }}.trx
         run: |
           set -euo pipefail
-          trx="TestResults/test-results-integration-${{ matrix.os }}.trx"
+          trx="TestResults/${TRX_NAME}"
           if [ ! -f "$trx" ]; then
             echo "::error::Integration TRX not found at $trx — the test step did not produce results."
             exit 1
@@ -308,7 +348,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
-          name: test-results-${{ matrix.os }}
+          name: test-results-${{ matrix.os }}-shard${{ matrix.shard }}of${{ matrix.shardTotal }}
           path: |
             TestResults/**/*.trx
             TestResults/**/coverage.cobertura.xml
@@ -318,9 +358,11 @@ jobs:
 
       - name: Surface coverage summary in job log
         if: always()
+        env:
+          JOB_LABEL: ${{ matrix.os }} shard ${{ matrix.shard }}/${{ matrix.shardTotal }}
         run: |
           if [ -f coverage-report/Summary.txt ]; then
-            echo "### Coverage summary (${{ matrix.os }})" >> "$GITHUB_STEP_SUMMARY"
+            echo "### Coverage summary (${JOB_LABEL})" >> "$GITHUB_STEP_SUMMARY"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
             cat coverage-report/Summary.txt >> "$GITHUB_STEP_SUMMARY"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
