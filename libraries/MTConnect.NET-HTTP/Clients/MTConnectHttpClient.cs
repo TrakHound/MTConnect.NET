@@ -347,7 +347,7 @@ namespace MTConnect.Clients
         {
             _stop = new CancellationTokenSource();
 
-            ClientStarting?.Invoke(this, new EventArgs());
+            RaiseEvent(ClientStarting, EventArgs.Empty);
 
             _initializeFromBuffer = false;
             _lastInstanceId = 0;
@@ -364,7 +364,7 @@ namespace MTConnect.Clients
         {
             _stop = new CancellationTokenSource();
 
-            ClientStarting?.Invoke(this, new EventArgs());
+            RaiseEvent(ClientStarting, EventArgs.Empty);
 
             _initializeFromBuffer = false;
             _lastInstanceId = 0;
@@ -382,7 +382,7 @@ namespace MTConnect.Clients
             _stop = new CancellationTokenSource();
             cancellationToken.Register(() => { Stop(); });
 
-            ClientStarting?.Invoke(this, new EventArgs());
+            RaiseEvent(ClientStarting, EventArgs.Empty);
 
             _initializeFromBuffer = false;
             _lastInstanceId = 0;
@@ -399,7 +399,7 @@ namespace MTConnect.Clients
         {
             _stop = new CancellationTokenSource();
 
-            ClientStarting?.Invoke(this, new EventArgs());
+            RaiseEvent(ClientStarting, EventArgs.Empty);
 
             _initializeFromBuffer = true;
             _lastInstanceId = instanceId;
@@ -417,7 +417,7 @@ namespace MTConnect.Clients
             _stop = new CancellationTokenSource();
             cancellationToken.Register(() => { Stop(); });
 
-            ClientStarting?.Invoke(this, new EventArgs());
+            RaiseEvent(ClientStarting, EventArgs.Empty);
 
             _initializeFromBuffer = true;
             _lastInstanceId = instanceId;
@@ -434,7 +434,7 @@ namespace MTConnect.Clients
         {
             _stop = new CancellationTokenSource();
 
-            ClientStarting?.Invoke(this, new EventArgs());
+            RaiseEvent(ClientStarting, EventArgs.Empty);
 
             _initializeFromBuffer = true;
             _lastInstanceId = 0;
@@ -452,7 +452,7 @@ namespace MTConnect.Clients
             _stop = new CancellationTokenSource();
             cancellationToken.Register(() => { Stop(); });
 
-            ClientStarting?.Invoke(this, new EventArgs());
+            RaiseEvent(ClientStarting, EventArgs.Empty);
 
             _initializeFromBuffer = true;
             _lastInstanceId = 0;
@@ -467,7 +467,7 @@ namespace MTConnect.Clients
         /// </summary>
         public void Stop()
         {
-            ClientStopping?.Invoke(this, new EventArgs());
+            RaiseEvent(ClientStopping, EventArgs.Empty);
 
             if (_stop != null) _stop.Cancel();
         }
@@ -494,10 +494,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => MTConnectError?.Invoke(this, doc);
-            client.FormatError += (s, r) => FormatError?.Invoke(this, r);
-            client.ConnectionError += (s, ex) => ConnectionError?.Invoke(this, ex);
-            client.InternalError += (s, ex) => InternalError?.Invoke(this, ex);
+            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
+            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
+            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
+            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
             return client.Get();
         }
 
@@ -518,10 +518,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => MTConnectError?.Invoke(this, doc);
-            client.FormatError += (s, r) => FormatError?.Invoke(this, r);
-            client.ConnectionError += (s, ex) => ConnectionError?.Invoke(this, ex);
-            client.InternalError += (s, ex) => InternalError?.Invoke(this, ex);
+            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
+            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
+            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
+            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
             return await client.GetAsync(cancellationToken);
         }
 
@@ -535,10 +535,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => MTConnectError?.Invoke(this, doc);
-            client.FormatError += (s, r) => FormatError?.Invoke(this, r);
-            client.ConnectionError += (s, ex) => ConnectionError?.Invoke(this, ex);
-            client.InternalError += (s, ex) => InternalError?.Invoke(this, ex);
+            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
+            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
+            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
+            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
             return client.Get();
         }
 
@@ -559,10 +559,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => MTConnectError?.Invoke(this, doc);
-            client.FormatError += (s, r) => FormatError?.Invoke(this, r);
-            client.ConnectionError += (s, ex) => ConnectionError?.Invoke(this, ex);
-            client.InternalError += (s, ex) => InternalError?.Invoke(this, ex);
+            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
+            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
+            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
+            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
             return await client.GetAsync(cancellationToken);
         }
 
@@ -576,10 +576,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => MTConnectError?.Invoke(this, doc);
-            client.FormatError += (s, r) => FormatError?.Invoke(this, r);
-            client.ConnectionError += (s, ex) => ConnectionError?.Invoke(this, ex);
-            client.InternalError += (s, ex) => InternalError?.Invoke(this, ex);
+            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
+            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
+            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
+            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
             return client.Get();
         }
 
@@ -600,10 +600,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => MTConnectError?.Invoke(this, doc);
-            client.FormatError += (s, r) => FormatError?.Invoke(this, r);
-            client.ConnectionError += (s, ex) => ConnectionError?.Invoke(this, ex);
-            client.InternalError += (s, ex) => InternalError?.Invoke(this, ex);
+            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
+            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
+            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
+            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
             return await client.GetAsync(cancellationToken);
         }
 
@@ -617,10 +617,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => MTConnectError?.Invoke(this, doc);
-            client.FormatError += (s, r) => FormatError?.Invoke(this, r);
-            client.ConnectionError += (s, ex) => ConnectionError?.Invoke(this, ex);
-            client.InternalError += (s, ex) => InternalError?.Invoke(this, ex);
+            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
+            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
+            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
+            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
             return client.Get();
         }
 
@@ -641,10 +641,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => MTConnectError?.Invoke(this, doc);
-            client.FormatError += (s, r) => FormatError?.Invoke(this, r);
-            client.ConnectionError += (s, ex) => ConnectionError?.Invoke(this, ex);
-            client.InternalError += (s, ex) => InternalError?.Invoke(this, ex);
+            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
+            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
+            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
+            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
             return await client.GetAsync(cancellationToken);
         }
 
@@ -658,10 +658,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => MTConnectError?.Invoke(this, doc);
-            client.FormatError += (s, r) => FormatError?.Invoke(this, r);
-            client.ConnectionError += (s, ex) => ConnectionError?.Invoke(this, ex);
-            client.InternalError += (s, ex) => InternalError?.Invoke(this, ex);
+            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
+            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
+            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
+            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
             return client.Get();
         }
 
@@ -682,10 +682,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => MTConnectError?.Invoke(this, doc);
-            client.FormatError += (s, r) => FormatError?.Invoke(this, r);
-            client.ConnectionError += (s, ex) => ConnectionError?.Invoke(this, ex);
-            client.InternalError += (s, ex) => InternalError?.Invoke(this, ex);
+            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
+            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
+            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
+            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
             return await client.GetAsync(cancellationToken);
         }
 
@@ -697,7 +697,7 @@ namespace MTConnect.Clients
         {
             var initialRequest = true;
 
-            ClientStarted?.Invoke(this, new EventArgs());
+            RaiseEvent(ClientStarted, EventArgs.Empty);
 
             do
             {
@@ -708,7 +708,7 @@ namespace MTConnect.Clients
                     if (probe != null)
                     {
                         _lastResponse = UnixDateTime.Now;
-                        ResponseReceived?.Invoke(this, new EventArgs());
+                        RaiseEvent(ResponseReceived, EventArgs.Empty);
 
                         ProcessProbeDocument(probe);
 
@@ -719,7 +719,7 @@ namespace MTConnect.Clients
                             if (assets != null)
                             {
                                 _lastResponse = UnixDateTime.Now;
-                                ResponseReceived?.Invoke(this, new EventArgs());
+                                RaiseEvent(ResponseReceived, EventArgs.Empty);
 
                                 RaiseEvent(AssetsReceived, assets);
                             }
@@ -732,7 +732,7 @@ namespace MTConnect.Clients
                             if (current != null)
                             {
                                 _lastResponse = UnixDateTime.Now;
-                                ResponseReceived?.Invoke(this, new EventArgs());
+                                RaiseEvent(ResponseReceived, EventArgs.Empty);
 
                                 // Raise CurrentReceived Event
                                 ProcessCurrentDocument(current, _stop.Token);
@@ -777,15 +777,15 @@ namespace MTConnect.Clients
                                     _stream.Timeout = Heartbeat * 3;
                                     _stream.ContentEncodings = ContentEncodings;
                                     _stream.ContentType = ContentType;
-                                    _stream.Starting += (s, o) => StreamStarting?.Invoke(this, url);
-                                    _stream.Started += (s, o) => StreamStarted?.Invoke(this, url);
-                                    _stream.Stopping += (s, o) => StreamStopping?.Invoke(this, url);
-                                    _stream.Stopped += (s, o) => StreamStopped?.Invoke(this, url);
+                                    _stream.Starting += (s, o) => RaiseEvent(StreamStarting, url);
+                                    _stream.Started += (s, o) => RaiseEvent(StreamStarted, url);
+                                    _stream.Stopping += (s, o) => RaiseEvent(StreamStopping, url);
+                                    _stream.Stopped += (s, o) => RaiseEvent(StreamStopped, url);
                                     _stream.DocumentReceived += (s, doc) => ProcessSampleDocument(doc, _stop.Token);
                                     _stream.ErrorReceived += (s, doc) => ProcessSampleError(doc);
-                                    _stream.FormatError += (s, r) => FormatError?.Invoke(this, r);
-                                    _stream.ConnectionError += (s, ex) => ConnectionError?.Invoke(this, ex);
-                                    _stream.InternalError += (s, ex) => InternalError?.Invoke(this, ex);
+                                    _stream.FormatError += (s, r) => RaiseEvent(FormatError, r);
+                                    _stream.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
+                                    _stream.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
 
                                     // Run Stream (Blocking call)
                                     await _stream.Run(_stop.Token);
@@ -812,7 +812,7 @@ namespace MTConnect.Clients
                                 if (current != null)
                                 {
                                     _lastResponse = UnixDateTime.Now;
-                                    ResponseReceived?.Invoke(this, new EventArgs());
+                                    RaiseEvent(ResponseReceived, EventArgs.Empty);
 
                                     // Raise CurrentReceived Event
                                     ProcessCurrentDocument(current, _stop.Token);
@@ -871,12 +871,12 @@ namespace MTConnect.Clients
                 catch (TaskCanceledException) { }
                 catch (Exception ex)
                 {
-                    InternalError?.Invoke(this, ex);
+                    RaiseEvent(InternalError, ex);
                 }
 
             } while (!_stop.Token.IsCancellationRequested);
 
-            ClientStopped?.Invoke(this, new EventArgs());
+            RaiseEvent(ClientStopped, EventArgs.Empty);
         }
 
         private void ProcessProbeDocument(IDevicesResponseDocument document)
@@ -931,22 +931,53 @@ namespace MTConnect.Clients
                 }
                 catch (Exception ex)
                 {
-                    try
-                    {
-                        InternalError?.Invoke(this, ex);
-                    }
-                    catch
-                    {
-                        // A faulting InternalError handler must not break the event fan-out.
-                    }
+                    RouteSubscriberFault(ex);
                 }
+            }
+        }
+
+        // Non-generic sibling of RaiseEvent&lt;T&gt; for EventHandler events that carry no
+        // typed payload (ClientStarting, ClientStarted, ClientStopping, ClientStopped,
+        // ResponseReceived). Same multicast-isolation contract: a throwing subscriber
+        // cannot starve later subscribers, and a faulting InternalError handler cannot
+        // break the fan-out either.
+        private void RaiseEvent(EventHandler handler, EventArgs arg)
+        {
+            if (handler == null) return;
+
+            foreach (var subscriber in handler.GetInvocationList())
+            {
+                try
+                {
+                    ((EventHandler)subscriber).Invoke(this, arg);
+                }
+                catch (Exception ex)
+                {
+                    RouteSubscriberFault(ex);
+                }
+            }
+        }
+
+        // Forwards a subscriber fault to InternalError and swallows any secondary
+        // fault raised by InternalError itself so the originating event's fan-out
+        // can keep running. Shared between the generic and non-generic RaiseEvent
+        // helpers above.
+        private void RouteSubscriberFault(Exception ex)
+        {
+            try
+            {
+                InternalError?.Invoke(this, ex);
+            }
+            catch
+            {
+                // A faulting InternalError handler must not break the event fan-out.
             }
         }
 
         private void ProcessCurrentDocument(IStreamsResponseDocument document, CancellationToken cancel)
         {
             _lastResponse = UnixDateTime.Now;
-            ResponseReceived?.Invoke(this, new EventArgs());
+            RaiseEvent(ResponseReceived, EventArgs.Empty);
 
             if (document != null)
             {
@@ -990,7 +1021,7 @@ namespace MTConnect.Clients
         private void ProcessSampleDocument(IStreamsResponseDocument document, CancellationToken cancel)
         {
             _lastResponse = UnixDateTime.Now;
-            ResponseReceived?.Invoke(this, new EventArgs());
+            RaiseEvent(ResponseReceived, EventArgs.Empty);
 
             if (document != null)
             {
@@ -1222,11 +1253,11 @@ namespace MTConnect.Clients
         private void ProcessSampleError(IErrorResponseDocument document)
         {
             _lastResponse = UnixDateTime.Now;
-            ResponseReceived?.Invoke(this, new EventArgs());
+            RaiseEvent(ResponseReceived, EventArgs.Empty);
 
             if (document != null)
             {
-                MTConnectError?.Invoke(this, document);
+                RaiseEvent(MTConnectError, document);
             }
         }
 
