@@ -71,11 +71,11 @@ namespace MTConnect.Tests.Http.Servers
         {
             var firedCount = 0;
 
-            EventHandler<IHttpRequest>? handler = null;
+            EventHandler<IHttpRequest?>? handler = null;
             handler += (_, _) => throw new InvalidOperationException("first ClientConnected subscriber throws");
             handler += (_, _) => firedCount++;
 
-            MulticastIsolation.Raise(handler!, this, (IHttpRequest)null, null);
+            MulticastIsolation.Raise(handler!, this, (IHttpRequest?)null, null);
 
             Assert.That(firedCount, Is.EqualTo(1));
         }

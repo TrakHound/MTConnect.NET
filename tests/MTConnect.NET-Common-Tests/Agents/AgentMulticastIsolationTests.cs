@@ -188,9 +188,9 @@ namespace MTConnect.Tests.Common
         public void Agent_NullGenericHandler_DoesNotThrow()
         {
             EventHandler<IDevice>? handler = null;
-            IDevice? device = null;
+            var device = new Device { Name = "noop-device", Uuid = "noop-uuid" };
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, device, null));
+            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, (IDevice)device, null));
         }
 
         /// <summary>Pins the behavior expressed by the test name: Raise with a null non-generic EventHandler is a safe no-op covering the no-subscriber case at runtime.</summary>
