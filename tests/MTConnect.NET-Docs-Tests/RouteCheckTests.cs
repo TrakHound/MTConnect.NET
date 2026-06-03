@@ -489,6 +489,14 @@ public class RouteCheckTests
         var routes = RouteCheckHelpers.ShardRoutes(allRoutes, shardIndex, shardTotal);
         TestContext.Out.WriteLine(
             $"Route shard {shardIndex} of {shardTotal}: walking {routes.Count} of {allRoutes.Count} route(s)");
+        // Enumerate the actual route paths the shard owns so a CI
+        // failure log is self-describing — a reviewer can see at a
+        // glance which subset of the markdown tree this shard walked
+        // without re-deriving the modulus mapping by hand.
+        foreach (var route in routes)
+        {
+            TestContext.Out.WriteLine($"  shard {shardIndex}/{shardTotal} route: {route}");
+        }
 
         // A surplus shard (more shards than routes) legitimately walks
         // zero routes; that is success, not failure.
