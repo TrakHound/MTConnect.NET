@@ -1522,7 +1522,7 @@ namespace MTConnect.Agents
                             new ObservationValue(ValueKeys.Result, device.Uuid)
                         });
 
-                        ObservationAdded?.Invoke(this, observation);
+                        MulticastIsolation.Raise(ObservationAdded, this, observation, null);
 
                         return true;
                     }
@@ -1553,7 +1553,7 @@ namespace MTConnect.Agents
                             new ObservationValue(ValueKeys.Result, device.Uuid)
                         });
 
-                        ObservationAdded?.Invoke(this, observation);
+                        MulticastIsolation.Raise(ObservationAdded, this, observation, null);
 
                         return true;
                     }
@@ -1583,7 +1583,7 @@ namespace MTConnect.Agents
                             new ObservationValue(ValueKeys.Result, device.Uuid)
                         });
 
-                        ObservationAdded?.Invoke(this, observation);
+                        MulticastIsolation.Raise(ObservationAdded, this, observation, null);
 
                         return true;
                     }
@@ -1717,7 +1717,7 @@ namespace MTConnect.Agents
                             _updateInformation = true;
                         }
 
-                        DeviceAdded?.Invoke(this, obj);
+                        MulticastIsolation.Raise(DeviceAdded, this, obj, null);
 
                         return obj;
                     }
@@ -2124,7 +2124,7 @@ namespace MTConnect.Agents
         {
             if (observationInput != null)
             {
-                ObservationReceived?.Invoke(this, observationInput);
+                MulticastIsolation.Raise(ObservationReceived, this, observationInput, null);
 
                 IObservationInput input = new ObservationInput();
                 input.DeviceKey = deviceKey;
@@ -2333,10 +2333,7 @@ namespace MTConnect.Agents
         /// <inheritdoc />
         public void OnObservationAdded(IObservation observation)
         {
-            if (ObservationAdded != null)
-            {
-                ObservationAdded?.Invoke(this, observation);
-            }
+            MulticastIsolation.Raise(ObservationAdded, this, observation, null);
         }
 
         /// <inheritdoc />
@@ -2456,7 +2453,7 @@ namespace MTConnect.Agents
                                 if (InvalidAssetAdded != null) InvalidAssetAdded.Invoke(asset, validationResults);
                             }
 
-                            AssetAdded?.Invoke(this, asset);
+                            MulticastIsolation.Raise(AssetAdded, this, asset, null);
                             return true;
                         }
                     }
