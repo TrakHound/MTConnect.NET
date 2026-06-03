@@ -40,7 +40,7 @@ namespace MTConnect.Tests.Http.Clients
         // ProbeReceived
         // ---------------------------------------------------------------------
 
-        /// <summary>Pins the behaviour expressed by the test name: probe received fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: probe received fires for all subscribers when one throws.</summary>
         [Test]
         public void ProbeReceivedFiresForAllSubscribersWhenOneThrows()
         {
@@ -67,7 +67,7 @@ namespace MTConnect.Tests.Http.Clients
             }
         }
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break probe received fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break probe received fan out.</summary>
         [Test]
         public void InternalErrorHandlerThrowingDoesNotBreakProbeReceivedFanOut()
         {
@@ -100,7 +100,7 @@ namespace MTConnect.Tests.Http.Clients
         // CurrentReceived
         // ---------------------------------------------------------------------
 
-        /// <summary>Pins the behaviour expressed by the test name: current received fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: current received fires for all subscribers when one throws.</summary>
         [Test]
         public void CurrentReceivedFiresForAllSubscribersWhenOneThrows()
         {
@@ -127,7 +127,7 @@ namespace MTConnect.Tests.Http.Clients
             }
         }
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break current received fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break current received fan out.</summary>
         [Test]
         public void InternalErrorHandlerThrowingDoesNotBreakCurrentReceivedFanOut()
         {
@@ -160,7 +160,7 @@ namespace MTConnect.Tests.Http.Clients
         // SampleReceived
         // ---------------------------------------------------------------------
 
-        /// <summary>Pins the behaviour expressed by the test name: sample received fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: sample received fires for all subscribers when one throws.</summary>
         [Test]
         public void SampleReceivedFiresForAllSubscribersWhenOneThrows()
         {
@@ -199,7 +199,7 @@ namespace MTConnect.Tests.Http.Clients
             }
         }
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break sample received fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break sample received fan out.</summary>
         [Test]
         public void InternalErrorHandlerThrowingDoesNotBreakSampleReceivedFanOut()
         {
@@ -252,7 +252,7 @@ namespace MTConnect.Tests.Http.Clients
         // ObservationReceived
         // ---------------------------------------------------------------------
 
-        /// <summary>Pins the behaviour expressed by the test name: observation received fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: observation received fires for all subscribers when one throws.</summary>
         [Test]
         public void ObservationReceivedFiresForAllSubscribersWhenOneThrows()
         {
@@ -279,7 +279,7 @@ namespace MTConnect.Tests.Http.Clients
             }
         }
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break observation received fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break observation received fan out.</summary>
         [Test]
         public void InternalErrorHandlerThrowingDoesNotBreakObservationReceivedFanOut()
         {
@@ -319,7 +319,7 @@ namespace MTConnect.Tests.Http.Clients
         // and the broker accepts the matching observation.
         // ---------------------------------------------------------------------
 
-        /// <summary>Pins the behaviour expressed by the test name: assets received fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: assets received fires for all subscribers when one throws.</summary>
         [Test]
         public void AssetsReceivedFiresForAllSubscribersWhenOneThrows()
         {
@@ -348,7 +348,7 @@ namespace MTConnect.Tests.Http.Clients
             }
         }
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break assets received fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break assets received fan out.</summary>
         [Test]
         public void InternalErrorHandlerThrowingDoesNotBreakAssetsReceivedFanOut()
         {
@@ -378,7 +378,7 @@ namespace MTConnect.Tests.Http.Clients
             }
         }
 
-        /// <summary>Pins the behaviour expressed by the test name: asset received fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: asset received fires for all subscribers when one throws.</summary>
         [Test]
         public void AssetReceivedFiresForAllSubscribersWhenOneThrows()
         {
@@ -407,7 +407,7 @@ namespace MTConnect.Tests.Http.Clients
             }
         }
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break asset received fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break asset received fan out.</summary>
         [Test]
         public void InternalErrorHandlerThrowingDoesNotBreakAssetReceivedFanOut()
         {

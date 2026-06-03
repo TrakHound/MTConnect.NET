@@ -28,7 +28,7 @@ namespace MTConnect.Tests.Http.Integration
         private const int ProbeWaitTimeoutMs = 30000;
 
 
-        /// <summary>Pins the behaviour expressed by the test name: end to end probe populates Devices and fires DeviceReceived.</summary>
+        /// <summary>Pins the behavior expressed by the test name: end to end probe populates Devices and fires DeviceReceived.</summary>
         [Test]
         public void EndToEnd_Probe_Populates_Devices_And_Fires_DeviceReceived()
         {
@@ -77,7 +77,7 @@ namespace MTConnect.Tests.Http.Integration
             }
         }
 
-        /// <summary>Pins the behaviour expressed by the test name: end to end subsequent probe repopulates cache and refires DeviceReceived.</summary>
+        /// <summary>Pins the behavior expressed by the test name: end to end subsequent probe repopulates cache and refires DeviceReceived.</summary>
         [Test]
         public void EndToEnd_Subsequent_Probe_Repopulates_Cache_And_Refires_DeviceReceived()
         {
@@ -134,7 +134,7 @@ namespace MTConnect.Tests.Http.Integration
             }
         }
 
-        /// <summary>Pins the behaviour expressed by the test name: end to end empty probe does not evict cache.</summary>
+        /// <summary>Pins the behavior expressed by the test name: end to end empty probe does not evict cache.</summary>
         [Test]
         public void EndToEnd_Empty_Probe_Does_Not_Evict_Cache()
         {

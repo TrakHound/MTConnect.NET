@@ -220,43 +220,43 @@ namespace MTConnect.Tests.Http.Clients
         private static MTConnectHttpProbeClient NewProbeClient()
             => new MTConnectHttpProbeClient("127.0.0.1", 1);
 
-        /// <summary>Pins the behaviour expressed by the test name: probe client mt connect error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: probe client mt connect error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpProbeClient_MTConnectErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<IErrorResponseDocument>(
                 NewProbeClient(), "MTConnectError", new ErrorResponseDocument());
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break probe client mt connect error fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break probe client mt connect error fan out.</summary>
         [Test]
         public void MTConnectHttpProbeClient_InternalErrorHandlerThrowingDoesNotBreakMTConnectErrorFanOut()
             => AssertGenericFanOutSurvivesThrowingInternalError<IErrorResponseDocument>(
                 NewProbeClient(), "MTConnectError", new ErrorResponseDocument());
 
-        /// <summary>Pins the behaviour expressed by the test name: probe client format error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: probe client format error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpProbeClient_FormatErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<IFormatReadResult>(
                 NewProbeClient(), "FormatError", new FormatReadResult<object>());
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break probe client format error fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break probe client format error fan out.</summary>
         [Test]
         public void MTConnectHttpProbeClient_InternalErrorHandlerThrowingDoesNotBreakFormatErrorFanOut()
             => AssertGenericFanOutSurvivesThrowingInternalError<IFormatReadResult>(
                 NewProbeClient(), "FormatError", new FormatReadResult<object>());
 
-        /// <summary>Pins the behaviour expressed by the test name: probe client connection error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: probe client connection error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpProbeClient_ConnectionErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<Exception>(
                 NewProbeClient(), "ConnectionError", new Exception("test"));
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break probe client connection error fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break probe client connection error fan out.</summary>
         [Test]
         public void MTConnectHttpProbeClient_InternalErrorHandlerThrowingDoesNotBreakConnectionErrorFanOut()
             => AssertGenericFanOutSurvivesThrowingInternalError<Exception>(
                 NewProbeClient(), "ConnectionError", new Exception("test"));
 
-        /// <summary>Pins the behaviour expressed by the test name: probe client internal error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: probe client internal error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpProbeClient_InternalErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<Exception>(
@@ -277,43 +277,43 @@ namespace MTConnect.Tests.Http.Clients
         private static MTConnectHttpCurrentClient NewCurrentClient()
             => new MTConnectHttpCurrentClient("127.0.0.1", 1);
 
-        /// <summary>Pins the behaviour expressed by the test name: current client mt connect error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: current client mt connect error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpCurrentClient_MTConnectErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<IErrorResponseDocument>(
                 NewCurrentClient(), "MTConnectError", new ErrorResponseDocument());
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break current client mt connect error fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break current client mt connect error fan out.</summary>
         [Test]
         public void MTConnectHttpCurrentClient_InternalErrorHandlerThrowingDoesNotBreakMTConnectErrorFanOut()
             => AssertGenericFanOutSurvivesThrowingInternalError<IErrorResponseDocument>(
                 NewCurrentClient(), "MTConnectError", new ErrorResponseDocument());
 
-        /// <summary>Pins the behaviour expressed by the test name: current client format error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: current client format error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpCurrentClient_FormatErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<IFormatReadResult>(
                 NewCurrentClient(), "FormatError", new FormatReadResult<object>());
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break current client format error fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break current client format error fan out.</summary>
         [Test]
         public void MTConnectHttpCurrentClient_InternalErrorHandlerThrowingDoesNotBreakFormatErrorFanOut()
             => AssertGenericFanOutSurvivesThrowingInternalError<IFormatReadResult>(
                 NewCurrentClient(), "FormatError", new FormatReadResult<object>());
 
-        /// <summary>Pins the behaviour expressed by the test name: current client connection error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: current client connection error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpCurrentClient_ConnectionErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<Exception>(
                 NewCurrentClient(), "ConnectionError", new Exception("test"));
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break current client connection error fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break current client connection error fan out.</summary>
         [Test]
         public void MTConnectHttpCurrentClient_InternalErrorHandlerThrowingDoesNotBreakConnectionErrorFanOut()
             => AssertGenericFanOutSurvivesThrowingInternalError<Exception>(
                 NewCurrentClient(), "ConnectionError", new Exception("test"));
 
-        /// <summary>Pins the behaviour expressed by the test name: current client internal error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: current client internal error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpCurrentClient_InternalErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<Exception>(
@@ -327,43 +327,43 @@ namespace MTConnect.Tests.Http.Clients
         private static MTConnectHttpSampleClient NewSampleClient()
             => new MTConnectHttpSampleClient("127.0.0.1", 1);
 
-        /// <summary>Pins the behaviour expressed by the test name: sample client mt connect error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: sample client mt connect error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpSampleClient_MTConnectErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<IErrorResponseDocument>(
                 NewSampleClient(), "MTConnectError", new ErrorResponseDocument());
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break sample client mt connect error fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break sample client mt connect error fan out.</summary>
         [Test]
         public void MTConnectHttpSampleClient_InternalErrorHandlerThrowingDoesNotBreakMTConnectErrorFanOut()
             => AssertGenericFanOutSurvivesThrowingInternalError<IErrorResponseDocument>(
                 NewSampleClient(), "MTConnectError", new ErrorResponseDocument());
 
-        /// <summary>Pins the behaviour expressed by the test name: sample client format error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: sample client format error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpSampleClient_FormatErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<IFormatReadResult>(
                 NewSampleClient(), "FormatError", new FormatReadResult<object>());
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break sample client format error fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break sample client format error fan out.</summary>
         [Test]
         public void MTConnectHttpSampleClient_InternalErrorHandlerThrowingDoesNotBreakFormatErrorFanOut()
             => AssertGenericFanOutSurvivesThrowingInternalError<IFormatReadResult>(
                 NewSampleClient(), "FormatError", new FormatReadResult<object>());
 
-        /// <summary>Pins the behaviour expressed by the test name: sample client connection error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: sample client connection error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpSampleClient_ConnectionErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<Exception>(
                 NewSampleClient(), "ConnectionError", new Exception("test"));
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break sample client connection error fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break sample client connection error fan out.</summary>
         [Test]
         public void MTConnectHttpSampleClient_InternalErrorHandlerThrowingDoesNotBreakConnectionErrorFanOut()
             => AssertGenericFanOutSurvivesThrowingInternalError<Exception>(
                 NewSampleClient(), "ConnectionError", new Exception("test"));
 
-        /// <summary>Pins the behaviour expressed by the test name: sample client internal error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: sample client internal error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpSampleClient_InternalErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<Exception>(
@@ -377,43 +377,43 @@ namespace MTConnect.Tests.Http.Clients
         private static MTConnectHttpAssetClient NewAssetClient()
             => new MTConnectHttpAssetClient("127.0.0.1", 1);
 
-        /// <summary>Pins the behaviour expressed by the test name: asset client mt connect error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: asset client mt connect error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpAssetClient_MTConnectErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<IErrorResponseDocument>(
                 NewAssetClient(), "MTConnectError", new ErrorResponseDocument());
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break asset client mt connect error fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break asset client mt connect error fan out.</summary>
         [Test]
         public void MTConnectHttpAssetClient_InternalErrorHandlerThrowingDoesNotBreakMTConnectErrorFanOut()
             => AssertGenericFanOutSurvivesThrowingInternalError<IErrorResponseDocument>(
                 NewAssetClient(), "MTConnectError", new ErrorResponseDocument());
 
-        /// <summary>Pins the behaviour expressed by the test name: asset client format error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: asset client format error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpAssetClient_FormatErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<IFormatReadResult>(
                 NewAssetClient(), "FormatError", new FormatReadResult<object>());
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break asset client format error fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break asset client format error fan out.</summary>
         [Test]
         public void MTConnectHttpAssetClient_InternalErrorHandlerThrowingDoesNotBreakFormatErrorFanOut()
             => AssertGenericFanOutSurvivesThrowingInternalError<IFormatReadResult>(
                 NewAssetClient(), "FormatError", new FormatReadResult<object>());
 
-        /// <summary>Pins the behaviour expressed by the test name: asset client connection error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: asset client connection error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpAssetClient_ConnectionErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<Exception>(
                 NewAssetClient(), "ConnectionError", new Exception("test"));
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break asset client connection error fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break asset client connection error fan out.</summary>
         [Test]
         public void MTConnectHttpAssetClient_InternalErrorHandlerThrowingDoesNotBreakConnectionErrorFanOut()
             => AssertGenericFanOutSurvivesThrowingInternalError<Exception>(
                 NewAssetClient(), "ConnectionError", new Exception("test"));
 
-        /// <summary>Pins the behaviour expressed by the test name: asset client internal error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: asset client internal error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpAssetClient_InternalErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<Exception>(
@@ -429,96 +429,96 @@ namespace MTConnect.Tests.Http.Clients
         private static MTConnectHttpClientStream NewStream()
             => new MTConnectHttpClientStream("http://127.0.0.1:1/sample");
 
-        /// <summary>Pins the behaviour expressed by the test name: client stream document received fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: client stream document received fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpClientStream_DocumentReceivedFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<MTConnect.Streams.IStreamsResponseDocument>(
                 NewStream(), "DocumentReceived", new MTConnect.Streams.StreamsResponseDocument());
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break client stream document received fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break client stream document received fan out.</summary>
         [Test]
         public void MTConnectHttpClientStream_InternalErrorHandlerThrowingDoesNotBreakDocumentReceivedFanOut()
             => AssertGenericFanOutSurvivesThrowingInternalError<MTConnect.Streams.IStreamsResponseDocument>(
                 NewStream(), "DocumentReceived", new MTConnect.Streams.StreamsResponseDocument());
 
-        /// <summary>Pins the behaviour expressed by the test name: client stream error received fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: client stream error received fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpClientStream_ErrorReceivedFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<IErrorResponseDocument>(
                 NewStream(), "ErrorReceived", new ErrorResponseDocument());
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break client stream error received fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break client stream error received fan out.</summary>
         [Test]
         public void MTConnectHttpClientStream_InternalErrorHandlerThrowingDoesNotBreakErrorReceivedFanOut()
             => AssertGenericFanOutSurvivesThrowingInternalError<IErrorResponseDocument>(
                 NewStream(), "ErrorReceived", new ErrorResponseDocument());
 
-        /// <summary>Pins the behaviour expressed by the test name: client stream format error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: client stream format error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpClientStream_FormatErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<IFormatReadResult>(
                 NewStream(), "FormatError", new FormatReadResult<object>());
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break client stream format error fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break client stream format error fan out.</summary>
         [Test]
         public void MTConnectHttpClientStream_InternalErrorHandlerThrowingDoesNotBreakFormatErrorFanOut()
             => AssertGenericFanOutSurvivesThrowingInternalError<IFormatReadResult>(
                 NewStream(), "FormatError", new FormatReadResult<object>());
 
-        /// <summary>Pins the behaviour expressed by the test name: client stream connection error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: client stream connection error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpClientStream_ConnectionErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<Exception>(
                 NewStream(), "ConnectionError", new Exception("test"));
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break client stream connection error fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break client stream connection error fan out.</summary>
         [Test]
         public void MTConnectHttpClientStream_InternalErrorHandlerThrowingDoesNotBreakConnectionErrorFanOut()
             => AssertGenericFanOutSurvivesThrowingInternalError<Exception>(
                 NewStream(), "ConnectionError", new Exception("test"));
 
-        /// <summary>Pins the behaviour expressed by the test name: client stream internal error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: client stream internal error fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpClientStream_InternalErrorFiresForAllSubscribersWhenOneThrows()
             => AssertGenericFanOutSurvivesThrowingHandler<Exception>(
                 NewStream(), "InternalError", new Exception("test"));
 
-        /// <summary>Pins the behaviour expressed by the test name: client stream starting fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: client stream starting fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpClientStream_StartingFiresForAllSubscribersWhenOneThrows()
             => AssertNonGenericFanOutSurvivesThrowingHandler(NewStream(), "Starting");
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break client stream starting fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break client stream starting fan out.</summary>
         [Test]
         public void MTConnectHttpClientStream_InternalErrorHandlerThrowingDoesNotBreakStartingFanOut()
             => AssertNonGenericFanOutSurvivesThrowingInternalError(NewStream(), "Starting");
 
-        /// <summary>Pins the behaviour expressed by the test name: client stream started fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: client stream started fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpClientStream_StartedFiresForAllSubscribersWhenOneThrows()
             => AssertNonGenericFanOutSurvivesThrowingHandler(NewStream(), "Started");
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break client stream started fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break client stream started fan out.</summary>
         [Test]
         public void MTConnectHttpClientStream_InternalErrorHandlerThrowingDoesNotBreakStartedFanOut()
             => AssertNonGenericFanOutSurvivesThrowingInternalError(NewStream(), "Started");
 
-        /// <summary>Pins the behaviour expressed by the test name: client stream stopping fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: client stream stopping fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpClientStream_StoppingFiresForAllSubscribersWhenOneThrows()
             => AssertNonGenericFanOutSurvivesThrowingHandler(NewStream(), "Stopping");
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break client stream stopping fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break client stream stopping fan out.</summary>
         [Test]
         public void MTConnectHttpClientStream_InternalErrorHandlerThrowingDoesNotBreakStoppingFanOut()
             => AssertNonGenericFanOutSurvivesThrowingInternalError(NewStream(), "Stopping");
 
-        /// <summary>Pins the behaviour expressed by the test name: client stream stopped fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: client stream stopped fires for all subscribers when one throws.</summary>
         [Test]
         public void MTConnectHttpClientStream_StoppedFiresForAllSubscribersWhenOneThrows()
             => AssertNonGenericFanOutSurvivesThrowingHandler(NewStream(), "Stopped");
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break client stream stopped fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break client stream stopped fan out.</summary>
         [Test]
         public void MTConnectHttpClientStream_InternalErrorHandlerThrowingDoesNotBreakStoppedFanOut()
             => AssertNonGenericFanOutSurvivesThrowingInternalError(NewStream(), "Stopped");

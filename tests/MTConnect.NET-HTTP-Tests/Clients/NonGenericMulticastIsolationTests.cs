@@ -58,7 +58,7 @@ namespace MTConnect.Tests.Http.Clients
         // raise-site invariant under test.
         // ---------------------------------------------------------------------
 
-        /// <summary>Pins the behaviour expressed by the test name: client starting fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: client starting fires for all subscribers when one throws.</summary>
         [Test]
         public void ClientStartingFiresForAllSubscribersWhenOneThrows()
         {
@@ -82,7 +82,7 @@ namespace MTConnect.Tests.Http.Clients
             }
         }
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break client starting fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break client starting fan out.</summary>
         [Test]
         public void InternalErrorHandlerThrowingDoesNotBreakClientStartingFanOut()
         {
@@ -108,7 +108,7 @@ namespace MTConnect.Tests.Http.Clients
         }
 
 
-        /// <summary>Pins the behaviour expressed by the test name: client started fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: client started fires for all subscribers when one throws.</summary>
         [Test]
         public void ClientStartedFiresForAllSubscribersWhenOneThrows()
         {
@@ -132,7 +132,7 @@ namespace MTConnect.Tests.Http.Clients
             }
         }
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break client started fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break client started fan out.</summary>
         [Test]
         public void InternalErrorHandlerThrowingDoesNotBreakClientStartedFanOut()
         {
@@ -158,7 +158,7 @@ namespace MTConnect.Tests.Http.Clients
         }
 
 
-        /// <summary>Pins the behaviour expressed by the test name: client stopping fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: client stopping fires for all subscribers when one throws.</summary>
         [Test]
         public void ClientStoppingFiresForAllSubscribersWhenOneThrows()
         {
@@ -176,7 +176,7 @@ namespace MTConnect.Tests.Http.Clients
                 "subscribers after a throwing one must still receive ClientStopping");
         }
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break client stopping fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break client stopping fan out.</summary>
         [Test]
         public void InternalErrorHandlerThrowingDoesNotBreakClientStoppingFanOut()
         {
@@ -196,7 +196,7 @@ namespace MTConnect.Tests.Http.Clients
         }
 
 
-        /// <summary>Pins the behaviour expressed by the test name: client stopped fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: client stopped fires for all subscribers when one throws.</summary>
         [Test]
         public void ClientStoppedFiresForAllSubscribersWhenOneThrows()
         {
@@ -222,7 +222,7 @@ namespace MTConnect.Tests.Http.Clients
                 "subscribers after a throwing one must still receive ClientStopped");
         }
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break client stopped fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break client stopped fan out.</summary>
         [Test]
         public void InternalErrorHandlerThrowingDoesNotBreakClientStoppedFanOut()
         {
@@ -247,7 +247,7 @@ namespace MTConnect.Tests.Http.Clients
         }
 
 
-        /// <summary>Pins the behaviour expressed by the test name: response received fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: response received fires for all subscribers when one throws.</summary>
         [Test]
         public void ResponseReceivedFiresForAllSubscribersWhenOneThrows()
         {
@@ -271,7 +271,7 @@ namespace MTConnect.Tests.Http.Clients
             }
         }
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break response received fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break response received fan out.</summary>
         [Test]
         public void InternalErrorHandlerThrowingDoesNotBreakResponseReceivedFanOut()
         {
@@ -309,7 +309,7 @@ namespace MTConnect.Tests.Http.Clients
         // RaiseEvent helper.
         // ---------------------------------------------------------------------
 
-        /// <summary>Pins the behaviour expressed by the test name: stream started fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: stream started fires for all subscribers when one throws.</summary>
         [Test]
         public void StreamStartedFiresForAllSubscribersWhenOneThrows()
         {
@@ -336,7 +336,7 @@ namespace MTConnect.Tests.Http.Clients
             }
         }
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break stream started fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break stream started fan out.</summary>
         [Test]
         public void InternalErrorHandlerThrowingDoesNotBreakStreamStartedFanOut()
         {
@@ -365,7 +365,7 @@ namespace MTConnect.Tests.Http.Clients
         }
 
 
-        /// <summary>Pins the behaviour expressed by the test name: stream stopped fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: stream stopped fires for all subscribers when one throws.</summary>
         [Test]
         public void StreamStoppedFiresForAllSubscribersWhenOneThrows()
         {
@@ -391,7 +391,7 @@ namespace MTConnect.Tests.Http.Clients
                 "subscribers after a throwing one must still receive StreamStopped");
         }
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break stream stopped fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break stream stopped fan out.</summary>
         [Test]
         public void InternalErrorHandlerThrowingDoesNotBreakStreamStoppedFanOut()
         {
@@ -426,7 +426,7 @@ namespace MTConnect.Tests.Http.Clients
         // then fans out ConnectionError.
         // ---------------------------------------------------------------------
 
-        /// <summary>Pins the behaviour expressed by the test name: connection error fires for all subscribers when one throws.</summary>
+        /// <summary>Pins the behavior expressed by the test name: connection error fires for all subscribers when one throws.</summary>
         [Test]
         public void ConnectionErrorFiresForAllSubscribersWhenOneThrows()
         {
@@ -449,7 +449,7 @@ namespace MTConnect.Tests.Http.Clients
                 "subscribers after a throwing one must still receive ConnectionError");
         }
 
-        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break connection error fan out.</summary>
+        /// <summary>Pins the behavior expressed by the test name: internal error handler throwing does not break connection error fan out.</summary>
         [Test]
         public void InternalErrorHandlerThrowingDoesNotBreakConnectionErrorFanOut()
         {
