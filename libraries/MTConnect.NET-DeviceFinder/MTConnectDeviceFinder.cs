@@ -244,12 +244,12 @@ namespace MTConnect.DeviceFinder
 
         private void PingQueue_PingSent(IPAddress address)
         {
-            PingSent?.Invoke(this, address);
+            MulticastIsolation.Raise(PingSent, h => h(this, address));
         }
 
         private void Queue_PingReceived(IPAddress address, PingReply reply)
         {
-            PingReceived?.Invoke(this, address, reply);
+            MulticastIsolation.Raise(PingReceived, h => h(this, address, reply));
         }
 
         private void Queue_Completed(List<IPAddress> successfulAddresses)
@@ -299,7 +299,7 @@ namespace MTConnect.DeviceFinder
                 }
 
                 if (ScanInterval == 0 && stop != null) stop.Set();
-                SearchCompleted?.Invoke(this, m);
+                MulticastIsolation.Raise(SearchCompleted, h => h(this, m));
             }
         }
 
@@ -313,12 +313,12 @@ namespace MTConnect.DeviceFinder
                     var success = result.AsyncWaitHandle.WaitOne(Timeout);
                     if (!success)
                     {
-                        PortClosed?.Invoke(this, address, port);
+                        MulticastIsolation.Raise(PortClosed, h => h(this, address, port));
                         return false;
                     }
                     else
                     {
-                        PortOpened?.Invoke(this, address, port);
+                        MulticastIsolation.Raise(PortOpened, h => h(this, address, port));
                     }
 
                     client.EndConnect(result);
@@ -343,7 +343,7 @@ namespace MTConnect.DeviceFinder
                 probe.InternalError += ProbeExceptionError;
 
                 // Notify that a new Probe request has been sent
-                ProbeSent?.Invoke(this, address, port);
+                MulticastIsolation.Raise(ProbeSent, h => h(this, address, port));
 
                 var document = probe.Get();
                 if (document != null)
@@ -370,11 +370,11 @@ namespace MTConnect.DeviceFinder
                         }
 
                         // Notify that a Device was found
-                        DeviceFound?.Invoke(this, foundDevice);
+                        MulticastIsolation.Raise(DeviceFound, h => h(this, foundDevice));
                     }
 
                     // Notify that the Probe reqeuest was successful
-                    ProbeSuccessful?.Invoke(this, address, port);
+                    MulticastIsolation.Raise(ProbeSuccessful, h => h(this, address, port));
                 }
             }
             catch { }
