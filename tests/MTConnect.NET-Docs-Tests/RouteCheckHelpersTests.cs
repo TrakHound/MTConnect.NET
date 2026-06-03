@@ -670,10 +670,11 @@ public class RouteCheckHelpersTests
     public void ShardRoutes_WithinAShard_PreservesInputOrder()
     {
         const int total = 4;
+        var inputAsList = SampleRoutes.ToList();
         for (var i = 1; i <= total; i++)
         {
             var shard = RouteCheckHelpers.ShardRoutes(SampleRoutes, i, total);
-            var indices = shard.Select(r => SampleRoutes.IndexOf(r)).ToList();
+            var indices = shard.Select(r => inputAsList.IndexOf(r)).ToList();
             Assert.That(indices, Is.Ordered.Ascending,
                 $"shard {i}/{total} routes are out of order relative to the input");
         }
