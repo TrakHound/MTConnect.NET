@@ -69,6 +69,54 @@ namespace MTConnect
             }
         }
 
+        /// <summary>
+        /// Raises an event of any delegate shape with per-delegate fault
+        /// isolation. The caller supplies the per-subscriber invocation lambda
+        /// so no per-signature overload is required; this lets the helper cover
+        /// custom delegate types (e.g. <c>delegate void Foo(IPAddress)</c>,
+        /// <c>delegate void Bar(Source, IDevice)</c>) that the typed
+        /// <see cref="EventHandler"/> / <see cref="EventHandler{T}"/> overloads
+        /// cannot. Same contract as those overloads: a throwing subscriber
+        /// cannot starve later subscribers, the
+        /// <paramref name="internalError"/> sink is itself iterated
+        /// per-delegate so a faulting fault-reporter cannot starve later fault
+        /// reporters either, and a secondary throw from an internalError
+        /// subscriber is terminal.
+        /// </summary>
+        /// <typeparam name="TDelegate">The delegate type of the event being raised. Must derive from <see cref="Delegate"/>.</typeparam>
+        /// <param name="handler">The event handler whose invocation list is iterated; a null handler is a safe no-op covering the no-subscriber case.</param>
+        /// <param name="invoke">The per-subscriber invocation lambda. Called once per delegate in <paramref name="handler"/>'s invocation list, inside the per-delegate try/catch.</param>
+        /// <param name="internalError">The fault-routing sink. Each subscriber fault is routed through every delegate on this sink; pass <c>null</c> to swallow faults at the per-delegate boundary (consistent with the pre-isolation null-conditional behaviour).</param>
+        /// <param name="sender">The sender object passed to <paramref name="internalError"/> when routing a fault. Pass the class instance whose event is being raised, or <c>null</c> if no sender is associated.</param>
+        /// <remarks>
+        /// Prefer the typed <see cref="Raise{T}(EventHandler{T}, object, T, EventHandler{Exception})"/>
+        /// or <see cref="Raise(EventHandler, object, EventArgs, EventHandler{Exception})"/> overloads
+        /// when the event uses <see cref="EventHandler"/> or <see cref="EventHandler{T}"/>;
+        /// they avoid the call-site cast and the lambda allocation. Use this overload
+        /// only for events declared with a custom delegate signature (i.e.
+        /// <c>public event MyHandler Foo;</c> where <c>MyHandler</c> is not an
+        /// <see cref="EventHandler"/> / <see cref="EventHandler{T}"/>).
+        /// </remarks>
+        public static void Raise<TDelegate>(TDelegate handler, Action<TDelegate> invoke,
+                                            EventHandler<Exception> internalError = null,
+                                            object sender = null)
+            where TDelegate : Delegate
+        {
+            if (handler == null) return;
+
+            foreach (var subscriber in handler.GetInvocationList())
+            {
+                try
+                {
+                    invoke((TDelegate)(object)subscriber);
+                }
+                catch (Exception ex)
+                {
+                    RaiseInternalError(internalError, sender, ex);
+                }
+            }
+        }
+
         // Iterate the InternalError invocation list so a throwing fault
         // reporter cannot starve later fault reporters. A secondary throw from
         // an InternalError subscriber itself is terminal: there is no further
