@@ -12,7 +12,7 @@ namespace MTConnect.Tests.Common
     /// <c>MTConnectMqttClient</c> and <c>MTConnectMqttExpandedClient</c>. Both
     /// MQTT client classes declare their events as <see cref="EventHandler{T}"/>
     /// or <see cref="EventHandler"/>; after migration all raise sites use
-    /// <see cref="MulticastIsolation.Raise{T}"/> / <see cref="MulticastIsolation.Raise"/>.
+    /// <see cref="MulticastIsolation.Raise{T}(EventHandler{T}, object, T, EventHandler{Exception})"/> / <see cref="MulticastIsolation.Raise(EventHandler, object, EventArgs, EventHandler{Exception})"/>.
     /// These tests verify the isolation guarantee holds for every generic type
     /// argument surfaced by those events (no MQTT broker is required because the
     /// helper contract is independent of the originating class).

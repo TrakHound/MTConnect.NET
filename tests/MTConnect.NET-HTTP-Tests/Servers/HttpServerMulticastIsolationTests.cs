@@ -17,7 +17,7 @@ namespace MTConnect.Tests.Http.Servers
     /// HeartbeatReceived). Both classes declare their events as
     /// <see cref="EventHandler{T}"/> or <see cref="EventHandler"/>; after
     /// migration all raise sites use
-    /// <see cref="MulticastIsolation.Raise{T}"/> / <see cref="MulticastIsolation.Raise"/>.
+    /// <see cref="MulticastIsolation.Raise{T}(EventHandler{T}, object, T, EventHandler{Exception})"/> / <see cref="MulticastIsolation.Raise(EventHandler, object, EventArgs, EventHandler{Exception})"/>.
     ///
     /// <para>
     /// <c>MTConnectHttpResponseHandler</c> is <c>internal abstract</c>; these

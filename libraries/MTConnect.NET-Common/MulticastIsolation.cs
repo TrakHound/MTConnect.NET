@@ -45,7 +45,7 @@ namespace MTConnect
         }
 
         /// <summary>
-        /// Non-generic overload of <see cref="Raise{T}"/> for
+        /// Non-generic overload of <see cref="Raise{T}(EventHandler{T}, object, T, EventHandler{Exception})"/> for
         /// <see cref="EventHandler"/> events that carry no typed payload.
         /// Same contract: a throwing subscriber cannot starve later subscribers
         /// and a faulting <paramref name="internalError"/> handler cannot break

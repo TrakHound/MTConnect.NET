@@ -12,7 +12,7 @@ namespace MTConnect.Tests.Shdr
     /// Pins the multicast-isolation contract for the delegate shapes used by
     /// <c>ShdrAdapter</c> and <c>ShdrClient</c>. Both SHDR classes declare
     /// their events as <see cref="EventHandler{T}"/>; after migration all raise
-    /// sites use <see cref="MulticastIsolation.Raise{T}"/> passing <c>null</c>
+    /// sites use <see cref="MulticastIsolation.Raise{T}(EventHandler{T}, object, T, EventHandler{Exception})"/> passing <c>null</c>
     /// as the <c>internalError</c> sink (neither class declares an InternalError
     /// event). These tests verify the isolation guarantee holds for every generic
     /// type argument surfaced by those events without requiring a live TCP
