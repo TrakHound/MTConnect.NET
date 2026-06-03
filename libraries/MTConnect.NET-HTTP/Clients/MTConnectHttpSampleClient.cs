@@ -213,16 +213,16 @@ namespace MTConnect.Clients
             }
             catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
             {
-                RaiseEvent(ConnectionError, ex);
+                MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
             }
             catch (TaskCanceledException) { /* Ignore Task Cancelled */  }
             catch (HttpRequestException ex)
             {
-                RaiseEvent(ConnectionError, ex);
+                MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
             }
             catch (Exception ex)
             {
-                RaiseEvent(InternalError, ex);
+                MulticastIsolation.Raise(InternalError, this, ex, InternalError);
             }
 
             return null;
@@ -267,16 +267,16 @@ namespace MTConnect.Clients
             }
             catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
             {
-                RaiseEvent(ConnectionError, ex);
+                MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
             }
             catch (TaskCanceledException) { /* Ignore Task Cancelled */  }
             catch (HttpRequestException ex)
             {
-                RaiseEvent(ConnectionError, ex);
+                MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
             }
             catch (Exception ex)
             {
-                RaiseEvent(InternalError, ex);
+                MulticastIsolation.Raise(InternalError, this, ex, InternalError);
             }
 
             return null;
@@ -382,7 +382,7 @@ namespace MTConnect.Clients
             {
                 if (!response.IsSuccessStatusCode)
                 {
-                    RaiseEvent(ConnectionError, new Exception(response.ReasonPhrase));
+                    MulticastIsolation.Raise(ConnectionError, this, new Exception(response.ReasonPhrase), InternalError);
                 }
                 else if (response.Content != null)
                 {
@@ -400,7 +400,7 @@ namespace MTConnect.Clients
             {
                 if (!response.IsSuccessStatusCode)
                 {
-                    RaiseEvent(ConnectionError, new Exception(response.ReasonPhrase));
+                    MulticastIsolation.Raise(ConnectionError, this, new Exception(response.ReasonPhrase), InternalError);
                 }
                 else if (response.Content != null)
                 {
@@ -442,59 +442,23 @@ namespace MTConnect.Clients
                         if (errorFormatResult.Success)
                         {
                             var errorDocument = errorFormatResult.Content;
-                            if (errorDocument != null) RaiseEvent(MTConnectError, errorDocument);
+                            if (errorDocument != null) MulticastIsolation.Raise(MTConnectError, this, errorDocument, InternalError);
                         }
                         else
                         {
                             // Raise Format Error
-                            RaiseEvent(FormatError, errorFormatResult);
+                            MulticastIsolation.Raise(FormatError, this, errorFormatResult, InternalError);
                         }
                     }
                 }
                 else
                 {
                     // Raise Format Error
-                    RaiseEvent(FormatError, formatResult);
+                    MulticastIsolation.Raise(FormatError, this, formatResult, InternalError);
                 }
             }
 
             return null;
-        }
-
-        // Iterate the invocation list so one throwing subscriber cannot short-circuit
-        // the multicast and starve later subscribers. Each fault is forwarded through
-        // InternalError; if InternalError itself faults, swallow that secondary fault
-        // so the remaining subscribers in the invocation list still receive the event.
-        private void RaiseEvent<T>(EventHandler<T> handler, T arg)
-        {
-            if (handler == null) return;
-
-            foreach (var subscriber in handler.GetInvocationList())
-            {
-                try
-                {
-                    ((EventHandler<T>)subscriber).Invoke(this, arg);
-                }
-                catch (Exception ex)
-                {
-                    RouteSubscriberFault(ex);
-                }
-            }
-        }
-
-        // Forwards a subscriber fault to InternalError and swallows any secondary
-        // fault raised by InternalError itself so the originating event's fan-out
-        // can keep running.
-        private void RouteSubscriberFault(Exception ex)
-        {
-            try
-            {
-                InternalError?.Invoke(this, ex);
-            }
-            catch
-            {
-                // A faulting InternalError handler must not break the event fan-out.
-            }
         }
     }
 }

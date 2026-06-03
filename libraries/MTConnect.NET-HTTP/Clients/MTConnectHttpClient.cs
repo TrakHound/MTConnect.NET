@@ -347,7 +347,7 @@ namespace MTConnect.Clients
         {
             _stop = new CancellationTokenSource();
 
-            RaiseEvent(ClientStarting, EventArgs.Empty);
+            MulticastIsolation.Raise(ClientStarting, this, EventArgs.Empty, InternalError);
 
             _initializeFromBuffer = false;
             _lastInstanceId = 0;
@@ -364,7 +364,7 @@ namespace MTConnect.Clients
         {
             _stop = new CancellationTokenSource();
 
-            RaiseEvent(ClientStarting, EventArgs.Empty);
+            MulticastIsolation.Raise(ClientStarting, this, EventArgs.Empty, InternalError);
 
             _initializeFromBuffer = false;
             _lastInstanceId = 0;
@@ -382,7 +382,7 @@ namespace MTConnect.Clients
             _stop = new CancellationTokenSource();
             cancellationToken.Register(() => { Stop(); });
 
-            RaiseEvent(ClientStarting, EventArgs.Empty);
+            MulticastIsolation.Raise(ClientStarting, this, EventArgs.Empty, InternalError);
 
             _initializeFromBuffer = false;
             _lastInstanceId = 0;
@@ -399,7 +399,7 @@ namespace MTConnect.Clients
         {
             _stop = new CancellationTokenSource();
 
-            RaiseEvent(ClientStarting, EventArgs.Empty);
+            MulticastIsolation.Raise(ClientStarting, this, EventArgs.Empty, InternalError);
 
             _initializeFromBuffer = true;
             _lastInstanceId = instanceId;
@@ -417,7 +417,7 @@ namespace MTConnect.Clients
             _stop = new CancellationTokenSource();
             cancellationToken.Register(() => { Stop(); });
 
-            RaiseEvent(ClientStarting, EventArgs.Empty);
+            MulticastIsolation.Raise(ClientStarting, this, EventArgs.Empty, InternalError);
 
             _initializeFromBuffer = true;
             _lastInstanceId = instanceId;
@@ -434,7 +434,7 @@ namespace MTConnect.Clients
         {
             _stop = new CancellationTokenSource();
 
-            RaiseEvent(ClientStarting, EventArgs.Empty);
+            MulticastIsolation.Raise(ClientStarting, this, EventArgs.Empty, InternalError);
 
             _initializeFromBuffer = true;
             _lastInstanceId = 0;
@@ -452,7 +452,7 @@ namespace MTConnect.Clients
             _stop = new CancellationTokenSource();
             cancellationToken.Register(() => { Stop(); });
 
-            RaiseEvent(ClientStarting, EventArgs.Empty);
+            MulticastIsolation.Raise(ClientStarting, this, EventArgs.Empty, InternalError);
 
             _initializeFromBuffer = true;
             _lastInstanceId = 0;
@@ -467,7 +467,7 @@ namespace MTConnect.Clients
         /// </summary>
         public void Stop()
         {
-            RaiseEvent(ClientStopping, EventArgs.Empty);
+            MulticastIsolation.Raise(ClientStopping, this, EventArgs.Empty, InternalError);
 
             if (_stop != null) _stop.Cancel();
         }
@@ -494,10 +494,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
-            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
-            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
-            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
+            client.MTConnectError += (s, doc) => MulticastIsolation.Raise(MTConnectError, this, doc, InternalError);
+            client.FormatError += (s, r) => MulticastIsolation.Raise(FormatError, this, r, InternalError);
+            client.ConnectionError += (s, ex) => MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
+            client.InternalError += (s, ex) => MulticastIsolation.Raise(InternalError, this, ex, InternalError);
             return client.Get();
         }
 
@@ -518,10 +518,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
-            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
-            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
-            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
+            client.MTConnectError += (s, doc) => MulticastIsolation.Raise(MTConnectError, this, doc, InternalError);
+            client.FormatError += (s, r) => MulticastIsolation.Raise(FormatError, this, r, InternalError);
+            client.ConnectionError += (s, ex) => MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
+            client.InternalError += (s, ex) => MulticastIsolation.Raise(InternalError, this, ex, InternalError);
             return await client.GetAsync(cancellationToken);
         }
 
@@ -535,10 +535,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
-            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
-            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
-            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
+            client.MTConnectError += (s, doc) => MulticastIsolation.Raise(MTConnectError, this, doc, InternalError);
+            client.FormatError += (s, r) => MulticastIsolation.Raise(FormatError, this, r, InternalError);
+            client.ConnectionError += (s, ex) => MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
+            client.InternalError += (s, ex) => MulticastIsolation.Raise(InternalError, this, ex, InternalError);
             return client.Get();
         }
 
@@ -559,10 +559,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
-            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
-            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
-            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
+            client.MTConnectError += (s, doc) => MulticastIsolation.Raise(MTConnectError, this, doc, InternalError);
+            client.FormatError += (s, r) => MulticastIsolation.Raise(FormatError, this, r, InternalError);
+            client.ConnectionError += (s, ex) => MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
+            client.InternalError += (s, ex) => MulticastIsolation.Raise(InternalError, this, ex, InternalError);
             return await client.GetAsync(cancellationToken);
         }
 
@@ -576,10 +576,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
-            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
-            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
-            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
+            client.MTConnectError += (s, doc) => MulticastIsolation.Raise(MTConnectError, this, doc, InternalError);
+            client.FormatError += (s, r) => MulticastIsolation.Raise(FormatError, this, r, InternalError);
+            client.ConnectionError += (s, ex) => MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
+            client.InternalError += (s, ex) => MulticastIsolation.Raise(InternalError, this, ex, InternalError);
             return client.Get();
         }
 
@@ -600,10 +600,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
-            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
-            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
-            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
+            client.MTConnectError += (s, doc) => MulticastIsolation.Raise(MTConnectError, this, doc, InternalError);
+            client.FormatError += (s, r) => MulticastIsolation.Raise(FormatError, this, r, InternalError);
+            client.ConnectionError += (s, ex) => MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
+            client.InternalError += (s, ex) => MulticastIsolation.Raise(InternalError, this, ex, InternalError);
             return await client.GetAsync(cancellationToken);
         }
 
@@ -617,10 +617,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
-            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
-            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
-            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
+            client.MTConnectError += (s, doc) => MulticastIsolation.Raise(MTConnectError, this, doc, InternalError);
+            client.FormatError += (s, r) => MulticastIsolation.Raise(FormatError, this, r, InternalError);
+            client.ConnectionError += (s, ex) => MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
+            client.InternalError += (s, ex) => MulticastIsolation.Raise(InternalError, this, ex, InternalError);
             return client.Get();
         }
 
@@ -641,10 +641,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
-            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
-            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
-            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
+            client.MTConnectError += (s, doc) => MulticastIsolation.Raise(MTConnectError, this, doc, InternalError);
+            client.FormatError += (s, r) => MulticastIsolation.Raise(FormatError, this, r, InternalError);
+            client.ConnectionError += (s, ex) => MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
+            client.InternalError += (s, ex) => MulticastIsolation.Raise(InternalError, this, ex, InternalError);
             return await client.GetAsync(cancellationToken);
         }
 
@@ -658,10 +658,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
-            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
-            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
-            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
+            client.MTConnectError += (s, doc) => MulticastIsolation.Raise(MTConnectError, this, doc, InternalError);
+            client.FormatError += (s, r) => MulticastIsolation.Raise(FormatError, this, r, InternalError);
+            client.ConnectionError += (s, ex) => MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
+            client.InternalError += (s, ex) => MulticastIsolation.Raise(InternalError, this, ex, InternalError);
             return client.Get();
         }
 
@@ -682,10 +682,10 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => RaiseEvent(MTConnectError, doc);
-            client.FormatError += (s, r) => RaiseEvent(FormatError, r);
-            client.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
-            client.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
+            client.MTConnectError += (s, doc) => MulticastIsolation.Raise(MTConnectError, this, doc, InternalError);
+            client.FormatError += (s, r) => MulticastIsolation.Raise(FormatError, this, r, InternalError);
+            client.ConnectionError += (s, ex) => MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
+            client.InternalError += (s, ex) => MulticastIsolation.Raise(InternalError, this, ex, InternalError);
             return await client.GetAsync(cancellationToken);
         }
 
@@ -697,7 +697,7 @@ namespace MTConnect.Clients
         {
             var initialRequest = true;
 
-            RaiseEvent(ClientStarted, EventArgs.Empty);
+            MulticastIsolation.Raise(ClientStarted, this, EventArgs.Empty, InternalError);
 
             do
             {
@@ -708,7 +708,7 @@ namespace MTConnect.Clients
                     if (probe != null)
                     {
                         _lastResponse = UnixDateTime.Now;
-                        RaiseEvent(ResponseReceived, EventArgs.Empty);
+                        MulticastIsolation.Raise(ResponseReceived, this, EventArgs.Empty, InternalError);
 
                         ProcessProbeDocument(probe);
 
@@ -719,9 +719,9 @@ namespace MTConnect.Clients
                             if (assets != null)
                             {
                                 _lastResponse = UnixDateTime.Now;
-                                RaiseEvent(ResponseReceived, EventArgs.Empty);
+                                MulticastIsolation.Raise(ResponseReceived, this, EventArgs.Empty, InternalError);
 
-                                RaiseEvent(AssetsReceived, assets);
+                                MulticastIsolation.Raise(AssetsReceived, this, assets, InternalError);
                             }
                         }
 
@@ -732,7 +732,7 @@ namespace MTConnect.Clients
                             if (current != null)
                             {
                                 _lastResponse = UnixDateTime.Now;
-                                RaiseEvent(ResponseReceived, EventArgs.Empty);
+                                MulticastIsolation.Raise(ResponseReceived, this, EventArgs.Empty, InternalError);
 
                                 // Raise CurrentReceived Event
                                 ProcessCurrentDocument(current, _stop.Token);
@@ -777,15 +777,15 @@ namespace MTConnect.Clients
                                     _stream.Timeout = Heartbeat * 3;
                                     _stream.ContentEncodings = ContentEncodings;
                                     _stream.ContentType = ContentType;
-                                    _stream.Starting += (s, o) => RaiseEvent(StreamStarting, url);
-                                    _stream.Started += (s, o) => RaiseEvent(StreamStarted, url);
-                                    _stream.Stopping += (s, o) => RaiseEvent(StreamStopping, url);
-                                    _stream.Stopped += (s, o) => RaiseEvent(StreamStopped, url);
+                                    _stream.Starting += (s, o) => MulticastIsolation.Raise(StreamStarting, this, url, InternalError);
+                                    _stream.Started += (s, o) => MulticastIsolation.Raise(StreamStarted, this, url, InternalError);
+                                    _stream.Stopping += (s, o) => MulticastIsolation.Raise(StreamStopping, this, url, InternalError);
+                                    _stream.Stopped += (s, o) => MulticastIsolation.Raise(StreamStopped, this, url, InternalError);
                                     _stream.DocumentReceived += (s, doc) => ProcessSampleDocument(doc, _stop.Token);
                                     _stream.ErrorReceived += (s, doc) => ProcessSampleError(doc);
-                                    _stream.FormatError += (s, r) => RaiseEvent(FormatError, r);
-                                    _stream.ConnectionError += (s, ex) => RaiseEvent(ConnectionError, ex);
-                                    _stream.InternalError += (s, ex) => RaiseEvent(InternalError, ex);
+                                    _stream.FormatError += (s, r) => MulticastIsolation.Raise(FormatError, this, r, InternalError);
+                                    _stream.ConnectionError += (s, ex) => MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
+                                    _stream.InternalError += (s, ex) => MulticastIsolation.Raise(InternalError, this, ex, InternalError);
 
                                     // Run Stream (Blocking call)
                                     await _stream.Run(_stop.Token);
@@ -812,7 +812,7 @@ namespace MTConnect.Clients
                                 if (current != null)
                                 {
                                     _lastResponse = UnixDateTime.Now;
-                                    RaiseEvent(ResponseReceived, EventArgs.Empty);
+                                    MulticastIsolation.Raise(ResponseReceived, this, EventArgs.Empty, InternalError);
 
                                     // Raise CurrentReceived Event
                                     ProcessCurrentDocument(current, _stop.Token);
@@ -871,12 +871,12 @@ namespace MTConnect.Clients
                 catch (TaskCanceledException) { }
                 catch (Exception ex)
                 {
-                    RaiseEvent(InternalError, ex);
+                    MulticastIsolation.Raise(InternalError, this, ex, InternalError);
                 }
 
             } while (!_stop.Token.IsCancellationRequested);
 
-            RaiseEvent(ClientStopped, EventArgs.Empty);
+            MulticastIsolation.Raise(ClientStopped, this, EventArgs.Empty, InternalError);
         }
 
         private void ProcessProbeDocument(IDevicesResponseDocument document)
@@ -907,77 +907,18 @@ namespace MTConnect.Clients
                     // Isolate subscriber exceptions per delegate so one bad handler cannot abort the
                     // populate loop, suppress ProbeReceived, or short-circuit later subscribers in the
                     // invocation list; route each fault through InternalError instead.
-                    RaiseEvent(DeviceReceived, outputDevice);
+                    MulticastIsolation.Raise(DeviceReceived, this, outputDevice, InternalError);
                 }
 
                 // Raise ProbeReceived Event
-                RaiseEvent(ProbeReceived, document);
-            }
-        }
-
-        // Iterate the invocation list so one throwing subscriber cannot short-circuit the
-        // multicast and starve later subscribers. Each fault is forwarded through
-        // InternalError; if InternalError itself faults, swallow that secondary fault so the
-        // remaining subscribers in the invocation list still receive the event.
-        private void RaiseEvent<T>(EventHandler<T> handler, T arg)
-        {
-            if (handler == null) return;
-
-            foreach (var subscriber in handler.GetInvocationList())
-            {
-                try
-                {
-                    ((EventHandler<T>)subscriber).Invoke(this, arg);
-                }
-                catch (Exception ex)
-                {
-                    RouteSubscriberFault(ex);
-                }
-            }
-        }
-
-        // Non-generic sibling of RaiseEvent&lt;T&gt; for EventHandler events that carry no
-        // typed payload (ClientStarting, ClientStarted, ClientStopping, ClientStopped,
-        // ResponseReceived). Same multicast-isolation contract: a throwing subscriber
-        // cannot starve later subscribers, and a faulting InternalError handler cannot
-        // break the fan-out either.
-        private void RaiseEvent(EventHandler handler, EventArgs arg)
-        {
-            if (handler == null) return;
-
-            foreach (var subscriber in handler.GetInvocationList())
-            {
-                try
-                {
-                    ((EventHandler)subscriber).Invoke(this, arg);
-                }
-                catch (Exception ex)
-                {
-                    RouteSubscriberFault(ex);
-                }
-            }
-        }
-
-        // Forwards a subscriber fault to InternalError and swallows any secondary
-        // fault raised by InternalError itself so the originating event's fan-out
-        // can keep running. Shared between the generic and non-generic RaiseEvent
-        // helpers above.
-        private void RouteSubscriberFault(Exception ex)
-        {
-            try
-            {
-                InternalError?.Invoke(this, ex);
-            }
-            catch
-            {
-                // A faulting InternalError handler must not break the event fan-out.
+                MulticastIsolation.Raise(ProbeReceived, this, document, InternalError);
             }
         }
 
         private void ProcessCurrentDocument(IStreamsResponseDocument document, CancellationToken cancel)
         {
             _lastResponse = UnixDateTime.Now;
-            RaiseEvent(ResponseReceived, EventArgs.Empty);
+            MulticastIsolation.Raise(ResponseReceived, this, EventArgs.Empty, InternalError);
 
             if (document != null)
             {
@@ -995,7 +936,7 @@ namespace MTConnect.Clients
                     response.Streams = deviceStreams;
 
 
-                    RaiseEvent(CurrentReceived, response);
+                    MulticastIsolation.Raise(CurrentReceived, this, response, InternalError);
 
 
                     // Process Device Streams
@@ -1010,7 +951,7 @@ namespace MTConnect.Clients
                         {
                             foreach (var observation in observations)
                             {
-                                RaiseEvent(ObservationReceived, observation);
+                                MulticastIsolation.Raise(ObservationReceived, this, observation, InternalError);
                             }
                         }
                     }
@@ -1021,7 +962,7 @@ namespace MTConnect.Clients
         private void ProcessSampleDocument(IStreamsResponseDocument document, CancellationToken cancel)
         {
             _lastResponse = UnixDateTime.Now;
-            RaiseEvent(ResponseReceived, EventArgs.Empty);
+            MulticastIsolation.Raise(ResponseReceived, this, EventArgs.Empty, InternalError);
 
             if (document != null)
             {
@@ -1061,11 +1002,11 @@ namespace MTConnect.Clients
                         }
                     }
 
-                    RaiseEvent(SampleReceived, response);
+                    MulticastIsolation.Raise(SampleReceived, this, response, InternalError);
 
                     foreach (var observation in receivedObservations)
                     {
-                        RaiseEvent(ObservationReceived, observation);
+                        MulticastIsolation.Raise(ObservationReceived, this, observation, InternalError);
                     }
                 }
             }
@@ -1253,11 +1194,11 @@ namespace MTConnect.Clients
         private void ProcessSampleError(IErrorResponseDocument document)
         {
             _lastResponse = UnixDateTime.Now;
-            RaiseEvent(ResponseReceived, EventArgs.Empty);
+            MulticastIsolation.Raise(ResponseReceived, this, EventArgs.Empty, InternalError);
 
             if (document != null)
             {
-                RaiseEvent(MTConnectError, document);
+                MulticastIsolation.Raise(MTConnectError, this, document, InternalError);
             }
         }
 
@@ -1277,13 +1218,13 @@ namespace MTConnect.Clients
                             var doc = await GetAssetAsync(assetId, cancel);
                             if (doc != null)
                             {
-                                RaiseEvent(AssetsReceived, doc);
+                                MulticastIsolation.Raise(AssetsReceived, this, doc, InternalError);
 
                                 if (doc != null && !doc.Assets.IsNullOrEmpty())
                                 {
                                     foreach (var asset in doc.Assets)
                                     {
-                                        RaiseEvent(AssetReceived, asset);
+                                        MulticastIsolation.Raise(AssetReceived, this, asset, InternalError);
                                     }
                                 }
                             }
