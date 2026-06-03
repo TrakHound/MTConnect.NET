@@ -188,7 +188,7 @@ namespace MTConnect.Tests.Http.Clients
                 Assert.That(currentSeed.Wait(EventWaitTimeoutMs), Is.True,
                     "Streamed Current did not deliver the seed before the test could push a sample");
 
-                AgentRunner.Agent.AddObservation(DeviceUuid, AvailabilityDataItemId, Availability.AVAILABLE);
+                PushAvailabilityTransition();
 
                 Assert.That(recorded.Wait(EventWaitTimeoutMs), Is.True,
                     "subscribers after a throwing one must still receive SampleReceived");
@@ -224,7 +224,7 @@ namespace MTConnect.Tests.Http.Clients
                 Assert.That(currentSeed.Wait(EventWaitTimeoutMs), Is.True,
                     "Streamed Current did not deliver the seed before the test could push a sample");
 
-                AgentRunner.Agent.AddObservation(DeviceUuid, AvailabilityDataItemId, Availability.AVAILABLE);
+                PushAvailabilityTransition();
 
                 Assert.That(recorded.Wait(EventWaitTimeoutMs), Is.True,
                     "InternalError throwing must not break the SampleReceived fan-out");
@@ -233,6 +233,18 @@ namespace MTConnect.Tests.Http.Clients
             {
                 client.Stop();
             }
+        }
+
+        // AVAILABILITY is an EVENT data item; the broker dedupes consecutive
+        // identical pushes, so a single AVAILABLE push after an earlier test
+        // already left AVAILABLE in the buffer would be a no-op and the
+        // streamed Sample loop would never observe a new sequence. Pushing an
+        // UNAVAILABLE → AVAILABLE transition guarantees at least one new
+        // observation in the buffer regardless of prior fixture state.
+        private void PushAvailabilityTransition()
+        {
+            AgentRunner.Agent.AddObservation(DeviceUuid, AvailabilityDataItemId, Availability.UNAVAILABLE);
+            AgentRunner.Agent.AddObservation(DeviceUuid, AvailabilityDataItemId, Availability.AVAILABLE);
         }
 
 

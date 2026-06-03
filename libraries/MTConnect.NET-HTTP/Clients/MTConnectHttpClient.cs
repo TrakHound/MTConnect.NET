@@ -721,7 +721,7 @@ namespace MTConnect.Clients
                                 _lastResponse = UnixDateTime.Now;
                                 ResponseReceived?.Invoke(this, new EventArgs());
 
-                                AssetsReceived?.Invoke(this, assets);
+                                RaiseEvent(AssetsReceived, assets);
                             }
                         }
 
@@ -907,28 +907,27 @@ namespace MTConnect.Clients
                     // Isolate subscriber exceptions per delegate so one bad handler cannot abort the
                     // populate loop, suppress ProbeReceived, or short-circuit later subscribers in the
                     // invocation list; route each fault through InternalError instead.
-                    RaiseDeviceReceived(outputDevice);
+                    RaiseEvent(DeviceReceived, outputDevice);
                 }
 
                 // Raise ProbeReceived Event
-                ProbeReceived?.Invoke(this, document);
+                RaiseEvent(ProbeReceived, document);
             }
         }
 
         // Iterate the invocation list so one throwing subscriber cannot short-circuit the
         // multicast and starve later subscribers. Each fault is forwarded through
         // InternalError; if InternalError itself faults, swallow that secondary fault so the
-        // populate loop and remaining DeviceReceived subscribers still get every device.
-        private void RaiseDeviceReceived(IDevice device)
+        // remaining subscribers in the invocation list still receive the event.
+        private void RaiseEvent<T>(EventHandler<T> handler, T arg)
         {
-            var handler = DeviceReceived;
             if (handler == null) return;
 
             foreach (var subscriber in handler.GetInvocationList())
             {
                 try
                 {
-                    ((EventHandler<IDevice>)subscriber).Invoke(this, device);
+                    ((EventHandler<T>)subscriber).Invoke(this, arg);
                 }
                 catch (Exception ex)
                 {
@@ -938,7 +937,7 @@ namespace MTConnect.Clients
                     }
                     catch
                     {
-                        // A faulting InternalError handler must not break DeviceReceived fan-out.
+                        // A faulting InternalError handler must not break the event fan-out.
                     }
                 }
             }
@@ -965,7 +964,7 @@ namespace MTConnect.Clients
                     response.Streams = deviceStreams;
 
 
-                    CurrentReceived?.Invoke(this, response);
+                    RaiseEvent(CurrentReceived, response);
 
 
                     // Process Device Streams
@@ -980,7 +979,7 @@ namespace MTConnect.Clients
                         {
                             foreach (var observation in observations)
                             {
-                                ObservationReceived?.Invoke(this, observation);
+                                RaiseEvent(ObservationReceived, observation);
                             }
                         }
                     }
@@ -1031,11 +1030,11 @@ namespace MTConnect.Clients
                         }
                     }
 
-                    SampleReceived?.Invoke(this, response);
+                    RaiseEvent(SampleReceived, response);
 
                     foreach (var observation in receivedObservations)
                     {
-                        ObservationReceived?.Invoke(this, observation);
+                        RaiseEvent(ObservationReceived, observation);
                     }
                 }
             }
@@ -1247,13 +1246,13 @@ namespace MTConnect.Clients
                             var doc = await GetAssetAsync(assetId, cancel);
                             if (doc != null)
                             {
-                                AssetsReceived?.Invoke(this, doc);
+                                RaiseEvent(AssetsReceived, doc);
 
                                 if (doc != null && !doc.Assets.IsNullOrEmpty())
                                 {
                                     foreach (var asset in doc.Assets)
                                     {
-                                        AssetReceived?.Invoke(this, asset);
+                                        RaiseEvent(AssetReceived, asset);
                                     }
                                 }
                             }
