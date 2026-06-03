@@ -123,7 +123,7 @@ namespace MTConnect.Clients
             cancellationToken.Register(() => Stop());
 
             // Raise Starting Event
-            Starting?.Invoke(this, new EventArgs());
+            RaiseEvent(Starting, EventArgs.Empty);
 
             _ = Task.Run(() => Run(_stop.Token));
         }
@@ -136,7 +136,7 @@ namespace MTConnect.Clients
         public void Stop()
         {
             // Raise Stopping Event
-            Stopping?.Invoke(this, new EventArgs());
+            RaiseEvent(Stopping, EventArgs.Empty);
 
             if (_stop != null) _stop.Cancel();
         }
@@ -167,7 +167,7 @@ namespace MTConnect.Clients
                     responseTimer.Elapsed += (o, e) =>
                     {
                         stop.Cancel();
-                        ConnectionError?.Invoke(this, new TimeoutException($"HTTP Stream Timeout Exceeded ({Timeout})"));
+                        RaiseEvent(ConnectionError, new TimeoutException($"HTTP Stream Timeout Exceeded ({Timeout})"));
                     };
                     responseTimer.Start();
                 }
@@ -177,7 +177,7 @@ namespace MTConnect.Clients
                     stop.Token.ThrowIfCancellationRequested();
 
                     // Raise Started Event
-                    Started?.Invoke(this, new EventArgs());
+                    RaiseEvent(Started, EventArgs.Empty);
 
 
                     // Add 'Accept' HTTP Header
@@ -305,16 +305,16 @@ namespace MTConnect.Clients
                 }
                 catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
                 {
-                    ConnectionError?.Invoke(this, ex);
+                    RaiseEvent(ConnectionError, ex);
                 }
                 catch (TaskCanceledException) { /* Ignore Task Cancelled */  }
                 catch (HttpRequestException ex)
                 {
-                    ConnectionError?.Invoke(this, ex);
+                    RaiseEvent(ConnectionError, ex);
                 }
                 catch (Exception ex)
                 {
-                    InternalError?.Invoke(this, ex);
+                    RaiseEvent(InternalError, ex);
                 }
                 finally
                 {
@@ -322,7 +322,7 @@ namespace MTConnect.Clients
                 }
             }
 
-            Stopped?.Invoke(this, new EventArgs());
+            RaiseEvent(Stopped, EventArgs.Empty);
         }
 
         private static string GetHeaderValue(string s, string name)
@@ -411,7 +411,7 @@ namespace MTConnect.Clients
                     var document = formatResult.Content;
                     if (document != null)
                     {
-                        DocumentReceived?.Invoke(this, document);
+                        RaiseEvent(DocumentReceived, document);
                     }
                     else
                     {
@@ -420,20 +420,78 @@ namespace MTConnect.Clients
                         if (errorFormatResult.Success)
                         {
                             var errorDocument = errorFormatResult.Content;
-                            if (errorDocument != null) ErrorReceived?.Invoke(this, errorDocument);
+                            if (errorDocument != null) RaiseEvent(ErrorReceived, errorDocument);
                         }
                         else
                         {
                             // Raise Format Error
-                            if (FormatError != null) FormatError.Invoke(this, errorFormatResult);
+                            RaiseEvent(FormatError, errorFormatResult);
                         }
                     }
                 }
                 else
                 {
                     // Raise Format Error
-                    if (FormatError != null) FormatError.Invoke(this, formatResult);
+                    RaiseEvent(FormatError, formatResult);
                 }
+            }
+        }
+
+        // Iterate the invocation list so one throwing subscriber cannot short-circuit
+        // the multicast and starve later subscribers. Each fault is forwarded through
+        // InternalError; if InternalError itself faults, swallow that secondary fault
+        // so the remaining subscribers in the invocation list still receive the event.
+        private void RaiseEvent<T>(EventHandler<T> handler, T arg)
+        {
+            if (handler == null) return;
+
+            foreach (var subscriber in handler.GetInvocationList())
+            {
+                try
+                {
+                    ((EventHandler<T>)subscriber).Invoke(this, arg);
+                }
+                catch (Exception ex)
+                {
+                    RouteSubscriberFault(ex);
+                }
+            }
+        }
+
+        // Non-generic sibling of RaiseEvent&lt;T&gt; for EventHandler events that carry no
+        // typed payload (Starting, Started, Stopping, Stopped). Same multicast-isolation
+        // contract: a throwing subscriber cannot starve later subscribers, and a
+        // faulting InternalError handler cannot break the fan-out either.
+        private void RaiseEvent(EventHandler handler, EventArgs arg)
+        {
+            if (handler == null) return;
+
+            foreach (var subscriber in handler.GetInvocationList())
+            {
+                try
+                {
+                    ((EventHandler)subscriber).Invoke(this, arg);
+                }
+                catch (Exception ex)
+                {
+                    RouteSubscriberFault(ex);
+                }
+            }
+        }
+
+        // Forwards a subscriber fault to InternalError and swallows any secondary
+        // fault raised by InternalError itself so the originating event's fan-out
+        // can keep running. Shared between the generic and non-generic RaiseEvent
+        // helpers above.
+        private void RouteSubscriberFault(Exception ex)
+        {
+            try
+            {
+                InternalError?.Invoke(this, ex);
+            }
+            catch
+            {
+                // A faulting InternalError handler must not break the event fan-out.
             }
         }
     }
