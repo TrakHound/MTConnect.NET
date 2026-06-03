@@ -62,14 +62,30 @@ namespace MTConnect.Tests.Http.Clients
         private static void InvokeGenericRaise<T>(object instance, string eventName, T arg)
         {
             var handler = GetEventBacking<EventHandler<T>>(instance, eventName);
-            var method = instance.GetType().GetMethod("RaiseEvent",
-                BindingFlags.Instance | BindingFlags.NonPublic,
-                binder: null,
-                types: new[] { typeof(EventHandler<T>), typeof(T) },
-                modifiers: null);
-            Assert.That(method, Is.Not.Null,
+
+            // Locate the open generic RaiseEvent<T>(EventHandler<T>, T) helper by
+            // walking the non-public instance methods; GetMethod's overload that
+            // takes a types[] array binds parameters against the open signature
+            // and never matches a closed EventHandler<TConcrete>, so the manual
+            // search is the simplest path. Once found, MakeGenericMethod closes
+            // it over the test's payload type.
+            MethodInfo? openMethod = null;
+            foreach (var candidate in instance.GetType().GetMethods(
+                BindingFlags.Instance | BindingFlags.NonPublic))
+            {
+                if (candidate.Name != "RaiseEvent") continue;
+                if (!candidate.IsGenericMethodDefinition) continue;
+                var parameters = candidate.GetParameters();
+                if (parameters.Length != 2) continue;
+                if (parameters[0].ParameterType.GetGenericTypeDefinition() != typeof(EventHandler<>)) continue;
+                openMethod = candidate;
+                break;
+            }
+            Assert.That(openMethod, Is.Not.Null,
                 $"Generic RaiseEvent<T> helper was not found on {instance.GetType().Name}.");
-            method!.Invoke(instance, new object?[] { handler, arg });
+
+            var closedMethod = openMethod!.MakeGenericMethod(typeof(T));
+            closedMethod.Invoke(instance, new object?[] { handler, arg });
         }
 
         private static void InvokeNonGenericRaise(object instance, string eventName, EventArgs arg)
