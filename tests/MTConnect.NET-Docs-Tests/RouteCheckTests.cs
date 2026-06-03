@@ -75,6 +75,8 @@ public class RouteCheckTests
     private readonly System.Text.StringBuilder _previewLog = new();
     private Task? _previewStdoutDrain;
     private Task? _previewStderrDrain;
+    private static DateTime _fixtureStartTime;
+    private static string _distDir = string.Empty;
 
     // Walk-up bound is intentionally large (32) rather than fitting the
     // current `bin/Debug/netN.N/` suffix exactly. A deeper container path,
@@ -98,6 +100,8 @@ public class RouteCheckTests
     [OneTimeSetUp]
     public async Task OneTimeSetUp()
     {
+        _fixtureStartTime = DateTime.UtcNow;
+
         // Wrap the bootstrap so a partial failure (npm bootstrap throw,
         // chromium-install non-zero exit, preview-server bind timeout)
         // rethrows with whatever state was captured up to that point —
@@ -109,22 +113,26 @@ public class RouteCheckTests
         {
             _docsRoot = Path.Combine(RepoRoot, "docs");
             var distDir = Path.Combine(_docsRoot, ".vitepress", "dist");
+            _distDir = distDir;
 
-            // The test owns its build prerequisite. If the dist/ tree
-            // doesn't already exist, run `npm ci && npm run build` from
-            // docs/ to produce it. `npm run build` invokes the `prebuild`
-            // hook (regenerate api + reference), so the rendered site
-            // matches what CI builds on every push. The presence check
-            // looks for index.html specifically because a partial /
-            // stale dist tree (e.g. just an assets/ subdirectory left
-            // from a prior aborted run) is not a usable preview target.
-            if (!File.Exists(Path.Combine(distDir, "index.html")))
+            // Install node_modules if the cache is missing (first run on a
+            // clean checkout or after `rm -rf node_modules`). Separated from
+            // the build step so a repeated local run skips the network-bound
+            // install while still always rebuilding the dist artefact.
+            if (!Directory.Exists(Path.Combine(_docsRoot, "node_modules")))
             {
                 stage = "npm ci";
                 RunNpm("ci", _docsRoot);
-                stage = "npm run build";
-                RunNpm("run build", _docsRoot);
             }
+
+            // Always rebuild dist so the test asserts against a tree generated
+            // from the current source, not a stale artefact from a prior run.
+            // CI starts every run with a clean checkout (dist never exists),
+            // so this only matters for repeated local invocations on a persistent
+            // clone — the 5-min cost is amortised across the whole fixture's
+            // OneTimeSetUp, not paid per test.
+            stage = "npm run build";
+            RunNpm("run build", _docsRoot);
 
             // Install the chromium binary the Playwright .NET binding drives.
             // Idempotent: re-installs cleanly if the cache is already warm.
@@ -222,6 +230,233 @@ public class RouteCheckTests
         {
             await context.CloseAsync();
         }
+    }
+
+    /// <summary>
+    /// Pins the docs-site house-style surfaces the maintainer signed off
+    /// on in Discussion #184 (see <c>docs/development/house-style.md</c>):
+    /// the brand logo wired through <c>themeConfig.logo</c>, the favicon
+    /// link, the Open Graph + Twitter Card meta block, the
+    /// <c>theme-color</c> meta, and the 'Download latest release' hero
+    /// CTA pointing at the GitHub releases page.
+    /// </summary>
+    /// <remarks>
+    /// Each check is a focused property assertion on the rendered HTML
+    /// so the failure message names the missing surface directly
+    /// ('og:image meta tag missing', 'theme-color meta is #ffffff,
+    /// expected #0073e6'). A single bundled assertion would surface
+    /// 'page does not match expected snapshot' and force the reader
+    /// into a diff — the structured form is the §10a positive-+-negative
+    /// pin per surface, all in one test.
+    ///
+    /// The favicon asset is also fetched over HTTP to guarantee the
+    /// <c>href</c> resolves — a stale path that 404s would still
+    /// satisfy the meta-tag presence check, so the fetch closes the
+    /// gap between 'tag exists' and 'tag works'.
+    /// </remarks>
+    [Test]
+    public async Task Landing_Page_Carries_The_House_Style_Surfaces()
+    {
+        Assert.That(_browser, Is.Not.Null, "browser was not initialised");
+
+        var context = await _browser!.NewContextAsync();
+        try
+        {
+            var page = await context.NewPageAsync();
+            var response = await page.GotoAsync(_baseUrl + "/", new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.Load,
+                Timeout = PageNavigationTimeoutMs,
+            });
+            Assert.That(response, Is.Not.Null, "homepage navigation returned no response");
+            Assert.That(response!.Ok, Is.True, $"homepage returned HTTP {response.Status}");
+
+            var probes = await page.EvaluateAsync<HouseStyleProbes>(@"() => ({
+                themeColor: document.querySelector('meta[name=""theme-color""]')?.getAttribute('content') ?? null,
+                faviconHref: document.querySelector('link[rel=""icon""]')?.getAttribute('href') ?? null,
+                faviconType: document.querySelector('link[rel=""icon""]')?.getAttribute('type') ?? null,
+                ogTitle: document.querySelector('meta[property=""og:title""]')?.getAttribute('content') ?? null,
+                ogImage: document.querySelector('meta[property=""og:image""]')?.getAttribute('content') ?? null,
+                twitterCard: document.querySelector('meta[name=""twitter:card""]')?.getAttribute('content') ?? null,
+                twitterImage: document.querySelector('meta[name=""twitter:image""]')?.getAttribute('content') ?? null,
+                heroLogoSrc: document.querySelector('.VPNavBarTitle img.logo')?.getAttribute('src') ?? null,
+                heroImageSrc: (document.querySelector('.VPHero .VPImage')
+                    ?? document.querySelector('.VPHero img[src*=""logo""]'))?.getAttribute('src') ?? null,
+                downloadCtaHref: (() => {
+                    const link = Array.from(document.querySelectorAll('.VPHero a, a'))
+                        .find(a => /Download latest release/i.test(a.textContent ?? ''));
+                    return link ? link.getAttribute('href') : null;
+                })()
+            })");
+
+            // theme-color — brand accent per Discussion #184.
+            Assert.That(probes.ThemeColor, Is.EqualTo("#0073e6"),
+                "theme-color meta does not match the maintainer-confirmed brand accent");
+
+            // Favicon — present, PNG, points at /logo.png (base-prefixed
+            // when DOCS_BASE is set, so endsWith() is the stable match).
+            Assert.That(probes.FaviconHref, Is.Not.Null.And.Not.Empty, "favicon <link rel=icon> missing");
+            Assert.That(probes.FaviconHref, Does.EndWith("/logo.png"),
+                $"favicon href does not point at /logo.png — got '{probes.FaviconHref}'");
+            Assert.That(probes.FaviconType, Is.EqualTo("image/png"),
+                "favicon type attribute is not 'image/png'");
+
+            // Open Graph — title + image surface so social previews render.
+            Assert.That(probes.OgTitle, Is.EqualTo("MTConnect.NET"),
+                "og:title meta does not match the expected site title");
+            Assert.That(probes.OgImage, Is.Not.Null.And.Not.Empty, "og:image meta missing");
+            Assert.That(probes.OgImage, Does.EndWith("/logo.png"),
+                $"og:image does not point at /logo.png — got '{probes.OgImage}'");
+
+            // Twitter Card — large summary card with the same image.
+            Assert.That(probes.TwitterCard, Is.EqualTo("summary_large_image"),
+                "twitter:card meta is not 'summary_large_image'");
+            Assert.That(probes.TwitterImage, Is.Not.Null.And.Not.Empty, "twitter:image meta missing");
+            Assert.That(probes.TwitterImage, Does.EndWith("/logo.png"),
+                $"twitter:image does not point at /logo.png — got '{probes.TwitterImage}'");
+
+            // themeConfig.logo — VitePress renders the logo as an <img>
+            // inside .VPNavBarTitle when themeConfig.logo is set. The
+            // text site title is hidden (themeConfig.siteTitle: false)
+            // because the logo PNG already carries the wordmark.
+            Assert.That(probes.HeroLogoSrc, Is.Not.Null.And.Not.Empty,
+                "no <img> rendered inside .VPNavBarTitle — themeConfig.logo did not take effect");
+            Assert.That(probes.HeroLogoSrc, Does.EndWith("/logo.png"),
+                $"nav logo src does not point at /logo.png — got '{probes.HeroLogoSrc}'");
+
+            // Hero image — pinned per §1.0d-trigies-semel (the maintainer-supplied
+            // logo must render in the landing hero block, not just the nav bar).
+            // VitePress's default home layout renders the hero image as
+            // .VPHero .VPImage when `hero.image.src` is set in index.md;
+            // the fallback `.VPHero img[src*='logo']` covers theme-overridden
+            // cases where a custom hero component is in play.
+            Assert.That(probes.HeroImageSrc, Is.Not.Null.And.Not.Empty,
+                "no image rendered inside .VPHero — hero.image did not take effect");
+            Assert.That(probes.HeroImageSrc, Does.EndWith("/logo.png"),
+                $"hero image src does not point at /logo.png — got '{probes.HeroImageSrc}'");
+
+            // Hero 'Download latest release' CTA — text + canonical link.
+            Assert.That(probes.DownloadCtaHref, Is.EqualTo(
+                    "https://github.com/TrakHound/MTConnect.NET/releases/latest"),
+                "'Download latest release' hero CTA missing or points elsewhere");
+
+            // Closing the gap between 'tag present' and 'tag works':
+            // fetch the favicon over HTTP and assert it returns 200.
+            // A stale logo path (e.g. an old `/favicon.ico` reference
+            // after a rename) would satisfy the meta-tag check above
+            // but break the favicon for end users.
+            var faviconUrl = probes.FaviconHref!.StartsWith("http", StringComparison.Ordinal)
+                ? probes.FaviconHref
+                : _baseUrl + probes.FaviconHref;
+            var faviconResponse = await page.Context.APIRequest.GetAsync(faviconUrl);
+            Assert.That(faviconResponse.Status, Is.EqualTo(200),
+                $"favicon at {faviconUrl} returned HTTP {faviconResponse.Status}");
+
+            await page.CloseAsync();
+        }
+        finally
+        {
+            await context.CloseAsync();
+        }
+    }
+
+    // The JS payload returned by the house-style probe uses camelCase
+    // keys; pin them explicitly so a future Playwright upgrade that
+    // tightens case-insensitive deserialisation cannot silently turn
+    // every probe into a null pass-through (which would hide a
+    // regression in the rendered meta surface).
+    private sealed class HouseStyleProbes
+    {
+        [JsonPropertyName("themeColor")]
+        public string? ThemeColor { get; set; }
+
+        [JsonPropertyName("faviconHref")]
+        public string? FaviconHref { get; set; }
+
+        [JsonPropertyName("faviconType")]
+        public string? FaviconType { get; set; }
+
+        [JsonPropertyName("ogTitle")]
+        public string? OgTitle { get; set; }
+
+        [JsonPropertyName("ogImage")]
+        public string? OgImage { get; set; }
+
+        [JsonPropertyName("twitterCard")]
+        public string? TwitterCard { get; set; }
+
+        [JsonPropertyName("twitterImage")]
+        public string? TwitterImage { get; set; }
+
+        [JsonPropertyName("heroLogoSrc")]
+        public string? HeroLogoSrc { get; set; }
+
+        [JsonPropertyName("heroImageSrc")]
+        public string? HeroImageSrc { get; set; }
+
+        [JsonPropertyName("downloadCtaHref")]
+        public string? DownloadCtaHref { get; set; }
+    }
+
+    /// <summary>
+    /// Negative companion to <see cref="Landing_Page_Carries_The_House_Style_Surfaces"/>
+    /// per §10a: the positive test only proves the hero image
+    /// <c>src</c> attribute is wired through to <c>/logo.png</c>, not
+    /// that the asset is actually reachable. A future asset-pipeline
+    /// regression (renamed file, missed copy step, accidental
+    /// <c>.gitignore</c> entry) would pass the meta-/DOM-attribute
+    /// check above but break the hero image for end users. Fetching
+    /// the asset over HTTP and asserting <c>200 + image/png</c> closes
+    /// that gap.
+    /// </summary>
+    [Test]
+    public async Task Landing_Hero_Image_Asset_Resolves()
+    {
+        Assert.That(_browser, Is.Not.Null, "browser was not initialised");
+
+        var context = await _browser!.NewContextAsync();
+        try
+        {
+            // Reuse the Playwright APIRequest plumbing the favicon check
+            // in the positive test already exercises — keeps the
+            // negative test on the same HTTP transport as everything
+            // else in this fixture (no parallel HttpClient surface to
+            // keep in sync with the preview-server lifecycle).
+            var assetUrl = _baseUrl + "/logo.png";
+            var response = await context.APIRequest.GetAsync(assetUrl);
+            Assert.That(response.Status, Is.EqualTo(200),
+                $"the hero image asset at {assetUrl} returned HTTP {response.Status}");
+            var contentType = response.Headers.TryGetValue("content-type", out var ct) ? ct : null;
+            Assert.That(contentType, Is.Not.Null.And.StartsWith("image/png"),
+                $"the hero image asset content-type is '{contentType}', expected 'image/png'");
+        }
+        finally
+        {
+            await context.CloseAsync();
+        }
+    }
+
+    /// <summary>
+    /// Negative regression for the always-rebuild invariant per §10a:
+    /// asserts that <c>dist/index.html</c> was written during this fixture
+    /// invocation rather than reused from a prior run. A regression back
+    /// to "rebuild only if missing" would leave the mtime unchanged on a
+    /// persistent clone where dist already exists, causing the assertion
+    /// to fail and making the stale-dist defect observable in CI.
+    /// </summary>
+    [Test]
+    [Category("E2E")]
+    public void OneTimeSetUp_Rebuilds_Dist_Even_When_Index_Exists()
+    {
+        // Pin the contract: regardless of pre-existing dist artefacts, the
+        // fixture's OneTimeSetUp produces a fresh dist whose mtime is no
+        // older than the test fixture invocation start time. A regression
+        // back to "rebuild-if-missing" would let mtime fall behind.
+        var distIndex = Path.Combine(_distDir, "index.html");
+        var distMtime = File.GetLastWriteTimeUtc(distIndex);
+        Assert.That(distMtime, Is.GreaterThanOrEqualTo(_fixtureStartTime),
+            $"dist/index.html mtime {distMtime:O} is older than fixture start " +
+            $"{_fixtureStartTime:O} — OneTimeSetUp skipped the rebuild");
     }
 
     /// <summary>
