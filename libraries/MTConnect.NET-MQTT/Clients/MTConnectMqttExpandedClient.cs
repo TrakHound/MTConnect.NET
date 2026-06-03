@@ -248,7 +248,7 @@ namespace MTConnect.Clients
         {
             _stop = new CancellationTokenSource();
 
-            ClientStarting?.Invoke(this, new EventArgs());
+            MulticastIsolation.Raise(ClientStarting, this, EventArgs.Empty, InternalError);
 
             _ = Task.Run(Worker, _stop.Token);
         }
@@ -256,7 +256,7 @@ namespace MTConnect.Clients
         /// <summary>Signals the worker to stop and disconnect from the broker. <see cref="Disconnected"/> is raised once the session has closed.</summary>
         public void Stop()
         {
-            ClientStopping?.Invoke(this, new EventArgs());
+            MulticastIsolation.Raise(ClientStopping, this, EventArgs.Empty, InternalError);
 
             if (_stop != null) _stop.Cancel();
         }
@@ -341,7 +341,7 @@ namespace MTConnect.Clients
                             StartAllDevicesProtocol().Wait();
                         }
 
-                        ClientStarted?.Invoke(this, new EventArgs());
+                        MulticastIsolation.Raise(ClientStarted, this, EventArgs.Empty, InternalError);
 
                         while (_mqttClient.IsConnected && !_stop.IsCancellationRequested)
                         {
@@ -350,7 +350,7 @@ namespace MTConnect.Clients
                     }
                     catch (Exception ex)
                     {
-                        if (ConnectionError != null) ConnectionError.Invoke(this, ex);
+                        MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
                     }
 
                     await Task.Delay(ReconnectionInterval, _stop.Token);
@@ -358,7 +358,7 @@ namespace MTConnect.Clients
                 catch (TaskCanceledException) { }
                 catch (Exception ex)
                 {
-                    InternalError?.Invoke(this, ex);
+                    MulticastIsolation.Raise(InternalError, this, ex, InternalError);
                 }
 
             } while (!_stop.Token.IsCancellationRequested);
@@ -372,7 +372,7 @@ namespace MTConnect.Clients
             catch { }
 
 
-            ClientStopped?.Invoke(this, new EventArgs());
+            MulticastIsolation.Raise(ClientStopped, this, EventArgs.Empty, InternalError);
         }
 
 
@@ -532,10 +532,7 @@ namespace MTConnect.Clients
 
                         if (observation.InstanceId == agentInstanceId)
                         {
-                            if (ObservationReceived != null)
-                            {
-                                ObservationReceived.Invoke(deviceUuid, observation);
-                            }
+                            MulticastIsolation.Raise(ObservationReceived, deviceUuid, observation, InternalError);
                         }
                         else
                         {
@@ -587,10 +584,7 @@ namespace MTConnect.Clients
                             observation.AddValue(ValueKeys.Result, jsonObservation.Result);
                         }
 
-                        if (ObservationReceived != null)
-                        {
-                            ObservationReceived.Invoke(deviceUuid, observation);
-                        }
+                        MulticastIsolation.Raise(ObservationReceived, deviceUuid, observation, InternalError);
                     }
                 }
             }
@@ -662,7 +656,7 @@ namespace MTConnect.Clients
 
                                 if (previousConnectionStatus == MTConnectMqttConnectionStatus.Disconnected)
                                 {
-                                    if (ConnectionStatusChanged != null) ConnectionStatusChanged.Invoke(this, _connectionStatus);
+                                    MulticastIsolation.Raise(ConnectionStatusChanged, this, _connectionStatus, InternalError);
 
                                     if (_agents.TryGetValue(agentUuid, out var agent))
                                     {
@@ -692,10 +686,7 @@ namespace MTConnect.Clients
                     var device = jsonDevice.ToDevice();
                     if (device != null)
                     {
-                        if (DeviceReceived != null)
-                        {
-                            DeviceReceived.Invoke(deviceUuid, device);
-                        }
+                        MulticastIsolation.Raise(DeviceReceived, deviceUuid, device, InternalError);
 
                         await SubscribeToDevice(deviceUuid, _interval);
                     }
@@ -731,10 +722,7 @@ namespace MTConnect.Clients
                     var response = EntityFormatter.CreateAsset(DocumentFormat.JSON, jsonAsset.Type, stream);
                     if (response.Success)
                     {
-                        if (AssetReceived != null)
-                        {
-                            AssetReceived.Invoke(deviceUuid, response.Content);
-                        }
+                        MulticastIsolation.Raise(AssetReceived, deviceUuid, response.Content, InternalError);
                     }
                 }
             }
@@ -794,7 +782,7 @@ namespace MTConnect.Clients
                     // Set Connection Status to Disconnected
                     _connectionStatus = MTConnectMqttConnectionStatus.Disconnected;
 
-                    if (ConnectionStatusChanged != null) ConnectionStatusChanged.Invoke(this, _connectionStatus);
+                    MulticastIsolation.Raise(ConnectionStatusChanged, this, _connectionStatus, InternalError);
                 }
             }
         }
