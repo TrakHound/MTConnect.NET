@@ -326,5 +326,85 @@ namespace MTConnect.Tests.Http.Clients
                 client.Stop();
             }
         }
+
+        /// <summary>Pins the behaviour expressed by the test name: device received fires for all subscribers when one throws.</summary>
+        [Test]
+        public void DeviceReceivedFiresForAllSubscribersWhenOneThrows()
+        {
+            // Wire two subscribers: a throwing one FIRST, a recording one SECOND.
+            // The recording subscriber must still receive every device because
+            // RaiseDeviceReceived iterates the invocation list with per-delegate
+            // try/catch, not a single try/catch over the multicast.
+            var client = new MTConnectHttpClient(Hostname, Port);
+
+            client.DeviceReceived += (_, _) => throw new InvalidOperationException("first handler throws");
+
+            var recorded = new List<IDevice>();
+            var recordedLock = new object();
+            client.DeviceReceived += (_, device) =>
+            {
+                lock (recordedLock) { recorded.Add(device); }
+            };
+
+            using var probeSignal = new ManualResetEventSlim(false);
+            client.ProbeReceived += (_, _) => probeSignal.Set();
+
+            try
+            {
+                client.Start();
+
+                Assert.That(probeSignal.Wait(ProbeWaitTimeoutMs), Is.True, "ProbeReceived did not fire within the timeout");
+
+                List<IDevice> snapshot;
+                lock (recordedLock) { snapshot = new List<IDevice>(recorded); }
+
+                Assert.That(snapshot.Count, Is.EqualTo(ExpectedDocumentEntryCount),
+                    "subscribers after a throwing one must still be invoked");
+            }
+            finally
+            {
+                client.Stop();
+            }
+        }
+
+        /// <summary>Pins the behaviour expressed by the test name: internal error handler throwing does not break device received fan out.</summary>
+        [Test]
+        public void InternalErrorHandlerThrowingDoesNotBreakDeviceReceivedFanOut()
+        {
+            // The fix routes swallowed DeviceReceived faults through InternalError.
+            // If InternalError ITSELF throws, that secondary fault must also be
+            // swallowed so the rest of the DeviceReceived fan-out continues.
+            var client = new MTConnectHttpClient(Hostname, Port);
+
+            client.InternalError += (_, _) => throw new InvalidOperationException("InternalError throws");
+            client.DeviceReceived += (_, _) => throw new InvalidOperationException("first DeviceReceived throws");
+
+            var recorded = new List<IDevice>();
+            var recordedLock = new object();
+            client.DeviceReceived += (_, device) =>
+            {
+                lock (recordedLock) { recorded.Add(device); }
+            };
+
+            using var probeSignal = new ManualResetEventSlim(false);
+            client.ProbeReceived += (_, _) => probeSignal.Set();
+
+            try
+            {
+                client.Start();
+
+                Assert.That(probeSignal.Wait(ProbeWaitTimeoutMs), Is.True, "ProbeReceived did not fire within the timeout");
+
+                List<IDevice> snapshot;
+                lock (recordedLock) { snapshot = new List<IDevice>(recorded); }
+
+                Assert.That(snapshot.Count, Is.EqualTo(ExpectedDocumentEntryCount),
+                    "InternalError throwing must not break the DeviceReceived fan-out");
+            }
+            finally
+            {
+                client.Stop();
+            }
+        }
     }
 }
