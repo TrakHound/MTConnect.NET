@@ -140,5 +140,89 @@ namespace MTConnect.Tests.Common
 
             Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, EventArgs.Empty, internalError!));
         }
+
+        // --- Generic custom-delegate overload ---------------------------------
+
+        /// <summary>Local custom-delegate shape used to exercise the generic-delegate overload of the helper.</summary>
+        private delegate void CustomDelegate(int payload);
+
+        /// <summary>Pins the behavior expressed by the test name: every subscriber on a custom-delegate event fires even when an earlier one throws.</summary>
+        [Test]
+        public void MulticastIsolation_GenericDelegate_FiresAllSubscribersWhenOneThrows()
+        {
+            var fired = new System.Collections.Generic.List<int>();
+            CustomDelegate? handler = null;
+            handler += _ => fired.Add(1);
+            handler += _ => throw new InvalidOperationException("subscriber-2");
+            handler += _ => fired.Add(3);
+
+            EventHandler<Exception> internalError = (_, _) => { };
+
+            MulticastIsolation.Raise(handler!, h => h(42), internalError);
+
+            Assert.That(fired, Is.EqualTo(new[] { 1, 3 }));
+        }
+
+        /// <summary>Pins the behavior expressed by the test name: a fault thrown by a custom-delegate subscriber is routed through internalError.</summary>
+        [Test]
+        public void MulticastIsolation_GenericDelegate_RoutesFaultToInternalError()
+        {
+            var routed = new System.Collections.Generic.List<Exception>();
+            CustomDelegate handler = _ => throw new InvalidOperationException("boom");
+            EventHandler<Exception> internalError = (_, ex) => routed.Add(ex);
+
+            MulticastIsolation.Raise(handler, h => h(0), internalError);
+
+            Assert.That(routed.Count, Is.EqualTo(1));
+            Assert.That(routed[0], Is.InstanceOf<InvalidOperationException>());
+            Assert.That(routed[0].Message, Is.EqualTo("boom"));
+        }
+
+        /// <summary>Pins the behavior expressed by the test name: under the generic-delegate overload, the internalError multicast is iterated per subscriber, so a throwing internalError handler does not starve later internalError handlers.</summary>
+        [Test]
+        public void MulticastIsolation_GenericDelegate_InternalErrorIteratesPerSubscriber()
+        {
+            var seen = new System.Collections.Generic.List<int>();
+            CustomDelegate handler = _ => throw new InvalidOperationException("origin");
+
+            EventHandler<Exception>? internalError = null;
+            internalError += (_, _) => throw new InvalidOperationException("internal-1");
+            internalError += (_, _) => seen.Add(2);
+            internalError += (_, _) => seen.Add(3);
+
+            MulticastIsolation.Raise(handler, h => h(0), internalError!);
+
+            Assert.That(seen, Is.EqualTo(new[] { 2, 3 }));
+        }
+
+        /// <summary>Pins the behavior expressed by the test name: under the generic-delegate overload, when every internalError subscriber throws, the helper still returns without escaping an exception.</summary>
+        [Test]
+        public void MulticastIsolation_GenericDelegate_TerminalSwallowsInternalErrorOwnThrow()
+        {
+            CustomDelegate handler = _ => throw new InvalidOperationException("origin");
+            EventHandler<Exception>? internalError = null;
+            internalError += (_, _) => throw new InvalidOperationException("internal-1");
+            internalError += (_, _) => throw new InvalidOperationException("internal-2");
+
+            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h(0), internalError!));
+        }
+
+        /// <summary>Pins the behavior expressed by the test name: the generic-delegate overload accepts a null handler as a safe no-op covering the no-subscriber case.</summary>
+        [Test]
+        public void MulticastIsolation_GenericDelegate_NullHandler_DoesNotThrow()
+        {
+            CustomDelegate? handler = null;
+
+            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler!, h => h(0)));
+        }
+
+        /// <summary>Pins the behavior expressed by the test name: the generic-delegate overload swallows subscriber faults at the per-delegate boundary when internalError is left at its default null.</summary>
+        [Test]
+        public void MulticastIsolation_GenericDelegate_NullInternalErrorSwallowsFault()
+        {
+            CustomDelegate handler = _ => throw new InvalidOperationException("boom");
+
+            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h(0)));
+        }
     }
 }
