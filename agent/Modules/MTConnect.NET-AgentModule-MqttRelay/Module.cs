@@ -899,28 +899,19 @@ namespace MTConnect
                                 if (observation.Category == DataItemCategory.CONDITION)
                                 {
                                     var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
-                                    var wrapped = conditionObservations?.Select(obs =>
-                                            {
-                                                var x = new Observation();
-                                                x.DeviceUuid = obs.DeviceUuid;
-                                                x.DataItemId = obs.DataItemId;
-                                                x.DataItem = obs.DataItem;
-                                                x.Name = obs.Name;
-                                                x.Category = obs.Category;
-                                                x.Type = obs.Type;
-                                                x.SubType = obs.SubType;
-                                                x.Representation = obs.Representation;
-                                                x.CompositionId = obs.CompositionId;
-                                                x.InstanceId = obs.InstanceId;
-                                                x.Sequence = obs.Sequence;
-                                                x.Timestamp = obs.Timestamp;
-                                                x.AddValues(obs.Values);
-                                                return (IObservation)x;
-                                            });
-                                    var result = await _entityServer.PublishObservations(_mqttClient, wrapped);
-                                    if (result != null && result.IsSuccess && conditionObservations != null && conditionObservations.Any())
+                                    if (!conditionObservations.IsNullOrEmpty())
                                     {
-                                        RecordLastSentSequence(conditionObservations.Max(o => o.Sequence));
+                                        var multipleObservations = new List<IObservation>(conditionObservations.Count());
+                                        foreach (var observation in conditionObservations)
+                                        {
+                                            multipleObservations.Add(CloneAsObservation(observation));
+                                        }
+                                    
+                                        var result = await _entityServer.PublishObservations(_mqttClient, multipleObservations);
+                                        if (result != null && result.IsSuccess)
+                                        {
+                                            RecordLastSentSequence(conditionObservations.Max(o => o.Sequence));
+                                        }
                                     }
                                 }
                                 else
