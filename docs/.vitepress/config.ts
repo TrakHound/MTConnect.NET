@@ -2,6 +2,14 @@ import { defineConfig } from 'vitepress';
 import { withMermaid } from 'vitepress-plugin-mermaid';
 import { apiSidebar, referenceSidebar } from './sidebar';
 
+// Absolute base URL for the deployed site. Social-card crawlers (LinkedIn,
+// Slack unfurl, the classic X crawler) require absolute `https://…` URLs in
+// og:image / twitter:image; root-relative paths are silently discarded.
+// Override at workflow level via DOCS_CANONICAL_URL for custom domains.
+const docsCanonicalUrl =
+  process.env.DOCS_CANONICAL_URL ?? 'https://trakhound.github.io/MTConnect.NET';
+const ogImage = `${docsCanonicalUrl}/logo.png`;
+
 /**
  * VitePress config for the MTConnect.NET documentation site.
  *
@@ -62,7 +70,7 @@ export default withMermaid(
             'The .NET implementation of the MTConnect Standard — 100% public-surface API coverage, 100% MTConnect Standard compliance.',
         },
       ],
-      ['meta', { property: 'og:image', content: '/logo.png' }],
+      ['meta', { property: 'og:image', content: ogImage }],
       ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
       ['meta', { name: 'twitter:title', content: 'MTConnect.NET' }],
       [
@@ -72,7 +80,7 @@ export default withMermaid(
           content: 'The .NET implementation of the MTConnect Standard.',
         },
       ],
-      ['meta', { name: 'twitter:image', content: '/logo.png' }],
+      ['meta', { name: 'twitter:image', content: ogImage }],
     ],
 
     themeConfig: {
