@@ -188,9 +188,7 @@ namespace MTConnect.Tests.Http.Clients
                 Assert.That(currentSeed.Wait(EventWaitTimeoutMs), Is.True,
                     "Streamed Current did not deliver the seed before the test could push a sample");
 
-                PushAvailabilityTransition();
-
-                Assert.That(recorded.Wait(EventWaitTimeoutMs), Is.True,
+                Assert.That(WaitForSampleReceivedWithTransitions(recorded), Is.True,
                     "subscribers after a throwing one must still receive SampleReceived");
             }
             finally
@@ -224,9 +222,7 @@ namespace MTConnect.Tests.Http.Clients
                 Assert.That(currentSeed.Wait(EventWaitTimeoutMs), Is.True,
                     "Streamed Current did not deliver the seed before the test could push a sample");
 
-                PushAvailabilityTransition();
-
-                Assert.That(recorded.Wait(EventWaitTimeoutMs), Is.True,
+                Assert.That(WaitForSampleReceivedWithTransitions(recorded), Is.True,
                     "InternalError throwing must not break the SampleReceived fan-out");
             }
             finally
@@ -245,6 +241,24 @@ namespace MTConnect.Tests.Http.Clients
         {
             AgentRunner.Agent.AddObservation(DeviceUuid, AvailabilityDataItemId, Availability.UNAVAILABLE);
             AgentRunner.Agent.AddObservation(DeviceUuid, AvailabilityDataItemId, Availability.AVAILABLE);
+        }
+
+        // On heavily-loaded CI hosts (notably Windows runners) the streaming
+        // sample loop can race against the first PushAvailabilityTransition: the
+        // pushed observations land in the buffer just as the prior streaming GET
+        // closes for the heartbeat round trip, and the next GET starts past
+        // those sequences. Repush every second so a fresh transition is in the
+        // buffer regardless of where the streaming loop is in its reconnect
+        // cycle, and abort early as soon as the recorded handler fires.
+        private bool WaitForSampleReceivedWithTransitions(ManualResetEventSlim recorded)
+        {
+            var deadline = DateTime.UtcNow.AddMilliseconds(EventWaitTimeoutMs);
+            while (DateTime.UtcNow < deadline)
+            {
+                PushAvailabilityTransition();
+                if (recorded.Wait(1000)) return true;
+            }
+            return false;
         }
 
 
