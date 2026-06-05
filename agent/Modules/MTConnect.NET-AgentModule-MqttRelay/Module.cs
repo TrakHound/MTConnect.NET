@@ -938,10 +938,19 @@ namespace MTConnect
                                 if (observation.Category == DataItemCategory.CONDITION)
                                 {
                                     var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
-                                    var result = await _entityServer.PublishObservations(_mqttClient, conditionObservations.OfType<IObservation>());
-                                    if (result != null && result.IsSuccess && conditionObservations != null && conditionObservations.Any())
+                                    if (!conditionObservations.IsNullOrEmpty())
                                     {
-                                        RecordLastSentSequence(conditionObservations.Max(o => o.Sequence));
+                                        var multipleObservations = new List<IObservation>(conditionObservations.Count());
+                                        foreach (var observation in conditionObservations)
+                                        {
+                                            multipleObservations.Add(CloneAsObservation(observation));
+                                        }
+                                    
+                                        var result = await _entityServer.PublishObservations(_mqttClient, multipleObservations);
+                                        if (result != null && result.IsSuccess)
+                                        {
+                                            RecordLastSentSequence(conditionObservations.Max(o => o.Sequence));
+                                        }
                                     }
                                 }
                                 else
