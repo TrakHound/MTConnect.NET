@@ -68,14 +68,14 @@ namespace MTConnect.Tests.Http.Clients
         {
             var handler = GetEventBacking<EventHandler<T>>(instance, eventName);
             var internalError = GetEventBacking<EventHandler<Exception>>(instance, "InternalError");
-            MulticastIsolation.Raise(handler, instance, arg, internalError);
+            handler.Raise(instance, arg, internalError);
         }
 
         private static void InvokeNonGenericRaise(object instance, string eventName, EventArgs arg)
         {
             var handler = GetEventBacking<EventHandler>(instance, eventName);
             var internalError = GetEventBacking<EventHandler<Exception>>(instance, "InternalError");
-            MulticastIsolation.Raise(handler, instance, arg, internalError);
+            handler.Raise(instance, arg, internalError);
         }
 
 

@@ -38,7 +38,7 @@ namespace MTConnect.Tests.Common
 
             EventHandler<Exception>? internalError = (_, _) => { };
 
-            MulticastIsolation.Raise(handler!, this, EventArgs.Empty, internalError);
+            handler!.Raise(this, EventArgs.Empty, internalError);
 
             Assert.That(fired, Is.EqualTo(new[] { 1, 3 }));
         }
@@ -51,7 +51,7 @@ namespace MTConnect.Tests.Common
             EventHandler handler = (_, _) => throw new InvalidOperationException("mqtt-non-generic-fault");
             EventHandler<Exception> internalError = (_, ex) => routed.Add(ex);
 
-            MulticastIsolation.Raise(handler, this, EventArgs.Empty, internalError);
+            handler.Raise(this, EventArgs.Empty, internalError);
 
             Assert.That(routed.Count, Is.EqualTo(1));
             Assert.That(routed[0], Is.InstanceOf<InvalidOperationException>());
@@ -73,7 +73,7 @@ namespace MTConnect.Tests.Common
             internalError += (_, _) => throw new InvalidOperationException("InternalError handler-1 throws");
             internalError += (_, ex) => errorFired.Add(2);
 
-            MulticastIsolation.Raise(handler!, this, EventArgs.Empty, internalError!);
+            handler!.Raise(this, EventArgs.Empty, internalError!);
 
             Assert.That(eventFired, Is.EqualTo(new[] { 2 }));
             Assert.That(errorFired, Is.EqualTo(new[] { 2 }));
@@ -94,7 +94,7 @@ namespace MTConnect.Tests.Common
             handler += (_, _) => throw new InvalidOperationException("first throws");
             handler += (_, v) => received.Add(v!);
 
-            MulticastIsolation.Raise(handler!, this, "payload", null);
+            handler!.Raise(this, "payload", null);
 
             Assert.That(received, Is.EqualTo(new[] { "payload" }));
         }
@@ -107,7 +107,7 @@ namespace MTConnect.Tests.Common
             EventHandler<string> handler = (_, _) => throw new InvalidOperationException("string-event-fault");
             EventHandler<Exception> internalError = (_, ex) => routed.Add(ex.Message);
 
-            MulticastIsolation.Raise(handler, this, "value", internalError);
+            handler.Raise(this, "value", internalError);
 
             Assert.That(routed, Is.EqualTo(new[] { "string-event-fault" }));
         }
@@ -124,7 +124,7 @@ namespace MTConnect.Tests.Common
             internalError += (_, _) => seen.Add(2);
             internalError += (_, _) => seen.Add(3);
 
-            MulticastIsolation.Raise(handler, this, "x", internalError!);
+            handler.Raise(this, "x", internalError!);
 
             Assert.That(seen, Is.EqualTo(new[] { 2, 3 }));
         }
@@ -148,7 +148,7 @@ namespace MTConnect.Tests.Common
             handler += (_, _) => throw new InvalidOperationException("first ConnectionError subscriber throws");
             handler += (_, ex) => received.Add(ex.Message);
 
-            MulticastIsolation.Raise(handler!, this, payload, null);
+            handler!.Raise(this, payload, null);
 
             Assert.That(received, Is.EqualTo(new[] { "upstream-error" }));
         }
@@ -164,7 +164,7 @@ namespace MTConnect.Tests.Common
             EventHandler<string>? handler = null;
             EventHandler<Exception>? internalError = null;
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, "x", internalError));
+            Assert.DoesNotThrow(() => handler.Raise(this, "x", internalError));
         }
 
         /// <summary>Pins the behavior expressed by the test name: Raise non-generic with a null handler is a safe no-op.</summary>
@@ -174,7 +174,7 @@ namespace MTConnect.Tests.Common
             EventHandler? handler = null;
             EventHandler<Exception>? internalError = null;
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, EventArgs.Empty, internalError));
+            Assert.DoesNotThrow(() => handler.Raise(this, EventArgs.Empty, internalError));
         }
     }
 }

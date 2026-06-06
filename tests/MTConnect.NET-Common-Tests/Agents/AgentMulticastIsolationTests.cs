@@ -53,7 +53,7 @@ namespace MTConnect.Tests.Common
             handler += (_, _) => throw new InvalidOperationException("first DeviceAdded subscriber throws");
             handler += (_, d) => received.Add(d.Uuid ?? "null");
 
-            MulticastIsolation.Raise(handler!, this, (IDevice)device, null);
+            handler!.Raise(this, (IDevice)device, null);
 
             Assert.That(received, Is.EqualTo(new[] { "uuid-1" }));
         }
@@ -65,7 +65,7 @@ namespace MTConnect.Tests.Common
             var device = new Device { Name = "device-1", Uuid = "uuid-1" };
             EventHandler<IDevice> handler = (_, _) => throw new InvalidOperationException("DeviceAdded fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, (IDevice)device, null));
+            Assert.DoesNotThrow(() => handler.Raise(this, (IDevice)device, null));
         }
 
         // -----------------------------------------------------------------------
@@ -84,7 +84,7 @@ namespace MTConnect.Tests.Common
             handler += (_, _) => firedCount++;
 
             var obs = new ObservationInput();
-            MulticastIsolation.Raise(handler!, this, (IObservationInput)obs, null);
+            handler!.Raise(this, (IObservationInput)obs, null);
 
             Assert.That(firedCount, Is.EqualTo(1));
         }
@@ -96,7 +96,7 @@ namespace MTConnect.Tests.Common
             var obs = new ObservationInput();
             EventHandler<IObservationInput> handler = (_, _) => throw new InvalidOperationException("ObservationReceived fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, (IObservationInput)obs, null));
+            Assert.DoesNotThrow(() => handler.Raise(this, (IObservationInput)obs, null));
         }
 
         // -----------------------------------------------------------------------
@@ -115,7 +115,7 @@ namespace MTConnect.Tests.Common
             handler += (_, _) => firedCount++;
 
             var obs = new Observation();
-            MulticastIsolation.Raise(handler!, this, (IObservation)obs, null);
+            handler!.Raise(this, (IObservation)obs, null);
 
             Assert.That(firedCount, Is.EqualTo(1));
         }
@@ -127,7 +127,7 @@ namespace MTConnect.Tests.Common
             var obs = new Observation();
             EventHandler<IObservation> handler = (_, _) => throw new InvalidOperationException("ObservationAdded fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, (IObservation)obs, null));
+            Assert.DoesNotThrow(() => handler.Raise(this, (IObservation)obs, null));
         }
 
         // -----------------------------------------------------------------------
@@ -146,7 +146,7 @@ namespace MTConnect.Tests.Common
             handler += (_, _) => firedCount++;
 
             var asset = new Asset { AssetId = "a1", Timestamp = DateTime.UtcNow };
-            MulticastIsolation.Raise(handler!, this, (IAsset)asset, null);
+            handler!.Raise(this, (IAsset)asset, null);
 
             Assert.That(firedCount, Is.EqualTo(1));
         }
@@ -158,7 +158,7 @@ namespace MTConnect.Tests.Common
             var asset = new Asset { AssetId = "a1", Timestamp = DateTime.UtcNow };
             EventHandler<IAsset> handler = (_, _) => throw new InvalidOperationException("AssetAdded fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, (IAsset)asset, null));
+            Assert.DoesNotThrow(() => handler.Raise(this, (IAsset)asset, null));
         }
 
         // -----------------------------------------------------------------------
@@ -176,7 +176,7 @@ namespace MTConnect.Tests.Common
             handler += (_, _) => throw new InvalidOperationException("first StreamsResponseSent subscriber throws");
             handler += (_, _) => fired.Add(1);
 
-            MulticastIsolation.Raise(handler!, this, EventArgs.Empty, null);
+            handler!.Raise(this, EventArgs.Empty, null);
 
             Assert.That(fired, Is.EqualTo(new[] { 1 }));
         }
@@ -187,7 +187,7 @@ namespace MTConnect.Tests.Common
         {
             EventHandler handler = (_, _) => throw new InvalidOperationException("StreamsResponseSent fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, EventArgs.Empty, null));
+            Assert.DoesNotThrow(() => handler.Raise(this, EventArgs.Empty, null));
         }
 
         // -----------------------------------------------------------------------
@@ -201,7 +201,7 @@ namespace MTConnect.Tests.Common
             EventHandler<IDevice>? handler = null;
             var device = new Device { Name = "noop-device", Uuid = "noop-uuid" };
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, (IDevice)device, null));
+            Assert.DoesNotThrow(() => handler.Raise(this, (IDevice)device, null));
         }
 
         /// <summary>Pins the behavior expressed by the test name: Raise with a null non-generic EventHandler is a safe no-op covering the no-subscriber case at runtime.</summary>
@@ -210,7 +210,7 @@ namespace MTConnect.Tests.Common
         {
             EventHandler? handler = null;
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, EventArgs.Empty, null));
+            Assert.DoesNotThrow(() => handler.Raise(this, EventArgs.Empty, null));
         }
 
         // =======================================================================

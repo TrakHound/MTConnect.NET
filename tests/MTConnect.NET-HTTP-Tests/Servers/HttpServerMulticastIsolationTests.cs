@@ -45,7 +45,7 @@ namespace MTConnect.Tests.Http.Servers
             handler += (_, _) => throw new InvalidOperationException("first ResponseSent subscriber throws");
             handler += (_, r) => received.Add(r.ContentType ?? "null");
 
-            MulticastIsolation.Raise(handler!, this, response, null);
+            handler!.Raise(this, response, null);
 
             Assert.That(received, Is.EqualTo(new[] { "application/xml" }));
         }
@@ -57,7 +57,7 @@ namespace MTConnect.Tests.Http.Servers
             var response = new MTConnectHttpResponse { ContentType = "application/xml" };
             EventHandler<MTConnectHttpResponse> handler = (_, _) => throw new InvalidOperationException("ResponseSent fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, response, null));
+            Assert.DoesNotThrow(() => handler.Raise(this, response, null));
         }
 
         // -----------------------------------------------------------------------
@@ -75,7 +75,7 @@ namespace MTConnect.Tests.Http.Servers
             handler += (_, _) => throw new InvalidOperationException("first ClientConnected subscriber throws");
             handler += (_, _) => firedCount++;
 
-            MulticastIsolation.Raise(handler!, this, (IHttpRequest?)null, null);
+            handler!.Raise(this, (IHttpRequest?)null, null);
 
             Assert.That(firedCount, Is.EqualTo(1));
         }
@@ -95,7 +95,7 @@ namespace MTConnect.Tests.Http.Servers
             handler += (_, _) => throw new InvalidOperationException("first ClientDisconnected subscriber throws");
             handler += (_, endpoint) => received.Add(endpoint ?? "null");
 
-            MulticastIsolation.Raise(handler!, this, "127.0.0.1:5000", null);
+            handler!.Raise(this, "127.0.0.1:5000", null);
 
             Assert.That(received, Is.EqualTo(new[] { "127.0.0.1:5000" }));
         }
@@ -116,7 +116,7 @@ namespace MTConnect.Tests.Http.Servers
             handler += (_, _) => throw new InvalidOperationException("first ClientException subscriber throws");
             handler += (_, ex) => received.Add(ex.Message);
 
-            MulticastIsolation.Raise(handler!, this, payload, null);
+            handler!.Raise(this, payload, null);
 
             Assert.That(received, Is.EqualTo(new[] { "http-context-error" }));
         }
@@ -136,7 +136,7 @@ namespace MTConnect.Tests.Http.Servers
             handler += (_, _) => throw new InvalidOperationException("first StreamStarted subscriber throws");
             handler += (_, id) => received.Add(id ?? "null");
 
-            MulticastIsolation.Raise(handler!, this, "stream-id-1", null);
+            handler!.Raise(this, "stream-id-1", null);
 
             Assert.That(received, Is.EqualTo(new[] { "stream-id-1" }));
         }
@@ -147,7 +147,7 @@ namespace MTConnect.Tests.Http.Servers
         {
             EventHandler<string> handler = (_, _) => throw new InvalidOperationException("StreamStopped fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, "stream-id-1", null));
+            Assert.DoesNotThrow(() => handler.Raise(this, "stream-id-1", null));
         }
 
         // -----------------------------------------------------------------------
@@ -166,7 +166,7 @@ namespace MTConnect.Tests.Http.Servers
             handler += (_, _) => throw new InvalidOperationException("first StreamException subscriber throws");
             handler += (_, ex) => received.Add(ex.Message);
 
-            MulticastIsolation.Raise(handler!, this, payload, null);
+            handler!.Raise(this, payload, null);
 
             Assert.That(received, Is.EqualTo(new[] { "stream-broke" }));
         }
@@ -187,7 +187,7 @@ namespace MTConnect.Tests.Http.Servers
             handler += (_, _) => throw new InvalidOperationException("first DocumentReceived subscriber throws");
             handler += (_, a) => received.Add(a.StreamId);
 
-            MulticastIsolation.Raise(handler!, this, args, null);
+            handler!.Raise(this, args, null);
 
             Assert.That(received, Is.EqualTo(new[] { "stream-id-2" }));
         }
@@ -199,7 +199,7 @@ namespace MTConnect.Tests.Http.Servers
             var args = new MTConnectHttpStreamArgs("stream-id-2", System.IO.Stream.Null, 42.5);
             EventHandler<MTConnectHttpStreamArgs> handler = (_, _) => throw new InvalidOperationException("HeartbeatReceived fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, args, null));
+            Assert.DoesNotThrow(() => handler.Raise(this, args, null));
         }
 
         // -----------------------------------------------------------------------
@@ -212,7 +212,7 @@ namespace MTConnect.Tests.Http.Servers
         {
             EventHandler<string>? handler = null;
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, "x", null));
+            Assert.DoesNotThrow(() => handler.Raise(this, "x", null));
         }
     }
 }

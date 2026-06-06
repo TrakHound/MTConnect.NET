@@ -29,7 +29,7 @@ namespace MTConnect.Tests.Common
 
             EventHandler<Exception> internalError = (s, ex) => { };
 
-            MulticastIsolation.Raise(handler!, this, 42, internalError);
+            handler!.Raise(this, 42, internalError);
 
             Assert.That(fired, Is.EqualTo(new[] { 1, 3 }));
         }
@@ -42,7 +42,7 @@ namespace MTConnect.Tests.Common
             EventHandler<int> handler = (s, e) => throw new InvalidOperationException("boom");
             EventHandler<Exception> internalError = (s, ex) => routed.Add(ex);
 
-            MulticastIsolation.Raise(handler, this, 0, internalError);
+            handler.Raise(this, 0, internalError);
 
             Assert.That(routed.Count, Is.EqualTo(1));
             Assert.That(routed[0], Is.InstanceOf<InvalidOperationException>());
@@ -61,7 +61,7 @@ namespace MTConnect.Tests.Common
             internalError += (s, ex) => seen.Add(2);
             internalError += (s, ex) => seen.Add(3);
 
-            MulticastIsolation.Raise(handler, this, 0, internalError!);
+            handler.Raise(this, 0, internalError!);
 
             Assert.That(seen, Is.EqualTo(new[] { 2, 3 }));
         }
@@ -75,7 +75,7 @@ namespace MTConnect.Tests.Common
             internalError += (s, ex) => throw new InvalidOperationException("internal-1");
             internalError += (s, ex) => throw new InvalidOperationException("internal-2");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, 0, internalError!));
+            Assert.DoesNotThrow(() => handler.Raise(this, 0, internalError!));
         }
 
         // --- Non-generic overload ---------------------------------------------
@@ -92,7 +92,7 @@ namespace MTConnect.Tests.Common
 
             EventHandler<Exception> internalError = (s, ex) => { };
 
-            MulticastIsolation.Raise(handler!, this, EventArgs.Empty, internalError);
+            handler!.Raise(this, EventArgs.Empty, internalError);
 
             Assert.That(fired, Is.EqualTo(new[] { 1, 3 }));
         }
@@ -105,7 +105,7 @@ namespace MTConnect.Tests.Common
             EventHandler handler = (s, e) => throw new InvalidOperationException("boom");
             EventHandler<Exception> internalError = (s, ex) => routed.Add(ex);
 
-            MulticastIsolation.Raise(handler, this, EventArgs.Empty, internalError);
+            handler.Raise(this, EventArgs.Empty, internalError);
 
             Assert.That(routed.Count, Is.EqualTo(1));
             Assert.That(routed[0], Is.InstanceOf<InvalidOperationException>());
@@ -124,7 +124,7 @@ namespace MTConnect.Tests.Common
             internalError += (s, ex) => seen.Add(2);
             internalError += (s, ex) => seen.Add(3);
 
-            MulticastIsolation.Raise(handler, this, EventArgs.Empty, internalError!);
+            handler.Raise(this, EventArgs.Empty, internalError!);
 
             Assert.That(seen, Is.EqualTo(new[] { 2, 3 }));
         }
@@ -138,7 +138,7 @@ namespace MTConnect.Tests.Common
             internalError += (s, ex) => throw new InvalidOperationException("internal-1");
             internalError += (s, ex) => throw new InvalidOperationException("internal-2");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, EventArgs.Empty, internalError!));
+            Assert.DoesNotThrow(() => handler.Raise(this, EventArgs.Empty, internalError!));
         }
 
         // --- Generic custom-delegate overload ---------------------------------

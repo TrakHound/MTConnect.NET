@@ -39,7 +39,7 @@ namespace MTConnect.Tests.Shdr
             handler += (_, _) => throw new InvalidOperationException("first shdr subscriber throws");
             handler += (_, v) => received.Add(v);
 
-            MulticastIsolation.Raise(handler, this, "shdr-payload", null);
+            handler.Raise(this, "shdr-payload", null);
 
             Assert.That(received, Is.EqualTo(new[] { "shdr-payload" }));
         }
@@ -50,7 +50,7 @@ namespace MTConnect.Tests.Shdr
         {
             EventHandler<string> handler = (_, _) => throw new InvalidOperationException("shdr-fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, "x", null));
+            Assert.DoesNotThrow(() => handler.Raise(this, "x", null));
         }
 
         /// <summary>Pins the behavior expressed by the test name: multiple string-payload subscribers all fire when no subscriber throws, covering the happy path for AgentConnected and related events.</summary>
@@ -63,7 +63,7 @@ namespace MTConnect.Tests.Shdr
             handler += (_, v) => received.Add("sub1:" + v);
             handler += (_, v) => received.Add("sub2:" + v);
 
-            MulticastIsolation.Raise(handler, this, "hello", null);
+            handler.Raise(this, "hello", null);
 
             Assert.That(received, Is.EqualTo(new[] { "sub1:hello", "sub2:hello" }));
         }
@@ -84,7 +84,7 @@ namespace MTConnect.Tests.Shdr
             handler += (_, _) => throw new InvalidOperationException("first LineSent subscriber throws");
             handler += (_, e) => received.Add(e);
 
-            MulticastIsolation.Raise(handler, this, payload, null);
+            handler.Raise(this, payload, null);
 
             Assert.That(received.Count, Is.EqualTo(1));
             Assert.That(received[0].ClientId, Is.EqualTo("client-1"));
@@ -98,7 +98,7 @@ namespace MTConnect.Tests.Shdr
             var payload = new AdapterEventArgs<string>("c1", "data");
             EventHandler<AdapterEventArgs<string>> handler = (_, _) => throw new InvalidOperationException("fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, payload, null));
+            Assert.DoesNotThrow(() => handler.Raise(this, payload, null));
         }
 
         // -----------------------------------------------------------------------
@@ -118,7 +118,7 @@ namespace MTConnect.Tests.Shdr
             handler += (_, _) => throw new InvalidOperationException("first ConnectionError subscriber throws");
             handler += (_, e) => received.Add(e);
 
-            MulticastIsolation.Raise(handler, this, payload, null);
+            handler.Raise(this, payload, null);
 
             Assert.That(received.Count, Is.EqualTo(1));
             Assert.That(received[0].ClientId, Is.EqualTo("client-2"));
@@ -141,7 +141,7 @@ namespace MTConnect.Tests.Shdr
             handler += (_, _) => throw new InvalidOperationException("first ConnectionError subscriber throws");
             handler += (_, ex) => received.Add(ex.Message);
 
-            MulticastIsolation.Raise(handler, this, payload, null);
+            handler.Raise(this, payload, null);
 
             Assert.That(received, Is.EqualTo(new[] { "connection-refused" }));
         }
@@ -156,7 +156,7 @@ namespace MTConnect.Tests.Shdr
         {
             EventHandler<string> handler = null;
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, this, "x", null));
+            Assert.DoesNotThrow(() => handler.Raise(this, "x", null));
         }
     }
 }
