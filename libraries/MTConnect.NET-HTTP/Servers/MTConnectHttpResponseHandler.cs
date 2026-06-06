@@ -57,7 +57,7 @@ namespace MTConnect.Servers.Http
         {
             try
             {
-                ClientConnected?.Invoke(this, context.Request);
+                ClientConnected.Raise(this, context.Request, ClientException);
 
                 // Get Accept-Encoding Header (ex. gzip, br)
                 var acceptEncodings = GetRequestHeaderValues(context.Request, HttpHeaders.AcceptEncoding);
@@ -66,9 +66,9 @@ namespace MTConnect.Servers.Http
                 var mtconnectResponse = await OnRequestReceived(context, cancellationToken);
                 mtconnectResponse.WriteDuration = await WriteResponse(mtconnectResponse, context.Response, acceptEncodings);
 
-                ResponseSent?.Invoke(this, mtconnectResponse);
+                ResponseSent.Raise(this, mtconnectResponse, ClientException);
 
-                ClientDisconnected?.Invoke(this, context.Request.RemoteEndPoint?.ToString());
+                ClientDisconnected.Raise(this, context.Request.RemoteEndPoint?.ToString(), ClientException);
 
                 return true;
             }
@@ -77,13 +77,13 @@ namespace MTConnect.Servers.Http
                 // Ignore Disposed Object Exception (happens when the listener is stopped)
                 if (ex.ErrorCode != 995)
                 {
-                    if (ClientException != null) ClientException.Invoke(this, ex);
+                    ClientException.Raise(this, ex, null);
                 }
             }
             catch (ObjectDisposedException) { }
             catch (Exception ex)
             {
-                if (ClientException != null) ClientException.Invoke(this, ex);
+                ClientException.Raise(this, ex, null);
             }
 
             return false;
@@ -225,7 +225,7 @@ namespace MTConnect.Servers.Http
                 }
                 catch (Exception)
                 {
-                    if (ClientDisconnected != null) ClientDisconnected.Invoke(this, sampleStream.Id);
+                    ClientDisconnected.Raise(this, sampleStream.Id, ClientException);
                     sampleStream.Stop();
                 }
             }
@@ -243,7 +243,7 @@ namespace MTConnect.Servers.Http
                 }
                 catch (Exception)
                 {
-                    if (ClientDisconnected != null) ClientDisconnected.Invoke(this, sampleStream.Id);
+                    ClientDisconnected.Raise(this, sampleStream.Id, ClientException);
                     sampleStream.Stop();
                 }
             }

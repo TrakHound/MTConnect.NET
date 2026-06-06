@@ -1314,7 +1314,7 @@ namespace MTConnect.Agents
                             var validationResults = new ValidationResult(false, $"Invalid Component : \"{genericComponent.Type}\" Not Found");
                             if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
                             {
-                                if (InvalidComponentAdded != null) InvalidComponentAdded.Invoke(obj.Uuid, genericComponent, validationResults);
+                                MulticastIsolation.Raise(InvalidComponentAdded, h => h(obj.Uuid, genericComponent, validationResults));
 
                                 // Remove Component from Device
                                 if (_configuration.InputValidationLevel == InputValidationLevel.Remove) obj.RemoveComponent(genericComponent.Id);
@@ -1334,7 +1334,7 @@ namespace MTConnect.Agents
                             var validationResults = new ValidationResult(false, $"Invalid Composition : \"{genericComposition.Type}\" Not Found");
                             if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
                             {
-                                if (InvalidCompositionAdded != null) InvalidCompositionAdded.Invoke(obj.Uuid, genericComposition, validationResults);
+                                MulticastIsolation.Raise(InvalidCompositionAdded, h => h(obj.Uuid, genericComposition, validationResults));
 
                                 // Remove Compsition from Device
                                 if (_configuration.InputValidationLevel == InputValidationLevel.Remove) obj.RemoveComposition(genericComposition.Id);
@@ -1354,7 +1354,7 @@ namespace MTConnect.Agents
                             var validationResults = new ValidationResult(false, $"Invalid DataItem : \"{genericDataItem.Type}\" Not Found");
                             if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
                             {
-                                if (InvalidDataItemAdded != null) InvalidDataItemAdded.Invoke(obj.Uuid, genericDataItem, validationResults);
+                                MulticastIsolation.Raise(InvalidDataItemAdded, h => h(obj.Uuid, genericDataItem, validationResults));
 
                                 // Remove DataItem from Device
                                 if (_configuration.InputValidationLevel == InputValidationLevel.Remove) obj.RemoveDataItem(genericDataItem.Id);
@@ -1522,7 +1522,7 @@ namespace MTConnect.Agents
                             new ObservationValue(ValueKeys.Result, device.Uuid)
                         });
 
-                        ObservationAdded?.Invoke(this, observation);
+                        ObservationAdded.Raise(this, observation, null);
 
                         return true;
                     }
@@ -1553,7 +1553,7 @@ namespace MTConnect.Agents
                             new ObservationValue(ValueKeys.Result, device.Uuid)
                         });
 
-                        ObservationAdded?.Invoke(this, observation);
+                        ObservationAdded.Raise(this, observation, null);
 
                         return true;
                     }
@@ -1583,7 +1583,7 @@ namespace MTConnect.Agents
                             new ObservationValue(ValueKeys.Result, device.Uuid)
                         });
 
-                        ObservationAdded?.Invoke(this, observation);
+                        ObservationAdded.Raise(this, observation, null);
 
                         return true;
                     }
@@ -1717,7 +1717,7 @@ namespace MTConnect.Agents
                             _updateInformation = true;
                         }
 
-                        DeviceAdded?.Invoke(this, obj);
+                        DeviceAdded.Raise(this, obj, null);
 
                         return obj;
                     }
@@ -2124,7 +2124,7 @@ namespace MTConnect.Agents
         {
             if (observationInput != null)
             {
-                ObservationReceived?.Invoke(this, observationInput);
+                ObservationReceived.Raise(this, observationInput, null);
 
                 IObservationInput input = new ObservationInput();
                 input.DeviceKey = deviceKey;
@@ -2259,16 +2259,17 @@ namespace MTConnect.Agents
                         else success = true; // Return true if no update needed
                     }
 
-                    if (!validationResult.IsValid && InvalidObservationAdded != null)
+                    if (!validationResult.IsValid)
                     {
-                        InvalidObservationAdded.Invoke(deviceUuid, input.DataItemKey, validationResult);
+                        MulticastIsolation.Raise(InvalidObservationAdded, h => h(deviceUuid, input.DataItemKey, validationResult));
                     }
 
                     return success;
                 }
-                else if (InvalidObservationAdded != null)
+                else
                 {
-                    InvalidObservationAdded.Invoke(deviceUuid, input.DataItemKey, new ValidationResult(false, $"DataItemKey \"{input.DataItemKey}\" not Found in Device"));
+                    var missingKeyResult = new ValidationResult(false, $"DataItemKey \"{input.DataItemKey}\" not Found in Device");
+                    MulticastIsolation.Raise(InvalidObservationAdded, h => h(deviceUuid, input.DataItemKey, missingKeyResult));
                 }
             }
 
@@ -2333,28 +2334,19 @@ namespace MTConnect.Agents
         /// <inheritdoc />
         public void OnObservationAdded(IObservation observation)
         {
-            if (ObservationAdded != null)
-            {
-                ObservationAdded?.Invoke(this, observation);
-            }
+            ObservationAdded.Raise(this, observation, null);
         }
 
         /// <inheritdoc />
         public void OnInvalidObservationAdded(string deviceUuid, string dataItemId, ValidationResult result)
         {
-            if (InvalidObservationAdded != null)
-            {
-                InvalidObservationAdded?.Invoke(deviceUuid, dataItemId, result);
-            }
+            MulticastIsolation.Raise(InvalidObservationAdded, h => h(deviceUuid, dataItemId, result));
         }
 
         /// <inheritdoc />
         public void OnInvalidDeviceAdded(IDevice device, ValidationResult result)
         {
-            if (InvalidDeviceAdded != null)
-            {
-                InvalidDeviceAdded?.Invoke(device, result);
-            }
+            MulticastIsolation.Raise(InvalidDeviceAdded, h => h(device, result));
         }
 
         #endregion
@@ -2453,16 +2445,16 @@ namespace MTConnect.Agents
 
                             if (!validationResults.IsValid && _configuration.InputValidationLevel > InputValidationLevel.Ignore)
                             {
-                                if (InvalidAssetAdded != null) InvalidAssetAdded.Invoke(asset, validationResults);
+                                MulticastIsolation.Raise(InvalidAssetAdded, h => h(asset, validationResults));
                             }
 
-                            AssetAdded?.Invoke(this, asset);
+                            AssetAdded.Raise(this, asset, null);
                             return true;
                         }
                     }
                     else
                     {
-                        if (InvalidAssetAdded != null) InvalidAssetAdded.Invoke(asset, validationResults);
+                        MulticastIsolation.Raise(InvalidAssetAdded, h => h(asset, validationResults));
                     }
                 }
             }

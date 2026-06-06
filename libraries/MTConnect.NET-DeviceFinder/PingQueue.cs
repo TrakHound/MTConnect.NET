@@ -132,7 +132,7 @@ namespace MTConnect.DeviceFinder
                 {
                     foreach (var address in addresses)
                     {
-                        PingSent?.Invoke(address);
+                        MulticastIsolation.Raise(PingSent, h => h(address));
 
                         var ping = new Ping();
                         lock (_lock) activeRequests.Add(ping);
@@ -157,7 +157,8 @@ namespace MTConnect.DeviceFinder
                 {
                     var address = (IPAddress)e.UserState;
 
-                    PingReceived?.Invoke(address, e.Reply);
+                    var reply = e.Reply;
+                    MulticastIsolation.Raise(PingReceived, h => h(address, reply));
 
                     if (e.Reply.Status == IPStatus.Success) successful.Add(address);
 
@@ -181,7 +182,7 @@ namespace MTConnect.DeviceFinder
                 successfulAddresses = successful;
             }
 
-            if (completed) Completed?.Invoke(successfulAddresses);
+            if (completed) MulticastIsolation.Raise(Completed, h => h(successfulAddresses));
         }
     }
 }

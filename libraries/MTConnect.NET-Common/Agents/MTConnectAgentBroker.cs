@@ -662,7 +662,7 @@ namespace MTConnect.Agents
         /// <returns>MTConnectDevices Response Document</returns>
         public IDevicesResponseDocument GetDevicesResponseDocument(Version mtconnectVersion = null, string deviceType = null)
         {
-            DevicesRequestReceived?.Invoke(null);
+            MulticastIsolation.Raise(DevicesRequestReceived, h => h(null));
 
             var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
@@ -675,7 +675,7 @@ namespace MTConnect.Agents
                 doc.Header = GetDevicesHeader(version);
                 doc.Devices = ProcessDevices(devices, version);
 
-                DevicesResponseSent?.Invoke(doc);
+                MulticastIsolation.Raise(DevicesResponseSent, h => h(doc));
 
                 return doc;
             }
@@ -691,7 +691,7 @@ namespace MTConnect.Agents
         /// <returns>MTConnectDevices Response Document</returns>
         public IDevicesResponseDocument GetDevicesResponseDocument(string deviceKey, Version mtconnectVersion = null)
         {
-            DevicesRequestReceived?.Invoke(deviceKey);
+            MulticastIsolation.Raise(DevicesRequestReceived, h => h(deviceKey));
 
             if (!string.IsNullOrEmpty(deviceKey))
             {
@@ -706,7 +706,7 @@ namespace MTConnect.Agents
                     doc.Header = GetDevicesHeader(version);
                     doc.Devices = ProcessDevices(new List<IDevice> { device }, version);
 
-                    DevicesResponseSent?.Invoke(doc);
+                    MulticastIsolation.Raise(DevicesResponseSent, h => h(doc));
 
                     return doc;
                 }
@@ -756,7 +756,7 @@ namespace MTConnect.Agents
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(uint count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
-            StreamsRequestReceived?.Invoke(null);
+            MulticastIsolation.Raise(StreamsRequestReceived, h => h(null));
 
             if (_observationBuffer != null)
             {
@@ -773,7 +773,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -792,7 +792,7 @@ namespace MTConnect.Agents
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(ulong at, uint count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
-            StreamsRequestReceived?.Invoke(null);
+            MulticastIsolation.Raise(StreamsRequestReceived, h => h(null));
 
             if (_observationBuffer != null)
             {
@@ -809,7 +809,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -828,7 +828,7 @@ namespace MTConnect.Agents
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, uint count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
-            StreamsRequestReceived?.Invoke(null);
+            MulticastIsolation.Raise(StreamsRequestReceived, h => h(null));
 
             if (_observationBuffer != null)
             {
@@ -850,7 +850,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -870,7 +870,7 @@ namespace MTConnect.Agents
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, ulong at, uint count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
-            StreamsRequestReceived?.Invoke(null);
+            MulticastIsolation.Raise(StreamsRequestReceived, h => h(null));
 
             if (_observationBuffer != null)
             {
@@ -892,7 +892,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -912,7 +912,7 @@ namespace MTConnect.Agents
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(ulong from, ulong to, uint count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
-            StreamsRequestReceived?.Invoke(null);
+            MulticastIsolation.Raise(StreamsRequestReceived, h => h(null));
 
             if (_observationBuffer != null)
             {
@@ -929,7 +929,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -950,7 +950,7 @@ namespace MTConnect.Agents
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, ulong from, ulong to, uint count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
-            StreamsRequestReceived?.Invoke(null);
+            MulticastIsolation.Raise(StreamsRequestReceived, h => h(null));
 
             if (_observationBuffer != null)
             {
@@ -967,7 +967,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -986,7 +986,7 @@ namespace MTConnect.Agents
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, uint count = 0, Version mtconnectVersion = null)
         {
-            StreamsRequestReceived?.Invoke(deviceKey);
+            MulticastIsolation.Raise(StreamsRequestReceived, h => h(deviceKey));
 
             if (_observationBuffer != null)
             {
@@ -1003,7 +1003,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -1022,7 +1022,7 @@ namespace MTConnect.Agents
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, ulong at, uint count = 0, Version mtconnectVersion = null)
         {
-            StreamsRequestReceived?.Invoke(deviceKey);
+            MulticastIsolation.Raise(StreamsRequestReceived, h => h(deviceKey));
 
             if (_observationBuffer != null)
             {
@@ -1039,7 +1039,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -1058,7 +1058,7 @@ namespace MTConnect.Agents
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, uint count = 0, Version mtconnectVersion = null)
         {
-            StreamsRequestReceived?.Invoke(deviceKey);
+            MulticastIsolation.Raise(StreamsRequestReceived, h => h(deviceKey));
 
             if (_observationBuffer != null)
             {
@@ -1075,7 +1075,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -1095,7 +1095,7 @@ namespace MTConnect.Agents
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, ulong at, uint count = 0, Version mtconnectVersion = null)
         {
-            StreamsRequestReceived?.Invoke(deviceKey);
+            MulticastIsolation.Raise(StreamsRequestReceived, h => h(deviceKey));
 
             if (_observationBuffer != null)
             {
@@ -1112,7 +1112,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -1132,7 +1132,7 @@ namespace MTConnect.Agents
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, ulong from, ulong to, uint count = 0, Version mtconnectVersion = null)
         {
-            StreamsRequestReceived?.Invoke(deviceKey);
+            MulticastIsolation.Raise(StreamsRequestReceived, h => h(deviceKey));
 
             if (_observationBuffer != null)
             {
@@ -1149,7 +1149,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -1170,7 +1170,7 @@ namespace MTConnect.Agents
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, ulong from, ulong to, uint count = 0, Version mtconnectVersion = null)
         {
-            StreamsRequestReceived?.Invoke(deviceKey);
+            MulticastIsolation.Raise(StreamsRequestReceived, h => h(deviceKey));
 
             if (_observationBuffer != null)
             {
@@ -1187,7 +1187,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -1418,7 +1418,7 @@ namespace MTConnect.Agents
         /// <returns>MTConnectAssets Response Document</returns>
         public IAssetsResponseDocument GetAssetsResponseDocument(string deviceKey = null, string type = null, bool removed = false, uint count = 0, Version mtconnectVersion = null)
         {
-            DeviceAssetsRequestReceived?.Invoke(deviceKey);
+            MulticastIsolation.Raise(DeviceAssetsRequestReceived, h => h(deviceKey));
 
             if (_assetBuffer != null)
             {
@@ -1452,7 +1452,7 @@ namespace MTConnect.Agents
                 document.Header = header;
                 document.Assets = processedAssets;
 
-                AssetsResponseSent?.Invoke(document);
+                MulticastIsolation.Raise(AssetsResponseSent, h => h(document));
 
                 return document;
             }
@@ -1468,7 +1468,7 @@ namespace MTConnect.Agents
         /// <returns>MTConnectAssets Response Document</returns>
         public IAssetsResponseDocument GetAssetsResponseDocument(IEnumerable<string> assetIds, Version mtconnectVersion = null)
         {
-            AssetsRequestReceived?.Invoke(assetIds);
+            MulticastIsolation.Raise(AssetsRequestReceived, h => h(assetIds));
 
             if (_assetBuffer != null)
             {
@@ -1499,7 +1499,7 @@ namespace MTConnect.Agents
                 document.Header = header;
                 document.Assets = processedAssets;
 
-                AssetsResponseSent?.Invoke(document);
+                MulticastIsolation.Raise(AssetsResponseSent, h => h(document));
 
                 return document;
             }
@@ -1771,7 +1771,7 @@ namespace MTConnect.Agents
                 new Error(errorCode, value)
             };
 
-            ErrorResponseSent?.Invoke(doc);
+            MulticastIsolation.Raise(ErrorResponseSent, h => h(doc));
 
             return doc;
         }
@@ -1792,7 +1792,7 @@ namespace MTConnect.Agents
             doc.Header = GetErrorHeader(version);
             doc.Errors = errors != null ? errors.ToList() : null;
 
-            ErrorResponseSent?.Invoke(doc);
+            MulticastIsolation.Raise(ErrorResponseSent, h => h(doc));
 
             return doc;
         }

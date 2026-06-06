@@ -123,7 +123,7 @@ namespace MTConnect.Clients
             cancellationToken.Register(() => Stop());
 
             // Raise Starting Event
-            Starting?.Invoke(this, new EventArgs());
+            Starting.Raise(this, EventArgs.Empty, InternalError);
 
             _ = Task.Run(() => Run(_stop.Token));
         }
@@ -136,7 +136,7 @@ namespace MTConnect.Clients
         public void Stop()
         {
             // Raise Stopping Event
-            Stopping?.Invoke(this, new EventArgs());
+            Stopping.Raise(this, EventArgs.Empty, InternalError);
 
             if (_stop != null) _stop.Cancel();
         }
@@ -167,7 +167,7 @@ namespace MTConnect.Clients
                     responseTimer.Elapsed += (o, e) =>
                     {
                         stop.Cancel();
-                        ConnectionError?.Invoke(this, new TimeoutException($"HTTP Stream Timeout Exceeded ({Timeout})"));
+                        ConnectionError.Raise(this, new TimeoutException($"HTTP Stream Timeout Exceeded ({Timeout})"), InternalError);
                     };
                     responseTimer.Start();
                 }
@@ -177,7 +177,7 @@ namespace MTConnect.Clients
                     stop.Token.ThrowIfCancellationRequested();
 
                     // Raise Started Event
-                    Started?.Invoke(this, new EventArgs());
+                    Started.Raise(this, EventArgs.Empty, InternalError);
 
 
                     // Add 'Accept' HTTP Header
@@ -305,16 +305,16 @@ namespace MTConnect.Clients
                 }
                 catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
                 {
-                    ConnectionError?.Invoke(this, ex);
+                    ConnectionError.Raise(this, ex, InternalError);
                 }
                 catch (TaskCanceledException) { /* Ignore Task Cancelled */  }
                 catch (HttpRequestException ex)
                 {
-                    ConnectionError?.Invoke(this, ex);
+                    ConnectionError.Raise(this, ex, InternalError);
                 }
                 catch (Exception ex)
                 {
-                    InternalError?.Invoke(this, ex);
+                    InternalError.Raise(this, ex, InternalError);
                 }
                 finally
                 {
@@ -322,7 +322,7 @@ namespace MTConnect.Clients
                 }
             }
 
-            Stopped?.Invoke(this, new EventArgs());
+            Stopped.Raise(this, EventArgs.Empty, InternalError);
         }
 
         private static string GetHeaderValue(string s, string name)
@@ -411,7 +411,7 @@ namespace MTConnect.Clients
                     var document = formatResult.Content;
                     if (document != null)
                     {
-                        DocumentReceived?.Invoke(this, document);
+                        DocumentReceived.Raise(this, document, InternalError);
                     }
                     else
                     {
@@ -420,19 +420,19 @@ namespace MTConnect.Clients
                         if (errorFormatResult.Success)
                         {
                             var errorDocument = errorFormatResult.Content;
-                            if (errorDocument != null) ErrorReceived?.Invoke(this, errorDocument);
+                            if (errorDocument != null) ErrorReceived.Raise(this, errorDocument, InternalError);
                         }
                         else
                         {
                             // Raise Format Error
-                            if (FormatError != null) FormatError.Invoke(this, errorFormatResult);
+                            FormatError.Raise(this, errorFormatResult, InternalError);
                         }
                     }
                 }
                 else
                 {
                     // Raise Format Error
-                    if (FormatError != null) FormatError.Invoke(this, formatResult);
+                    FormatError.Raise(this, formatResult, InternalError);
                 }
             }
         }

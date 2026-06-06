@@ -192,16 +192,16 @@ namespace MTConnect.Clients
             }
             catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
             {
-                ConnectionError?.Invoke(this, ex);
+                ConnectionError.Raise(this, ex, InternalError);
             }
             catch (TaskCanceledException) { /* Ignore Task Cancelled */  }
             catch (HttpRequestException ex)
             {
-                ConnectionError?.Invoke(this, ex);
+                ConnectionError.Raise(this, ex, InternalError);
             }
             catch (Exception ex)
             {
-                InternalError?.Invoke(this, ex);
+                InternalError.Raise(this, ex, InternalError);
             }
 
             return null;
@@ -246,16 +246,16 @@ namespace MTConnect.Clients
             }
             catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
             {
-                ConnectionError?.Invoke(this, ex);
+                ConnectionError.Raise(this, ex, InternalError);
             }
             catch (TaskCanceledException) { /* Ignore Task Cancelled */  }
             catch (HttpRequestException ex)
             {
-                ConnectionError?.Invoke(this, ex);
+                ConnectionError.Raise(this, ex, InternalError);
             }
             catch (Exception ex)
             {
-                InternalError?.Invoke(this, ex);
+                InternalError.Raise(this, ex, InternalError);
             }
 
             return null;
@@ -346,7 +346,7 @@ namespace MTConnect.Clients
             {
                 if (!response.IsSuccessStatusCode)
                 {
-                    ConnectionError?.Invoke(this, new Exception(response.ReasonPhrase));
+                    ConnectionError.Raise(this, new Exception(response.ReasonPhrase), InternalError);
                 }
                 else if (response.Content != null)
                 {
@@ -364,7 +364,7 @@ namespace MTConnect.Clients
             {
                 if (!response.IsSuccessStatusCode)
                 {
-                    ConnectionError?.Invoke(this, new Exception(response.ReasonPhrase));
+                    ConnectionError.Raise(this, new Exception(response.ReasonPhrase), InternalError);
                 }
                 else if (response.Content != null)
                 {
@@ -407,19 +407,19 @@ namespace MTConnect.Clients
                         if (errorFormatResult.Success)
                         {
                             var errorDocument = errorFormatResult.Content;
-                            if (errorDocument != null) MTConnectError?.Invoke(this, errorDocument);
+                            if (errorDocument != null) MTConnectError.Raise(this, errorDocument, InternalError);
                         }
                         else
                         {
                             // Raise Format Error
-                            if (FormatError != null) FormatError.Invoke(this, errorFormatResult);
+                            FormatError.Raise(this, errorFormatResult, InternalError);
                         }
                     }
                 }
                 else
                 {
                     // Raise Format Error
-                    if (FormatError != null) FormatError.Invoke(this, formatResult);
+                    FormatError.Raise(this, formatResult, InternalError);
                 }
             }
 

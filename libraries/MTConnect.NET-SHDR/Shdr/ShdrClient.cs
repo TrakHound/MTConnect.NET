@@ -258,7 +258,7 @@ namespace MTConnect.Shdr
                         _client.ReceiveTimeout = ConnectionTimeout;
                         _client.SendTimeout = ConnectionTimeout;
 
-                        Connected?.Invoke(this, $"Connected to Adapter at {Hostname} on Port {Port}");
+                        Connected.Raise(this, $"Connected to Adapter at {Hostname} on Port {Port}", null);
                         connected = true;
 
                         OnConnect();
@@ -269,7 +269,7 @@ namespace MTConnect.Shdr
                             // Send Initial PING Request
                             var messageBytes = Encoding.ASCII.GetBytes(PingMessage);
                             stream.Write(messageBytes, 0, messageBytes.Length);
-                            PingSent?.Invoke(this, $"Initial PING sent to : {Hostname} on Port {Port}");
+                            PingSent.Raise(this, $"Initial PING sent to : {Hostname} on Port {Port}", null);
 
                             // Read the Initial PONG Response
                             bufferIndex = stream.Read(buffer, 0, buffer.Length);
@@ -297,7 +297,7 @@ namespace MTConnect.Shdr
                                 {
                                     messageBytes = Encoding.ASCII.GetBytes(PingMessage);
                                     stream.Write(messageBytes, 0, messageBytes.Length);
-                                    PingSent?.Invoke(this, $"PING sent to : {Hostname} on Port {Port}");
+                                    PingSent.Raise(this, $"PING sent to : {Hostname} on Port {Port}", null);
                                     _lastHeartbeat = now;
                                 }
 
@@ -318,7 +318,7 @@ namespace MTConnect.Shdr
                     catch (TaskCanceledException) { }
                     catch (Exception ex)
                     {
-                        ConnectionError?.Invoke(this, ex);
+                        ConnectionError.Raise(this, ex, null);
                     }
                     finally
                     {
@@ -329,7 +329,7 @@ namespace MTConnect.Shdr
 
                             if (connected)
                             {
-                                Disconnected?.Invoke(this, $"Disconnected from {Hostname} on Port {Port}");
+                                Disconnected.Raise(this, $"Disconnected from {Hostname} on Port {Port}", null);
 
                                 OnDisconnect();
                             }
@@ -341,13 +341,13 @@ namespace MTConnect.Shdr
                     // Wait for the ReconnectInterval (in milliseconds) until continuing while loop
                     await Task.Delay(reconnectInterval, cancel);
 
-                    Listening?.Invoke(this, $"Listening for connection from {Hostname} on Port {Port}");
+                    Listening.Raise(this, $"Listening for connection from {Hostname} on Port {Port}", null);
                 }
             }
             catch (TaskCanceledException) { }
             catch (Exception ex)
             {
-                ConnectionError?.Invoke(this, ex);
+                ConnectionError.Raise(this, ex, null);
 
                 if (_client != null)
                 {
@@ -358,7 +358,7 @@ namespace MTConnect.Shdr
 
                     if (connected)
                     {
-                        Disconnected?.Invoke(this, $"Disconnected from {Hostname} on Port {Port}");
+                        Disconnected.Raise(this, $"Disconnected from {Hostname} on Port {Port}", null);
 
                         OnDisconnect();
                     }
@@ -405,7 +405,7 @@ namespace MTConnect.Shdr
                                 {
                                     _heartbeat = GetPongHeartbeat(line);
 
-                                    PongReceived?.Invoke(this, $"PONG Received from : {Hostname} on Port {Port} : Heartbeat = {_heartbeat}ms");
+                                    PongReceived.Raise(this, $"PONG Received from : {Hostname} on Port {Port} : Heartbeat = {_heartbeat}ms", null);
                                 }
                                 else
                                 {
@@ -429,7 +429,7 @@ namespace MTConnect.Shdr
                                 multilineAsset = true;
 
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived?.Invoke(this, line);
+                                ProtocolReceived.Raise(this, line, null);
 
                                 found = true;
                             }
@@ -449,7 +449,7 @@ namespace MTConnect.Shdr
                                 multilineAsset = false;
 
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived?.Invoke(this, line);
+                                ProtocolReceived.Raise(this, line, null);
 
                                 found = true;
                             }
@@ -458,7 +458,7 @@ namespace MTConnect.Shdr
                                 multilineContent.Append(line);
 
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived?.Invoke(this, line);
+                                ProtocolReceived.Raise(this, line, null);
 
                                 found = true;
                             }
@@ -485,7 +485,7 @@ namespace MTConnect.Shdr
                                 }
 
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived?.Invoke(this, line);
+                                ProtocolReceived.Raise(this, line, null);
 
                                 found = true;
                             }
@@ -499,7 +499,7 @@ namespace MTConnect.Shdr
                                 }
 
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived?.Invoke(this, line);
+                                ProtocolReceived.Raise(this, line, null);
 
                                 found = true;
                             }
@@ -513,7 +513,7 @@ namespace MTConnect.Shdr
                                 }
 
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived?.Invoke(this, line);
+                                ProtocolReceived.Raise(this, line, null);
 
                                 found = true;
                             }
@@ -526,7 +526,7 @@ namespace MTConnect.Shdr
                                 multilineDevice = true;
 
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived?.Invoke(this, line);
+                                ProtocolReceived.Raise(this, line, null);
 
                                 found = true;
                             }
@@ -542,7 +542,7 @@ namespace MTConnect.Shdr
                                 multilineDevice = false;
 
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived?.Invoke(this, line);
+                                ProtocolReceived.Raise(this, line, null);
 
                                 found = true;
                             }
@@ -551,7 +551,7 @@ namespace MTConnect.Shdr
                                 multilineContent.Append(line);
 
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived?.Invoke(this, line);
+                                ProtocolReceived.Raise(this, line, null);
 
                                 found = true;
                             }
@@ -564,7 +564,7 @@ namespace MTConnect.Shdr
                                 }
 
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived?.Invoke(this, line);
+                                ProtocolReceived.Raise(this, line, null);
 
                                 found = true;
                             }
@@ -573,7 +573,7 @@ namespace MTConnect.Shdr
                                 ProcessProtocol(line);
 
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived?.Invoke(this, line);
+                                ProtocolReceived.Raise(this, line, null);
 
                                 found = true;
                             }
