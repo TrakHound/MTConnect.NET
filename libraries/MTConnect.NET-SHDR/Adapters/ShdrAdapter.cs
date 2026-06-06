@@ -344,7 +344,7 @@ namespace MTConnect.Adapters
         private void ClientConnected(string clientId, TcpClient client)
         {
             AddAgentClient(clientId, client);
-            MulticastIsolation.Raise(AgentConnected, this, clientId, null);
+            AgentConnected.Raise(this, clientId, null);
 
             SendLast(UnixDateTime.Now);
         }
@@ -352,22 +352,22 @@ namespace MTConnect.Adapters
         private void ClientDisconnected(string clientId)
         {
             RemoveAgentClient(clientId);
-            MulticastIsolation.Raise(AgentDisconnected, this, clientId, null);
+            AgentDisconnected.Raise(this, clientId, null);
         }
 
         private void ClientPingReceived(string clientId)
         {
-            MulticastIsolation.Raise(PingReceived, this, clientId, null);
+            PingReceived.Raise(this, clientId, null);
         }
 
         private void ClientPongSent(string clientId)
         {
-            MulticastIsolation.Raise(PongSent, this, clientId, null);
+            PongSent.Raise(this, clientId, null);
         }
 
         private void ClientConnectionError(string clientId, Exception exception)
         {
-            MulticastIsolation.Raise(ConnectionError, this, new AdapterEventArgs<Exception>(clientId, exception), null);
+            ConnectionError.Raise(this, new AdapterEventArgs<Exception>(clientId, exception), null);
         }
 
         #endregion
@@ -601,11 +601,11 @@ namespace MTConnect.Adapters
                             // Write the line (in bytes) to the Stream
                             stream.Write(bytes, 0, bytes.Length);
 
-                            MulticastIsolation.Raise(LineSent, this, new AdapterEventArgs<string>(client.Id, singleLine), null);
+                            LineSent.Raise(this, new AdapterEventArgs<string>(client.Id, singleLine), null);
                         }
                         catch (Exception ex)
                         {
-                            MulticastIsolation.Raise(SendError, this, new AdapterEventArgs<string>(client.Id, ex.Message), null);
+                            SendError.Raise(this, new AdapterEventArgs<string>(client.Id, ex.Message), null);
                             return false;
                         }
                     }
@@ -634,13 +634,13 @@ namespace MTConnect.Adapters
                     // Write the line (in bytes) to the Stream
                     await stream.WriteAsync(bytes, 0, bytes.Length);
 
-                    MulticastIsolation.Raise(LineSent, this, new AdapterEventArgs<string>(client.Id, line), null);
+                    LineSent.Raise(this, new AdapterEventArgs<string>(client.Id, line), null);
 
                     return true;
                 }
                 catch (Exception ex)
                 {
-                    MulticastIsolation.Raise(SendError, this, new AdapterEventArgs<string>(client.Id, ex.Message), null);
+                    SendError.Raise(this, new AdapterEventArgs<string>(client.Id, ex.Message), null);
                 }
             }
 
