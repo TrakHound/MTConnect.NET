@@ -312,9 +312,13 @@ public class RouteCheckTests
                 "favicon type attribute is not 'image/png'");
 
             // Open Graph — title + image surface so social previews render.
+            // og:image must be an absolute https:// URL; LinkedIn, Slack unfurl,
+            // and the classic X crawler reject root-relative paths for social cards.
             Assert.That(probes.OgTitle, Is.EqualTo("MTConnect.NET"),
                 "og:title meta does not match the expected site title");
             Assert.That(probes.OgImage, Is.Not.Null.And.Not.Empty, "og:image meta missing");
+            Assert.That(probes.OgImage, Does.StartWith("https://"),
+                $"og:image must be an absolute https:// URL for social-card crawlers — got '{probes.OgImage}'");
             Assert.That(probes.OgImage, Does.EndWith("/logo.png"),
                 $"og:image does not point at /logo.png — got '{probes.OgImage}'");
 
@@ -322,6 +326,8 @@ public class RouteCheckTests
             Assert.That(probes.TwitterCard, Is.EqualTo("summary_large_image"),
                 "twitter:card meta is not 'summary_large_image'");
             Assert.That(probes.TwitterImage, Is.Not.Null.And.Not.Empty, "twitter:image meta missing");
+            Assert.That(probes.TwitterImage, Does.StartWith("https://"),
+                $"twitter:image must be an absolute https:// URL for social-card crawlers — got '{probes.TwitterImage}'");
             Assert.That(probes.TwitterImage, Does.EndWith("/logo.png"),
                 $"twitter:image does not point at /logo.png — got '{probes.TwitterImage}'");
 

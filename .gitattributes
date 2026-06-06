@@ -1,6 +1,12 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 
+# Visual Studio solution files are canonically CRLF. Pin the line-ending
+# so cross-platform edits (mixed-OS contributors, scripted regenerators
+# that emit LF, editors that drop the trailing CR on save) do not drift
+# the file off the format Visual Studio + MSBuild expect.
+*.sln    text eol=crlf
+
 # Custom for Visual Studio
 *.cs     diff=csharp
 
