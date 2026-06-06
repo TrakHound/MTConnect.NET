@@ -125,14 +125,24 @@ public class RouteCheckTests
                 RunNpm("ci", _docsRoot);
             }
 
-            // Always rebuild dist so the test asserts against a tree generated
-            // from the current source, not a stale artefact from a prior run.
-            // CI starts every run with a clean checkout (dist never exists),
-            // so this only matters for repeated local invocations on a persistent
-            // clone — the 5-min cost is amortised across the whole fixture's
-            // OneTimeSetUp, not paid per test.
-            stage = "npm run build";
-            RunNpm("run build", _docsRoot);
+            // Rebuild dist only when it is missing so the test asserts against
+            // a tree generated from the current source. CI's sharded
+            // route-check jobs download the dist/ tree from the `docs-prepare`
+            // workflow artefact and do NOT install docfx, so re-running
+            // `npm run build` here would invoke the `prebuild` hook
+            // (`scripts/generate-api-ref.sh` → `docfx metadata`) and fail
+            // with "docfx not found on PATH". Honouring the pre-existing
+            // dist/index.html sentinel matches the workflow's documented
+            // contract: docs-prepare is the single docfx-owning producer
+            // and each shard consumes its artefact. Locally, deleting
+            // docs/.vitepress/dist/ (or running on a clean clone) still
+            // triggers a full build.
+            var distIndex = Path.Combine(distDir, "index.html");
+            if (!File.Exists(distIndex))
+            {
+                stage = "npm run build";
+                RunNpm("run build", _docsRoot);
+            }
 
             // Install the chromium binary the Playwright .NET binding drives.
             // Idempotent: re-installs cleanly if the cache is already warm.
