@@ -447,21 +447,43 @@ public class RouteCheckTests
     }
 
     /// <summary>
-    /// Negative regression for the always-rebuild invariant per §10a:
-    /// asserts that <c>dist/index.html</c> was written during this fixture
-    /// invocation rather than reused from a prior run. A regression back
-    /// to "rebuild only if missing" would leave the mtime unchanged on a
-    /// persistent clone where dist already exists, causing the assertion
-    /// to fail and making the stale-dist defect observable in CI.
+    /// Negative regression for the rebuild-when-needed invariant:
+    /// asserts that <c>dist/index.html</c> was written during this
+    /// fixture invocation when the fixture is the sole producer of the
+    /// dist tree. A regression that silently dropped the rebuild — for
+    /// example, swapping the presence sentinel without an alternative
+    /// producer — would leave the mtime behind, making the stale-dist
+    /// defect observable in CI.
     /// </summary>
+    /// <remarks>
+    /// Sharded CI runs (matrix env var <c>ROUTE_SHARD_TOTAL</c> &gt; 1)
+    /// download the dist artefact from the upstream <c>docs-prepare</c>
+    /// job and intentionally bypass the in-fixture build — the shard
+    /// runners do not install docfx, so re-running <c>npm run build</c>
+    /// would fail on the <c>prebuild</c> hook
+    /// (<c>scripts/generate-api-ref.sh</c> → <c>docfx metadata</c>). In
+    /// that mode the upstream job is the producer and this fixture is a
+    /// pure consumer, so the mtime invariant does not apply and the test
+    /// is inconclusive. Local invocations and the unsharded leg still
+    /// enforce it.
+    /// </remarks>
     [Test]
     [Category("E2E")]
-    public void OneTimeSetUp_Rebuilds_Dist_Even_When_Index_Exists()
+    public void OneTimeSetUp_Rebuilds_Dist_When_Fixture_Is_Producer()
     {
-        // Pin the contract: regardless of pre-existing dist artefacts, the
-        // fixture's OneTimeSetUp produces a fresh dist whose mtime is no
-        // older than the test fixture invocation start time. A regression
-        // back to "rebuild-if-missing" would let mtime fall behind.
+        var (_, shardTotal) = RouteCheckHelpers.ReadShardEnv();
+        if (shardTotal > 1)
+        {
+            Assert.Inconclusive(
+                $"Skipping rebuild-mtime invariant under shard mode (ROUTE_SHARD_TOTAL={shardTotal}); " +
+                "the docs-prepare CI job is the dist producer and this shard is a consumer.");
+        }
+
+        // Pin the contract for the producer-mode path: the fixture's
+        // OneTimeSetUp produces a fresh dist whose mtime is no older
+        // than the test fixture invocation start time. A regression
+        // that silently dropped the in-fixture build would let mtime
+        // fall behind.
         var distIndex = Path.Combine(_distDir, "index.html");
         var distMtime = File.GetLastWriteTimeUtc(distIndex);
         Assert.That(distMtime, Is.GreaterThanOrEqualTo(_fixtureStartTime),
