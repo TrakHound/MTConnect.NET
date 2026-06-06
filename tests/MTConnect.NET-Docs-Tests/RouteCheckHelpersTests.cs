@@ -552,6 +552,350 @@ public class RouteCheckHelpersTests
         Assert.That(RouteCheckHelpers.RepoRootMaxAncestorDepth, Is.EqualTo(32));
     }
 
+    // ─── ShardRoutes ─────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Sample route set used by the sharding tests below. Twenty routes
+    /// in lexical order is large enough to make per-shard counts and
+    /// per-shard membership observable, small enough to enumerate by
+    /// hand in the assertions.
+    /// </summary>
+    private static readonly IReadOnlyList<string> SampleRoutes = new[]
+    {
+        "/a", "/b", "/c", "/d", "/e",
+        "/f", "/g", "/h", "/i", "/j",
+        "/k", "/l", "/m", "/n", "/o",
+        "/p", "/q", "/r", "/s", "/t",
+    };
+
+    /// <summary>
+    /// A 20-route list partitioned across four shards yields exactly
+    /// five routes per shard (round-robin distribution). Pins the
+    /// even-division contract — a regression that switched to a
+    /// contiguous-chunk policy would surface here as 5/5/5/5 vs
+    /// chunked 5/5/5/5 (same count) but a different membership; the
+    /// membership invariants below cover the distinction.
+    /// </summary>
+    [TestCase(1, 4, ExpectedResult = 5)]
+    [TestCase(2, 4, ExpectedResult = 5)]
+    [TestCase(3, 4, ExpectedResult = 5)]
+    [TestCase(4, 4, ExpectedResult = 5)]
+    public int ShardRoutes_DistributesEvenly_AcrossFourShards(int index, int total)
+    {
+        return RouteCheckHelpers.ShardRoutes(SampleRoutes, index, total).Count;
+    }
+
+    /// <summary>
+    /// An 11-route list partitioned across four shards yields 3, 3, 3, 2
+    /// — the round-robin remainder lands on the earliest shards. Pins
+    /// the remainder-handling contract so a future refactor that
+    /// switched to ceil-division would surface here.
+    /// </summary>
+    [TestCase(1, 4, ExpectedResult = 3)]
+    [TestCase(2, 4, ExpectedResult = 3)]
+    [TestCase(3, 4, ExpectedResult = 3)]
+    [TestCase(4, 4, ExpectedResult = 2)]
+    public int ShardRoutes_DistributesRemainder_AcrossFourShards(int index, int total)
+    {
+        var routes = SampleRoutes.Take(11).ToList();
+        return RouteCheckHelpers.ShardRoutes(routes, index, total).Count;
+    }
+
+    /// <summary>
+    /// Shard 1 of 1 returns the full input — the no-sharding identity
+    /// path. Local invocations without
+    /// <c>ROUTE_SHARD_INDEX</c> / <c>ROUTE_SHARD_TOTAL</c> default to
+    /// this case so a developer running <c>dotnet test</c> still
+    /// exercises every route.
+    /// </summary>
+    [Test]
+    public void ShardRoutes_Shard1Of1_ReturnsAllRoutes()
+    {
+        var shard = RouteCheckHelpers.ShardRoutes(SampleRoutes, 1, 1);
+        Assert.That(shard, Is.EqualTo(SampleRoutes));
+    }
+
+    /// <summary>
+    /// The concatenation of every shard (in index order) covers every
+    /// input route exactly once. Pins the partition invariant: no
+    /// route is dropped, no route is double-walked.
+    /// </summary>
+    [Test]
+    public void ShardRoutes_UnionAcrossShards_CoversEveryRoute()
+    {
+        const int total = 4;
+        var union = new List<string>();
+        for (var i = 1; i <= total; i++)
+        {
+            union.AddRange(RouteCheckHelpers.ShardRoutes(SampleRoutes, i, total));
+        }
+
+        Assert.That(union, Is.EquivalentTo(SampleRoutes),
+            "the union of all shards must equal the input route set");
+        Assert.That(union, Has.Count.EqualTo(SampleRoutes.Count),
+            "no route may appear in more than one shard");
+    }
+
+    /// <summary>
+    /// Any pair of shards is disjoint. Pins the partition invariant
+    /// from the membership side — a regression that produced
+    /// overlapping shards (e.g. an off-by-one on the modulus) would
+    /// double-walk routes and surface here even if the union check
+    /// still passed by coincidence.
+    /// </summary>
+    [Test]
+    public void ShardRoutes_DifferentShards_AreDisjoint()
+    {
+        const int total = 4;
+        for (var a = 1; a <= total; a++)
+        {
+            for (var b = a + 1; b <= total; b++)
+            {
+                var shardA = RouteCheckHelpers.ShardRoutes(SampleRoutes, a, total);
+                var shardB = RouteCheckHelpers.ShardRoutes(SampleRoutes, b, total);
+                Assert.That(shardA.Intersect(shardB), Is.Empty,
+                    $"shards {a} and {b} of {total} share at least one route");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Within a single shard, the routes appear in the same relative
+    /// order as in the input. Round-robin distribution preserves the
+    /// input's monotone order — the assertion is what lets the CI
+    /// matrix legs produce diffable failure summaries that line up
+    /// with the source markdown's ordering.
+    /// </summary>
+    [Test]
+    public void ShardRoutes_WithinAShard_PreservesInputOrder()
+    {
+        const int total = 4;
+        var inputAsList = SampleRoutes.ToList();
+        for (var i = 1; i <= total; i++)
+        {
+            var shard = RouteCheckHelpers.ShardRoutes(SampleRoutes, i, total);
+            var indices = shard.Select(r => inputAsList.IndexOf(r)).ToList();
+            Assert.That(indices, Is.Ordered.Ascending,
+                $"shard {i}/{total} routes are out of order relative to the input");
+        }
+    }
+
+    /// <summary>
+    /// Routes assigned to shard <c>i</c> of <c>total</c> are exactly
+    /// the routes whose zero-based index in the input satisfies
+    /// <c>index % total == i - 1</c>. Pins the round-robin contract
+    /// explicitly so a refactor that swapped the modulus formula
+    /// (e.g. chunked partitioning) would surface as a membership
+    /// failure rather than a silent re-ordering.
+    /// </summary>
+    [Test]
+    public void ShardRoutes_AssignmentFollowsRoundRobinModulus()
+    {
+        const int total = 4;
+        for (var i = 1; i <= total; i++)
+        {
+            var expected = SampleRoutes
+                .Select((r, idx) => (r, idx))
+                .Where(t => t.idx % total == i - 1)
+                .Select(t => t.r)
+                .ToList();
+            var actual = RouteCheckHelpers.ShardRoutes(SampleRoutes, i, total);
+            Assert.That(actual, Is.EqualTo(expected),
+                $"shard {i}/{total} membership does not match the round-robin contract");
+        }
+    }
+
+    /// <summary>
+    /// A null routes list throws <see cref="ArgumentNullException"/>
+    /// with the parameter name pinned — a future caller that passes
+    /// <c>null</c> by accident gets a typed failure naming the argument
+    /// rather than an opaque NRE.
+    /// </summary>
+    [Test]
+    public void ShardRoutes_NullRoutes_Throws()
+    {
+        var ex = Assert.Throws<ArgumentNullException>(
+            () => RouteCheckHelpers.ShardRoutes(null!, 1, 1));
+        Assert.That(ex!.ParamName, Is.EqualTo("routes"));
+    }
+
+    /// <summary>
+    /// A non-positive total throws <see cref="ArgumentOutOfRangeException"/>
+    /// with the parameter name pinned. Zero or negative totals are
+    /// nonsense and must not silently produce an empty shard.
+    /// </summary>
+    [TestCase(0)]
+    [TestCase(-1)]
+    public void ShardRoutes_NonPositiveTotal_Throws(int total)
+    {
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(
+            () => RouteCheckHelpers.ShardRoutes(SampleRoutes, 1, total));
+        Assert.That(ex!.ParamName, Is.EqualTo("total"));
+    }
+
+    /// <summary>
+    /// An out-of-range index throws <see cref="ArgumentOutOfRangeException"/>
+    /// with the parameter name pinned. The contract is 1-based:
+    /// <c>1 &lt;= index &lt;= total</c>. Index 0 (zero-based off-by-one)
+    /// and index <c>total + 1</c> (one-past-the-end) both fall outside.
+    /// </summary>
+    [TestCase(0, 4)]
+    [TestCase(5, 4)]
+    [TestCase(-1, 4)]
+    public void ShardRoutes_IndexOutOfRange_Throws(int index, int total)
+    {
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(
+            () => RouteCheckHelpers.ShardRoutes(SampleRoutes, index, total));
+        Assert.That(ex!.ParamName, Is.EqualTo("index"));
+    }
+
+    /// <summary>
+    /// An empty input yields an empty shard for every (index, total)
+    /// pair — no exception, no phantom entries. Local invocations on
+    /// a fresh checkout where the docs tree is empty (e.g. a worktree
+    /// added before the markdown source landed) still produce a
+    /// deterministic result.
+    /// </summary>
+    [Test]
+    public void ShardRoutes_EmptyInput_ReturnsEmpty()
+    {
+        var empty = Array.Empty<string>();
+        Assert.That(RouteCheckHelpers.ShardRoutes(empty, 1, 4), Is.Empty);
+        Assert.That(RouteCheckHelpers.ShardRoutes(empty, 4, 4), Is.Empty);
+    }
+
+    /// <summary>
+    /// When the input has fewer routes than shards, the surplus shards
+    /// are empty rather than throwing. CI keeps a 4-shard matrix even
+    /// for a hypothetically tiny docs tree — surplus shards must
+    /// no-op rather than fail.
+    /// </summary>
+    [Test]
+    public void ShardRoutes_FewerRoutesThanShards_SurplusShardsAreEmpty()
+    {
+        var two = new[] { "/x", "/y" };
+        var shard1 = RouteCheckHelpers.ShardRoutes(two, 1, 4);
+        var shard2 = RouteCheckHelpers.ShardRoutes(two, 2, 4);
+        var shard3 = RouteCheckHelpers.ShardRoutes(two, 3, 4);
+        var shard4 = RouteCheckHelpers.ShardRoutes(two, 4, 4);
+
+        Assert.That(shard1, Is.EqualTo(new[] { "/x" }));
+        Assert.That(shard2, Is.EqualTo(new[] { "/y" }));
+        Assert.That(shard3, Is.Empty);
+        Assert.That(shard4, Is.Empty);
+    }
+
+    // ─── ReadShardEnv ────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Both env vars set to representative values surface as a
+    /// <c>(index, total)</c> tuple. Pins the CI-matrix-injection
+    /// contract: <c>ROUTE_SHARD_INDEX=3</c> + <c>ROUTE_SHARD_TOTAL=4</c>
+    /// produces shard 3 of 4 regardless of process-level env state.
+    /// </summary>
+    [Test]
+    public void ReadShardEnv_BothSet_ReturnsParsedTuple()
+    {
+        string? Env(string key) => key switch
+        {
+            RouteCheckHelpers.ShardIndexEnvVar => "3",
+            RouteCheckHelpers.ShardTotalEnvVar => "4",
+            _ => null,
+        };
+        var (index, total) = RouteCheckHelpers.ReadShardEnv(Env);
+        Assert.That(index, Is.EqualTo(3));
+        Assert.That(total, Is.EqualTo(4));
+    }
+
+    /// <summary>
+    /// Unset env vars produce the no-sharding identity tuple
+    /// <c>(1, 1)</c>. Local <c>dotnet test</c> runs without
+    /// matrix-injected env vars therefore walk every route on a single
+    /// shard.
+    /// </summary>
+    [Test]
+    public void ReadShardEnv_BothUnset_ReturnsIdentityTuple()
+    {
+        string? Env(string key) => null;
+        var (index, total) = RouteCheckHelpers.ReadShardEnv(Env);
+        Assert.That(index, Is.EqualTo(1));
+        Assert.That(total, Is.EqualTo(1));
+    }
+
+    /// <summary>
+    /// Unparseable values fall back to the identity tuple — a
+    /// misconfigured CI matrix that injected an empty string or a
+    /// non-numeric token should walk every route rather than throw
+    /// during fixture init.
+    /// </summary>
+    [TestCase("", "")]
+    [TestCase("not-a-number", "also-not")]
+    [TestCase("0", "0")]
+    [TestCase("-1", "-1")]
+    public void ReadShardEnv_UnparseableValues_FallBackToIdentity(string indexValue, string totalValue)
+    {
+        string? Env(string key) => key switch
+        {
+            RouteCheckHelpers.ShardIndexEnvVar => indexValue,
+            RouteCheckHelpers.ShardTotalEnvVar => totalValue,
+            _ => null,
+        };
+        var (index, total) = RouteCheckHelpers.ReadShardEnv(Env);
+        Assert.That(index, Is.EqualTo(1));
+        Assert.That(total, Is.EqualTo(1));
+    }
+
+    /// <summary>
+    /// When <c>ROUTE_SHARD_INDEX</c> exceeds <c>ROUTE_SHARD_TOTAL</c>
+    /// (a half-set matrix, e.g. <c>index=5</c> with <c>total=4</c>),
+    /// the helper clamps the index to the total so the caller still
+    /// receives a valid shard rather than throwing out of
+    /// <see cref="RouteCheckHelpers.ShardRoutes"/> downstream. This
+    /// closes the gap between "env vars set" and "env vars consistent."
+    /// </summary>
+    [Test]
+    public void ReadShardEnv_IndexAboveTotal_ClampsToTotal()
+    {
+        string? Env(string key) => key switch
+        {
+            RouteCheckHelpers.ShardIndexEnvVar => "5",
+            RouteCheckHelpers.ShardTotalEnvVar => "4",
+            _ => null,
+        };
+        var (index, total) = RouteCheckHelpers.ReadShardEnv(Env);
+        Assert.That(index, Is.EqualTo(4));
+        Assert.That(total, Is.EqualTo(4));
+    }
+
+    /// <summary>
+    /// The default <see cref="RouteCheckHelpers.ReadShardEnv"/>
+    /// overload reads from <see cref="Environment.GetEnvironmentVariable(string)"/>.
+    /// Smoke-checking the unset-by-default path keeps the
+    /// process-level env-var access wired without forcing a separate
+    /// integration-tier setup.
+    /// </summary>
+    [Test]
+    public void ReadShardEnv_DefaultAccessor_ReadsProcessEnvironment()
+    {
+        // Save / restore so a parallel test in the same process never
+        // observes the mutation.
+        var savedIndex = Environment.GetEnvironmentVariable(RouteCheckHelpers.ShardIndexEnvVar);
+        var savedTotal = Environment.GetEnvironmentVariable(RouteCheckHelpers.ShardTotalEnvVar);
+        try
+        {
+            Environment.SetEnvironmentVariable(RouteCheckHelpers.ShardIndexEnvVar, "2");
+            Environment.SetEnvironmentVariable(RouteCheckHelpers.ShardTotalEnvVar, "4");
+            var (index, total) = RouteCheckHelpers.ReadShardEnv();
+            Assert.That(index, Is.EqualTo(2));
+            Assert.That(total, Is.EqualTo(4));
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable(RouteCheckHelpers.ShardIndexEnvVar, savedIndex);
+            Environment.SetEnvironmentVariable(RouteCheckHelpers.ShardTotalEnvVar, savedTotal);
+        }
+    }
+
     // ─── Helper: scoped temp directory ───────────────────────────────────────
 
     /// <summary>

@@ -82,6 +82,25 @@ Failure output names every route that surfaced as a 404 along with which of the 
 
 The negative companion test (`A_Synthetic_Unmapped_Route_Surfaces_As_A_404`) pins the detector itself: a future Playwright or VitePress upgrade that breaks one of the two 404 signals would still see every real route render fine, but the negative test would go red and surface the regression before a real 404 slipped past.
 
+### Sharded execution
+
+CI parallelises the route walk across four Ubuntu shards declared in the `route-check-e2e` job of `.github/workflows/dotnet.yml`. Each shard reads two environment variables and walks a disjoint subset of the collected routes:
+
+| Variable | Meaning |
+| --- | --- |
+| `ROUTE_SHARD_INDEX` | One-based index of this shard (1 to `ROUTE_SHARD_TOTAL`). |
+| `ROUTE_SHARD_TOTAL` | Total shard count. Unset, blank, unparseable, or `1` collapses to the no-sharding path — every route on a single shard. |
+
+Routes are distributed round-robin by modulus: shard `i` of `N` walks every route whose zero-based position in the sorted collection satisfies `position % N == i - 1`. Distribution is therefore deterministic and stable across runs, and even shard sizes hold within ±1 for any route count.
+
+Reproduce a specific shard locally:
+
+```
+ROUTE_SHARD_INDEX=2 ROUTE_SHARD_TOTAL=4 dotnet test tests/MTConnect.NET-Docs-Tests --filter Category=E2E
+```
+
+Leaving the variables unset is the no-sharding default — every route on one walk — which is how `dotnet test … --filter Category=E2E` runs without extra ceremony. The CI shape reduces wall-clock for the route walk from around 24 minutes (the unsharded full walk) to around 6 minutes (the longest single shard), while the docs build itself runs exactly once in the `docs-prepare` job and the resulting `docs/.vitepress/dist/` artifact is downloaded by every shard so the bootstrap is paid once across the whole workflow.
+
 ## See also
 
 - [Release builder](/development/builder)—the in-tree tool that assembles binary release artifacts (NuGet packages, installers, Docker images). Distinct from the documentation site build covered above.

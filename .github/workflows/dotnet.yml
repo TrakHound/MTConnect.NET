@@ -1,7 +1,7 @@
 name: build-test-coverage
 
-# Restrict the GITHUB_TOKEN to read-only contents access. The job only
-# needs to checkout the repo, run dotnet build / test, and upload TRX +
+# Restrict the GITHUB_TOKEN to read-only contents access. The jobs only
+# need to checkout the repo, run dotnet build / test, and upload TRX +
 # coverage artifacts; no commit / release / package-write privileges are
 # required. Defense-in-depth against supply-chain attacks via a
 # compromised dependency or a test-side RCE.
@@ -24,11 +24,22 @@ on:
       - 'docs/**'
 
 jobs:
+  # ------------------------------------------------------------------
+  # Job 1 — unsharded unit + integration sweep on both OS legs.
+  # Excludes Category=E2E altogether; the route walk is handled in
+  # job 3 below. windows-latest additionally excludes
+  # Category=RequiresDocker (hosted Windows runners do NOT pre-install
+  # Docker for Linux containers — only Windows containers via Hyper-V).
+  # XsdLoadStrict has no platform dependency and still runs on both
+  # legs. This job carries no Node / docfx / npm overhead: every step
+  # it runs is a pure .NET workload, so the docs-build wall-clock is
+  # paid exactly once across the whole workflow (in job 2 below).
+  # ------------------------------------------------------------------
   build-and-test:
     name: build-and-test-${{ matrix.os }}
     # Skip drafts: run only on push-to-master + ready (non-draft) PRs.
-    # The pull_request `types` list above includes `ready_for_review` so
-    # CI fires the moment a draft is flipped to ready.
+    # The pull_request `types` list above includes `ready_for_review`
+    # so CI fires the moment a draft is flipped to ready.
     if: github.event_name == 'push' || github.event.pull_request.draft == false
     runs-on: ${{ matrix.os }}
     strategy:
@@ -36,21 +47,21 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         include:
-          # ubuntu-latest runs the full sweep: Docker is pre-installed
-          # on GitHub-hosted Linux runners and Testcontainers can spawn
-          # the eclipse-mosquitto + mtconnect/agent images the
-          # RequiresDocker / E2E suites need; the XSD source-of-truth
+          # ubuntu-latest runs every non-E2E category: Docker is pre-
+          # installed on GitHub-hosted Linux runners and Testcontainers
+          # can spawn the eclipse-mosquitto + mtconnect/agent images
+          # the RequiresDocker suites need; the XSD source-of-truth
           # files ship in-repo, so XsdLoadStrict also has every
-          # prerequisite. Empty filter = no exclusions.
+          # prerequisite. The shared filter excludes E2E only.
           - os: ubuntu-latest
-            testFilter: ""
+            testFilter: "Category!=E2E"
           # windows-latest GitHub-hosted runners do NOT pre-install
           # Docker for Linux containers (only Windows containers via
-          # Hyper-V), so the RequiresDocker / E2E suites that boot
-          # Linux images (eclipse-mosquitto:2.0.22,
-          # mtconnect/agent:latest) cannot run there. Skip both
-          # categories on the Windows leg; XsdLoadStrict has no
-          # platform dependency and still runs.
+          # Hyper-V), so the RequiresDocker suites that boot Linux
+          # images (eclipse-mosquitto:2.0.22, mtconnect/agent:latest)
+          # cannot run there. E2E is already excluded for every leg of
+          # this job. XsdLoadStrict has no platform dependency and
+          # still runs.
           - os: windows-latest
             testFilter: "Category!=RequiresDocker&Category!=E2E"
 
@@ -65,35 +76,6 @@ jobs:
             8.0.x
             9.0.x
 
-      # MTConnect.NET-Docs-Tests carries a Category=E2E route walk
-      # whose [OneTimeSetUp] runs `npm ci && npm run build` from
-      # docs/ when the dist/ artifact is missing, then drives
-      # `vitepress preview` through Microsoft.Playwright. Only the
-      # ubuntu-latest leg runs Category=E2E (the windows-latest leg
-      # excludes it via testFilter), so Node is only required there.
-      - name: Setup Node.js (docs e2e prerequisite)
-        if: matrix.os == 'ubuntu-latest'
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
-        with:
-          node-version: '20'
-          cache: npm
-          cache-dependency-path: docs/package-lock.json
-
-      # `npm run build` in docs/ invokes the `prebuild` hook
-      # (`npm run regen`), which calls `bash scripts/generate-api-ref.sh`
-      # → `docfx metadata` to produce the /api/ reference tree the
-      # VitePress site consumes. The Docs-site workflow installs docfx
-      # in its Prepare job; this workflow's E2E leg needs it for the
-      # same reason. Only the ubuntu-latest leg runs Category=E2E
-      # (windows-latest excludes it via testFilter), so docfx is only
-      # required there. Without this, RouteCheckTests.OneTimeSetUp
-      # fails with "docfx not found on PATH and ~/.dotnet/tools/docfx
-      # is missing" — see PR #181 run 26831500675 job 79113784371.
-      - name: Install docfx (docs e2e prerequisite)
-        if: matrix.os == 'ubuntu-latest'
-        run: dotnet tool install -g docfx
-        shell: bash
-
       - name: Restore dotnet tools (ReportGenerator)
         run: dotnet tool restore
 
@@ -103,34 +85,6 @@ jobs:
       - name: Build (Debug)
         run: dotnet build MTConnect.NET.sln --configuration Debug --no-restore
 
-      # Cache Playwright browser binaries so the Category=E2E
-      # [OneTimeSetUp] `playwright install chromium` call is a no-op on
-      # cache hit. The key hashes the `playwright-core` package.json that
-      # the Microsoft.Playwright NuGet copies into the build output —
-      # that file's `version` field directly pins the chromium revision
-      # the .NET binding drives. Hashing the csproj instead would only
-      # invalidate by coincidence (a future PR adding an unrelated
-      # PackageReference would invalidate; an SDK-side change to the
-      # chromium revision would not). The step therefore runs AFTER
-      # `dotnet build` so the file exists — placement before build
-      # would force the key off a workspace-internal artefact (hashFiles
-      # cannot reach the NuGet cache under ~/.nuget), so the
-      # micro-optimisation of overlapping cache restore with build is
-      # sacrificed for key correctness.
-      # Both Linux (~/.cache/ms-playwright) and Windows
-      # (%USERPROFILE%\AppData\Local\ms-playwright) paths are listed;
-      # actions/cache restores only the path that exists on the running
-      # OS, so the multi-path entry is safe for both matrix legs.
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/ms-playwright
-            ~\AppData\Local\ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('**/tests/MTConnect.NET-Docs-Tests/bin/Debug/net8.0/.playwright/package/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
-
       # MTConnect.NET-Integration-Tests is skipped here (its
       # IsTestProject is false unless IntegrationCoverage=true) and run
       # in the dedicated step below so it can use its own
@@ -138,45 +92,32 @@ jobs:
       # CLI --settings > RunSettingsFilePath, so a per-project settings
       # file cannot win against this solution-wide --settings; running
       # the project as its own step is the only way to give it
-      # different coverage scoping. See the integration .csproj comment.
-      #
-      # The --filter expression is matrix-controlled so each OS leg runs
-      # the categories it can physically support. ubuntu-latest carries
-      # an empty filter (the full sweep: RequiresDocker + E2E +
-      # XsdLoadStrict all included); windows-latest carries
-      # Category!=RequiresDocker&Category!=E2E (no Linux-image Docker
-      # on the hosted Windows runner). See the strategy.matrix.include
-      # block above for the rationale.
+      # different coverage scoping. See the integration .csproj
+      # comment.
       - name: Run unit tests with coverage
         env:
           TEST_FILTER: ${{ matrix.testFilter }}
+          TRX_NAME: test-results-${{ matrix.os }}.trx
         run: |
-          if [ -n "$TEST_FILTER" ]; then
-            dotnet test MTConnect.NET.sln \
-              --configuration Debug \
-              --no-build \
-              --settings tests/coverlet.runsettings \
-              --results-directory TestResults \
-              --logger "trx;LogFileName=test-results-${{ matrix.os }}.trx" \
-              --filter "$TEST_FILTER"
-          else
-            dotnet test MTConnect.NET.sln \
-              --configuration Debug \
-              --no-build \
-              --settings tests/coverlet.runsettings \
-              --results-directory TestResults \
-              --logger "trx;LogFileName=test-results-${{ matrix.os }}.trx"
-          fi
+          dotnet test MTConnect.NET.sln \
+            --configuration Debug \
+            --no-build \
+            --settings tests/coverlet.runsettings \
+            --results-directory TestResults \
+            --logger "trx;LogFileName=${TRX_NAME}" \
+            --filter "$TEST_FILTER"
         shell: bash
 
       # Same zero-test false-green guard as the integration step, on
-      # the solution-wide unit run. A broken adapter wiring or an over-
-      # eager filter that discovers nothing must hard-fail rather than
-      # exit 0.
+      # the solution-wide unit run. A broken adapter wiring or an
+      # over-eager filter that discovers nothing must hard-fail rather
+      # than exit 0.
       - name: Guard — unit step executed > 0 tests
+        env:
+          TRX_NAME: test-results-${{ matrix.os }}.trx
         run: |
           set -euo pipefail
-          trx="TestResults/test-results-${{ matrix.os }}.trx"
+          trx="TestResults/${TRX_NAME}"
           if [ ! -f "$trx" ]; then
             echo "::error::Unit TRX not found at $trx — the test step did not produce results."
             exit 1
@@ -197,8 +138,8 @@ jobs:
       # Integration suite with its own coverlet settings: the shared
       # configuration plus MTConnect.NET-Common and MTConnect.NET-HTTP
       # excluded from instrumentation, and MaxCpuCount=1 (this step is
-      # serial; the shared file no longer pins it). Common+HTTP are the
-      # dominant-cost assemblies on the timing-critical in-process
+      # serial; the shared file no longer pins it). Common+HTTP are
+      # the dominant-cost assemblies on the timing-critical in-process
       # Agent/HTTP hot path this suite drives; coverlet IL
       # instrumentation of them on a slow shared runner pushes sample
       # delivery past the test's wait. Both are covered (faster) by
@@ -206,12 +147,12 @@ jobs:
       # latter (with its AgentRunner support project
       # MTConnect.NET-Tests-Agents) is a member of MTConnect.NET.sln,
       # so the "Run unit tests with coverage" step above already
-      # discovers and runs it under the shared runsettings; it starts a
-      # real MTConnectAgentBroker + MTConnectHttpServer and streams
+      # discovers and runs it under the shared runsettings; it starts
+      # a real MTConnectAgentBroker + MTConnectHttpServer and streams
       # Probe/Current/Sample through the HTTP clients, exercising the
-      # Common + HTTP runtime path. Its Cobertura ReportGenerator merges
-      # with this one, so excluding Common+HTTP here loses no net
-      # coverage. MTConnect.NET-SHDR stays instrumented (the
+      # Common + HTTP runtime path. Its Cobertura ReportGenerator
+      # merges with this one, so excluding Common+HTTP here loses no
+      # net coverage. MTConnect.NET-SHDR stays instrumented (the
       # integration suite is its only runtime coverage).
       #
       # The integration .csproj sets IsTestProject=false unless
@@ -220,19 +161,8 @@ jobs:
       # project WITH -p:IntegrationCoverage=true (so xunit's VSTest
       # adapter is wired in and tests are discoverable) and only then
       # runs it with --no-build. Without the explicit build the
-      # solution-built non-test assembly would discover 0 tests and the
-      # step would false-green.
-      #
-      # As with the unit step, the integration step's --filter is
-      # matrix-controlled: ubuntu-latest runs the full sweep
-      # (RequiresDocker + E2E + XsdLoadStrict — the campaign-added
-      # MqttRelay / JsonMqttProbeEnvelope / HttpProbe / HttpAsset /
-      # ConfigurationPolymorphicHttpProbe workflow tests all run on a
-      # real broker via Testcontainers), windows-latest excludes
-      # RequiresDocker + E2E (no Linux-image Docker on the hosted
-      # Windows runner). ClientAgentCommunicationTests,
-      # GenerateDevicesXmlTests and HttpServerLoopbackBindingTests
-      # carry no category and run on both legs unconditionally.
+      # solution-built non-test assembly would discover 0 tests and
+      # the step would false-green.
       - name: Build integration project with IntegrationCoverage flag
         run: |
           dotnet build tests/MTConnect.NET-Integration-Tests/MTConnect.NET-Integration-Tests.csproj \
@@ -244,44 +174,34 @@ jobs:
       - name: Run integration tests with coverage
         env:
           TEST_FILTER: ${{ matrix.testFilter }}
+          TRX_NAME: test-results-integration-${{ matrix.os }}.trx
         run: |
-          if [ -n "$TEST_FILTER" ]; then
-            dotnet test tests/MTConnect.NET-Integration-Tests/MTConnect.NET-Integration-Tests.csproj \
-              --configuration Debug \
-              --no-build \
-              -p:IntegrationCoverage=true \
-              --settings tests/coverlet.integration.runsettings \
-              --results-directory TestResults \
-              --logger "trx;LogFileName=test-results-integration-${{ matrix.os }}.trx" \
-              --filter "$TEST_FILTER"
-          else
-            dotnet test tests/MTConnect.NET-Integration-Tests/MTConnect.NET-Integration-Tests.csproj \
-              --configuration Debug \
-              --no-build \
-              -p:IntegrationCoverage=true \
-              --settings tests/coverlet.integration.runsettings \
-              --results-directory TestResults \
-              --logger "trx;LogFileName=test-results-integration-${{ matrix.os }}.trx"
-          fi
+          dotnet test tests/MTConnect.NET-Integration-Tests/MTConnect.NET-Integration-Tests.csproj \
+            --configuration Debug \
+            --no-build \
+            -p:IntegrationCoverage=true \
+            --settings tests/coverlet.integration.runsettings \
+            --results-directory TestResults \
+            --logger "trx;LogFileName=${TRX_NAME}" \
+            --filter "$TEST_FILTER"
         shell: bash
 
-      # Hard-fail the job if the integration step discovered/executed 0
-      # tests. A future regression that re-breaks test discovery (e.g.
-      # the IntegrationCoverage build wiring) would otherwise false-
-      # green: dotnet test exits 0 when it finds nothing to run. Parse
-      # the TRX <Counters .../> total and fail when it is 0 or the
-      # element is missing.
+      # Hard-fail the job if the integration step discovered/executed
+      # 0 tests. A future regression that re-breaks test discovery
+      # (e.g. the IntegrationCoverage build wiring) would otherwise
+      # false-green: dotnet test exits 0 when it finds nothing to run.
+      # Parse the TRX <Counters .../> total and fail when it is 0 or
+      # the element is missing.
       - name: Guard — integration step executed > 0 tests
+        env:
+          TRX_NAME: test-results-integration-${{ matrix.os }}.trx
         run: |
           set -euo pipefail
-          trx="TestResults/test-results-integration-${{ matrix.os }}.trx"
+          trx="TestResults/${TRX_NAME}"
           if [ ! -f "$trx" ]; then
             echo "::error::Integration TRX not found at $trx — the test step did not produce results."
             exit 1
           fi
-          # Extract the `total` attribute of the single <Counters .../>
-          # element the VSTest TRX logger writes. grep -o keeps this
-          # dependency-free (no xmllint on the runner image).
           total="$(grep -o '<Counters[^>]*total="[0-9]*"' "$trx" \
             | grep -o 'total="[0-9]*"' | grep -o '[0-9]*' | head -n1)"
           if [ -z "${total:-}" ]; then
@@ -318,11 +238,217 @@ jobs:
 
       - name: Surface coverage summary in job log
         if: always()
+        env:
+          JOB_LABEL: ${{ matrix.os }}
         run: |
           if [ -f coverage-report/Summary.txt ]; then
-            echo "### Coverage summary (${{ matrix.os }})" >> "$GITHUB_STEP_SUMMARY"
+            echo "### Coverage summary (${JOB_LABEL})" >> "$GITHUB_STEP_SUMMARY"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
             cat coverage-report/Summary.txt >> "$GITHUB_STEP_SUMMARY"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
           fi
         shell: bash
+
+  # ------------------------------------------------------------------
+  # Job 2 — docs preparation. Runs once. Produces docs/.vitepress/dist
+  # by invoking `npm ci && npm run build`, which transitively triggers
+  # the `prebuild` hook (`npm run regen` → `bash scripts/generate-api-
+  # ref.sh` → `docfx metadata`). The built dist tree is uploaded as a
+  # workflow artifact so the sharded route-check job below can skip
+  # the npm + docfx + build wall-clock (~5 min) entirely. The test
+  # fixture's [OneTimeSetUp] checks for docs/.vitepress/dist/index.html
+  # and skips the `npm ci && npm run build` bootstrap when the file is
+  # present, so a shard that downloads the artifact into the right
+  # path bypasses the bootstrap altogether.
+  # ------------------------------------------------------------------
+  docs-prepare:
+    name: docs-prepare
+    if: github.event_name == 'push' || github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+
+      - name: Setup .NET 8.0 + 9.0
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9  # v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: docs/package-lock.json
+
+      # `npm run build` in docs/ invokes the `prebuild` hook (`npm run
+      # regen`), which calls `bash scripts/generate-api-ref.sh` →
+      # `docfx metadata` to produce the /api/ reference tree the
+      # VitePress site consumes.
+      - name: Install docfx
+        run: dotnet tool install -g docfx
+        shell: bash
+
+      - name: npm ci
+        working-directory: docs
+        run: npm ci
+
+      - name: npm run build
+        working-directory: docs
+        run: npm run build
+
+      - name: Upload docs dist artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: docs-dist
+          path: docs/.vitepress/dist/
+          if-no-files-found: error
+          retention-days: 1
+
+  # ------------------------------------------------------------------
+  # Job 3 — sharded Category=E2E route walk. Four parallel ubuntu
+  # shards each carry a disjoint subset of the markdown-backed routes
+  # via ROUTE_SHARD_INDEX / ROUTE_SHARD_TOTAL env vars (consumed by
+  # RouteCheckHelpers.ReadShardEnv + ShardRoutes). The docs-dist
+  # artifact from job 2 is downloaded into docs/.vitepress/dist/ so
+  # the test fixture's [OneTimeSetUp] skips the npm bootstrap (it
+  # detects the pre-existing index.html). npm ci still runs to
+  # populate docs/node_modules/ so `npx vitepress preview` finds the
+  # local vitepress binary; that step is fast on the npm cache hit
+  # primed by `actions/setup-node`. docfx is NOT installed here — the
+  # prebuild hook only fires from `npm run build`, which this job
+  # skips. Each shard runs only `Category=E2E`, so the non-E2E
+  # categories run exactly once (in job 1) across the workflow.
+  # ------------------------------------------------------------------
+  route-check-e2e:
+    name: route-check-e2e-shard${{ matrix.shard }}of${{ matrix.shardTotal }}
+    if: github.event_name == 'push' || github.event.pull_request.draft == false
+    needs: docs-prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+        shardTotal: [4]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+
+      - name: Setup .NET 8.0 + 9.0
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9  # v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: docs/package-lock.json
+
+      - name: Restore dotnet tools (ReportGenerator)
+        run: dotnet tool restore
+
+      - name: Restore solution
+        run: dotnet restore MTConnect.NET.sln
+
+      - name: Build (Debug)
+        run: dotnet build MTConnect.NET.sln --configuration Debug --no-restore
+
+      # Populate docs/node_modules/ so `npx vitepress preview` resolves
+      # the local vitepress binary the test fixture spawns. The npm
+      # cache primed by actions/setup-node above makes this fast on
+      # warm runners; first-pull-after-bump pays the full cost once
+      # per shard. Skipping `npm run build` is the actual win — that's
+      # the ~5 min docfx + vitepress build that job 2 paid once.
+      - name: npm ci
+        working-directory: docs
+        run: npm ci
+
+      - name: Download docs dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-dist
+          path: docs/.vitepress/dist/
+
+      # Cache Playwright browser binaries so the Category=E2E
+      # [OneTimeSetUp] `playwright install chromium` call is a no-op
+      # on cache hit. The key hashes the `playwright-core`
+      # package.json that the Microsoft.Playwright NuGet copies into
+      # the build output — that file's `version` field directly pins
+      # the chromium revision the .NET binding drives. Hashing the
+      # csproj instead would only invalidate by coincidence (a future
+      # PR adding an unrelated PackageReference would invalidate; an
+      # SDK-side change to the chromium revision would not). The step
+      # therefore runs AFTER `dotnet build` so the file exists —
+      # placement before build would force the key off a workspace-
+      # internal artefact (hashFiles cannot reach the NuGet cache
+      # under ~/.nuget), so the micro-optimisation of overlapping
+      # cache restore with build is sacrificed for key correctness.
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/tests/MTConnect.NET-Docs-Tests/bin/Debug/net8.0/.playwright/package/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Run E2E route-check shard
+        env:
+          # ROUTE_SHARD_INDEX / ROUTE_SHARD_TOTAL drive
+          # RouteCheckTests via RouteCheckHelpers.ReadShardEnv ->
+          # ShardRoutes, splitting the ~1,880-route Playwright walk
+          # across N parallel matrix entries. Integers come from the
+          # static strategy.matrix definition above, never from
+          # github.event.* untrusted input.
+          ROUTE_SHARD_INDEX: ${{ matrix.shard }}
+          ROUTE_SHARD_TOTAL: ${{ matrix.shardTotal }}
+          TRX_NAME: test-results-e2e-shard${{ matrix.shard }}of${{ matrix.shardTotal }}.trx
+        run: |
+          dotnet test tests/MTConnect.NET-Docs-Tests/MTConnect.NET-Docs-Tests.csproj \
+            --configuration Debug \
+            --no-build \
+            --settings tests/coverlet.runsettings \
+            --results-directory TestResults \
+            --logger "trx;LogFileName=${TRX_NAME}" \
+            --filter "Category=E2E"
+        shell: bash
+
+      - name: Guard — E2E shard executed > 0 tests
+        env:
+          TRX_NAME: test-results-e2e-shard${{ matrix.shard }}of${{ matrix.shardTotal }}.trx
+        run: |
+          set -euo pipefail
+          trx="TestResults/${TRX_NAME}"
+          if [ ! -f "$trx" ]; then
+            echo "::error::E2E TRX not found at $trx — the test step did not produce results."
+            exit 1
+          fi
+          total="$(grep -o '<Counters[^>]*total="[0-9]*"' "$trx" \
+            | grep -o 'total="[0-9]*"' | grep -o '[0-9]*' | head -n1)"
+          if [ -z "${total:-}" ]; then
+            echo "::error::Could not parse <Counters total=...> from $trx — refusing to false-green."
+            exit 1
+          fi
+          echo "E2E tests executed: $total"
+          if [ "$total" -eq 0 ]; then
+            echo "::error::E2E shard executed 0 tests — discovery is broken (zero-test false-green guard)."
+            exit 1
+          fi
+        shell: bash
+
+      - name: Upload E2E TRX + coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: test-results-e2e-shard${{ matrix.shard }}of${{ matrix.shardTotal }}
+          path: |
+            TestResults/**/*.trx
+            TestResults/**/coverage.cobertura.xml
+          if-no-files-found: warn
+          retention-days: 14
