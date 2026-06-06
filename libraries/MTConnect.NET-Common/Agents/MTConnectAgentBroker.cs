@@ -773,7 +773,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        MulticastIsolation.Raise(StreamsResponseSent, this, EventArgs.Empty, null);
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -809,7 +809,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        MulticastIsolation.Raise(StreamsResponseSent, this, EventArgs.Empty, null);
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -850,7 +850,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        MulticastIsolation.Raise(StreamsResponseSent, this, EventArgs.Empty, null);
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -892,7 +892,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        MulticastIsolation.Raise(StreamsResponseSent, this, EventArgs.Empty, null);
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -929,7 +929,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        MulticastIsolation.Raise(StreamsResponseSent, this, EventArgs.Empty, null);
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -967,7 +967,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        MulticastIsolation.Raise(StreamsResponseSent, this, EventArgs.Empty, null);
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -1003,7 +1003,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        MulticastIsolation.Raise(StreamsResponseSent, this, EventArgs.Empty, null);
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -1039,7 +1039,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        MulticastIsolation.Raise(StreamsResponseSent, this, EventArgs.Empty, null);
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -1075,7 +1075,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        MulticastIsolation.Raise(StreamsResponseSent, this, EventArgs.Empty, null);
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -1112,7 +1112,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        MulticastIsolation.Raise(StreamsResponseSent, this, EventArgs.Empty, null);
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -1149,7 +1149,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        MulticastIsolation.Raise(StreamsResponseSent, this, EventArgs.Empty, null);
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }
@@ -1187,7 +1187,7 @@ namespace MTConnect.Agents
                     var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
                     if (document != null)
                     {
-                        MulticastIsolation.Raise(StreamsResponseSent, this, EventArgs.Empty, null);
+                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
                         return document;
                     }
                 }

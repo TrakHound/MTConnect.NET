@@ -1522,7 +1522,7 @@ namespace MTConnect.Agents
                             new ObservationValue(ValueKeys.Result, device.Uuid)
                         });
 
-                        MulticastIsolation.Raise(ObservationAdded, this, observation, null);
+                        ObservationAdded.Raise(this, observation, null);
 
                         return true;
                     }
@@ -1553,7 +1553,7 @@ namespace MTConnect.Agents
                             new ObservationValue(ValueKeys.Result, device.Uuid)
                         });
 
-                        MulticastIsolation.Raise(ObservationAdded, this, observation, null);
+                        ObservationAdded.Raise(this, observation, null);
 
                         return true;
                     }
@@ -1583,7 +1583,7 @@ namespace MTConnect.Agents
                             new ObservationValue(ValueKeys.Result, device.Uuid)
                         });
 
-                        MulticastIsolation.Raise(ObservationAdded, this, observation, null);
+                        ObservationAdded.Raise(this, observation, null);
 
                         return true;
                     }
@@ -1717,7 +1717,7 @@ namespace MTConnect.Agents
                             _updateInformation = true;
                         }
 
-                        MulticastIsolation.Raise(DeviceAdded, this, obj, null);
+                        DeviceAdded.Raise(this, obj, null);
 
                         return obj;
                     }
@@ -2124,7 +2124,7 @@ namespace MTConnect.Agents
         {
             if (observationInput != null)
             {
-                MulticastIsolation.Raise(ObservationReceived, this, observationInput, null);
+                ObservationReceived.Raise(this, observationInput, null);
 
                 IObservationInput input = new ObservationInput();
                 input.DeviceKey = deviceKey;
@@ -2334,7 +2334,7 @@ namespace MTConnect.Agents
         /// <inheritdoc />
         public void OnObservationAdded(IObservation observation)
         {
-            MulticastIsolation.Raise(ObservationAdded, this, observation, null);
+            ObservationAdded.Raise(this, observation, null);
         }
 
         /// <inheritdoc />
@@ -2448,7 +2448,7 @@ namespace MTConnect.Agents
                                 MulticastIsolation.Raise(InvalidAssetAdded, h => h(asset, validationResults));
                             }
 
-                            MulticastIsolation.Raise(AssetAdded, this, asset, null);
+                            AssetAdded.Raise(this, asset, null);
                             return true;
                         }
                     }
