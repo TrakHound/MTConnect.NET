@@ -15,6 +15,15 @@ namespace MTConnect
     /// secondary fault is terminal and swallowed — there is no further sink to
     /// route it to without risking the same starvation loop.
     /// </summary>
+    /// <remarks>
+    /// The typed <see cref="EventHandler"/> and <see cref="EventHandler{T}"/>
+    /// overloads are exposed as extension methods so call sites read as
+    /// <c>MyEvent.Raise(this, arg)</c> rather than
+    /// <c>MulticastIsolation.Raise(MyEvent, this, arg)</c>. The generic-delegate
+    /// overload remains a regular static call: extension-method syntax does
+    /// not compose cleanly with a <c>where TDelegate : Delegate</c> constraint
+    /// at the call site.
+    /// </remarks>
     public static class MulticastIsolation
     {
         /// <summary>
@@ -24,10 +33,16 @@ namespace MTConnect
         /// subsequent subscribers. The <paramref name="internalError"/> handler
         /// itself is iterated with the same per-delegate try/catch so a
         /// throwing fault-reporter cannot starve later fault subscribers
-        /// either.
+        /// either. Exposed as an extension method so call sites read as
+        /// <c>MyEvent.Raise(this, arg)</c>.
         /// </summary>
-        public static void Raise<T>(EventHandler<T> handler, object sender, T arg,
-                                    EventHandler<Exception> internalError)
+        /// <typeparam name="T">The event payload type.</typeparam>
+        /// <param name="handler">The event handler whose invocation list is iterated; a null handler is a safe no-op covering the no-subscriber case.</param>
+        /// <param name="sender">The sender object passed to each subscriber and to <paramref name="internalError"/> when routing a fault.</param>
+        /// <param name="arg">The typed event payload passed to each subscriber.</param>
+        /// <param name="internalError">The fault-routing sink. Each subscriber fault is routed through every delegate on this sink; pass <c>null</c> (or omit) to swallow faults at the per-delegate boundary.</param>
+        public static void Raise<T>(this EventHandler<T> handler, object sender, T arg,
+                                    EventHandler<Exception> internalError = null)
         {
             if (handler == null) return;
 
@@ -49,10 +64,15 @@ namespace MTConnect
         /// <see cref="EventHandler"/> events that carry no typed payload.
         /// Same contract: a throwing subscriber cannot starve later subscribers
         /// and a faulting <paramref name="internalError"/> handler cannot break
-        /// the fan-out either.
+        /// the fan-out either. Exposed as an extension method so call sites
+        /// read as <c>MyEvent.Raise(this, EventArgs.Empty)</c>.
         /// </summary>
-        public static void Raise(EventHandler handler, object sender, EventArgs arg,
-                                 EventHandler<Exception> internalError)
+        /// <param name="handler">The event handler whose invocation list is iterated; a null handler is a safe no-op covering the no-subscriber case.</param>
+        /// <param name="sender">The sender object passed to each subscriber and to <paramref name="internalError"/> when routing a fault.</param>
+        /// <param name="arg">The event payload passed to each subscriber.</param>
+        /// <param name="internalError">The fault-routing sink. Each subscriber fault is routed through every delegate on this sink; pass <c>null</c> (or omit) to swallow faults at the per-delegate boundary.</param>
+        public static void Raise(this EventHandler handler, object sender, EventArgs arg,
+                                 EventHandler<Exception> internalError = null)
         {
             if (handler == null) return;
 
