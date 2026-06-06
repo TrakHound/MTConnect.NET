@@ -228,7 +228,7 @@ namespace MTConnect.Clients
         {
             _stop = new CancellationTokenSource();
 
-            MulticastIsolation.Raise(ClientStarting, this, EventArgs.Empty, InternalError);
+            ClientStarting.Raise(this, EventArgs.Empty, InternalError);
 
             _ = Task.Run(Worker, _stop.Token);
         }
@@ -239,7 +239,7 @@ namespace MTConnect.Clients
         /// </summary>
         public void Stop()
         {
-            MulticastIsolation.Raise(ClientStopping, this, EventArgs.Empty, InternalError);
+            ClientStopping.Raise(this, EventArgs.Empty, InternalError);
 
             if (_stop != null) _stop.Cancel();
         }
@@ -353,7 +353,7 @@ namespace MTConnect.Clients
                             await StartAllDevicesProtocol();
                         }
 
-                        MulticastIsolation.Raise(ClientStarted, this, EventArgs.Empty, InternalError);
+                        ClientStarted.Raise(this, EventArgs.Empty, InternalError);
 
                         while (_mqttClient.IsConnected && !_stop.IsCancellationRequested)
                         {
@@ -362,7 +362,7 @@ namespace MTConnect.Clients
                     }
                     catch (Exception ex)
                     {
-                        MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
+                        ConnectionError.Raise(this, ex, InternalError);
                     }
 
                     await Task.Delay(_configuration.RetryInterval, _stop.Token);
@@ -370,7 +370,7 @@ namespace MTConnect.Clients
                 catch (TaskCanceledException) { }
                 catch (Exception ex)
                 {
-                    MulticastIsolation.Raise(InternalError, this, ex, InternalError);
+                    InternalError.Raise(this, ex, InternalError);
                 }
 
             } while (!_stop.Token.IsCancellationRequested);
@@ -384,7 +384,7 @@ namespace MTConnect.Clients
             catch { }
 
 
-            MulticastIsolation.Raise(ClientStopped, this, EventArgs.Empty, InternalError);
+            ClientStopped.Raise(this, EventArgs.Empty, InternalError);
         }
 
 
@@ -511,11 +511,11 @@ namespace MTConnect.Clients
                                     _devices.Add(outputDevice.Uuid, outputDevice);
                                 }
 
-                                MulticastIsolation.Raise(DeviceReceived, this, outputDevice, InternalError);
+                                DeviceReceived.Raise(this, outputDevice, InternalError);
                             }
                         }
 
-                        MulticastIsolation.Raise(ProbeReceived, this, responseDocument, InternalError);
+                        ProbeReceived.Raise(this, responseDocument, InternalError);
                     }
                 }
             }
@@ -567,7 +567,7 @@ namespace MTConnect.Clients
         private void ProcessCurrentDocument(IStreamsResponseDocument document)
         {
             _lastResponse = UnixDateTime.Now;
-            MulticastIsolation.Raise(ResponseReceived, this, EventArgs.Empty, InternalError);
+            ResponseReceived.Raise(this, EventArgs.Empty, InternalError);
 
             if (document != null)
             {
@@ -585,7 +585,7 @@ namespace MTConnect.Clients
                     response.Streams = deviceStreams;
 
 
-                    MulticastIsolation.Raise(CurrentReceived, this, response, InternalError);
+                    CurrentReceived.Raise(this, response, InternalError);
 
 
                     // Process Device Streams
@@ -610,7 +610,7 @@ namespace MTConnect.Clients
                             {
                                 if (observation.Sequence > lastSequence)
                                 {
-                                    MulticastIsolation.Raise(ObservationReceived, this, observation, InternalError);
+                                    ObservationReceived.Raise(this, observation, InternalError);
                                 }
                             }
 
@@ -637,7 +637,7 @@ namespace MTConnect.Clients
         private void ProcessSampleDocument(IStreamsResponseDocument document)
         {
             _lastResponse = UnixDateTime.Now;
-            MulticastIsolation.Raise(ResponseReceived, this, EventArgs.Empty, InternalError);
+            ResponseReceived.Raise(this, EventArgs.Empty, InternalError);
 
             if (document != null)
             {
@@ -653,7 +653,7 @@ namespace MTConnect.Clients
                 response.Streams = deviceStreams;
 
 
-                MulticastIsolation.Raise(SampleReceived, this, response, InternalError);
+                SampleReceived.Raise(this, response, InternalError);
 
 
                 // Process Device Streams
@@ -676,7 +676,7 @@ namespace MTConnect.Clients
                             {
                                 if (observation.Sequence > lastSequence && observation.Sequence > lastCurrentSequence)
                                 {
-                                    MulticastIsolation.Raise(ObservationReceived, this, observation, InternalError);
+                                    ObservationReceived.Raise(this, observation, InternalError);
                                 }
                             }
 
@@ -699,11 +699,11 @@ namespace MTConnect.Clients
         {
             if (document != null && !document.Assets.IsNullOrEmpty())
             {
-                MulticastIsolation.Raise(AssetsReceived, this, document, InternalError);
+                AssetsReceived.Raise(this, document, InternalError);
 
                 foreach (var asset in document.Assets)
                 {
-                    MulticastIsolation.Raise(AssetReceived, this, asset, InternalError);
+                    AssetReceived.Raise(this, asset, InternalError);
                 }
             }
         }
