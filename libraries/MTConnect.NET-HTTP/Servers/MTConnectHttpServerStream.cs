@@ -204,7 +204,7 @@ namespace MTConnect.Servers.Http
         {
             if (_mtconnectAgent != null)
             {
-                MulticastIsolation.Raise(StreamStarted, this, _id, StreamException);
+                StreamStarted.Raise(this, _id, StreamException);
 
                 // Set Content Type based documentFormat specified
                 var contentType = MimeTypes.Get(_documentFormat);
@@ -265,7 +265,7 @@ namespace MTConnect.Servers.Http
                                     stpw.Stop();
 
                                     // Raise heartbeat event and include the Multipart Chunk
-                                    MulticastIsolation.Raise(HeartbeatReceived, this, new MTConnectHttpStreamArgs(_id, outputStream, stpw.ElapsedMilliseconds), StreamException);
+                                    HeartbeatReceived.Raise(this, new MTConnectHttpStreamArgs(_id, outputStream, stpw.ElapsedMilliseconds), StreamException);
 
                                     // Reset the heartbeat timestamp
                                     lastHeartbeatSent = now;
@@ -276,7 +276,7 @@ namespace MTConnect.Servers.Http
                                 stpw.Stop();
 
                                 // Raise heartbeat event and include the Multipart Chunk
-                                MulticastIsolation.Raise(DocumentReceived, this, new MTConnectHttpStreamArgs(_id, outputStream, stpw.ElapsedMilliseconds), StreamException);
+                                DocumentReceived.Raise(this, new MTConnectHttpStreamArgs(_id, outputStream, stpw.ElapsedMilliseconds), StreamException);
 
                                 // Reset the document timestamp
                                 lastDocumentSent = now;
@@ -297,11 +297,11 @@ namespace MTConnect.Servers.Http
                 }
                 catch (Exception ex)
                 {
-                    MulticastIsolation.Raise(StreamException, this, ex, null);
+                    StreamException.Raise(this, ex, null);
                     throw new Exception();
                 }
 
-                MulticastIsolation.Raise(StreamStopped, this, _id, StreamException);
+                StreamStopped.Raise(this, _id, StreamException);
             }
         }
 

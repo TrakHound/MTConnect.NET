@@ -57,7 +57,7 @@ namespace MTConnect.Servers.Http
         {
             try
             {
-                MulticastIsolation.Raise(ClientConnected, this, context.Request, ClientException);
+                ClientConnected.Raise(this, context.Request, ClientException);
 
                 // Get Accept-Encoding Header (ex. gzip, br)
                 var acceptEncodings = GetRequestHeaderValues(context.Request, HttpHeaders.AcceptEncoding);
@@ -66,9 +66,9 @@ namespace MTConnect.Servers.Http
                 var mtconnectResponse = await OnRequestReceived(context, cancellationToken);
                 mtconnectResponse.WriteDuration = await WriteResponse(mtconnectResponse, context.Response, acceptEncodings);
 
-                MulticastIsolation.Raise(ResponseSent, this, mtconnectResponse, ClientException);
+                ResponseSent.Raise(this, mtconnectResponse, ClientException);
 
-                MulticastIsolation.Raise(ClientDisconnected, this, context.Request.RemoteEndPoint?.ToString(), ClientException);
+                ClientDisconnected.Raise(this, context.Request.RemoteEndPoint?.ToString(), ClientException);
 
                 return true;
             }
@@ -77,13 +77,13 @@ namespace MTConnect.Servers.Http
                 // Ignore Disposed Object Exception (happens when the listener is stopped)
                 if (ex.ErrorCode != 995)
                 {
-                    MulticastIsolation.Raise(ClientException, this, ex, null);
+                    ClientException.Raise(this, ex, null);
                 }
             }
             catch (ObjectDisposedException) { }
             catch (Exception ex)
             {
-                MulticastIsolation.Raise(ClientException, this, ex, null);
+                ClientException.Raise(this, ex, null);
             }
 
             return false;
@@ -225,7 +225,7 @@ namespace MTConnect.Servers.Http
                 }
                 catch (Exception)
                 {
-                    MulticastIsolation.Raise(ClientDisconnected, this, sampleStream.Id, ClientException);
+                    ClientDisconnected.Raise(this, sampleStream.Id, ClientException);
                     sampleStream.Stop();
                 }
             }
@@ -243,7 +243,7 @@ namespace MTConnect.Servers.Http
                 }
                 catch (Exception)
                 {
-                    MulticastIsolation.Raise(ClientDisconnected, this, sampleStream.Id, ClientException);
+                    ClientDisconnected.Raise(this, sampleStream.Id, ClientException);
                     sampleStream.Stop();
                 }
             }
