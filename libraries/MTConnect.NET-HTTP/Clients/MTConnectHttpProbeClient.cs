@@ -236,16 +236,16 @@ namespace MTConnect.Clients
             }
             catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
             {
-                MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
+                ConnectionError.Raise(this, ex, InternalError);
             }
             catch (TaskCanceledException) { /* Ignore Task Cancelled */  }
             catch (HttpRequestException ex)
             {
-                MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
+                ConnectionError.Raise(this, ex, InternalError);
             }
             catch (Exception ex)
             {
-                MulticastIsolation.Raise(InternalError, this, ex, InternalError);
+                InternalError.Raise(this, ex, InternalError);
             }
 
             return null;
@@ -297,16 +297,16 @@ namespace MTConnect.Clients
             }
             catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
             {
-                MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
+                ConnectionError.Raise(this, ex, InternalError);
             }
             catch (TaskCanceledException) { /* Ignore Task Cancelled */  }
             catch (HttpRequestException ex)
             {
-                MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
+                ConnectionError.Raise(this, ex, InternalError);
             }
             catch (Exception ex)
             {
-                MulticastIsolation.Raise(InternalError, this, ex, InternalError);
+                InternalError.Raise(this, ex, InternalError);
             }
 
             return null;
@@ -388,7 +388,7 @@ namespace MTConnect.Clients
             {
                 if (!response.IsSuccessStatusCode)
                 {
-                    MulticastIsolation.Raise(ConnectionError, this, new Exception(response.ReasonPhrase), InternalError);
+                    ConnectionError.Raise(this, new Exception(response.ReasonPhrase), InternalError);
                 }
                 else if (response.Content != null)
                 {
@@ -406,7 +406,7 @@ namespace MTConnect.Clients
             {
                 if (!response.IsSuccessStatusCode)
                 {
-                    MulticastIsolation.Raise(ConnectionError, this, new Exception(response.ReasonPhrase), InternalError);
+                    ConnectionError.Raise(this, new Exception(response.ReasonPhrase), InternalError);
                 }
                 else if (response.Content != null)
                 {
@@ -448,19 +448,19 @@ namespace MTConnect.Clients
                         if (errorFormatResult.Success)
                         {
                             var errorDocument = errorFormatResult.Content;
-                            if (errorDocument != null) MulticastIsolation.Raise(MTConnectError, this, errorDocument, InternalError);
+                            if (errorDocument != null) MTConnectError.Raise(this, errorDocument, InternalError);
                         }
                         else
                         {
                             // Raise Format Error
-                            MulticastIsolation.Raise(FormatError, this, errorFormatResult, InternalError);
+                            FormatError.Raise(this, errorFormatResult, InternalError);
                         }
                     }
                 }
                 else
                 {
                     // Raise Format Error
-                    MulticastIsolation.Raise(FormatError, this, formatResult, InternalError);
+                    FormatError.Raise(this, formatResult, InternalError);
                 }
             }
 

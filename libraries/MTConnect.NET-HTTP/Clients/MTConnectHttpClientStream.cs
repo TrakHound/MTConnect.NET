@@ -123,7 +123,7 @@ namespace MTConnect.Clients
             cancellationToken.Register(() => Stop());
 
             // Raise Starting Event
-            MulticastIsolation.Raise(Starting, this, EventArgs.Empty, InternalError);
+            Starting.Raise(this, EventArgs.Empty, InternalError);
 
             _ = Task.Run(() => Run(_stop.Token));
         }
@@ -136,7 +136,7 @@ namespace MTConnect.Clients
         public void Stop()
         {
             // Raise Stopping Event
-            MulticastIsolation.Raise(Stopping, this, EventArgs.Empty, InternalError);
+            Stopping.Raise(this, EventArgs.Empty, InternalError);
 
             if (_stop != null) _stop.Cancel();
         }
@@ -167,7 +167,7 @@ namespace MTConnect.Clients
                     responseTimer.Elapsed += (o, e) =>
                     {
                         stop.Cancel();
-                        MulticastIsolation.Raise(ConnectionError, this, new TimeoutException($"HTTP Stream Timeout Exceeded ({Timeout})"), InternalError);
+                        ConnectionError.Raise(this, new TimeoutException($"HTTP Stream Timeout Exceeded ({Timeout})"), InternalError);
                     };
                     responseTimer.Start();
                 }
@@ -177,7 +177,7 @@ namespace MTConnect.Clients
                     stop.Token.ThrowIfCancellationRequested();
 
                     // Raise Started Event
-                    MulticastIsolation.Raise(Started, this, EventArgs.Empty, InternalError);
+                    Started.Raise(this, EventArgs.Empty, InternalError);
 
 
                     // Add 'Accept' HTTP Header
@@ -305,16 +305,16 @@ namespace MTConnect.Clients
                 }
                 catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
                 {
-                    MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
+                    ConnectionError.Raise(this, ex, InternalError);
                 }
                 catch (TaskCanceledException) { /* Ignore Task Cancelled */  }
                 catch (HttpRequestException ex)
                 {
-                    MulticastIsolation.Raise(ConnectionError, this, ex, InternalError);
+                    ConnectionError.Raise(this, ex, InternalError);
                 }
                 catch (Exception ex)
                 {
-                    MulticastIsolation.Raise(InternalError, this, ex, InternalError);
+                    InternalError.Raise(this, ex, InternalError);
                 }
                 finally
                 {
@@ -322,7 +322,7 @@ namespace MTConnect.Clients
                 }
             }
 
-            MulticastIsolation.Raise(Stopped, this, EventArgs.Empty, InternalError);
+            Stopped.Raise(this, EventArgs.Empty, InternalError);
         }
 
         private static string GetHeaderValue(string s, string name)
@@ -411,7 +411,7 @@ namespace MTConnect.Clients
                     var document = formatResult.Content;
                     if (document != null)
                     {
-                        MulticastIsolation.Raise(DocumentReceived, this, document, InternalError);
+                        DocumentReceived.Raise(this, document, InternalError);
                     }
                     else
                     {
@@ -420,19 +420,19 @@ namespace MTConnect.Clients
                         if (errorFormatResult.Success)
                         {
                             var errorDocument = errorFormatResult.Content;
-                            if (errorDocument != null) MulticastIsolation.Raise(ErrorReceived, this, errorDocument, InternalError);
+                            if (errorDocument != null) ErrorReceived.Raise(this, errorDocument, InternalError);
                         }
                         else
                         {
                             // Raise Format Error
-                            MulticastIsolation.Raise(FormatError, this, errorFormatResult, InternalError);
+                            FormatError.Raise(this, errorFormatResult, InternalError);
                         }
                     }
                 }
                 else
                 {
                     // Raise Format Error
-                    MulticastIsolation.Raise(FormatError, this, formatResult, InternalError);
+                    FormatError.Raise(this, formatResult, InternalError);
                 }
             }
         }
