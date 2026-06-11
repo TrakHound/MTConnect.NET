@@ -209,7 +209,19 @@ namespace Ceen.Httpd
 			/// Initializes the lifetime service.
 			/// </summary>
 			/// <returns>The lifetime service.</returns>
+			/// <remarks>
+			/// The base member <see cref="MarshalByRefObject.InitializeLifetimeService"/> is
+			/// only marked obsolete on .NET 5 and newer (CoreCLR removed the .NET Remoting
+			/// lifetime-service infrastructure there). On .NET Framework targets the base is
+			/// not obsolete, so applying <see cref="ObsoleteAttribute"/> on the override would
+			/// trigger CS0809 (obsolete override of non-obsolete member). The attribute is
+			/// therefore only conditionally compiled in for net5+ — silencing the otherwise
+			/// CS0672 (non-obsolete override of obsolete member) without forbidding the
+			/// override on net4x where remoting is still live.
+			/// </remarks>
+#if NET5_0_OR_GREATER
 			[Obsolete("InitializeLifetimeService is obsolete in .NET 5+; the override exists for legacy AppDomain remoting compatibility.")]
+#endif
 			public override object InitializeLifetimeService()
 			{
 				return null;
