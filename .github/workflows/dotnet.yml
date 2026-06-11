@@ -452,3 +452,66 @@ jobs:
             TestResults/**/coverage.cobertura.xml
           if-no-files-found: warn
           retention-days: 14
+
+  # ------------------------------------------------------------------
+  # Job 4 — Release-pack matrix gate. The build-and-test job above only
+  # exercises Debug, which compiles each csproj against a single TFM
+  # (net8.0 — see the per-project `<PropertyGroup Condition="…Debug">`
+  # blocks). Release / Package configurations multi-target net4x →
+  # net9.0; some diagnostics only fire on the legacy TFMs (CS0162 from
+  # `#if NET5_0_OR_GREATER` branches that go unreachable on net4x), and
+  # some only on net9.0 (SYSLIB0057 X509Certificate2 ctor obsoletion).
+  # The May-22 regression slipped through CI precisely because Debug
+  # never built net4x; this job runs `dotnet pack -c Release` across
+  # the full TFM matrix to catch the next regression class at PR time.
+  #
+  # Single-process (no shard), no docs dependency, same draft-skip
+  # gate as build-and-test. The pack output is written to a workflow-
+  # local `dist/` directory and discarded — the produced .nupkg files
+  # are not uploaded as artefacts; the gate's only output is the exit
+  # code.
+  # ------------------------------------------------------------------
+  release-pack:
+    name: release-pack
+    if: github.event_name == 'push' || github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+
+      - name: Setup .NET 8.0 + 9.0
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9  # v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: Restore solution
+        run: dotnet restore MTConnect.NET.sln
+
+      - name: Pack -c Release across multi-TFM
+        run: |
+          rm -rf dist
+          mkdir -p dist
+          dotnet pack MTConnect.NET.sln -c Release \
+            -p:VersionSuffix=ci-check \
+            -p:ContinuousIntegrationBuild=true \
+            -o dist 2>&1 | tee pack.log
+        shell: bash
+
+      # Surface a compact summary of every error / warning that
+      # tripped the pack. The `dotnet pack` step above pipes into
+      # `tee pack.log`; the unmasked exit propagates via the
+      # pipeline's PIPESTATUS through `set -o pipefail`, which is
+      # the GitHub-default for bash steps. This step only runs on
+      # failure, by design — when the pack is green, the produced
+      # nupkgs are not inspected further.
+      - name: Surface pack errors (if any)
+        if: failure()
+        run: |
+          echo "### Release-pack diagnostics" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          grep -E '(error|warning) (CS|CA|NU|SYSLIB|MSB)' pack.log \
+            | sort -u | head -100 >> "$GITHUB_STEP_SUMMARY" || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+        shell: bash
