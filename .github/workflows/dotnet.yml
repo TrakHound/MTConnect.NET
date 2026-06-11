@@ -36,7 +36,7 @@ jobs:
   # paid exactly once across the whole workflow (in job 2 below).
   # ------------------------------------------------------------------
   build-and-test:
-    name: build-and-test-${{ matrix.os }}
+    name: build-and-test
     # Skip drafts: run only on push-to-master + ready (non-draft) PRs.
     # The pull_request `types` list above includes `ready_for_review`
     # so CI fires the moment a draft is flipped to ready.
@@ -323,7 +323,7 @@ jobs:
   # categories run exactly once (in job 1) across the workflow.
   # ------------------------------------------------------------------
   route-check-e2e:
-    name: route-check-e2e-shard${{ matrix.shard }}of${{ matrix.shardTotal }}
+    name: route-check-e2e
     if: github.event_name == 'push' || github.event.pull_request.draft == false
     needs: docs-prepare
     runs-on: ubuntu-latest
