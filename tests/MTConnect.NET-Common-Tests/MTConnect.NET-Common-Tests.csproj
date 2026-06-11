@@ -31,6 +31,14 @@
     <ProjectReference Include="..\..\libraries\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
     <ProjectReference Include="..\..\agent\MTConnect.NET-Applications-Agents\MTConnect.NET-Applications-Agents.csproj" />
     <ProjectReference Include="..\..\adapter\MTConnect.NET-Applications-Adapter\MTConnect.NET-Applications-Adapter.csproj" />
+    <!--
+      MTConnect.NET-TLS is referenced from TlsCertificateLoaderTests.cs
+      (tests/MTConnect.NET-Common-Tests/Tls/), which round-trips a
+      self-signed PFX through TlsConfiguration.GetCertificate() to pin
+      the SYSLIB0057 → X509CertificateLoader migration's behaviour
+      equivalence under net9.0.
+    -->
+    <ProjectReference Include="..\..\libraries\MTConnect.NET-TLS\MTConnect.NET-TLS.csproj" />
   </ItemGroup>
 
 </Project>
