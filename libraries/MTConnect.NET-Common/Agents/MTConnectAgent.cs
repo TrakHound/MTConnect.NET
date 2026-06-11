@@ -2152,6 +2152,17 @@ namespace MTConnect.Agents
                 var dataItem = GetDataItem(deviceUuid, input.DataItemKey);
                 if (dataItem != null)
                 {
+                    // Coerce a null, empty, or whitespace-only Result to UNAVAILABLE before the
+                    // observation reaches the buffer. The MTConnect Part 1 Observation Information
+                    // Model mandates "UNAVAILABLE" as the sole valid representation of a missing
+                    // value; an empty string is never a Valid Data Value. The coerce runs above
+                    // validation so Strict no longer silently drops empty-Result observations and
+                    // every other validation level publishes the spec-compliant sentinel.
+                    if (dataItem.Category != DataItemCategory.CONDITION && IsEmptyResult(input))
+                    {
+                        CoerceEmptyResultToUnavailable(input);
+                    }
+
                     // Add required properties
                     switch (dataItem.Representation)
                     {
@@ -2274,6 +2285,41 @@ namespace MTConnect.Agents
             }
 
             return false;
+        }
+
+
+        /// <summary>
+        /// Returns true when the observation's Result value is null, the empty string, or whitespace-only.
+        /// </summary>
+        /// <remarks>
+        /// An empty Result is, by definition, not a Valid Data Value under any typed DataItem schema; the
+        /// MTConnect Part 1 Observation Information Model mandates "UNAVAILABLE" as the sole valid
+        /// representation of a missing value. This predicate identifies the inputs the SDK coerces.
+        /// </remarks>
+        private static bool IsEmptyResult(IObservationInput input)
+        {
+            var result = input.GetValue(ValueKeys.Result);
+            if (result == null) return true;
+            return string.IsNullOrWhiteSpace(result);
+        }
+
+        /// <summary>
+        /// Rewrites the observation's Result value to <see cref="Observation.Unavailable"/> and flags the input as unavailable.
+        /// </summary>
+        /// <remarks>
+        /// Removes any prior Result entry (so the Values collection does not carry a duplicate ValueKey),
+        /// adds the UNAVAILABLE sentinel, and sets <see cref="IObservationInput.IsUnavailable"/> so downstream
+        /// consumers that branch on the flag observe the coerced state. Spec authority: MTConnect Part 1
+        /// Observation Information Model - Representation - Observation Values.
+        /// </remarks>
+        private static void CoerceEmptyResultToUnavailable(IObservationInput input)
+        {
+            var preserved = (input.Values ?? Enumerable.Empty<ObservationValue>())
+                .Where(v => v.Key != ValueKeys.Result)
+                .ToList();
+            input.Values = preserved;
+            input.AddValue(ValueKeys.Result, Observation.Unavailable);
+            input.IsUnavailable = true;
         }
 
 
