@@ -5,7 +5,9 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+#if NET5_0_OR_GREATER
 using System.Runtime.Versioning;
+#endif
 using System.ServiceProcess;
 
 namespace MTConnect.Services
@@ -13,7 +15,9 @@ namespace MTConnect.Services
     /// <summary>
     /// Class used to implement an MTConnect Adapter as a Windows Service
     /// </summary>
+#if NET5_0_OR_GREATER
     [SupportedOSPlatform("windows")]
+#endif
     public abstract class MTConnectAdapterService : ServiceBase
     {
         private const string DefaultServiceName = "MTConnect-Adapter";
