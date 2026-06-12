@@ -214,14 +214,23 @@ namespace MTConnect.Mqtt
                         // Add CA (Certificate Authority)
                         if (!string.IsNullOrEmpty(_configuration.CertificateAuthority))
                         {
+#if NET9_0_OR_GREATER
+                            certificates.Add(X509CertificateLoader.LoadCertificateFromFile(GetFilePath(_configuration.CertificateAuthority)));
+#else
                             certificates.Add(new X509Certificate2(GetFilePath(_configuration.CertificateAuthority)));
+#endif
                         }
 
                         // Add Client Certificate & Private Key
                         if (!string.IsNullOrEmpty(_configuration.PemCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
                         {
 #if NET5_0_OR_GREATER
-                            certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx)));
+                            var pfxBytes = X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx);
+#if NET9_0_OR_GREATER
+                            certificates.Add(X509CertificateLoader.LoadPkcs12(pfxBytes, null));
+#else
+                            certificates.Add(new X509Certificate2(pfxBytes));
+#endif
 
                             clientOptionsBuilder.WithCleanSession();
                             clientOptionsBuilder.WithTlsOptions(b => b
