@@ -105,9 +105,37 @@ namespace MTConnect.Servers
                 {
                     var bufferSize = 1048576 * 2; // 2 MB
                     var bytes = new byte[bufferSize];
-                    await inputStream.ReadAsync(bytes, 0, bytes.Length);
 
-                    return TrimEnd(bytes);
+                    // Stream.ReadAsync(buffer, offset, count) is allowed to
+                    // return fewer bytes than requested — anywhere from 1 up
+                    // to count — and 0 indicates EOF. CA2022 fires when the
+                    // return value is ignored because the request body may
+                    // arrive in multiple TCP segments, in which case a single
+                    // ReadAsync call returns only the first segment's bytes.
+                    // Loop until EOF or the buffer is full, accumulating into
+                    // the same `bytes` buffer and tracking the total filled
+                    // length.
+                    var totalRead = 0;
+                    while (totalRead < bytes.Length)
+                    {
+                        var read = await inputStream.ReadAsync(bytes, totalRead, bytes.Length - totalRead);
+                        if (read == 0)
+                            break;
+                        totalRead += read;
+                    }
+
+                    if (totalRead == 0)
+                        return null;
+                    if (totalRead == bytes.Length)
+                        return bytes;
+
+                    // Truncate the buffer to the actual filled length. This
+                    // replaces the previous TrimEnd-on-zero-byte heuristic,
+                    // which could over-truncate when the body legitimately
+                    // ended with a 0x00 byte (e.g. a binary payload).
+                    var trimmed = new byte[totalRead];
+                    Array.Copy(bytes, 0, trimmed, 0, totalRead);
+                    return trimmed;
                 }
                 catch { }
             }
