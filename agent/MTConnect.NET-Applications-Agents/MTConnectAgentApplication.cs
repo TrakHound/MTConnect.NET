@@ -53,7 +53,7 @@ namespace MTConnect.Applications
         private readonly object _lock = new object();
 
         /// <summary>NLog log-level applied to every internal logger.
-        /// Defaults to <see cref="LogLevel.Debug"/>; the <c>debug</c>
+        /// Defaults to <see cref="NLog.LogLevel.Debug"/>; the <c>debug</c>
         /// and <c>trace</c> CLI commands override it.</summary>
         protected LogLevel _logLevel = LogLevel.Debug;
         private MTConnectAgentBroker _mtconnectAgent;
