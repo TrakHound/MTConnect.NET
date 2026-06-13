@@ -29,9 +29,12 @@ namespace MTConnect.NET_Common_Tests.Http
     // Each test uses a custom Stream that returns its content one byte
     // at a time (the worst-case short read), proving that the fix
     // correctly accumulates the full payload.
+    /// <summary>Pins the CA2022 short-read accumulation fix on the HTTP request-body read path against a worst-case one-byte-per-call stream.</summary>
     [TestFixture]
     public class CA2022ShortReadTests
     {
+        /// <summary>Pins that `MTConnectPostResponseHandler.ReadRequestBytes` accumulates the full body across short ReadAsync returns and preserves a legitimate trailing `0x00` byte (pre-fix `TrimEnd` over-truncated bodies whose final byte was zero).</summary>
+        /// <returns>An awaitable Task; the assertions inside drive the test outcome.</returns>
         [Test]
         public async Task ReadRequestBytes_accumulates_across_short_reads_and_preserves_trailing_zero()
         {
@@ -57,6 +60,8 @@ namespace MTConnect.NET_Common_Tests.Http
             Assert.That(result, Is.EqualTo(body));
         }
 
+        /// <summary>Pins the contract behind the `LimitedBodyStream.DiscardAllAsync` short-read loop: a custom Stream returning one byte at a time then EOF must terminate the drain within a bounded number of iterations rather than deadlocking on the pre-fix `m_bytesleft > 0` guard.</summary>
+        /// <returns>An awaitable Task; the assertions inside drive the test outcome.</returns>
         [Test]
         public async Task DiscardAllAsync_terminates_on_premature_eof_short_read()
         {

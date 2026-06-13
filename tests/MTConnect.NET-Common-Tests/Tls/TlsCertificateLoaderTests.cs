@@ -29,11 +29,13 @@ namespace MTConnect.NET_Common_Tests.Tls
     // legacy path remains functional after the conditional refactor;
     // the .NET 9 path is exercised by the Release-pack CI gate, which
     // builds the same source with the X509CertificateLoader path active.
+    /// <summary>Pins the SYSLIB0057 migration on `TlsConfiguration.GetCertificate` / `GetCertificateAuthority`: every supported cert source (PFX with / without password, PEM cert + key, PEM CA-only) round-trips through the new `X509CertificateLoader` path without losing subject or thumbprint.</summary>
     [TestFixture]
     public class TlsCertificateLoaderTests
     {
         private string? _tempDir;
 
+        /// <summary>Allocates a fresh per-test temp directory under the system temp root so each test owns its own PFX / PEM files and cannot race siblings.</summary>
         [SetUp]
         public void SetUp()
         {
@@ -41,6 +43,7 @@ namespace MTConnect.NET_Common_Tests.Tls
             Directory.CreateDirectory(_tempDir);
         }
 
+        /// <summary>Tears down the per-test temp directory; failures are swallowed because cert files may briefly hold OS file locks on Windows even after the cert handle is disposed.</summary>
         [TearDown]
         public void TearDown()
         {
@@ -50,6 +53,7 @@ namespace MTConnect.NET_Common_Tests.Tls
             }
         }
 
+        /// <summary>Pins that a password-less PFX loaded via `TlsConfiguration.GetCertificate` round-trips the original certificate's thumbprint and subject — the legacy `new X509Certificate2(byte[])` ctor that SYSLIB0057 obsoleted produced the same result; the new `X509CertificateLoader.LoadCertificate(...)` path must too.</summary>
         [Test]
         public void GetCertificate_pfx_without_password_round_trips_thumbprint()
         {
@@ -70,6 +74,7 @@ namespace MTConnect.NET_Common_Tests.Tls
             Assert.That(result.Certificate.Subject, Is.EqualTo(original.Subject));
         }
 
+        /// <summary>Pins that a password-protected PFX loaded via `TlsConfiguration.GetCertificate` correctly decrypts and round-trips the original thumbprint and subject — the new `X509CertificateLoader.LoadPkcs12FromFile(path, password, ...)` path must preserve the legacy obsolete-ctor's password semantics.</summary>
         [Test]
         public void GetCertificate_pfx_with_password_round_trips_thumbprint()
         {
@@ -95,6 +100,7 @@ namespace MTConnect.NET_Common_Tests.Tls
             Assert.That(result.Certificate.Subject, Is.EqualTo(original.Subject));
         }
 
+        /// <summary>Pins that a PEM-encoded certificate + matching private-key file pair loaded via `TlsConfiguration.GetCertificate` round-trips the original thumbprint and subject through the PEM → in-memory PKCS#12 → loader path that the SYSLIB0057 migration introduced.</summary>
         [Test]
         public void GetCertificate_pem_with_private_key_round_trips_subject()
         {
@@ -124,6 +130,7 @@ namespace MTConnect.NET_Common_Tests.Tls
             Assert.That(result.Certificate.Thumbprint, Is.EqualTo(original.Thumbprint));
         }
 
+        /// <summary>Pins that a PEM-encoded CA certificate (cert-only, no private key) loaded via `TlsConfiguration.GetCertificateAuthority` round-trips the original thumbprint and subject — the CA path uses `X509CertificateLoader.LoadCertificateFromFile(...)` which differs from the cert+key path used by `GetCertificate`.</summary>
         [Test]
         public void GetCertificateAuthority_pem_round_trips_subject()
         {
