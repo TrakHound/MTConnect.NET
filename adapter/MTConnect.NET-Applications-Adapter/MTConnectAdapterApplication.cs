@@ -42,7 +42,7 @@ namespace MTConnect.Applications
         /// the startup log.</summary>
         protected bool _verboseLogging = true;
         /// <summary>NLog log-level applied to every internal logger.
-        /// Defaults to <see cref="LogLevel.Debug"/>; the <c>debug</c>
+        /// Defaults to <see cref="NLog.LogLevel.Debug"/>; the <c>debug</c>
         /// CLI command overrides it.</summary>
         protected LogLevel _logLevel = LogLevel.Debug;
         /// <summary>File-system watcher that reloads the adapter

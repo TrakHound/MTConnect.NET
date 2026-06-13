@@ -941,11 +941,17 @@ namespace MTConnect
                                     if (!conditionObservations.IsNullOrEmpty())
                                     {
                                         var multipleObservations = new List<IObservation>(conditionObservations.Count());
-                                        foreach (var observation in conditionObservations)
+                                        // Rename to avoid CS0136: the
+                                        // enclosing AgentObservationAdded
+                                        // handler takes `observation` as its
+                                        // parameter; declaring an inner
+                                        // `observation` here shadows it and
+                                        // fails to compile under net4x.
+                                        foreach (var condObservation in conditionObservations)
                                         {
-                                            multipleObservations.Add(CloneAsObservation(observation));
+                                            multipleObservations.Add(CloneAsObservation(condObservation));
                                         }
-                                    
+
                                         var result = await _entityServer.PublishObservations(_mqttClient, multipleObservations);
                                         if (result != null && result.IsSuccess)
                                         {

@@ -28,8 +28,17 @@
 		<!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 
-		<!-- Optional: Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
-		<IncludeSymbols>true</IncludeSymbols>
+		<!--
+		  Build symbol package (.snupkg) to distribute the PDB containing
+		  Source Link — but only when the configuration actually produces
+		  a PDB. Release sets DebugType=None / DebugSymbols=false (binary
+		  payload only, no PDB), so a generated .snupkg under Release
+		  carries no content and the NuGet pack task trips NU5017 on it.
+		  Package is the canonical nuget.org publish configuration; it
+		  keeps DebugType at the SDK default and produces a real PDB, so
+		  the .snupkg there has actual content.
+		-->
+		<IncludeSymbols Condition="'$(Configuration)' != 'Release'">true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
 

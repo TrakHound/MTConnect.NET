@@ -152,7 +152,19 @@ namespace Ceen.Httpd
 
             var buf = new byte[1024 * 8];
             while (m_bytesleft > 0)
-                await ReadAsync(buf, 0, buf.Length, cancellationToken);
+            {
+                // ReadAsync may return fewer bytes than requested (short read)
+                // and 0 on EOF. CA2022 fires when the return value is ignored
+                // because the caller can deadlock on a stream that hits EOF
+                // before m_bytesleft reaches zero — the underlying transport
+                // may close mid-body. Treat a 0-byte read as the failure path
+                // and break out; the caller decides whether the missing body
+                // bytes are recoverable. A non-zero short read is fine — the
+                // loop's m_bytesleft gate is decremented by ReadAsync itself.
+                var read = await ReadAsync(buf, 0, buf.Length, cancellationToken);
+                if (read == 0)
+                    return false;
+            }
 
             return true;
         }

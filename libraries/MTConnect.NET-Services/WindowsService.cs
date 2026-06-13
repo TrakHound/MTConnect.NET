@@ -3,13 +3,17 @@
 
 using System.Linq;
 using System.Runtime.InteropServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Versioning;
+#endif
 using System.Security.Principal;
 using System.ServiceProcess;
 
 namespace MTConnect.Services
 {
+#if NET5_0_OR_GREATER
     [SupportedOSPlatform("windows")]
+#endif
     internal static class WindowsService
     {
         public static bool ServiceExists(string serviceName)

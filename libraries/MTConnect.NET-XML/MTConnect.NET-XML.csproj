@@ -17,7 +17,18 @@
 	<PropertyGroup>
 		<RootNamespace>MTConnect</RootNamespace>
 		<Configurations>Debug;Release;Package</Configurations>
-		
+
+		<!--
+			XsdPreprocessor.StripXsd11Constructs uses a C# 8.0 `using var`
+			declaration (`using var reader = new StringReader(...)`). The
+			Roslyn default LangVersion on netstandard2.0 / net4x falls
+			back to 7.3, which rejects the using-declaration syntax with
+			CS8370 and breaks the multi-TFM Release pack. Pin LangVersion
+			to 8.0 — the lowest version that accepts the syntax — so the
+			Release pack survives every declared TFM.
+		-->
+		<LangVersion>8.0</LangVersion>
+
 		<Description>MTConnect.NET-XML implements the XML Document Format for use with the MTConnect.NET library. Supports MTConnect versions up to 2.7. Supports .NET Framework 4.6.1 up to .NET 9</Description>
 		<PackageReadmeFile>README-Nuget.md</PackageReadmeFile>
 

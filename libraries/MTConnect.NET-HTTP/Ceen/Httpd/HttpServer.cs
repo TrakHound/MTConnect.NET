@@ -2,7 +2,9 @@
 using System.Net;
 using System.Linq;
 using System.Net.Sockets;
+#if NET5_0_OR_GREATER
 using System.Runtime.Versioning;
+#endif
 using System.Threading.Tasks;
 using System.Threading;
 using System.Security.Cryptography.X509Certificates;
@@ -172,7 +174,9 @@ namespace Ceen.Httpd
 			/// <param name="socket">The socket handle.</param>
 			/// <param name="remoteEndPoint">The remote endpoint.</param>
 			/// <param name="logtaskid">The task ID to use.</param>
+#if NET5_0_OR_GREATER
 			[SupportedOSPlatform("windows")]
+#endif
 			public void HandleRequest(SocketInformation socket, EndPoint remoteEndPoint, string logtaskid)
 			{
 				RunClient(socket, remoteEndPoint, logtaskid, Controller);
@@ -205,7 +209,19 @@ namespace Ceen.Httpd
 			/// Initializes the lifetime service.
 			/// </summary>
 			/// <returns>The lifetime service.</returns>
+			/// <remarks>
+			/// The base member <see cref="MarshalByRefObject.InitializeLifetimeService"/> is
+			/// only marked obsolete on .NET 5 and newer (CoreCLR removed the .NET Remoting
+			/// lifetime-service infrastructure there). On .NET Framework targets the base is
+			/// not obsolete, so applying <see cref="ObsoleteAttribute"/> on the override would
+			/// trigger CS0809 (obsolete override of non-obsolete member). The attribute is
+			/// therefore only conditionally compiled in for net5+ — silencing the otherwise
+			/// CS0672 (non-obsolete override of obsolete member) without forbidding the
+			/// override on net4x where remoting is still live.
+			/// </remarks>
+#if NET5_0_OR_GREATER
 			[Obsolete("InitializeLifetimeService is obsolete in .NET 5+; the override exists for legacy AppDomain remoting compatibility.")]
+#endif
 			public override object InitializeLifetimeService()
 			{
 				return null;
@@ -865,7 +881,9 @@ namespace Ceen.Httpd
 		/// <param name="remoteEndPoint">The remote endpoint.</param>
 		/// <param name="logtaskid">The log task ID.</param>
 		/// <param name="controller">The controller instance</param>
+#if NET5_0_OR_GREATER
 		[SupportedOSPlatform("windows")]
+#endif
 		private static void RunClient(SocketInformation socketinfo, EndPoint remoteEndPoint, string logtaskid, RunnerControl controller)
 		{
 			RunClient(new Socket(socketinfo), remoteEndPoint, logtaskid, controller);

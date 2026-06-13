@@ -81,8 +81,21 @@ namespace MTConnect.Tls
                 {
                     X509Certificate2 certificate;
 
+#if NET9_0_OR_GREATER
+                    // X509CertificateLoader was introduced in .NET 9 to replace the
+                    // X509Certificate2 byte/path constructors that became obsolete with
+                    // SYSLIB0057. The PFX loader covers both the password and no-password
+                    // shapes; behaviour is intentionally identical to the constructor it
+                    // replaces, save that it refuses to fall through to other certificate
+                    // formats — a PFX file that isn't actually PFX now errors at load time
+                    // instead of silently being treated as DER, which is the desired
+                    // tightening for our threat model.
+                    if (!string.IsNullOrEmpty(Pfx.CertificatePassword)) certificate = X509CertificateLoader.LoadPkcs12FromFile(Pfx.CertificatePath, Pfx.CertificatePassword);
+                    else certificate = X509CertificateLoader.LoadPkcs12FromFile(Pfx.CertificatePath, null);
+#else
                     if (!string.IsNullOrEmpty(Pfx.CertificatePassword)) certificate = new X509Certificate2(Pfx.CertificatePath, Pfx.CertificatePassword);
                     else certificate = new X509Certificate2(Pfx.CertificatePath);
+#endif
 
                     return CertificateLoadResult.Ok(certificate);
                 }
@@ -124,7 +137,11 @@ namespace MTConnect.Tls
                     // Export to Pkcs12
                     var pfxPassword = Guid.NewGuid().ToString();
                     var pkcsCert = certificate.Export(X509ContentType.Pkcs12, pfxPassword);
+#if NET9_0_OR_GREATER
+                    certificate = X509CertificateLoader.LoadPkcs12(pkcsCert, pfxPassword);
+#else
                     certificate = new X509Certificate2(pkcsCert, pfxPassword);
+#endif
 
                     return CertificateLoadResult.Ok(certificate);
                 }
@@ -145,7 +162,9 @@ namespace MTConnect.Tls
                 {
                     X509Certificate2 certificate;
 
-#if NET5_0_OR_GREATER
+#if NET9_0_OR_GREATER
+                    certificate = X509CertificateLoader.LoadCertificateFromFile(Pem.CertificateAuthority);
+#elif NET5_0_OR_GREATER
                     certificate = new X509Certificate2(Pem.CertificateAuthority);
 #else
                     certificate = null;
@@ -154,7 +173,11 @@ namespace MTConnect.Tls
                     // Export to Pkcs12
                     var pfxPassword = Guid.NewGuid().ToString();
                     var pkcsCert = certificate.Export(X509ContentType.Pkcs12, pfxPassword);
+#if NET9_0_OR_GREATER
+                    certificate = X509CertificateLoader.LoadPkcs12(pkcsCert, pfxPassword);
+#else
                     certificate = new X509Certificate2(pkcsCert, pfxPassword);
+#endif
 
                     return CertificateLoadResult.Ok(certificate);
                 }
