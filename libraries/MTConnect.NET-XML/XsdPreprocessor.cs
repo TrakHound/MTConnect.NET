@@ -59,8 +59,10 @@ namespace MTConnect
             XDocument doc;
             try
             {
-                using var reader = new StringReader(xsdSourceXml);
-                doc = XDocument.Load(reader, LoadOptions.PreserveWhitespace);
+                using (var reader = new StringReader(xsdSourceXml))
+                {
+                    doc = XDocument.Load(reader, LoadOptions.PreserveWhitespace);
+                }
             }
             catch (System.Xml.XmlException)
             {

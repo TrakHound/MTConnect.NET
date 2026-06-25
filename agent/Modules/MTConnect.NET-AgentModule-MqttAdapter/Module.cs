@@ -140,9 +140,6 @@ namespace MTConnect.Modules
                         {
 #if NET5_0_OR_GREATER
                             certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx)));
-#else
-                    throw new Exception("PEM Certificates Not Supported in .NET Framework 4.8 or older");
-#endif
 
                             clientOptionsBuilder.WithTlsOptions(b => b
                                 .WithSslProtocols(System.Security.Authentication.SslProtocols.Tls12)
@@ -150,6 +147,9 @@ namespace MTConnect.Modules
                                 .WithIgnoreCertificateChainErrors(_configuration.AllowUntrustedCertificates)
                                 .WithAllowUntrustedCertificates(_configuration.AllowUntrustedCertificates)
                                 .WithClientCertificates(certificates));
+#else
+                    throw new Exception("PEM Certificates Not Supported in .NET Framework 4.8 or older");
+#endif
                         }
 
                         // Add Credentials

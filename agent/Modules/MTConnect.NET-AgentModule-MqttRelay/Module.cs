@@ -201,11 +201,18 @@ namespace MTConnect
             // helper surfaces faults to the log and a hung broker
             // cannot block shutdown indefinitely.
             MqttRelayLifecycle.DisconnectWithTimeout(
-                disconnect: _mqttClient != null
-                    ? (Func<Task>)(() => _mqttClient.DisconnectAsync(MqttClientDisconnectOptionsReason.NormalDisconnection))
-                    : null,
+                disconnect: Disconnect,
                 timeout: TimeSpan.FromSeconds(5),
                 onFault: ex => Log(MTConnectLogLevel.Warning, $"MQTT Relay Disconnect Error : {ex.Message}"));
+        }
+
+        private async Task Disconnect()
+        {
+            if (_mqttClient != null)
+            {
+                await PublishAgentAvailability(false);
+                await _mqttClient.DisconnectAsync(MqttClientDisconnectOptionsReason.NormalDisconnection);
+            }
         }
 
         private async Task Worker()
@@ -599,52 +606,59 @@ namespace MTConnect
                     // Write Available (for Agent Device)
                     if (device.Type == Devices.Agent.TypeId)
                     {
-                        var availableTopic = GetAgentAvailableTopic();
-                        if (string.IsNullOrEmpty(availableTopic))
-                        {
-                            // AvailabilityTopic.Build rejected the input
-                            // (null / empty / wildcard-segment TopicPrefix
-                            // or AgentUuid). Skip the availability publish
-                            // because passing null into WithTopic raises in
-                            // MQTTnet's MessageBuilder.Build(), and a
-                            // partially-correct topic risks publishing under
-                            // the {TopicPrefix}/Probe/# wildcard the fix
-                            // exists to keep JSON-pure.
-                            Log(MTConnectLogLevel.Warning, $"Agent Available : Skipped because availability topic could not be built from TopicPrefix='{_configuration?.TopicPrefix}' and AgentUuid='{Agent?.Uuid}'.");
-                        }
-                        else
-                        {
-                            var availablePayload = System.Text.Encoding.UTF8.GetBytes(Availability.AVAILABLE.ToString());
+                        await PublishAgentAvailability(true);
+                    }
+                }
+            }
+        }
 
-                            try
-                            {
-                                var messageBuilder = new MqttApplicationMessageBuilder();
-                                messageBuilder.WithRetainFlag(true);
-                                messageBuilder.WithTopic(availableTopic);
-                                messageBuilder.WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
+        private async Task PublishAgentAvailability(bool available)
+        {
+            var availableTopic = GetAgentAvailableTopic();
+            if (string.IsNullOrEmpty(availableTopic))
+            {
+                // AvailabilityTopic.Build rejected the input
+                // (null / empty / wildcard-segment TopicPrefix
+                // or AgentUuid). Skip the availability publish
+                // because passing null into WithTopic raises in
+                // MQTTnet's MessageBuilder.Build(), and a
+                // partially-correct topic risks publishing under
+                // the {TopicPrefix}/Probe/# wildcard the fix
+                // exists to keep JSON-pure.
+                Log(MTConnectLogLevel.Warning, $"Agent Available : Skipped because availability topic could not be built from TopicPrefix='{_configuration?.TopicPrefix}' and AgentUuid='{Agent?.Uuid}'.");
+            }
+            else
+            {
+                byte[] availablePayload;
+                if (available) availablePayload = System.Text.Encoding.UTF8.GetBytes(Availability.AVAILABLE.ToString());
+                else availablePayload = System.Text.Encoding.UTF8.GetBytes(Availability.UNAVAILABLE.ToString());
+
+                try
+                {
+                    var messageBuilder = new MqttApplicationMessageBuilder();
+                    messageBuilder.WithRetainFlag(true);
+                    messageBuilder.WithTopic(availableTopic);
+                    messageBuilder.WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
 #if NET5_0_OR_GREATER
-                                messageBuilder.WithPayloadSegment(availablePayload);
+                    messageBuilder.WithPayloadSegment(availablePayload);
 #else
                                 messageBuilder.WithPayload(availablePayload);
 #endif
-                                var message = messageBuilder.Build();
+                    var message = messageBuilder.Build();
 
-                                var publishResult = await _mqttClient.PublishAsync(message);
-                                if (publishResult.IsSuccess)
-                                {
-                                    Log(MTConnectLogLevel.Debug, $"Agent Available : Published to Topic ({availableTopic})");
-                                }
-                                else
-                                {
-                                    Log(MTConnectLogLevel.Warning, $"Agent Available : Error Publishing to Topic ({availableTopic}) : {publishResult.ReasonCode} : {publishResult.ReasonString}");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Log(MTConnectLogLevel.Warning, $"Agent Available : Error Publishing to Topic ({availableTopic}) : {ex.Message}");
-                            }
-                        }
+                    var publishResult = await _mqttClient.PublishAsync(message);
+                    if (publishResult.IsSuccess)
+                    {
+                        Log(MTConnectLogLevel.Debug, $"Agent Available : Published to Topic ({availableTopic})");
                     }
+                    else
+                    {
+                        Log(MTConnectLogLevel.Warning, $"Agent Available : Error Publishing to Topic ({availableTopic}) : {publishResult.ReasonCode} : {publishResult.ReasonString}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log(MTConnectLogLevel.Warning, $"Agent Available : Error Publishing to Topic ({availableTopic}) : {ex.Message}");
                 }
             }
         }
@@ -941,9 +955,9 @@ namespace MTConnect
                                     if (!conditionObservations.IsNullOrEmpty())
                                     {
                                         var multipleObservations = new List<IObservation>(conditionObservations.Count());
-                                        foreach (var observation in conditionObservations)
+                                        foreach (var conditionObservation in conditionObservations)
                                         {
-                                            multipleObservations.Add(CloneAsObservation(observation));
+                                            multipleObservations.Add(CloneAsObservation(conditionObservation));
                                         }
                                     
                                         var result = await _entityServer.PublishObservations(_mqttClient, multipleObservations);

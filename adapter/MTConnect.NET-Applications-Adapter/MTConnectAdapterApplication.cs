@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.ServiceProcess;
 using System.Threading;
 
@@ -41,10 +42,17 @@ namespace MTConnect.Applications
         /// header at startup and includes per-component summaries in
         /// the startup log.</summary>
         protected bool _verboseLogging = true;
+
+#if NET5_0_OR_GREATER
         /// <summary>NLog log-level applied to every internal logger.
         /// Defaults to <see cref="LogLevel.Debug"/>; the <c>debug</c>
         /// CLI command overrides it.</summary>
         protected LogLevel _logLevel = LogLevel.Debug;
+#else
+        /// <summary>NLog log-level applied to every internal logger.</summary>
+        protected LogLevel _logLevel = LogLevel.Debug;
+#endif
+
         /// <summary>File-system watcher that reloads the adapter
         /// configuration when the underlying YAML / JSON file
         /// changes.</summary>

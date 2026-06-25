@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Threading;
 
 namespace MTConnect.Applications
@@ -52,10 +53,16 @@ namespace MTConnect.Applications
         private readonly Dictionary<string, Logger> _loggers = new Dictionary<string, Logger>();
         private readonly object _lock = new object();
 
+#if NET5_0_OR_GREATER
         /// <summary>NLog log-level applied to every internal logger.
         /// Defaults to <see cref="LogLevel.Debug"/>; the <c>debug</c>
         /// and <c>trace</c> CLI commands override it.</summary>
         protected LogLevel _logLevel = LogLevel.Debug;
+#else
+        /// <summary>NLog log-level applied to every internal logger.</summary>
+        protected LogLevel _logLevel = LogLevel.Debug;
+#endif
+
         private MTConnectAgentBroker _mtconnectAgent;
         private IMTConnectObservationBuffer _observationBuffer;
         private MTConnectAssetFileBuffer _assetBuffer;

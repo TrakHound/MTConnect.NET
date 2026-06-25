@@ -13,7 +13,9 @@ namespace MTConnect.Services
     /// <summary>
     /// Class used to implement an MTConnect Agent as a Windows Service
     /// </summary>
+#if NET5_0_OR_GREATER
     [SupportedOSPlatform("windows")]
+#endif
     public abstract class MTConnectAgentService : ServiceBase
     {
         private const string DefaultServiceName = "MTConnect.NET-Agent";

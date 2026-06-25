@@ -9,7 +9,9 @@ using System.ServiceProcess;
 
 namespace MTConnect.Services
 {
+#if NET5_0_OR_GREATER
     [SupportedOSPlatform("windows")]
+#endif
     internal static class WindowsService
     {
         public static bool ServiceExists(string serviceName)

@@ -10,7 +10,9 @@ namespace MTConnect.Applications
     /// <summary>
     /// Class used to implement a Windows Service for an MTConnect Agent Application
     /// </summary>
+#if NET5_0_OR_GREATER
     [SupportedOSPlatform("windows")]
+#endif
     public class Service : MTConnectAdapterService
     {
         private static readonly Logger _serviceLogger = LogManager.GetLogger("service-logger");
