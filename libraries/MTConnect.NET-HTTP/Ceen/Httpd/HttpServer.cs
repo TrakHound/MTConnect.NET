@@ -166,14 +166,16 @@ namespace Ceen.Httpd
                 Controller = new RunnerControl(StopToken.Token, usessl, config);
             }
 
-			/// <summary>
-			/// Handles a request
-			/// </summary>
-			/// <param name="socket">The socket handle.</param>
-			/// <param name="remoteEndPoint">The remote endpoint.</param>
-			/// <param name="logtaskid">The task ID to use.</param>
-			[SupportedOSPlatform("windows")]
-			public void HandleRequest(SocketInformation socket, EndPoint remoteEndPoint, string logtaskid)
+            /// <summary>
+            /// Handles a request
+            /// </summary>
+            /// <param name="socket">The socket handle.</param>
+            /// <param name="remoteEndPoint">The remote endpoint.</param>
+            /// <param name="logtaskid">The task ID to use.</param>
+#if NET5_0_OR_GREATER
+            [SupportedOSPlatform("windows")]
+#endif
+            public void HandleRequest(SocketInformation socket, EndPoint remoteEndPoint, string logtaskid)
 			{
 				RunClient(socket, remoteEndPoint, logtaskid, Controller);
 			}
@@ -201,16 +203,18 @@ namespace Ceen.Httpd
             /// </summary>
             public int ActiveClients { get { return Controller.ActiveClients; } }
 
-			/// <summary>
-			/// Initializes the lifetime service.
-			/// </summary>
-			/// <returns>The lifetime service.</returns>
-			[Obsolete("InitializeLifetimeService is obsolete in .NET 5+; the override exists for legacy AppDomain remoting compatibility.")]
-			public override object InitializeLifetimeService()
-			{
-				return null;
-			}
-		}
+#if NET5_0_OR_GREATER
+            /// <summary>
+            /// Initializes the lifetime service.
+            /// </summary>
+            /// <returns>The lifetime service.</returns>
+            [Obsolete("InitializeLifetimeService is obsolete in .NET 5+; the override exists for legacy AppDomain remoting compatibility.")]
+            public override object InitializeLifetimeService()
+            {
+                return null;
+            }
+#endif
+        }
 
         /// <summary>
         /// Helper class to keep track of all active requests and potentially abort them
@@ -858,15 +862,17 @@ namespace Ceen.Httpd
                 RunClient);
         }
 
-		/// <summary>
-		/// Runs a client, using a socket handle from DuplicateAndClose
-		/// </summary>
-		/// <param name="socketinfo">The socket handle.</param>
-		/// <param name="remoteEndPoint">The remote endpoint.</param>
-		/// <param name="logtaskid">The log task ID.</param>
-		/// <param name="controller">The controller instance</param>
-		[SupportedOSPlatform("windows")]
-		private static void RunClient(SocketInformation socketinfo, EndPoint remoteEndPoint, string logtaskid, RunnerControl controller)
+        /// <summary>
+        /// Runs a client, using a socket handle from DuplicateAndClose
+        /// </summary>
+        /// <param name="socketinfo">The socket handle.</param>
+        /// <param name="remoteEndPoint">The remote endpoint.</param>
+        /// <param name="logtaskid">The log task ID.</param>
+        /// <param name="controller">The controller instance</param>
+#if NET5_0_OR_GREATER
+        [SupportedOSPlatform("windows")]
+#endif
+        private static void RunClient(SocketInformation socketinfo, EndPoint remoteEndPoint, string logtaskid, RunnerControl controller)
 		{
 			RunClient(new Socket(socketinfo), remoteEndPoint, logtaskid, controller);
 		}
