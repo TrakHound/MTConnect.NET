@@ -1,8 +1,8 @@
 <Project>
 	<PropertyGroup>
-		<VersionPrefix>6.9.0</VersionPrefix>
-		<VersionSuffix></VersionSuffix>
-		<Copyright>Copyright (c) 2025 TrakHound Inc., All Rights Reserved.</Copyright>
+		<VersionPrefix>7.0.0</VersionPrefix>
+		<VersionSuffix>prerelease</VersionSuffix>
+		<Copyright>Copyright (c) 2026 TrakHound Inc., All Rights Reserved.</Copyright>
 		<Company>TrakHound Inc.</Company>
 		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
