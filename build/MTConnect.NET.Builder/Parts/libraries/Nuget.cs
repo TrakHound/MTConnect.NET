@@ -50,7 +50,8 @@
                             parts.Add($"-p:RepositoryBranch=\"{librariesConfiguration.RepositoryBranch?.Replace("{VERSION}", version)}\"");
                             parts.Add($"-p:PackageProjectUrl=\"{librariesConfiguration.PackageProjectUrl}\"");
                             parts.Add($"-p:PackageLicenseExpression=\"{librariesConfiguration.PackageLicenseExpression}\"");
-                            parts.Add($"-p:PackageIconUrl=\"{librariesConfiguration.PackageIconUrl}\"");
+                            parts.Add($"-p:PackageIcon=\"package-icon.png\"");
+                            //parts.Add($"-p:PackageIconUrl=\"{librariesConfiguration.PackageIconUrl}\"");
                             parts.Add($"-p:RepositoryType={librariesConfiguration.RepositoryType}");
                             parts.Add($"-p:PublishRepositoryUrl=true");
                             parts.Add($"-p:IncludeSymbols=true");

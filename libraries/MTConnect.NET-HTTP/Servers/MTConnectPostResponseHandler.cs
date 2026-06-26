@@ -105,7 +105,12 @@ namespace MTConnect.Servers
                 {
                     var bufferSize = 1048576 * 2; // 2 MB
                     var bytes = new byte[bufferSize];
+
+#if NET9_0_OR_GREATER
+                    await inputStream.ReadExactlyAsync(bytes, 0, bytes.Length);
+#else
                     await inputStream.ReadAsync(bytes, 0, bytes.Length);
+#endif
 
                     return TrimEnd(bytes);
                 }

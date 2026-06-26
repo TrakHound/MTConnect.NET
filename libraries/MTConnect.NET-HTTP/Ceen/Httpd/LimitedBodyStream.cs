@@ -152,11 +152,17 @@ namespace Ceen.Httpd
 
             var buf = new byte[1024 * 8];
             while (m_bytesleft > 0)
+            {
+#if NET9_0_OR_GREATER
+                await ReadExactlyAsync(buf, 0, buf.Length, cancellationToken);
+#else
                 await ReadAsync(buf, 0, buf.Length, cancellationToken);
+#endif
+            }
 
             return true;
         }
-        #endregion
+#endregion
     }
 }
 
