@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2026 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using Ceen;
@@ -322,10 +322,6 @@ namespace MTConnect.Servers.Http
             // Setup Routes (Processed in Order)
             serverConfig.AddRoute(async (context) =>
             {
-                return await DeviceRootHandler(probeHandler, context);
-            });
-            serverConfig.AddRoute(async (context) =>
-            {
                 return await PutHandler(putHandler, context);
             });
             serverConfig.AddRoute(async (context) =>
@@ -342,27 +338,49 @@ namespace MTConnect.Servers.Http
             serverConfig.AddRoute("/assets", assetsHandler);
             serverConfig.AddRoute("/*/assets", assetsHandler);
             serverConfig.AddRoute("/asset/*", assetHandler);
-            serverConfig.AddRoute(staticHandler);
+            serverConfig.AddRoute(async (context) =>
+            {
+                return await StaticHandler(staticHandler, context);
+            });
+            serverConfig.AddRoute(async (context) =>
+            {
+                return await DeviceRootHandler(probeHandler, context);
+            });
 
             return serverConfig;
         }
 
-        private async Task<bool> DeviceRootHandler(MTConnectProbeResponseHandler handler, IHttpContext context)
+        private static async Task<bool> StaticHandler(MTConnectStaticResponseHandler handler, IHttpContext context)
+        {
+            if (context != null && context.Request != null && context.Request.Path != null)
+            {
+                if (context.Request.Method == HttpMethod.Get.Method)
+                {
+                    var valid = handler.IsValidFile(context.Request.Path);
+                    if (valid)
+                    {
+                        await handler.HandleAsync(context, CancellationToken.None);
+
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static async Task<bool> DeviceRootHandler(MTConnectProbeResponseHandler handler, IHttpContext context)
         {
             if (context != null && context.Request != null && context.Request.Path != null)
             {
                 if (context.Request.Method == HttpMethod.Get.Method)
                 {
                     var deviceKey = context.Request.Path.Trim('/');
-                    if (!string.IsNullOrEmpty(deviceKey))
+                    if (!string.IsNullOrEmpty(deviceKey) && !deviceKey.Contains('/'))
                     {
-                        var device = _mtconnectAgent.GetDevice(deviceKey);
-                        if (device != null)
-                        {
-                            await handler.HandleAsync(context, CancellationToken.None);
+                        await handler.HandleAsync(context, CancellationToken.None);
 
-                            return true;
-                        }
+                        return true;
                     }
                 }
             }

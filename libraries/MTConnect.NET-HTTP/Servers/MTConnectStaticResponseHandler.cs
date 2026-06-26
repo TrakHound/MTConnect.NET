@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2026 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using Ceen;
@@ -66,7 +66,7 @@ namespace MTConnect.Servers
 
                             var relativePath = Path.GetDirectoryName(requestedPath);
                             if (!string.IsNullOrEmpty(relativePath)) relativePath = relativePath.Replace('\\', '/');
-                            else relativePath = resource;
+                            else relativePath = "/"; // Assume Root
 
                             if (!string.IsNullOrEmpty(relativePath))
                             {
@@ -137,6 +137,69 @@ namespace MTConnect.Servers
             }
 
             return response;
+        }
+
+        internal bool IsValidFile(string path)
+        {
+            try
+            {
+                var requestedPath = path.Trim('/');
+                var localPath = path.TrimEnd('/');
+
+                // Get File extension to prevent certain files (.exe, .dll, etc) from being accessed
+                // that could cause security concerns
+                var pathExtension = Path.GetExtension(requestedPath);
+                var valid = pathExtension != ".exe" && pathExtension != ".dll";
+
+                if (valid)
+                {
+                    valid = false;
+
+                    // Check to see if the path matches one that is configured
+                    if (!_serverConfiguration.Files.IsNullOrEmpty())
+                    {
+                        var resource = Path.GetFileName(requestedPath);
+
+                        var relativePath = Path.GetDirectoryName(requestedPath);
+                        if (!string.IsNullOrEmpty(relativePath)) relativePath = relativePath.Replace('\\', '/');
+                        else relativePath = "/"; // Assume Root
+
+                        if (!string.IsNullOrEmpty(relativePath))
+                        {
+                            // Find a FileConfiguration whose Location matches the requested Resource
+                            var fileConfiguration = _serverConfiguration.Files.FirstOrDefault(o => o.Location == resource);
+                            if (fileConfiguration != null)
+                            {
+                                // Rewrite the localPath to the one that is configured that matches the 'Location' property
+                                localPath = fileConfiguration.Path;
+                                valid = true;
+                            }
+                            else
+                            {
+                                // Find a FileConfiguration whose Location matches the requested Resource
+                                fileConfiguration = _serverConfiguration.Files.FirstOrDefault(o => o.Location == relativePath);
+                                if (fileConfiguration != null)
+                                {
+                                    // Rewrite the localPath to the one that is configured that matches the 'Location' property
+                                    localPath = Path.Combine(fileConfiguration.Path, resource);
+                                    localPath = localPath.Replace('/', '\\');
+                                    valid = true;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (valid)
+                {
+                    var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, localPath);
+
+                    return File.Exists(filePath);
+                }
+            }
+            catch { }
+
+            return false;
         }
     }
 }
