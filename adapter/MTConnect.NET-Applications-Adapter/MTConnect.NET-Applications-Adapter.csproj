@@ -65,4 +65,11 @@
 		</None>
 	</ItemGroup>
 
+	<ItemGroup>
+		<None Include="../../docs/img/package-icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
 </Project>
