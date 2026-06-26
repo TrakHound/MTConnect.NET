@@ -1312,15 +1312,15 @@ namespace MTConnect.Agents
                         foreach (var genericComponent in genericComponents)
                         {
                             var validationResults = new ValidationResult(false, $"Invalid Component : \"{genericComponent.Type}\" Not Found");
-                            if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
+                            if (_configuration.DeviceValidationLevel > DeviceValidationLevel.Ignore)
                             {
                                 MulticastIsolation.Raise(InvalidComponentAdded, h => h(obj.Uuid, genericComponent, validationResults));
 
                                 // Remove Component from Device
-                                if (_configuration.InputValidationLevel == InputValidationLevel.Remove) obj.RemoveComponent(genericComponent.Id);
+                                if (_configuration.DeviceValidationLevel == DeviceValidationLevel.Remove) obj.RemoveComponent(genericComponent.Id);
 
                                 // Invalidate entire Device
-                                if (_configuration.InputValidationLevel == InputValidationLevel.Strict) return null;
+                                if (_configuration.DeviceValidationLevel == DeviceValidationLevel.Strict) return null;
                             }
                         }
                     }
@@ -1332,15 +1332,15 @@ namespace MTConnect.Agents
                         foreach (var genericComposition in genericCompositions)
                         {
                             var validationResults = new ValidationResult(false, $"Invalid Composition : \"{genericComposition.Type}\" Not Found");
-                            if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
+                            if (_configuration.DeviceValidationLevel > DeviceValidationLevel.Ignore)
                             {
                                 MulticastIsolation.Raise(InvalidCompositionAdded, h => h(obj.Uuid, genericComposition, validationResults));
 
                                 // Remove Compsition from Device
-                                if (_configuration.InputValidationLevel == InputValidationLevel.Remove) obj.RemoveComposition(genericComposition.Id);
+                                if (_configuration.DeviceValidationLevel == DeviceValidationLevel.Remove) obj.RemoveComposition(genericComposition.Id);
 
                                 // Invalidate entire Device
-                                if (_configuration.InputValidationLevel == InputValidationLevel.Strict) return null;
+                                if (_configuration.DeviceValidationLevel == DeviceValidationLevel.Strict) return null;
                             }
                         }
                     }
@@ -1352,15 +1352,15 @@ namespace MTConnect.Agents
                         foreach (var genericDataItem in genericDataItems)
                         {
                             var validationResults = new ValidationResult(false, $"Invalid DataItem : \"{genericDataItem.Type}\" Not Found");
-                            if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
+                            if (_configuration.DeviceValidationLevel > DeviceValidationLevel.Ignore)
                             {
                                 MulticastIsolation.Raise(InvalidDataItemAdded, h => h(obj.Uuid, genericDataItem, validationResults));
 
                                 // Remove DataItem from Device
-                                if (_configuration.InputValidationLevel == InputValidationLevel.Remove) obj.RemoveDataItem(genericDataItem.Id);
+                                if (_configuration.DeviceValidationLevel == DeviceValidationLevel.Remove) obj.RemoveDataItem(genericDataItem.Id);
 
                                 // Invalidate entire Device
-                                if (_configuration.InputValidationLevel == InputValidationLevel.Strict) return null;
+                                if (_configuration.DeviceValidationLevel == DeviceValidationLevel.Strict) return null;
                             }
                         }
                     }
@@ -2152,6 +2152,17 @@ namespace MTConnect.Agents
                 var dataItem = GetDataItem(deviceUuid, input.DataItemKey);
                 if (dataItem != null)
                 {
+                    // Coerce a null, empty, or whitespace-only Result to UNAVAILABLE before the
+                    // observation reaches the buffer. The MTConnect Part 1 Observation Information
+                    // Model mandates "UNAVAILABLE" as the sole valid representation of a missing
+                    // value; an empty string is never a Valid Data Value. The coerce runs above
+                    // validation so Strict no longer silently drops empty-Result observations and
+                    // every other validation level publishes the spec-compliant sentinel.
+                    if (dataItem.Category != DataItemCategory.CONDITION && IsEmptyResult(input) && _configuration.InputValidationLevel == InputValidationLevel.Strict)
+                    {
+                        CoerceEmptyResultToUnavailable(input);
+                    }
+
                     // Add required properties
                     switch (dataItem.Representation)
                     {
@@ -2274,6 +2285,41 @@ namespace MTConnect.Agents
             }
 
             return false;
+        }
+
+
+        /// <summary>
+        /// Returns true when the observation's Result value is null, the empty string, or whitespace-only.
+        /// </summary>
+        /// <remarks>
+        /// An empty Result is, by definition, not a Valid Data Value under any typed DataItem schema; the
+        /// MTConnect Part 1 Observation Information Model mandates "UNAVAILABLE" as the sole valid
+        /// representation of a missing value. This predicate identifies the inputs the SDK coerces.
+        /// </remarks>
+        private static bool IsEmptyResult(IObservationInput input)
+        {
+            var result = input.GetValue(ValueKeys.Result);
+            if (result == null) return true;
+            return string.IsNullOrWhiteSpace(result);
+        }
+
+        /// <summary>
+        /// Rewrites the observation's Result value to <see cref="Observation.Unavailable"/> and flags the input as unavailable.
+        /// </summary>
+        /// <remarks>
+        /// Removes any prior Result entry (so the Values collection does not carry a duplicate ValueKey),
+        /// adds the UNAVAILABLE sentinel, and sets <see cref="IObservationInput.IsUnavailable"/> so downstream
+        /// consumers that branch on the flag observe the coerced state. Spec authority: MTConnect Part 1
+        /// Observation Information Model - Representation - Observation Values.
+        /// </remarks>
+        private static void CoerceEmptyResultToUnavailable(IObservationInput input)
+        {
+            var preserved = (input.Values ?? Enumerable.Empty<ObservationValue>())
+                .Where(v => v.Key != ValueKeys.Result)
+                .ToList();
+            input.Values = preserved;
+            input.AddValue(ValueKeys.Result, Observation.Unavailable);
+            input.IsUnavailable = true;
         }
 
 
