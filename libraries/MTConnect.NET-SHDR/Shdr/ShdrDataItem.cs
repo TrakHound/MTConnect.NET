@@ -391,7 +391,13 @@ namespace MTConnect.Shdr
 
 
                             dataItem.AddValue(new ObservationValue(ValueKeys.Result, valueString != null ? valueString.ToString().Trim() : string.Empty));
+                            dataItems.Add(dataItem);
+                        }
+                        else
+                        {
+                            // Assume Empty Value
 
+                            dataItem.AddValue(new ObservationValue(ValueKeys.Result, string.Empty));
                             dataItems.Add(dataItem);
                         }
                     }
