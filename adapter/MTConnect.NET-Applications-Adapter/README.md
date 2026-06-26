@@ -1,4 +1,4 @@
-![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-net-03-md.png) 
+![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/logo.png) 
 
 # MTConnect.NET-Applications-Adapter
 MTConnect.NET-Applications-Adapter contains the base classes and infrastructure needed to build a fully featured MTConnect Adapter application, including command-line argument handling, Windows Service support, configuration file monitoring, and output module management.

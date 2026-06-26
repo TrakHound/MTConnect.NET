@@ -1,4 +1,4 @@
-![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-net-03-md.png) 
+![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/logo.png) 
 
 # MTConnect.NET-TLS
 MTConnect.NET-TLS is an extension library to MTConnect.NET that provides TLS certificate loading and configuration for use with the HTTP and MQTT transport layers.
