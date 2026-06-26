@@ -38,7 +38,7 @@ export default withMermaid(
   defineConfig({
     title: 'MTConnect.NET',
     description:
-      'The .NET implementation of the MTConnect Standard — 100% public-surface API coverage, 100% MTConnect Standard compliance.',
+      'The .NET implementation of the MTConnect Standard — 100% Open Source. 100% Free. 100% Public-surface API coverage, 100% MTConnect Standard compliance.',
     lang: 'en-GB',
 
     // Output directory for `docs:build`. Default is `docs/.vitepress/dist`;
@@ -67,7 +67,7 @@ export default withMermaid(
         {
           property: 'og:description',
           content:
-            'The .NET implementation of the MTConnect Standard — 100% public-surface API coverage, 100% MTConnect Standard compliance.',
+            'The .NET implementation of the MTConnect Standard — 100% Open Source. 100% Free. 100% Public-surface API coverage, 100% MTConnect Standard compliance.',
         },
       ],
       ['meta', { property: 'og:image', content: ogImage }],
@@ -88,8 +88,8 @@ export default withMermaid(
       // copied into `docs/public/logo.png`) already carries the
       // 'mtconnect .NET' wordmark, so the text site title is hidden to
       // avoid the wordmark rendering twice in the top nav.
-      logo: '/logo.png',
-      siteTitle: false,
+      //logo: '/logo.png',
+      //siteTitle: false,
 
       // Top nav: Compliance / Configure & Use / API / Concepts / Wire
       // formats / Modules / CLI / Cookbook / Troubleshooting.
