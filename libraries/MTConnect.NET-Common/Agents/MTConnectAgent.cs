@@ -2158,7 +2158,7 @@ namespace MTConnect.Agents
                     // value; an empty string is never a Valid Data Value. The coerce runs above
                     // validation so Strict no longer silently drops empty-Result observations and
                     // every other validation level publishes the spec-compliant sentinel.
-                    if (dataItem.Category != DataItemCategory.CONDITION && IsEmptyResult(input))
+                    if (dataItem.Category != DataItemCategory.CONDITION && IsEmptyResult(input) && _configuration.InputValidationLevel == InputValidationLevel.Strict)
                     {
                         CoerceEmptyResultToUnavailable(input);
                     }
