@@ -19,7 +19,7 @@
 		<Configurations>Debug;Release;Package</Configurations>
 		<Nullable>annotations</Nullable>
 
-		<Description>MTConnect.NET-SysML is used to read and process the MTConnect SysML Model for use with the MTConnect.NET library. Supports MTConnect versions up to 2.7. Supports .NET 6 up to .NET 9</Description>
+		<Description>MTConnect.NET-SysML is used to read and process the MTConnect SysML Model for use with the MTConnect.NET library. Supports MTConnect versions up to 2.7. Supports .NET 6 up to .NET 10</Description>
 		<PackageReadmeFile>README-Nuget.md</PackageReadmeFile>
 
 		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
