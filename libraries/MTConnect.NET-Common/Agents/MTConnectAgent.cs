@@ -1312,15 +1312,15 @@ namespace MTConnect.Agents
                         foreach (var genericComponent in genericComponents)
                         {
                             var validationResults = new ValidationResult(false, $"Invalid Component : \"{genericComponent.Type}\" Not Found");
-                            if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
+                            if (_configuration.DeviceValidationLevel > DeviceValidationLevel.Ignore)
                             {
                                 MulticastIsolation.Raise(InvalidComponentAdded, h => h(obj.Uuid, genericComponent, validationResults));
 
                                 // Remove Component from Device
-                                if (_configuration.InputValidationLevel == InputValidationLevel.Remove) obj.RemoveComponent(genericComponent.Id);
+                                if (_configuration.DeviceValidationLevel == DeviceValidationLevel.Remove) obj.RemoveComponent(genericComponent.Id);
 
                                 // Invalidate entire Device
-                                if (_configuration.InputValidationLevel == InputValidationLevel.Strict) return null;
+                                if (_configuration.DeviceValidationLevel == DeviceValidationLevel.Strict) return null;
                             }
                         }
                     }
@@ -1332,15 +1332,15 @@ namespace MTConnect.Agents
                         foreach (var genericComposition in genericCompositions)
                         {
                             var validationResults = new ValidationResult(false, $"Invalid Composition : \"{genericComposition.Type}\" Not Found");
-                            if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
+                            if (_configuration.DeviceValidationLevel > DeviceValidationLevel.Ignore)
                             {
                                 MulticastIsolation.Raise(InvalidCompositionAdded, h => h(obj.Uuid, genericComposition, validationResults));
 
                                 // Remove Compsition from Device
-                                if (_configuration.InputValidationLevel == InputValidationLevel.Remove) obj.RemoveComposition(genericComposition.Id);
+                                if (_configuration.DeviceValidationLevel == DeviceValidationLevel.Remove) obj.RemoveComposition(genericComposition.Id);
 
                                 // Invalidate entire Device
-                                if (_configuration.InputValidationLevel == InputValidationLevel.Strict) return null;
+                                if (_configuration.DeviceValidationLevel == DeviceValidationLevel.Strict) return null;
                             }
                         }
                     }
@@ -1352,15 +1352,15 @@ namespace MTConnect.Agents
                         foreach (var genericDataItem in genericDataItems)
                         {
                             var validationResults = new ValidationResult(false, $"Invalid DataItem : \"{genericDataItem.Type}\" Not Found");
-                            if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
+                            if (_configuration.DeviceValidationLevel > DeviceValidationLevel.Ignore)
                             {
                                 MulticastIsolation.Raise(InvalidDataItemAdded, h => h(obj.Uuid, genericDataItem, validationResults));
 
                                 // Remove DataItem from Device
-                                if (_configuration.InputValidationLevel == InputValidationLevel.Remove) obj.RemoveDataItem(genericDataItem.Id);
+                                if (_configuration.DeviceValidationLevel == DeviceValidationLevel.Remove) obj.RemoveDataItem(genericDataItem.Id);
 
                                 // Invalidate entire Device
-                                if (_configuration.InputValidationLevel == InputValidationLevel.Strict) return null;
+                                if (_configuration.DeviceValidationLevel == DeviceValidationLevel.Strict) return null;
                             }
                         }
                     }

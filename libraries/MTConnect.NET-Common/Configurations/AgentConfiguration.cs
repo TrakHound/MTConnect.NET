@@ -128,6 +128,12 @@ namespace MTConnect.Configurations
         public bool EnableValidation { get; set; }
 
         /// <summary>
+        /// Gets or Sets the default Device (MTConnectDevices) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict
+        /// </summary>
+        [JsonPropertyName("deviceValidationLevel")]
+        public DeviceValidationLevel DeviceValidationLevel { get; set; }
+
+        /// <summary>
         /// Gets or Sets the default Input (Observation or Asset) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict
         /// </summary>
         [JsonPropertyName("inputValidationLevel")]
@@ -155,6 +161,7 @@ namespace MTConnect.Configurations
             ObservationBufferSize = 131072;
             AssetBufferSize = 1024;
             DefaultVersion = MTConnectVersions.Max;
+            DeviceValidationLevel = DeviceValidationLevel.Warning;
             InputValidationLevel = InputValidationLevel.Warning;
             ConvertUnits = true;
             IgnoreObservationCase = false;
