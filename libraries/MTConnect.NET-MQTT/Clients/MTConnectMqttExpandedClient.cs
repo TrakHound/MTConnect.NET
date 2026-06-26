@@ -290,7 +290,11 @@ namespace MTConnect.Clients
                         // Add CA (Certificate Authority)
                         if (!string.IsNullOrEmpty(_caCertPath))
                         {
+#if NET9_0_OR_GREATER
+                            certificates.Add(X509CertificateLoader.LoadCertificateFromFile(GetFilePath(_caCertPath)));
+#else
                             certificates.Add(new X509Certificate2(GetFilePath(_caCertPath)));
+#endif
                         }
 
                         // Add Client Certificate & Private Key
@@ -298,7 +302,12 @@ namespace MTConnect.Clients
                         {
 
 #if NET5_0_OR_GREATER
+
+#if NET9_0_OR_GREATER
+                            certificates.Add(X509CertificateLoader.LoadCertificate(X509Certificate2.CreateFromPemFile(GetFilePath(_pemClientCertPath), GetFilePath(_pemPrivateKeyPath)).Export(X509ContentType.Pfx)));
+#else
                             certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_pemClientCertPath), GetFilePath(_pemPrivateKeyPath)).Export(X509ContentType.Pfx)));
+#endif 
 
                             clientOptionsBuilder.WithTlsOptions(b => b
                                 .WithSslProtocols(System.Security.Authentication.SslProtocols.Tls12)

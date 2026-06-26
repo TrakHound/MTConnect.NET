@@ -178,7 +178,11 @@ namespace Ceen.Httpd
 		/// <param name="password">The certificate password.</param>
 		public void LoadCertificate(string path, string password)
 		{
+#if NET9_0_OR_GREATER
+			this.SSLCertificate = X509CertificateLoader.LoadPkcs12FromFile(path, password ?? "");
+#else
 			this.SSLCertificate = new X509Certificate2(path, password ?? "");
+#endif
 		}
 
 		/// <summary>
