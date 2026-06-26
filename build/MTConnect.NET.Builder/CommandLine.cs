@@ -58,7 +58,7 @@ namespace TrakHound.Builder
 
                         process.Close();
 
-                        return exitCode >= 0;
+                        return exitCode == 0;
                     }
                 }
             }
