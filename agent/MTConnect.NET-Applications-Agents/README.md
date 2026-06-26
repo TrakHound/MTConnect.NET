@@ -1,4 +1,4 @@
-![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-net-03-md.png) 
+![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/logo.png) 
 
 # MTConnect.NET-Applications-Agents
 MTConnect.NET-Applications-Agents contains the base classes and infrastructure needed to build a fully featured MTConnect Agent application, including command-line argument handling, Windows Service support, device and buffer management, configuration file monitoring, and agent module loading.

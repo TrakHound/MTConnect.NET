@@ -1,4 +1,4 @@
-![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-net-03-md.png) 
+![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/logo.png) 
 
 # MTConnect.NET-Protobuf
 MTConnect.NET-Protobuf is an extension library to MTConnect.NET that is intended to provide reading and writing of MTConnect Response Documents using the Protocol Buffers (Protobuf) binary wire format.
