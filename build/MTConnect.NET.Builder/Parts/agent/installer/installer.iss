@@ -65,6 +65,8 @@ CreateStartMenuIcon=Create a Start Menu icon
 CreateDesktopIcon=Create a Desktop icon
 
 [Types]
+Name: "win64net10"; Description: "Windows x64 .NET 10"
+Name: "win86net10"; Description: "Windows x86 .NET 10"
 Name: "win64net9"; Description: "Windows x64 .NET 9"
 Name: "win86net9"; Description: "Windows x86 .NET 9"
 Name: "win64net8"; Description: "Windows x64 .NET 8"
@@ -79,6 +81,8 @@ Name: "win64net461"; Description: "Windows x64 .NET 4.6.1 Framework"
 Name: "win86net461"; Description: "Windows x86 .NET 4.6.1 Framework"
 
 [Components]
+Name: "win64net10"; Description: "{#MyAppVerName}"; Types: win64net10
+Name: "win86net10"; Description: "{#MyAppVerName}"; Types: win86net10
 Name: "win64net9"; Description: "{#MyAppVerName}"; Types: win64net9
 Name: "win86net9"; Description: "{#MyAppVerName}"; Types: win86net9
 Name: "win64net8"; Description: "{#MyAppVerName}"; Types: win64net8
@@ -91,9 +95,9 @@ Name: "win64net48"; Description: "{#MyAppVerName}"; Types: win64net48
 Name: "win86net48"; Description: "{#MyAppVerName}"; Types: win86net48
 Name: "win64net461"; Description: "{#MyAppVerName}"; Types: win64net461
 Name: "win86net461"; Description: "{#MyAppVerName}"; Types: win86net461
-Name: "configuration"; Description: "Configuration Files"; Types: win86net461 win64net461 win86net48 win64net48 win86net6 win64net6 win86net7 win64net7 win86net8 win64net8 win86net9 win64net9
-Name: "schemas"; Description: "MTConnect XSD Schema Files"; Types: win86net461 win64net461 win86net48 win64net48 win86net6 win64net6 win86net7 win64net7 win86net8 win64net8 win86net9 win64net9
-Name: "styles"; Description: "XSL Stylesheet Files"; Types: win86net461 win64net461 win86net48 win64net48 win86net6 win64net6 win86net7 win64net7 win86net8 win64net8 win86net9 win64net9
+Name: "configuration"; Description: "Configuration Files"; Types: win86net461 win64net461 win86net48 win64net48 win86net6 win64net6 win86net7 win64net7 win86net8 win64net8 win86net9 win64net9 win86net10 win64net10
+Name: "schemas"; Description: "MTConnect XSD Schema Files"; Types: win86net461 win64net461 win86net48 win64net48 win86net6 win64net6 win86net7 win64net7 win86net8 win64net8 win86net9 win64net9 win86net10 win64net10
+Name: "styles"; Description: "XSL Stylesheet Files"; Types: win86net461 win64net461 win86net48 win64net48 win86net6 win64net6 win86net7 win64net7 win86net8 win64net8 win86net9 win64net9 win86net10 win64net10
 
 
 [Languages]
@@ -109,6 +113,8 @@ Name: "{app}\schemas"; Permissions: everyone-full
 [Files]
 
 ; Program Files
+Source: "[INPUT_PATH]\win-x64\net10.0\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Permissions: everyone-full; Components: win64net10;
+Source: "[INPUT_PATH]\win-x86\net10.0\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Permissions: everyone-full; Components: win86net10;
 Source: "[INPUT_PATH]\win-x64\net9.0\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Permissions: everyone-full; Components: win64net9;
 Source: "[INPUT_PATH]\win-x86\net9.0\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Permissions: everyone-full; Components: win86net9;
 Source: "[INPUT_PATH]\win-x64\net8.0\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Permissions: everyone-full; Components: win64net8;
