@@ -27,6 +27,7 @@ namespace MTConnect.Tests.Common.Agents
     /// Mirrors cppagent's <c>AgentDeviceUUID</c> configuration knob.
     /// </summary>
     [TestFixture]
+    [NonParallelizable]
     public class AgentUuidConfigOverrideTests
     {
         private string? _stateFilePath;
@@ -37,6 +38,18 @@ namespace MTConnect.Tests.Common.Agents
         public void SetUp()
         {
             _stateFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, MTConnectAgentInformation.Filename);
+            _backupStateFile = null;
+
+            // Sweep orphan .bak.* files from a prior crashed test run so
+            // successive TearDowns cannot restore stale state.
+            var directory = Path.GetDirectoryName(_stateFilePath);
+            if (directory != null && Directory.Exists(directory))
+            {
+                foreach (var stale in Directory.EnumerateFiles(directory, MTConnectAgentInformation.Filename + ".bak.*"))
+                {
+                    try { File.Delete(stale); } catch { /* best-effort */ }
+                }
+            }
 
             // Back up any pre-existing state file so we do not perturb other
             // tests or the developer environment.
@@ -65,38 +78,30 @@ namespace MTConnect.Tests.Common.Agents
 
         /// <summary>
         /// Test (a) — pre-condition: no <c>agent.information.json</c> on disk.
-        /// Setting <c>configuration.AgentUuid</c> pins the agent UUID to that
-        /// exact value (overriding the <c>Guid.NewGuid()</c> in
+        /// Setting <c>configuration.AgentUuid</c> to a valid RFC 4122 UUID
+        /// pins the agent UUID to that exact value (overriding the
+        /// <c>Guid.NewGuid()</c> in
         /// <see cref="MTConnectAgentInformation"/>'s parameterless ctor).
         /// </summary>
         [Test]
         public void AgentUuid_set_in_config_flows_through_to_Agent_uuid()
         {
-            const string PinnedUuid = "fixture-stable-uuid-001";
+            const string PinnedUuid = "11111111-1111-4111-8111-111111111111";
 
             var configuration = new AgentApplicationConfiguration
             {
                 AgentUuid = PinnedUuid,
             };
 
-            // Mirror the exact StartAgent threading slice under test:
-            //   var agentInformation = MTConnectAgentInformation.Read();
-            //   if (agentInformation == null) agentInformation = new MTConnectAgentInformation();
-            //   if (!string.IsNullOrEmpty(configuration.AgentUuid))
-            //       agentInformation.Uuid = configuration.AgentUuid;
-            var agentInformation = MTConnectAgentInformation.Read();
-            if (agentInformation == null)
-            {
-                agentInformation = new MTConnectAgentInformation();
-            }
-            if (!string.IsNullOrEmpty(configuration.AgentUuid))
-            {
-                agentInformation.Uuid = configuration.AgentUuid;
-            }
+            // Route through the production resolver so the test exercises the
+            // same code path StartAgent uses (see
+            // agent/MTConnect.NET-Applications-Agents/MTConnectAgentApplication.cs
+            // RunAgent — resolves via AgentUuidResolver.Resolve).
+            var agentInformation = ResolveViaProduction(configuration);
             agentInformation.Save();
 
             // The override must hold both in-memory and after the file
-            // round-trip that StartAgent performs at line 393.
+            // round-trip that StartAgent performs.
             Assert.That(agentInformation.Uuid, Is.EqualTo(PinnedUuid));
 
             var reloaded = MTConnectAgentInformation.Read();
@@ -106,15 +111,16 @@ namespace MTConnect.Tests.Common.Agents
 
         /// <summary>
         /// Test (b) — pre-condition: <c>agent.information.json</c> already
-        /// stores a different UUID. The config-level <c>AgentUuid</c> wins.
+        /// stores a different (valid) UUID. The config-level <c>AgentUuid</c>
+        /// wins.
         /// </summary>
         [Test]
         public void AgentUuid_set_in_config_takes_precedence_over_state_file()
         {
-            const string FromStateFileUuid = "from-state-file-uuid";
-            const string FromConfigUuid = "from-config-uuid";
+            const string FromStateFileUuid = "22222222-2222-4222-8222-222222222222";
+            const string FromConfigUuid    = "33333333-3333-4333-8333-333333333333";
 
-            // Pre-write the state file with a stale UUID.
+            // Pre-write the state file with a stale (but valid) UUID.
             var preexisting = new MTConnectAgentInformation(FromStateFileUuid);
             preexisting.Save();
 
@@ -123,15 +129,12 @@ namespace MTConnect.Tests.Common.Agents
                 AgentUuid = FromConfigUuid,
             };
 
-            var agentInformation = MTConnectAgentInformation.Read();
-            Assert.That(agentInformation, Is.Not.Null);
-            Assert.That(agentInformation!.Uuid, Is.EqualTo(FromStateFileUuid),
+            var initial = MTConnectAgentInformation.Read();
+            Assert.That(initial, Is.Not.Null);
+            Assert.That(initial!.Uuid, Is.EqualTo(FromStateFileUuid),
                 "Pre-condition: the state file should be read first.");
 
-            if (!string.IsNullOrEmpty(configuration.AgentUuid))
-            {
-                agentInformation.Uuid = configuration.AgentUuid;
-            }
+            var agentInformation = ResolveViaProduction(configuration);
             agentInformation.Save();
 
             Assert.That(agentInformation.Uuid, Is.EqualTo(FromConfigUuid));
@@ -157,12 +160,14 @@ namespace MTConnect.Tests.Common.Agents
         [Test]
         public void AgentUuid_is_exposed_on_interface_with_camelCase_wire_name()
         {
+            const string InterfaceProbe = "44444444-4444-4444-8444-444444444444";
+
             IAgentApplicationConfiguration configuration = new AgentApplicationConfiguration
             {
-                AgentUuid = "interface-surface-test",
+                AgentUuid = InterfaceProbe,
             };
 
-            Assert.That(configuration.AgentUuid, Is.EqualTo("interface-surface-test"));
+            Assert.That(configuration.AgentUuid, Is.EqualTo(InterfaceProbe));
 
             var property = typeof(AgentApplicationConfiguration).GetProperty(
                 nameof(AgentApplicationConfiguration.AgentUuid),
@@ -177,6 +182,28 @@ namespace MTConnect.Tests.Common.Agents
             Assert.That(jsonNameAttribute, Is.Not.Null,
                 "AgentUuid must carry [JsonPropertyName(...)] to match the other config fields.");
             Assert.That(jsonNameAttribute!.Name, Is.EqualTo("agentUuid"));
+        }
+
+        /// <summary>
+        /// Replays the RunAgent UUID resolution slice via the shared
+        /// production helper so this fixture cannot silently drift from
+        /// StartAgent semantics. Returns the populated
+        /// <see cref="MTConnectAgentInformation"/> ready for
+        /// <see cref="MTConnectAgentInformation.Save"/>.
+        /// </summary>
+        private static MTConnectAgentInformation ResolveViaProduction(AgentApplicationConfiguration configuration)
+        {
+            var existing = MTConnectAgentInformation.Read();
+            var freshlyConstructed = existing == null;
+            var info = existing ?? new MTConnectAgentInformation();
+
+            info.Uuid = AgentUuidResolver.Resolve(
+                operatorSuppliedUuid: configuration.AgentUuid,
+                persistedUuid: freshlyConstructed ? null : info.Uuid,
+                agentName: configuration.ServiceName,
+                hostname: Environment.MachineName);
+
+            return info;
         }
     }
 }

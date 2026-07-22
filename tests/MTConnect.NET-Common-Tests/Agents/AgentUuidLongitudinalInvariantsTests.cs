@@ -27,16 +27,28 @@ namespace MTConnect.Tests.Common.Agents
     /// this file pins the longitudinal invariant.
     /// </summary>
     [TestFixture]
+    [NonParallelizable]
     public class AgentUuidLongitudinalInvariantsTests
     {
         private string? _stateFilePath;
         private string? _backupStateFile;
 
-        /// <summary>Sets up the fixture before each test.</summary>
+        /// <summary>Sets up the fixture before all tests in the class.</summary>
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
             _stateFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, MTConnectAgentInformation.Filename);
+            _backupStateFile = null;
+
+            // Sweep orphan .longinv.bak.* files from a prior crashed test run.
+            var directory = Path.GetDirectoryName(_stateFilePath);
+            if (directory != null && Directory.Exists(directory))
+            {
+                foreach (var stale in Directory.EnumerateFiles(directory, MTConnectAgentInformation.Filename + ".longinv.bak.*"))
+                {
+                    try { File.Delete(stale); } catch { /* best-effort */ }
+                }
+            }
 
             // Back up any pre-existing state file so we do not perturb other
             // tests or the developer environment.
@@ -81,33 +93,30 @@ namespace MTConnect.Tests.Common.Agents
         /// call to <c>MTConnectAgentApplication.StartAgent</c>, followed by the
         /// broker's post-device-add persist.
         ///
-        /// Production sources replayed (verify against live code if either drifts):
-        /// <list type="bullet">
-        ///   <item>
-        ///     <c>agent/MTConnect.NET-Applications-Agents/MTConnectAgentApplication.cs</c>
-        ///     lines 351–404 — Read, AgentUuid override, InstanceId zeroing, Save.
-        ///   </item>
-        ///   <item>
-        ///     <c>libraries/MTConnect.NET-Common/Agents/MTConnectAgent.cs</c>
-        ///     lines 207–234 — broker ctor: <c>_instanceId = instanceId &gt; 0 ? instanceId : CreateInstanceId()</c>
-        ///     where <c>CreateInstanceId()</c> returns <c>(ulong)(UnixDateTime.Now / 1000 / 10000)</c>
-        ///     (line 2351–2353), and lines 2321–2345 — <c>UpdateAgentInformation</c> timer-driven
-        ///     persist after device-add.
-        ///   </item>
-        /// </list>
+        /// The UUID resolution slice routes through
+        /// <see cref="AgentUuidResolver.Resolve"/> — the same call production
+        /// makes — so this fixture cannot silently drift from StartAgent
+        /// semantics (branch order, guard shape, validation).
+        ///
+        /// InstanceId handling remains inline because it has no shared
+        /// helper: it depends on <c>configuration.Durable</c> +
+        /// <c>durableBufferLoadSucceeds</c> and mirrors the broker ctor's
+        /// <c>_instanceId = instanceId &gt; 0 ? instanceId : CreateInstanceId()</c>
+        /// contract (<c>libraries/MTConnect.NET-Common/Agents/MTConnectAgent.cs</c>).
         /// </summary>
         private static (string uuid, ulong instanceId) SimulateBoot(
             AgentApplicationConfiguration configuration,
             bool durableBufferLoadSucceeds)
         {
-            // Mirrors MTConnectAgentApplication.StartAgent lines 351–404:
-            var info = MTConnectAgentInformation.Read();
-            if (info == null) info = new MTConnectAgentInformation();
+            var existing = MTConnectAgentInformation.Read();
+            var freshlyConstructed = existing == null;
+            var info = existing ?? new MTConnectAgentInformation();
 
-            if (!string.IsNullOrEmpty(configuration.AgentUuid))
-            {
-                info.Uuid = configuration.AgentUuid;
-            }
+            info.Uuid = AgentUuidResolver.Resolve(
+                operatorSuppliedUuid: configuration.AgentUuid,
+                persistedUuid: freshlyConstructed ? null : info.Uuid,
+                agentName: configuration.ServiceName,
+                hostname: Environment.MachineName);
 
             var initializeDataItems = !durableBufferLoadSucceeds;
             if (!configuration.Durable || initializeDataItems)
@@ -117,17 +126,16 @@ namespace MTConnect.Tests.Common.Agents
 
             info.Save();
 
-            // Mirrors MTConnectAgent ctor (MTConnectAgent.cs lines 207–234):
+            // Mirrors MTConnectAgent ctor:
             //   _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
-            // CreateInstanceId() returns (ulong)(UnixDateTime.Now / 1000 / 10000) — Unix epoch seconds.
+            // CreateInstanceId() = (ulong)(UnixDateTime.Now / 1000 / 10000) — Unix epoch seconds.
             var brokerInstanceId = info.InstanceId > 0
                 ? info.InstanceId
                 : (ulong)(UnixDateTime.Now / 1000 / 10000);
 
-            // Mirrors MTConnectAgent.UpdateAgentInformation (MTConnectAgent.cs lines 2321–2345):
-            // The broker writes its chosen _instanceId back to the file via a timer-driven
-            // persist once a device is added. Simulate that here so the next boot's Read()
-            // sees the broker's resolved InstanceId, not the zeroed value from the Save() above.
+            // Broker writes _instanceId back via UpdateAgentInformation once a
+            // device is added; simulate that so the next boot's Read() sees
+            // the broker's resolved InstanceId, not the zeroed value.
             info.InstanceId = brokerInstanceId;
             info.Save();
 
@@ -143,9 +151,11 @@ namespace MTConnect.Tests.Common.Agents
         [Test]
         public void Uuid_pinned_via_config_survives_two_non_durable_boots()
         {
+            const string PinnedUuid = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+
             var configuration = new AgentApplicationConfiguration
             {
-                AgentUuid = "fixture-stable-uuid-A",
+                AgentUuid = PinnedUuid,
                 Durable = false,
             };
 
@@ -156,9 +166,9 @@ namespace MTConnect.Tests.Common.Agents
 
             var (uuid2, instanceId2) = SimulateBoot(configuration, durableBufferLoadSucceeds: false);
 
-            Assert.That(uuid1, Is.EqualTo("fixture-stable-uuid-A"),
+            Assert.That(uuid1, Is.EqualTo(PinnedUuid),
                 "Boot 1: config-level AgentUuid must be applied.");
-            Assert.That(uuid2, Is.EqualTo("fixture-stable-uuid-A"),
+            Assert.That(uuid2, Is.EqualTo(PinnedUuid),
                 "Boot 2: config-level AgentUuid must survive a non-durable restart.");
             Assert.That(instanceId1, Is.Not.EqualTo(instanceId2),
                 "Non-durable buffer means the InstanceId resets each boot — the UUIDs are equal but InstanceIds differ.");
@@ -178,9 +188,11 @@ namespace MTConnect.Tests.Common.Agents
         [Test]
         public void Uuid_pinned_via_config_survives_durable_boot_with_buffer_load_success()
         {
+            const string PinnedUuid = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+
             var configuration = new AgentApplicationConfiguration
             {
-                AgentUuid = "fixture-stable-uuid-B",
+                AgentUuid = PinnedUuid,
                 Durable = true,
             };
 
@@ -192,28 +204,26 @@ namespace MTConnect.Tests.Common.Agents
             // Boot 2: warm restart — durable buffer loaded successfully.
             var (uuid2, instanceId2) = SimulateBoot(configuration, durableBufferLoadSucceeds: true);
 
-            Assert.That(uuid1, Is.EqualTo("fixture-stable-uuid-B"),
+            Assert.That(uuid1, Is.EqualTo(PinnedUuid),
                 "Boot 1: config-level AgentUuid must be applied.");
-            Assert.That(uuid2, Is.EqualTo("fixture-stable-uuid-B"),
+            Assert.That(uuid2, Is.EqualTo(PinnedUuid),
                 "Boot 2: config-level AgentUuid must survive a durable restart.");
             Assert.That(instanceId1, Is.EqualTo(instanceId2),
                 "Durable buffer load success means InstanceId is preserved across boots (spec requirement).");
         }
 
         /// <summary>
-        /// Documents the pre-fix bug from the consumer's perspective:
-        /// when <c>AgentApplicationConfiguration.AgentUuid</c> is <c>null</c>
-        /// and no state file persists across boots (e.g., an ephemeral container),
-        /// both UUID and InstanceId regenerate on every boot.
-        ///
-        /// This is not a regression check on the new feature — it is a
-        /// regression check on the bug itself still being a bug when the knob
-        /// is absent. Deleting the state file between boots simulates the
-        /// "no persistent storage" scenario that the new config knob lets
-        /// consumers escape.
+        /// Post-fix longitudinal invariant: when
+        /// <c>AgentApplicationConfiguration.AgentUuid</c> is <see langword="null"/>
+        /// and no state file persists across boots (e.g. an ephemeral container),
+        /// the meta-device UUID is nevertheless stable across boots because
+        /// <see cref="AgentUuidResolver.Resolve"/> Path 3 derives it
+        /// deterministically from <c>(agentName ?? hostname, hostname, port: 0)</c>.
+        /// The <c>InstanceId</c> still resets each boot because the durable
+        /// buffer did not load (spec-correct behaviour for <c>Header.instanceId</c>).
         /// </summary>
         [Test]
-        public void Uuid_not_pinned_and_no_state_file_regenerates_per_boot()
+        public void Uuid_not_pinned_and_no_state_file_is_stable_via_deterministic_derivation()
         {
             var configuration = new AgentApplicationConfiguration
             {
@@ -234,11 +244,14 @@ namespace MTConnect.Tests.Common.Agents
 
             var (uuid2, instanceId2) = SimulateBoot(configuration, durableBufferLoadSucceeds: false);
 
-            Assert.That(uuid1, Is.Not.EqualTo(uuid2),
-                "No AgentUuid override + no state file = a fresh Guid is generated every boot. " +
-                "This is the pre-fix problem the new knob lets consumers avoid.");
+            Assert.That(uuid1, Is.EqualTo(uuid2),
+                "No override + no state file, but Path 3 derives deterministically " +
+                "from (agentName ?? hostname, hostname, port) — the meta-device UUID is stable " +
+                "across boots. This is the whole point of the AgentUuidResolver + " +
+                "DeterministicAgentUuid.Derive stack introduced by #168.");
             Assert.That(instanceId1, Is.Not.EqualTo(instanceId2),
-                "No state file = InstanceId is also regenerated each boot.");
+                "No state file = InstanceId is still regenerated each boot " +
+                "(Header.instanceId is per-boot by spec; separate concern from UUID stability).");
         }
     }
 }
