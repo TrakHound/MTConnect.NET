@@ -129,5 +129,49 @@ namespace MTConnect.Agents
             Buffer.BlockCopy(beBytes, 8, result, 8, 8);
             return result;
         }
+
+        /// <summary>
+        /// Validates and normalizes an operator-supplied Agent UUID string.
+        /// </summary>
+        /// <remarks>
+        /// Accepts any format that <see cref="Guid.TryParse(string, out Guid)"/>
+        /// recognizes — hyphenated "D" (<c>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</c>),
+        /// braced "B", parenthesized "P", bare-hex "N", or hex-braced "X" — and
+        /// returns the canonical hyphenated "D" form so the wire representation
+        /// is stable regardless of input format. Rejects <see langword="null"/>,
+        /// empty, whitespace-only, and unparseable inputs.
+        /// <para>
+        /// Motivation: MTConnect Part 1 types the <c>uuid</c> attribute as the
+        /// <c>UUID</c> DataType (RFC 4122). Silently forwarding a non-UUID
+        /// string emits wire content that fails XSD validation on any typed
+        /// enum/decimal DataItem and breaks parity with the cppagent reference
+        /// implementation. Callers that supply malformed input should log a
+        /// warning and fall through to persisted or derived UUIDs — the
+        /// three-path resolution in <see cref="AgentUuidResolver.Resolve"/>.
+        /// </para>
+        /// </remarks>
+        /// <param name="input">
+        /// The raw operator-supplied value from
+        /// <c>AgentApplicationConfiguration.AgentUuid</c>; may be
+        /// <see langword="null"/> or empty.
+        /// </param>
+        /// <param name="normalized">
+        /// On success, the canonical hyphenated "D" form of the parsed UUID
+        /// (e.g. <c>cfbff0d1-9375-5685-968a-48ce8b50a653</c>); <see langword="null"/>
+        /// on failure.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if <paramref name="input"/> parses as an
+        /// RFC 4122 UUID; <see langword="false"/> for <see langword="null"/>,
+        /// empty, whitespace-only, or unparseable inputs.
+        /// </returns>
+        public static bool TryValidate(string input, out string normalized)
+        {
+            normalized = null;
+            if (string.IsNullOrWhiteSpace(input)) return false;
+            if (!Guid.TryParse(input, out var parsed)) return false;
+            normalized = parsed.ToString();
+            return true;
+        }
     }
 }

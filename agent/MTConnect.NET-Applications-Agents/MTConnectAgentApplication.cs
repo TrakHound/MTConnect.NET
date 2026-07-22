@@ -433,32 +433,22 @@ namespace MTConnect.Applications
                 var freshlyConstructed = (existingAgentInformation == null);
                 var agentInformation = existingAgentInformation ?? new MTConnectAgentInformation();
 
-                // Apply explicit AgentUuid config override (if set). This
-                // pins the Agent meta-device UUID across restarts without
-                // requiring agent.information.json to be present on disk,
-                // and takes precedence over any UUID previously stored in
-                // that file. See MTConnect v2.7 XSD UuidType ("for its
-                // entire life") vs Header.instanceId (per-boot).
-                if (!string.IsNullOrEmpty(configuration.AgentUuid))
-                {
-                    agentInformation.Uuid = configuration.AgentUuid;
-                }
-
-                // When no operator config override and no persisted state file,
-                // derive a deterministic UUID v5 (RFC 4122 §4.3, DNS namespace,
-                // SHA-1) from ServiceName:port so the Agent meta-device satisfies
-                // UuidType's "for it's entire life" annotation across every restart
-                // in the ephemeral-container deployment path.  Mirrors cppagent's
-                // name_generator prior art.  Port is 0 (sentinel) because
-                // IAgentApplicationConfiguration does not surface a listener-port
-                // property; the seed is still unique per ServiceName.
-                if (freshlyConstructed && string.IsNullOrEmpty(configuration.AgentUuid))
-                {
-                    agentInformation.Uuid = DeterministicAgentUuid.Derive(
-                        configuration.ServiceName,
-                        System.Environment.MachineName,
-                        port: 0);
-                }
+                // Resolve the Agent meta-device UUID via the shared three-path
+                // algorithm in AgentUuidResolver so this application and the
+                // test fixtures exercise the same code and cannot silently
+                // drift. Path 1 (validated operator override) wins, else Path 2
+                // (validated persisted state), else Path 3 (deterministic
+                // UUID v5 derivation from ServiceName). Malformed input on
+                // either the override or the persisted path logs a warning
+                // and falls through — silently forwarding non-UUID content
+                // would break MTConnect Part 1's wire-XSD validation on every
+                // typed enum/decimal DataItem.
+                agentInformation.Uuid = AgentUuidResolver.Resolve(
+                    operatorSuppliedUuid: configuration.AgentUuid,
+                    persistedUuid: freshlyConstructed ? null : agentInformation.Uuid,
+                    agentName: configuration.ServiceName,
+                    hostname: System.Environment.MachineName,
+                    warn: message => _applicationLogger?.Warn(message));
 
                 // Create Observation File Buffer
                 if (configuration.Durable)
