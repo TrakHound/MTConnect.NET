@@ -1,10 +1,15 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2026 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Devices;
+using MTConnect.Observations;
+using MTConnect.Observations.Output;
 using MTConnect.Streams.Json;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MTConnect.NET_JSON_cppagent_Tests.Streams
 {
@@ -14,13 +19,12 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
     // of Normal|Warning|Fault|Unavailable; cppagent v2 emits one
     // single-key wrapper object per entry.
     //
-    // Ordering: the typed JsonConditions POCO buckets entries by level
-    // (Fault, Warning, Normal, Unavailable). The converter emits in
-    // that fixed level order, with source order preserved within each
-    // bucket. Mixed-level interleaving on the wire is therefore NOT
-    // round-trip preserved through the typed model — see the
-    // Read_ArrayShape_MixedLevelInterleaving_BucketsByLevel test for
-    // the explicit pin.
+    // Since 7.0 the type shape IS the wire shape: JsonConditions
+    // inherits List<JsonConditionWrapper> and the default S.T.J
+    // serializer handles both directions with no custom converter.
+    // Ordering on the wire follows list insertion order; the
+    // observation-taking ctor preserves the historical
+    // Fault -> Warning -> Normal -> Unavailable emission order.
     //
     // Sources:
     // - XSD: https://schemas.mtconnect.org/schemas/MTConnectStreams_2.7.xsd
@@ -28,51 +32,214 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
     // - Prose: MTConnect Standard Part 2 section 13 "Condition".
     // - cppagent reference (v2.7.0.7): printer/json_printer.cpp
     //   function print_condition.
-    /// <summary>Pins the behaviour expressed by the test name: json conditions array shape tests.</summary>
+    /// <summary>
+    /// Unit + wire coverage for <see cref="JsonConditions"/> — the
+    /// list-of-wrappers container that emits cppagent JSON v2 shape by
+    /// default S.T.J behavior on the derived <see cref="List{T}"/>.
+    /// </summary>
     [TestFixture]
     public class JsonConditionsArrayShapeTests
     {
-        private static JsonCondition MakeEntry(string dataItemId, string type)
-        {
-            return new JsonCondition
-            {
-                DataItemId = dataItemId,
-                Type = type,
-            };
-        }
+        private static JsonCondition MakeEntry(string dataItemId, string? type = null) =>
+            new JsonCondition { DataItemId = dataItemId, Type = type! };
 
-        private static JsonSerializerOptions Options() => new JsonSerializerOptions();
+        /// <summary>
+        /// Options that suppress null-valued properties on the wire, matching
+        /// cppagent JSON v2 sparse-object shape (dataItemId + populated
+        /// fields only). Required for byte-identical wire assertions because
+        /// <see cref="JsonCondition"/>'s inner properties do not carry
+        /// per-property <c>[JsonIgnore(WhenWritingNull)]</c>; the
+        /// null-suppression contract lives on the emission pipeline's
+        /// options object.
+        /// </summary>
+        private static JsonSerializerOptions SparseOptions() =>
+            new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
 
-        private static string FirstPropertyName(JsonElement element)
-        {
-            using var enumerator = element.EnumerateObject();
-            enumerator.MoveNext();
-            return enumerator.Current.Name;
-        }
+        // ------------------------------------------------------------------
+        // Ctor coverage — three overloads.
+        // ------------------------------------------------------------------
 
-        // Case 1 — empty conditions serialize as the array shape, not an object shape.
-        /// <summary>Pins the behaviour expressed by the test name: write empty conditions emits empty array.</summary>
+        /// <summary>Pins the parameterless ctor: creates an empty list.</summary>
         [Test]
-        public void Write_EmptyConditions_EmitsEmptyArray()
+        public void Ctor_Default_creates_empty_list()
         {
             var conditions = new JsonConditions();
-
-            var json = JsonSerializer.Serialize(conditions, Options());
-
-            Assert.That(json, Is.EqualTo("[]"));
+            Assert.That(conditions.Count, Is.EqualTo(0));
         }
 
-        // Case 2 — one Normal entry produces a 1-element array with a Normal wrapper.
-        /// <summary>Pins the behaviour expressed by the test name: write single normal emits one normal wrapper.</summary>
+        /// <summary>Pins the copy ctor: seeds the list from an existing sequence, order preserved.</summary>
         [Test]
-        public void Write_SingleNormal_EmitsOneNormalWrapper()
+        public void Ctor_FromWrapperSequence_seeds_in_insertion_order()
+        {
+            var wrappers = new[]
+            {
+                JsonConditionWrapper.OfNormal (MakeEntry("n1")),
+                JsonConditionWrapper.OfFault  (MakeEntry("f1")),
+                JsonConditionWrapper.OfWarning(MakeEntry("w1")),
+            };
+
+            var conditions = new JsonConditions(wrappers);
+
+            Assert.That(conditions.Count, Is.EqualTo(3));
+            Assert.That(conditions[0].Level, Is.EqualTo("Normal"));
+            Assert.That(conditions[1].Level, Is.EqualTo("Fault"));
+            Assert.That(conditions[2].Level, Is.EqualTo("Warning"));
+        }
+
+        /// <summary>Pins that a null wrapper-sequence ctor argument yields an empty list, not a NullReferenceException.</summary>
+        [Test]
+        public void Ctor_FromWrapperSequence_null_is_treated_as_empty()
+        {
+            var conditions = new JsonConditions((IEnumerable<JsonConditionWrapper>)null!);
+            Assert.That(conditions.Count, Is.EqualTo(0));
+        }
+
+        /// <summary>Pins that a null observation-sequence ctor argument yields an empty list, not a NullReferenceException.</summary>
+        [Test]
+        public void Ctor_FromObservationSequence_null_is_treated_as_empty()
+        {
+            var conditions = new JsonConditions((IEnumerable<IObservationOutput>)null!);
+            Assert.That(conditions.Count, Is.EqualTo(0));
+        }
+
+        /// <summary>Pins that the observation-sequence ctor with no matching entries yields an empty list.</summary>
+        [Test]
+        public void Ctor_FromObservationSequence_empty_produces_empty_list()
+        {
+            var conditions = new JsonConditions(Array.Empty<IObservationOutput>());
+            Assert.That(conditions.Count, Is.EqualTo(0));
+        }
+
+        /// <summary>
+        /// Pins that the observation-sequence ctor emits in the historical
+        /// level-order (Fault, Warning, Normal, Unavailable), source order
+        /// within each bucket, so the wire is byte-identical to pre-refactor
+        /// converter output for the same input.
+        /// </summary>
+        [Test]
+        public void Ctor_FromObservationSequence_emits_in_level_order()
+        {
+            var observations = new IObservationOutput[]
+            {
+                // Deliberately mix input order so the ctor's level-bucketing
+                // is what determines emission order, not source order.
+                FakeConditionOutput.Create("n1", ConditionLevel.NORMAL),
+                FakeConditionOutput.Create("u1", ConditionLevel.UNAVAILABLE),
+                FakeConditionOutput.Create("f1", ConditionLevel.FAULT),
+                FakeConditionOutput.Create("w1", ConditionLevel.WARNING),
+                FakeConditionOutput.Create("f2", ConditionLevel.FAULT),
+            };
+
+            var conditions = new JsonConditions(observations);
+
+            Assert.That(conditions.Count, Is.EqualTo(5));
+            Assert.That(conditions[0].Level, Is.EqualTo("Fault"));
+            Assert.That(conditions[0].Fault!.DataItemId, Is.EqualTo("f1"));
+            Assert.That(conditions[1].Level, Is.EqualTo("Fault"));
+            Assert.That(conditions[1].Fault!.DataItemId, Is.EqualTo("f2"));
+            Assert.That(conditions[2].Level, Is.EqualTo("Warning"));
+            Assert.That(conditions[3].Level, Is.EqualTo("Normal"));
+            Assert.That(conditions[4].Level, Is.EqualTo("Unavailable"));
+        }
+
+        /// <summary>Pins that null entries in the observation sequence are skipped, not rethrown.</summary>
+        [Test]
+        public void Ctor_FromObservationSequence_skips_null_entries()
+        {
+            var observations = new IObservationOutput[]
+            {
+                null!,
+                FakeConditionOutput.Create("f1", ConditionLevel.FAULT),
+                null!,
+            };
+
+            var conditions = new JsonConditions(observations);
+
+            Assert.That(conditions.Count, Is.EqualTo(1));
+            Assert.That(conditions[0].Level, Is.EqualTo("Fault"));
+        }
+
+        // ------------------------------------------------------------------
+        // Observations computed accessor.
+        // ------------------------------------------------------------------
+
+        /// <summary>Pins Observations returns an empty list on an empty container.</summary>
+        [Test]
+        public void Observations_is_empty_on_empty_container()
+        {
+            Assert.That(new JsonConditions().Observations, Is.Empty);
+        }
+
+        /// <summary>
+        /// Pins Observations materializes every non-empty wrapper into the
+        /// matching strongly-typed condition at the right level, in list
+        /// insertion order.
+        /// </summary>
+        [Test]
+        public void Observations_materializes_in_insertion_order()
         {
             var conditions = new JsonConditions
             {
-                Normal = new List<JsonCondition> { MakeEntry("n1", "TEMPERATURE") },
+                JsonConditionWrapper.OfFault      (MakeEntry("f1", "TEMPERATURE")),
+                JsonConditionWrapper.OfWarning    (MakeEntry("w1", "POSITION")),
+                JsonConditionWrapper.OfNormal     (MakeEntry("n1", "AVAILABILITY")),
+                JsonConditionWrapper.OfUnavailable(MakeEntry("u1", "ROTATION")),
             };
 
-            var json = JsonSerializer.Serialize(conditions, Options());
+            var observations = conditions.Observations;
+
+            Assert.That(observations.Count, Is.EqualTo(4));
+            Assert.That((observations[0] as IConditionObservation)!.Level, Is.EqualTo(ConditionLevel.FAULT));
+            Assert.That((observations[1] as IConditionObservation)!.Level, Is.EqualTo(ConditionLevel.WARNING));
+            Assert.That((observations[2] as IConditionObservation)!.Level, Is.EqualTo(ConditionLevel.NORMAL));
+            Assert.That((observations[3] as IConditionObservation)!.Level, Is.EqualTo(ConditionLevel.UNAVAILABLE));
+            Assert.That(observations[0].DataItemId, Is.EqualTo("f1"));
+            Assert.That(observations[1].DataItemId, Is.EqualTo("w1"));
+            Assert.That(observations[2].DataItemId, Is.EqualTo("n1"));
+            Assert.That(observations[3].DataItemId, Is.EqualTo("u1"));
+        }
+
+        /// <summary>Pins that empty wrappers (all four properties null) are skipped by Observations.</summary>
+        [Test]
+        public void Observations_skips_empty_wrappers()
+        {
+            var conditions = new JsonConditions
+            {
+                new JsonConditionWrapper(),                          // empty
+                JsonConditionWrapper.OfFault(MakeEntry("f1")),
+                null!,                                                // null wrapper
+                new JsonConditionWrapper(),                          // empty
+                JsonConditionWrapper.OfNormal(MakeEntry("n1")),
+            };
+
+            var observations = conditions.Observations;
+
+            Assert.That(observations.Count, Is.EqualTo(2));
+            Assert.That(observations[0].DataItemId, Is.EqualTo("f1"));
+            Assert.That(observations[1].DataItemId, Is.EqualTo("n1"));
+        }
+
+        // ------------------------------------------------------------------
+        // Wire-shape pins — serialization.
+        // ------------------------------------------------------------------
+
+        /// <summary>Pins that an empty conditions container serializes to <c>[]</c>.</summary>
+        [Test]
+        public void Serialize_empty_conditions_emits_empty_array()
+        {
+            Assert.That(JsonSerializer.Serialize(new JsonConditions()), Is.EqualTo("[]"));
+        }
+
+        /// <summary>Pins that a single Normal-wrapped condition serializes to a one-element array.</summary>
+        [Test]
+        public void Serialize_single_normal_emits_one_normal_wrapper()
+        {
+            var conditions = new JsonConditions
+            {
+                JsonConditionWrapper.OfNormal(MakeEntry("n1", "TEMPERATURE")),
+            };
+
+            var json = JsonSerializer.Serialize(conditions);
 
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
@@ -85,50 +252,75 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(entry.GetProperty("dataItemId").GetString(), Is.EqualTo("n1"));
         }
 
-        // Case 3 — Fault + Warning emit in Fault, Warning order per the converter.
-        /// <summary>Pins the behaviour expressed by the test name: write fault then warning emits in declared enumeration order.</summary>
+        /// <summary>
+        /// Pins that programmatic list construction preserves insertion
+        /// order on the wire — the wire array follows list insertion
+        /// exactly, no re-bucketing. Structural pin (root array + per-index
+        /// level key + dataItemId) rather than a byte-identical assertion
+        /// because <see cref="JsonCondition"/> emits several default-valued
+        /// fields (timestamp, sequence, instanceId) that are irrelevant to
+        /// the ordering guarantee under test.
+        /// </summary>
         [Test]
-        public void Write_FaultThenWarning_EmitsInDeclaredEnumerationOrder()
+        public void Serialize_preserves_insertion_order_across_levels()
         {
             var conditions = new JsonConditions
             {
-                Fault = new List<JsonCondition> { MakeEntry("f1", "TEMPERATURE") },
-                Warning = new List<JsonCondition> { MakeEntry("w1", "POSITION") },
+                JsonConditionWrapper.OfNormal(MakeEntry("n1")),
+                JsonConditionWrapper.OfFault (MakeEntry("f1")),
+                JsonConditionWrapper.OfNormal(MakeEntry("n2")),
+                JsonConditionWrapper.OfFault (MakeEntry("f2")),
             };
 
-            var json = JsonSerializer.Serialize(conditions, Options());
+            var json = JsonSerializer.Serialize(conditions, SparseOptions());
 
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
-            Assert.That(root.GetArrayLength(), Is.EqualTo(2));
-
-            Assert.That(FirstPropertyName(root[0]), Is.EqualTo("Fault"));
-            Assert.That(FirstPropertyName(root[1]), Is.EqualTo("Warning"));
-        }
-
-        // Case 4 — all four levels populated emit in Fault, Warning, Normal, Unavailable order.
-        /// <summary>Pins the behaviour expressed by the test name: write all four levels emits in fault warning normal unavailable order.</summary>
-        [Test]
-        public void Write_AllFourLevels_EmitsInFaultWarningNormalUnavailableOrder()
-        {
-            var conditions = new JsonConditions
-            {
-                Fault = new List<JsonCondition> { MakeEntry("f1", "TEMPERATURE") },
-                Warning = new List<JsonCondition> { MakeEntry("w1", "POSITION") },
-                Normal = new List<JsonCondition> { MakeEntry("n1", "AVAILABILITY") },
-                Unavailable = new List<JsonCondition> { MakeEntry("u1", "ROTATION") },
-            };
-
-            var json = JsonSerializer.Serialize(conditions, Options());
-
-            using var doc = JsonDocument.Parse(json);
-            var root = doc.RootElement;
+            Assert.That(root.ValueKind, Is.EqualTo(JsonValueKind.Array));
             Assert.That(root.GetArrayLength(), Is.EqualTo(4));
 
-            var keys = new List<string>();
-            for (var i = 0; i < root.GetArrayLength(); i++)
+            var expected = new[]
             {
-                foreach (var prop in root[i].EnumerateObject())
+                (Level: "Normal", DataItemId: "n1"),
+                (Level: "Fault",  DataItemId: "f1"),
+                (Level: "Normal", DataItemId: "n2"),
+                (Level: "Fault",  DataItemId: "f2"),
+            };
+
+            for (var i = 0; i < expected.Length; i++)
+            {
+                var wrapper = root[i];
+                Assert.That(wrapper.TryGetProperty(expected[i].Level, out var entry), Is.True,
+                    $"index {i} should carry a {expected[i].Level} envelope");
+                Assert.That(entry.GetProperty("dataItemId").GetString(), Is.EqualTo(expected[i].DataItemId),
+                    $"index {i} dataItemId should be {expected[i].DataItemId}");
+            }
+        }
+
+        /// <summary>
+        /// Pins that the observation-taking ctor's level-order emission
+        /// yields the historical Fault, Warning, Normal, Unavailable
+        /// sequence on the wire for a mixed-input observation sequence.
+        /// </summary>
+        [Test]
+        public void Serialize_from_observation_ctor_emits_in_fault_warning_normal_unavailable_order()
+        {
+            var observations = new IObservationOutput[]
+            {
+                FakeConditionOutput.Create("n1", ConditionLevel.NORMAL),
+                FakeConditionOutput.Create("u1", ConditionLevel.UNAVAILABLE),
+                FakeConditionOutput.Create("f1", ConditionLevel.FAULT),
+                FakeConditionOutput.Create("w1", ConditionLevel.WARNING),
+            };
+
+            var json = JsonSerializer.Serialize(new JsonConditions(observations));
+
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+            var keys = new List<string>();
+            foreach (var element in root.EnumerateArray())
+            {
+                foreach (var prop in element.EnumerateObject())
                 {
                     keys.Add(prop.Name);
                 }
@@ -137,265 +329,176 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(keys, Is.EqualTo(new[] { "Fault", "Warning", "Normal", "Unavailable" }));
         }
 
-        // Case 5 — multiple entries on one level produce one wrapper each in source order.
-        /// <summary>Pins the behaviour expressed by the test name: write multiple faults emits one wrapper per entry.</summary>
+        // ------------------------------------------------------------------
+        // Wire-shape pins — deserialization.
+        // ------------------------------------------------------------------
+
+        /// <summary>Pins that <c>[]</c> deserializes to an empty conditions list.</summary>
         [Test]
-        public void Write_MultipleFaults_EmitsOneWrapperPerEntry()
+        public void Deserialize_empty_array_yields_empty_container()
         {
-            var conditions = new JsonConditions
-            {
-                Fault = new List<JsonCondition>
-                {
-                    MakeEntry("f1", "TEMPERATURE"),
-                    MakeEntry("f2", "POSITION"),
-                    MakeEntry("f3", "AVAILABILITY"),
-                },
-            };
-
-            var json = JsonSerializer.Serialize(conditions, Options());
-
-            using var doc = JsonDocument.Parse(json);
-            var root = doc.RootElement;
-            Assert.That(root.GetArrayLength(), Is.EqualTo(3));
-
-            var ids = new List<string>();
-            foreach (var element in root.EnumerateArray())
-            {
-                Assert.That(element.TryGetProperty("Fault", out var entry), Is.True);
-                ids.Add(entry.GetProperty("dataItemId").GetString()!);
-            }
-
-            Assert.That(ids, Is.EqualTo(new[] { "f1", "f2", "f3" }));
+            var conditions = JsonSerializer.Deserialize<JsonConditions>("[]");
+            Assert.That(conditions, Is.Not.Null);
+            Assert.That(conditions!.Count, Is.EqualTo(0));
         }
 
-        // Case 5b — mixed-level interleaving on the input wire is bucketed
-        // by level on read and re-emitted in level order (Fault, Warning,
-        // Normal, Unavailable) on write. Pins the documented non-byte-
-        // identical round-trip for interleaved input — see the type
-        // comment on JsonConditionsConverter for the design rationale.
-        /// <summary>Pins the behaviour expressed by the test name: read array shape mixed level interleaving buckets by level.</summary>
+        /// <summary>Pins that a mixed-level wire array deserializes with each wrapper's matching level property populated and the other three null.</summary>
         [Test]
-        public void Read_ArrayShape_MixedLevelInterleaving_BucketsByLevel()
+        public void Deserialize_mixed_level_array_populates_each_wrapper_correctly()
         {
-            const string interleaved =
-                "[{\"Fault\":{\"dataItemId\":\"f1\"}}," +
-                "{\"Normal\":{\"dataItemId\":\"n1\"}}," +
-                "{\"Fault\":{\"dataItemId\":\"f2\"}}]";
+            const string wire =
+                "[" +
+                "{\"Fault\":{\"dataItemId\":\"f1\"}}," +
+                "{\"Normal\":{\"dataItemId\":\"n1\",\"sequence\":42}}," +
+                "{\"Warning\":{\"dataItemId\":\"w1\",\"type\":\"POSITION\"}}," +
+                "{\"Unavailable\":{\"dataItemId\":\"u1\"}}" +
+                "]";
 
-            var parsed = JsonSerializer.Deserialize<JsonConditions>(interleaved, Options());
+            var conditions = JsonSerializer.Deserialize<JsonConditions>(wire);
 
-            Assert.That(parsed, Is.Not.Null);
-            Assert.That(parsed!.Fault, Is.Not.Null);
-            Assert.That(parsed.Normal, Is.Not.Null);
-            Assert.That(parsed.Warning, Is.Null);
-            Assert.That(parsed.Unavailable, Is.Null);
+            Assert.That(conditions!.Count, Is.EqualTo(4));
 
-            var faultIds = new List<string>();
-            foreach (var entry in parsed.Fault!) faultIds.Add(entry.DataItemId);
-            Assert.That(faultIds, Is.EqualTo(new[] { "f1", "f2" }));
+            Assert.That(conditions[0].Fault,       Is.Not.Null); Assert.That(conditions[0].Fault!.DataItemId,   Is.EqualTo("f1"));
+            Assert.That(conditions[1].Normal,      Is.Not.Null); Assert.That(conditions[1].Normal!.DataItemId,  Is.EqualTo("n1"));
+            Assert.That((ulong)conditions[1].Normal!.Sequence, Is.EqualTo(42UL));
+            Assert.That(conditions[2].Warning,     Is.Not.Null); Assert.That(conditions[2].Warning!.Type,       Is.EqualTo("POSITION"));
+            Assert.That(conditions[3].Unavailable, Is.Not.Null); Assert.That(conditions[3].Unavailable!.DataItemId, Is.EqualTo("u1"));
 
-            var normalIds = new List<string>();
-            foreach (var entry in parsed.Normal!) normalIds.Add(entry.DataItemId);
-            Assert.That(normalIds, Is.EqualTo(new[] { "n1" }));
-
-            var rewritten = JsonSerializer.Serialize(parsed, Options());
-            using var rewrittenDoc = JsonDocument.Parse(rewritten);
-            var rewrittenRoot = rewrittenDoc.RootElement;
-            Assert.That(rewrittenRoot.ValueKind, Is.EqualTo(JsonValueKind.Array));
-            Assert.That(rewrittenRoot.GetArrayLength(), Is.EqualTo(3));
-
-            var rewrittenKeys = new List<string>();
-            var rewrittenDataItemIds = new List<string>();
-            for (var i = 0; i < rewrittenRoot.GetArrayLength(); i++)
-            {
-                foreach (var prop in rewrittenRoot[i].EnumerateObject())
-                {
-                    rewrittenKeys.Add(prop.Name);
-                    rewrittenDataItemIds.Add(prop.Value.GetProperty("dataItemId").GetString()!);
-                }
-            }
-
-            Assert.That(rewrittenKeys, Is.EqualTo(new[] { "Fault", "Fault", "Normal" }));
-            Assert.That(rewrittenDataItemIds, Is.EqualTo(new[] { "f1", "f2", "n1" }));
+            // Cross-checks — non-matching properties are null.
+            Assert.That(conditions[0].Warning, Is.Null); Assert.That(conditions[0].Normal, Is.Null); Assert.That(conditions[0].Unavailable, Is.Null);
         }
 
-        // Case 6 — array JSON round-trips through Deserialize/Serialize without drift.
-        /// <summary>Pins the behaviour expressed by the test name: round trip array shape is byte identical modulo whitespace.</summary>
+        /// <summary>
+        /// Pins byte-identical round-trip through serialize -> deserialize ->
+        /// serialize on the four-level mixed input, guaranteeing the type
+        /// shape is symmetric on the wire.
+        /// </summary>
         [Test]
-        public void RoundTrip_ArrayShape_IsByteIdenticalModuloWhitespace()
+        public void RoundTrip_array_shape_is_byte_identical()
         {
             var original = new JsonConditions
             {
-                Fault = new List<JsonCondition> { MakeEntry("f1", "TEMPERATURE") },
-                Warning = new List<JsonCondition> { MakeEntry("w1", "POSITION") },
-                Normal = new List<JsonCondition> { MakeEntry("n1", "AVAILABILITY") },
-                Unavailable = new List<JsonCondition> { MakeEntry("u1", "ROTATION") },
+                JsonConditionWrapper.OfFault      (MakeEntry("f1", "TEMPERATURE")),
+                JsonConditionWrapper.OfWarning    (MakeEntry("w1", "POSITION")),
+                JsonConditionWrapper.OfNormal     (MakeEntry("n1", "AVAILABILITY")),
+                JsonConditionWrapper.OfUnavailable(MakeEntry("u1", "ROTATION")),
             };
 
-            var json = JsonSerializer.Serialize(original, Options());
-            var parsed = JsonSerializer.Deserialize<JsonConditions>(json, Options());
-            var json2 = JsonSerializer.Serialize(parsed, Options());
+            var json1 = JsonSerializer.Serialize(original);
+            var parsed = JsonSerializer.Deserialize<JsonConditions>(json1);
+            var json2 = JsonSerializer.Serialize(parsed);
 
-            Assert.That(json2, Is.EqualTo(json));
+            Assert.That(json2, Is.EqualTo(json1));
         }
 
-        // Case 7 — legacy MTConnect JSON v1 object-keyed shape parses into the typed POCO.
-        /// <summary>Pins the behaviour expressed by the test name: read legacy object shape populates typed properties.</summary>
+        /// <summary>Pins that root-level null writes as <c>"null"</c> and reads back as a null reference.</summary>
         [Test]
-        public void Read_LegacyObjectShape_PopulatesTypedProperties()
+        public void Null_root_writes_and_reads_as_null()
         {
-            const string legacy =
-                "{\"Normal\":[{\"dataItemId\":\"n1\",\"type\":\"TEMPERATURE\"}]," +
-                "\"Fault\":[{\"dataItemId\":\"f1\",\"type\":\"POSITION\"}]}";
-
-            var parsed = JsonSerializer.Deserialize<JsonConditions>(legacy, Options());
-
-            Assert.That(parsed, Is.Not.Null);
-            Assert.That(parsed!.Normal, Is.Not.Null);
-            Assert.That(parsed.Fault, Is.Not.Null);
-
-            using var normalEnumerator = parsed.Normal!.GetEnumerator();
-            Assert.That(normalEnumerator.MoveNext(), Is.True);
-            Assert.That(normalEnumerator.Current.DataItemId, Is.EqualTo("n1"));
-
-            using var faultEnumerator = parsed.Fault!.GetEnumerator();
-            Assert.That(faultEnumerator.MoveNext(), Is.True);
-            Assert.That(faultEnumerator.Current.DataItemId, Is.EqualTo("f1"));
+            Assert.That(JsonSerializer.Serialize<JsonConditions>(null!), Is.EqualTo("null"));
+            Assert.That(JsonSerializer.Deserialize<JsonConditions>("null"), Is.Null);
         }
 
-        // Case 8 — null write emits "null" and round-trips back to a null reference.
-        /// <summary>Pins the behaviour expressed by the test name: null write and read round trips to null.</summary>
+        // ------------------------------------------------------------------
+        // Regression pins for the intentional 7.0 behavioral drops.
+        // These fail loudly if a future refactor accidentally reintroduces
+        // legacy compat behavior that the type shape rewrite was meant to
+        // simplify away.
+        // ------------------------------------------------------------------
+
+        /// <summary>
+        /// Regression pin for the intentional drop of legacy MTConnect JSON
+        /// v1 object-keyed READ compat. Pre-7.0 the custom converter
+        /// accepted <c>{"Fault":[...], "Warning":[...]}</c> on the read
+        /// path; after the structural rewrite the default
+        /// <see cref="List{T}"/> deserializer only reads arrays. A future
+        /// change that reintroduces v1 compat via a new
+        /// <see cref="JsonConverter"/> would silently flip this back and
+        /// break wire-shape invariants; this test fails first.
+        /// </summary>
         [Test]
-        public void Null_WriteAndRead_RoundTripsToNull()
+        public void Deserialize_legacy_v1_object_keyed_shape_throws_JsonException()
         {
-            var json = JsonSerializer.Serialize<JsonConditions>(null!, Options());
-            Assert.That(json, Is.EqualTo("null"));
-
-            var parsed = JsonSerializer.Deserialize<JsonConditions>("null", Options());
-            Assert.That(parsed, Is.Null);
-        }
-
-        // Case 9 — invalid root token (number) raises JsonException with a recognisable message.
-        /// <summary>Pins the behaviour expressed by the test name: read invalid root token throws json exception.</summary>
-        [Test]
-        public void Read_InvalidRootToken_ThrowsJsonException()
-        {
-            var ex = Assert.Throws<JsonException>(() =>
-                JsonSerializer.Deserialize<JsonConditions>("123", Options()));
-            Assert.That(ex, Is.Not.Null);
-            Assert.That(ex!.Message, Does.Contain("Unexpected token"));
-        }
-
-        // Coverage filler — the array-shape read path also handles all four levels
-        // and rejects unknown level names + malformed wrapper objects.
-        /// <summary>Pins the behaviour expressed by the test name: read array shape populates all four levels.</summary>
-        [Test]
-        public void Read_ArrayShape_PopulatesAllFourLevels()
-        {
-            const string json =
-                "[{\"Fault\":{\"dataItemId\":\"f1\"}}," +
-                "{\"Warning\":{\"dataItemId\":\"w1\"}}," +
-                "{\"Normal\":{\"dataItemId\":\"n1\"}}," +
-                "{\"Unavailable\":{\"dataItemId\":\"u1\"}}]";
-
-            var parsed = JsonSerializer.Deserialize<JsonConditions>(json, Options());
-
-            Assert.That(parsed, Is.Not.Null);
-            Assert.That(parsed!.Fault, Is.Not.Null);
-            Assert.That(parsed.Warning, Is.Not.Null);
-            Assert.That(parsed.Normal, Is.Not.Null);
-            Assert.That(parsed.Unavailable, Is.Not.Null);
-        }
-
-        /// <summary>Pins the behaviour expressed by the test name: read array shape unknown level throws json exception.</summary>
-        [Test]
-        public void Read_ArrayShape_UnknownLevel_ThrowsJsonException()
-        {
-            const string json = "[{\"Bogus\":{\"dataItemId\":\"x1\"}}]";
-
-            var ex = Assert.Throws<JsonException>(() =>
-                JsonSerializer.Deserialize<JsonConditions>(json, Options()));
-            Assert.That(ex, Is.Not.Null);
-            Assert.That(ex!.Message, Does.Contain("Unknown Condition level"));
-        }
-
-        /// <summary>Pins the behaviour expressed by the test name: read array shape non object element throws json exception.</summary>
-        [Test]
-        public void Read_ArrayShape_NonObjectElement_ThrowsJsonException()
-        {
-            const string json = "[42]";
-
-            var ex = Assert.Throws<JsonException>(() =>
-                JsonSerializer.Deserialize<JsonConditions>(json, Options()));
-            Assert.That(ex, Is.Not.Null);
-            Assert.That(ex!.Message, Does.Contain("expected object wrapper"));
-        }
-
-        /// <summary>Pins the behaviour expressed by the test name: read array shape wrapper without property name throws json exception.</summary>
-        [Test]
-        public void Read_ArrayShape_WrapperWithoutPropertyName_ThrowsJsonException()
-        {
-            const string json = "[{}]";
-
-            var ex = Assert.Throws<JsonException>(() =>
-                JsonSerializer.Deserialize<JsonConditions>(json, Options()));
-            Assert.That(ex, Is.Not.Null);
-            Assert.That(ex!.Message, Does.Contain("Expected property name"));
-        }
-
-        /// <summary>Pins the behaviour expressed by the test name: read array shape wrapper with multiple properties throws json exception.</summary>
-        [Test]
-        public void Read_ArrayShape_WrapperWithMultipleProperties_ThrowsJsonException()
-        {
-            const string json = "[{\"Fault\":{\"dataItemId\":\"f1\"},\"Warning\":{\"dataItemId\":\"w1\"}}]";
-
-            var ex = Assert.Throws<JsonException>(() =>
-                JsonSerializer.Deserialize<JsonConditions>(json, Options()));
-            Assert.That(ex, Is.Not.Null);
-            Assert.That(ex!.Message, Does.Contain("end of JsonConditions wrapper"));
-        }
-
-        /// <summary>Pins the behaviour expressed by the test name: read array shape null entry throws json exception.</summary>
-        [Test]
-        public void Read_ArrayShape_NullEntry_ThrowsJsonException()
-        {
-            const string json = "[{\"Normal\":null}]";
-
-            var ex = Assert.Throws<JsonException>(() =>
-                JsonSerializer.Deserialize<JsonConditions>(json, Options()));
-            Assert.That(ex, Is.Not.Null);
-            Assert.That(ex!.Message, Does.Contain("Null Condition entry"));
-        }
-
-        /// <summary>Pins the behaviour expressed by the test name: read object shape unknown level throws json exception.</summary>
-        [Test]
-        public void Read_ObjectShape_UnknownLevel_ThrowsJsonException()
-        {
-            const string json = "{\"Bogus\":[{\"dataItemId\":\"x1\"}]}";
-
-            var ex = Assert.Throws<JsonException>(() =>
-                JsonSerializer.Deserialize<JsonConditions>(json, Options()));
-            Assert.That(ex, Is.Not.Null);
-            Assert.That(ex!.Message, Does.Contain("Unknown Condition level"));
-        }
-
-        /// <summary>Pins the behaviour expressed by the test name: read object shape populates all four levels.</summary>
-        [Test]
-        public void Read_ObjectShape_PopulatesAllFourLevels()
-        {
-            const string json =
+            const string legacyV1 =
                 "{\"Fault\":[{\"dataItemId\":\"f1\"}]," +
                 "\"Warning\":[{\"dataItemId\":\"w1\"}]," +
                 "\"Normal\":[{\"dataItemId\":\"n1\"}]," +
                 "\"Unavailable\":[{\"dataItemId\":\"u1\"}]}";
 
-            var parsed = JsonSerializer.Deserialize<JsonConditions>(json, Options());
+            Assert.Throws<JsonException>(() =>
+                JsonSerializer.Deserialize<JsonConditions>(legacyV1));
+        }
 
-            Assert.That(parsed, Is.Not.Null);
-            Assert.That(parsed!.Fault, Is.Not.Null);
-            Assert.That(parsed.Warning, Is.Not.Null);
-            Assert.That(parsed.Normal, Is.Not.Null);
-            Assert.That(parsed.Unavailable, Is.Not.Null);
+        /// <summary>
+        /// Regression pin for the intentional drop of strict single-key
+        /// wrapper validation. Pre-7.0 the custom converter rejected
+        /// multi-key wrapper envelopes with a named
+        /// <c>JsonException</c>; after the structural rewrite the default
+        /// deserializer tolerates them silently, populating every named
+        /// property on the wrapper. <see cref="JsonConditionWrapper.Value"/>
+        /// / <see cref="JsonConditionWrapper.Level"/> resolve by
+        /// documented Fault > Warning > Normal > Unavailable precedence.
+        /// A future change that reintroduces strict rejection would flip
+        /// this test to expect the exception; that is a wire-shape
+        /// contract change and should be caught here.
+        /// </summary>
+        [Test]
+        public void Deserialize_multi_key_wrapper_populates_all_and_precedence_wins()
+        {
+            const string wire =
+                "[{\"Fault\":{\"dataItemId\":\"f1\"},\"Warning\":{\"dataItemId\":\"w1\"}}]";
+
+            var conditions = JsonSerializer.Deserialize<JsonConditions>(wire);
+
+            Assert.That(conditions, Is.Not.Null);
+            Assert.That(conditions!.Count, Is.EqualTo(1));
+
+            var wrapper = conditions[0];
+            Assert.That(wrapper.Fault,   Is.Not.Null); Assert.That(wrapper.Fault!.DataItemId,   Is.EqualTo("f1"));
+            Assert.That(wrapper.Warning, Is.Not.Null); Assert.That(wrapper.Warning!.DataItemId, Is.EqualTo("w1"));
+            Assert.That(wrapper.Normal,      Is.Null);
+            Assert.That(wrapper.Unavailable, Is.Null);
+
+            // Precedence: Fault > Warning > Normal > Unavailable.
+            Assert.That(wrapper.Level, Is.EqualTo("Fault"));
+            Assert.That(wrapper.Value, Is.SameAs(wrapper.Fault));
+            Assert.That(wrapper.ToObservation()!.DataItemId, Is.EqualTo("f1"));
+        }
+
+        // ------------------------------------------------------------------
+        // Minimal fake IObservationOutput for the observation-taking ctor
+        // coverage — real ObservationOutput requires a full ConditionObservation
+        // wire-through; this fake exposes only the two fields the ctor reads
+        // (DataItemId + the Level value bag entry).
+        // ------------------------------------------------------------------
+
+        private sealed class FakeConditionOutput : IObservationOutput
+        {
+            public static FakeConditionOutput Create(string dataItemId, ConditionLevel level) =>
+                new FakeConditionOutput { DataItemId = dataItemId, Level = level };
+
+            public ConditionLevel Level { get; init; }
+
+            public string DataItemId    { get; init; } = string.Empty;
+            public string DeviceUuid    => string.Empty;
+            public IDataItem DataItem   => null!;
+            public DataItemCategory Category => DataItemCategory.CONDITION;
+            public string Type          => string.Empty;
+            public string SubType       => string.Empty;
+            public string Name          => string.Empty;
+            public ulong InstanceId     => 0;
+            public ulong Sequence       => 0;
+            public DateTime Timestamp   => DateTime.UnixEpoch;
+            public DateTimeOffset TimeZoneTimestamp => DateTimeOffset.UnixEpoch;
+            public string CompositionId => string.Empty;
+            public DataItemRepresentation Representation => DataItemRepresentation.VALUE;
+            public Quality Quality      => Quality.VALID;
+            public bool Deprecated      => false;
+            public bool Extended        => false;
+            public ObservationValue[] Values => Array.Empty<ObservationValue>();
+
+            public string GetValue(string valueKey) =>
+                valueKey == ValueKeys.Level ? Level.ToString() : null!;
         }
     }
 }
