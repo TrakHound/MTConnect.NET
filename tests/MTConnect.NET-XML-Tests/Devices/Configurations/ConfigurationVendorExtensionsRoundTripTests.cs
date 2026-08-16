@@ -266,5 +266,52 @@ namespace MTConnect.Tests.XML.Devices.Configurations
             Assert.That(configuration.VendorExtensions, Is.Null);
             Assert.That(configuration.Motion, Is.Not.Null);
         }
+
+        // ---------------- negative: null-element handling ----------------
+
+        /// <summary>Null entries in the caller-supplied collection are skipped
+        /// on the write path so a malformed operator list does not emit a
+        /// stray empty element inside the <c>Configuration</c> envelope.</summary>
+        [Test]
+        public void Write_skips_null_entries_in_VendorExtensions_collection()
+        {
+            var configuration = new Configuration
+            {
+                VendorExtensions = new XElement[]
+                {
+                    XElement.Parse("<a:First xmlns:a=\"urn:a\">one</a:First>"),
+                    null!,
+                    XElement.Parse("<b:Second xmlns:b=\"urn:b\">two</b:Second>")
+                }
+            };
+
+            var xml = XmlRoundTripHelper.Write(w =>
+                XmlConfiguration.WriteXml(w, configuration, outputComments: false));
+
+            Assert.That(xml, Does.Contain("<a:First xmlns:a=\"urn:a\">one</a:First>"));
+            Assert.That(xml, Does.Contain("<b:Second xmlns:b=\"urn:b\">two</b:Second>"));
+            // Should be exactly two extension elements — the null slot is
+            // skipped, not serialised as an empty tag.
+            Assert.That(xml.Split("</a:First>").Length - 1, Is.EqualTo(1));
+            Assert.That(xml.Split("</b:Second>").Length - 1, Is.EqualTo(1));
+        }
+
+        /// <summary>A VendorExtensions collection that contains ONLY null
+        /// entries emits no extension elements at all.</summary>
+        [Test]
+        public void Write_emits_no_extension_when_VendorExtensions_is_all_nulls()
+        {
+            var configuration = new Configuration
+            {
+                VendorExtensions = new XElement[] { null!, null! }
+            };
+
+            var xml = XmlRoundTripHelper.Write(w =>
+                XmlConfiguration.WriteXml(w, configuration, outputComments: false));
+
+            Assert.That(
+                xml,
+                Is.EqualTo("<Configuration />").Or.EqualTo("<Configuration></Configuration>"));
+        }
     }
 }
