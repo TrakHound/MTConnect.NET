@@ -645,18 +645,16 @@ namespace MTConnect.SysML.CSharp
                     case "Assets.CuttingTools.ToolingMeasurement":
                         // ToolingMeasurement extends `Measurement` (the
                         // CuttingTools abstract Measurement base, NOT
-                        // Assets.Pallet.Measurement). The CuttingTools
-                        // Measurement.g.cs is hand-maintained / frozen —
-                        // not produced by any current renderer flow — so
-                        // it never enters the export-side ClassModel
-                        // graph the inheritance walk traverses, and a
-                        // Name-only lookup of "Measurement" resolves to
-                        // Pallet.Measurement (which lacks Code). Class
-                        // side only — IMeasurement.g.cs has `Code`
-                        // commented out, so the interface child does NOT
-                        // hide anything and emitting `new` there would
-                        // produce CS0109 instead.
-                        classOnlyNames.Add("Code");
+                        // Assets.Pallet.Measurement). The SysML v2.7 XMI
+                        // relocates `Code` onto ToolingMeasurement — the
+                        // parent Measurement (both class and interface)
+                        // no longer declares Code, so ToolingMeasurement's
+                        // `Code` is a fresh introduction that hides
+                        // nothing. Emitting `new` here would raise CS0109
+                        // on both the class and the interface. No hand-
+                        // stitched inheritance seed is needed for this
+                        // template — leave the case block as a marker so
+                        // the intentional emptiness is documented.
                         break;
                 }
 
