@@ -54,6 +54,12 @@ namespace MTConnect.Configurations
         [YamlIgnore]
         public string Path { get; set; }
 
+        /// <summary>
+        /// The value emitted as the <c>Header/@sender</c> attribute on MTConnect response documents (see MTConnect Part 1 §7). When null or empty, <see cref="MTConnect.Agents.MTConnectAgent"/> falls back to <see cref="System.Net.Dns.GetHostName"/>.
+        /// </summary>
+        [JsonPropertyName("sender")]
+        public string Sender { get; set; }
+
 
         /// <summary>
         /// The maximum number of Observations the agent can hold in its buffer
