@@ -3,7 +3,9 @@
 
 using MTConnect.Devices.Configurations;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
@@ -15,6 +17,18 @@ namespace MTConnect.Devices.Xml
     /// and converts to and from the strongly-typed <see cref="Configuration"/>
     /// model.
     /// </summary>
+    /// <remarks>
+    /// Any child element that is neither a standard configuration child nor a
+    /// namespaced vendor extension declared on this surrogate is captured
+    /// into <see cref="VendorExtensions"/> as a raw <see cref="XmlElement"/>
+    /// via <see cref="XmlAnyElementAttribute"/>, then projected onto
+    /// <see cref="IConfiguration.VendorExtensions"/> as an
+    /// <see cref="XElement"/>. This mirrors the MTConnect XSD's
+    /// <c>ComponentConfigurationType</c> which permits any element that
+    /// substitutes for the abstract <c>AbstractConfiguration</c> element —
+    /// i.e. any element a vendor XSD has declared with
+    /// <c>substitutionGroup='AbstractConfiguration'</c>.
+    /// </remarks>
     [XmlRoot("Configuration")]
     public class XmlConfiguration
     {
@@ -60,6 +74,16 @@ namespace MTConnect.Devices.Xml
         [XmlArrayItem("Specification", typeof(XmlSpecification))]
         [XmlArrayItem("ProcessSpecification", typeof(XmlProcessSpecification))]
         public List<XmlAbstractSpecification> Specifications { get; set; }
+
+        /// <summary>
+        /// Vendor-extension child elements captured verbatim from the
+        /// <c>&lt;Configuration&gt;</c> element by <see cref="XmlAnyElementAttribute"/>
+        /// — every child not bound to a strongly-typed slot above lands here.
+        /// See <see cref="IConfiguration.VendorExtensions"/> for the standard
+        /// citation.
+        /// </summary>
+        [XmlAnyElement]
+        public XmlElement[] VendorExtensions { get; set; }
 
 
         /// <summary>
@@ -120,6 +144,27 @@ namespace MTConnect.Devices.Xml
                     specifications.Add(specification.ToSpecification());
                 }
                 configuration.Specifications = specifications;
+            }
+
+            // Vendor Extensions — every unrecognised child element captured by
+            // [XmlAnyElement] projects to an XElement on the model. Elements are
+            // preserved verbatim so downstream consumers see the exact
+            // vendor-namespaced XML the operator authored.
+            if (VendorExtensions != null && VendorExtensions.Length > 0)
+            {
+                var extensions = new List<XElement>(VendorExtensions.Length);
+                foreach (var element in VendorExtensions)
+                {
+                    if (element != null)
+                    {
+                        extensions.Add(XElement.Parse(element.OuterXml, LoadOptions.PreserveWhitespace));
+                    }
+                }
+
+                if (extensions.Count > 0)
+                {
+                    configuration.VendorExtensions = extensions;
+                }
             }
 
             return configuration;
@@ -194,6 +239,20 @@ namespace MTConnect.Devices.Xml
                         XmlSpecification.WriteXml(writer, specification);
                     }
                     writer.WriteEndElement();
+                }
+
+                // Write Vendor Extensions — each XElement is a fully-formed,
+                // vendor-namespaced element that a vendor XSD declares as a
+                // substitution of the standard AbstractConfiguration abstract
+                // element. Serialise verbatim via WriteRaw so namespace
+                // declarations and mixed content are preserved as authored.
+                if (configuration.VendorExtensions != null)
+                {
+                    foreach (var extension in configuration.VendorExtensions)
+                    {
+                        if (extension == null) continue;
+                        writer.WriteRaw(extension.ToString(SaveOptions.DisableFormatting));
+                    }
                 }
 
                 writer.WriteEndElement();
