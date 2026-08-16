@@ -132,8 +132,9 @@ namespace MTConnect.Tests.Common.Agents
         [Test]
         public void Sender_null_configuration_falls_back_to_Dns_GetHostName()
         {
+            IAgentConfiguration? configuration = null;
             var agent = new MTConnectAgent(
-                (IAgentConfiguration)null,
+                configuration!,
                 uuid: "sender-null-config-fixture-uuid",
                 initializeAgentDevice: false);
 
