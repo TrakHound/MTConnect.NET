@@ -59,5 +59,85 @@ namespace MTConnect.Tests.Common.Agents
 
             Assert.That(agent.Sender, Is.EqualTo(Dns.GetHostName()));
         }
+
+        /// <summary>
+        /// When <c>AgentConfiguration.Sender</c> is explicitly the empty
+        /// string, the agent still falls back to <see cref="Dns.GetHostName"/>
+        /// because the guard on the wire-through branch is
+        /// <see cref="string.IsNullOrEmpty(string)"/>, which treats null and
+        /// the empty string identically.
+        /// </summary>
+        [Test]
+        public void Sender_empty_string_in_config_falls_back_to_Dns_GetHostName()
+        {
+            var configuration = new AgentConfiguration { Sender = string.Empty };
+
+            var agent = new MTConnectAgent(
+                configuration,
+                uuid: "sender-empty-fixture-uuid",
+                initializeAgentDevice: false);
+
+            Assert.That(agent.Sender, Is.EqualTo(Dns.GetHostName()));
+        }
+
+        /// <summary>
+        /// A whitespace-only <see cref="AgentConfiguration.Sender"/> is
+        /// wire-through verbatim — the constructor guard is
+        /// <see cref="string.IsNullOrEmpty(string)"/>, NOT
+        /// <c>IsNullOrWhiteSpace</c>, so a whitespace value overrides the
+        /// hostname fallback. This test pins the exact null-vs-empty-vs-
+        /// whitespace boundary the setter contract carries.
+        /// </summary>
+        [Test]
+        public void Sender_whitespace_only_in_config_is_carried_through_verbatim()
+        {
+            const string PinnedWhitespace = "   ";
+            var configuration = new AgentConfiguration { Sender = PinnedWhitespace };
+
+            var agent = new MTConnectAgent(
+                configuration,
+                uuid: "sender-whitespace-fixture-uuid",
+                initializeAgentDevice: false);
+
+            Assert.That(agent.Sender, Is.EqualTo(PinnedWhitespace));
+        }
+
+        /// <summary>
+        /// The <see cref="IAgentConfiguration.Sender"/> interface surface
+        /// reflects the value set on the concrete
+        /// <see cref="AgentConfiguration"/> — the class's writable setter is
+        /// the only way to author the value, and the interface's getter
+        /// projects it. Pins the polymorphic access path that operator
+        /// integrators reach through the interface abstraction.
+        /// </summary>
+        [Test]
+        public void IAgentConfiguration_Sender_getter_reflects_concrete_setter()
+        {
+            const string PinnedSender = "interface-getter-fixture";
+            IAgentConfiguration configuration = new AgentConfiguration
+            {
+                Sender = PinnedSender
+            };
+
+            Assert.That(configuration.Sender, Is.EqualTo(PinnedSender));
+        }
+
+        /// <summary>
+        /// Constructing the agent with a null <see cref="AgentConfiguration"/>
+        /// argument falls through the constructor's default-config branch
+        /// and therefore falls back to <see cref="Dns.GetHostName"/> without
+        /// throwing — the null-config path is the historically-supported
+        /// zero-config bootstrap.
+        /// </summary>
+        [Test]
+        public void Sender_null_configuration_falls_back_to_Dns_GetHostName()
+        {
+            var agent = new MTConnectAgent(
+                (IAgentConfiguration)null,
+                uuid: "sender-null-config-fixture-uuid",
+                initializeAgentDevice: false);
+
+            Assert.That(agent.Sender, Is.EqualTo(Dns.GetHostName()));
+        }
     }
 }
