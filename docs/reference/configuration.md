@@ -90,6 +90,7 @@ Configuration for an MTConnect Agent
 | `ignoreTimestamps` | `IgnoreTimestamps` | `bool` | Overwrite timestamps with the agent time. This will correct clock drift but will not give as accurate relative time since it will not take into consideration network latencies. This can be overridden on a per adapter basis. |
 | `inputValidationLevel` | `InputValidationLevel` | `InputValidationLevel` | Gets or Sets the default Input (Observation or Asset) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict |
 | `observationBufferSize` | `ObservationBufferSize` | `uint` | The maximum number of Observations the agent can hold in its buffer |
+| `sender` | `Sender` | `string` | The value emitted as the <c>Header/@sender</c> attribute on MTConnect response documents (see MTConnect Part 1 §7). When null or empty, <see cref="MTConnect.Agents.MTConnectAgent"/> falls back to <see cref="System.Net.Dns.GetHostName"/>. |
 | `timezoneOutput` | `TimeZoneOutput` | `string` | Sets the TimeZone to use when timestamps are output from the Agent |
 
 ### `DataSourceConfiguration`
@@ -202,6 +203,7 @@ Configuration for an MTConnect Agent
 | `inputValidationLevel` | `InputValidationLevel` | `InputValidationLevel` | Gets the default Input (Observation or Asset) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict |
 | `observationBufferSize` | `ObservationBufferSize` | `uint` | The maximum number of Observations the agent can hold in its buffer |
 | `path` | `Path` | `string` | The file system path the configuration was loaded from, used as the default target when the configuration is saved back to disk. |
+| `sender` | `Sender` | `string` | The value emitted as the <c>Header/@sender</c> attribute on MTConnect response documents (see MTConnect Part 1 §7). When null or empty, <see cref="MTConnect.Agents.MTConnectAgent"/> falls back to <see cref="System.Net.Dns.GetHostName"/>. |
 | `timeZoneOutput` | `TimeZoneOutput` | `string` | Sets the TimeZone to use when timestamps are output from the Agent |
 
 ### `IDataSourceConfiguration`
