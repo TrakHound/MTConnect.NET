@@ -8,6 +8,8 @@ Every environment-variable reference discovered in the source tree. Both the C# 
 
 | Variable | Kinds | Default(s) |
 | --- | --- | --- |
+| `CI` | csharp-read |  |
+| `GITHUB_BASE_REF` | csharp-read |  |
 | `MTCONNECT_DOTNET_E2E_DIND` | powershell-read, shell-read | `0` |
 | `MTCONNECT_DOTNET_IMAGE` | powershell-read, shell-read | `${IMAGE_DEFAULT}` |
 | `MTCONNECT_DOTNET_SDK_TAG` | powershell-read, shell-read | `8.0` |
@@ -19,6 +21,18 @@ Every environment-variable reference discovered in the source tree. Both the C# 
 | `MTCONNECT_PARITY_FIXTURE_DIR` | csharp-read |  |
 
 ## Per-variable detail
+
+### `CI`
+
+| Kind | Source | Default / value | Context |
+| --- | --- | --- | --- |
+| `csharp-read` | [`tests/MTConnect.NET-SysML-Import-Tests/GeneratedCodeComplianceTests.cs:175`](https://github.com/TrakHound/MTConnect.NET/blob/master/tests/MTConnect.NET-SysML-Import-Tests/GeneratedCodeComplianceTests.cs#L175) |  | = System.Environment.GetEnvironmentVariable("CI") |
+
+### `GITHUB_BASE_REF`
+
+| Kind | Source | Default / value | Context |
+| --- | --- | --- | --- |
+| `csharp-read` | [`tests/MTConnect.NET-SysML-Import-Tests/GeneratedCodeComplianceTests.cs:160`](https://github.com/TrakHound/MTConnect.NET/blob/master/tests/MTConnect.NET-SysML-Import-Tests/GeneratedCodeComplianceTests.cs#L160) |  | = System.Environment.GetEnvironmentVariable("GITHUB_BASE_REF") |
 
 ### `MTCONNECT_DOTNET_E2E_DIND`
 

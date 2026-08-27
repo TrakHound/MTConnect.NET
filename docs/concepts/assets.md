@@ -64,6 +64,10 @@ tool.CuttingToolLifeCycle = lifeCycle;
 
 The `CuttingToolArchetypeAsset` variant (`Type == "CuttingToolArchetype"`) describes the tool's design-time blueprint — the shape every instance of the part-number-X conforms to — and the `CuttingToolAsset` references its archetype via `CuttingToolArchetypeReference`. Source: SysML `CuttingToolAsset` and `CuttingToolArchetype` classes ([`mtconnect/mtconnect_sysml_model`](https://github.com/mtconnect/mtconnect_sysml_model)).
 
+::: tip v7 relocation — `Code` lives on `ToolingMeasurement`
+As of v7, the `Code` property is no longer declared on the abstract `Measurement` base — it lives directly on the concrete `ToolingMeasurement` subclass. Non-tooling measurements (`CuttingDiameterMeasurement`, `WeightMeasurement`, the rest of the `Measurements.*` family) no longer expose `Code`, matching the SysML v2.7 XMI. See the [v7 CuttingTools Measurement.Code relocation](/migration/v7-cuttingtools-measurement-code-relocation) migration note for details and the compile-error resolution path.
+:::
+
 ## Pallet
 
 A `PalletAsset` describes a pallet on a transfer system: its dimensions, its loaded vs unloaded shape, the work-piece(s) currently on it. The MTConnect Standard introduced typed measurements for pallets in v2.4, replacing the earlier free-form `Measurement` element with concrete classes:
