@@ -95,9 +95,9 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             // Defensive: the helper must not throw when the logger is
             // not wired (would defeat the purpose of catching the
             // unexpected exception).
-            Assert.DoesNotThrow(() => WorkerLoopExceptionLogger.Log(
+            Assert.DoesNotThrow((Action)(() => WorkerLoopExceptionLogger.Log(
                 exception: new InvalidOperationException("boom"),
-                onLog: null));
+                onLog: null)));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: log treats subclass of task canceled exception as cancellation.</summary>

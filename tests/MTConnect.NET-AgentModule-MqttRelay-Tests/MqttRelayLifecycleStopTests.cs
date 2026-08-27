@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using NUnit.Framework;
+using System;
 
 namespace MTConnect.AgentModule.MqttRelay.Tests
 {
@@ -32,7 +33,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             // either server is the worst case; the helper must be a
             // total function over (null, null).
             Assert.DoesNotThrow(
-                () => MqttRelayLifecycle.StopServers(documentStop: null, entityStop: null));
+                (Action)(() => MqttRelayLifecycle.StopServers(documentStop: null, entityStop: null)));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: stop servers invokes document stop when provided.</summary>
@@ -85,9 +86,9 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             // shutdown leaks live handlers.
             var entityStopped = false;
 
-            Assert.DoesNotThrow(() => MqttRelayLifecycle.StopServers(
+            Assert.DoesNotThrow((Action)(() => MqttRelayLifecycle.StopServers(
                 documentStop: () => throw new System.InvalidOperationException("doc"),
-                entityStop: () => entityStopped = true));
+                entityStop: () => entityStopped = true)));
 
             Assert.That(entityStopped, Is.True);
         }

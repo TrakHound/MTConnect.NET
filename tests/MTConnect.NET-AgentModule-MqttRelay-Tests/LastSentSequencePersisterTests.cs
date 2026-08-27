@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using NUnit.Framework;
+using System;
 
 namespace MTConnect.AgentModule.MqttRelay.Tests
 {
@@ -90,7 +91,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             persister.Update(123UL);
 
             Assert.Throws<System.IO.IOException>(
-                () => persister.TryFlush(_ => throw new System.IO.IOException("disk full")));
+                (Action)(() => persister.TryFlush(_ => throw new System.IO.IOException("disk full"))));
 
             Assert.That(persister.IsDirty, Is.True,
                 "A failed write must leave the persister dirty so the next flush retries.");
@@ -135,7 +136,7 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             // A null writer means the caller has not wired persistence
             // (e.g. DurableRelay disabled at runtime); the persister
             // must not throw.
-            Assert.DoesNotThrow(() => persister.TryFlush(null));
+            Assert.DoesNotThrow((Action)(() => persister.TryFlush(null)));
             // Dirty bit unchanged because no write happened.
             Assert.That(persister.IsDirty, Is.True);
         }

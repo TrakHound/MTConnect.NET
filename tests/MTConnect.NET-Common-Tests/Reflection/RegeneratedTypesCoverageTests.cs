@@ -219,7 +219,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
             // V2_6_V2_7/.
             object? instance = null;
             Assert.DoesNotThrow(
-                () => instance = Activator.CreateInstance(type),
+                (Action)(() => instance = Activator.CreateInstance(type)),
                 $"{type.FullName} parameterless ctor threw");
             Assert.That(instance, Is.Not.Null,
                 $"{type.FullName} parameterless ctor returned null");
@@ -255,12 +255,12 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 object? sentinel = GetDefaultValue(property.PropertyType);
 
                 Assert.DoesNotThrow(
-                    () => property.SetValue(instance, sentinel),
+                    (Action)(() => property.SetValue(instance, sentinel)),
                     $"{key} setter threw for default({property.PropertyType.Name})");
 
                 object? readBack = null;
                 Assert.DoesNotThrow(
-                    () => readBack = property.GetValue(instance),
+                    (Action)(() => readBack = property.GetValue(instance)),
                     $"{key} getter threw after setting default({property.PropertyType.Name})");
 
                 // Read-back equality is only asserted on auto-properties.

@@ -65,7 +65,7 @@ namespace MTConnect.Tests.Common
             var device = new Device { Name = "device-1", Uuid = "uuid-1" };
             EventHandler<IDevice> handler = (_, _) => throw new InvalidOperationException("DeviceAdded fault");
 
-            Assert.DoesNotThrow(() => handler.Raise(this, (IDevice)device, null));
+            Assert.DoesNotThrow((Action)(() => handler.Raise(this, (IDevice)device, null)));
         }
 
         // -----------------------------------------------------------------------
@@ -96,7 +96,7 @@ namespace MTConnect.Tests.Common
             var obs = new ObservationInput();
             EventHandler<IObservationInput> handler = (_, _) => throw new InvalidOperationException("ObservationReceived fault");
 
-            Assert.DoesNotThrow(() => handler.Raise(this, (IObservationInput)obs, null));
+            Assert.DoesNotThrow((Action)(() => handler.Raise(this, (IObservationInput)obs, null)));
         }
 
         // -----------------------------------------------------------------------
@@ -127,7 +127,7 @@ namespace MTConnect.Tests.Common
             var obs = new Observation();
             EventHandler<IObservation> handler = (_, _) => throw new InvalidOperationException("ObservationAdded fault");
 
-            Assert.DoesNotThrow(() => handler.Raise(this, (IObservation)obs, null));
+            Assert.DoesNotThrow((Action)(() => handler.Raise(this, (IObservation)obs, null)));
         }
 
         // -----------------------------------------------------------------------
@@ -158,7 +158,7 @@ namespace MTConnect.Tests.Common
             var asset = new Asset { AssetId = "a1", Timestamp = DateTime.UtcNow };
             EventHandler<IAsset> handler = (_, _) => throw new InvalidOperationException("AssetAdded fault");
 
-            Assert.DoesNotThrow(() => handler.Raise(this, (IAsset)asset, null));
+            Assert.DoesNotThrow((Action)(() => handler.Raise(this, (IAsset)asset, null)));
         }
 
         // -----------------------------------------------------------------------
@@ -187,7 +187,7 @@ namespace MTConnect.Tests.Common
         {
             EventHandler handler = (_, _) => throw new InvalidOperationException("StreamsResponseSent fault");
 
-            Assert.DoesNotThrow(() => handler.Raise(this, EventArgs.Empty, null));
+            Assert.DoesNotThrow((Action)(() => handler.Raise(this, EventArgs.Empty, null)));
         }
 
         // -----------------------------------------------------------------------
@@ -201,7 +201,7 @@ namespace MTConnect.Tests.Common
             EventHandler<IDevice>? handler = null;
             var device = new Device { Name = "noop-device", Uuid = "noop-uuid" };
 
-            Assert.DoesNotThrow(() => handler.Raise(this, (IDevice)device, null));
+            Assert.DoesNotThrow((Action)(() => handler.Raise(this, (IDevice)device, null)));
         }
 
         /// <summary>Pins the behavior expressed by the test name: Raise with a null non-generic EventHandler is a safe no-op covering the no-subscriber case at runtime.</summary>
@@ -210,7 +210,7 @@ namespace MTConnect.Tests.Common
         {
             EventHandler? handler = null;
 
-            Assert.DoesNotThrow(() => handler.Raise(this, EventArgs.Empty, null));
+            Assert.DoesNotThrow((Action)(() => handler.Raise(this, EventArgs.Empty, null)));
         }
 
         // =======================================================================
@@ -246,7 +246,7 @@ namespace MTConnect.Tests.Common
             var result = new ValidationResult(false, "bad device");
             MTConnectDeviceValidationHandler handler = (_, _) => throw new InvalidOperationException("InvalidDeviceAdded fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h(device, result)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h(device, result))));
         }
 
         // -----------------------------------------------------------------------
@@ -278,7 +278,7 @@ namespace MTConnect.Tests.Common
             var result = new ValidationResult(false, "bad component");
             MTConnectComponentValidationHandler handler = (_, _, _) => throw new InvalidOperationException("InvalidComponentAdded fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h("uuid-1", component, result)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h("uuid-1", component, result))));
         }
 
         // -----------------------------------------------------------------------
@@ -310,7 +310,7 @@ namespace MTConnect.Tests.Common
             var result = new ValidationResult(false, "bad composition");
             MTConnectCompositionValidationHandler handler = (_, _, _) => throw new InvalidOperationException("InvalidCompositionAdded fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h("uuid-1", composition, result)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h("uuid-1", composition, result))));
         }
 
         // -----------------------------------------------------------------------
@@ -342,7 +342,7 @@ namespace MTConnect.Tests.Common
             var result = new ValidationResult(false, "bad data item");
             MTConnectDataItemValidationHandler handler = (_, _, _) => throw new InvalidOperationException("InvalidDataItemAdded fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h("uuid-1", dataItem, result)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h("uuid-1", dataItem, result))));
         }
 
         // -----------------------------------------------------------------------
@@ -372,7 +372,7 @@ namespace MTConnect.Tests.Common
             var result = new ValidationResult(false, "bad observation");
             MTConnectObservationValidationHandler handler = (_, _, _) => throw new InvalidOperationException("InvalidObservationAdded fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h("uuid-1", "key-1", result)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h("uuid-1", "key-1", result))));
         }
 
         // -----------------------------------------------------------------------
@@ -404,7 +404,7 @@ namespace MTConnect.Tests.Common
             var result = new ValidationResult(false, "bad asset");
             MTConnectAssetValidationHandler handler = (_, _) => throw new InvalidOperationException("InvalidAssetAdded fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h(asset, result)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h(asset, result))));
         }
 
         // =======================================================================
@@ -435,7 +435,7 @@ namespace MTConnect.Tests.Common
         {
             MTConnectDevicesRequestedHandler handler = _ => throw new InvalidOperationException("DevicesRequestReceived fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h("uuid-1")));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h("uuid-1"))));
         }
 
         // -----------------------------------------------------------------------
@@ -462,7 +462,7 @@ namespace MTConnect.Tests.Common
         {
             MTConnectDevicesHandler handler = _ => throw new InvalidOperationException("DevicesResponseSent fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h(null!)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h(null!))));
         }
 
         // -----------------------------------------------------------------------
@@ -489,7 +489,7 @@ namespace MTConnect.Tests.Common
         {
             MTConnectStreamsRequestedHandler handler = _ => throw new InvalidOperationException("StreamsRequestReceived fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h("uuid-1")));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h("uuid-1"))));
         }
 
         // -----------------------------------------------------------------------
@@ -518,7 +518,7 @@ namespace MTConnect.Tests.Common
             var ids = new[] { "asset-1" };
             MTConnectAssetsRequestedHandler handler = _ => throw new InvalidOperationException("AssetsRequestReceived fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h(ids)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h(ids))));
         }
 
         // -----------------------------------------------------------------------
@@ -545,7 +545,7 @@ namespace MTConnect.Tests.Common
         {
             MTConnectDeviceAssetsRequestedHandler handler = _ => throw new InvalidOperationException("DeviceAssetsRequestReceived fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h("uuid-1")));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h("uuid-1"))));
         }
 
         // -----------------------------------------------------------------------
@@ -572,7 +572,7 @@ namespace MTConnect.Tests.Common
         {
             MTConnectAssetsHandler handler = _ => throw new InvalidOperationException("AssetsResponseSent fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h(null!)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h(null!))));
         }
 
         // -----------------------------------------------------------------------
@@ -599,7 +599,7 @@ namespace MTConnect.Tests.Common
         {
             MTConnectErrorHandler handler = _ => throw new InvalidOperationException("ErrorResponseSent fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h((IErrorResponseDocument)null!)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h((IErrorResponseDocument)null!))));
         }
     }
 }

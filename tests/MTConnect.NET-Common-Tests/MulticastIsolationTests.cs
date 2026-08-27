@@ -75,7 +75,7 @@ namespace MTConnect.Tests.Common
             internalError += (s, ex) => throw new InvalidOperationException("internal-1");
             internalError += (s, ex) => throw new InvalidOperationException("internal-2");
 
-            Assert.DoesNotThrow(() => handler.Raise(this, 0, internalError!));
+            Assert.DoesNotThrow((Action)(() => handler.Raise(this, 0, internalError!)));
         }
 
         // --- Non-generic overload ---------------------------------------------
@@ -138,7 +138,7 @@ namespace MTConnect.Tests.Common
             internalError += (s, ex) => throw new InvalidOperationException("internal-1");
             internalError += (s, ex) => throw new InvalidOperationException("internal-2");
 
-            Assert.DoesNotThrow(() => handler.Raise(this, EventArgs.Empty, internalError!));
+            Assert.DoesNotThrow((Action)(() => handler.Raise(this, EventArgs.Empty, internalError!)));
         }
 
         // --- Generic custom-delegate overload ---------------------------------
@@ -204,7 +204,7 @@ namespace MTConnect.Tests.Common
             internalError += (_, _) => throw new InvalidOperationException("internal-1");
             internalError += (_, _) => throw new InvalidOperationException("internal-2");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h(0), internalError!));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h(0), internalError!)));
         }
 
         /// <summary>Pins the behavior expressed by the test name: the generic-delegate overload accepts a null handler as a safe no-op covering the no-subscriber case.</summary>
@@ -213,7 +213,7 @@ namespace MTConnect.Tests.Common
         {
             CustomDelegate? handler = null;
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler!, h => h(0)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler!, h => h(0))));
         }
 
         /// <summary>Pins the behavior expressed by the test name: the generic-delegate overload swallows subscriber faults at the per-delegate boundary when internalError is left at its default null.</summary>
@@ -222,7 +222,7 @@ namespace MTConnect.Tests.Common
         {
             CustomDelegate handler = _ => throw new InvalidOperationException("boom");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h(0)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h(0))));
         }
     }
 }

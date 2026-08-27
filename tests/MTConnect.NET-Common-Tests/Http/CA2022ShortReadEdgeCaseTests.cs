@@ -122,7 +122,7 @@ namespace MTConnect.NET_Common_Tests.Http
             cts.Cancel();
 
             Assert.That(
-                async () => await Invoke(scripted, cts.Token),
+                (Func<Task>)(async () => await Invoke(scripted, cts.Token)),
                 Throws.InstanceOf<OperationCanceledException>(),
                 "A pre-cancelled token must surface as OperationCanceledException. "
                 + "Pre-fix, the accumulator ignored the token (signature took only Stream) "
@@ -146,7 +146,7 @@ namespace MTConnect.NET_Common_Tests.Http
             using var cts = new CancellationTokenSource();
 
             Assert.That(
-                async () =>
+                (Func<Task>)(async () =>
                 {
                     var invocation = Invoke(slow, cts.Token);
                     // Give the reader time to start awaiting the first drip,
@@ -154,7 +154,7 @@ namespace MTConnect.NET_Common_Tests.Http
                     // Task.Delay(cancellationToken) throws immediately.
                     cts.CancelAfter(TimeSpan.FromMilliseconds(50));
                     await invocation.WaitAsync(TimeSpan.FromMilliseconds(200));
-                },
+                }),
                 Throws.InstanceOf<OperationCanceledException>(),
                 "A token cancelled mid-drip must surface as OperationCanceledException within "
                 + "the next ReadAsync cycle. Pre-fix, the accumulator ignored the token and "

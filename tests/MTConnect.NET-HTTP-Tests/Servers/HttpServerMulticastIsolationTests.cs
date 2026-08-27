@@ -57,7 +57,7 @@ namespace MTConnect.Tests.Http.Servers
             var response = new MTConnectHttpResponse { ContentType = "application/xml" };
             EventHandler<MTConnectHttpResponse> handler = (_, _) => throw new InvalidOperationException("ResponseSent fault");
 
-            Assert.DoesNotThrow(() => handler.Raise(this, response, null));
+            Assert.DoesNotThrow((Action)(() => handler.Raise(this, response, null)));
         }
 
         // -----------------------------------------------------------------------
@@ -147,7 +147,7 @@ namespace MTConnect.Tests.Http.Servers
         {
             EventHandler<string> handler = (_, _) => throw new InvalidOperationException("StreamStopped fault");
 
-            Assert.DoesNotThrow(() => handler.Raise(this, "stream-id-1", null));
+            Assert.DoesNotThrow((Action)(() => handler.Raise(this, "stream-id-1", null)));
         }
 
         // -----------------------------------------------------------------------
@@ -199,7 +199,7 @@ namespace MTConnect.Tests.Http.Servers
             var args = new MTConnectHttpStreamArgs("stream-id-2", System.IO.Stream.Null, 42.5);
             EventHandler<MTConnectHttpStreamArgs> handler = (_, _) => throw new InvalidOperationException("HeartbeatReceived fault");
 
-            Assert.DoesNotThrow(() => handler.Raise(this, args, null));
+            Assert.DoesNotThrow((Action)(() => handler.Raise(this, args, null)));
         }
 
         // -----------------------------------------------------------------------
@@ -212,7 +212,7 @@ namespace MTConnect.Tests.Http.Servers
         {
             EventHandler<string>? handler = null;
 
-            Assert.DoesNotThrow(() => handler.Raise(this, "x", null));
+            Assert.DoesNotThrow((Action)(() => handler.Raise(this, "x", null)));
         }
     }
 }

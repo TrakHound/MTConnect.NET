@@ -80,7 +80,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
         {
             object? instance = null;
             Assert.DoesNotThrow(
-                () => instance = Activator.CreateInstance(type),
+                (Action)(() => instance = Activator.CreateInstance(type)),
                 $"{type.FullName} parameterless ctor threw");
             Assert.That(instance, Is.Not.Null,
                 $"{type.FullName} parameterless ctor returned null");
@@ -111,7 +111,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
 
                 var sentinel = $"sentinel-{property.Name}";
                 Assert.DoesNotThrow(
-                    () => property.SetValue(instance, sentinel),
+                    (Action)(() => property.SetValue(instance, sentinel)),
                     $"{type.FullName}.{property.Name} setter threw");
                 var readBack = property.GetValue(instance) as string;
                 Assert.That(readBack, Is.EqualTo(sentinel),
