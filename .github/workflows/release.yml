@@ -1,0 +1,483 @@
+name: release
+
+# ------------------------------------------------------------------
+# Automated dev pre-release pipeline. Fires on every push to `master`
+# (which the maintainers gate through PR merges + the `pre-merge`
+# workflow), computes a `<version>-dev.<N>` semver from the commit
+# range since the last stable tag, packs every library into .nupkgs,
+# builds a multi-arch Docker image, produces SBOMs + a Trivy vuln
+# scan, and finally publishes:
+#
+#   - .nupkgs to nuget.org via `dotnet nuget push` (classic API key);
+#   - the Docker image to Docker Hub;
+#   - a GitHub pre-release with SBOMs + .nupkgs attached.
+#
+# Stable releases still cut through the manual MTConnect.NET.Builder
+# flow. Docker image signing (cosign) and .nupkg signing (SignPath)
+# are out of scope for phase 1 — no placeholders here so a future PR
+# can wire them without inheriting a broken shape.
+# ------------------------------------------------------------------
+
+on:
+  push:
+    branches:
+      - master
+
+# Every job needs `contents: read` to check out; `publish-nuget`
+# additionally needs `packages: write` for nuget.org (the token is a
+# classic API key, so this is a defense-in-depth belt-and-braces).
+# `create-gh-release` needs `contents: write` to cut the release.
+# Nothing else is granted.
+permissions:
+  contents: read
+
+concurrency:
+  # Only one release run at a time on `master`. A rapid succession of
+  # merges collapses into the latest push; older runs are canceled so
+  # they cannot race the newer one to nuget.org.
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ----------------------------------------------------------------
+  # Compute the `<version>-dev.<N>` version. Every downstream job
+  # consumes `needs.compute-version.outputs.version`.
+  # ----------------------------------------------------------------
+  compute-version:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.compute.outputs.version }}
+    steps:
+      - name: Checkout (full history for tag lookup)
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+        with:
+          # Full clone: `tools/ci/semver-bump.ts` walks back to the
+          # most recent stable tag to determine the base version.
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b  # v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: tools/package-lock.json
+
+      - name: Install tools deps
+        working-directory: tools
+        run: npm ci
+
+      - name: Compute next dev version
+        id: compute
+        working-directory: tools
+        run: npx tsx ci/semver-bump.ts --github-output
+
+  # ----------------------------------------------------------------
+  # Pack every library into .nupkgs and upload as an artifact.
+  # ----------------------------------------------------------------
+  pack:
+    if: github.ref == 'refs/heads/master'
+    needs: compute-version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+
+      - name: Setup .NET 8.0 + 9.0
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9  # v4.3.1
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b  # v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: tools/package-lock.json
+
+      - name: Install tools deps
+        working-directory: tools
+        run: npm ci
+
+      - name: Pack
+        env:
+          VERSION: ${{ needs.compute-version.outputs.version }}
+        run: npx tsx tools/release/pack.ts --version "$VERSION"
+
+      - name: Upload .nupkg artefacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: nupkg
+          path: build/output/nupkg/**
+          if-no-files-found: error
+          retention-days: 30
+
+  # ----------------------------------------------------------------
+  # Build the linux/amd64 Docker image on a native amd64 runner.
+  # ----------------------------------------------------------------
+  docker-amd64:
+    if: github.ref == 'refs/heads/master'
+    needs: compute-version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b  # v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: tools/package-lock.json
+
+      - name: Install tools deps
+        working-directory: tools
+        run: npm ci
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772  # v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build linux/amd64 image
+        env:
+          VERSION: ${{ needs.compute-version.outputs.version }}
+        run: npx tsx tools/release/docker-build.ts --version "$VERSION" --platform linux/amd64
+
+      - name: Push linux/amd64 tag
+        env:
+          VERSION: ${{ needs.compute-version.outputs.version }}
+        run: npx tsx tools/release/docker-push.ts --version "$VERSION" --platform linux/amd64
+
+  # ----------------------------------------------------------------
+  # Build the linux/arm64 Docker image on a native arm64 runner. The
+  # `ubuntu-24.04-arm` runner class avoids a QEMU-emulated build
+  # (~6x wall-clock for `dotnet publish`).
+  # ----------------------------------------------------------------
+  docker-arm64:
+    if: github.ref == 'refs/heads/master'
+    needs: compute-version
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b  # v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: tools/package-lock.json
+
+      - name: Install tools deps
+        working-directory: tools
+        run: npm ci
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772  # v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build linux/arm64 image
+        env:
+          VERSION: ${{ needs.compute-version.outputs.version }}
+        run: npx tsx tools/release/docker-build.ts --version "$VERSION" --platform linux/arm64
+
+      - name: Push linux/arm64 tag
+        env:
+          VERSION: ${{ needs.compute-version.outputs.version }}
+        run: npx tsx tools/release/docker-push.ts --version "$VERSION" --platform linux/arm64
+
+  # ----------------------------------------------------------------
+  # Merge the per-arch tags into a single multi-arch tag. Runs after
+  # both per-arch push jobs so the manifest references live blobs.
+  # ----------------------------------------------------------------
+  docker-manifest:
+    if: github.ref == 'refs/heads/master'
+    needs: [compute-version, docker-amd64, docker-arm64]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b  # v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: tools/package-lock.json
+
+      - name: Install tools deps
+        working-directory: tools
+        run: npm ci
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772  # v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Merge per-arch tags into multi-arch manifest
+        env:
+          VERSION: ${{ needs.compute-version.outputs.version }}
+        run: npx tsx tools/release/docker-push.ts --version "$VERSION" --manifest
+
+  # ----------------------------------------------------------------
+  # SPDX SBOMs for both the .nupkg set and the Docker image.
+  # ----------------------------------------------------------------
+  sbom:
+    if: github.ref == 'refs/heads/master'
+    needs: [compute-version, pack, docker-manifest]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+
+      - name: Setup .NET 8.0 + 9.0
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9  # v4.3.1
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b  # v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: tools/package-lock.json
+
+      - name: Install tools deps
+        working-directory: tools
+        run: npm ci
+
+      - name: Install sbom-tool
+        # Pin to a verified upstream release rather than "whatever
+        # `dotnet tool install` resolves today" so a compromised or
+        # accidentally-broken publish upstream cannot silently land on
+        # a release-cutting runner. Bump this in tandem with the
+        # `microsoft/sbom-tool` release cadence.
+        run: dotnet tool install --global Microsoft.Sbom.DotNetTool --version 4.1.5
+
+      - name: Download .nupkg artefacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
+        with:
+          name: nupkg
+          path: build/output/nupkg
+
+      - name: Generate .nupkg SBOM
+        run: npx tsx tools/release/sbom.ts --nuget
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772  # v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Pull merged Docker image
+        env:
+          VERSION: ${{ needs.compute-version.outputs.version }}
+        run: docker pull "trakhound/mtconnect-agent:$VERSION"
+
+      # `anchore/sbom-action` wraps syft, the SBOM engine `sbom.ts` also
+      # invokes for its local `--dry-run` path — same tool, same SPDX
+      # shape whether run in CI or by a developer verifying the pipeline
+      # on a workstation. Writes to `build/output/sbom/`, colocated with
+      # the .nupkg SBOM the preceding step produced.
+      - name: Generate Docker SBOM (anchore/syft)
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610  # v0.24.0
+        with:
+          image: trakhound/mtconnect-agent:${{ needs.compute-version.outputs.version }}
+          format: spdx-json
+          artifact-name: docker-image.spdx.json
+          output-file: build/output/sbom/docker-image.spdx.json
+          upload-artifact: false
+          upload-release-assets: false
+
+      - name: Upload SBOMs
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: sbom
+          path: build/output/sbom/**
+          if-no-files-found: error
+          retention-days: 30
+
+  # ----------------------------------------------------------------
+  # Trivy vulnerability scan of both the .nupkg set and the merged
+  # Docker image. Results uploaded to the Security tab as SARIF.
+  # ----------------------------------------------------------------
+  vuln-scan:
+    if: github.ref == 'refs/heads/master'
+    needs: [compute-version, pack, docker-manifest]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+
+      - name: Download .nupkg artefacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
+        with:
+          name: nupkg
+          path: build/output/nupkg
+
+      - name: Trivy filesystem scan on .nupkg outputs
+        uses: aquasecurity/trivy-action@dc5a429b52fcf669ce959baa2c2dd26090d2a6c4  # 0.32.0
+        with:
+          scan-type: fs
+          scan-ref: build/output/nupkg
+          format: sarif
+          output: trivy-nupkg.sarif
+          severity: CRITICAL,HIGH
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772  # v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Trivy image scan
+        uses: aquasecurity/trivy-action@dc5a429b52fcf669ce959baa2c2dd26090d2a6c4  # 0.32.0
+        with:
+          image-ref: trakhound/mtconnect-agent:${{ needs.compute-version.outputs.version }}
+          format: sarif
+          output: trivy-image.sarif
+          severity: CRITICAL,HIGH
+
+      - name: Upload nupkg SARIF to Security tab
+        uses: github/codeql-action/upload-sarif@60168efe1c415ce0f5521ea06d5c2062adbeed1b  # v3
+        with:
+          sarif_file: trivy-nupkg.sarif
+          category: trivy-nupkg
+
+      - name: Upload image SARIF to Security tab
+        uses: github/codeql-action/upload-sarif@60168efe1c415ce0f5521ea06d5c2062adbeed1b  # v3
+        with:
+          sarif_file: trivy-image.sarif
+          category: trivy-image
+
+  # ----------------------------------------------------------------
+  # Publish .nupkg files to nuget.org. Classic API key; no OIDC.
+  # ----------------------------------------------------------------
+  publish-nuget:
+    if: github.ref == 'refs/heads/master'
+    needs: [compute-version, pack, sbom, vuln-scan]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+
+      - name: Setup .NET 8.0 + 9.0
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9  # v4.3.1
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b  # v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: tools/package-lock.json
+
+      - name: Install tools deps
+        working-directory: tools
+        run: npm ci
+
+      - name: Download .nupkg artefacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
+        with:
+          name: nupkg
+          path: build/output/nupkg
+
+      - name: Push to nuget.org
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: npx tsx tools/release/nuget-push.ts
+
+  # ----------------------------------------------------------------
+  # `publish-docker` is intentionally absent — the docker push happens
+  # inside `docker-amd64` and `docker-arm64` (per-arch) and the merge
+  # inside `docker-manifest`. Consolidating into a single "publish"
+  # step would either force serialized builds or duplicate the
+  # per-arch build. See CI-log tail on failure for the split cause.
+  # ----------------------------------------------------------------
+
+  # ----------------------------------------------------------------
+  # Cut the GitHub pre-release with .nupkgs, SBOMs, and the docker
+  # image reference in the release notes.
+  # ----------------------------------------------------------------
+  create-gh-release:
+    if: github.ref == 'refs/heads/master'
+    # `vuln-scan` is a transitive `needs` via `publish-nuget`, but
+    # naming it directly hard-fails the release cut if a future
+    # rewire lets `publish-nuget` bypass the scan (e.g. via
+    # `if:` overrides).
+    needs: [compute-version, publish-nuget, sbom, docker-manifest, vuln-scan]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b  # v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: tools/package-lock.json
+
+      - name: Install tools deps
+        working-directory: tools
+        run: npm ci
+
+      - name: Download .nupkg artefacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
+        with:
+          name: nupkg
+          path: build/output/nupkg
+
+      - name: Download SBOM artefacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
+        with:
+          name: sbom
+          path: build/output/sbom
+
+      - name: Create GitHub pre-release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.compute-version.outputs.version }}
+          # Pin the tag to the SHA that produced the artefacts. Without
+          # `--target`, `gh release create` pins the tag to the tip of
+          # `master`, which drifts under concurrent merges.
+          TARGET_SHA: ${{ github.sha }}
+        run: npx tsx tools/release/gh-release-create.ts --version "$VERSION" --docker-image "trakhound/mtconnect-agent:$VERSION" --target "$TARGET_SHA"

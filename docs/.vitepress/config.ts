@@ -265,6 +265,15 @@ export default withMermaid(
               { text: 'Release builder', link: '/development/builder' },
             ],
           },
+          {
+            text: 'Release automation',
+            items: [
+              { text: 'Commit-message format', link: '/development/commit-format' },
+              { text: 'Release pipeline', link: '/development/release-pipeline' },
+              { text: 'tools/release/ scripts', link: '/development/tools-release' },
+              { text: 'Weekly deps update', link: '/development/deps-update' },
+            ],
+          },
         ],
         '/cookbook/': [
           {

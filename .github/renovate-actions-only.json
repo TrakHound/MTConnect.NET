@@ -1,0 +1,16 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "enabledManagers": ["github-actions", "dockerfile"],
+  "packageRules": [
+    {
+      "matchManagers": ["github-actions", "dockerfile"],
+      "minimumReleaseAge": "7 days"
+    }
+  ],
+  "prConcurrentLimit": 0,
+  "prHourlyLimit": 0,
+  "labels": ["deps"],
+  "rebaseWhen": "never",
+  "dependencyDashboard": false
+}

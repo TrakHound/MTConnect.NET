@@ -1,0 +1,37 @@
+# Lefthook — client-side git hook manager.
+#
+# Two hooks:
+#
+#   commit-msg — validate the commit message against
+#   `commitlint.config.mjs`. Runs on every `git commit` (except an
+#   amend that leaves the subject untouched); a violation blocks the
+#   commit locally so the pre-merge CI gate is the second line of
+#   defense, not the only one.
+#
+#   pre-commit — run `dotnet format whitespace` on any staged C# or
+#   csproj file. `stage_fixed: true` re-stages the formatter's
+#   in-place edits so a `git commit` after a formatter-required diff
+#   produces a clean-tree commit in a single step.
+#
+# Enable locally with `lefthook install` (a one-time per-clone step).
+# The `.github/workflows/pre-merge.yml` gate replays the commit-msg
+# check on every PR head so an un-installed clone cannot bypass it.
+
+commit-msg:
+  commands:
+    commitlint:
+      # `{1}` is the path to the commit-message file lefthook forwards
+      # from git — commitlint's `--edit` flag reads it directly.
+      run: npx commitlint --edit {1}
+
+pre-commit:
+  parallel: false
+  commands:
+    dotnet-format-whitespace:
+      # Match every staged .cs / .csproj file. `dotnet format
+      # whitespace` limits itself to whitespace-only rewrites so the
+      # diff stays reviewable; the full formatter (`dotnet format`) is
+      # deferred to CI to avoid a slow pre-commit loop.
+      glob: '*.{cs,csproj}'
+      run: dotnet format whitespace MTConnect.NET.sln --include {staged_files}
+      stage_fixed: true
