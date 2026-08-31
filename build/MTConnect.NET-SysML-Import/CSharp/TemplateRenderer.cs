@@ -175,6 +175,7 @@ namespace MTConnect.SysML.CSharp
 
                                 case "Devices.Component": ((ClassModel)template).IsPartial = true; break;
                                 case "Devices.Composition": ((ClassModel)template).IsPartial = true; break;
+                                case "Devices.Configurations.Configuration": ((ClassModel)template).IsPartial = true; break;
                                 case "Devices.DataItem": ((ClassModel)template).IsPartial = true; break;
                                 case "Devices.AbstractDataItemRelationship": ((ClassModel)template).IsPartial = true; break;
                                 case "Devices.References.Reference": ((ClassModel)template).IsPartial = true; break;
