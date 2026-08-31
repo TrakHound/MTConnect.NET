@@ -328,10 +328,17 @@ jobs:
   # ref.sh` → `docfx metadata`). The built dist tree is uploaded as a
   # workflow artifact so the sharded route-check job below can skip
   # the npm + docfx + build wall-clock (~5 min) entirely. The test
-  # fixture's [OneTimeSetUp] checks for docs/.vitepress/dist/index.html
-  # and skips the `npm ci && npm run build` bootstrap when the file is
-  # present, so a shard that downloads the artifact into the right
-  # path bypasses the bootstrap altogether.
+  # fixture's [OneTimeSetUp] contract has two modes:
+  #   - Consumer mode (ROUTE_SHARD_TOTAL > 1, i.e. the sharded matrix
+  #     leg below): checks for docs/.vitepress/dist/index.html and
+  #     skips the vitepress build bootstrap when the sentinel is
+  #     present. A shard that downloads this job's artifact into the
+  #     right path bypasses the bootstrap altogether.
+  #   - Producer mode (ROUTE_SHARD_TOTAL <= 1, i.e. local + unsharded
+  #     CI): always rebuilds by invoking `vitepress build` directly
+  #     (bypassing the `prebuild` docfx hook so the shard runners'
+  #     missing docfx is a non-issue) so a warm-cache developer run
+  #     still walks a dist tree generated from the CURRENT source.
   # ------------------------------------------------------------------
   docs-prepare:
     name: docs-prepare

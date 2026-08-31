@@ -61,7 +61,7 @@ The classic symptom of a base mismatch is a deployed page that renders as raw HT
 
 ## End-to-end route check
 
-`tests/MTConnect.NET-Docs-Tests/RouteCheckTests.cs` is a Playwright e2e fixture that builds the docs site, spawns `vitepress preview` against the built `dist/` tree, walks every route the markdown source tree implies in a headless Chromium browser, and asserts no client-side 404s. CI runs it on the `ubuntu-latest` matrix leg of `.github/workflows/dotnet.yml` (the `windows-latest` leg filters `Category=E2E` out — hosted Windows runners do not carry Linux-image Docker, and the test fixture's `npm ci && npm run build` bootstrap is the easier target to keep Linux-only).
+`tests/MTConnect.NET-Docs-Tests/RouteCheckTests.cs` is a Playwright e2e fixture that builds the docs site, spawns `vitepress preview` against the built `dist/` tree, walks every route the markdown source tree implies in a headless Chromium browser, and asserts no client-side 404s. CI runs it on the `ubuntu-latest` matrix leg of `.github/workflows/dotnet.yml` (the `windows-latest` leg filters `Category=E2E` out — hosted Windows runners do not carry Linux-image Docker, and the test fixture's `npm ci` + direct `vitepress build` bootstrap is the easier target to keep Linux-only).
 
 Run locally from the repo root:
 
@@ -69,7 +69,7 @@ Run locally from the repo root:
 dotnet test tests/MTConnect.NET-Docs-Tests --filter Category=E2E
 ```
 
-On the first run the fixture installs the chromium binary the Playwright .NET binding drives (~150 MB; cached on subsequent runs) and — if `docs/.vitepress/dist/` is missing — invokes `npm ci && npm run build` from `docs/` to produce a preview-able site. Subsequent runs reuse both, so a warm working tree completes in a couple of minutes; a cold checkout takes longer because the build artefact is rebuilt from scratch.
+On the first run the fixture installs the chromium binary the Playwright .NET binding drives (~150 MB; cached on subsequent runs) and, in producer mode (local + unsharded CI, i.e. `ROUTE_SHARD_TOTAL <= 1`), invokes `npm ci` when `docs/node_modules/` is missing and then always invokes `vitepress build` directly from `docs/` — bypassing the `package.json` `prebuild` hook (`docs/scripts/generate-api-ref.sh` → `docfx metadata`) that would otherwise clobber every touched project's `obj/project.assets.json` back to a Debug-only `net8.0` view and race any in-flight multi-TFM Release build. In consumer mode (sharded CI matrix with `ROUTE_SHARD_TOTAL > 1`), the shard downloads a `dist/` tree from the `docs-prepare` workflow artifact and honors the `docs/.vitepress/dist/index.html` sentinel, skipping the rebuild. Subsequent local runs reuse the cached `node_modules/` and Playwright chromium, so a warm producer-mode run completes in a couple of minutes; a cold checkout takes longer because the build artefact is rebuilt from scratch.
 
 Failure output names every route that surfaced as a 404 along with which of the two signals fired—the `.NotFound` element rendered by the VitePress default theme's NotFound component, or `document.title` starting with `404` (the static `404.html` emits `<title>404 | MTConnect.NET</title>`, so a prefix match catches it regardless of the trailing site-title suffix). Typical fixes:
 
