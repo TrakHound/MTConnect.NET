@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a string like piece or filament of relatively rigid or flexible material provided in a variety of diameters.
     /// </summary>
-    public class WireComposition : Composition 
+    public class WireComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

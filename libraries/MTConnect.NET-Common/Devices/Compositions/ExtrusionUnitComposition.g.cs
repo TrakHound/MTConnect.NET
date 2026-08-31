@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that dispenses liquid or powered materials.
     /// </summary>
-    public class ExtrusionUnitComposition : Composition 
+    public class ExtrusionUnitComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

@@ -20,16 +20,19 @@ namespace MTConnect.Devices.Configurations
         /// Uuid of the associated piece of equipment.
         /// </summary>
         public string DeviceUuidRef { get; set; }
+        
 
         /// <summary>
         /// URI identifying the agent that is publishing information for the associated piece of equipment.
         /// </summary>
         public string Href { get; set; }
+        
 
         /// <summary>
         /// Defines the services or capabilities that the referenced piece of equipment provides relative to this piece of equipment.
         /// </summary>
         public MTConnect.Devices.Configurations.RoleType? Role { get; set; }
+        
 
         /// <summary>
         /// `xlink:type`**MUST** have a fixed value of `locator` as defined in W3C XLink 1.1 https://www.w3.org/TR/xlink11/.

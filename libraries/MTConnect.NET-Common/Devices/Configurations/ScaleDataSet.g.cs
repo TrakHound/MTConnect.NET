@@ -20,11 +20,13 @@ namespace MTConnect.Devices.Configurations
         /// Multiplier for X axis.
         /// </summary>
         public double X { get; set; }
+        
 
         /// <summary>
         /// Multiplier for Y axis.
         /// </summary>
         public double Y { get; set; }
+        
 
         /// <summary>
         /// Multiplier for Z axis.

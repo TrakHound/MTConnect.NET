@@ -20,26 +20,31 @@ namespace MTConnect.Assets.Files
         /// Category of application that will use this file.
         /// </summary>
         public MTConnect.Assets.Files.ApplicationCategory ApplicationCategory { get; set; }
+        
 
         /// <summary>
         /// Type of application that will use this file.
         /// </summary>
         public MTConnect.Assets.Files.ApplicationType ApplicationType { get; set; }
+        
 
         /// <summary>
         /// Remark or interpretation for human interpretation associated with a File or FileArchetype.
         /// </summary>
         public System.Collections.Generic.IEnumerable<MTConnect.Assets.Files.IFileComment> FileComments { get; set; }
+        
 
         /// <summary>
         /// Key-value pair providing additional metadata about a File.
         /// </summary>
         public System.Collections.Generic.IEnumerable<MTConnect.Assets.Files.IFileProperty> FileProperties { get; set; }
+        
 
         /// <summary>
         /// Mime type of the file.
         /// </summary>
         public string MediaType { get; set; }
+        
 
         /// <summary>
         /// Name of the file.

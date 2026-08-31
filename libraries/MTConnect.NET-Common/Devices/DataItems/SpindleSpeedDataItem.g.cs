@@ -8,6 +8,7 @@ namespace MTConnect.Devices.DataItems
     /// <summary>
     /// Rotational speed of the rotary axis.**DEPRECATED** in *Version 1.2*.  Replaced by `ROTARY_VELOCITY`.
     /// </summary>
+    [System.Obsolete("Deprecated in v1.2")]
     public class SpindleSpeedDataItem : DataItem
     {
         /// <summary>

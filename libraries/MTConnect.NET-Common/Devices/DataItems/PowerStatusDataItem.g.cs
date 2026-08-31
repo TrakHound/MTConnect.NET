@@ -13,6 +13,7 @@ namespace MTConnect.Devices.DataItems
     /// <summary>
     /// Status of the Component.**DEPRECATED** in *Version 1.1.0*.
     /// </summary>
+    [System.Obsolete("Deprecated in v1.1")]
     public class PowerStatusDataItem : DataItem
     {
         /// <summary>

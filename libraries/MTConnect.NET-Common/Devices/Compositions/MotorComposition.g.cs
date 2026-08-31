@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that converts electrical, pneumatic, or hydraulic energy into mechanical energy.
     /// </summary>
-    public class MotorComposition : Composition 
+    public class MotorComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

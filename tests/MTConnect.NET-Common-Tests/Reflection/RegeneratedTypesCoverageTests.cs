@@ -215,8 +215,9 @@ namespace MTConnect.NET_Common_Tests.Reflection
             // Every public regenerated type's default ctor must execute at
             // least once so it counts as covered. This single parametric
             // case satisfies that for the class-with-bare-ctor case; ctors
-            // with arguments are covered by the typed fixtures under
-            // V2_6_V2_7/.
+            // with arguments are covered by the topic-first fixtures under
+            // Devices/DataItems/, Devices/Components/, Devices/Configurations/,
+            // Observations/, and Enums/ (Phase 1 DRY-generator consolidation).
             object? instance = null;
             Assert.DoesNotThrow(
                 () => instance = Activator.CreateInstance(type),
@@ -240,8 +241,9 @@ namespace MTConnect.NET_Common_Tests.Reflection
             //
             // Properties without a public setter (read-only computed
             // properties such as Id) are skipped — the spec contract for
-            // those is "derived from other state", and the V2_6_V2_7
-            // hand-written fixtures pin their semantics.
+            // those is "derived from other state", and the topic-first
+            // fixtures under Devices/DataItems/, Devices/Components/,
+            // Devices/Configurations/, and Observations/ pin their semantics.
             var instance = Activator.CreateInstance(type)!;
 
             foreach (var property in GetRoundTrippableProperties(type))

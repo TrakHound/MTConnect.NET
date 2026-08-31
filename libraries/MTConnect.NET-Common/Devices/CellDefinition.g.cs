@@ -20,26 +20,31 @@ namespace MTConnect.Devices
         /// Textual description for CellDefinition.
         /// </summary>
         public string Description { get; set; }
+        
 
         /// <summary>
         /// Unique identification of the Cell in the Definition. key.
         /// </summary>
         public string Key { get; set; }
+        
 
         /// <summary>
         /// Key.
         /// </summary>
         public string KeyType { get; set; }
+        
 
         /// <summary>
         /// SubType. See DataItem.
         /// </summary>
         public string SubType { get; set; }
+        
 
         /// <summary>
         /// Type. See DataItem Types.
         /// </summary>
         public string Type { get; set; }
+        
 
         /// <summary>
         /// Units. See Value Properties of DataItem.

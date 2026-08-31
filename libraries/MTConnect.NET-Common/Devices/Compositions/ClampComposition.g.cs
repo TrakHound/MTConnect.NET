@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that strengthens, supports, or fastens objects in place.
     /// </summary>
-    public class ClampComposition : Composition 
+    public class ClampComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

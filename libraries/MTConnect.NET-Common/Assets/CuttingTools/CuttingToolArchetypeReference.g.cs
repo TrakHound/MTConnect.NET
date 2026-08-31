@@ -20,6 +20,7 @@ namespace MTConnect.Assets.CuttingTools
         /// URL of the CuttingToolArchetype information model.
         /// </summary>
         public string Source { get; set; }
+        
 
         /// <summary>
         /// `assetId` of the related CuttingToolArchetype.

@@ -20,11 +20,13 @@ namespace MTConnect.Devices
         /// Semantic definition of a Cell.
         /// </summary>
         public System.Collections.Generic.IEnumerable<MTConnect.Devices.ICellDefinition> CellDefinitions { get; set; }
+        
 
         /// <summary>
         /// Textual description for Definition.
         /// </summary>
         public string Description { get; set; }
+        
 
         /// <summary>
         /// Semantic definition of an Entry.

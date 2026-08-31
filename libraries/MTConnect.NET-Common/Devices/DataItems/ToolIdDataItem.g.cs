@@ -8,6 +8,7 @@ namespace MTConnect.Devices.DataItems
     /// <summary>
     /// Identifier of the tool currently in use for a given `Path`.**DEPRECATED** in *Version 1.2.0*.   See `TOOL_NUMBER`.
     /// </summary>
+    [System.Obsolete("Deprecated in v1.2")]
     public class ToolIdDataItem : DataItem
     {
         /// <summary>

@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of an endless flexible band that transmits motion for a piece of equipment or conveys materials and objects.
     /// </summary>
-    public class BeltComposition : Composition 
+    public class BeltComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

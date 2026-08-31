@@ -72,7 +72,7 @@ namespace MTConnect.SysML.CSharp
         /// <inheritdoc />
         public string RenderDescriptions()
         {
-            var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "EnumDescriptions.scriban");
+            var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "EnumOrStringDescriptions.scriban");
             return template.Render(this);
         }
     }

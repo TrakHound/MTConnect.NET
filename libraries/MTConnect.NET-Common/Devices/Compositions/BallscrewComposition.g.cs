@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanical structure that transforms rotary motion into linear motion.
     /// </summary>
-    public class BallscrewComposition : Composition 
+    public class BallscrewComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

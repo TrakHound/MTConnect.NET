@@ -8,6 +8,7 @@ namespace MTConnect.Devices.Components
     /// <summary>
     /// Component composed of a sensor or an instrument that measures temperature.Thermostat was **DEPRECATED** in *MTConnect Version 1.2* and was replaced by Temperature.
     /// </summary>
+    [System.Obsolete("Deprecated in v1.2")]
     public class ThermostatComponent : Component
     {
         /// <summary>

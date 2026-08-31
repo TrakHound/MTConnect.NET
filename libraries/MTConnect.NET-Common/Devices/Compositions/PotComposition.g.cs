@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a tool storage location associated with a ToolMagazine or AutomaticToolChanger.
     /// </summary>
-    public class PotComposition : Composition 
+    public class PotComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

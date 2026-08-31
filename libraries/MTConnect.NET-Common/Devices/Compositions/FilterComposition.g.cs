@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a substance or structure that allows liquids or gases to pass through to remove suspended impurities or to recover solids.
     /// </summary>
-    public class FilterComposition : Composition 
+    public class FilterComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

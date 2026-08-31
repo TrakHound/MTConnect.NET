@@ -24,7 +24,7 @@ namespace {{namespace}}
         /// SysML model, preserved verbatim so downstream consumers can
         /// inspect the spec's raw validation rules at runtime.
         /// </summary>
-        public {{ if (parent_name) }}new {{ end }}static readonly string[] Rules = new[]
+        public {{ if (parent_has_rules) }}new {{ end }}static readonly string[] Rules = new[]
         {
 {{- for rule in rules }}{{ if (!for.last) }}
             "{{ rule | string.replace `\` `\\` | string.replace `"` `\"` | string.replace "\r" "\\r" | string.replace "\n" "\\n" | string.replace "\t" "\\t" }}",

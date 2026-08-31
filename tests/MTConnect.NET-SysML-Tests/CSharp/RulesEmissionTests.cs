@@ -102,6 +102,63 @@ namespace MTConnect.Tests.SysML.CSharp
             Assert.That(rendered, Is.EqualTo(expected));
         }
 
+        [Test]
+        public void Model_scriban_omits_new_on_Rules_when_parent_has_no_Rules()
+        {
+            // Regression coverage for the Axis.g.cs / CS0109 bug (PR #233):
+            // a class with a parent (ParentName set) whose parent does NOT
+            // itself declare a Rules[] field must NOT get the `new` modifier
+            // on its own Rules[] declaration — `new` with nothing to hide
+            // raises CS0109 ("does not hide an accessible member"). This
+            // mirrors AbstractAxis (no Rules) <- Axis (Rules, wrongly `new`).
+            //
+            // Deliberately does NOT set ParentHasRules — the default (false)
+            // is exactly the state a parent-without-Rules leaves the flag
+            // in, so this test exercises the render path using only the
+            // fields a real renderer pass would produce for such a class.
+            var model = new ClassModel
+            {
+                Id = "Devices.Configurations.TestAxis",
+                UmlId = "uml-r-axis",
+                Name = "TestAxis",
+                ParentName = "AbstractTestAxis",
+                Description = "A TestAxis whose parent has no rules.",
+                Rules = new[] { "self.value->size() > 0" },
+            };
+
+            var rendered = model.RenderModel();
+            var expected = ReadFixture("model-rules-parent-without-rules.expected.g.cs");
+            Assert.That(rendered, Is.EqualTo(expected));
+            Assert.That(rendered, Does.Not.Contain("new static readonly string[] Rules"),
+                "Emitting 'new' here hides nothing on AbstractTestAxis and would raise CS0109.");
+        }
+
+        [Test]
+        public void Model_scriban_emits_new_on_Rules_when_parent_has_Rules()
+        {
+            // Symmetric positive case: when the ancestor chain genuinely
+            // does declare Rules[], the child's redeclaration DOES need
+            // `new` to suppress CS0108 ("hides inherited member"). Proves
+            // the fix is a real distinction and not a blanket "never emit
+            // new" shortcut.
+            var model = new ClassModel
+            {
+                Id = "Devices.Configurations.TestAxis",
+                UmlId = "uml-r-axis",
+                Name = "TestAxis",
+                ParentName = "AbstractTestAxis",
+                ParentHasRules = true,
+                Description = "A TestAxis whose parent also has rules.",
+                Rules = new[] { "self.value->size() > 0" },
+            };
+
+            var rendered = model.RenderModel();
+            var expected = ReadFixture("model-rules-parent-with-rules.expected.g.cs");
+            Assert.That(rendered, Is.EqualTo(expected));
+            Assert.That(rendered, Does.Contain("new static readonly string[] Rules"),
+                "Parent declares Rules too, so the redeclaration must hide it via 'new'.");
+        }
+
         // ---- Render-side: Devices.ComponentType.scriban ----
 
         [Test]

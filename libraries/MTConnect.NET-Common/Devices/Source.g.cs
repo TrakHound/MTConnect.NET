@@ -20,16 +20,19 @@ namespace MTConnect.Devices
         /// Identifier of the Component that represents the physical part of a piece of equipment where the data represented by the DataItem originated.
         /// </summary>
         public string ComponentId { get; set; }
+        
 
         /// <summary>
         /// Identifier of the Composition that represents the physical part of a piece of equipment where the data represented by the DataItem originated.
         /// </summary>
         public string CompositionId { get; set; }
+        
 
         /// <summary>
         /// Identifier of the DataItem that represents the originally measured value of the data referenced by this DataItem.
         /// </summary>
         public string DataItemId { get; set; }
+        
 
         /// <summary>
         /// Identifier of the source entity.

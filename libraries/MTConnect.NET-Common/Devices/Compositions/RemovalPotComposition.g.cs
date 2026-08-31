@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Pot for a tool to be removed from a ToolMagazine or Turret to a location outside of the piece of equipment.
     /// </summary>
-    public class RemovalPotComposition : Composition 
+    public class RemovalPotComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that interrupts an electric circuit.
     /// </summary>
-    public class CircuitBreakerComposition : Composition 
+    public class CircuitBreakerComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

@@ -1,5 +1,11 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
+{{-# Shape-A consolidated host template. Valid for every MTConnect version. #}}
+{{-# One template renders every partial-class XML wrapper (XmlCuttingToolLifeCycle, #}}
+{{-# XmlCuttingItem, ...) that exposes the full set of cutting-tool measurement #}}
+{{-# subclasses through a single typed [XmlArray("Measurements")] collection. Each #}}
+{{-# call site supplies its class_name, summary (a doc-comment fragment), and the #}}
+{{-# shared types array of measurement models. #}}
 
 using MTConnect.Assets.CuttingTools.Measurements;
 using System.Collections.Generic;
@@ -7,12 +13,10 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.Xml.CuttingTools
 {
-    public partial class XmlCuttingToolLifeCycle
+    public partial class {{class_name}}
     {
         /// <summary>
-        /// The set of physical and geometric measurements that characterize the cutting tool
-        /// over its life cycle. Each element is deserialized into the concrete
-        /// <see cref="XmlMeasurement"/> subclass registered for its MTConnect measurement type.
+        /// {{summary}}
         /// </summary>
         [XmlArray("Measurements")]
 {{- for type in types }}

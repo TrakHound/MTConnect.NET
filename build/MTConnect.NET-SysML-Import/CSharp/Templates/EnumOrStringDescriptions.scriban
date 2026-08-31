@@ -1,10 +1,15 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
+{{-# Shape-B consolidated Descriptions template. Valid for every MTConnect version. #}}
+{{-# Covers both the enum-descriptions and the string-constant-descriptions callers. #}}
+{{-# When is_string is truthy, the Get(...) overload takes a `string value` and the #}}
+{{-# class doc reads "string constant" instead of "value"; when falsy, the Get(...) #}}
+{{-# overload takes an enum-typed value and the class doc reads "value". #}}
 
 namespace {{namespace}}
 {
     /// <summary>
-    /// Description text for each <see cref="{{name}}"/> value as defined by the MTConnect Standard.
+    /// Description text for each <see cref="{{name}}"/> {{ if is_string }}string constant{{ else }}value{{ end }} as defined by the MTConnect Standard.
     /// </summary>
     public static class {{name}}Descriptions
     {
@@ -21,9 +26,9 @@ namespace {{namespace}}
 
 
         /// <summary>
-        /// Returns the MTConnect Standard description text for the specified <see cref="{{name}}"/> value, or <c>null</c> when none is defined.
+        /// Returns the MTConnect Standard description text for the specified{{ if is_string }}{{ else }} <see cref="{{name}}"/>{{ end }} value, or <c>null</c> when none is defined.
         /// </summary>
-        public static string Get({{name}} value)
+        public static string Get({{ if is_string }}string{{ else }}{{name}}{{ end }} value)
         {
             switch (value)
             {

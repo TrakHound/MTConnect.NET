@@ -20,6 +20,7 @@ namespace MTConnect.Assets.CuttingTools
         /// Identifies the expected representation of the enclosed data.
         /// </summary>
         public MTConnect.Assets.CuttingTools.FormatType Format { get; set; }
+        
 
         /// <summary>
         /// Format.

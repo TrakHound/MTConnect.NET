@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism or wheel that turns in a frame or block and serves to change the direction of or to transmit force.
     /// </summary>
-    public class PulleyComposition : Composition 
+    public class PulleyComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

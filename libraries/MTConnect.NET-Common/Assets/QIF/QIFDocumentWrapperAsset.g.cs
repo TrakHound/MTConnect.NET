@@ -20,6 +20,7 @@ namespace MTConnect.Assets.QIF
         /// QIF Document as given by the QIF standard.
         /// </summary>
         public string QIFDocument { get; set; }
+        
 
         /// <summary>
         /// Contained QIF Document type as defined in the QIF Standard.

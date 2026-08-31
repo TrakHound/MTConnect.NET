@@ -569,14 +569,6 @@ namespace MTConnect.Devices.Json
 
 
         /// <summary>
-        /// The set of <c>Power</c> components on the device.
-        /// Power was **DEPRECATED** in *MTConnect Version 1.1* and was replaced by Availability data item type.
-        /// </summary>
-        [JsonPropertyName("Power")]
-        public IEnumerable<JsonComponent> Power { get; set; }
-
-
-        /// <summary>
         /// The set of <c>PowerSupply</c> components on the device.
         /// Leaf Component that provides power to electric mechanisms.
         /// </summary>
@@ -713,14 +705,6 @@ namespace MTConnect.Devices.Json
 
 
         /// <summary>
-        /// The set of <c>Spindle</c> components on the device.
-        /// Component that provides an axis of rotation for the purpose of rapidly rotating a part or a tool to provide sufficient surface speed for cutting operations.Spindle was **DEPRECATED** in *MTConnect Version 1.1* and was replaced by RotaryMode.
-        /// </summary>
-        [JsonPropertyName("Spindle")]
-        public IEnumerable<JsonComponent> Spindle { get; set; }
-
-
-        /// <summary>
         /// The set of <c>Spreader</c> components on the device.
         /// Leaf Component that flattens or spreading materials.
         /// </summary>
@@ -825,14 +809,6 @@ namespace MTConnect.Devices.Json
 
 
         /// <summary>
-        /// The set of <c>Thermostat</c> components on the device.
-        /// Component composed of a sensor or an instrument that measures temperature.Thermostat was **DEPRECATED** in *MTConnect Version 1.2* and was replaced by Temperature.
-        /// </summary>
-        [JsonPropertyName("Thermostat")]
-        public IEnumerable<JsonComponent> Thermostat { get; set; }
-
-
-        /// <summary>
         /// The set of <c>ToolHolder</c> components on the device.
         /// System that securely interfaces a Component with a Device
         /// </summary>
@@ -918,14 +894,6 @@ namespace MTConnect.Devices.Json
         /// </summary>
         [JsonPropertyName("Vat")]
         public IEnumerable<JsonComponent> Vat { get; set; }
-
-
-        /// <summary>
-        /// The set of <c>Vibration</c> components on the device.
-        /// Component composed of a sensor or an instrument that measures the amount and/or frequency of vibration within a system.Vibration was **DEPRECATED** in *MTConnect Version 1.2* and was replaced by Displacement, Frequency etc.
-        /// </summary>
-        [JsonPropertyName("Vibration")]
-        public IEnumerable<JsonComponent> Vibration { get; set; }
 
 
         /// <summary>
@@ -1120,8 +1088,6 @@ namespace MTConnect.Devices.Json
 
                 Pot = GetComponents(components, PotComponent.TypeId);
 
-                Power = GetComponents(components, PowerComponent.TypeId);
-
                 PowerSupply = GetComponents(components, PowerSupplyComponent.TypeId);
 
                 Pressure = GetComponents(components, PressureComponent.TypeId);
@@ -1156,8 +1122,6 @@ namespace MTConnect.Devices.Json
 
                 Sensor = GetComponents(components, SensorComponent.TypeId);
 
-                Spindle = GetComponents(components, SpindleComponent.TypeId);
-
                 Spreader = GetComponents(components, SpreaderComponent.TypeId);
 
                 StagingPot = GetComponents(components, StagingPotComponent.TypeId);
@@ -1184,8 +1148,6 @@ namespace MTConnect.Devices.Json
 
                 Tensioner = GetComponents(components, TensionerComponent.TypeId);
 
-                Thermostat = GetComponents(components, ThermostatComponent.TypeId);
-
                 ToolHolder = GetComponents(components, ToolHolderComponent.TypeId);
 
                 ToolingDelivery = GetComponents(components, ToolingDeliveryComponent.TypeId);
@@ -1207,8 +1169,6 @@ namespace MTConnect.Devices.Json
                 Valve = GetComponents(components, ValveComponent.TypeId);
 
                 Vat = GetComponents(components, VatComponent.TypeId);
-
-                Vibration = GetComponents(components, VibrationComponent.TypeId);
 
                 WasteDisposal = GetComponents(components, WasteDisposalComponent.TypeId);
 
@@ -1385,8 +1345,6 @@ namespace MTConnect.Devices.Json
 
             if (!Pot.IsNullOrEmpty()) foreach (var component in Pot) components.Add(component.ToComponent(PotComponent.TypeId));
 
-            if (!Power.IsNullOrEmpty()) foreach (var component in Power) components.Add(component.ToComponent(PowerComponent.TypeId));
-
             if (!PowerSupply.IsNullOrEmpty()) foreach (var component in PowerSupply) components.Add(component.ToComponent(PowerSupplyComponent.TypeId));
 
             if (!Pressure.IsNullOrEmpty()) foreach (var component in Pressure) components.Add(component.ToComponent(PressureComponent.TypeId));
@@ -1421,8 +1379,6 @@ namespace MTConnect.Devices.Json
 
             if (!Sensor.IsNullOrEmpty()) foreach (var component in Sensor) components.Add(component.ToComponent(SensorComponent.TypeId));
 
-            if (!Spindle.IsNullOrEmpty()) foreach (var component in Spindle) components.Add(component.ToComponent(SpindleComponent.TypeId));
-
             if (!Spreader.IsNullOrEmpty()) foreach (var component in Spreader) components.Add(component.ToComponent(SpreaderComponent.TypeId));
 
             if (!StagingPot.IsNullOrEmpty()) foreach (var component in StagingPot) components.Add(component.ToComponent(StagingPotComponent.TypeId));
@@ -1449,8 +1405,6 @@ namespace MTConnect.Devices.Json
 
             if (!Tensioner.IsNullOrEmpty()) foreach (var component in Tensioner) components.Add(component.ToComponent(TensionerComponent.TypeId));
 
-            if (!Thermostat.IsNullOrEmpty()) foreach (var component in Thermostat) components.Add(component.ToComponent(ThermostatComponent.TypeId));
-
             if (!ToolHolder.IsNullOrEmpty()) foreach (var component in ToolHolder) components.Add(component.ToComponent(ToolHolderComponent.TypeId));
 
             if (!ToolingDelivery.IsNullOrEmpty()) foreach (var component in ToolingDelivery) components.Add(component.ToComponent(ToolingDeliveryComponent.TypeId));
@@ -1472,8 +1426,6 @@ namespace MTConnect.Devices.Json
             if (!Valve.IsNullOrEmpty()) foreach (var component in Valve) components.Add(component.ToComponent(ValveComponent.TypeId));
 
             if (!Vat.IsNullOrEmpty()) foreach (var component in Vat) components.Add(component.ToComponent(VatComponent.TypeId));
-
-            if (!Vibration.IsNullOrEmpty()) foreach (var component in Vibration) components.Add(component.ToComponent(VibrationComponent.TypeId));
 
             if (!WasteDisposal.IsNullOrEmpty()) foreach (var component in WasteDisposal) components.Add(component.ToComponent(WasteDisposalComponent.TypeId));
 

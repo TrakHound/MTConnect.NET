@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that provides a signal or measured value.
     /// </summary>
-    public class SensingElementComposition : Composition 
+    public class SensingElementComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

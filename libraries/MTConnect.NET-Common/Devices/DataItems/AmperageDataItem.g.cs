@@ -8,6 +8,7 @@ namespace MTConnect.Devices.DataItems
     /// <summary>
     /// Strength of electrical current.**DEPRECATED** in *Version 1.6*. Replaced by `AMPERAGE_AC` and `AMPERAGE_DC`.
     /// </summary>
+    [System.Obsolete("Deprecated in v1.6")]
     public class AmperageDataItem : DataItem
     {
         /// <summary>

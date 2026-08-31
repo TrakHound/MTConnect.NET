@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that transforms electric energy from a source to a secondary circuit.
     /// </summary>
-    public class TransformerComposition : Composition 
+    public class TransformerComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

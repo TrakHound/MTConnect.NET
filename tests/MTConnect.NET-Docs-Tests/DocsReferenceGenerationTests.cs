@@ -124,6 +124,39 @@ public class DocsReferenceGenerationTests
         }
     }
 
+    /// <summary>
+    /// Direct pin for the cycle-4 DocsGen bounded-scan fix
+    /// (<c>CliInventory.CollectDotNetTool</c>): the <c>takesValue</c>
+    /// regex must be bounded to the CURRENT <c>case</c> block, otherwise
+    /// a boolean switch flag sitting above a value-taking neighbor
+    /// (e.g. <c>--full-tree</c> above <c>case "--output": … RequireValue</c>)
+    /// would falsely inherit the neighbor's <c>&lt;value&gt;</c> shape.
+    ///
+    /// <para>
+    /// The golden-file <c>Cli_Page_Is_In_Sync_With_Source</c> test would
+    /// also catch this via the rendered <c>cli.md</c>, but a targeted
+    /// unit-style pin here surfaces the regression with a branch-scoped
+    /// failure message before the golden-file diff is even computed.
+    /// </para>
+    /// </summary>
+    [Test]
+    public void SysMLImport_FullTree_Flag_Is_Detected_As_Switch_Not_Value_Flag()
+    {
+        var clis = CliInventory.Collect(RepoRoot);
+        var sysml = clis.FirstOrDefault(c => c.Name == "MTConnect.NET-SysML-Import");
+        Assert.That(sysml, Is.Not.Null,
+            "MTConnect.NET-SysML-Import must be discovered in the inventory.");
+
+        var fullTree = sysml!.Flags.FirstOrDefault(f => f.Name == "--full-tree");
+        Assert.That(fullTree, Is.Not.Null,
+            "--full-tree flag must appear in the sysml-import inventory.");
+        Assert.That(fullTree!.ArgShape, Is.Null,
+            "--full-tree is a boolean switch (case body: `fullTree = true; break;`). "
+            + "The bounded RequireValue scan must NOT leak in the value shape from the "
+            + "neighboring --output / --json-dump cases. An ArgShape of `<value>` here "
+            + "means the bounded-scan regex regressed to an unbounded lookahead.");
+    }
+
     /// <summary>Pins the behaviour expressed by the test name: endpoint code has no stale entries in markdown.</summary>
     [Test]
     public void Endpoint_Code_Has_No_Stale_Entries_In_Markdown()

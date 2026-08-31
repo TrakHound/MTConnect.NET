@@ -85,10 +85,14 @@ Parses an `MTConnectSysMLModel.xml` (the XMI export of the standard's SysML mode
 
 | Flag | Short | Argument | Description |
 | --- | --- | --- | --- |
+| `--compat-version-label` |  | `<value>` | &lt;label&gt; Label used for the Compat/&lt;label&gt;.g.cs file name in delta mode. When --previous-xmi is supplied without an explicit label, defaults to "Previous" for backwards compatibility. When the previous-XMI is auto-derived from MTConnectVersions.Max, defaults to "v${PREV_XY_UNDERSCORE}" (e.g. "v2_7"). |
+| `--full-tree` |  |  | Explicit opt-in for the full-regeneration path. Disables both the zero-config auto-derive delta and the --previous-xmi override; every emitted .g.cs re-lands under its normal path. |
 | `--help` |  |  |  |
 | `--json-dump` |  | `<value>` | Optional. Writes the parsed MTConnectModel as JSON for debugging. |
+| `--new-xmi` |  | `<value>` | SysML XMI file to consume. Required. Preferred spelling; --xmi remains as a legacy alias. |
 | `--output` |  | `<value>` | Repository root. Each subgenerator writes into its own libraries/&lt;LibraryName&gt;/ subtree under this root. Required. |
-| `--xmi` |  | `<value>` | SysML XMI file to consume. Required. |
+| `--previous-xmi` |  | `<value>` | Edge-case override for delta-driven mode. When supplied, uses this file as the previous-version XMI and skips the zero-config auto-derive step. Typical use cases: cross-version audit runs, regenerating against a historical XMI snapshot, and version-bumps that skip a version (where MTConnectVersions.Max does not match the intended PREV_VERSION). |
+| `--xmi` |  | `<value>` | Legacy alias for --new-xmi. Kept for backwards compatibility with existing callers; new invocations should prefer --new-xmi. |
 
 ### `dotnet.sh`
 

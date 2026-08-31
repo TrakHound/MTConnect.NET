@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a chamber or bin that stores materials temporarily, typically being filled through the top and dispensed through the bottom.
     /// </summary>
-    public class HopperComposition : Composition 
+    public class HopperComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

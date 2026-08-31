@@ -20,6 +20,7 @@ namespace MTConnect.Assets.Files
         /// Time the comment was made.
         /// </summary>
         public System.DateTime Timestamp { get; set; }
+        
 
         /// <summary>
         /// Text of the comment about the file.

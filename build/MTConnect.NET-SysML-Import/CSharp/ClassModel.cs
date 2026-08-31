@@ -75,6 +75,22 @@ namespace MTConnect.SysML.CSharp
         /// </summary>
         public new List<PropertyModel> Properties { get; set; } = new();
 
+        /// <summary>
+        /// <c>true</c> when at least one ancestor in the
+        /// <see cref="MTConnectClassModel.ParentName"/> chain declares a
+        /// non-empty <see cref="MTConnectClassModel.Rules"/> array.
+        /// <c>Model.scriban</c> uses this — rather than mere parent
+        /// presence — to decide whether the generated <c>Rules</c> field
+        /// needs the <c>new</c> modifier. A class can have a parent
+        /// without that parent (or any of its ancestors) declaring
+        /// <c>Rules</c>, in which case emitting <c>new</c> hides nothing
+        /// and the compiler raises CS0109. Populated by
+        /// <see cref="CSharpTemplateRenderer"/> after every
+        /// <see cref="ClassModel"/> has been assembled, so the full
+        /// ancestor chain is resolvable.
+        /// </summary>
+        public bool ParentHasRules { get; set; }
+
 
         /// <summary>
         /// Parameterless constructor used by the import pipeline when it

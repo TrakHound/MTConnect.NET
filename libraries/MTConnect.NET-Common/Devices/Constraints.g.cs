@@ -20,21 +20,25 @@ namespace MTConnect.Devices
         /// Provides a means to control when an agent records updated information for a DataItem.
         /// </summary>
         public MTConnect.Devices.IFilter Filter { get; set; }
+        
 
         /// <summary>
         /// Numeric upper constraint.If the data reported for a data item is a range of numeric values, the expected value reported **MAY** be described with an upper limit defined by this constraint.
         /// </summary>
         public double? Maximum { get; set; }
+        
 
         /// <summary>
         /// Numeric lower constraint.If the data reported for a data item is a range of numeric values, the expected value reported **MAY** be described with a lower limit defined by this constraint.
         /// </summary>
         public double? Minimum { get; set; }
+        
 
         /// <summary>
         /// Numeric target or expected value.
         /// </summary>
         public double? Nominal { get; set; }
+        
 
         /// <summary>
         /// Single data value that is expected to be reported for a DataItem.Value **MUST NOT** be used in conjunction with any other Constraint elements.

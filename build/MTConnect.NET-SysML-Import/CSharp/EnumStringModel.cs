@@ -14,6 +14,14 @@ namespace MTConnect.SysML.CSharp
 
         public bool IsPartial { get; set; }
 
+        // Consumed by the Shape-B consolidated EnumOrStringDescriptions.scriban
+        // template: gates the class-doc wording, the Get(...) overload's
+        // parameter type (string vs. enum-typed), and the Get(...) doc summary.
+        // EnumModel and ObservationModel do NOT expose this — Scriban resolves
+        // a missing member as null (falsy), producing the enum-shape emission
+        // for those two callers.
+        public bool IsString => true;
+
 
         public EnumStringModel() { }
 
@@ -88,7 +96,7 @@ namespace MTConnect.SysML.CSharp
 
         public string RenderDescriptions()
         {
-            var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "EnumStringDescriptions.scriban");
+            var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "EnumOrStringDescriptions.scriban");
             return template.Render(this);
         }
     }

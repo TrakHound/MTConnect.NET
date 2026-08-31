@@ -342,10 +342,15 @@ public static class CliInventory
             if (headerDescs.TryGetValue(flagName, out var headerDesc)) desc = headerDesc;
             desc ??= ExtractDotnetFlagDescription(text, flagName);
 
-            // Detect whether the case body calls `RequireValue` — if it
-            // does, the flag takes a value.
+            // Detect whether the case body calls `RequireValue` — if it does,
+            // the flag takes a value. The scan is bounded to the CURRENT case
+            // block only: it stops at the next `case "…":` label, a `default:`
+            // label, or a `break;` terminator, so a boolean flag whose case
+            // body sits above a value-taking case (like `--full-tree` above
+            // `case "--output": … RequireValue(…)`) does not falsely inherit
+            // the neighbor's value shape.
             bool takesValue = Regex.IsMatch(text,
-                $@"case\s+""{Regex.Escape(flagName)}""\s*:[\s\S]{{0,200}}?RequireValue");
+                $@"case\s+""{Regex.Escape(flagName)}""\s*:(?:(?!\s*case\s+""|\s*default\s*:|\bbreak\s*;)[\s\S])*?RequireValue");
             flags.Add(new CliFlag(
                 Name: flagName,
                 Short: null,

@@ -66,7 +66,11 @@ namespace MTConnect.SysML.CSharp
         }
 
         /// <inheritdoc />
-        public string RenderInterface() => null;
+        public string RenderInterface()
+        {
+            var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "Pallets.MeasurementInterface.scriban");
+            return template.Render(this);
+        }
 
         /// <inheritdoc />
         public string RenderDescriptions() => null;

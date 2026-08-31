@@ -8,6 +8,7 @@ namespace MTConnect.Devices.DataItems
     /// <summary>
     /// Position in three-dimensional space.**DEPRECATED** in Version 1.1.
     /// </summary>
+    [System.Obsolete("Deprecated in v1.1")]
     public class GlobalPositionDataItem : DataItem
     {
         /// <summary>
