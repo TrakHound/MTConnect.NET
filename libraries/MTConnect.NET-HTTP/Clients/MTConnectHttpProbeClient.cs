@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2026 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
@@ -22,12 +22,13 @@ namespace MTConnect.Clients
     public class MTConnectHttpProbeClient : IMTConnectProbeClient
     {
         private const int DefaultTimeout = 15000;
-        private static readonly HttpClient _httpClient;
+        private static readonly HttpClient _defaultHttpClient;
+        private readonly HttpClient _httpClient;
 
         static MTConnectHttpProbeClient()
         {
-            _httpClient = new HttpClient();
-            _httpClient.Timeout = TimeSpan.FromMilliseconds(DefaultTimeout);
+            _defaultHttpClient = new HttpClient();
+            _defaultHttpClient.Timeout = TimeSpan.FromMilliseconds(DefaultTimeout);
         }
 
         /// <summary>
@@ -105,6 +106,7 @@ namespace MTConnect.Clients
         /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
         public MTConnectHttpProbeClient(string authority, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
         {
+            _httpClient = _defaultHttpClient;
             Authority = authority;
             Device = device;
             DocumentFormat = documentFormat;
@@ -130,6 +132,58 @@ namespace MTConnect.Clients
         /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
         public MTConnectHttpProbeClient(string hostname, int port, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
         {
+            _httpClient = _defaultHttpClient;
+            Authority = CreateUri(hostname, port).ToString();
+            Device = device;
+            DocumentFormat = documentFormat;
+            Timeout = DefaultTimeout;
+            ContentEncodings = HttpContentEncodings.DefaultAccept;
+            ContentType = MimeTypes.Get(documentFormat);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MTConnectProbeClient class that is used to perform
+        /// a Probe request from an MTConnect Agent using the MTConnect HTTP REST Api protocol
+        /// </summary>
+        /// <param name="authority">
+        /// The authority portion consists of the DNS name or IP address associated with an Agent and an optional
+        /// TCP port number[:port] that the Agent is listening to for incoming Requests from client software applications.
+        /// If the port number is the default Port 80, port is not required.
+        /// </param>
+        /// <param name="device">
+        /// If present, specifies that only the Equipment Metadata for the piece of equipment represented by the name or uuid will be published.
+        /// If not present, Metadata for all pieces of equipment associated with the Agent will be published.
+        /// </param>
+        /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
+        public MTConnectHttpProbeClient(HttpClient httpClient, string authority, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
+        {
+            _httpClient = httpClient != null ? httpClient : _defaultHttpClient;
+            Authority = authority;
+            Device = device;
+            DocumentFormat = documentFormat;
+            Timeout = DefaultTimeout;
+            ContentEncodings = HttpContentEncodings.DefaultAccept;
+            ContentType = MimeTypes.Get(documentFormat);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MTConnectProbeClient class that is used to perform
+        /// a Probe request from an MTConnect Agent using the MTConnect HTTP REST Api protocol
+        /// </summary>
+        /// <param name="hostname">
+        /// The Hostname of the MTConnect Agent
+        /// </param>
+        /// <param name="port">
+        /// The Port of the MTConnect Agent
+        /// </param>
+        /// <param name="device">
+        /// If present, specifies that only the Equipment Metadata for the piece of equipment represented by the name or uuid will be published.
+        /// If not present, Metadata for all pieces of equipment associated with the Agent will be published.
+        /// </param>
+        /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
+        public MTConnectHttpProbeClient(HttpClient httpClient, string hostname, int port, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
+        {
+            _httpClient = httpClient != null ? httpClient : _defaultHttpClient;
             Authority = CreateUri(hostname, port).ToString();
             Device = device;
             DocumentFormat = documentFormat;

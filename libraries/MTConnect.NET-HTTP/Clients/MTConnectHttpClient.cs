@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2026 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,6 +24,7 @@ namespace MTConnect.Clients
     /// </summary>
     public class MTConnectHttpClient : IMTConnectClient, IMTConnectEntityClient
     {
+        private readonly HttpClient _httpClient;
         private readonly Dictionary<string, IDevice> _devices = new Dictionary<string, IDevice>();
         private readonly Dictionary<string, IComponent> _cachedComponents = new Dictionary<string, IComponent>();
         private readonly Dictionary<string, IDataItem> _cachedDataItems = new Dictionary<string, IDataItem>();
@@ -77,6 +79,55 @@ namespace MTConnect.Clients
         /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
         public MTConnectHttpClient(string hostname, int port, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
         {
+            Id = Guid.NewGuid().ToString();
+            Init();
+            Authority = CreateUrl(hostname, port);
+            Device = device;
+            DocumentFormat = documentFormat;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MTConnectClient class that is used to perform
+        /// the full request and stream protocol from an MTConnect Agent using the MTConnect HTTP REST Api protocol
+        /// </summary>
+        /// <param name="authority">
+        /// The authority portion consists of the DNS name or IP address associated with an Agent and an optional
+        /// TCP port number[:port] that the Agent is listening to for incoming Requests from client software applications.
+        /// If the port number is the default Port 80, port is not required.
+        /// </param>
+        /// <param name="device">
+        /// If present, specifies that only the Equipment Metadata for the piece of equipment represented by the name or uuid will be published.
+        /// If not present, Metadata for all pieces of equipment associated with the Agent will be published.
+        /// </param>
+        /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
+        public MTConnectHttpClient(HttpClient httpClient, string authority, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
+        {
+            _httpClient = httpClient;
+            Id = Guid.NewGuid().ToString();
+            Init();
+            Authority = authority;
+            Device = device;
+            DocumentFormat = documentFormat;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MTConnectClient class that is used to perform
+        /// the full request and stream protocol from an MTConnect Agent using the MTConnect HTTP REST Api protocol
+        /// </summary>
+        /// <param name="hostname">
+        /// The Hostname of the MTConnect Agent
+        /// </param>
+        /// <param name="port">
+        /// The Port of the MTConnect Agent
+        /// </param>
+        /// <param name="device">
+        /// If present, specifies that only the Equipment Metadata for the piece of equipment represented by the name or uuid will be published.
+        /// If not present, Metadata for all pieces of equipment associated with the Agent will be published.
+        /// </param>
+        /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
+        public MTConnectHttpClient(HttpClient httpClient, string hostname, int port, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
+        {
+            _httpClient = httpClient;
             Id = Guid.NewGuid().ToString();
             Init();
             Authority = CreateUrl(hostname, port);
@@ -490,7 +541,7 @@ namespace MTConnect.Clients
         /// </summary>
         public IDevicesResponseDocument GetProbe()
         {
-            var client = new MTConnectHttpProbeClient(Authority, Device, DocumentFormat);
+            var client = new MTConnectHttpProbeClient(_httpClient, Authority, Device, DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -514,7 +565,7 @@ namespace MTConnect.Clients
         /// </summary>
         public async Task<IDevicesResponseDocument> GetProbeAsync(CancellationToken cancellationToken)
         {
-            var client = new MTConnectHttpProbeClient(Authority, Device, DocumentFormat);
+            var client = new MTConnectHttpProbeClient(_httpClient, Authority, Device, DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -531,7 +582,7 @@ namespace MTConnect.Clients
         /// </summary>
         public IStreamsResponseDocument GetCurrent(long at = 0, string path = null)
         {
-            var client = new MTConnectHttpCurrentClient(Authority, Device, at: at, path: path, documentFormat: DocumentFormat);
+            var client = new MTConnectHttpCurrentClient(_httpClient, Authority, Device, at: at, path: path, documentFormat: DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -555,7 +606,7 @@ namespace MTConnect.Clients
         /// </summary>
         public async Task<IStreamsResponseDocument> GetCurrentAsync(CancellationToken cancellationToken, long at = 0, string path = null)
         {
-            var client = new MTConnectHttpCurrentClient(Authority, Device, at: at, path: path, documentFormat: DocumentFormat);
+            var client = new MTConnectHttpCurrentClient(_httpClient, Authority, Device, at: at, path: path, documentFormat: DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -572,7 +623,7 @@ namespace MTConnect.Clients
         /// </summary>
         public IStreamsResponseDocument GetSample(long from = 0, long to = 0, int count = 0, string path = null)
         {
-            var client = new MTConnectHttpSampleClient(Authority, Device, from: from, to: to, count: count, path: path, documentFormat: DocumentFormat);
+            var client = new MTConnectHttpSampleClient(_httpClient, Authority, Device, from: from, to: to, count: count, path: path, documentFormat: DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -596,7 +647,7 @@ namespace MTConnect.Clients
         /// </summary>
         public async Task<IStreamsResponseDocument> GetSampleAsync(CancellationToken cancellationToken, long from = 0, long to = 0, int count = 0, string path = null)
         {
-            var client = new MTConnectHttpSampleClient(Authority, Device, from: from, to: to, count: count, path: path, documentFormat: DocumentFormat);
+            var client = new MTConnectHttpSampleClient(_httpClient, Authority, Device, from: from, to: to, count: count, path: path, documentFormat: DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -613,7 +664,7 @@ namespace MTConnect.Clients
         /// </summary>
         public IAssetsResponseDocument GetAssets(long count = 100)
         {
-            var client = new MTConnectHttpAssetClient(Authority, count, null, null, DocumentFormat);
+            var client = new MTConnectHttpAssetClient(_httpClient, Authority, count, null, null, DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -637,7 +688,7 @@ namespace MTConnect.Clients
         /// </summary>
         public async Task<IAssetsResponseDocument> GetAssetsAsync(CancellationToken cancellationToken, ulong count = 100)
         {
-            var client = new MTConnectHttpAssetClient(Authority, (long)count, null, null, DocumentFormat);
+            var client = new MTConnectHttpAssetClient(_httpClient, Authority, (long)count, null, null, DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -654,7 +705,7 @@ namespace MTConnect.Clients
         /// </summary>
         public IAssetsResponseDocument GetAsset(string assetId)
         {
-            var client = new MTConnectHttpAssetClient(Authority, assetId, DocumentFormat);
+            var client = new MTConnectHttpAssetClient(_httpClient, Authority, assetId, DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -678,7 +729,7 @@ namespace MTConnect.Clients
         /// </summary>
         public async Task<IAssetsResponseDocument> GetAssetAsync(string assetId, CancellationToken cancellationToken)
         {
-            var client = new MTConnectHttpAssetClient(Authority, assetId, DocumentFormat);
+            var client = new MTConnectHttpAssetClient(_httpClient, Authority, assetId, DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -772,7 +823,7 @@ namespace MTConnect.Clients
                                 if (CurrentOnly) url = CreateCurrentUrl(Authority, Device, Interval, _streamPath);
 
                                 // Create and Start the Stream
-                                using (_stream = new MTConnectHttpClientStream(url, DocumentFormat))
+                                using (_stream = new MTConnectHttpClientStream(_httpClient, url, DocumentFormat))
                                 {
                                     _stream.Timeout = Heartbeat * 3;
                                     _stream.ContentEncodings = ContentEncodings;
