@@ -78,11 +78,12 @@ namespace MTConnect.Clients
             ContentType = MimeTypes.Get(documentFormat);
         }
 
-        /// <summary>Disposes the underlying <see cref="HttpClient"/>. The stream itself should be <see cref="Stop"/>ped first; <see cref="Dispose"/> does not cancel pending reads.</summary>
-        public void Dispose()
-        {
-            if (_httpClient != null) _httpClient.Dispose();
-        }
+        /// <summary>
+        /// Releases the stream. The underlying <see cref="HttpClient"/> is not disposed since it is either
+        /// supplied by the caller or shared across all streams. The stream itself should be <see cref="Stop"/>ped first;
+        /// <see cref="Dispose"/> does not cancel pending reads.
+        /// </summary>
+        public void Dispose() { }
 
 
         /// <summary>
@@ -205,24 +206,7 @@ namespace MTConnect.Clients
                     Started.Raise(this, EventArgs.Empty, InternalError);
 
 
-                    // Add 'Accept' HTTP Header
-                    _httpClient.DefaultRequestHeaders.Add(HttpHeaders.Accept, ContentType);
-
-                    // Add 'Accept-Encoding' HTTP Header 
-                    if (!ContentEncodings.IsNullOrEmpty())
-                    {
-                        foreach (var acceptEncoding in ContentEncodings)
-                        {
-                            _httpClient.DefaultRequestHeaders.Add(HttpHeaders.AcceptEncoding, acceptEncoding.ToString().ToLower());
-                        }
-                    }
-
-
-                    var httpRequest = new HttpRequestMessage();
-                    httpRequest.RequestUri = new Uri(Url);
-                    httpRequest.Method = HttpMethod.Get;
-
-
+                    using (var httpRequest = CreateRequest())
                     using (var response = await _httpClient.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead, stop.Token))
 #if NET5_0_OR_GREATER
                     using (var stream = await response.Content.ReadAsStreamAsync(stop.Token))
@@ -348,6 +332,29 @@ namespace MTConnect.Clients
             }
 
             Stopped.Raise(this, EventArgs.Empty, InternalError);
+        }
+
+        private HttpRequestMessage CreateRequest()
+        {
+            var httpRequest = new HttpRequestMessage();
+            httpRequest.RequestUri = new Uri(Url);
+            httpRequest.Method = HttpMethod.Get;
+
+            // Headers are set on the Request (not HttpClient.DefaultRequestHeaders) since the HttpClient may be shared
+
+            // Add 'Accept' HTTP Header
+            httpRequest.Headers.Add(HttpHeaders.Accept, ContentType);
+
+            // Add 'Accept-Encoding' HTTP Header
+            if (!ContentEncodings.IsNullOrEmpty())
+            {
+                foreach (var acceptEncoding in ContentEncodings)
+                {
+                    httpRequest.Headers.Add(HttpHeaders.AcceptEncoding, acceptEncoding.ToString().ToLower());
+                }
+            }
+
+            return httpRequest;
         }
 
         private static string GetHeaderValue(string s, string name)
