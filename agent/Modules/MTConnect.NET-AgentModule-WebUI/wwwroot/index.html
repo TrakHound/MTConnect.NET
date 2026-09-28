@@ -40,6 +40,7 @@
   }
 
   :root {
+    color-scheme: light;  /* native controls and scrollbars follow the theme */
     --bg: #f5f6f8;
     --panel: #ffffff;
     --border: #dfe3e8;
@@ -51,6 +52,8 @@
     --warn: #b35900;
     --err: #c62828;
     --code-bg: #f0f2f5;
+    --scrollbar: #c3c9d1;
+    --scrollbar-hover: #a3abb6;
     --font: Roboto, "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
     --font-mono: "Roboto Mono", ui-monospace, Consolas, monospace;
     --radius: 3px;      /* panels */
@@ -58,6 +61,7 @@
   }
   @media (prefers-color-scheme: dark) {
     :root {
+      color-scheme: dark;
       --bg: #111418;
       --panel: #1a1f25;
       --border: #2d343c;
@@ -69,9 +73,21 @@
       --warn: #e3a008;
       --err: #f26b6b;
       --code-bg: #14181d;
+      --scrollbar: #3a424c;
+      --scrollbar-hover: #4f5965;
     }
   }
   * { box-sizing: border-box; }
+
+  /* Scrollbars: thin, theme-coloured thumb on a transparent track */
+  * { scrollbar-width: thin; scrollbar-color: var(--scrollbar) transparent; }
+  @supports not (scrollbar-color: auto) {
+    /* Fallback for older WebKit / Chromium browsers */
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--scrollbar); border: 2px solid transparent; border-radius: var(--radius-sm); background-clip: padding-box; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); background-clip: padding-box; }
+  }
   html, body { height: 100%; }
   body {
     margin: 0;
@@ -187,6 +203,11 @@
   label.check { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
 
   /* Data browser layout */
+  /* Slightly smaller type on the Data page to fit more rows and columns */
+  #view-data { font-size: 13px; }
+  #view-data th { font-size: 11px; }
+  #view-data .badge { font-size: 10px; }
+  #view-data .raw-links { font-size: 12px; }
   .browser { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 16px; align-items: start; }
   .tree { max-height: calc(100vh - 150px); overflow: auto; padding: 8px; }
   .tree ul { list-style: none; margin: 0; padding-left: 14px; }
@@ -283,16 +304,16 @@
   <!-- Overview -->
   <section id="view-overview" class="view active">
     <div class="panel">
+      <h2>MTConnect Data</h2>
+      <div class="raw-links" id="raw-agent"></div>
+    </div>
+    <div class="panel">
       <h2>Agent</h2>
       <div class="grid" id="agent-info"></div>
     </div>
     <div class="panel">
       <h2>Buffer</h2>
       <div class="grid" id="buffer-info"></div>
-    </div>
-    <div class="panel">
-      <h2>MTConnect Data</h2>
-      <div class="raw-links" id="raw-agent"></div>
     </div>
     <div class="panel">
       <h2>Devices</h2>
