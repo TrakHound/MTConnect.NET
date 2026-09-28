@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2026 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Errors;
@@ -25,7 +25,14 @@ namespace MTConnect.Clients
         private const byte CarriageReturn = 13;
         private const byte Dash = 45;
         private static readonly byte[] _trimBytes = new byte[] { LineFeed, CarriageReturn };
+        private static readonly HttpClient _defaultHttpClient;
         private readonly HttpClient _httpClient;
+
+        static MTConnectHttpClientStream()
+        {
+            _defaultHttpClient = new HttpClient();
+            _defaultHttpClient.Timeout = TimeSpan.FromMilliseconds(DefaultTimeout);
+        }
 
         private CancellationTokenSource _stop;
         private string _documentFormat = DocumentFormat.XML;
@@ -42,22 +49,41 @@ namespace MTConnect.Clients
         /// <param name="documentFormat">Document format key (e.g. <c>xml</c>, <c>json</c>) to request and to parse the response with.</param>
         public MTConnectHttpClientStream(string url, string documentFormat = DocumentFormat.XML)
         {
+            _httpClient = _defaultHttpClient;
             Id = Guid.NewGuid().ToString();
             Url = url;
             Timeout = DefaultTimeout;
             _documentFormat = documentFormat;
             ContentEncodings = HttpContentEncodings.DefaultAccept;
             ContentType = MimeTypes.Get(documentFormat);
-
-            _httpClient = new HttpClient();
-            _httpClient.Timeout = TimeSpan.FromMilliseconds(DefaultTimeout);
         }
 
-        /// <summary>Disposes the underlying <see cref="HttpClient"/>. The stream itself should be <see cref="Stop"/>ped first; <see cref="Dispose"/> does not cancel pending reads.</summary>
-        public void Dispose()
+        /// <summary>
+        /// Constructs an HTTP streaming reader for the MTConnect long-poll <c>sample</c> response
+        /// at <paramref name="url"/>. The stream assigns itself a fresh <see cref="Id"/>, defaults
+        /// the read timeout to five minutes, advertises the standard
+        /// <see cref="HttpContentEncodings.DefaultAccept"/> on <c>Accept-Encoding</c>, and picks
+        /// the matching <c>Accept</c> MIME type for <paramref name="documentFormat"/>.
+        /// </summary>
+        /// <param name="url">The fully built <c>sample</c> URL with <c>interval</c> / <c>heartbeat</c> parameters.</param>
+        /// <param name="documentFormat">Document format key (e.g. <c>xml</c>, <c>json</c>) to request and to parse the response with.</param>
+        public MTConnectHttpClientStream(HttpClient httpClient, string url, string documentFormat = DocumentFormat.XML)
         {
-            if (_httpClient != null) _httpClient.Dispose();
+            _httpClient = httpClient != null ? httpClient : _defaultHttpClient;
+            Id = Guid.NewGuid().ToString();
+            Url = url;
+            Timeout = DefaultTimeout;
+            _documentFormat = documentFormat;
+            ContentEncodings = HttpContentEncodings.DefaultAccept;
+            ContentType = MimeTypes.Get(documentFormat);
         }
+
+        /// <summary>
+        /// Releases the stream. The underlying <see cref="HttpClient"/> is not disposed since it is either
+        /// supplied by the caller or shared across all streams. The stream itself should be <see cref="Stop"/>ped first;
+        /// <see cref="Dispose"/> does not cancel pending reads.
+        /// </summary>
+        public void Dispose() { }
 
 
         /// <summary>
@@ -180,24 +206,7 @@ namespace MTConnect.Clients
                     Started.Raise(this, EventArgs.Empty, InternalError);
 
 
-                    // Add 'Accept' HTTP Header
-                    _httpClient.DefaultRequestHeaders.Add(HttpHeaders.Accept, ContentType);
-
-                    // Add 'Accept-Encoding' HTTP Header 
-                    if (!ContentEncodings.IsNullOrEmpty())
-                    {
-                        foreach (var acceptEncoding in ContentEncodings)
-                        {
-                            _httpClient.DefaultRequestHeaders.Add(HttpHeaders.AcceptEncoding, acceptEncoding.ToString().ToLower());
-                        }
-                    }
-
-
-                    var httpRequest = new HttpRequestMessage();
-                    httpRequest.RequestUri = new Uri(Url);
-                    httpRequest.Method = HttpMethod.Get;
-
-
+                    using (var httpRequest = CreateRequest())
                     using (var response = await _httpClient.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead, stop.Token))
 #if NET5_0_OR_GREATER
                     using (var stream = await response.Content.ReadAsStreamAsync(stop.Token))
@@ -323,6 +332,29 @@ namespace MTConnect.Clients
             }
 
             Stopped.Raise(this, EventArgs.Empty, InternalError);
+        }
+
+        private HttpRequestMessage CreateRequest()
+        {
+            var httpRequest = new HttpRequestMessage();
+            httpRequest.RequestUri = new Uri(Url);
+            httpRequest.Method = HttpMethod.Get;
+
+            // Headers are set on the Request (not HttpClient.DefaultRequestHeaders) since the HttpClient may be shared
+
+            // Add 'Accept' HTTP Header
+            httpRequest.Headers.Add(HttpHeaders.Accept, ContentType);
+
+            // Add 'Accept-Encoding' HTTP Header
+            if (!ContentEncodings.IsNullOrEmpty())
+            {
+                foreach (var acceptEncoding in ContentEncodings)
+                {
+                    httpRequest.Headers.Add(HttpHeaders.AcceptEncoding, acceptEncoding.ToString().ToLower());
+                }
+            }
+
+            return httpRequest;
         }
 
         private static string GetHeaderValue(string s, string name)
