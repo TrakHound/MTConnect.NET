@@ -13,6 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="config.development.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="config.default.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
