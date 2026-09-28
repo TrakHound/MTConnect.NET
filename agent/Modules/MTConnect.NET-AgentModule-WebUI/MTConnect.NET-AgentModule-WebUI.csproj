@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
+		<TargetFrameworks>net8.0</TargetFrameworks>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;net6.0;net7.0;net8.0;net9.0;net10.0</TargetFrameworks>
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>None</DebugType>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Package'">
+		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;net6.0;net7.0;net8.0;net9.0;net10.0</TargetFrameworks>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<RootNamespace>MTConnect</RootNamespace>
+		<Configurations>Debug;Release;Package</Configurations>
+
+		<Description>MTConnect.NET-AgentModule-WebUI hosts a lightweight browser user interface for the MTConnectAgentApplication class in the MTConnect.NET-Applications-Agents library. It lets a user browse Devices, current and sampled Observations, and Assets, and edit the Agent configuration file. Supports .NET Framework 4.6.1 up to .NET 10</Description>
+		<PackageReadmeFile>README-Nuget.md</PackageReadmeFile>
+
+		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+		<!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+		<!-- Optional: Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)'=='Package'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\libraries\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- The UI page ships inside the assembly so the module has no files to deploy alongside it -->
+		<EmbeddedResource Include="wwwroot\index.html" LogicalName="MTConnect.WebUI.index.html" />
+		<!-- Roboto / Roboto Mono (SIL OFL 1.1, see wwwroot\fonts\LICENSE-*.txt) so the UI works without internet access -->
+		<EmbeddedResource Include="wwwroot\fonts\*.woff2" LogicalName="MTConnect.WebUI.fonts.%(Filename)%(Extension)" />
+		<None Include="wwwroot\fonts\LICENSE-*.txt">
+			<Pack>True</Pack>
+			<PackagePath>\licenses\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="README-Nuget.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="../../../img/package-icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>
