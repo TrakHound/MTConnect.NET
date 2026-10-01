@@ -84,13 +84,13 @@ Configuration for an MTConnect Agent
 | `changeToken` | `ChangeToken` | `string` | An opaque token regenerated each time the configuration is saved, allowing consumers to detect that the configuration has changed. |
 | `convertUnits` | `ConvertUnits` | `bool` | Gets or Sets the default for Converting Units when adding Observations |
 | `defaultVersion` | `DefaultVersionValue` | `string` | The string form of <see cref="DefaultVersion"/> used for serialization; assigning a parseable version string updates <see cref="DefaultVersion"/>. |
-| `deviceValidationLevel` | `DeviceValidationLevel` | `DeviceValidationLevel` | Gets or Sets the default Device (MTConnectDevices) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict |
+| `deviceValidationLevel` | `DeviceValidationLevel` | [`DeviceValidationLevel`](/api/MTConnect.Agents.DeviceValidationLevel) | Gets or Sets the default Device (MTConnectDevices) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict. |
 | `enableAgentDevice` | `EnableAgentDevice` | `bool` | Gets or Sets whether the Agent Device is output |
 | `enableMetrics` | `EnableMetrics` | `bool` | Gets or Sets whether Metrics are captured (ex. ObserationUpdateRate, AssetUpdateRate) |
 | `enableValidation` | `EnableValidation` | `bool` | Gets or Sets whether validation information is output |
 | `ignoreObservationCase` | `IgnoreObservationCase` | `bool` | Gets or Sets the default for Ignoring the case of Observation values |
 | `ignoreTimestamps` | `IgnoreTimestamps` | `bool` | Overwrite timestamps with the agent time. This will correct clock drift but will not give as accurate relative time since it will not take into consideration network latencies. This can be overridden on a per adapter basis. |
-| `inputValidationLevel` | `InputValidationLevel` | `InputValidationLevel` | Gets or Sets the default Input (Observation or Asset) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict |
+| `inputValidationLevel` | `InputValidationLevel` | [`InputValidationLevel`](/api/MTConnect.Agents.InputValidationLevel) | Gets or Sets the default Input (Observation or Asset) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict. |
 | `observationBufferSize` | `ObservationBufferSize` | `uint` | The maximum number of Observations the agent can hold in its buffer |
 | `sender` | `Sender` | `string` | The value emitted as the <c>Header/@sender</c> attribute on MTConnect response documents (see MTConnect Part 1 §7). When null or empty, <see cref="MTConnect.Agents.MTConnectAgent"/> falls back to <see cref="System.Net.Dns.GetHostName"/>. |
 | `timezoneOutput` | `TimeZoneOutput` | `string` | Sets the TimeZone to use when timestamps are output from the Agent |
@@ -198,13 +198,13 @@ Configuration for an MTConnect Agent
 | `changeToken` | `ChangeToken` | `string` | An opaque token that changes whenever the underlying configuration source is reloaded, allowing consumers to detect that the configuration has been replaced. |
 | `convertUnits` | `ConvertUnits` | `bool` | Gets the default for Converting Units when adding Observations |
 | `defaultVersion` | `DefaultVersion` | `Version` | Gets the default MTConnect version to output response documents for. |
-| `deviceValidationLevel` | `DeviceValidationLevel` | `DeviceValidationLevel` | Gets or Sets the default Device (MTConnectDevices) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict |
+| `deviceValidationLevel` | `DeviceValidationLevel` | [`DeviceValidationLevel`](/api/MTConnect.Agents.DeviceValidationLevel) | Gets the default Device (MTConnectDevices) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict |
 | `enableAgentDevice` | `EnableAgentDevice` | `bool` | Gets or Sets whether the Agent Device is output |
 | `enableMetrics` | `EnableMetrics` | `bool` | Gets whether Metrics are captured (ex. ObserationUpdateRate, AssetUpdateRate) |
 | `enableValidation` | `EnableValidation` | `bool` | Gets or Sets whether validation information is output |
 | `ignoreObservationCase` | `IgnoreObservationCase` | `bool` | Gets the default for Ignoring the case of Observation values |
 | `ignoreTimestamps` | `IgnoreTimestamps` | `bool` | Overwrite timestamps with the agent time. This will correct clock drift but will not give as accurate relative time since it will not take into consideration network latencies. This can be overridden on a per adapter basis. |
-| `inputValidationLevel` | `InputValidationLevel` | `InputValidationLevel` | Gets the default Input (Observation or Asset) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict |
+| `inputValidationLevel` | `InputValidationLevel` | [`InputValidationLevel`](/api/MTConnect.Agents.InputValidationLevel) | Gets the default Input (Observation or Asset) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict |
 | `observationBufferSize` | `ObservationBufferSize` | `uint` | The maximum number of Observations the agent can hold in its buffer |
 | `path` | `Path` | `string` | The file system path the configuration was loaded from, used as the default target when the configuration is saved back to disk. |
 | `sender` | `Sender` | `string` | The value emitted as the <c>Header/@sender</c> attribute on MTConnect response documents (see MTConnect Part 1 §7). When null or empty, <see cref="MTConnect.Agents.MTConnectAgent"/> falls back to <see cref="System.Net.Dns.GetHostName"/>. |

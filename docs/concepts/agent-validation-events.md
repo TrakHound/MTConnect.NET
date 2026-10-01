@@ -144,7 +144,7 @@ The handler runs first; what the agent does next depends on the applicable knob 
 - **`Ignore`** — the event does not fire, and the input is kept. Useful only for debugging.
 - **`Warning`** — the event fires; the input is kept.
 - **`Remove`** — the event fires; the offending node is pruned from its parent (e.g. `device.RemoveDataItem(id)`), or the input is dropped for the observation / asset case.
-- **`Strict`** — the event fires; the entire Device is rejected (the `AddDevice` call returns `false` and no part of the tree is added), or the observation / asset input is rejected.
+- **`Strict`** — the event fires; the entire Device is rejected (the `AddDevice` call returns `null` and no part of the tree is added), or the observation / asset input call returns `false`.
 
 ## Contributor POV
 
@@ -196,10 +196,10 @@ The event family is designed to grow. When a new element class becomes validatab
        var fired = false;
        agent.InvalidDeviceModelAdded += (_, _, _) => fired = true;
 
-       var ok = agent.AddDevice(BrokenDeviceModelFixture());
+       var added = agent.AddDevice(BrokenDeviceModelFixture());
 
+       Assert.That(added, Is.Null);
        Assert.That(fired, Is.True);
-       Assert.That(ok,    Is.False);
        Assert.That(agent.GetDevices(), Is.Empty);
    }
    ```

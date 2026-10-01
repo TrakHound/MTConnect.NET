@@ -704,11 +704,23 @@ namespace MTConnect.Devices
 
 
         /// <summary>
-        /// Remove a Composition from the Composition
+        /// Maximum recursion depth for Component-tree walks — belt-and-braces
+        /// guard alongside the visited-Id cycle set. Matches the ceiling on the
+        /// <see cref="Device"/> override.
+        /// </summary>
+        private const int MaxComponentWalkDepth = 1024;
+
+        /// <summary>
+        /// Remove a Composition from this Component's Compositions collection and
+        /// every nested child Component's collection. The traversal carries a
+        /// visited-Id cycle guard so a cyclic Component graph
+        /// (<c>A.Components ∋ B</c>, <c>B.Components ∋ A</c>) terminates instead of
+        /// stack-overflowing.
         /// </summary>
         /// <param name="compositionId">The ID of the Composition to remove</param>
         public void RemoveComposition(string compositionId)
         {
+            // Self Compositions.
             if (!Compositions.IsNullOrEmpty())
             {
                 var compositions = new List<IComposition>();
@@ -717,17 +729,47 @@ namespace MTConnect.Devices
 
                 Compositions = compositions;
             }
+
+            // Nested Compositions on every child Component (recursive).
+            if (!Components.IsNullOrEmpty())
+            {
+                var visitedIds = new HashSet<string>(StringComparer.Ordinal);
+                // Seed the visited set with this component's own Id so a cycle
+                // back to `this` terminates immediately.
+                if (!string.IsNullOrEmpty(Id)) visitedIds.Add(Id);
+                foreach (var component in Components)
+                {
+                    RemoveComposition(component, compositionId, visitedIds, depth: 1);
+                }
+            }
         }
 
-        private void RemoveComposition(IComponent component, string compositionId)
+        private void RemoveComposition(IComponent component, string compositionId, HashSet<string> visitedIds, int depth)
         {
-            if (component != null && !component.Compositions.IsNullOrEmpty())
+            if (component == null) return;
+            if (depth > MaxComponentWalkDepth) return;
+
+            // Cycle guard: skip re-entry for a Component whose Id we've already
+            // processed on this walk.
+            if (!string.IsNullOrEmpty(component.Id) && !visitedIds.Add(component.Id)) return;
+
+            if (!component.Compositions.IsNullOrEmpty())
             {
                 var compositions = new List<IComposition>();
                 compositions.AddRange(component.Compositions);
                 compositions.RemoveAll(o => o.Id == compositionId);
 
-                ((Component)component).AddCompositions(compositions);
+                // Replace outright rather than AddCompositions (which would append
+                // duplicates); the local list already contains the survivors.
+                ((Component)component).Compositions = compositions;
+            }
+
+            if (!component.Components.IsNullOrEmpty())
+            {
+                foreach (var subComponent in component.Components)
+                {
+                    RemoveComposition(subComponent, compositionId, visitedIds, depth + 1);
+                }
             }
         }
 
@@ -1066,7 +1108,12 @@ namespace MTConnect.Devices
 
 
         /// <summary>
-        /// Remove a DataItem from the Component
+        /// Remove a DataItem from the Component's own DataItems collection and
+        /// every nested child Component's collection. Uses an inline recursive
+        /// walk (not the previous <see cref="GetComponents()"/> flatten) so it
+        /// can carry the same visited-Id cycle guard as
+        /// <see cref="RemoveComposition(string)"/>; a cyclic Component graph
+        /// terminates instead of stack-overflowing.
         /// </summary>
         /// <param name="dataItemId">The ID of the DataItem to remove</param>
         public void RemoveDataItem(string dataItemId)
@@ -1079,18 +1126,40 @@ namespace MTConnect.Devices
                 DataItems = dataItems;
             }
 
-            var components = GetComponents();
-            if (!components.IsNullOrEmpty())
+            if (!Components.IsNullOrEmpty())
             {
-                foreach (var component in components)
+                var visitedIds = new HashSet<string>(StringComparer.Ordinal);
+                // Seed the visited set with this component's own Id so a cycle
+                // back to `this` terminates immediately.
+                if (!string.IsNullOrEmpty(Id)) visitedIds.Add(Id);
+                foreach (var component in Components)
                 {
-                    if (!component.DataItems.IsNullOrEmpty())
-                    {
-                        var dataItems = new List<IDataItem>();
-                        dataItems.AddRange(component.DataItems);
-                        dataItems.RemoveAll(o => o.Id == dataItemId);
-                        component.DataItems = dataItems;
-                    }
+                    RemoveDataItem(component, dataItemId, visitedIds, depth: 1);
+                }
+            }
+        }
+
+        private void RemoveDataItem(IComponent component, string dataItemId, HashSet<string> visitedIds, int depth)
+        {
+            if (component == null) return;
+            if (depth > MaxComponentWalkDepth) return;
+
+            // Cycle guard — mirrors RemoveComposition.
+            if (!string.IsNullOrEmpty(component.Id) && !visitedIds.Add(component.Id)) return;
+
+            if (!component.DataItems.IsNullOrEmpty())
+            {
+                var dataItems = new List<IDataItem>();
+                dataItems.AddRange(component.DataItems);
+                dataItems.RemoveAll(o => o.Id == dataItemId);
+                component.DataItems = dataItems;
+            }
+
+            if (!component.Components.IsNullOrEmpty())
+            {
+                foreach (var subComponent in component.Components)
+                {
+                    RemoveDataItem(subComponent, dataItemId, visitedIds, depth + 1);
                 }
             }
         }

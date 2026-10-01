@@ -383,11 +383,35 @@ public static class ConfigRenderer
             sb.AppendLine("| --- | --- | --- | --- |");
             foreach (var p in c.Properties)
             {
-                sb.AppendLine($"| `{p.SerialisedKey}` | `{p.Name}` | `{Escape(p.Type)}` | {Escape(p.Summary)} |");
+                sb.AppendLine($"| `{p.SerialisedKey}` | `{p.Name}` | {RenderType(p.Type)} | {Escape(p.Summary)} |");
             }
             sb.AppendLine();
         }
         return sb.ToString();
+    }
+
+    /// <summary>
+    /// Maps a config property's type name to its authored docfx API page,
+    /// keyed on exact type-name equality (no prefix/substring matching).
+    /// </summary>
+    private static readonly IReadOnlyDictionary<string, string> TypeApiLinks = new Dictionary<string, string>
+    {
+        ["DeviceValidationLevel"] = "/api/MTConnect.Agents.DeviceValidationLevel",
+        ["InputValidationLevel"] = "/api/MTConnect.Agents.InputValidationLevel",
+    };
+
+    /// <summary>
+    /// Renders the Type column for a config property: a markdown link into
+    /// the docfx API namespace for types with an authored API page (see
+    /// <see cref="TypeApiLinks"/>), or a plain backtick-fenced type name
+    /// otherwise. The type name is escaped before either shape is emitted.
+    /// </summary>
+    private static string RenderType(string type)
+    {
+        var escaped = Escape(type);
+        return TypeApiLinks.TryGetValue(type, out var href)
+            ? $"[`{escaped}`]({href})"
+            : $"`{escaped}`";
     }
 
     private static string Escape(string s) => s.Replace("|", "\\|").Replace("\n", " ").Replace("\r", " ");

@@ -71,7 +71,7 @@ namespace MTConnect.Configurations
         bool EnableValidation { get; }
 
         /// <summary>
-        /// Gets or Sets the default Device (MTConnectDevices) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict
+        /// Gets the default Device (MTConnectDevices) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict
         /// </summary>
         DeviceValidationLevel DeviceValidationLevel { get; }
 

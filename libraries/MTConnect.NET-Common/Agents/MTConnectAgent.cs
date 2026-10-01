@@ -2344,17 +2344,15 @@ namespace MTConnect.Agents
         /// Rewrites the observation's Result value to <see cref="Observation.Unavailable"/> and flags the input as unavailable.
         /// </summary>
         /// <remarks>
-        /// Removes any prior Result entry (so the Values collection does not carry a duplicate ValueKey),
-        /// adds the UNAVAILABLE sentinel, and sets <see cref="IObservationInput.IsUnavailable"/> so downstream
-        /// consumers that branch on the flag observe the coerced state. Spec authority: MTConnect Part 2
-        /// Devices Information Model - Observation Information Model - Representation - Observation Values.
+        /// Delegates the Values-collection housekeeping to
+        /// <see cref="ObservationInput.AddValue(string, object)"/>, which already
+        /// replaces any prior entry with the same ValueKey — the earlier hand-written
+        /// pre-filter (Where + ToList + assign) was redundant work. Spec authority:
+        /// MTConnect Part 2 Devices Information Model - Observation Information Model -
+        /// Representation - Observation Values.
         /// </remarks>
         private static void CoerceEmptyResultToUnavailable(IObservationInput input)
         {
-            var preserved = (input.Values ?? Enumerable.Empty<ObservationValue>())
-                .Where(v => v.Key != ValueKeys.Result)
-                .ToList();
-            input.Values = preserved;
             input.AddValue(ValueKeys.Result, Observation.Unavailable);
             input.IsUnavailable = true;
         }
