@@ -107,6 +107,7 @@ Publishes outbound MQTT messages to an external broker. The agent acts as a clie
     qos: 1                       # 0 | 1 | 2.
 
     useTls: false                # whether to use TLS.
+    sslProtocols: [Tls12, Tls13] # optional; TLS versions the relay is allowed to negotiate.
     tls:
       pem:
         certificateAuthority: /path/to/rootCA.crt

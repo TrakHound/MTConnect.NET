@@ -82,6 +82,24 @@ The `pem:` block declares a PEM-encoded certificate chain. Two alternates:
 - `pfx:` — a PKCS#12 bundle path + password (Windows-friendly).
 - Omit both — the agent picks up the platform certificate store's roots; useful for brokers using a public CA-signed certificate.
 
+### Pinning the TLS version
+
+The relay negotiates TLS 1.2 and TLS 1.3 by default on .NET Framework 4.8 / .NET 5+ (`["Tls12", "Tls13"]`); older target frameworks default to `["Tls12"]`. Override the set with the `sslProtocols:` list to widen or pin the negotiated version:
+
+```yaml
+modules:
+- mqtt-relay:
+    server: broker.example.com
+    port: 8883
+    useTls: true
+    sslProtocols: [Tls13]        # pin to TLS 1.3 only.
+    tls:
+      pem:
+        certificateAuthority: /etc/mtconnect/ca.crt
+```
+
+Every entry must name a member of `System.Security.Authentication.SslProtocols` (case-insensitive). An empty list, an unknown protocol name, or a name the running framework does not expose fails fast at module load with a `MqttRelayConfigurationException` — the module never silently downgrades to a broader negotiated set.
+
 See [Troubleshooting: MQTT TLS handshake](/troubleshooting/mqtt-tls-handshake) when the handshake fails.
 
 ## 5. Authenticated relay

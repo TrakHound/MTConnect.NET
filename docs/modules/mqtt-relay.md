@@ -25,7 +25,8 @@ The module's configuration class is `MqttRelayModuleConfiguration`. The keys bel
 | `clientId` | string | `null` (auto-generated) | any MQTT client-id string | Client identifier presented to the broker. |
 | `cleanSession` | bool | `false` | `true`, `false` | Sets the MQTT clean-session flag. |
 | `qos` | int | `0` | `0` (at-most-once), `1` (at-least-once), `2` (exactly-once) | The QoS level used on every publish. |
-| `tls` | map | `null` | see the [HTTP server's `tls` schema](./http-server#tls-schema) | TLS settings (client certificate, CA chain, mutual-TLS toggle). |
+| `tls` | map | `null` | see the [HTTP server's `tls` schema](./http-server#tls-schema) | TLS settings (client certificate, CA chain, mutual-TLS toggle). Applied whenever `tls:` is present, even without a client certificate — the `useTls` and `tls.*` surfaces compose on the same options object. |
+| `sslProtocols` | list&lt;string&gt; | `["Tls12", "Tls13"]` on .NET Framework 4.8 / .NET 5+; `["Tls12"]` on older TFMs | any name of a `System.Security.Authentication.SslProtocols` enum member (case-insensitive) | Bitwise-OR set of TLS versions the relay negotiates with the broker. Empty, unknown, or runtime-unsupported entries surface a `MqttRelayConfigurationException` at module load rather than a silent downgrade. Pin to `["Tls13"]` for TLS-1.3-only. |
 | `topicPrefix` | string | `MTConnect` | any MQTT-valid topic prefix | Root of the topic tree the module publishes on. |
 | `topicStructure` | enum | `Document` | `Document`, `Entity` | Selects per-document publication or per-DataItem publication. |
 | `documentFormat` | string | `json-cppAgent` | `XML`, `JSON`, `JSON-cppAgent` | The document format used for the published payloads. |

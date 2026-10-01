@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -43,6 +42,7 @@ namespace MTConnect
         private const string ModuleId = "MQTT Relay";
 
         private readonly MqttRelayModuleConfiguration _configuration;
+        private readonly System.Security.Authentication.SslProtocols _sslProtocols;
         private readonly MTConnectMqttDocumentServer _documentServer;
         private readonly MTConnectMqttEntityServer _entityServer;
         private readonly MqttFactory _mqttFactory;
@@ -82,6 +82,14 @@ namespace MTConnect
             Id = ModuleId;
 
             _configuration = AgentApplicationConfiguration.GetConfiguration<MqttRelayModuleConfiguration>(configuration);
+
+            // Resolve the user-configured SslProtocols list up front
+            // so a misconfiguration surfaces at module load rather
+            // than as a mid-worker connect failure. The resolver
+            // throws MqttRelayConfigurationException on an empty
+            // list, an unknown name, or a runtime-unsupported
+            // enum value.
+            _sslProtocols = MqttRelayTlsProtocolResolver.Resolve(_configuration.SslProtocols);
 
             switch (_configuration.TopicStructure)
             {
@@ -261,71 +269,34 @@ namespace MTConnect
                             clientOptionsBuilder.WithClientId(_configuration.ClientId);
                         }
 
-                        // Set TLS Certificate
-                        if (_configuration.Tls != null)
+                        // Compose TLS options once so the Tls.* flag
+                        // surface, the optional client certificate, and
+                        // the SslProtocols set all land on the same
+                        // MqttClientTlsOptions instance. Previously the
+                        // TLS composition happened in two branches (a
+                        // client-cert branch and a credentials-branch
+                        // fallback) that could each overwrite the other,
+                        // so Tls.* flags were inert whenever the user
+                        // did not supply a client certificate and the
+                        // credentials-branch overwrite discarded any
+                        // TLS composition the client-cert branch had
+                        // built.
+                        var tlsOptions = MqttRelayTlsOptionsBuilder.Build(
+                            _configuration,
+                            _sslProtocols);
+                        if (tlsOptions != null)
                         {
-                            var certificateResults = _configuration.Tls.GetCertificate();
-                            if (certificateResults.Success && certificateResults.Certificate != null)
-                            {
-                                var certificateAuthorityResults = _configuration.Tls.GetCertificateAuthority();
-
-                                var certificates = new List<X509Certificate2>();
-                                if (certificateAuthorityResults.Certificate != null && _configuration.Tls.OmitCAValidation == false)
-                                {
-                                    certificates.Add(certificateAuthorityResults.Certificate);
-                                }
-                                certificates.Add(certificateResults.Certificate);
-
-                                var tlsOptionsBuilder = new MqttClientTlsOptionsBuilder();
-
-                                // Set Client Certificate
-                                tlsOptionsBuilder.WithClientCertificates(certificates);
-
-                                // Set VerifyClientCertificate option
-                                tlsOptionsBuilder.WithAllowUntrustedCertificates(!_configuration.Tls.VerifyClientCertificate);
-
-#if NET5_0_OR_GREATER
-                                // Setup CA Certificate
-                                if (certificateAuthorityResults.Certificate != null)
-                                {
-                                    tlsOptionsBuilder.WithCertificateValidationHandler((certContext) =>
-                                    {
-                                        var chain = new X509Chain();
-                                        chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
-                                        chain.ChainPolicy.RevocationFlag = X509RevocationFlag.ExcludeRoot;
-                                        chain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
-                                        chain.ChainPolicy.VerificationTime = DateTime.Now;
-                                        chain.ChainPolicy.UrlRetrievalTimeout = new TimeSpan(0, 0, 0);
-                                        chain.ChainPolicy.CustomTrustStore.Add(certificateAuthorityResults.Certificate);
-                                        chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
-
-                                        // convert provided X509Certificate to X509Certificate2
-                                        var x5092 = new X509Certificate2(certContext.Certificate);
-
-                                        return chain.Build(x5092);
-                                    });
-                                }
-#endif
-
-                                clientOptionsBuilder.WithTlsOptions(tlsOptionsBuilder.Build());
-                            }
+                            clientOptionsBuilder.WithTlsOptions(tlsOptions);
                         }
 
-                        // Add Credentials
+                        // Add Credentials. Credentials attach in a single
+                        // step regardless of TLS state; the credentials
+                        // branch never rebuilds the TLS options object
+                        // so a Username/Password pair does not clobber
+                        // the Tls.* flags composed above.
                         if (!string.IsNullOrEmpty(_configuration.Username) && !string.IsNullOrEmpty(_configuration.Password))
                         {
-                            if (_configuration.UseTls)
-                            {
-                                var tlsOptionsBuilder = new MqttClientTlsOptionsBuilder();
-                                tlsOptionsBuilder.WithSslProtocols(System.Security.Authentication.SslProtocols.Tls12);
-                                clientOptionsBuilder.WithTlsOptions(tlsOptionsBuilder.Build());
-
-                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password);
-                            }
-                            else
-                            {
-                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password);
-                            }
+                            clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password);
                         }
 
                         // Build MQTT Client Options

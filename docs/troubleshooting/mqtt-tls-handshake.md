@@ -133,7 +133,7 @@ For development against a self-signed certificate that you trust, the [OpenSSL](
 - If the agent runs on .NET Framework 4.6.1 / 4.7, set the `SecurityProtocol` early in startup: `System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;`.
 - If the broker is the limiting party, configure it to accept TLS 1.2; on Mosquitto this is `tls_version tlsv1.2` in `mosquitto.conf`.
 
-The shipped library targets `SslProtocols.None` (let the runtime pick the highest mutually-supported version) by default, which works for any broker accepting TLS 1.2+ on .NET 6+.
+The `mqtt-relay` module defaults to `sslProtocols: [Tls12, Tls13]` on .NET Framework 4.8 / .NET 5+ and `[Tls12]` on older target frameworks. Widen or pin the negotiated set through the `sslProtocols:` key under the module's `mqtt-relay:` block (see [Cookbook: TLS-enabled relay](/cookbook/configure-mqtt-relay#4-tls-enabled-relay)). Empty or unknown entries surface a `MqttRelayConfigurationException` at module load rather than as a mid-connect failure.
 
 ## Category 6: cipher suite mismatch
 

@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Tls;
+using System.Collections.Generic;
 
 namespace MTConnect.Configurations
 {
@@ -67,6 +68,27 @@ namespace MTConnect.Configurations
         /// </summary>
         public TlsConfiguration Tls { get; set; }
 
+        /// <summary>
+        /// Gets or sets the list of SSL/TLS protocol versions the
+        /// relay is allowed to negotiate with the broker. Each entry
+        /// is the name of a member of
+        /// <see cref="System.Security.Authentication.SslProtocols"/>
+        /// (case-insensitive) - for example <c>"Tls12"</c> or
+        /// <c>"Tls13"</c>. When multiple entries are supplied they are
+        /// bitwise-OR'd, letting the underlying TLS stack pick the
+        /// highest mutually-supported version.
+        ///
+        /// <para>The default is <c>["Tls12", "Tls13"]</c> on target
+        /// frameworks where the runtime exposes
+        /// <c>SslProtocols.Tls13</c> (.NET Framework 4.8, .NET 5+);
+        /// <c>["Tls12"]</c> on older target frameworks. Setting an
+        /// empty list, an unknown protocol name, or a protocol name
+        /// the running framework does not support surfaces a
+        /// configuration error at module load rather than a silent
+        /// downgrade.</para>
+        /// </summary>
+        public List<string> SslProtocols { get; set; }
+
 
         /// <summary>
         /// The prefix to add to the MQTT topics that are published
@@ -130,6 +152,17 @@ namespace MTConnect.Configurations
 
             CurrentInterval = 5000;
             SampleInterval = 500;
+
+            // Default protocol set includes both TLS 1.2 and TLS 1.3
+            // on target frameworks where SslProtocols.Tls13 is
+            // defined; on older TFMs (net461-net472, netstandard2.0)
+            // the runtime does not expose the Tls13 enum member so
+            // the default falls back to Tls12-only. Users can widen /
+            // narrow the set via agent.config.yaml.
+            SslProtocols = new List<string> { "Tls12" };
+#if NET48 || NET5_0_OR_GREATER
+            SslProtocols.Add("Tls13");
+#endif
         }
     }
 }

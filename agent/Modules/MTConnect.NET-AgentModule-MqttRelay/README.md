@@ -49,6 +49,8 @@ modules:
 
 * `useTls` - Sets whether to use TLS or not (true or false)
 
+* `sslProtocols` - List of TLS protocol names the relay is allowed to negotiate (e.g. `["Tls12", "Tls13"]`). Default is `["Tls12", "Tls13"]` on .NET Framework 4.8 / .NET 5+ and `["Tls12"]` on older target frameworks. Each entry must name a member of `System.Security.Authentication.SslProtocols` (case-insensitive); an empty list, an unknown name, or a name the runtime does not expose fails at module load with a `MqttRelayConfigurationException` rather than silently downgrading.
+
 * `topicPrefix` - The prefix to add to the MQTT topics that are published
  
 * `topicStructure` - (Document or Entity) Sets how MQTT topics and messages are stuctured
