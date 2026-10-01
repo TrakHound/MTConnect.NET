@@ -43,6 +43,22 @@ namespace MTConnect.Assets.Json
         /// <see cref="IAssetsResponseDocument"/>, dispatching each asset to the
         /// surrogate that matches its type.
         /// </summary>
+        /// <remarks>
+        /// This constructor MUST remain null-tolerant on
+        /// <paramref name="assetsDocument"/>. The static-ctor
+        /// warm-up in <c>MTConnect.JsonFunctions.WarmReachableGraph</c>
+        /// calls <c>new JsonAssetsDocument(null)</c> to force
+        /// System.Text.Json to emit the LCG DynamicMethod property
+        /// accessors for the reachable Assets graph at assembly load,
+        /// avoiding a cold reflection-emit on the first user-facing
+        /// /assets request. Adding an
+        /// <c>ArgumentNullException.ThrowIfNull(assetsDocument)</c>
+        /// guard here would turn the first JSON serialization on
+        /// process start into a <see cref="System.TypeInitializationException"/>.
+        /// If the null-tolerance contract must change, update the
+        /// warm-up site atomically per §1.0d-trigies-bis
+        /// (F-IMP-C5-002).
+        /// </remarks>
         public JsonAssetsDocument(IAssetsResponseDocument assetsDocument)
         {
             if (assetsDocument != null)

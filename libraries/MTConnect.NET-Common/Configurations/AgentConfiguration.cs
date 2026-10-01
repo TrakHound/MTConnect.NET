@@ -40,6 +40,15 @@ namespace MTConnect.Configurations
         /// </summary>
         public const string DefaultYamlFilename = "agent.config.default.yaml";
 
+        // Shared across every ReadJson call. See JsonFunctions.cs for
+        // the rationale — a fresh JsonSerializerOptions per call
+        // re-emits LCG DynamicMethods into the loader heap, and the GC
+        // cannot reclaim them.
+        private static readonly JsonSerializerOptions _readOptions = new JsonSerializerOptions()
+        {
+            ReadCommentHandling = JsonCommentHandling.Skip
+        };
+
 
         /// <summary>
         /// An opaque token regenerated each time the configuration is saved, allowing consumers to detect that the configuration has changed.
@@ -283,12 +292,7 @@ namespace MTConnect.Configurations
                     var text = File.ReadAllText(configurationPath);
                     if (!string.IsNullOrEmpty(text))
                     {
-                        var options = new JsonSerializerOptions()
-                        {
-                            ReadCommentHandling = JsonCommentHandling.Skip
-                        };
-
-                        var configuration = JsonSerializer.Deserialize<T>(text, options);
+                        var configuration = JsonSerializer.Deserialize<T>(text, _readOptions);
                         configuration.Path = configurationPath;
                         return configuration;
                     }
@@ -323,12 +327,7 @@ namespace MTConnect.Configurations
                     var text = File.ReadAllText(configurationPath);
                     if (!string.IsNullOrEmpty(text))
                     {
-                        var options = new JsonSerializerOptions()
-                        {
-                            ReadCommentHandling = JsonCommentHandling.Skip
-                        };
-
-                        var configuration = (AgentConfiguration)JsonSerializer.Deserialize(text, type, options);
+                        var configuration = (AgentConfiguration)JsonSerializer.Deserialize(text, type, _readOptions);
                         configuration.Path = configurationPath;
                         return configuration;
                     }

@@ -19,6 +19,15 @@ namespace MTConnect.Agents
         /// </summary>
         public const string Filename = "agent.information.json";
 
+        // Shared across every Save call. See JsonFunctions.cs for the
+        // rationale — a fresh JsonSerializerOptions per call re-emits
+        // LCG DynamicMethods into the loader heap, and the GC cannot
+        // reclaim them.
+        private static readonly JsonSerializerOptions _saveOptions = new JsonSerializerOptions
+        {
+            WriteIndented = true
+        };
+
 
         /// <summary>
         /// A token regenerated on every save, used to detect when the persisted information has changed.
@@ -127,12 +136,7 @@ namespace MTConnect.Agents
 
             try
             {
-                var options = new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                };
-
-                var json = JsonSerializer.Serialize(this, options);
+                var json = JsonSerializer.Serialize(this, _saveOptions);
                 File.WriteAllText(configurationPath, json);
             }
             catch { }

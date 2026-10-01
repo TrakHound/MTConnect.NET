@@ -23,6 +23,12 @@ namespace MTConnect.Mqtt
     /// </summary>
     public static class MTConnectMqttMessage
     {
+        // Shared across every agent-information publish. See
+        // JsonFunctions.cs for the rationale — a fresh
+        // JsonSerializerOptions per call re-emits LCG DynamicMethods
+        // into the loader heap, and the GC cannot reclaim them.
+        private static readonly JsonSerializerOptions _agentInformationOptions = new JsonSerializerOptions { WriteIndented = true };
+
         private static MqttApplicationMessage CreateMessage(string topic, string payload, bool retain = false)
         {
             try
@@ -91,7 +97,7 @@ namespace MTConnect.Mqtt
                     }
 
                     var topic = $"MTConnect/Agents/{agent.Uuid}/Information";
-                    var json = JsonSerializer.Serialize(information, new JsonSerializerOptions { WriteIndented = true });
+                    var json = JsonSerializer.Serialize(information, _agentInformationOptions);
 
                     messages.Add(CreateMessage(topic, json, retain));
                 }

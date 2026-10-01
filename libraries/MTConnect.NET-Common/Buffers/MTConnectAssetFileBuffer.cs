@@ -36,6 +36,15 @@ namespace MTConnect.Buffers
         /// </summary>
         public const string DirectoryAssets = "assets";
 
+        // Shared across every asset persistence call. See
+        // JsonFunctions.cs for the rationale — a fresh
+        // JsonSerializerOptions per call re-emits LCG DynamicMethods
+        // into the loader heap, and the GC cannot reclaim them.
+        private static readonly JsonSerializerOptions _writeOptions = new JsonSerializerOptions
+        {
+            WriteIndented = true
+        };
+
         private readonly string _basePath;
         private readonly MTConnectAssetQueue _items;
         private readonly Regex _regex = new Regex("([0-9]*)_(.*)");
@@ -432,14 +441,9 @@ namespace MTConnect.Buffers
                         }
                     }
 
-                    var options = new JsonSerializerOptions
-                    {
-                        WriteIndented = true
-                    };
-
                     var assetType = Asset.GetAssetType(asset.Type);
 
-                    var json = JsonSerializer.Serialize(asset, assetType, options);
+                    var json = JsonSerializer.Serialize(asset, assetType, _writeOptions);
                     if (!string.IsNullOrEmpty(json))
                     {
                         if (UseCompression)

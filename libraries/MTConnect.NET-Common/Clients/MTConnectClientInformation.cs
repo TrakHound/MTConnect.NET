@@ -23,6 +23,15 @@ namespace MTConnect.Clients
         /// </summary>
         public const string FilenameExtension = ".json";
 
+        // Shared across every Save call. See JsonFunctions.cs for the
+        // rationale — a fresh JsonSerializerOptions per call re-emits
+        // LCG DynamicMethods into the loader heap, and the GC cannot
+        // reclaim them.
+        private static readonly JsonSerializerOptions _saveOptions = new JsonSerializerOptions
+        {
+            WriteIndented = true
+        };
+
 
         /// <summary>
         /// A token regenerated on every save, used to detect that the persisted state has changed since it was last loaded.
@@ -126,12 +135,7 @@ namespace MTConnect.Clients
                 var configurationPath = Path.Combine(dir, GenerateFilename(DeviceKey));
                 if (path != null) configurationPath = path;
 
-                var options = new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                };
-
-                var json = JsonSerializer.Serialize(this, options);
+                var json = JsonSerializer.Serialize(this, _saveOptions);
                 File.WriteAllText(configurationPath, json);
             }
             catch { }
