@@ -308,6 +308,70 @@
   .history .table-wrap { max-height: 260px; min-height: 0; }
 
   /* Config editor */
+  /* Configuration form */
+  .config-layout { grid-template-columns: 240px minmax(0, 1fr); }
+  .config-nav { padding: 8px; max-height: calc(100vh - 150px); overflow: auto; }
+  .config-nav .group { margin: 10px 6px 4px; font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+  .config-nav .group:first-child { margin-top: 2px; }
+  .config-nav button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    border: 0;
+    background: none;
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    padding: 5px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  .config-nav button:hover { background: var(--accent-soft); }
+  .config-nav button.selected { background: var(--accent); color: #fff; }
+  .config-nav button .detail { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .config-nav button.selected .detail { color: #dde8ff; }
+  .config-nav .dirty-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); margin-left: auto; flex-shrink: 0; }
+  .config-fields { display: grid; grid-template-columns: minmax(160px, 220px) minmax(0, 1fr); gap: 2px 16px; align-items: start; }
+  .config-fields .field-label { padding: 7px 0 0; font-family: var(--font-mono); font-size: 13px; overflow-wrap: anywhere; }
+  .config-fields .field-control { display: flex; flex-direction: column; gap: 2px; padding: 3px 0 10px; border-bottom: 1px solid var(--border); }
+  .config-fields .field-label { border-bottom: 1px solid var(--border); align-self: stretch; padding-bottom: 10px; }
+  .config-fields .field-row { display: flex; gap: 6px; align-items: center; }
+  .config-fields .field-row input, .config-fields .field-row select { flex: 1; min-width: 0; max-width: 420px; }
+  .config-fields .help { font-size: 12px; color: var(--muted); }
+  .config-fields .changed .field-row input, .config-fields .changed .field-row select { border-color: var(--warn); box-shadow: inset 3px 0 0 var(--warn); }
+  .config-fields .set-marker { font-size: 11px; color: var(--accent); }
+  button.icon-btn {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--muted);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 12px;
+    padding: 4px 8px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  button.icon-btn:hover { color: var(--text); border-color: var(--accent); }
+  .config-section-title { font-size: 13px; font-weight: 500; margin: 18px 0 6px; }
+  .add-module { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .add-module select { min-width: 240px; }
+  .config-complex { display: grid; grid-template-columns: minmax(160px, 220px) minmax(0, 1fr); gap: 6px 16px; }
+  .config-complex pre { margin: 0; padding: 6px 8px; background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; overflow: auto; max-height: 160px; }
+  textarea.entry-yaml {
+    width: 100%;
+    min-height: 240px;
+    font: 13px/1.5 var(--font-mono);
+    color: var(--text);
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    resize: vertical;
+    tab-size: 2;
+  }
+  textarea.entry-yaml.changed { border-color: var(--warn); }
+
   textarea#config {
     width: 100%;
     min-height: calc(100vh - 260px);
@@ -347,6 +411,9 @@
     .tree { max-height: 240px; }
     .table-wrap { max-height: none; }
     .hide-sm { display: none; }
+    .config-nav { max-height: 220px; }
+    .config-fields, .config-complex { grid-template-columns: minmax(0, 1fr); }
+    .config-fields .field-label { border-bottom: 0; padding-bottom: 0; }
   }
   @media (max-width: 600px) {
     /* Title and links on the first row, tabs wrap onto their own full-width row(s) below */
@@ -523,17 +590,37 @@
   </section>
 
   <section id="view-config" class="view">
-    <div class="panel">
-      <div class="toolbar">
-        <strong>Agent Configuration</strong>
-        <span class="muted mono" id="config-path"></span>
-        <span class="spacer"></span>
-        <span class="status" id="config-status"></span>
-        <button class="btn" id="config-reload">Reload</button>
-        <button class="btn primary" id="config-save">Save</button>
+    <div class="browser config-layout">
+      <div class="panel config-nav" id="config-nav" role="navigation" aria-label="Configuration sections"></div>
+      <div>
+        <!-- Form for the Agent settings or one module / processor entry -->
+        <div class="panel" id="config-form-panel">
+          <div class="toolbar">
+            <strong id="config-form-title">Agent</strong>
+            <span class="muted" id="config-form-subtitle"></span>
+            <span class="spacer"></span>
+            <span class="status" id="config-form-status"></span>
+            <button class="btn" id="config-form-discard" disabled>Discard</button>
+            <button class="btn primary" id="config-form-save" disabled>Save</button>
+          </div>
+          <p class="validation-note muted" id="config-form-note"></p>
+          <div id="config-form"></div>
+        </div>
+
+        <!-- Whole-file YAML editor -->
+        <div class="panel" id="config-yaml-panel" hidden>
+          <div class="toolbar">
+            <strong>YAML</strong>
+            <span class="muted mono" id="config-path"></span>
+            <span class="spacer"></span>
+            <span class="status" id="config-status"></span>
+            <button class="btn" id="config-reload">Reload</button>
+            <button class="btn primary" id="config-save">Save</button>
+          </div>
+          <textarea id="config" spellcheck="false"></textarea>
+          <p class="muted" id="config-note"></p>
+        </div>
       </div>
-      <textarea id="config" spellcheck="false"></textarea>
-      <p class="muted" id="config-note"></p>
     </div>
   </section>
 </main>
@@ -549,7 +636,11 @@
     current: [],
     historyItem: null,   // observation selected for history
     sort: { key: 'name', dir: 1 },  // current-table sort column and direction (1 = ascending)
-    configDirty: false
+    configDirty: false,  // unsaved changes in the whole-file YAML editor
+    form: null,          // Configuration form model from /api/config/form
+    formEdits: newFormEdits(),  // unsaved form changes
+    addedSeq: 0,         // id counter for modules added on the form
+    configSelection: 'agent'  // 'agent', 'section:index' or 'yaml'
   };
 
   // ---------- helpers ----------
@@ -630,7 +721,7 @@
     if (name === 'data') loadCurrent();
     if (name === 'assets') loadAssets();
     if (name === 'validation') loadValidation().then(renderProblems).catch(showError);
-    if (name === 'config' && !state.configDirty) loadConfig();
+    if (name === 'config' && !formHasChanges() && !state.configDirty) loadConfigForm();
   }
   document.querySelectorAll('nav button').forEach(function (b) {
     b.addEventListener('click', function () { showView(b.dataset.view); });
@@ -990,7 +1081,7 @@
   }
 
   function loadConfig() {
-    api('/api/config').then(function (c) {
+    return api('/api/config').then(function (c) {
       $('config').value = c.content || '';
       $('config').readOnly = !c.editable;
       $('config-save').disabled = !c.editable;
@@ -999,15 +1090,17 @@
       setConfigStatus(c.editable ? '' : 'Read only', c.editable ? '' : 'warn');
       return loadAgent();
     }).then(function (a) {
-      $('config-note').textContent = a.monitorConfigurationFiles
+      $('config-note').textContent = (state.formError ? state.formError + '. ' : '') + (a.monitorConfigurationFiles
         ? 'Saving writes the file (a .bak copy of the previous version is kept) and the Agent restarts automatically to apply it.'
-        : 'Saving writes the file (a .bak copy is kept). monitorConfigurationFiles is disabled, so restart the Agent to apply changes.';
+        : 'Saving writes the file (a .bak copy is kept). monitorConfigurationFiles is disabled, so restart the Agent to apply changes.');
     }).catch(function (e) { setConfigStatus(e.message, 'err'); });
   }
 
   $('config').addEventListener('input', function () {
+    var wasDirty = state.configDirty;
     state.configDirty = true;
     setConfigStatus('Unsaved changes', 'warn');
+    if (!wasDirty) renderConfigNav();
   });
 
   $('config').addEventListener('keydown', function (e) {
@@ -1034,7 +1127,9 @@
       body: $('config').value
     }).then(function (r) {
       state.configDirty = false;
+      renderConfigNav();
       setConfigStatus(r.restartPending ? 'Saved – Agent restarting…' : 'Saved', 'ok');
+      reloadConfigAfterSave(r.restartPending);
     }).catch(function (e) {
       setConfigStatus(e.message, 'err');
     }).then(function () {
@@ -1049,7 +1144,417 @@
   });
 
   window.addEventListener('beforeunload', function (e) {
-    if (state.configDirty) { e.preventDefault(); e.returnValue = ''; }
+    if (state.configDirty || formHasChanges()) { e.preventDefault(); e.returnValue = ''; }
+  });
+
+  // ---------- configuration form ----------
+  var sectionTitles = { modules: 'Modules', processors: 'Processors' };
+
+  function entryKey(e) { return e.section + ':' + e.index; }
+
+  function findEntry(key) {
+    return state.form ? state.form.entries.find(function (e) { return entryKey(e) === key; }) : null;
+  }
+
+  function entryFields(entry) {
+    var type = (state.form.types[entry.section] || []).find(function (t) { return t.typeId === entry.typeId; });
+    return type ? type.fields : null;
+  }
+
+  function entryEdits(key) {
+    return state.formEdits.entries[key] || (state.formEdits.entries[key] = { values: {} });
+  }
+
+  function entryHasChanges(key) {
+    var x = state.formEdits.entries[key];
+    return !!x && (x.yaml != null || Object.keys(x.values).length > 0);
+  }
+
+  // Unsaved form changes: agent key -> value; "section:index" -> { values, yaml }; new modules not saved yet
+  function newFormEdits() {
+    return { agent: {}, entries: {}, added: [] };
+  }
+
+  function findAdded(key) {
+    return state.formEdits.added.find(function (a) { return a.id === key; });
+  }
+
+  function formHasChanges() {
+    if (state.formEdits.added.length) return true;
+    return Object.keys(state.formEdits.agent).length > 0 || Object.keys(state.formEdits.entries).some(entryHasChanges);
+  }
+
+  // A short description of an entry so several instances of the same module can be told apart
+  function entryDetail(entry) {
+    var v = entry.values || {};
+    return v.deviceKey || v.name || (v.port ? 'port ' + v.port : '') || v.server || v.directory || '';
+  }
+
+  function setFormStatus(text, cls) {
+    var el = $('config-form-status');
+    el.textContent = text || '';
+    el.className = 'status ' + (cls || '');
+  }
+
+  function loadConfigForm() {
+    return api('/api/config/form').then(function (m) {
+      state.form = m;
+      state.formError = null;
+      state.formEdits = newFormEdits();
+      if (state.selectAfterReload && findEntry(state.selectAfterReload)) state.configSelection = state.selectAfterReload;
+      state.selectAfterReload = null;
+      if (['agent', 'yaml', 'add'].indexOf(state.configSelection) < 0 && !findEntry(state.configSelection)) state.configSelection = 'agent';
+      setFormStatus(m.editable ? '' : 'Read only', m.editable ? '' : 'warn');
+      renderConfigNav();
+      renderConfigSelection();
+    }).catch(function (e) {
+      // The file cannot be shown as a form (for example invalid YAML), so only the YAML editor is offered
+      state.form = null;
+      state.formError = e.message;
+      state.configSelection = 'yaml';
+      renderConfigNav();
+      renderConfigSelection();
+    });
+  }
+
+  function renderConfigNav() {
+    var sel = state.configSelection;
+    function item(key, title, detail, dirty, note) {
+      return '<button type="button" data-key="' + esc(key) + '"' + (key === sel ? ' class="selected" aria-current="true"' : '') + (note ? ' title="' + esc(note) + '"' : '') + '>' +
+        '<span>' + esc(title) + '</span>' + (detail ? '<span class="detail">' + esc(detail) + '</span>' : '') +
+        (dirty ? '<span class="dirty-dot" title="Unsaved changes"></span>' : '') + '</button>';
+    }
+
+    var html = '';
+    if (state.form) {
+      html += '<div class="group">Agent</div>' + item('agent', 'Settings', '', Object.keys(state.formEdits.agent).length > 0);
+      ['modules', 'processors'].forEach(function (section) {
+        var entries = state.form.entries.filter(function (e) { return e.section === section; });
+        var canAdd = section === 'modules' && state.form.editable;
+        if (!entries.length && !canAdd) return;
+        html += '<div class="group">' + sectionTitles[section] + '</div>';
+        entries.forEach(function (e) {
+          html += item(entryKey(e), e.typeId || '(unnamed)', entryDetail(e), entryHasChanges(entryKey(e)), e.known ? '' : 'Not loaded by the Agent');
+        });
+        if (section === 'modules') {
+          // Modules added on the form but not saved yet
+          state.formEdits.added.forEach(function (a) {
+            html += item(a.id, a.typeId, entryDetail(a) || 'new', true, 'Not saved yet');
+          });
+          if (canAdd) html += item('add', '+ Add module', '', false);
+        }
+      });
+    }
+    html += '<div class="group">File</div>' + item('yaml', 'YAML (advanced)', '', state.configDirty);
+    $('config-nav').innerHTML = html;
+  }
+
+  $('config-nav').addEventListener('click', function (e) {
+    var button = e.target.closest('button[data-key]');
+    if (!button || button.dataset.key === state.configSelection) return;
+    if (state.configSelection === 'yaml' && state.configDirty) {
+      if (!confirm('Discard unsaved YAML changes?')) return;
+      state.configDirty = false;
+    }
+    state.configSelection = button.dataset.key;
+    renderConfigNav();
+    renderConfigSelection();
+  });
+
+  function renderConfigSelection() {
+    var sel = state.configSelection;
+    var yaml = sel === 'yaml';
+    $('config-yaml-panel').hidden = !yaml;
+    $('config-form-panel').hidden = yaml;
+
+    if (yaml) {
+      if (formHasChanges()) {
+        // Editing the whole file would overwrite the form changes (and vice versa)
+        $('config').readOnly = true;
+        $('config-save').disabled = true;
+        setConfigStatus('Save or discard your form changes before editing the YAML', 'warn');
+      } else if (!state.configDirty) {
+        loadConfig();
+      }
+      return;
+    }
+
+    var form = state.form, html = '', note = '';
+    if (sel === 'agent') {
+      $('config-form-title').textContent = 'Agent';
+      $('config-form-subtitle').textContent = 'top-level settings';
+      note = 'Settings that apply to the whole Agent. Leave a field empty to use its default.';
+      html = renderFields(form.agent.fields, form.agent.values, form.agent.complex, form.agent.otherKeys, state.formEdits.agent);
+    } else if (sel === 'add') {
+      // Choose a module type to add (the module types the Agent has loaded)
+      $('config-form-title').textContent = 'Add module';
+      $('config-form-subtitle').textContent = '';
+      note = 'Choose the type of module to add. You can fill in its settings before saving.';
+      var inUse = {};
+      form.entries.forEach(function (e) { if (e.section === 'modules') inUse[e.typeId] = (inUse[e.typeId] || 0) + 1; });
+      html = '<div class="add-module">' +
+        '<label for="add-module-type">Module type</label>' +
+        '<select id="add-module-type">' + (form.types.modules || []).map(function (t) {
+          return '<option value="' + esc(t.typeId) + '">' + esc(t.typeId) +
+            (inUse[t.typeId] ? ' (' + inUse[t.typeId] + ' configured)' : '') + (t.fields ? '' : ' – YAML only') + '</option>';
+        }).join('') + '</select>' +
+        '<button type="button" class="btn primary" data-add-module>Add</button>' +
+        '</div>';
+    } else if (findAdded(sel)) {
+      // A module added on the form that has not been saved yet
+      var added = findAdded(sel);
+      var addedFields = (form.types.modules || []).find(function (t) { return t.typeId === added.typeId; }).fields;
+      $('config-form-title').textContent = added.typeId;
+      $('config-form-subtitle').textContent = 'new module · not saved yet';
+      note = addedFields
+        ? 'Fill in the settings you need; empty fields use their defaults. The module is added when you save.'
+        : 'This module does not describe its settings, so it is added with its defaults. Edit its settings in the YAML view after saving.';
+      html = '<div class="toolbar"><span class="spacer"></span><button type="button" class="icon-btn" data-remove-added>Don\'t add this module</button></div>' +
+        (addedFields ? renderFields(addedFields, {}, {}, [], added.values) : '');
+    } else {
+      var entry = findEntry(sel);
+      var fields = entryFields(entry);
+      var key = entryKey(entry);
+      $('config-form-title').textContent = entry.typeId || '(unnamed)';
+      $('config-form-subtitle').textContent = (entry.section === 'processors' ? 'processor ' : 'module ') + (entry.index + 1) + (entryDetail(entry) ? ' · ' + entryDetail(entry) : '');
+
+      if (entry.hasForm) {
+        note = 'Leave a field empty to use its default.';
+        html = renderFields(fields, entry.values, entry.complex, entry.otherKeys, entryEdits(key).values);
+      } else {
+        note = !entry.known
+          ? 'This ' + (entry.section === 'processors' ? 'processor' : 'module') + ' is not loaded by the Agent, so its settings are edited as YAML.'
+          : !fields
+            ? 'This ' + (entry.section === 'processors' ? 'processor' : 'module') + ' does not describe its settings, so they are edited as YAML.'
+            : 'This entry is written in a compact style the form cannot edit, so it is edited as YAML.';
+        var edits = state.formEdits.entries[key];
+        var text = edits && edits.yaml != null ? edits.yaml : entry.yaml;
+        html = '<textarea class="entry-yaml' + (edits && edits.yaml != null ? ' changed' : '') + '" data-entry-yaml spellcheck="false"' +
+          (form.editable ? '' : ' readonly') + '>' + esc(text) + '</textarea>';
+      }
+    }
+
+    $('config-form-note').textContent = note;
+    $('config-form').innerHTML = html;
+    updateFormButtons();
+  }
+
+  function renderFields(fields, values, complex, otherKeys, edits) {
+    var editable = state.form.editable;
+    var simple = fields.filter(function (f) { return f.type !== 'complex'; });
+
+    var rows = simple.map(function (f) {
+      var inFile = Object.prototype.hasOwnProperty.call(values, f.key);
+      var changed = Object.prototype.hasOwnProperty.call(edits, f.key);
+      var current = changed ? edits[f.key] : (inFile ? values[f.key] : '');
+      var control;
+
+      if (f.type === 'boolean' || f.type === 'enum') {
+        var options = f.type === 'boolean' ? ['true', 'false'] : (f.options || []);
+        var match = options.find(function (o) { return o.toLowerCase() === String(current).toLowerCase(); });
+        control = '<select data-key="' + esc(f.key) + '"' + (editable ? '' : ' disabled') + '>' +
+          '<option value="">Default' + (f.default != null ? ' (' + esc(f.default) + ')' : '') + '</option>' +
+          options.map(function (o) { return '<option' + (o === match ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') +
+          (current && !match ? '<option selected value="' + esc(current) + '">' + esc(current) + '</option>' : '') +
+          '</select>';
+      } else {
+        control = '<input type="' + (f.secret ? 'password' : 'text') + '" data-key="' + esc(f.key) + '" value="' + esc(current) + '"' +
+          (f.type === 'integer' || f.type === 'number' ? ' inputmode="decimal"' : '') +
+          (f.default != null && f.default !== '' ? ' placeholder="Default: ' + esc(f.default) + '"' : '') +
+          ' autocomplete="off" spellcheck="false"' + (editable ? '' : ' disabled') + '>';
+      }
+
+      var reset = editable && current !== '' ? '<button type="button" class="icon-btn" data-reset="' + esc(f.key) + '" title="Remove this setting so the default is used">Use default</button>' : '';
+      return '<div class="field-label">' + esc(f.key) + '</div>' +
+        '<div class="field-control' + (changed ? ' changed' : '') + '">' +
+        '<div class="field-row">' + control + reset + '</div>' +
+        (f.description ? '<div class="help">' + esc(f.description) + '</div>' : '') +
+        '</div>';
+    }).join('');
+
+    var html = '<div class="config-fields">' + rows + '</div>';
+
+    // Lists and nested settings are shown read-only for now and edited in the YAML view
+    var complexKeys = Object.keys(complex);
+    var complexFields = fields.filter(function (f) { return f.type === 'complex'; });
+    if (complexKeys.length || complexFields.length) {
+      html += '<div class="config-section-title">Lists and nested settings</div>' +
+        '<p class="validation-note muted">These are edited in the <a href="#" data-goto-yaml>YAML (advanced)</a> view.</p>';
+      if (complexKeys.length) {
+        html += '<div class="config-complex">' + complexKeys.map(function (k) {
+          return '<div class="field-label mono">' + esc(k) + '</div><pre>' + esc(complex[k]) + '</pre>';
+        }).join('') + '</div>';
+      }
+      var unset = complexFields.filter(function (f) { return complexKeys.indexOf(f.key) < 0; }).map(function (f) { return f.key; });
+      if (unset.length) html += '<p class="validation-note muted">Also available: <span class="mono">' + esc(unset.join(', ')) + '</span></p>';
+    }
+
+    if (otherKeys && otherKeys.length) {
+      html += '<p class="validation-note muted">Not recognised by this ' + (state.configSelection === 'agent' ? 'Agent' : 'module') +
+        ' and kept as they are: <span class="mono">' + esc(otherKeys.join(', ')) + '</span></p>';
+    }
+    return html;
+  }
+
+  // The current edits object and file values for the selection
+  function selectionContext() {
+    if (state.configSelection === 'agent') return { edits: state.formEdits.agent, values: state.form.agent.values };
+    var added = findAdded(state.configSelection);
+    if (added) return { edits: added.values, values: {} };
+    var entry = findEntry(state.configSelection);
+    return { edits: entryEdits(state.configSelection).values, values: entry.values, entry: entry };
+  }
+
+  function recordFieldChange(key, value) {
+    var ctx = selectionContext();
+    var original = Object.prototype.hasOwnProperty.call(ctx.values, key) ? ctx.values[key] : '';
+    if (value === original) delete ctx.edits[key];
+    else ctx.edits[key] = value;
+  }
+
+  function onFormInput(e) {
+    var target = e.target;
+    if (target.matches('[data-entry-yaml]')) {
+      var entry = findEntry(state.configSelection);
+      var edits = entryEdits(state.configSelection);
+      if (target.value === entry.yaml) delete edits.yaml;
+      else edits.yaml = target.value;
+      target.classList.toggle('changed', edits.yaml != null);
+    } else if (target.dataset.key) {
+      recordFieldChange(target.dataset.key, target.value);
+      var row = target.closest('.field-control');
+      row.classList.toggle('changed', Object.prototype.hasOwnProperty.call(selectionContext().edits, target.dataset.key));
+    } else {
+      return;
+    }
+    renderConfigNav();
+    updateFormButtons();
+  }
+
+  $('config-form').addEventListener('input', onFormInput);
+  $('config-form').addEventListener('change', onFormInput);
+
+  $('config-form').addEventListener('click', function (e) {
+    if (e.target.closest('[data-add-module]')) {
+      // Add the chosen type as a new (unsaved) module and open its form
+      var added = { id: 'new:' + (++state.addedSeq), typeId: $('add-module-type').value, values: {} };
+      state.formEdits.added.push(added);
+      state.configSelection = added.id;
+      renderConfigNav();
+      renderConfigSelection();
+      return;
+    }
+    if (e.target.closest('[data-remove-added]')) {
+      state.formEdits.added = state.formEdits.added.filter(function (a) { return a.id !== state.configSelection; });
+      state.configSelection = 'add';
+      renderConfigNav();
+      renderConfigSelection();
+      return;
+    }
+    var reset = e.target.closest('[data-reset]');
+    if (reset) {
+      recordFieldChange(reset.dataset.reset, '');
+      renderConfigNav();
+      renderConfigSelection();
+      return;
+    }
+    if (e.target.closest('[data-goto-yaml]')) {
+      e.preventDefault();
+      $('config-nav').querySelector('[data-key="yaml"]').click();
+    }
+  });
+
+  $('config-form').addEventListener('keydown', function (e) {
+    if (e.key === 'Tab' && e.target.matches('[data-entry-yaml]')) {
+      e.preventDefault();
+      var t = e.target, s = t.selectionStart;
+      t.setRangeText('  ', s, t.selectionEnd, 'end');
+      t.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  });
+
+  $('view-config').addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's' && state.configSelection !== 'yaml') {
+      e.preventDefault();
+      saveConfigForm();
+    }
+  });
+
+  function updateFormButtons() {
+    var dirty = formHasChanges();
+    var editable = state.form && state.form.editable;
+    $('config-form-save').disabled = !dirty || !editable;
+    $('config-form-discard').disabled = !dirty;
+    if (dirty) setFormStatus('Unsaved changes', 'warn');
+    else if ($('config-form-status').classList.contains('warn') && editable) setFormStatus('');
+  }
+
+  function saveConfigForm() {
+    if (!formHasChanges() || !state.form || !state.form.editable) return;
+
+    var request = { version: state.form.version, agent: state.formEdits.agent, entries: [] };
+    Object.keys(state.formEdits.entries).forEach(function (key) {
+      if (!entryHasChanges(key)) return;
+      var entry = findEntry(key), edits = state.formEdits.entries[key];
+      request.entries.push(edits.yaml != null
+        ? { section: entry.section, index: entry.index, yaml: edits.yaml }
+        : { section: entry.section, index: entry.index, values: edits.values });
+    });
+
+    // New modules, with their settings in form order so the file reads naturally
+    request.add = state.formEdits.added.map(function (a) {
+      var type = (state.form.types.modules || []).find(function (t) { return t.typeId === a.typeId; });
+      var values = {};
+      ((type && type.fields) || []).forEach(function (f) {
+        if (Object.prototype.hasOwnProperty.call(a.values, f.key)) values[f.key] = a.values[f.key];
+      });
+      return { section: 'modules', typeId: a.typeId, values: values };
+    });
+
+    $('config-form-save').disabled = true;
+    setFormStatus('Saving…');
+    api('/api/config/form', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request)
+    }).then(function (r) {
+      // Open the last module added once the saved file is reloaded
+      if (request.add.length) {
+        var moduleCount = state.form.entries.filter(function (e) { return e.section === 'modules'; }).length;
+        state.selectAfterReload = 'modules:' + (moduleCount + request.add.length - 1);
+      }
+      state.formEdits = newFormEdits();
+      renderConfigNav();
+      if (!r.saved) {
+        setFormStatus('No changes to save', 'ok');
+        return;
+      }
+      setFormStatus(r.restartPending ? 'Saved – Agent restarting…' : 'Saved – restart the Agent to apply', 'ok');
+      reloadConfigAfterSave(r.restartPending);
+    }).catch(function (e) {
+      updateFormButtons();
+      setFormStatus(e.message, 'err');
+    });
+  }
+
+  // After a save the Agent (and this UI) restart; wait for it to come back, then show the saved file
+  function reloadConfigAfterSave(restartPending) {
+    var attempts = 0;
+    function attempt() {
+      api('/api/config/form').then(function () {
+        return loadConfigForm().then(function () { setFormStatus('Saved', 'ok'); });
+      }).catch(function () {
+        if (++attempts < 20) setTimeout(attempt, 1500);
+        else setFormStatus('Saved, but the Agent has not come back yet – reload the page to check', 'warn');
+      });
+    }
+    setTimeout(attempt, restartPending ? 4000 : 0);
+  }
+
+  $('config-form-save').addEventListener('click', saveConfigForm);
+  $('config-form-discard').addEventListener('click', function () {
+    if (formHasChanges() && !confirm('Discard all unsaved changes?')) return;
+    loadConfigForm();
   });
 
   // ---------- validation problems ----------

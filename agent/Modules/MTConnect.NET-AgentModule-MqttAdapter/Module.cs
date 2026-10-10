@@ -35,6 +35,12 @@ namespace MTConnect.Modules
         /// (<c>type: mqtt-adapter</c>).
         /// </summary>
         public const string ConfigurationTypeId = "mqtt-adapter";
+
+        /// <summary>
+        /// The class this module's <c>agent.config.yaml</c> settings are read into.
+        /// Lets tools such as the Web UI describe the module's options.
+        /// </summary>
+        public static readonly System.Type ConfigurationType = typeof(MqttAdapterModuleConfiguration);
         private const string ModuleId = "MQTT Adapter";
         private const string ObservationTopic = "observations";
         private const string AssetTopic = "assets";

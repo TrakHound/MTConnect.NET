@@ -29,6 +29,12 @@ namespace MTConnect.Modules
         /// (<c>type: http-adapter</c>).
         /// </summary>
         public const string ConfigurationTypeId = "http-adapter";
+
+        /// <summary>
+        /// The class this module's <c>agent.config.yaml</c> settings are read into.
+        /// Lets tools such as the Web UI describe the module's options.
+        /// </summary>
+        public static readonly System.Type ConfigurationType = typeof(HttpAdapterModuleConfiguration);
         private const string ModuleId = "HTTP Adapter";
 
         private readonly HttpAdapterModuleConfiguration _configuration;

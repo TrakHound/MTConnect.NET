@@ -41,6 +41,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<InternalsVisibleTo Include="MTConnect.NET-AgentModule-WebUI-Tests" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<!-- The UI page ships inside the assembly so the module has no files to deploy alongside it -->
 		<EmbeddedResource Include="wwwroot\index.html" LogicalName="MTConnect.WebUI.index.html" />
 		<!-- Roboto / Roboto Mono (SIL OFL 1.1, see wwwroot\fonts\LICENSE-*.txt) so the UI works without internet access -->

@@ -19,6 +19,12 @@ namespace MTConnect.Modules.WebUI
         /// (<c>- web-ui:</c>).
         /// </summary>
         public const string ConfigurationTypeId = "web-ui";
+
+        /// <summary>
+        /// The class this module's <c>agent.config.yaml</c> settings are read into.
+        /// Lets tools such as the Web UI describe the module's options.
+        /// </summary>
+        public static readonly System.Type ConfigurationType = typeof(WebUiModuleConfiguration);
         private const string ModuleId = "Web UI";
 
         private readonly WebUiModuleConfiguration _configuration;

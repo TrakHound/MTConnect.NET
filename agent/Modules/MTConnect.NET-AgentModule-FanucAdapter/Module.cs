@@ -20,6 +20,12 @@ namespace MTConnect.Modules
         /// (<c>fanuc-adapter</c>).
         /// </summary>
         public const string ConfigurationTypeId = "fanuc-adapter";
+
+        /// <summary>
+        /// The class this module's <c>agent.config.yaml</c> settings are read into.
+        /// Lets tools such as the Web UI describe the module's options.
+        /// </summary>
+        public static readonly System.Type ConfigurationType = typeof(FanucAdapterModuleConfiguration);
         private const string ModuleId = "Fanuc Adapter";
 
         private readonly FanucAdapterModuleConfiguration _configuration;

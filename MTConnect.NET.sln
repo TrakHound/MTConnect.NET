@@ -146,6 +146,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-AgentModule-HaasAdapter-Tests", "tests\MTConnect.NET-AgentModule-HaasAdapter-Tests\MTConnect.NET-AgentModule-HaasAdapter-Tests.csproj", "{DFBE881B-9C19-4960-8EBC-79D0F57EABBC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-AgentModule-TormachAdapter-Tests", "tests\MTConnect.NET-AgentModule-TormachAdapter-Tests\MTConnect.NET-AgentModule-TormachAdapter-Tests.csproj", "{645DC8F5-EE47-47D3-AA79-BBE55A51965A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-AgentModule-WebUI-Tests", "tests\MTConnect.NET-AgentModule-WebUI-Tests\MTConnect.NET-AgentModule-WebUI-Tests.csproj", "{03AEE21D-3957-40F9-A0D4-1B4172E4F5BD}"
+EndProject
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-AgentModule-FanucAdapter-Tests", "tests\MTConnect.NET-AgentModule-FanucAdapter-Tests\MTConnect.NET-AgentModule-FanucAdapter-Tests.csproj", "{D8EE51A4-7C81-40B3-98C3-8C488574FDBF}"
 EndProject
@@ -592,13 +594,21 @@ Global
 		{A763C09D-1F7D-4F78-96EC-14A37AD74B83}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A763C09D-1F7D-4F78-96EC-14A37AD74B83}.Release|Any CPU.Build.0 = Release|Any CPU
 		{645DC8F5-EE47-47D3-AA79-BBE55A51965A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03AEE21D-3957-40F9-A0D4-1B4172E4F5BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{645DC8F5-EE47-47D3-AA79-BBE55A51965A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03AEE21D-3957-40F9-A0D4-1B4172E4F5BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{645DC8F5-EE47-47D3-AA79-BBE55A51965A}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
+		{03AEE21D-3957-40F9-A0D4-1B4172E4F5BD}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
 		{645DC8F5-EE47-47D3-AA79-BBE55A51965A}.Docker|Any CPU.Build.0 = Debug|Any CPU
+		{03AEE21D-3957-40F9-A0D4-1B4172E4F5BD}.Docker|Any CPU.Build.0 = Debug|Any CPU
 		{645DC8F5-EE47-47D3-AA79-BBE55A51965A}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{03AEE21D-3957-40F9-A0D4-1B4172E4F5BD}.Package|Any CPU.ActiveCfg = Debug|Any CPU
 		{645DC8F5-EE47-47D3-AA79-BBE55A51965A}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{03AEE21D-3957-40F9-A0D4-1B4172E4F5BD}.Package|Any CPU.Build.0 = Debug|Any CPU
 		{645DC8F5-EE47-47D3-AA79-BBE55A51965A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03AEE21D-3957-40F9-A0D4-1B4172E4F5BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{645DC8F5-EE47-47D3-AA79-BBE55A51965A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03AEE21D-3957-40F9-A0D4-1B4172E4F5BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -665,6 +675,7 @@ Global
 		{D8EE51A4-7C81-40B3-98C3-8C488574FDBF} = {14375E03-6BF8-45E6-B868-D2399368992B}
 		{A763C09D-1F7D-4F78-96EC-14A37AD74B83} = {0F01D2F5-0CFA-4DAE-A0FD-5733D291F6FB}
 		{645DC8F5-EE47-47D3-AA79-BBE55A51965A} = {14375E03-6BF8-45E6-B868-D2399368992B}
+		{03AEE21D-3957-40F9-A0D4-1B4172E4F5BD} = {14375E03-6BF8-45E6-B868-D2399368992B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CC13D3AD-18BF-4695-AB2A-087EF0885B20}
