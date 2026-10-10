@@ -285,6 +285,8 @@
   #view-data .badge { font-size: 10px; }
   #view-data .raw-links { font-size: 12px; }
   .browser { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 16px; align-items: start; }
+  /* Data page: the tree keeps the width the user chose, limited so the tables always have room */
+  .browser.data-browser { grid-template-columns: clamp(200px, var(--data-tree-width, 280px), calc(100% - 376px)) 12px minmax(0, 1fr); gap: 0 4px; }
   .tree { max-height: calc(100vh - 150px); overflow: auto; padding: 8px; }
   .tree ul { list-style: none; margin: 0; padding-left: 14px; }
   .tree > ul { padding-left: 0; }
@@ -390,10 +392,10 @@
   /* The tree keeps the width the user chose, limited so the form always has room */
   .device-editor { display: grid; grid-template-columns: clamp(200px, var(--device-tree-width, 420px), calc(100% - 296px)) 12px minmax(0, 1fr); gap: 0 4px; align-items: stretch; }
   .device-editor > .device-form { align-self: start; }
-  .device-splitter { cursor: col-resize; display: flex; justify-content: center; touch-action: none; border-radius: var(--radius-sm); }
-  .device-splitter::before { content: ''; width: 2px; height: 100%; min-height: 40px; background: var(--border); border-radius: 1px; }
-  .device-splitter:hover::before, .device-splitter:focus-visible::before, .device-splitter.dragging::before { background: var(--accent); }
-  .device-splitter:focus-visible { outline: none; }
+  .tree-splitter { cursor: col-resize; align-self: stretch; display: flex; justify-content: center; touch-action: none; border-radius: var(--radius-sm); }
+  .tree-splitter::before { content: ''; width: 2px; height: 100%; min-height: 40px; background: var(--border); border-radius: 1px; }
+  .tree-splitter:hover::before, .tree-splitter:focus-visible::before, .tree-splitter.dragging::before { background: var(--accent); }
+  .tree-splitter:focus-visible { outline: none; }
   body.resizing { cursor: col-resize; user-select: none; }
   .device-tree-panel { border: 1px solid var(--border); border-radius: var(--radius-sm); }
   .device-tree-tools { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; border-bottom: 1px solid var(--border); }
@@ -432,7 +434,7 @@
   #config-device-panel { container-type: inline-size; }
   @container (max-width: 820px) {
     .device-editor { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-    .device-splitter { display: none; }
+    .tree-splitter { display: none; }
     .device-tree { max-height: 320px; }
   }
   @container (max-width: 560px) {
@@ -489,13 +491,13 @@
     .header-links a { padding: 6px; }
     .header-links a span { display: none; }
     main { padding: 12px; }
-    .browser { grid-template-columns: minmax(0, 1fr); }
+    .browser, .browser.data-browser { grid-template-columns: minmax(0, 1fr); gap: 16px; }
     .tree { max-height: 240px; }
     .table-wrap { max-height: none; }
     .hide-sm { display: none; }
     .config-nav { max-height: 220px; }
     .device-editor { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-    .device-splitter { display: none; }
+    .tree-splitter { display: none; }
     .device-tree { max-height: 260px; }
     .config-fields, .config-complex { grid-template-columns: minmax(0, 1fr); }
     .config-fields .field-label { border-bottom: 0; padding-bottom: 0; }
@@ -577,8 +579,9 @@
 
   <!-- Data browser -->
   <section id="view-data" class="view">
-    <div class="browser">
+    <div class="browser data-browser">
       <div class="panel tree" id="tree"></div>
+      <div class="tree-splitter" id="data-splitter" role="separator" aria-orientation="vertical" aria-label="Resize the tree" tabindex="0" title="Drag to resize (double-click to reset)"></div>
       <div>
         <div class="panel">
           <div class="toolbar">
@@ -745,6 +748,67 @@
   // ---------- helpers ----------
   function $(id) { return document.getElementById(id); }
 
+  // A tree beside a panel, made resizable with a splitter (drag, arrow keys, double-click to reset).
+  // The width is kept in a CSS variable on the host and remembered in this browser. The CSS also limits it,
+  // so a width chosen in a wide window still fits a narrower one. Events are delegated to the host so the
+  // splitter keeps working when the content inside it is redrawn.
+  function resizableTree(o) {
+    function stored() {
+      try { return parseInt(localStorage.getItem(o.storageKey), 10) || o.defaultWidth; } catch (e) { return o.defaultWidth; }
+    }
+
+    // While dragging, the width is limited to what fits beside the panel
+    function set(width, save, fit) {
+      var layout = o.host.querySelector(o.layout);
+      var max = fit && layout ? Math.max(o.minWidth, layout.getBoundingClientRect().width - o.minRest) : 4000;
+      width = Math.round(Math.min(Math.max(width, o.minWidth), max));
+      o.host.style.setProperty(o.variable, width + 'px');
+      if (save) { try { localStorage.setItem(o.storageKey, String(width)); } catch (e) { } }
+    }
+
+    function treeWidth() {
+      var tree = o.host.querySelector(o.tree);
+      return tree ? Math.round(tree.getBoundingClientRect().width) : stored();
+    }
+
+    o.host.addEventListener('pointerdown', function (e) {
+      var splitter = e.target.closest(o.splitter);
+      if (!splitter || e.button !== 0) return;
+      e.preventDefault();
+      var layout = splitter.parentElement;
+      splitter.setPointerCapture(e.pointerId);
+      splitter.classList.add('dragging');
+      document.body.classList.add('resizing');
+
+      function move(ev) { set(ev.clientX - layout.getBoundingClientRect().left - 4, false, true); }
+      function end(ev) {
+        splitter.releasePointerCapture(ev.pointerId);
+        splitter.classList.remove('dragging');
+        document.body.classList.remove('resizing');
+        splitter.removeEventListener('pointermove', move);
+        splitter.removeEventListener('pointerup', end);
+        splitter.removeEventListener('pointercancel', end);
+        set(treeWidth(), true);
+      }
+      splitter.addEventListener('pointermove', move);
+      splitter.addEventListener('pointerup', end);
+      splitter.addEventListener('pointercancel', end);
+    });
+
+    o.host.addEventListener('dblclick', function (e) {
+      if (e.target.closest(o.splitter)) set(o.defaultWidth, true);
+    });
+
+    o.host.addEventListener('keydown', function (e) {
+      if (!e.target.closest(o.splitter) || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+      e.preventDefault();
+      set(treeWidth() + (e.key === 'ArrowRight' ? 20 : -20), true, true);
+    });
+
+    // Applies the remembered width (not limited here; the CSS keeps it within the current window)
+    return { apply: function () { set(stored(), false); } };
+  }
+
   function esc(s) {
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -890,6 +954,18 @@
   });
 
   // ---------- device tree ----------
+  resizableTree({
+    host: $('view-data'),
+    splitter: '#data-splitter',
+    layout: '.data-browser',
+    tree: '#tree',
+    variable: '--data-tree-width',
+    storageKey: 'webui.dataTreeWidth',
+    defaultWidth: 280,
+    minWidth: 200,
+    minRest: 360
+  }).apply();
+
   var nodeIndex = [];
   function renderTree() {
     nodeIndex = [];
@@ -2251,10 +2327,10 @@
     $('device-body').innerHTML =
       '<div class="device-editor">' +
         '<div class="device-tree-panel">' + renderDeviceTools() + '<div class="device-tree" id="device-tree">' + renderDeviceTree() + '</div></div>' +
-        '<div class="device-splitter" id="device-splitter" role="separator" aria-orientation="vertical" aria-label="Resize the tree" tabindex="0" title="Drag to resize (double-click to reset)"></div>' +
+        '<div class="tree-splitter" id="device-splitter" role="separator" aria-orientation="vertical" aria-label="Resize the tree" tabindex="0" title="Drag to resize (double-click to reset)"></div>' +
         '<div class="device-form" id="device-form">' + renderDeviceForm() + '</div>' +
       '</div>';
-    setDeviceTreeWidth(getDeviceTreeWidth(), false);
+    deviceTreeResize.apply();
     updateDeviceButtons();
   }
 
@@ -2302,57 +2378,17 @@
     return parts.join('\n');
   }
 
-  // ----- resizable tree -----
   // The default fits the tree toolbar on one row
-  var deviceTreeDefaultWidth = 420, deviceTreeMinWidth = 200, deviceFormMinWidth = 280;
-
-  function getDeviceTreeWidth() {
-    try { return parseInt(localStorage.getItem('webui.deviceTreeWidth'), 10) || deviceTreeDefaultWidth; } catch (e) { return deviceTreeDefaultWidth; }
-  }
-
-  // While dragging, the width is limited to what fits; the CSS also limits it when the window is narrower later
-  function setDeviceTreeWidth(width, save, fit) {
-    var editor = document.querySelector('#device-body .device-editor');
-    var max = fit && editor ? Math.max(deviceTreeMinWidth, editor.getBoundingClientRect().width - deviceFormMinWidth) : 4000;
-    width = Math.round(Math.min(Math.max(width, deviceTreeMinWidth), max));
-    $('device-body').style.setProperty('--device-tree-width', width + 'px');
-    if (save) { try { localStorage.setItem('webui.deviceTreeWidth', String(width)); } catch (e) { } }
-    return width;
-  }
-
-  $('device-body').addEventListener('pointerdown', function (e) {
-    var splitter = e.target.closest('#device-splitter');
-    if (!splitter || e.button !== 0) return;
-    e.preventDefault();
-    var editor = splitter.parentElement;
-    splitter.setPointerCapture(e.pointerId);
-    splitter.classList.add('dragging');
-    document.body.classList.add('resizing');
-
-    function move(ev) { setDeviceTreeWidth(ev.clientX - editor.getBoundingClientRect().left - 4, false, true); }
-    function end(ev) {
-      splitter.releasePointerCapture(ev.pointerId);
-      splitter.classList.remove('dragging');
-      document.body.classList.remove('resizing');
-      splitter.removeEventListener('pointermove', move);
-      splitter.removeEventListener('pointerup', end);
-      splitter.removeEventListener('pointercancel', end);
-      setDeviceTreeWidth(parseInt(getComputedStyle($('device-body')).getPropertyValue('--device-tree-width'), 10), true);
-    }
-    splitter.addEventListener('pointermove', move);
-    splitter.addEventListener('pointerup', end);
-    splitter.addEventListener('pointercancel', end);
-  });
-
-  $('device-body').addEventListener('dblclick', function (e) {
-    if (e.target.closest('#device-splitter')) setDeviceTreeWidth(deviceTreeDefaultWidth, true);
-  });
-
-  $('device-body').addEventListener('keydown', function (e) {
-    if (!e.target.closest('#device-splitter') || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
-    e.preventDefault();
-    var current = Math.round(document.querySelector('.device-tree-panel').getBoundingClientRect().width);
-    setDeviceTreeWidth(current + (e.key === 'ArrowRight' ? 20 : -20), true, true);
+  var deviceTreeResize = resizableTree({
+    host: $('device-body'),
+    splitter: '#device-splitter',
+    layout: '.device-editor',
+    tree: '.device-tree-panel',
+    variable: '--device-tree-width',
+    storageKey: 'webui.deviceTreeWidth',
+    defaultWidth: 420,
+    minWidth: 200,
+    minRest: 280
   });
 
   function renderDeviceTree() {
