@@ -1,6 +1,11 @@
 ﻿# - Modules -
 modules:
   
+# - web-ui: # - Add Web UI module (browse data and edit this configuration at http://localhost:5080)
+#     server: localhost
+#     port: 5080
+#     allowConfigurationEdit: true
+  
 - http-server: # - Add HTTP Server module
     # hostname: localhost
     port: 5000

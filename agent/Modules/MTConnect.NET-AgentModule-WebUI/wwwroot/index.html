@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MTConnect.NET Agent</title>
+<style>
+  /* Roboto / Roboto Mono variable fonts, embedded in the module DLL and served by the Agent (SIL OFL 1.1) */
+  @font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url(fonts/roboto-latin-ext-wght-normal.woff2) format('woff2');
+    unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+  }
+  @font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url(fonts/roboto-latin-wght-normal.woff2) format('woff2');
+    unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  }
+  @font-face {
+    font-family: 'Roboto Mono';
+    font-style: normal;
+    font-weight: 100 700;
+    font-display: swap;
+    src: url(fonts/roboto-mono-latin-ext-wght-normal.woff2) format('woff2');
+    unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+  }
+  @font-face {
+    font-family: 'Roboto Mono';
+    font-style: normal;
+    font-weight: 100 700;
+    font-display: swap;
+    src: url(fonts/roboto-mono-latin-wght-normal.woff2) format('woff2');
+    unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  }
+
+  :root {
+    color-scheme: light;  /* native controls and scrollbars follow the theme */
+    --bg: #f5f6f8;
+    --panel: #ffffff;
+    --border: #dfe3e8;
+    --text: #1f2933;
+    --muted: #6b7785;
+    --accent: #1f6feb;
+    --accent-soft: #e7f0fe;
+    --ok: #1a7f37;
+    --warn: #b35900;
+    --err: #c62828;
+    --code-bg: #f0f2f5;
+    --scrollbar: #c3c9d1;
+    --scrollbar-hover: #a3abb6;
+    --font: Roboto, "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "Roboto Mono", ui-monospace, Consolas, monospace;
+    --radius: 3px;      /* panels */
+    --radius-sm: 2px;   /* controls, badges, tree nodes */
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --bg: #111418;
+      --panel: #1a1f25;
+      --border: #2d343c;
+      --text: #e3e7eb;
+      --muted: #8b96a3;
+      --accent: #4c8dff;
+      --accent-soft: #1d2b44;
+      --ok: #3fb950;
+      --warn: #e3a008;
+      --err: #f26b6b;
+      --code-bg: #14181d;
+      --scrollbar: #3a424c;
+      --scrollbar-hover: #4f5965;
+    }
+  }
+  * { box-sizing: border-box; }
+
+  /* Scrollbars: thin, theme-coloured thumb on a transparent track */
+  * { scrollbar-width: thin; scrollbar-color: var(--scrollbar) transparent; }
+  @supports not (scrollbar-color: auto) {
+    /* Fallback for older WebKit / Chromium browsers */
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--scrollbar); border: 2px solid transparent; border-radius: var(--radius-sm); background-clip: padding-box; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); background-clip: padding-box; }
+  }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font: 14px/1.45 var(--font);
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 0 20px;
+    height: 52px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  header h1 { font-size: 16px; margin: 0; white-space: nowrap; }
+  header h1 span { color: var(--muted); font-weight: 400; }
+  nav { display: flex; gap: 4px; overflow-x: auto; }
+  nav button {
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font: inherit;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  nav button:hover { color: var(--text); }
+  nav button.active { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+  .raw-links { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; font-size: 13px; }
+  .raw-links .label { color: var(--muted); }
+  .raw-links a { color: var(--accent); text-decoration: none; white-space: nowrap; }
+  .raw-links a:hover, .raw-links a:focus-visible { text-decoration: underline; }
+  .raw-links a::after { content: ' ↗'; font-size: 11px; }
+  .header-links { margin-left: auto; display: flex; gap: 4px; flex-shrink: 0; }
+  .header-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    color: var(--muted);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .header-links a:hover, .header-links a:focus-visible { color: var(--text); background: var(--accent-soft); }
+  .header-links svg { width: 16px; height: 16px; fill: currentColor; flex-shrink: 0; }
+  main { flex: 1; min-height: 0; overflow: auto; padding: 20px; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .panel h2 { font-size: 14px; margin: 0 0 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .stat .label { color: var(--muted); font-size: 12px; }
+  .stat .value { font-size: 15px; font-weight: 500; word-break: break-all; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; position: sticky; top: 0; background: var(--panel); }
+  th[data-sort] { cursor: pointer; user-select: none; white-space: nowrap; }
+  th[data-sort]:hover, th[data-sort]:focus-visible { color: var(--text); }
+  th[data-sort]::after { content: ''; display: inline-block; width: 1em; margin-left: 2px; }
+  th[aria-sort=ascending] { color: var(--accent); }
+  th[aria-sort=ascending]::after { content: '▲'; font-size: 9px; }
+  th[aria-sort=descending] { color: var(--accent); }
+  th[aria-sort=descending]::after { content: '▼'; font-size: 9px; }
+  tbody tr:hover { background: var(--accent-soft); cursor: pointer; }
+  tbody tr.selected { background: var(--accent-soft); }
+  td.value { font-family: var(--font-mono); overflow-wrap: anywhere; min-width: 140px; }
+  td.nowrap { white-space: nowrap; }
+  .muted { color: var(--muted); }
+  .mono { font-family: var(--font-mono); }
+  .badge { display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: var(--radius-sm); background: var(--code-bg); color: var(--muted); }
+  .badge.SAMPLE { color: var(--accent); }
+  .badge.EVENT { color: var(--ok); }
+  .badge.CONDITION { color: var(--warn); }
+  .level-FAULT { color: var(--err); font-weight: 500; }
+  .level-WARNING { color: var(--warn); font-weight: 500; }
+  .level-NORMAL { color: var(--ok); }
+  .unavailable { color: var(--muted); font-style: italic; }
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .toolbar .spacer { flex: 1; }
+  input[type=text], input[type=number], select {
+    font: inherit;
+    color: var(--text);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 5px 8px;
+  }
+  button.btn {
+    font: inherit;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    border-radius: var(--radius-sm);
+    padding: 5px 12px;
+    cursor: pointer;
+  }
+  button.btn:hover { border-color: var(--accent); }
+  button.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.btn:disabled { opacity: .5; cursor: default; }
+  label.check { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+
+  /* Data browser layout */
+  /* Slightly smaller type on the Data page to fit more rows and columns */
+  #view-data { font-size: 13px; }
+  #view-data th { font-size: 11px; }
+  #view-data .badge { font-size: 10px; }
+  #view-data .raw-links { font-size: 12px; }
+  .browser { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 16px; align-items: start; }
+  .tree { max-height: calc(100vh - 150px); overflow: auto; padding: 8px; }
+  .tree ul { list-style: none; margin: 0; padding-left: 14px; }
+  .tree > ul { padding-left: 0; }
+  .tree .node {
+    display: block;
+    padding: 3px 6px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tree .node:hover { background: var(--accent-soft); }
+  .tree .node.selected { background: var(--accent); color: #fff; }
+  .tree .node.selected .muted { color: #dde8ff; }
+  .tree .toggle { display: inline-block; width: 14px; color: var(--muted); }
+  .tree .device > .node { font-weight: 500; }
+  .table-wrap { max-height: calc(100vh - 380px); min-height: 200px; overflow: auto; }
+  .table-wrap table { min-width: 600px; }
+  #current-rows td:nth-child(1) { min-width: 140px; max-width: 220px; overflow-wrap: anywhere; }
+  .history .table-wrap { max-height: 260px; min-height: 0; }
+
+  /* Config editor */
+  textarea#config {
+    width: 100%;
+    min-height: calc(100vh - 260px);
+    font: 13px/1.5 var(--font-mono);
+    color: var(--text);
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    resize: vertical;
+    tab-size: 2;
+  }
+  pre.xml {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    margin: 0;
+    max-height: 60vh;
+    overflow: auto;
+    font-size: 12px;
+  }
+  .status { font-size: 13px; }
+  .status.ok { color: var(--ok); }
+  .status.err { color: var(--err); }
+  .status.warn { color: var(--warn); }
+  .empty { padding: 24px; text-align: center; color: var(--muted); }
+
+  @media (max-width: 800px) {
+    header { gap: 12px; padding: 0 12px; }
+    header h1 span { display: none; }
+    .header-links a { padding: 6px; }
+    .header-links a span { display: none; }
+    main { padding: 12px; }
+    .browser { grid-template-columns: minmax(0, 1fr); }
+    .tree { max-height: 240px; }
+    .table-wrap { max-height: none; }
+    .hide-sm { display: none; }
+  }
+  @media (max-width: 600px) {
+    /* Title and links on the first row, tabs wrap onto their own full-width row(s) below */
+    header { flex-wrap: wrap; height: auto; row-gap: 0; padding-top: 8px; }
+    nav { order: 1; flex-basis: 100%; flex-wrap: wrap; overflow-x: visible; padding: 6px 0 8px; }
+    nav button { padding: 6px 10px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>MTConnect.NET <span>Agent</span></h1>
+  <nav>
+    <button data-view="overview" class="active">Overview</button>
+    <button data-view="data">Data</button>
+    <button data-view="assets">Assets</button>
+    <button data-view="config">Configuration</button>
+  </nav>
+  <div class="header-links">
+    <a href="https://trakhound.github.io/MTConnect.NET" target="_blank" rel="noopener noreferrer" title="MTConnect.NET documentation">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M0 1.75A.75.75 0 0 1 .75 1h4.253c1.227 0 2.317.59 3 1.501A3.743 3.743 0 0 1 11.006 1h4.245a.75.75 0 0 1 .75.75v10.5a.75.75 0 0 1-.75.75h-4.507a2.25 2.25 0 0 0-1.591.659l-.622.621a.75.75 0 0 1-1.06 0l-.622-.621A2.25 2.25 0 0 0 5.258 13H.75a.75.75 0 0 1-.75-.75Zm7.251 10.324.004-5.073-.002-2.253A2.25 2.25 0 0 0 5.003 2.5H1.5v9h3.757a3.75 3.75 0 0 1 1.994.574ZM8.755 4.75l-.004 7.322a3.752 3.752 0 0 1 1.992-.572H14.5v-9h-3.495a2.25 2.25 0 0 0-2.25 2.25Z"/></svg>
+      <span>Documentation</span>
+    </a>
+    <a href="https://github.com/TrakHound/MTConnect.NET" target="_blank" rel="noopener noreferrer" title="MTConnect.NET on GitHub">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      <span>GitHub</span>
+    </a>
+  </div>
+</header>
+
+<main>
+  <!-- Overview -->
+  <section id="view-overview" class="view active">
+    <div class="panel">
+      <h2>MTConnect Data</h2>
+      <div class="raw-links" id="raw-agent"></div>
+    </div>
+    <div class="panel">
+      <h2>Agent</h2>
+      <div class="grid" id="agent-info"></div>
+    </div>
+    <div class="panel">
+      <h2>Buffer</h2>
+      <div class="grid" id="buffer-info"></div>
+    </div>
+    <div class="panel">
+      <h2>Devices</h2>
+      <table>
+        <thead><tr><th>Name</th><th>UUID</th><th>Type</th><th>Data Items</th><th title="Observations added since the Agent started">Observations</th><th class="hide-sm">MTConnect Data</th></tr></thead>
+        <tbody id="device-summary"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Data browser -->
+  <section id="view-data" class="view">
+    <div class="browser">
+      <div class="panel tree" id="tree"></div>
+      <div>
+        <div class="panel">
+          <div class="toolbar">
+            <strong id="data-title">Current</strong>
+            <span class="raw-links" id="raw-device"></span>
+            <span class="spacer"></span>
+            <input type="text" id="data-filter" placeholder="Filter…" size="18">
+            <label class="check"><input type="checkbox" id="data-auto" checked> Auto refresh</label>
+            <button class="btn" id="data-refresh">Refresh</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead id="current-head"><tr><th data-sort="name">Name / Id</th><th data-sort="type">Type</th><th data-sort="subType">SubType</th><th data-sort="value">Value</th><th data-sort="timestamp" class="hide-sm">Timestamp</th><th data-sort="sequence" class="hide-sm">Seq</th></tr></thead>
+              <tbody id="current-rows"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel history">
+          <div class="toolbar">
+            <strong id="history-title">History</strong>
+            <span class="spacer"></span>
+            <label class="muted">Count <input type="number" id="history-count" value="50" min="1" max="1000" style="width:80px"></label>
+            <button class="btn" id="history-refresh">Load</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Timestamp</th><th>Value</th><th>Seq</th></tr></thead>
+              <tbody id="history-rows"><tr><td colspan="3" class="empty">Select an observation to view its recent history</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Assets -->
+  <section id="view-assets" class="view">
+    <div class="panel">
+      <div class="toolbar">
+        <strong>Assets</strong>
+        <span class="raw-links" id="raw-assets"></span>
+        <span class="spacer"></span>
+        <select id="asset-device"><option value="">All devices</option></select>
+        <button class="btn" id="asset-refresh">Refresh</button>
+      </div>
+      <table>
+        <thead><tr><th>Asset Id</th><th>Type</th><th>Device</th><th>Timestamp</th><th>Removed</th></tr></thead>
+        <tbody id="asset-rows"></tbody>
+      </table>
+    </div>
+    <div class="panel" id="asset-detail" style="display:none">
+      <div class="toolbar">
+        <strong id="asset-detail-title"></strong>
+        <span class="raw-links" id="raw-asset"></span>
+      </div>
+      <pre class="xml mono" id="asset-xml"></pre>
+    </div>
+  </section>
+
+  <!-- Configuration -->
+  <section id="view-config" class="view">
+    <div class="panel">
+      <div class="toolbar">
+        <strong>Agent Configuration</strong>
+        <span class="muted mono" id="config-path"></span>
+        <span class="spacer"></span>
+        <span class="status" id="config-status"></span>
+        <button class="btn" id="config-reload">Reload</button>
+        <button class="btn primary" id="config-save">Save</button>
+      </div>
+      <textarea id="config" spellcheck="false"></textarea>
+      <p class="muted" id="config-note"></p>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var state = {
+    agent: null,
+    devices: [],
+    selected: null,      // { device, componentId?, dataItemIds? , label }
+    current: [],
+    historyItem: null,   // observation selected for history
+    sort: { key: 'name', dir: 1 },  // current-table sort column and direction (1 = ascending)
+    configDirty: false
+  };
+
+  // ---------- helpers ----------
+  function $(id) { return document.getElementById(id); }
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function api(path, options) {
+    return fetch(path, options).then(function (r) {
+      var type = r.headers.get('content-type') || '';
+      var body = type.indexOf('json') >= 0 ? r.json() : r.text();
+      return body.then(function (data) {
+        if (!r.ok) throw new Error((data && data.error) || r.statusText);
+        return data;
+      });
+    });
+  }
+
+  function fmtTime(t) {
+    if (!t) return '';
+    var d = new Date(t);
+    return isNaN(d) ? t : d.toLocaleString(undefined, { hour12: false }) + '.' + String(d.getMilliseconds()).padStart(3, '0');
+  }
+
+  function stat(label, value) {
+    return '<div class="stat"><div class="label">' + esc(label) + '</div><div class="value">' + esc(value) + '</div></div>';
+  }
+
+  // ---------- raw MTConnect links ----------
+  // Base URL of the Agent's MTConnect REST API (the first http-server module), or null when none is configured
+  function rawBase() {
+    var s = state.agent && state.agent.mtconnectServer;
+    if (!s) return null;
+    // Use the configured bind address only when it names a specific host; otherwise reuse the host this page was loaded from
+    var host = s.server && ['0.0.0.0', '*', '+', '::'].indexOf(s.server) < 0 ? s.server : location.hostname;
+    if (host.indexOf(':') >= 0 && host[0] !== '[') host = '[' + host + ']';
+    return (s.tls ? 'https://' : 'http://') + host + ':' + s.port + '/';
+  }
+
+  function rawLink(path, label) {
+    var base = rawBase();
+    if (!base) return '';
+    return '<a href="' + esc(base + path) + '" target="_blank" rel="noopener" title="Open ' + esc(path) + ' in a new tab">' + esc(label) + '</a>';
+  }
+
+  // Links for the given requests (probe, current, sample, assets), optionally scoped to one device
+  function rawLinks(deviceKey, requests) {
+    if (!rawBase()) return '';
+    var prefix = deviceKey ? encodeURIComponent(deviceKey) + '/' : '';
+    return requests.map(function (r) { return rawLink(prefix + r, r.charAt(0).toUpperCase() + r.substring(1)); }).join('');
+  }
+
+  function formatValue(o) {
+    var v = o.values || {};
+    if (o.category === 'CONDITION') {
+      var level = v.Level || 'UNAVAILABLE';
+      var text = v.Result ? ' – ' + esc(v.Result) : '';
+      var code = v.NativeCode ? ' <span class="muted">(' + esc(v.NativeCode) + ')</span>' : '';
+      return '<span class="level-' + esc(level) + '">' + esc(level) + '</span>' + text + code;
+    }
+    var keys = Object.keys(v);
+    if (keys.length === 1 && keys[0] === 'Result') {
+      return v.Result === 'UNAVAILABLE' ? '<span class="unavailable">UNAVAILABLE</span>' : esc(v.Result);
+    }
+    return keys.map(function (k) { return '<span class="muted">' + esc(k) + '=</span>' + esc(v[k]); }).join(' ');
+  }
+
+  // ---------- navigation ----------
+  var timers = {};
+  function showView(name) {
+    document.querySelectorAll('nav button').forEach(function (b) { b.classList.toggle('active', b.dataset.view === name); });
+    document.querySelectorAll('.view').forEach(function (v) { v.classList.toggle('active', v.id === 'view-' + name); });
+    location.hash = name;
+    if (name === 'overview') loadOverview();
+    if (name === 'data') loadCurrent();
+    if (name === 'assets') loadAssets();
+    if (name === 'config' && !state.configDirty) loadConfig();
+  }
+  document.querySelectorAll('nav button').forEach(function (b) {
+    b.addEventListener('click', function () { showView(b.dataset.view); });
+  });
+
+  function activeView() {
+    var el = document.querySelector('.view.active');
+    return el ? el.id.replace('view-', '') : null;
+  }
+
+  // ---------- overview ----------
+  function loadAgent() {
+    return api('/api/agent').then(function (a) { state.agent = a; return a; });
+  }
+
+  function loadDevices() {
+    return api('/api/devices').then(function (d) {
+      state.devices = d || [];
+      renderTree();
+      renderAssetDeviceOptions();
+      return d;
+    });
+  }
+
+  function countDataItems(c) {
+    var n = (c.dataItems || []).length;
+    (c.components || []).forEach(function (x) { n += countDataItems(x); });
+    return n;
+  }
+
+  function loadOverview(agentOnly) {
+    Promise.all([loadAgent(), agentOnly && state.devices.length ? null : loadDevices()]).then(function () {
+      var a = state.agent;
+      $('agent-info').innerHTML =
+        stat('UUID', a.uuid) + stat('Instance Id', a.instanceId) + stat('Sender', a.sender) +
+        stat('Agent Version', a.version) + stat('MTConnect Version', a.mtconnectVersion) +
+        stat('Device Model Changed', fmtTime(a.deviceModelChangeTime)) +
+        stat('Configuration File', a.configurationPath || '(none)');
+      $('buffer-info').innerHTML =
+        stat('Buffer Size', a.bufferSize) + stat('First Sequence', a.firstSequence) +
+        stat('Last Sequence', a.lastSequence) + stat('Next Sequence', a.nextSequence) +
+        stat('Assets', a.assetCount + ' / ' + a.assetBufferSize);
+      var counts = a.observationCounts || {};
+      $('raw-agent').innerHTML = rawBase()
+        ? rawLinks('', ['probe', 'current', 'sample', 'assets'])
+        : '<span class="muted">Add an <span class="mono">http-server</span> module to the Agent configuration to view the MTConnect response documents.</span>';
+      $('device-summary').innerHTML = state.devices.map(function (d) {
+        return '<tr data-device="' + esc(d.uuid) + '"><td>' + esc(d.name) + '</td><td class="mono">' + esc(d.uuid) +
+          '</td><td>' + esc(d.type) + '</td><td>' + countDataItems(d) + '</td><td>' + (counts[d.uuid] || 0).toLocaleString() + '</td><td class="hide-sm"><span class="raw-links">' + rawLinks(d.name || d.uuid, ['probe', 'current', 'sample']) + '</span></td></tr>';
+      }).join('') || '<tr><td colspan="6" class="empty">No devices</td></tr>';
+    }).catch(showError);
+  }
+
+  $('device-summary').addEventListener('click', function (e) {
+    if (e.target.closest('a')) return;  // raw MTConnect links open on their own
+    var tr = e.target.closest('tr[data-device]');
+    if (!tr) return;
+    var d = state.devices.find(function (x) { return x.uuid === tr.dataset.device; });
+    if (d) { selectNode(d, null); showView('data'); }
+  });
+
+  // ---------- device tree ----------
+  var nodeIndex = [];
+  function renderTree() {
+    nodeIndex = [];
+    function componentNode(device, c, isDevice) {
+      var idx = nodeIndex.push({ device: device, component: isDevice ? null : c }) - 1;
+      var children = (c.components || []);
+      var label = esc(c.name || c.id) + (c.type && !isDevice ? ' <span class="muted">' + esc(c.type) + '</span>' : '');
+      var html = '<li class="' + (isDevice ? 'device' : '') + '"><span class="node" data-idx="' + idx + '">' +
+        '<span class="toggle">' + (children.length ? '▾' : '') + '</span>' + label + '</span>';
+      if (children.length) {
+        html += '<ul>' + children.map(function (x) { return componentNode(device, x, false); }).join('') + '</ul>';
+      }
+      return html + '</li>';
+    }
+    var html = '<ul>' + state.devices.map(function (d) { return componentNode(d, d, true); }).join('') + '</ul>';
+    $('tree').innerHTML = state.devices.length ? html : '<div class="empty">No devices</div>';
+    markSelectedNode();
+  }
+
+  $('tree').addEventListener('click', function (e) {
+    var toggle = e.target.closest('.toggle');
+    var node = e.target.closest('.node');
+    if (!node) return;
+    if (toggle && toggle.textContent) {
+      var ul = node.parentElement.querySelector(':scope > ul');
+      if (ul) {
+        var hidden = ul.style.display === 'none';
+        ul.style.display = hidden ? '' : 'none';
+        toggle.textContent = hidden ? '▾' : '▸';
+      }
+      return;
+    }
+    var entry = nodeIndex[+node.dataset.idx];
+    selectNode(entry.device, entry.component);
+  });
+
+  function collectIds(c, out) {
+    (c.dataItems || []).forEach(function (di) { out[di.id] = true; });
+    (c.components || []).forEach(function (x) { collectIds(x, out); });
+    return out;
+  }
+
+  function selectNode(device, component) {
+    state.selected = {
+      device: device,
+      component: component,
+      dataItemIds: component ? collectIds(component, {}) : null,
+      label: (device.name || device.uuid) + (component ? ' / ' + (component.name || component.id) : '')
+    };
+    state.historyItem = null;
+    $('history-rows').innerHTML = '<tr><td colspan="3" class="empty">Select an observation to view its recent history</td></tr>';
+    $('history-title').textContent = 'History';
+    markSelectedNode();
+    loadCurrent();
+  }
+
+  function markSelectedNode() {
+    var sel = state.selected;
+    document.querySelectorAll('#tree .node').forEach(function (n) {
+      var e = nodeIndex[+n.dataset.idx];
+      var id = e.component ? e.component.id : null;
+      n.classList.toggle('selected', !!sel && e.device.uuid === sel.device.uuid && id === (sel.component ? sel.component.id : null));
+    });
+  }
+
+  // ---------- current ----------
+  function loadCurrent() {
+    if (!state.selected && state.devices.length) {
+      selectNode(state.devices[0], null);
+      return;
+    }
+    if (!state.selected) {
+      if (!state.devices.length) loadDevices().then(function () { if (state.devices.length) loadCurrent(); });
+      return;
+    }
+    var sel = state.selected;
+    $('data-title').textContent = sel.label;
+    $('raw-device').innerHTML = rawLinks(sel.device.name || sel.device.uuid, ['probe', 'current', 'sample']);
+    api('/api/current?device=' + encodeURIComponent(sel.device.uuid)).then(function (rows) {
+      if (state.selected !== sel) return;
+      if (sel.dataItemIds) rows = rows.filter(function (o) { return sel.dataItemIds[o.dataItemId]; });
+      state.current = rows;
+      renderCurrent();
+    }).catch(showError);
+  }
+
+  function renderCurrent() {
+    var filter = $('data-filter').value.trim().toLowerCase();
+    var rows = state.current.filter(function (o) {
+      if (!filter) return true;
+      return [o.name, o.dataItemId, o.type, o.subType, JSON.stringify(o.values)].join(' ').toLowerCase().indexOf(filter) >= 0;
+    });
+    sortRows(rows);
+    var selectedId = state.historyItem && state.historyItem.dataItemId;
+    $('current-rows').innerHTML = rows.map(function (o) {
+      return '<tr data-id="' + esc(o.dataItemId) + '"' + (o.dataItemId === selectedId ? ' class="selected"' : '') + '>' +
+        '<td>' + esc(o.name || o.dataItemId) + (o.name ? '<div class="muted mono">' + esc(o.dataItemId) + '</div>' : '') + '</td>' +
+        '<td><span class="badge ' + esc(o.category) + '">' + esc(o.category) + '</span> ' + esc(o.type) + '</td>' +
+        '<td>' + (o.subType ? esc(o.subType) : '<span class="muted">–</span>') + '</td>' +
+        '<td class="value">' + formatValue(o) + '</td>' +
+        '<td class="hide-sm muted nowrap">' + esc(fmtTime(o.timestamp)) + '</td>' +
+        '<td class="hide-sm muted">' + esc(o.sequence) + '</td></tr>';
+    }).join('') || '<tr><td colspan="6" class="empty">No observations</td></tr>';
+  }
+
+  // ---------- sorting ----------
+  function compareText(a, b) {
+    return String(a).localeCompare(String(b), undefined, { sensitivity: 'base', numeric: true });
+  }
+
+  function byName(a, b) {
+    // Name (falling back to Id when a DataItem has no name), then Id
+    return compareText(a.name || a.dataItemId, b.name || b.dataItemId) || compareText(a.dataItemId, b.dataItemId);
+  }
+
+  function valueText(o) {
+    var v = o.values || {};
+    if (o.category === 'CONDITION') return v.Level || '';
+    if ('Result' in v) return v.Result;
+    return Object.keys(v).map(function (k) { return v[k]; }).join(' ');
+  }
+
+  var sortKeys = {
+    name: null,
+    type: function (o) { return o.type; },
+    subType: function (o) { return o.subType; },
+    value: valueText,
+    timestamp: function (o) { return o.timestamp ? new Date(o.timestamp).getTime() : null; },
+    sequence: function (o) { return o.sequence; }
+  };
+
+  function sortRows(rows) {
+    var key = sortKeys[state.sort.key], dir = state.sort.dir;
+    rows.sort(function (a, b) {
+      if (key) {
+        var va = key(a), vb = key(b);
+        var ea = va == null || va === '', eb = vb == null || vb === '';
+        // Empty values always sort last, whichever the direction
+        if (ea !== eb) return ea ? 1 : -1;
+        if (!ea) {
+          var c = typeof va === 'number' && typeof vb === 'number' ? va - vb : compareText(va, vb);
+          if (c) return c * dir;
+        }
+        return byName(a, b);
+      }
+      return byName(a, b) * dir;
+    });
+    return rows;
+  }
+
+  function renderSortHeaders() {
+    document.querySelectorAll('#current-head th[data-sort]').forEach(function (th) {
+      th.tabIndex = 0;
+      if (th.dataset.sort === state.sort.key) th.setAttribute('aria-sort', state.sort.dir > 0 ? 'ascending' : 'descending');
+      else th.removeAttribute('aria-sort');
+    });
+  }
+
+  function setSort(key) {
+    // Clicking the active column flips the direction; a new column starts ascending
+    state.sort = state.sort.key === key ? { key: key, dir: -state.sort.dir } : { key: key, dir: 1 };
+    renderSortHeaders();
+    renderCurrent();
+  }
+
+  $('current-head').addEventListener('click', function (e) {
+    var th = e.target.closest('th[data-sort]');
+    if (th) setSort(th.dataset.sort);
+  });
+  $('current-head').addEventListener('keydown', function (e) {
+    var th = e.target.closest('th[data-sort]');
+    if (th && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); setSort(th.dataset.sort); }
+  });
+  renderSortHeaders();
+
+  $('data-filter').addEventListener('input', renderCurrent);
+  $('data-refresh').addEventListener('click', loadCurrent);
+  $('current-rows').addEventListener('click', function (e) {
+    var tr = e.target.closest('tr[data-id]');
+    if (!tr) return;
+    state.historyItem = state.current.find(function (o) { return o.dataItemId === tr.dataset.id; });
+    renderCurrent();
+    loadHistory();
+  });
+
+  // ---------- history ----------
+  function loadHistory() {
+    var item = state.historyItem;
+    if (!item || !state.selected) return;
+    $('history-title').textContent = 'History – ' + (item.name || item.dataItemId);
+    var url = '/api/sample?device=' + encodeURIComponent(state.selected.device.uuid) +
+      '&dataItemId=' + encodeURIComponent(item.dataItemId) + '&count=' + encodeURIComponent($('history-count').value || 50);
+    api(url).then(function (rows) {
+      $('history-rows').innerHTML = rows.map(function (o) {
+        return '<tr><td class="muted nowrap">' + esc(fmtTime(o.timestamp)) + '</td><td class="value">' + formatValue(o) +
+          '</td><td class="muted">' + esc(o.sequence) + '</td></tr>';
+      }).join('') || '<tr><td colspan="3" class="empty">No observations in buffer</td></tr>';
+    }).catch(showError);
+  }
+  $('history-refresh').addEventListener('click', loadHistory);
+
+  // ---------- assets ----------
+  function renderAssetDeviceOptions() {
+    var sel = $('asset-device');
+    var current = sel.value;
+    sel.innerHTML = '<option value="">All devices</option>' + state.devices.map(function (d) {
+      return '<option value="' + esc(d.uuid) + '">' + esc(d.name || d.uuid) + '</option>';
+    }).join('');
+    sel.value = current;
+  }
+
+  function loadAssets() {
+    if (!state.devices.length) loadDevices().catch(function () {});
+    var device = $('asset-device').value;
+    var deviceEntry = state.devices.find(function (d) { return d.uuid === device; });
+    $('raw-assets').innerHTML = rawLinks(deviceEntry ? (deviceEntry.name || deviceEntry.uuid) : '', ['assets']);
+    api('/api/assets' + (device ? '?device=' + encodeURIComponent(device) : '')).then(function (rows) {
+      $('asset-rows').innerHTML = rows.map(function (a) {
+        var dev = state.devices.find(function (d) { return d.uuid === a.deviceUuid; });
+        return '<tr data-id="' + esc(a.assetId) + '"><td class="mono">' + esc(a.assetId) + '</td><td>' + esc(a.type) +
+          '</td><td>' + esc(dev ? dev.name : a.deviceUuid) + '</td><td class="muted">' + esc(fmtTime(a.timestamp)) +
+          '</td><td>' + (a.removed ? 'Yes' : '') + '</td></tr>';
+      }).join('') || '<tr><td colspan="5" class="empty">No assets</td></tr>';
+    }).catch(showError);
+  }
+
+  $('asset-device').addEventListener('change', loadAssets);
+  $('asset-refresh').addEventListener('click', loadAssets);
+  $('asset-rows').addEventListener('click', function (e) {
+    var tr = e.target.closest('tr[data-id]');
+    if (!tr) return;
+    document.querySelectorAll('#asset-rows tr').forEach(function (r) { r.classList.toggle('selected', r === tr); });
+    api('/api/asset?id=' + encodeURIComponent(tr.dataset.id)).then(function (xml) {
+      $('asset-detail').style.display = '';
+      $('asset-detail-title').textContent = tr.dataset.id;
+      $('raw-asset').innerHTML = rawLink('asset/' + encodeURIComponent(tr.dataset.id), 'Asset');
+      $('asset-xml').textContent = xml;
+    }).catch(showError);
+  });
+
+  // ---------- configuration ----------
+  function setConfigStatus(text, cls) {
+    var el = $('config-status');
+    el.textContent = text || '';
+    el.className = 'status ' + (cls || '');
+  }
+
+  function loadConfig() {
+    api('/api/config').then(function (c) {
+      $('config').value = c.content || '';
+      $('config').readOnly = !c.editable;
+      $('config-save').disabled = !c.editable;
+      $('config-path').textContent = c.path || '';
+      state.configDirty = false;
+      setConfigStatus(c.editable ? '' : 'Read only', c.editable ? '' : 'warn');
+      return loadAgent();
+    }).then(function (a) {
+      $('config-note').textContent = a.monitorConfigurationFiles
+        ? 'Saving writes the file (a .bak copy of the previous version is kept) and the Agent restarts automatically to apply it.'
+        : 'Saving writes the file (a .bak copy is kept). monitorConfigurationFiles is disabled, so restart the Agent to apply changes.';
+    }).catch(function (e) { setConfigStatus(e.message, 'err'); });
+  }
+
+  $('config').addEventListener('input', function () {
+    state.configDirty = true;
+    setConfigStatus('Unsaved changes', 'warn');
+  });
+
+  $('config').addEventListener('keydown', function (e) {
+    // Insert spaces for Tab so YAML indentation stays valid
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      var t = e.target, s = t.selectionStart;
+      t.setRangeText('  ', s, t.selectionEnd, 'end');
+      t.dispatchEvent(new Event('input'));
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      saveConfig();
+    }
+  });
+
+  function saveConfig() {
+    if ($('config-save').disabled) return;
+    $('config-save').disabled = true;
+    setConfigStatus('Saving…');
+    api('/api/config', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      body: $('config').value
+    }).then(function (r) {
+      state.configDirty = false;
+      setConfigStatus(r.restartPending ? 'Saved – Agent restarting…' : 'Saved', 'ok');
+    }).catch(function (e) {
+      setConfigStatus(e.message, 'err');
+    }).then(function () {
+      $('config-save').disabled = false;
+    });
+  }
+
+  $('config-save').addEventListener('click', saveConfig);
+  $('config-reload').addEventListener('click', function () {
+    if (state.configDirty && !confirm('Discard unsaved changes?')) return;
+    loadConfig();
+  });
+
+  window.addEventListener('beforeunload', function (e) {
+    if (state.configDirty) { e.preventDefault(); e.returnValue = ''; }
+  });
+
+  // ---------- errors / polling ----------
+  function showError(e) {
+    console.error(e);
+  }
+
+  setInterval(function () {
+    if (document.hidden) return;
+    var v = activeView();
+    if (v === 'data' && $('data-auto').checked) loadCurrent();
+    if (v === 'overview') loadOverview(true);
+  }, 2000);
+
+  // ---------- start ----------
+  var initial = (location.hash || '#overview').substring(1);
+  // Agent info is needed up front for the raw MTConnect links on every view
+  Promise.all([loadDevices(), loadAgent()]).catch(showError).then(function () {
+    showView(['overview', 'data', 'assets', 'config'].indexOf(initial) >= 0 ? initial : 'overview');
+  });
+})();
+</script>
+</body>
+</html>

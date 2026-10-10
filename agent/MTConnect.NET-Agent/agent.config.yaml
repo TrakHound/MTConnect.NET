@@ -9,6 +9,9 @@ processors:
 # - Modules -
 modules:
   
+- web-ui: # - Add Web UI module (browse data and edit this configuration at http://localhost:5080)
+    port: 5080
+  
 - http-server: # - Add HTTP Server module
     port: 5000
     indentOutput: true
