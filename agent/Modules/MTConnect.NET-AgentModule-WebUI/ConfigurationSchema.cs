@@ -29,7 +29,19 @@ namespace MTConnect.Modules.WebUI
         public const string TypeBoolean = "boolean";
         public const string TypeEnum = "enum";
 
-        /// <summary>Lists, dictionaries and nested objects; shown read-only and edited as YAML.</summary>
+        /// <summary>A list of simple values (<see cref="ItemType"/>).</summary>
+        public const string TypeList = "list";
+
+        /// <summary>A list of objects (<see cref="ItemFields"/>).</summary>
+        public const string TypeObjectList = "objectList";
+
+        /// <summary>A dictionary of names to simple values (<see cref="ValueType"/>).</summary>
+        public const string TypeMap = "map";
+
+        /// <summary>A nested object (<see cref="Fields"/>).</summary>
+        public const string TypeObject = "object";
+
+        /// <summary>Anything else; shown read-only and edited as YAML.</summary>
         public const string TypeComplex = "complex";
 
         /// <summary>The key used in <c>agent.config.yaml</c>.</summary>
@@ -53,8 +65,29 @@ namespace MTConnect.Modules.WebUI
         /// <summary>True for passwords and similar values that should be masked.</summary>
         public bool Secret { get; set; }
 
-        /// <summary>Whether <see cref="Type"/> is one the form edits directly.</summary>
-        public bool IsSimple => Type != TypeComplex;
+        /// <summary>For lists: the simple type of each item.</summary>
+        public string ItemType { get; set; }
+
+        /// <summary>For lists of enum values: the allowed values.</summary>
+        public string[] ItemOptions { get; set; }
+
+        /// <summary>For lists of objects: the fields of each item.</summary>
+        public List<ConfigurationField> ItemFields { get; set; }
+
+        /// <summary>For maps: the simple type of each value.</summary>
+        public string ValueType { get; set; }
+
+        /// <summary>For nested objects: their fields.</summary>
+        public List<ConfigurationField> Fields { get; set; }
+
+        /// <summary>Whether <see cref="Type"/> is a single value the form edits directly.</summary>
+        public bool IsSimple => Type == TypeString || Type == TypeInteger || Type == TypeNumber || Type == TypeBoolean || Type == TypeEnum;
+
+        /// <summary>Whether <see cref="Type"/> is a list, map or nested object the form edits as a whole.</summary>
+        public bool IsStructured => Type == TypeList || Type == TypeObjectList || Type == TypeMap || Type == TypeObject;
+
+        /// <summary>A field describing a single item or value of this list or map, for formatting it.</summary>
+        public ConfigurationField ItemField() => new ConfigurationField { Key = Key, Type = Type == TypeMap ? ValueType : ItemType, Options = ItemOptions };
     }
 
     /// <summary>
@@ -176,12 +209,10 @@ namespace MTConnect.Modules.WebUI
                 {
                     Key = key,
                     Property = property.Name,
-                    Type = GetFieldType(valueType),
                     Description = GetDescription(property),
                     Secret = IsSecret(property.Name)
                 };
-
-                if (field.Type == ConfigurationField.TypeEnum) field.Options = Enum.GetNames(valueType);
+                Describe(field, valueType);
 
                 if (defaults != null && field.IsSimple)
                 {
@@ -194,14 +225,101 @@ namespace MTConnect.Modules.WebUI
             return fields;
         }
 
-        private static string GetFieldType(Type type)
+        // Types whose fields are being described on this thread (guards against settings classes that contain themselves)
+        [ThreadStatic] private static HashSet<Type> _describing;
+
+        /// <summary>
+        /// Sets a field's type from its .NET type: a simple value, a list or map of simple values, a list of
+        /// objects, or a nested object (described recursively). Anything else is left to YAML.
+        /// </summary>
+        private static void Describe(ConfigurationField field, Type type)
+        {
+            field.Type = GetSimpleType(type);
+            if (field.Type == ConfigurationField.TypeEnum) field.Options = Enum.GetNames(type);
+            if (field.Type != null) return;
+
+            field.Type = ConfigurationField.TypeComplex;
+
+            // Dictionary<string, simple>
+            var dictionary = GetGenericInterface(type, typeof(IDictionary<,>));
+            if (dictionary != null)
+            {
+                var args = dictionary.GetGenericArguments();
+                var valueType = Nullable.GetUnderlyingType(args[1]) ?? args[1];
+                if (args[0] == typeof(string) && GetSimpleType(valueType) != null)
+                {
+                    field.Type = ConfigurationField.TypeMap;
+                    field.ValueType = GetSimpleType(valueType);
+                }
+                return;
+            }
+
+            // IEnumerable<simple> or IEnumerable<object type>
+            var enumerable = type != typeof(string) ? GetGenericInterface(type, typeof(IEnumerable<>)) : null;
+            if (enumerable != null)
+            {
+                var itemType = enumerable.GetGenericArguments()[0];
+                itemType = Nullable.GetUnderlyingType(itemType) ?? itemType;
+                var simple = GetSimpleType(itemType);
+                if (simple != null)
+                {
+                    field.Type = ConfigurationField.TypeList;
+                    field.ItemType = simple;
+                    if (simple == ConfigurationField.TypeEnum) field.ItemOptions = Enum.GetNames(itemType);
+                }
+                else if (IsSettingsClass(itemType))
+                {
+                    var itemFields = DescribeNested(itemType);
+                    if (itemFields != null)
+                    {
+                        field.Type = ConfigurationField.TypeObjectList;
+                        field.ItemFields = itemFields;
+                    }
+                }
+                return;
+            }
+
+            // A nested settings object (for example tls)
+            if (IsSettingsClass(type))
+            {
+                var fields = DescribeNested(type);
+                if (fields != null)
+                {
+                    field.Type = ConfigurationField.TypeObject;
+                    field.Fields = fields;
+                }
+            }
+        }
+
+        private static List<ConfigurationField> DescribeNested(Type type)
+        {
+            if (_describing == null) _describing = new HashSet<Type>();
+            if (!_describing.Add(type)) return null;
+            try { return GetFields(type); }
+            finally { _describing.Remove(type); }
+        }
+
+        /// <summary>A concrete class with a public parameterless constructor and settable properties (not a framework type).</summary>
+        private static bool IsSettingsClass(Type type) =>
+            type.IsClass && !type.IsAbstract && type != typeof(object) && type != typeof(string) &&
+            (type.Namespace == null || !type.Namespace.StartsWith("System")) &&
+            type.GetConstructor(Type.EmptyTypes) != null &&
+            type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Any(p => p.CanRead && p.CanWrite);
+
+        private static Type GetGenericInterface(Type type, Type genericDefinition)
+        {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == genericDefinition) return type;
+            return type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericDefinition);
+        }
+
+        private static string GetSimpleType(Type type)
         {
             if (type == typeof(string) || type == typeof(Version)) return ConfigurationField.TypeString;
             if (type == typeof(bool)) return ConfigurationField.TypeBoolean;
             if (type.IsEnum) return ConfigurationField.TypeEnum;
             if (_integerTypes.Contains(type)) return ConfigurationField.TypeInteger;
             if (_numberTypes.Contains(type)) return ConfigurationField.TypeNumber;
-            return ConfigurationField.TypeComplex;
+            return null;
         }
 
         private static bool IsSecret(string propertyName)
