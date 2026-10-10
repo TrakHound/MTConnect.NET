@@ -286,10 +286,11 @@ namespace MTConnect.AgentModule.HaasAdapter.Tests
 
                 control.Dispose();
 
-                await WaitFor(() => GetValue(agent, "avail") == "UNAVAILABLE");
-                Assert.That(GetValue(agent, "execution"), Is.EqualTo("UNAVAILABLE"));
-                Assert.That(GetValue(agent, "powerOnTime"), Is.EqualTo("UNAVAILABLE"));
-                Assert.That(GetValue(agent, "system", "Level"), Is.EqualTo("UNAVAILABLE"));
+                // Every value is set UNAVAILABLE (they are added one at a time, so wait for all of them)
+                await WaitFor(() => GetValue(agent, "avail") == "UNAVAILABLE"
+                    && GetValue(agent, "execution") == "UNAVAILABLE"
+                    && GetValue(agent, "powerOnTime") == "UNAVAILABLE"
+                    && GetValue(agent, "system", "Level") == "UNAVAILABLE");
 
                 using (new FakeHaasControl(port))
                 {
