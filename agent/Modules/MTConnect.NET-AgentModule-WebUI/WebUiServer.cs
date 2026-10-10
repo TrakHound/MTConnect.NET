@@ -40,6 +40,7 @@ namespace MTConnect.Modules.WebUI
     /// <item><c>GET /api/sample?device=&amp;dataItemId=&amp;count=</c> – most recent Observations</item>
     /// <item><c>GET /api/assets?device=</c> – Asset list</item>
     /// <item><c>GET /api/asset?id=</c> – a single Asset as an MTConnectAssets XML document</item>
+    /// <item><c>GET /api/validation?device=</c> – validation problems reported by the Agent, with per-Device totals</item>
     /// <item><c>GET /api/config</c> / <c>PUT /api/config</c> – read / save the Agent configuration file</item>
     /// </list>
     /// </remarks>
@@ -58,6 +59,7 @@ namespace MTConnect.Modules.WebUI
         private readonly WebUiModuleConfiguration _configuration;
         private readonly IMTConnectAgentBroker _agent;
         private readonly ConcurrentDictionary<string, long> _observationCounts = new ConcurrentDictionary<string, long>();
+        private readonly ValidationProblemTracker _validation;
         private HttpListener _listener;
         private CancellationTokenSource _stop;
 
@@ -85,6 +87,9 @@ namespace MTConnect.Modules.WebUI
 
             // Count Observations per Device from the moment the server is created
             if (_agent != null) _agent.ObservationAdded += ObservationAdded;
+
+            // Collect validation failures from the moment the server is created (before Devices load)
+            _validation = new ValidationProblemTracker(_agent);
         }
 
 
@@ -120,6 +125,7 @@ namespace MTConnect.Modules.WebUI
         public void Stop()
         {
             if (_agent != null) _agent.ObservationAdded -= ObservationAdded;
+            _validation.Detach();
 
             try
             {
@@ -179,6 +185,7 @@ namespace MTConnect.Modules.WebUI
                 else if (method == "GET" && path == "/api/sample") WriteJson(response, GetSample(request.QueryString["device"], request.QueryString["dataItemId"], request.QueryString["count"]));
                 else if (method == "GET" && path == "/api/assets") WriteJson(response, GetAssets(request.QueryString["device"]));
                 else if (method == "GET" && path == "/api/asset") WriteAsset(response, request.QueryString["id"]);
+                else if (method == "GET" && path == "/api/validation") WriteJson(response, GetValidation(request.QueryString["device"]));
                 else if (method == "GET" && path == "/api/config") WriteJson(response, GetConfiguration());
                 else if (method == "PUT" && path == "/api/config") SaveConfiguration(request, response);
                 else WriteJson(response, new { error = "Not Found" }, 404);
@@ -303,7 +310,8 @@ namespace MTConnect.Modules.WebUI
                 ? _agent.GetCurrentObservations()
                 : _agent.GetCurrentObservations(deviceKey);
 
-            return ToObservations(observations);
+            // Attach each DataItem's most recent validation message so the Data page can show it
+            return ToObservations(observations, _validation.GetObservationProblems());
         }
 
         private object GetSample(string deviceKey, string dataItemId, string countText)
@@ -346,7 +354,7 @@ namespace MTConnect.Modules.WebUI
             return ToObservations(results.OrderByDescending(o => o.Sequence).Take(count));
         }
 
-        private static IEnumerable<object> ToObservations(IEnumerable<IObservationOutput> observations)
+        private static IEnumerable<object> ToObservations(IEnumerable<IObservationOutput> observations, Dictionary<string, ValidationProblem> problems = null)
         {
             if (observations == null) return new object[0];
 
@@ -365,10 +373,74 @@ namespace MTConnect.Modules.WebUI
                 quality = observation.Quality.ToString(),
                 deprecated = observation.Deprecated,
                 extended = observation.Extended,
+                problem = ToProblemSummary(problems, observation),
                 values = observation.Values != null
                     ? observation.Values.Where(v => v.Key != null).GroupBy(v => v.Key).ToDictionary(g => g.Key, g => g.First().Value)
                     : new Dictionary<string, string>()
             }).ToList();
+        }
+
+        private static object ToProblemSummary(Dictionary<string, ValidationProblem> problems, IObservationOutput observation)
+        {
+            if (problems == null) return null;
+            if (!problems.TryGetValue(ValidationProblemTracker.ObservationKey(observation.DeviceUuid, observation.DataItemId), out var problem)) return null;
+
+            return new { message = problem.Message, code = problem.Code, count = problem.Count, lastSeen = problem.LastSeen };
+        }
+
+        private object GetValidation(string deviceUuid)
+        {
+            var problems = _validation.GetProblems(deviceUuid);
+            var agentDevices = (_agent.GetDevices() ?? Enumerable.Empty<IDevice>()).ToList();
+
+            // Device-model problems are reported while Devices are still loading, before their names can be
+            // looked up, so fill in any missing names now
+            foreach (var problem in problems)
+            {
+                if (problem.DeviceName == null) problem.DeviceName = agentDevices.FirstOrDefault(d => d.Uuid == problem.DeviceUuid)?.Name;
+            }
+
+            // One row per known Device (zero counts included), plus any Device UUIDs that only appear in problems
+            var devices = agentDevices
+                .Select(d => new { uuid = d.Uuid, name = d.Name })
+                .Concat(problems.Where(p => p.DeviceUuid != null).Select(p => new { uuid = p.DeviceUuid, name = p.DeviceName }))
+                .GroupBy(d => d.uuid)
+                .Select(g => g.First())
+                .Where(d => string.IsNullOrEmpty(deviceUuid) || d.uuid == deviceUuid)
+                .Select(d =>
+                {
+                    var forDevice = problems.Where(p => p.DeviceUuid == d.uuid).ToList();
+                    return new
+                    {
+                        d.uuid,
+                        d.name,
+                        observationProblems = forDevice.Count(p => p.Kind == ValidationProblemTracker.KindObservation),
+                        observationReports = forDevice.Where(p => p.Kind == ValidationProblemTracker.KindObservation).Sum(p => p.Count),
+                        modelProblems = forDevice.Count(p => p.Kind != ValidationProblemTracker.KindObservation && p.Kind != ValidationProblemTracker.KindAsset),
+                        assetProblems = forDevice.Count(p => p.Kind == ValidationProblemTracker.KindAsset)
+                    };
+                })
+                .ToList();
+
+            return new
+            {
+                devices,
+                problems = problems.Select(p => new
+                {
+                    kind = p.Kind,
+                    deviceUuid = p.DeviceUuid,
+                    deviceName = p.DeviceName,
+                    targetId = p.TargetId,
+                    targetName = p.TargetName,
+                    targetType = p.TargetType,
+                    targetFound = p.TargetFound,
+                    code = p.Code,
+                    message = p.Message,
+                    count = p.Count,
+                    firstSeen = p.FirstSeen,
+                    lastSeen = p.LastSeen
+                }).ToList()
+            };
         }
 
         private object GetAssets(string deviceKey)

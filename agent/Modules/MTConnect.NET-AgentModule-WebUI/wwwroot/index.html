@@ -226,6 +226,34 @@
   tbody tr.invalid:hover, tbody tr.invalid.selected { background: var(--accent-soft); }
   .validation-note { margin: -4px 0 10px; font-size: 12px; }
   .validation-note a { color: var(--accent); }
+
+  /* Validation problems */
+  .count-pill {
+    display: inline-block;
+    min-width: 18px;
+    padding: 0 5px;
+    margin-left: 4px;
+    border-radius: 9px;
+    background: var(--err);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 18px;
+    text-align: center;
+  }
+  a.link { color: var(--accent); text-decoration: none; font-size: 13px; }
+  a.link:hover, a.link:focus-visible { text-decoration: underline; }
+  .validation-devices { margin-top: 12px; }
+  .validation-devices tbody tr, .validation-devices tbody tr:hover { cursor: default; background: none; }
+  .validation-devices td.has-problems { color: var(--err); font-weight: 500; }
+  .validation-devices td.zero { color: var(--muted); }
+  .problems { max-height: calc(100vh - 230px); }
+  #problem-rows tr.static, #problem-rows tr.static:hover { cursor: default; }
+  #problem-rows td.message { overflow-wrap: anywhere; min-width: 200px; }
+  #problem-rows td.item { overflow-wrap: anywhere; max-width: 260px; }
+  .badge.unknown { color: var(--err); margin-left: 6px; }
+  .stat .value.ok { color: var(--ok); }
+  .stat .value.off { color: var(--warn); }
   .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
   .toolbar .spacer { flex: 1; }
   input[type=text], input[type=number], select {
@@ -344,6 +372,7 @@
     <button data-view="overview" class="active">Overview</button>
     <button data-view="data">Data</button>
     <button data-view="assets">Assets</button>
+    <button data-view="validation">Validation <span class="count-pill" id="validation-count" hidden></span></button>
     <button data-view="config">Configuration</button>
   </nav>
   <div class="header-links">
@@ -378,6 +407,18 @@
       <table>
         <thead><tr><th>Name</th><th>UUID</th><th>Type</th><th>Data Items</th><th title="Observations added since the Agent started">Observations</th><th class="hide-sm">MTConnect Data</th></tr></thead>
         <tbody id="device-summary"></tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <div class="toolbar">
+        <strong>Validation</strong>
+        <span class="spacer"></span>
+        <a href="#validation" class="link" id="validation-overview-link">View problems</a>
+      </div>
+      <div class="grid" id="validation-info"></div>
+      <table class="validation-devices">
+        <thead><tr><th>Device</th><th title="Distinct DataItems with invalid values or unknown DataItem keys">Value Problems</th><th title="Number of invalid values reported">Reports</th><th title="Invalid Devices, Components, Compositions and DataItems">Model Problems</th><th title="Invalid Assets">Asset Problems</th></tr></thead>
+        <tbody id="validation-device-rows"></tbody>
       </table>
     </div>
   </section>
@@ -450,6 +491,37 @@
   </section>
 
   <!-- Configuration -->
+  <section id="view-validation" class="view">
+    <div class="panel">
+      <div class="toolbar">
+        <strong>Validation Problems</strong>
+        <span class="spacer"></span>
+        <select id="problem-device"><option value="">All devices</option></select>
+        <select id="problem-kind">
+          <option value="">All kinds</option>
+          <option value="observation">Values</option>
+          <option value="dataItem">Data items</option>
+          <option value="component">Components</option>
+          <option value="composition">Compositions</option>
+          <option value="device">Devices</option>
+          <option value="asset">Assets</option>
+        </select>
+        <input type="text" id="problem-filter" placeholder="Filter…" size="16">
+        <button class="btn" id="problem-refresh">Refresh</button>
+      </div>
+      <p class="validation-note muted">
+        Problems reported by the Agent since it last started (validation levels: input <span class="mono" id="problem-input-level"></span>, device <span class="mono" id="problem-device-level"></span>).
+        Repeats of the same problem are counted on one row. Select a value problem to open that data item.
+      </p>
+      <div class="table-wrap problems">
+        <table>
+          <thead><tr><th>Last Seen</th><th>Device</th><th>Kind</th><th>Item</th><th>Message</th><th>Count</th><th class="hide-sm">First Seen</th></tr></thead>
+          <tbody id="problem-rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <section id="view-config" class="view">
     <div class="panel">
       <div class="toolbar">
@@ -557,6 +629,7 @@
     if (name === 'overview') loadOverview();
     if (name === 'data') loadCurrent();
     if (name === 'assets') loadAssets();
+    if (name === 'validation') loadValidation().then(renderProblems).catch(showError);
     if (name === 'config' && !state.configDirty) loadConfig();
   }
   document.querySelectorAll('nav button').forEach(function (b) {
@@ -582,6 +655,7 @@
       state.devices = d || [];
       renderTree();
       renderAssetDeviceOptions();
+      renderProblemDeviceOptions();
       return d;
     });
   }
@@ -593,7 +667,8 @@
   }
 
   function loadOverview(agentOnly) {
-    Promise.all([loadAgent(), agentOnly && state.devices.length ? null : loadDevices()]).then(function () {
+    Promise.all([loadAgent(), agentOnly && state.devices.length ? null : loadDevices(), loadValidation()]).then(function () {
+      renderValidationOverview();
       var a = state.agent;
       $('agent-info').innerHTML =
         stat('UUID', a.uuid) + stat('Instance Id', a.instanceId) + stat('Sender', a.sender) +
@@ -718,7 +793,12 @@
   // Icon + tooltip for an observation's Quality / Deprecated / Extended flags (empty when there is nothing to report)
   function validationFlags(o) {
     var issues = [];
-    if (isInvalid(o)) issues.push('Invalid: the value does not conform to the MTConnect Standard for ' + o.type + '.');
+    if (isInvalid(o)) {
+      // Prefer the Agent's own message for this DataItem when one has been reported
+      issues.push(o.problem && o.problem.message
+        ? 'Invalid: ' + o.problem.message + (o.problem.count > 1 ? ' (reported ' + o.problem.count + ' times)' : '')
+        : 'Invalid: the value does not conform to the MTConnect Standard for ' + o.type + '.');
+    }
     if (o.deprecated) issues.push('Deprecated: ' + o.type + ' is deprecated in MTConnect ' + ((state.agent && state.agent.mtconnectVersion) || '') + '.');
 
     var html = '';
@@ -972,6 +1052,115 @@
     if (state.configDirty) { e.preventDefault(); e.returnValue = ''; }
   });
 
+  // ---------- validation problems ----------
+  var problemKinds = {
+    observation: 'Value',
+    dataItem: 'Data item',
+    component: 'Component',
+    composition: 'Composition',
+    device: 'Device',
+    asset: 'Asset'
+  };
+
+  function loadValidation() {
+    return api('/api/validation').then(function (v) {
+      state.validation = v;
+      var count = (v.problems || []).length;
+      $('validation-count').textContent = count > 999 ? '999+' : count;
+      $('validation-count').hidden = count === 0;
+      return v;
+    });
+  }
+
+  function countCell(n, title) {
+    return '<td class="' + (n ? 'has-problems' : 'zero') + '"' + (title ? ' title="' + esc(title) + '"' : '') + '>' + Number(n || 0).toLocaleString() + '</td>';
+  }
+
+  function renderValidationOverview() {
+    var a = state.agent, v = state.validation;
+    if (!a || !v) return;
+    var problems = v.problems || [];
+    $('validation-info').innerHTML =
+      '<div class="stat"><div class="label">Value Checking</div><div class="value ' + (a.enableValidation ? 'ok' : 'off') + '">' +
+        (a.enableValidation ? 'On' : 'Off') + '</div></div>' +
+      stat('Input Validation Level', a.inputValidationLevel) +
+      stat('Device Validation Level', a.deviceValidationLevel) +
+      stat('Problems', problems.length.toLocaleString());
+    $('validation-device-rows').innerHTML = (v.devices || []).map(function (d) {
+      return '<tr class="static"><td>' + esc(d.name || d.uuid) + '</td>' +
+        countCell(d.observationProblems) + countCell(d.observationReports) +
+        countCell(d.modelProblems) + countCell(d.assetProblems) + '</tr>';
+    }).join('') || '<tr><td colspan="5" class="empty">No devices</td></tr>';
+  }
+
+  function renderProblemDeviceOptions() {
+    var sel = $('problem-device');
+    var current = sel.value;
+    sel.innerHTML = '<option value="">All devices</option>' + state.devices.map(function (d) {
+      return '<option value="' + esc(d.uuid) + '">' + esc(d.name || d.uuid) + '</option>';
+    }).join('');
+    sel.value = current;
+  }
+
+  function renderProblems() {
+    var v = state.validation;
+    if (!v) return;
+    var a = state.agent || {};
+    $('problem-input-level').textContent = a.inputValidationLevel || '?';
+    $('problem-device-level').textContent = a.deviceValidationLevel || '?';
+
+    var device = $('problem-device').value, kind = $('problem-kind').value;
+    var filter = $('problem-filter').value.trim().toLowerCase();
+    var rows = (v.problems || []).filter(function (p) {
+      if (device && p.deviceUuid !== device) return false;
+      if (kind && p.kind !== kind) return false;
+      if (!filter) return true;
+      return [p.deviceName, p.deviceUuid, problemKinds[p.kind], p.targetId, p.targetName, p.targetType, p.code, p.message]
+        .join(' ').toLowerCase().indexOf(filter) >= 0;
+    });
+
+    $('problem-rows').innerHTML = rows.map(function (p, i) {
+      // Value problems for a known DataItem link to that DataItem on the Data page
+      var linkable = p.kind === 'observation' && p.targetFound && state.devices.some(function (d) { return d.uuid === p.deviceUuid; });
+      var item = esc(p.targetName || p.targetId || '–') +
+        (!p.targetFound ? '<span class="badge unknown" title="The Device does not define a DataItem with this key">UNKNOWN</span>' : '') +
+        (p.targetName && p.targetId ? '<div class="muted mono">' + esc(p.targetId) + '</div>' : '') +
+        (p.targetType ? '<div class="muted">' + esc(p.targetType) + '</div>' : '');
+      var message = esc(p.message || 'Invalid') + (p.code && p.code !== p.message ? '<div class="muted mono">' + esc(p.code) + '</div>' : '');
+      return '<tr data-index="' + i + '"' + (linkable ? ' title="Open this data item on the Data page"' : ' class="static"') + '>' +
+        '<td class="muted nowrap">' + esc(fmtTime(p.lastSeen)) + '</td>' +
+        '<td>' + esc(p.deviceName || p.deviceUuid || '–') + '</td>' +
+        '<td><span class="badge">' + esc(problemKinds[p.kind] || p.kind) + '</span></td>' +
+        '<td class="item">' + item + '</td>' +
+        '<td class="message">' + message + '</td>' +
+        '<td>' + Number(p.count).toLocaleString() + '</td>' +
+        '<td class="hide-sm muted nowrap">' + esc(fmtTime(p.firstSeen)) + '</td></tr>';
+    }).join('') || '<tr class="static"><td colspan="7" class="empty">' +
+      ((v.problems || []).length ? 'No problems match the filter' : 'No validation problems have been reported since the Agent started') + '</td></tr>';
+    state.problemRows = rows;
+  }
+
+  $('problem-rows').addEventListener('click', function (e) {
+    var tr = e.target.closest('tr[data-index]:not(.static)');
+    if (!tr) return;
+    var p = state.problemRows[+tr.dataset.index];
+    var device = p && state.devices.find(function (d) { return d.uuid === p.deviceUuid; });
+    if (!device) return;
+    // Open the Device on the Data page, filtered to this DataItem
+    $('data-filter').value = p.targetId;
+    selectNode(device, null);
+    showView('data');
+  });
+
+  $('problem-device').addEventListener('change', renderProblems);
+  $('problem-kind').addEventListener('change', renderProblems);
+  $('problem-filter').addEventListener('input', renderProblems);
+  $('problem-refresh').addEventListener('click', function () { loadValidation().then(renderProblems).catch(showError); });
+  $('validation-overview-link').addEventListener('click', function (e) {
+    e.preventDefault();
+    showView('validation');
+  });
+
   // ---------- errors / polling ----------
   function showError(e) {
     console.error(e);
@@ -982,13 +1171,14 @@
     var v = activeView();
     if (v === 'data' && $('data-auto').checked) loadCurrent();
     if (v === 'overview') loadOverview(true);
+    if (v === 'validation') loadValidation().then(renderProblems).catch(showError);
   }, 2000);
 
   // ---------- start ----------
   var initial = (location.hash || '#overview').substring(1);
   // Agent info is needed up front for the raw MTConnect links on every view
-  Promise.all([loadDevices(), loadAgent()]).catch(showError).then(function () {
-    showView(['overview', 'data', 'assets', 'config'].indexOf(initial) >= 0 ? initial : 'overview');
+  Promise.all([loadDevices(), loadAgent(), loadValidation()]).catch(showError).then(function () {
+    showView(['overview', 'data', 'assets', 'validation', 'config'].indexOf(initial) >= 0 ? initial : 'overview');
   });
 })();
 </script>
