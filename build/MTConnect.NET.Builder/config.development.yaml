@@ -110,6 +110,8 @@ libraries:
    packages:
    - name: MTConnect.NET-Applications-Agents
      projectPath: agent/MTConnect.NET-Applications-Agents
+   - name: MTConnect.NET-AgentModule-HaasAdapter
+     projectPath: agent/Modules/MTConnect.NET-AgentModule-HaasAdapter
    - name: MTConnect.NET-AgentModule-HttpAdapter
      projectPath: agent/Modules/MTConnect.NET-AgentModule-HttpAdapter
    - name: MTConnect.NET-AgentModule-HttpServer

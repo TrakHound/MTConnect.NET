@@ -10,6 +10,7 @@ The module set:
 - [MQTT adapter](#mqtt-adapter) — inbound consumer from an external MQTT broker.
 - [SHDR adapter](#shdr-adapter) — inbound TCP-SHDR adapter.
 - [HTTP adapter](#http-adapter) — inbound HTTP-poll adapter.
+- [Haas adapter](#haas-adapter) — reads a Haas CNC control over Ethernet or RS-232.
 
 Every module is declared in `agent.config.yaml` under `modules:` as a single-key map. The key is the module's name; the value is the module's config object.
 
@@ -193,6 +194,19 @@ Polls an HTTP endpoint that returns MTConnect-shaped responses. Module key: `htt
 
 The HTTP adapter is most often used to chain agents — a regional aggregator agent polling per-cell agents — but works against any HTTP endpoint that emits the right envelope.
 
+## Haas adapter
+
+Reads a Haas CNC control directly over Ethernet or RS-232 using Haas Q-commands. Module key: `haas-adapter`. Implementation: `MTConnect.NET-AgentModule-HaasAdapter`. See [Haas adapter](/modules/haas-adapter) for every key and the DataItems it reports.
+
+```yaml
+- haas-adapter:
+    deviceKey: VF2                 # the Device observations are added to (created by default).
+    server: 192.168.1.60           # Haas control address (Ethernet).
+    port: 5051                     # Q-command port (Setting 143).
+    readInterval: 1000             # delay between read cycles (ms).
+    units: inch                    # units the control reports positions in (Setting 9).
+```
+
 ## Configuration objects
 
 Each module's YAML keys deserialize into a configuration class:
@@ -205,6 +219,7 @@ Each module's YAML keys deserialize into a configuration class:
 | `mqtt-adapter` | [`MTConnect.Configurations.MqttAdapterModuleConfiguration`](/api/MTConnect.Configurations.MqttAdapterModuleConfiguration) |
 | `shdr-adapter` | [`MTConnect.Configurations.ShdrAdapterModuleConfiguration`](/api/MTConnect.Configurations.ShdrAdapterModuleConfiguration) |
 | `http-adapter` | [`MTConnect.Configurations.HttpAdapterModuleConfiguration`](/api/MTConnect.Configurations.HttpAdapterModuleConfiguration) |
+| `haas-adapter` | [`MTConnect.Configurations.HaasAdapterModuleConfiguration`](/api/MTConnect.Configurations.HaasAdapterModuleConfiguration) |
 
 Programmatic configuration uses the class directly:
 
