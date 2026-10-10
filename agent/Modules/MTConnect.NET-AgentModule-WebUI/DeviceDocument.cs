@@ -53,6 +53,21 @@ namespace MTConnect.Modules.WebUI
 
         /// <summary>For <c>replaceXml</c>: the replacement element XML.</summary>
         public string Xml { get; set; }
+
+        /// <summary>For <c>moveTo</c>: the <c>id</c> of the new parent device or component.</summary>
+        public string Parent { get; set; }
+
+        /// <summary>For <c>moveTo</c>: the <c>id</c> of the sibling to place the element before (null for the end).</summary>
+        public string Before { get; set; }
+
+        /// <summary>For configuration items: Specifications, CoordinateSystems or Motion.</summary>
+        public string Block { get; set; }
+
+        /// <summary>For configuration items: the position of the item within its block (0 for Motion).</summary>
+        public int Index { get; set; }
+
+        /// <summary>For configuration items: child element values by path (for example <c>Maximum</c> or <c>Transformation/Translation</c>); empty removes.</summary>
+        public Dictionary<string, string> Children { get; set; }
     }
 
     /// <summary>
@@ -64,6 +79,31 @@ namespace MTConnect.Modules.WebUI
     {
         private static readonly string[] _componentChildOrder = { "Description", "Configuration", "DataItems", "Components", "Compositions", "References" };
         private static readonly string[] _dataItemChildOrder = { "Source", "Constraints", "Filters", "InitialValue", "ResetTrigger", "Definition", "Relationships" };
+
+        // Configuration blocks and their items, in the order the MTConnect.NET XML reader declares them
+        private static readonly string[] _configurationChildOrder = { "CoordinateSystems", "Motion", "Relationships", "SensorConfiguration", "SolidModel", "Specifications", "ImageFiles", "PowerSources" };
+        private static readonly string[] _transformationChildOrder = { "Translation", "TranslationDataSet", "Rotation", "RotationDataSet" };
+        private static readonly Dictionary<string, string[]> _configurationItemChildOrder = new Dictionary<string, string[]>
+        {
+            ["Specification"] = new[] { "Maximum", "UpperLimit", "UpperWarning", "Nominal", "LowerWarning", "LowerLimit", "Minimum" },
+            ["CoordinateSystem"] = new[] { "Origin", "OriginDataSet", "Transformation", "TransformationDataSet", "Description" },
+            ["Motion"] = new[] { "Description", "Origin", "OriginDataSet", "Transformation", "TransformationDataSet", "Axis", "AxisDataSet" }
+        };
+
+        /// <summary>The child values the forms edit for each configuration item (paths below the item).</summary>
+        internal static readonly Dictionary<string, string[]> ConfigurationItemValues = new Dictionary<string, string[]>
+        {
+            ["Specification"] = new[] { "Maximum", "UpperLimit", "UpperWarning", "Nominal", "LowerWarning", "LowerLimit", "Minimum" },
+            ["CoordinateSystem"] = new[] { "Origin", "Transformation/Translation", "Transformation/Rotation", "Description" },
+            ["Motion"] = new[] { "Description", "Origin", "Transformation/Translation", "Transformation/Rotation", "Axis" }
+        };
+
+        private static readonly Dictionary<string, string> _blockItemTag = new Dictionary<string, string>
+        {
+            ["Specifications"] = "Specification",
+            ["CoordinateSystems"] = "CoordinateSystem",
+            ["Motion"] = "Motion"
+        };
         private static readonly Regex _nameRegex = new Regex(@"^[A-Za-z_][A-Za-z0-9_.\-]*$");
         private static readonly Regex _tagRegex = new Regex(@"^([A-Za-z_][A-Za-z0-9_.\-]*:)?[A-Za-z_][A-Za-z0-9_.\-]*$");
 
@@ -158,7 +198,8 @@ namespace MTConnect.Modules.WebUI
 
             var description = element.Elements().FirstOrDefault(e => e.Name.LocalName == "Description");
             var constraints = kind == "dataItem" ? element.Elements().FirstOrDefault(e => e.Name.LocalName == "Constraints") : null;
-            var known = new HashSet<string> { "Description", "DataItems", "Components", "Compositions", "Constraints" };
+            var known = new HashSet<string> { "Description", "DataItems", "Components", "Compositions", "Constraints", "Configuration" };
+            var configuration = element.Elements().FirstOrDefault(e => e.Name.LocalName == "Configuration");
 
             return new
             {
@@ -180,10 +221,49 @@ namespace MTConnect.Modules.WebUI
                     nominal = constraints.Elements().FirstOrDefault(e => e.Name.LocalName == "Nominal")?.Value.Trim()
                 },
                 other = element.Elements().Select(e => e.Name.LocalName).Where(n => !known.Contains(n)).Distinct().ToList(),
+                configuration = kind == "device" || kind == "component" ? BuildConfiguration(configuration) : null,
                 xml = GetElementText(element),
                 line = ((IXmlLineInfo)element).HasLineInfo() ? ((IXmlLineInfo)element).LineNumber : 0,
                 children
             };
+        }
+
+        /// <summary>
+        /// The Specifications, Coordinate Systems and Motion of a Configuration element for the forms, plus the
+        /// names of any other blocks (edited as XML).
+        /// </summary>
+        private static object BuildConfiguration(XElement configuration)
+        {
+            object Item(XElement item) => new
+            {
+                tag = item.Name.LocalName,
+                attributes = item.Attributes().Where(a => !a.IsNamespaceDeclaration && a.Name.Namespace == XNamespace.None).ToDictionary(a => a.Name.LocalName, a => a.Value),
+                values = (ConfigurationItemValues.TryGetValue(item.Name.LocalName, out var paths) ? paths : new string[0])
+                    .Select(path => new { path, element = FindPath(item, path) })
+                    .Where(o => o.element != null)
+                    .ToDictionary(o => o.path, o => NormalizeText(o.element.Value))
+            };
+
+            List<object> Block(string name) => configuration?.Elements().Where(e => e.Name.LocalName == name).SelectMany(e => e.Elements()).Select(Item).ToList() ?? new List<object>();
+
+            var motion = configuration?.Elements().FirstOrDefault(e => e.Name.LocalName == "Motion");
+            return new
+            {
+                specifications = Block("Specifications"),
+                coordinateSystems = Block("CoordinateSystems"),
+                motion = motion != null ? Item(motion) : null,
+                other = configuration?.Elements().Select(e => e.Name.LocalName).Where(n => !_blockItemTag.ContainsKey(n)).Distinct().ToList() ?? new List<string>()
+            };
+        }
+
+        /// <summary>A child element by a path such as <c>Maximum</c> or <c>Transformation/Translation</c>.</summary>
+        private static XElement FindPath(XElement element, string path)
+        {
+            foreach (var part in path.Split('/'))
+            {
+                element = element?.Elements().FirstOrDefault(e => e.Name.LocalName == part);
+            }
+            return element;
         }
 
         /// <summary>
@@ -226,11 +306,24 @@ namespace MTConnect.Modules.WebUI
         {
             foreach (var operation in operations ?? Enumerable.Empty<DeviceOperation>())
             {
-                var document = Parse(text);
-                document.Apply(operation);
-                text = document.Result();
+                switch (operation.Op)
+                {
+                    // Operations made of several steps; each step works on the result of the previous one
+                    case "moveTo": text = MoveTo(text, operation); break;
+                    case "addConfigItem":
+                    case "setConfigItem":
+                    case "removeConfigItem": text = ApplyConfigurationItem(text, operation); break;
+                    default: text = Step(text, d => d.Apply(operation)); break;
+                }
             }
             return text;
+        }
+
+        private static string Step(string text, Action<DeviceDocument> action)
+        {
+            var document = Parse(text);
+            action(document);
+            return document.Result();
         }
 
         private void Apply(DeviceOperation op)
@@ -251,7 +344,7 @@ namespace MTConnect.Modules.WebUI
             }
         }
 
-        private void SetAttributes(XElement element, Dictionary<string, string> attributes)
+        private void SetAttributes(XElement element, Dictionary<string, string> attributes, bool requireId = true)
         {
             var span = _spans[element];
             var tag = Text.Substring(span.Start, span.StartTagEnd - span.Start);
@@ -264,7 +357,7 @@ namespace MTConnect.Modules.WebUI
                 {
                     throw new ConfigurationEditException($"The id '{attribute.Value}' is already used in this file");
                 }
-                if (attribute.Key == "id" && string.IsNullOrEmpty(attribute.Value)) throw new ConfigurationEditException("An id is required");
+                if (requireId && attribute.Key == "id" && string.IsNullOrEmpty(attribute.Value)) throw new ConfigurationEditException("An id is required");
 
                 var pattern = new Regex(@"(\s+)" + Regex.Escape(attribute.Key) + @"\s*=\s*(""[^""]*""|'[^']*')");
                 var match = pattern.Match(tag);
@@ -341,15 +434,12 @@ namespace MTConnect.Modules.WebUI
 
         private void Add(XElement parent, DeviceOperation op)
         {
-            var parentKind = GetKind(parent);
-            if (parentKind != "device" && parentKind != "component") throw new ConfigurationEditException("Items can only be added to a device or component");
-
-            string container, tag;
+            string tag;
             switch (op.Kind)
             {
-                case "component": container = "Components"; tag = op.Tag; break;
-                case "dataItem": container = "DataItems"; tag = "DataItem"; break;
-                case "composition": container = "Compositions"; tag = "Composition"; break;
+                case "component": tag = op.Tag; break;
+                case "dataItem": tag = "DataItem"; break;
+                case "composition": tag = "Composition"; break;
                 default: throw new ConfigurationEditException($"Unknown kind '{op.Kind}'");
             }
             if (string.IsNullOrEmpty(tag) || !_tagRegex.IsMatch(tag)) throw new ConfigurationEditException($"'{tag}' is not a valid component type");
@@ -358,44 +448,271 @@ namespace MTConnect.Modules.WebUI
             if (!attributes.TryGetValue("id", out var id) || string.IsNullOrEmpty(id)) throw new ConfigurationEditException("An id is required");
             if (FindById(id) != null) throw new ConfigurationEditException($"The id '{id}' is already used in this file");
 
+            InsertItem(parent, op.Kind, BuildElement(tag, attributes), null);
+        }
+
+        /// <summary>Builds a self-closing element with the given (non-empty) attributes.</summary>
+        private static string BuildElement(string tag, Dictionary<string, string> attributes)
+        {
             var sb = new StringBuilder("<").Append(tag);
-            foreach (var attribute in attributes.Where(a => !string.IsNullOrEmpty(a.Value)))
+            foreach (var attribute in (attributes ?? new Dictionary<string, string>()).Where(a => !string.IsNullOrEmpty(a.Value)))
             {
                 if (!_nameRegex.IsMatch(attribute.Key)) throw new ConfigurationEditException($"'{attribute.Key}' is not a valid attribute name");
                 sb.Append(' ').Append(attribute.Key).Append("=\"").Append(EscapeAttribute(attribute.Value)).Append('"');
             }
-            var xml = sb.Append("/>").ToString();
+            return sb.Append("/>").ToString();
+        }
 
+        private static string ContainerFor(string kind)
+        {
+            switch (kind)
+            {
+                case "component": return "Components";
+                case "dataItem": return "DataItems";
+                case "composition": return "Compositions";
+                default: throw new ConfigurationEditException($"Unknown kind '{kind}'");
+            }
+        }
+
+        /// <summary>
+        /// Inserts an item (component, data item or composition XML, possibly several lines, without leading
+        /// indentation) into the parent's container: before the given sibling, or after the last item. The
+        /// container is created when the parent does not have one.
+        /// </summary>
+        private void InsertItem(XElement parent, string kind, string xml, string beforeId)
+        {
+            var parentKind = GetKind(parent);
+            if (parentKind != "device" && parentKind != "component") throw new ConfigurationEditException("Items can only be added to a device or component");
+            if (kind == "composition" && parentKind != "component") throw new ConfigurationEditException("Compositions can only be added to a component");
+
+            var container = ContainerFor(kind);
             var existing = ChildElements(parent, container).FirstOrDefault();
-            if (existing != null && existing.Elements().Any())
+
+            if (!string.IsNullOrEmpty(beforeId))
+            {
+                var before = FindById(beforeId);
+                if (before == null || before.Parent != existing) throw new ConfigurationEditException($"'{beforeId}' is not in the {container} of '{(string)parent.Attribute("id")}'");
+                var indent = IndentOf(before);
+                AddEdit(_spans[before].Start, _spans[before].Start, Reindent(xml, indent) + Newline + indent);
+            }
+            else if (existing != null && existing.Elements().Any())
             {
                 // After the last item of the existing container
                 var last = existing.Elements().Last();
-                AddEdit(_spans[last].End, _spans[last].End, Newline + IndentOf(last) + xml);
+                var indent = IndentOf(last);
+                AddEdit(_spans[last].End, _spans[last].End, Newline + indent + Reindent(xml, indent));
             }
             else if (existing != null)
             {
                 // Empty container: rewrite it with the new item
                 var indent = IndentOf(existing);
-                AddEdit(_spans[existing].Start, _spans[existing].End, "<" + container + ">" + Newline + indent + IndentUnit + xml + Newline + indent + "</" + container + ">");
+                AddEdit(_spans[existing].Start, _spans[existing].End,
+                    "<" + container + ">" + Newline + indent + IndentUnit + Reindent(xml, indent + IndentUnit) + Newline + indent + "</" + container + ">");
             }
             else
             {
                 InsertChild(parent, container, _componentChildOrder, indent =>
-                    "<" + container + ">" + Newline + indent + IndentUnit + xml + Newline + indent + "</" + container + ">");
+                    "<" + container + ">" + Newline + indent + IndentUnit + Reindent(xml, indent + IndentUnit) + Newline + indent + "</" + container + ">");
             }
+        }
+
+        /// <summary>Indents every line after the first, using the file's line endings.</summary>
+        private string Reindent(string xml, string indent)
+        {
+            var lines = xml.Replace("\r\n", "\n").Split('\n');
+            for (var i = 1; i < lines.Length; i++)
+            {
+                if (lines[i].Trim().Length > 0) lines[i] = indent + lines[i];
+            }
+            return string.Join(Newline, lines);
         }
 
         private void Remove(XElement element)
         {
             if (element == Document.Root) throw new ConfigurationEditException("The device of a single-device file cannot be removed");
             if (GetKind(element) == "device" && GetDevices().Count == 1) throw new ConfigurationEditException("The only device of a file cannot be removed");
+            RemoveItem(element);
+        }
 
-            // Remove the container too when this is its only item, so no empty <DataItems/> is left behind
+        /// <summary>Removes an item, and its container too when it is the only item (no empty &lt;DataItems/&gt;).</summary>
+        private void RemoveItem(XElement element)
+        {
             var parent = element.Parent;
             var isContainer = parent != null && (parent.Name.LocalName == "DataItems" || parent.Name.LocalName == "Components" || parent.Name.LocalName == "Compositions");
             if (isContainer && parent.Elements().Count() == 1) RemoveElementText(parent);
             else RemoveElementText(element);
+        }
+
+        /// <summary>
+        /// Moves a component, data item or composition to another parent (or another position under the same
+        /// parent), keeping its text - including comments and children - as written.
+        /// </summary>
+        private static string MoveTo(string text, DeviceOperation op)
+        {
+            var document = Parse(text);
+            var element = document.FindById(op.Target);
+            if (element == null) throw new ConfigurationEditException($"No element with id '{op.Target}' was found");
+            var kind = GetKind(element);
+            if (kind != "component" && kind != "dataItem" && kind != "composition") throw new ConfigurationEditException("Only components, data items and compositions can be moved");
+
+            var parent = document.FindById(op.Parent);
+            if (parent == null) throw new ConfigurationEditException($"No element with id '{op.Parent}' was found");
+            if (parent.AncestorsAndSelf().Contains(element)) throw new ConfigurationEditException("An item cannot be moved into itself");
+            if (op.Before == op.Target) return text;
+
+            var xml = document.GetElementText(element);
+            text = Step(text, d => d.RemoveItem(d.FindById(op.Target)));
+            return Step(text, d => d.InsertItem(d.FindById(op.Parent), kind, xml, op.Before));
+        }
+
+        /// <summary>
+        /// Adds, changes or removes a Specification, Coordinate System or Motion in the Configuration of a device
+        /// or component. The Configuration and block elements are created and removed as needed.
+        /// </summary>
+        private static string ApplyConfigurationItem(string text, DeviceOperation op)
+        {
+            if (op.Block == null || !_blockItemTag.TryGetValue(op.Block, out var itemTag)) throw new ConfigurationEditException($"Unknown configuration block '{op.Block}'");
+
+            var owner = Parse(text).FindById(op.Target);
+            var ownerKind = owner != null ? GetKind(owner) : null;
+            if (ownerKind != "device" && ownerKind != "component") throw new ConfigurationEditException($"No device or component with id '{op.Target}' was found");
+
+            var index = op.Index;
+            if (op.Op == "addConfigItem")
+            {
+                var configuration = owner.Elements().FirstOrDefault(e => e.Name.LocalName == "Configuration");
+                if (op.Block == "Motion" && configuration?.Elements().Any(e => e.Name.LocalName == "Motion") == true)
+                {
+                    throw new ConfigurationEditException("This item already has a Motion");
+                }
+
+                // Make sure Configuration (and for lists, the block) exist, then add the item at the end
+                text = Step(text, d =>
+                {
+                    var o = d.FindById(op.Target);
+                    if (!o.Elements().Any(e => e.Name.LocalName == "Configuration")) d.InsertChild(o, "Configuration", _componentChildOrder, indent => "<Configuration></Configuration>");
+                });
+                if (op.Block != "Motion")
+                {
+                    text = Step(text, d =>
+                    {
+                        var c = d.FindById(op.Target).Elements().First(e => e.Name.LocalName == "Configuration");
+                        if (!c.Elements().Any(e => e.Name.LocalName == op.Block)) d.InsertChild(c, op.Block, _configurationChildOrder, indent => "<" + op.Block + "></" + op.Block + ">");
+                    });
+                }
+
+                var xml = BuildElement(itemTag, op.Attributes);
+                text = Step(text, d =>
+                {
+                    var c = d.FindById(op.Target).Elements().First(e => e.Name.LocalName == "Configuration");
+                    if (op.Block == "Motion")
+                    {
+                        d.InsertChild(c, "Motion", _configurationChildOrder, indent => xml);
+                        return;
+                    }
+
+                    var block = c.Elements().First(e => e.Name.LocalName == op.Block);
+                    var last = block.Elements().LastOrDefault();
+                    if (last != null) d.AddEdit(d._spans[last].End, d._spans[last].End, d.Newline + d.IndentOf(last) + xml);
+                    else d.InsertChild(block, itemTag, new[] { itemTag }, indent => xml);
+                });
+
+                index = op.Block == "Motion" ? 0 : CountItems(Parse(text).FindById(op.Target), op.Block) - 1;
+            }
+            else if (op.Op == "removeConfigItem")
+            {
+                return Step(text, d => d.RemoveConfigurationItem(d.LocateConfigurationItem(op.Target, op.Block, index)));
+            }
+            else
+            {
+                text = Step(text, d =>
+                {
+                    var item = d.LocateConfigurationItem(op.Target, op.Block, index);
+                    if (op.Attributes != null && op.Attributes.Count > 0) d.SetAttributes(item, op.Attributes, requireId: false);
+                });
+            }
+
+            // Child values one at a time (each may create or remove elements around the others)
+            foreach (var child in op.Children ?? new Dictionary<string, string>())
+            {
+                if (!ConfigurationItemValues[itemTag].Contains(child.Key)) throw new ConfigurationEditException($"'{child.Key}' cannot be set on a {itemTag}");
+                text = Step(text, d => d.SetChildText(d.LocateConfigurationItem(op.Target, op.Block, index), child.Key, child.Value));
+            }
+
+            return text;
+        }
+
+        private static int CountItems(XElement owner, string block) =>
+            owner.Elements().Where(e => e.Name.LocalName == "Configuration").SelectMany(c => c.Elements().Where(e => e.Name.LocalName == block)).SelectMany(b => b.Elements()).Count();
+
+        private XElement LocateConfigurationItem(string ownerId, string block, int index)
+        {
+            var configuration = FindById(ownerId)?.Elements().FirstOrDefault(e => e.Name.LocalName == "Configuration");
+            var item = block == "Motion"
+                ? configuration?.Elements().FirstOrDefault(e => e.Name.LocalName == "Motion")
+                : configuration?.Elements().Where(e => e.Name.LocalName == block).SelectMany(b => b.Elements()).ElementAtOrDefault(index);
+            if (item == null) throw new ConfigurationEditException($"{block} item {index + 1} of '{ownerId}' was not found - reload the device and try again");
+            return item;
+        }
+
+        /// <summary>Removes a configuration item, and its block and the Configuration element when they become empty.</summary>
+        private void RemoveConfigurationItem(XElement item)
+        {
+            var parent = item.Parent;
+            var isMotion = item.Name.LocalName == "Motion";
+            var configuration = isMotion ? parent : parent.Parent;
+
+            var blockEmpty = isMotion || parent.Elements().Count() == 1;
+            var configurationEmpty = blockEmpty && configuration.Elements().Count() == 1;
+
+            if (configurationEmpty) RemoveElementText(configuration);
+            else if (blockEmpty && !isMotion) RemoveElementText(parent);
+            else RemoveElementText(item);
+        }
+
+        /// <summary>
+        /// Sets (or with an empty value removes) a text child of a configuration item, such as <c>Maximum</c> or
+        /// <c>Transformation/Translation</c>, in the order the MTConnect.NET reader declares them.
+        /// </summary>
+        private void SetChildText(XElement item, string path, string value)
+        {
+            var parts = path.Split('/');
+            var order = _configurationItemChildOrder[item.Name.LocalName];
+            value = value?.Trim();
+
+            if (parts.Length == 1)
+            {
+                var existing = item.Elements().FirstOrDefault(e => e.Name.LocalName == parts[0]);
+                var xml = "<" + parts[0] + ">" + EscapeText(value) + "</" + parts[0] + ">";
+                if (string.IsNullOrEmpty(value)) { if (existing != null) RemoveElementText(existing); }
+                else if (existing != null) AddEdit(_spans[existing].Start, _spans[existing].End, xml);
+                else InsertChild(item, parts[0], order, indent => xml);
+                return;
+            }
+
+            // Two levels, for example Transformation/Translation
+            var group = item.Elements().FirstOrDefault(e => e.Name.LocalName == parts[0]);
+            var child = group?.Elements().FirstOrDefault(e => e.Name.LocalName == parts[1]);
+            var childXml = "<" + parts[1] + ">" + EscapeText(value) + "</" + parts[1] + ">";
+
+            if (string.IsNullOrEmpty(value))
+            {
+                if (child == null) return;
+                if (group.Elements().Count() == 1) RemoveElementText(group);
+                else RemoveElementText(child);
+            }
+            else if (group == null)
+            {
+                InsertChild(item, parts[0], order, indent => "<" + parts[0] + ">" + Newline + indent + IndentUnit + childXml + Newline + indent + "</" + parts[0] + ">");
+            }
+            else if (child != null)
+            {
+                AddEdit(_spans[child].Start, _spans[child].End, childXml);
+            }
+            else
+            {
+                InsertChild(group, parts[1], _transformationChildOrder, indent => childXml);
+            }
         }
 
         private void Move(XElement element, string direction)

@@ -379,6 +379,21 @@
   .device-tree .node.selected .muted, .device-tree .node.selected .badge { color: #dde8ff; }
   .device-tree .node .label { overflow: hidden; text-overflow: ellipsis; }
   .device-tree .node.new .label::after { content: ' •'; color: var(--warn); }
+  /* Drag and drop: line before/after a row, or highlight when dropping into it */
+  .device-tree .node[draggable="true"] { cursor: grab; }
+  .device-tree .node.dragging { opacity: .45; }
+  .device-tree .node.drop-before { box-shadow: inset 0 2px 0 var(--accent); }
+  .device-tree .node.drop-after { box-shadow: inset 0 -2px 0 var(--accent); }
+  .device-tree .node.drop-into { outline: 1px dashed var(--accent); outline-offset: -1px; background: var(--accent-soft); }
+  /* Configuration items (Specifications, Coordinate Systems, Motion) */
+  .config-card { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 10px; }
+  .config-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 13px; font-weight: 500; }
+  .config-card-head .spacer { flex: 1; }
+  .limits-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px 10px; margin-top: 6px; }
+  .limits-grid label { display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+  .limits-grid input { min-width: 0; }
+  .rename-note { border-left: 3px solid var(--warn); padding: 6px 10px; margin: 0 0 12px; font-size: 12px; background: var(--code-bg); }
+  .rename-note label { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
   .device-tree .toggle { width: 12px; color: var(--muted); flex-shrink: 0; }
   .device-tree .badge { font-size: 9px; padding: 0 4px; }
   .device-form h3 { font-size: 13px; font-weight: 500; margin: 0 0 8px; }
@@ -1713,9 +1728,18 @@
     return found;
   }
 
+  // Every id in the file: devices, components, data items, compositions and configuration items
   function allDeviceIds() {
     var ids = {};
-    walkDevice(function (node) { if (node.id) ids[node.id] = true; });
+    walkDevice(function (node) {
+      if (node.id) ids[node.id] = true;
+      var c = node.configuration;
+      if (c) {
+        c.specifications.concat(c.coordinateSystems, c.motion ? [c.motion] : []).forEach(function (item) {
+          if (item.attributes.id) ids[item.attributes.id] = true;
+        });
+      }
+    });
     return ids;
   }
 
@@ -1730,9 +1754,11 @@
   // Merge consecutive edits of the same element into one operation
   function pushDeviceOp(op) {
     var ops = state.deviceEditor.ops, last = ops[ops.length - 1];
-    var mergeable = { setAttributes: true, setDescription: true, setConstraints: true };
-    if (last && mergeable[op.op] && last.op === op.op && last.target === op.target) {
+    var mergeable = { setAttributes: true, setDescription: true, setConstraints: true, setConfigItem: true };
+    var sameItem = !last || op.op !== 'setConfigItem' || (last.block === op.block && last.index === op.index);
+    if (last && mergeable[op.op] && last.op === op.op && last.target === op.target && sameItem) {
       if (op.op === 'setAttributes') Object.assign(last.attributes, op.attributes);
+      else if (op.op === 'setConfigItem') { Object.assign(last.attributes, op.attributes); Object.assign(last.children, op.children); }
       else ops[ops.length - 1] = op;
     } else {
       ops.push(op);
@@ -1754,6 +1780,13 @@
     $('device-body').innerHTML = '<div class="empty">Loading…</div>';
     return Promise.all([api('/api/devicefiles/tree?file=' + encodeURIComponent(file)), loadDeviceTypes()]).then(function (results) {
       var tree = results[0];
+      // Remember each element's saved name, id and uuid so renames can be flagged
+      (function remember(nodes) {
+        nodes.forEach(function (n) {
+          n.original = { id: n.id, name: n.attributes.name, uuid: n.attributes.uuid };
+          remember(n.children);
+        });
+      })(tree.devices);
       state.deviceEditor = {
         file: tree.file,
         version: tree.version,
@@ -1916,7 +1949,8 @@
       var hasChildren = n.children.length > 0;
       var collapsed = !!editor.collapsed[n.id];
       var badge = n.kind === 'dataItem' ? '<span class="badge ' + esc(n.attributes.category) + '">' + esc((n.attributes.category || '?').charAt(0)) + '</span>' : '';
-      return '<li><div class="node' + (n.id === editor.selectedId ? ' selected' : '') + (n.isNew ? ' new' : '') + '" data-node="' + esc(n.id) + '" title="' + esc(nodeTooltip(n)) + '">' +
+      var draggable = n.kind !== 'device' && state.deviceFiles && state.deviceFiles.editable;
+      return '<li><div class="node' + (n.id === editor.selectedId ? ' selected' : '') + (n.isNew ? ' new' : '') + '" data-node="' + esc(n.id) + '" title="' + esc(nodeTooltip(n)) + '"' + (draggable ? ' draggable="true"' : '') + '>' +
         '<span class="toggle" data-toggle="' + esc(n.id) + '">' + (hasChildren ? (collapsed ? '▸' : '▾') : '') + '</span>' +
         badge + '<span class="label">' + nodeLabel(n) + '</span></div>' +
         (hasChildren && !collapsed ? '<ul>' + n.children.map(render).join('') + '</ul>' : '') + '</li>';
@@ -1965,7 +1999,7 @@
     var found = findDeviceNode(editor.selectedId);
     if (!found) return '<div class="empty">Select an item in the tree</div>';
     var n = found.node, a = n.attributes || {}, types = state.deviceTypes || {};
-    var html = '<h3>' + kindTitles[n.kind] + (n.kind === 'component' ? ' · ' + esc(n.tag) : '') + '</h3>';
+    var html = '<h3>' + kindTitles[n.kind] + (n.kind === 'component' ? ' · ' + esc(n.tag) : '') + '</h3>' + renderRenameNote(n);
 
     if (n.kind === 'device' || n.kind === 'component') {
       var componentType = n.kind === 'component' ? findComponentType(n.tag) : null;
@@ -2031,6 +2065,8 @@
         '</div>' + datalist('dl-comp-types', typeOptions(availableTypes(types.compositions)));
     }
 
+    if (n.kind === 'device' || n.kind === 'component') html += renderConfigurationSection(n);
+
     // Everything else (Configuration, References, Filters, ...) is edited as XML
     if (n.other && n.other.length) {
       html += '<p class="validation-note muted">Also contains <span class="mono">' + esc(n.other.join(', ')) + '</span>, which can be edited in the XML below.</p>';
@@ -2044,6 +2080,206 @@
         '</details>';
     }
     return html;
+  }
+
+  // ----- configuration items (Specifications, Coordinate Systems, Motion) -----
+  var configLimits = ['Maximum', 'UpperLimit', 'UpperWarning', 'Nominal', 'LowerWarning', 'LowerLimit', 'Minimum'];
+
+  function emptyConfiguration() { return { specifications: [], coordinateSystems: [], motion: null, other: [] }; }
+
+  function configItems(n, block) {
+    var c = n.configuration || (n.configuration = emptyConfiguration());
+    return block === 'Motion' ? (c.motion ? [c.motion] : []) : block === 'Specifications' ? c.specifications : c.coordinateSystems;
+  }
+
+  // Ids of a kind in the device, for the "…IdRef" selects
+  function deviceIds(filter) {
+    var ids = [];
+    walkDevice(function (node) {
+      if (filter.kind && node.kind === filter.kind) ids.push(node.id);
+      var c = node.configuration;
+      if (c && filter.block === 'CoordinateSystems') c.coordinateSystems.forEach(function (cs) { if (cs.attributes.id) ids.push(cs.attributes.id); });
+      if (c && filter.block === 'Motion' && c.motion && c.motion.attributes.id) ids.push(c.motion.attributes.id);
+    });
+    return ids;
+  }
+
+  function cfgField(block, index, kind, key, value, options) {
+    options = options || {};
+    var editable = state.deviceFiles && state.deviceFiles.editable;
+    var data = ' data-cfg-block="' + block + '" data-cfg-index="' + index + '" data-cfg-' + kind + '="' + esc(key) + '"' + (editable ? '' : ' disabled');
+    var control = options.select
+      ? '<select' + data + '><option value="">' + esc(options.emptyLabel || 'Not set') + '</option>' +
+        options.select.map(function (o) { return '<option' + (o === value ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') +
+        (value && options.select.indexOf(value) < 0 ? '<option selected>' + esc(value) + '</option>' : '') + '</select>'
+      : '<input type="text"' + data + ' value="' + esc(value || '') + '"' + (options.list ? ' list="' + options.list + '"' : '') +
+        (options.placeholder ? ' placeholder="' + esc(options.placeholder) + '"' : '') + ' autocomplete="off" spellcheck="false">';
+    return '<div class="field-label">' + esc(options.label || key) + '</div><div class="field-control"><div class="field-row">' + control + '</div>' +
+      (options.help ? '<div class="help">' + esc(options.help) + '</div>' : '') + '</div>';
+  }
+
+  function renderConfigurationSection(n) {
+    var types = state.deviceTypes || {};
+    var c = n.configuration || emptyConfiguration();
+    var editable = state.deviceFiles && state.deviceFiles.editable;
+    var coordinateSystemIds = deviceIds({ block: 'CoordinateSystems' });
+    var html = '<h3>Configuration</h3>';
+
+    function card(block, index, title, body) {
+      return '<div class="config-card"><div class="config-card-head">' + esc(title) + '<span class="spacer"></span>' +
+        (editable ? '<button type="button" class="icon-btn" data-cfg-remove="' + block + '" data-cfg-index="' + index + '">Remove</button>' : '') +
+        '</div>' + body + '</div>';
+    }
+    function addButton(block, label) {
+      return editable ? '<button type="button" class="icon-btn" data-cfg-add="' + block + '">+ ' + label + '</button> ' : '';
+    }
+
+    // Specifications
+    c.specifications.forEach(function (s, i) {
+      var a = s.attributes, v = s.values;
+      if (s.tag !== 'Specification') {
+        html += card('Specifications', i, s.tag + ' ' + (i + 1), '<p class="validation-note muted">A ' + esc(s.tag) + ' is edited in the XML below.</p>');
+        return;
+      }
+      html += card('Specifications', i, 'Specification ' + (i + 1) + (a.type ? ' · ' + a.type : ''),
+        '<div class="config-fields">' +
+          cfgField('Specifications', i, 'attr', 'type', a.type, { list: 'dl-spec-types', help: 'The data item type the specification applies to.' }) +
+          cfgField('Specifications', i, 'attr', 'subType', a.subType) +
+          cfgField('Specifications', i, 'attr', 'units', a.units, { list: 'dl-spec-units' }) +
+          cfgField('Specifications', i, 'attr', 'name', a.name) +
+          cfgField('Specifications', i, 'attr', 'id', a.id) +
+          cfgField('Specifications', i, 'attr', 'dataItemIdRef', a.dataItemIdRef, { select: deviceIds({ kind: 'dataItem' }) }) +
+          cfgField('Specifications', i, 'attr', 'coordinateSystemIdRef', a.coordinateSystemIdRef, { select: coordinateSystemIds }) +
+          cfgField('Specifications', i, 'attr', 'originator', a.originator, { select: types.originators || [] }) +
+        '</div><div class="limits-grid">' + configLimits.map(function (limit) {
+          return '<label>' + limit + '<input type="text" data-cfg-block="Specifications" data-cfg-index="' + i + '" data-cfg-value="' + limit + '" value="' + esc(v[limit] || '') + '"' + (editable ? '' : ' disabled') + '></label>';
+        }).join('') + '</div>');
+    });
+
+    // Coordinate systems
+    c.coordinateSystems.forEach(function (s, i) {
+      var a = s.attributes, v = s.values;
+      html += card('CoordinateSystems', i, 'Coordinate system ' + (i + 1) + (a.name || a.id ? ' · ' + (a.name || a.id) : ''),
+        '<div class="config-fields">' +
+          cfgField('CoordinateSystems', i, 'attr', 'id', a.id) +
+          cfgField('CoordinateSystems', i, 'attr', 'name', a.name) +
+          cfgField('CoordinateSystems', i, 'attr', 'nativeName', a.nativeName) +
+          cfgField('CoordinateSystems', i, 'attr', 'type', a.type, { select: types.coordinateSystemTypes || [], emptyLabel: 'Choose…' }) +
+          cfgField('CoordinateSystems', i, 'attr', 'parentIdRef', a.parentIdRef, { select: coordinateSystemIds.filter(function (id) { return id !== a.id; }) }) +
+          cfgField('CoordinateSystems', i, 'value', 'Origin', v.Origin, { placeholder: 'x y z', help: 'Use either an origin or a translation and rotation.' }) +
+          cfgField('CoordinateSystems', i, 'value', 'Transformation/Translation', v['Transformation/Translation'], { label: 'translation', placeholder: 'x y z' }) +
+          cfgField('CoordinateSystems', i, 'value', 'Transformation/Rotation', v['Transformation/Rotation'], { label: 'rotation', placeholder: 'a b c (degrees)' }) +
+          cfgField('CoordinateSystems', i, 'value', 'Description', v.Description, { label: 'description' }) +
+        '</div>');
+    });
+
+    // Motion (one per component)
+    if (c.motion) {
+      var m = c.motion.attributes, mv = c.motion.values;
+      html += card('Motion', 0, 'Motion',
+        '<div class="config-fields">' +
+          cfgField('Motion', 0, 'attr', 'id', m.id) +
+          cfgField('Motion', 0, 'attr', 'type', m.type, { select: types.motionTypes || [], emptyLabel: 'Choose…' }) +
+          cfgField('Motion', 0, 'attr', 'actuation', m.actuation, { select: types.motionActuations || [], emptyLabel: 'Choose…' }) +
+          cfgField('Motion', 0, 'attr', 'coordinateSystemIdRef', m.coordinateSystemIdRef, { select: coordinateSystemIds }) +
+          cfgField('Motion', 0, 'attr', 'parentIdRef', m.parentIdRef, { select: deviceIds({ block: 'Motion' }).filter(function (id) { return id !== m.id; }), help: 'The motion this one is relative to.' }) +
+          cfgField('Motion', 0, 'value', 'Axis', mv.Axis, { placeholder: 'x y z', help: 'The direction of motion.' }) +
+          cfgField('Motion', 0, 'value', 'Origin', mv.Origin, { placeholder: 'x y z', help: 'Use either an origin or a translation and rotation.' }) +
+          cfgField('Motion', 0, 'value', 'Transformation/Translation', mv['Transformation/Translation'], { label: 'translation', placeholder: 'x y z' }) +
+          cfgField('Motion', 0, 'value', 'Transformation/Rotation', mv['Transformation/Rotation'], { label: 'rotation', placeholder: 'a b c (degrees)' }) +
+          cfgField('Motion', 0, 'value', 'Description', mv.Description, { label: 'description' }) +
+        '</div>');
+    }
+
+    if (!c.specifications.length && !c.coordinateSystems.length && !c.motion) html += '<p class="validation-note muted">No specifications, coordinate systems or motion.</p>';
+    html += '<div style="margin: 4px 0 14px">' + addButton('Specifications', 'Specification') + addButton('CoordinateSystems', 'Coordinate system') + (c.motion ? '' : addButton('Motion', 'Motion')) + '</div>';
+    if (c.other && c.other.length) html += '<p class="validation-note muted">The configuration also has <span class="mono">' + esc(c.other.join(', ')) + '</span>, which can be edited in the XML below.</p>';
+
+    return html +
+      datalist('dl-spec-types', typeOptions(availableTypes(types.dataItems))) +
+      datalist('dl-spec-units', (types.units || []).map(function (u) { return '<option value="' + esc(u) + '">'; }).join(''));
+  }
+
+  function recordConfigChange(n, block, index, kind, key, value) {
+    var item = configItems(n, block)[index];
+    var op = { op: 'setConfigItem', target: n.id, block: block, index: index, attributes: {}, children: {} };
+    if (kind === 'attr') {
+      if (key === 'id' && value && value !== item.attributes.id && allDeviceIds()[value]) {
+        setDeviceStatus('The id \'' + value + '\' is already used in this file', 'err');
+        return false;
+      }
+      op.attributes[key] = value;
+      if (value) item.attributes[key] = value; else delete item.attributes[key];
+    } else {
+      op.children[key] = value;
+      if (value) item.values[key] = value; else delete item.values[key];
+    }
+    pushDeviceOp(op);
+    return true;
+  }
+
+  function addConfigItem(n, block) {
+    var attributes = {};
+    if (block === 'CoordinateSystems') attributes = { id: uniqueDeviceId(n.id + '_cs'), type: 'MACHINE' };
+    if (block === 'Motion') attributes = { id: uniqueDeviceId(n.id + '_motion'), type: 'PRISMATIC', actuation: 'DIRECT' };
+    pushDeviceOp({ op: 'addConfigItem', target: n.id, block: block, attributes: Object.assign({}, attributes), children: {} });
+
+    var item = { tag: block === 'Specifications' ? 'Specification' : block === 'CoordinateSystems' ? 'CoordinateSystem' : 'Motion', attributes: attributes, values: {} };
+    var c = n.configuration || (n.configuration = emptyConfiguration());
+    if (block === 'Motion') c.motion = item;
+    else configItems(n, block).push(item);
+  }
+
+  function removeConfigItem(n, block, index) {
+    pushDeviceOp({ op: 'removeConfigItem', target: n.id, block: block, index: index });
+    if (block === 'Motion') n.configuration.motion = null;
+    else configItems(n, block).splice(index, 1);
+  }
+
+  // ----- renames -----
+  // Adapter modules whose deviceKey refers to this device by its saved name or uuid, and the new key for each
+  function adapterRenames(n) {
+    if (n.kind !== 'device' || n.isNew || !state.form) return [];
+    var o = n.original || {}, a = n.attributes;
+    var keys = [];
+    if (o.name && a.name && o.name !== a.name) keys.push({ from: o.name, to: a.name });
+    if (o.uuid && a.uuid && o.uuid !== a.uuid) keys.push({ from: o.uuid, to: a.uuid });
+    var renames = [];
+    state.form.entries.forEach(function (e) {
+      if (e.section !== 'modules' || !e.values || !e.values.deviceKey) return;
+      var key = keys.find(function (k) { return k.from === e.values.deviceKey; });
+      if (key) renames.push({ entry: e, from: key.from, to: key.to });
+    });
+    return renames;
+  }
+
+  function renderRenameNote(n) {
+    if (n.isNew || !n.original) return '';
+    var o = n.original, a = n.attributes;
+
+    if (n.kind === 'dataItem') {
+      var changes = [];
+      if (o.name && o.name !== a.name) changes.push('name \'' + o.name + '\'');
+      if (o.id !== n.id) changes.push('id \'' + o.id + '\'');
+      if (!changes.length) return '';
+      return '<div class="rename-note">Renamed from ' + esc(changes.join(' and ')) + '. Adapters send values for a data item using its name or id, so any adapter sending the old ' + (changes.length > 1 ? 'keys' : 'key') + ' must be updated too.</div>';
+    }
+
+    if (n.kind !== 'device' || (o.name === a.name && o.uuid === a.uuid)) return '';
+    var renames = adapterRenames(n);
+    if (!renames.length) {
+      return '<div class="rename-note">The device was renamed. Clients and adapters that refer to it by its old name or UUID must be updated.' +
+        (state.form ? '' : ' (The adapter modules could not be checked.)') + '</div>';
+    }
+
+    var list = renames.map(function (r) { return r.entry.typeId + ' ' + (r.entry.index + 1) + ' (deviceKey \'' + r.from + '\')'; }).join(', ');
+    if (formHasChanges()) {
+      return '<div class="rename-note">' + renames.length + ' adapter module' + (renames.length > 1 ? 's refer' : ' refers') + ' to this device by its old name or UUID: ' + esc(list) +
+        '. Save or discard your Agent configuration changes first to have ' + (renames.length > 1 ? 'them' : 'it') + ' updated automatically.</div>';
+    }
+    var checked = state.deviceEditor.updateAdapters !== false;
+    return '<div class="rename-note">' + renames.length + ' adapter module' + (renames.length > 1 ? 's refer' : ' refers') + ' to this device by its old name or UUID: ' + esc(list) + '.' +
+      '<label><input type="checkbox" data-update-adapters' + (checked ? ' checked' : '') + '> Update ' + (renames.length > 1 ? 'them' : 'it') + ' when saving (the Agent restarts)</label></div>';
   }
 
   function renderAddForm() {
@@ -2145,6 +2381,116 @@
     }
   }
 
+  // Redraw only the rename note (redrawing the whole form would move the focus)
+  function refreshRenameNote(node) {
+    var form = $('device-form');
+    var existing = form.querySelector('.rename-note');
+    if (existing) existing.remove();
+    var html = renderRenameNote(node);
+    if (html) form.querySelector('h3').insertAdjacentHTML('afterend', html);
+  }
+
+  // ----- drag and drop -----
+  // Where a dragged item would go when dropped on a row: before/after a sibling of the same kind, or into a device/component
+  function dropPosition(dragged, target, event) {
+    if (!dragged || !target || dragged === target.node) return null;
+    var inside = false;
+    (function check(n) { n.children.forEach(function (c) { if (c === target.node) inside = true; else check(c); }); })(dragged);
+    if (inside) return null;
+
+    var canContain = (target.node.kind === 'device' || target.node.kind === 'component') && (dragged.kind !== 'composition' || target.node.kind === 'component');
+    var sameKind = target.node.kind === dragged.kind && target.parent;
+    var row = event.target.closest('[data-node]').getBoundingClientRect();
+    var y = (event.clientY - row.top) / row.height;
+
+    // Components can be dropped before, after or into a component: edges reorder, the middle nests
+    if (sameKind && canContain) return y < 0.25 ? 'before' : y > 0.75 ? 'after' : 'into';
+    if (sameKind) return y < 0.5 ? 'before' : 'after';
+    if (canContain) return 'into';
+    return null;
+  }
+
+  function clearDropMarkers() {
+    document.querySelectorAll('#device-tree .drop-before, #device-tree .drop-after, #device-tree .drop-into').forEach(function (el) {
+      el.classList.remove('drop-before', 'drop-after', 'drop-into');
+    });
+  }
+
+  $('device-body').addEventListener('dragstart', function (e) {
+    var row = e.target.closest && e.target.closest('#device-tree [data-node]');
+    if (!row || !state.deviceEditor) return;
+    state.deviceEditor.dragId = row.dataset.node;
+    row.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', row.dataset.node);
+  });
+
+  $('device-body').addEventListener('dragover', function (e) {
+    var editor = state.deviceEditor;
+    var row = e.target.closest && e.target.closest('#device-tree [data-node]');
+    if (!editor || !editor.dragId || !row) return;
+    var dragged = findDeviceNode(editor.dragId);
+    var position = dropPosition(dragged && dragged.node, findDeviceNode(row.dataset.node), e);
+    clearDropMarkers();
+    if (!position) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    row.classList.add('drop-' + position);
+  });
+
+  $('device-body').addEventListener('dragend', function () {
+    clearDropMarkers();
+    document.querySelectorAll('#device-tree .dragging').forEach(function (el) { el.classList.remove('dragging'); });
+    if (state.deviceEditor) state.deviceEditor.dragId = null;
+  });
+
+  $('device-body').addEventListener('drop', function (e) {
+    var editor = state.deviceEditor;
+    var row = e.target.closest && e.target.closest('#device-tree [data-node]');
+    if (!editor || !editor.dragId || !row) return;
+    e.preventDefault();
+
+    var dragged = findDeviceNode(editor.dragId);
+    var target = findDeviceNode(row.dataset.node);
+    var position = dropPosition(dragged.node, target, e);
+    clearDropMarkers();
+    if (!position) return;
+
+    var parent = position === 'into' ? target.node : target.parent;
+    var before = null;
+    if (position === 'before') before = target.node;
+    if (position === 'after') {
+      var siblings = parent.children.filter(function (c) { return c.kind === dragged.node.kind && c !== dragged.node; });
+      before = siblings[siblings.indexOf(target.node) + 1] || null;
+    }
+
+    // Nothing to do when the item would end up where it already is
+    var current = dragged.parent.children.filter(function (c) { return c.kind === dragged.node.kind; });
+    var nextNow = current[current.indexOf(dragged.node) + 1] || null;
+    if (parent === dragged.parent && before === nextNow) return;
+
+    pushDeviceOp({ op: 'moveTo', target: dragged.node.id, parent: parent.id, before: before ? before.id : null });
+    dragged.parent.children.splice(dragged.parent.children.indexOf(dragged.node), 1);
+    insertChildNode(parent, dragged.node, before);
+    editor.collapsed[parent.id] = false;
+    selectDeviceNode(dragged.node.id);
+  });
+
+  // Insert a node into a parent's children: before a sibling, or after the last of its kind (data items, components, compositions)
+  function insertChildNode(parent, node, before) {
+    if (before) {
+      parent.children.splice(parent.children.indexOf(before), 0, node);
+      return;
+    }
+    var order = { dataItem: 0, component: 1, composition: 2 };
+    var insertAt = parent.children.length;
+    for (var i = parent.children.length - 1; i >= 0; i--) {
+      if (order[parent.children[i].kind] <= order[node.kind]) { insertAt = i + 1; break; }
+      insertAt = i;
+    }
+    parent.children.splice(insertAt, 0, node);
+  }
+
   function selectDeviceNode(id) {
     state.deviceEditor.selectedId = id;
     state.deviceEditor.adding = null;
@@ -2220,13 +2566,7 @@
       id: adding.id, kind: adding.kind, tag: adding.kind === 'component' ? adding.type : adding.kind === 'dataItem' ? 'DataItem' : 'Composition',
       attributes: attributes, description: null, constraints: null, other: [], xml: null, children: [], isNew: true
     };
-    var order = { dataItem: 0, component: 1, composition: 2 };
-    var insertAt = parent.children.length;
-    for (var i = parent.children.length - 1; i >= 0; i--) {
-      if (order[parent.children[i].kind] <= order[node.kind]) { insertAt = i + 1; break; }
-      insertAt = i;
-    }
-    parent.children.splice(insertAt, 0, node);
+    insertChildNode(parent, node, null);
     editor.collapsed[parent.id] = false;
     setDeviceStatus('');
     selectDeviceNode(node.id);
@@ -2274,6 +2614,20 @@
       return;
     }
 
+    var cfgAdd = e.target.closest('[data-cfg-add]');
+    if (cfgAdd) {
+      addConfigItem(findDeviceNode(editor.selectedId).node, cfgAdd.dataset.cfgAdd);
+      $('device-form').innerHTML = renderDeviceForm();
+      return;
+    }
+    var cfgRemove = e.target.closest('[data-cfg-remove]');
+    if (cfgRemove) {
+      if (!confirm('Remove this ' + (cfgRemove.dataset.cfgRemove === 'Specifications' ? 'specification' : cfgRemove.dataset.cfgRemove === 'Motion' ? 'motion' : 'coordinate system') + '?')) return;
+      removeConfigItem(findDeviceNode(editor.selectedId).node, cfgRemove.dataset.cfgRemove, +cfgRemove.dataset.cfgIndex);
+      $('device-form').innerHTML = renderDeviceForm();
+      return;
+    }
+
     if (e.target.closest('[data-add-cancel]')) { editor.adding = null; setDeviceStatus(deviceHasChanges() ? 'Unsaved changes' : '', deviceHasChanges() ? 'warn' : ''); $('device-form').innerHTML = renderDeviceForm(); return; }
     if (e.target.closest('[data-add-confirm]')) { confirmAdd(); return; }
 
@@ -2315,11 +2669,27 @@
     if (!found) return;
     setDeviceStatus('');
 
+    if (t.matches('[data-update-adapters]')) {
+      editor.updateAdapters = t.checked;
+      return;
+    }
+
+    if (t.dataset.cfgBlock) {
+      var kind = t.dataset.cfgAttr ? 'attr' : 'value';
+      var cfgKey = t.dataset.cfgAttr || t.dataset.cfgValue;
+      var item = configItems(found.node, t.dataset.cfgBlock)[+t.dataset.cfgIndex];
+      if (!recordConfigChange(found.node, t.dataset.cfgBlock, +t.dataset.cfgIndex, kind, cfgKey, t.value.trim())) {
+        t.value = (kind === 'attr' ? item.attributes[cfgKey] : item.values[cfgKey]) || '';
+      }
+      return;
+    }
+
     if (t.dataset.attr) {
       var key = t.dataset.attr;
       var oldId = found.node.id;
       if (!recordAttribute(found.node, key, t.value.trim())) { t.value = found.node.attributes[key] || ''; return; }
       updateTreeNode(oldId, found.node);
+      if (['name', 'uuid', 'id'].indexOf(key) >= 0) refreshRenameNote(found.node);
       if (found.node.kind === 'dataItem' && (key === 'category' || key === 'type' || key === 'subType')) syncDataItemForm(found.node);
     } else if (t.dataset.desc) {
       recordDescription(found.node);
@@ -2347,15 +2717,29 @@
     $('device-save').disabled = true;
     setDeviceStatus('Saving…');
     var selectId = editor.selectedId;
+
+    // Adapter modules to point at the renamed device (worked out before the save reloads the tree)
+    var adapterUpdates = [];
+    if (editor.updateAdapters !== false && !formHasChanges()) {
+      editor.devices.forEach(function (d) { adapterUpdates = adapterUpdates.concat(adapterRenames(d)); });
+    }
+
     api('/api/devicefiles/tree?file=' + encodeURIComponent(editor.file), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ version: editor.version, operations: editor.ops })
     }).then(function (r) {
       var message = !r.saved ? 'No changes to save' : r.restartPending ? 'Saved – the Agent reloads the device' : 'Saved – restart the Agent to apply';
-      return openDeviceFile(editor.file, selectId).then(function () {
-        loadDeviceFiles();
-        setDeviceStatus(message, 'ok');
+      return updateAdapterModules(adapterUpdates).then(function (updated) {
+        if (updated) message = 'Saved, and ' + updated + ' adapter module' + (updated > 1 ? 's' : '') + ' updated – the Agent restarts';
+        return openDeviceFile(editor.file, selectId).then(function () {
+          loadDeviceFiles();
+          setDeviceStatus(message, 'ok');
+        });
+      }, function (e) {
+        return openDeviceFile(editor.file, selectId).then(function () {
+          setDeviceStatus('The device was saved, but the adapter modules could not be updated: ' + e.message, 'err');
+        });
       });
     }).catch(function (e) {
       // A failed XML save is not kept as a pending change
@@ -2363,6 +2747,18 @@
       updateDeviceButtons();
       setDeviceStatus(e.message, 'err');
     });
+  }
+
+  // Point adapter modules (deviceKey) at the device's new name or uuid through the configuration form API
+  function updateAdapterModules(updates) {
+    if (!updates.length || !state.form) return Promise.resolve(0);
+    var request = {
+      version: state.form.version,
+      entries: updates.map(function (u) { return { section: u.entry.section, index: u.entry.index, values: { deviceKey: u.to } }; })
+    };
+    return api('/api/config/form', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(request) })
+      .then(function () { return loadConfigForm(); })
+      .then(function () { renderConfigNav(); return updates.length; });
   }
 
   $('device-save').addEventListener('click', saveDevice);
