@@ -145,7 +145,7 @@ namespace MTConnect.Devices
             {
                 var ids = new List<string>();
 
-                var hashMembers = new string[10];
+                var hashMembers = new string[15];
                 hashMembers[0] = $"uuid:{device.Uuid}";
                 hashMembers[1] = $"id:{device.Id}";
                 hashMembers[2] = $"name:{device.Name}";
@@ -156,6 +156,13 @@ namespace MTConnect.Devices
                 hashMembers[7] = $"coordinateSystemIdRef:{device.CoordinateSystemIdRef}";
                 hashMembers[8] = $"iso841Class:{device.Iso841Class}";
                 hashMembers[9] = $"mtconnectVersion:{device.MTConnectVersion}";
+
+                // Include the Description so a change (ex. Model or SerialNumber) is detected as a Device change
+                hashMembers[10] = $"manufacturer:{device.Description?.Manufacturer}";
+                hashMembers[11] = $"model:{device.Description?.Model}";
+                hashMembers[12] = $"serialNumber:{device.Description?.SerialNumber}";
+                hashMembers[13] = $"station:{device.Description?.Station}";
+                hashMembers[14] = $"description:{device.Description?.Value}";
                 var propertiesHash = string.Join(";", hashMembers).ToSHA1Hash();
                 ids.Add(propertiesHash);
 

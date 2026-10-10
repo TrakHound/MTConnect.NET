@@ -204,6 +204,7 @@ export default withMermaid(
               { text: 'MQTT adapter', link: '/modules/mqtt-adapter' },
               { text: 'HTTP adapter', link: '/modules/http-adapter' },
               { text: 'SHDR adapter', link: '/modules/shdr-adapter' },
+              { text: 'Haas adapter', link: '/modules/haas-adapter' },
             ],
           },
           {
