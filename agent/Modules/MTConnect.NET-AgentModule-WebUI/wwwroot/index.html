@@ -54,6 +54,13 @@
     --code-bg: #f0f2f5;
     --scrollbar: #c3c9d1;
     --scrollbar-hover: #a3abb6;
+    --header-bg: linear-gradient(180deg, #2c6bb7 0%, #1f5597 100%);
+    --header-border: #17457d;
+    --header-text: #ffffff;
+    --header-muted: rgba(255, 255, 255, .8);
+    --header-divider: rgba(255, 255, 255, .16);
+    --header-hover: rgba(255, 255, 255, .1);
+    --header-active: rgba(255, 255, 255, .2);
     --font: Roboto, "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
     --font-mono: "Roboto Mono", ui-monospace, Consolas, monospace;
     --radius: 3px;      /* panels */
@@ -75,6 +82,8 @@
       --code-bg: #14181d;
       --scrollbar: #3a424c;
       --scrollbar-hover: #4f5965;
+      --header-bg: linear-gradient(180deg, #1f4f8a 0%, #183f70 100%);
+      --header-border: #0f2a4c;
     }
   }
   * { box-sizing: border-box; }
@@ -97,31 +106,56 @@
     display: flex;
     flex-direction: column;
   }
+  /* Header: TrakHound blue bar with white logo and text (same in both themes, slightly deeper in dark) */
   header {
     display: flex;
     align-items: center;
     gap: 24px;
-    padding: 0 20px;
+    padding: 0 20px 0 0;
     height: 52px;
-    background: var(--panel);
-    border-bottom: 1px solid var(--border);
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    color: var(--header-text);
     flex-shrink: 0;
   }
-  header h1 { font-size: 16px; margin: 0; white-space: nowrap; }
-  header h1 span { color: var(--muted); font-weight: 400; }
+  .brand { display: flex; align-items: center; align-self: stretch; flex-shrink: 0; }
+  .brand .logo {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    padding: 0 16px;
+    border-right: 1px solid var(--header-divider);
+  }
+  .brand .logo img { height: 22px; width: auto; display: block; }
+  header h1 { font-size: 20px; font-weight: 500; margin: 0 0 0 16px; white-space: nowrap; letter-spacing: -.2px; }
+  header h1 span { font-weight: 300; }
+  .header-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-self: stretch;
+    padding: 0 20px;
+    border-left: 1px solid var(--header-divider);
+    border-right: 1px solid var(--header-divider);
+    font-size: 11px;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+  .header-info .label { font-weight: 500; }
+  .header-info .value { color: var(--header-muted); }
   nav { display: flex; gap: 4px; overflow-x: auto; }
   nav button {
     border: 0;
     background: none;
-    color: var(--muted);
+    color: var(--header-muted);
     font: inherit;
     padding: 8px 12px;
     border-radius: var(--radius-sm);
     cursor: pointer;
     white-space: nowrap;
   }
-  nav button:hover { color: var(--text); }
-  nav button.active { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+  nav button:hover { color: var(--header-text); background: var(--header-hover); }
+  nav button.active { background: var(--header-active); color: var(--header-text); font-weight: 500; }
   .raw-links { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; font-size: 13px; }
   .raw-links .label { color: var(--muted); }
   .raw-links a { color: var(--accent); text-decoration: none; white-space: nowrap; }
@@ -134,11 +168,12 @@
     gap: 6px;
     padding: 6px 10px;
     border-radius: var(--radius-sm);
-    color: var(--muted);
+    color: var(--header-muted);
     text-decoration: none;
     white-space: nowrap;
   }
-  .header-links a:hover, .header-links a:focus-visible { color: var(--text); background: var(--accent-soft); }
+  .header-links a:hover, .header-links a:focus-visible { color: var(--header-text); background: var(--header-hover); }
+  header :focus-visible { outline: 2px solid var(--header-text); outline-offset: -2px; }
   .header-links svg { width: 16px; height: 16px; fill: currentColor; flex-shrink: 0; }
   main { flex: 1; min-height: 0; overflow: auto; padding: 20px; }
   .view { display: none; }
@@ -261,8 +296,9 @@
   .empty { padding: 24px; text-align: center; color: var(--muted); }
 
   @media (max-width: 800px) {
-    header { gap: 12px; padding: 0 12px; }
-    header h1 span { display: none; }
+    header { gap: 12px; padding: 0 12px 0 0; }
+    header h1 { font-size: 18px; margin-left: 12px; }
+    .brand .logo { padding: 0 12px; }
     .header-links a { padding: 6px; }
     .header-links a span { display: none; }
     main { padding: 12px; }
@@ -273,15 +309,24 @@
   }
   @media (max-width: 600px) {
     /* Title and links on the first row, tabs wrap onto their own full-width row(s) below */
-    header { flex-wrap: wrap; height: auto; row-gap: 0; padding-top: 8px; }
-    nav { order: 1; flex-basis: 100%; flex-wrap: wrap; overflow-x: visible; padding: 6px 0 8px; }
+    header { flex-wrap: wrap; height: auto; row-gap: 0; }
+    .brand { height: 48px; }
+    header h1 span { display: none; }
+    nav { order: 1; flex-basis: 100%; flex-wrap: wrap; overflow-x: visible; padding: 6px 0 8px 8px; border-top: 1px solid var(--header-divider); }
     nav button { padding: 6px 10px; }
   }
 </style>
 </head>
 <body>
 <header>
-  <h1>MTConnect.NET <span>Agent</span></h1>
+  <div class="brand">
+    <div class="logo"><img src="img/trakhound-logo-v5-01.svg" alt="TrakHound"></div>
+    <h1>MTConnect.NET <span>Agent</span></h1>
+  </div>
+  <div class="header-info hide-sm">
+    <span class="label">Version</span>
+    <span class="value" id="header-version">–</span>
+  </div>
   <nav>
     <button data-view="overview" class="active">Overview</button>
     <button data-view="data">Data</button>
@@ -508,7 +553,11 @@
 
   // ---------- overview ----------
   function loadAgent() {
-    return api('/api/agent').then(function (a) { state.agent = a; return a; });
+    return api('/api/agent').then(function (a) {
+      state.agent = a;
+      $('header-version').textContent = a.version ? 'v' + a.version : '–';
+      return a;
+    });
   }
 
   function loadDevices() {
