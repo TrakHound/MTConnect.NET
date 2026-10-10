@@ -45,6 +45,7 @@
 		<EmbeddedResource Include="wwwroot\index.html" LogicalName="MTConnect.WebUI.index.html" />
 		<!-- Roboto / Roboto Mono (SIL OFL 1.1, see wwwroot\fonts\LICENSE-*.txt) so the UI works without internet access -->
 		<EmbeddedResource Include="wwwroot\fonts\*.woff2" LogicalName="MTConnect.WebUI.fonts.%(Filename)%(Extension)" />
+		<EmbeddedResource Include="wwwroot\img\*.svg" LogicalName="MTConnect.WebUI.img.%(Filename)%(Extension)" />
 		<None Include="wwwroot\fonts\LICENSE-*.txt">
 			<Pack>True</Pack>
 			<PackagePath>\licenses\</PackagePath>

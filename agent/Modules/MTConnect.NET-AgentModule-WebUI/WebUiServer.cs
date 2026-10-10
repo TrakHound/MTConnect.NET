@@ -33,6 +33,7 @@ namespace MTConnect.Modules.WebUI
     /// <list type="bullet">
     /// <item><c>GET /</c> – the UI page</item>
     /// <item><c>GET /fonts/{name}.woff2</c> – the embedded Roboto / Roboto Mono fonts</item>
+    /// <item><c>GET /img/{name}.svg</c> – the embedded images (TrakHound logo)</item>
     /// <item><c>GET /api/agent</c> – Agent information and buffer state</item>
     /// <item><c>GET /api/devices</c> – Device / Component / DataItem tree</item>
     /// <item><c>GET /api/current?device=</c> – current Observations for a Device</item>
@@ -46,6 +47,7 @@ namespace MTConnect.Modules.WebUI
     {
         private const string IndexResourceName = "MTConnect.WebUI.index.html";
         private const string FontResourcePrefix = "MTConnect.WebUI.fonts.";
+        private const string ImageResourcePrefix = "MTConnect.WebUI.img.";
         private const int MaxSampleCount = 1000;
 
         private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
@@ -169,7 +171,8 @@ namespace MTConnect.Modules.WebUI
                 {
                     WriteIndex(response);
                 }
-                else if (method == "GET" && path.StartsWith("/fonts/")) WriteFont(response, path.Substring("/fonts/".Length));
+                else if (method == "GET" && path.StartsWith("/fonts/")) WriteResource(response, FontResourcePrefix, path.Substring("/fonts/".Length), ".woff2", "font/woff2");
+                else if (method == "GET" && path.StartsWith("/img/")) WriteResource(response, ImageResourcePrefix, path.Substring("/img/".Length), ".svg", "image/svg+xml");
                 else if (method == "GET" && path == "/api/agent") WriteJson(response, GetAgentInfo());
                 else if (method == "GET" && path == "/api/devices") WriteJson(response, GetDevices());
                 else if (method == "GET" && path == "/api/current") WriteJson(response, GetCurrent(request.QueryString["device"]));
@@ -497,13 +500,13 @@ namespace MTConnect.Modules.WebUI
             }
         }
 
-        private static void WriteFont(HttpListenerResponse response, string fileName)
+        private static void WriteResource(HttpListenerResponse response, string resourcePrefix, string fileName, string extension, string contentType)
         {
-            // Only names of embedded .woff2 resources resolve; anything else is a 404
+            // Only names of embedded resources with the expected extension resolve; anything else is a 404
             Stream stream = null;
-            if (fileName.EndsWith(".woff2") && fileName.IndexOf('/') < 0)
+            if (fileName.EndsWith(extension) && fileName.IndexOf('/') < 0)
             {
-                stream = typeof(WebUiServer).GetTypeInfo().Assembly.GetManifestResourceStream(FontResourcePrefix + fileName);
+                stream = typeof(WebUiServer).GetTypeInfo().Assembly.GetManifestResourceStream(resourcePrefix + fileName);
             }
 
             if (stream == null)
@@ -519,7 +522,7 @@ namespace MTConnect.Modules.WebUI
                 var bytes = memoryStream.ToArray();
 
                 response.StatusCode = 200;
-                response.ContentType = "font/woff2";
+                response.ContentType = contentType;
                 response.Headers["Cache-Control"] = "public, max-age=86400";
                 response.ContentLength64 = bytes.Length;
                 response.OutputStream.Write(bytes, 0, bytes.Length);
