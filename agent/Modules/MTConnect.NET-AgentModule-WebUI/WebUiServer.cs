@@ -41,6 +41,9 @@ namespace MTConnect.Modules.WebUI
     /// <item><c>GET /api/assets?device=</c> – Asset list</item>
     /// <item><c>GET /api/asset?id=</c> – a single Asset as an MTConnectAssets XML document</item>
     /// <item><c>GET /api/validation?device=</c> – validation problems reported by the Agent, with per-Device totals</item>
+    /// <item><c>GET /api/devicefiles</c> / <c>POST /api/devicefiles</c> – the device files, and creating a new one</item>
+    /// <item><c>GET /api/devicefiles/tree?file=</c> / <c>PUT /api/devicefiles/tree?file=</c> – a device file as a tree, and changes to it</item>
+    /// <item><c>GET /api/devicetypes</c> – the MTConnect component, composition and data item types for the pickers</item>
     /// <item><c>GET /api/config/form</c> / <c>PUT /api/config/form</c> – the configuration as form fields, and key-by-key changes to it</item>
     /// <item><c>GET /api/config</c> / <c>PUT /api/config</c> – read / save the Agent configuration file</item>
     /// </list>
@@ -191,6 +194,11 @@ namespace MTConnect.Modules.WebUI
                 else if (method == "GET" && path == "/api/assets") WriteJson(response, GetAssets(request.QueryString["device"]));
                 else if (method == "GET" && path == "/api/asset") WriteAsset(response, request.QueryString["id"]);
                 else if (method == "GET" && path == "/api/validation") WriteJson(response, GetValidation(request.QueryString["device"]));
+                else if (method == "GET" && path == "/api/devicetypes") WriteJson(response, DeviceTypeCatalog.Get());
+                else if (method == "GET" && path == "/api/devicefiles") GetDeviceFiles(response);
+                else if (method == "POST" && path == "/api/devicefiles") CreateDeviceFile(request, response);
+                else if (method == "GET" && path == "/api/devicefiles/tree") GetDeviceTree(request.QueryString["file"], response);
+                else if (method == "PUT" && path == "/api/devicefiles/tree") SaveDeviceTree(request, request.QueryString["file"], response);
                 else if (method == "GET" && path == "/api/config/form") GetConfigurationForm(response);
                 else if (method == "PUT" && path == "/api/config/form") SaveConfigurationForm(request, response);
                 else if (method == "GET" && path == "/api/config") WriteJson(response, GetConfiguration());
@@ -610,6 +618,141 @@ namespace MTConnect.Modules.WebUI
             WriteConfigurationFile(path, updated, response);
         }
 
+        #region "Device files"
+
+        private class DeviceSaveRequest
+        {
+            public string Version { get; set; }
+            public List<DeviceOperation> Operations { get; set; }
+        }
+
+        private class NewDeviceRequest
+        {
+            public string FileName { get; set; }
+            public string Name { get; set; }
+            public string Uuid { get; set; }
+        }
+
+        private static readonly JsonSerializerOptions _requestOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
+        private DeviceFiles CreateDeviceFiles() => new DeviceFiles((_agent.Configuration as IAgentApplicationConfiguration)?.Devices);
+
+        private void GetDeviceFiles(HttpListenerResponse response)
+        {
+            var files = CreateDeviceFiles();
+            WriteJson(response, new
+            {
+                editable = _configuration.AllowConfigurationEdit,
+                canCreate = _configuration.AllowConfigurationEdit && files.IsFolder,
+                files = files.List()
+            });
+        }
+
+        private void GetDeviceTree(string fileName, HttpListenerResponse response)
+        {
+            var path = CreateDeviceFiles().Resolve(fileName);
+            if (path == null)
+            {
+                WriteJson(response, new { error = $"Device file '{fileName}' was not found" }, 404);
+                return;
+            }
+
+            try
+            {
+                WriteJson(response, CreateDeviceFiles().GetTree(path));
+            }
+            catch (Exception ex) when (ex is System.Xml.XmlException || ex is ConfigurationEditException)
+            {
+                WriteJson(response, new { error = "The device file cannot be read: " + ex.Message }, 422);
+            }
+        }
+
+        private void SaveDeviceTree(HttpListenerRequest request, string fileName, HttpListenerResponse response)
+        {
+            if (!_configuration.AllowConfigurationEdit)
+            {
+                WriteJson(response, new { error = "Configuration editing is disabled (allowConfigurationEdit: false)" }, 403);
+                return;
+            }
+
+            var files = CreateDeviceFiles();
+            var path = files.Resolve(fileName);
+            if (path == null)
+            {
+                WriteJson(response, new { error = $"Device file '{fileName}' was not found" }, 404);
+                return;
+            }
+
+            DeviceSaveRequest saveRequest;
+            try { saveRequest = JsonSerializer.Deserialize<DeviceSaveRequest>(ReadBody(request), _requestOptions); }
+            catch (JsonException ex)
+            {
+                WriteJson(response, new { error = "Invalid request: " + ex.Message }, 400);
+                return;
+            }
+
+            var text = File.ReadAllText(path);
+            if (saveRequest?.Version != ConfigurationDocument.ComputeVersion(text))
+            {
+                WriteJson(response, new { error = "The device file has changed since it was loaded. Reload it and make your changes again." }, 409);
+                return;
+            }
+
+            string updated;
+            try { updated = files.Apply(path, text, saveRequest.Operations); }
+            catch (ConfigurationEditException ex)
+            {
+                WriteJson(response, new { error = ex.Message }, 400);
+                return;
+            }
+            catch (System.Xml.XmlException ex)
+            {
+                WriteJson(response, new { error = "The device file cannot be read: " + ex.Message }, 400);
+                return;
+            }
+
+            if (updated == text)
+            {
+                WriteJson(response, new { saved = false, restartPending = false });
+                return;
+            }
+
+            WriteConfigurationFile(path, updated, response, "Device file");
+        }
+
+        private void CreateDeviceFile(HttpListenerRequest request, HttpListenerResponse response)
+        {
+            if (!_configuration.AllowConfigurationEdit)
+            {
+                WriteJson(response, new { error = "Configuration editing is disabled (allowConfigurationEdit: false)" }, 403);
+                return;
+            }
+
+            NewDeviceRequest newRequest;
+            try { newRequest = JsonSerializer.Deserialize<NewDeviceRequest>(ReadBody(request), _requestOptions); }
+            catch (JsonException ex)
+            {
+                WriteJson(response, new { error = "Invalid request: " + ex.Message }, 400);
+                return;
+            }
+
+            try
+            {
+                var path = CreateDeviceFiles().PrepareNewFile(newRequest?.FileName, newRequest?.Name, newRequest?.Uuid, out var text);
+                File.WriteAllText(path, text, new UTF8Encoding(false));
+                LogReceived?.Invoke(this, $"Device file created from Web UI ({path})");
+
+                // The Agent only watches the device files it loaded at startup, so a new file is read on the next restart
+                WriteJson(response, new { saved = true, file = Path.GetFileName(path), restartRequired = true });
+            }
+            catch (ConfigurationEditException ex)
+            {
+                WriteJson(response, new { error = ex.Message }, 400);
+            }
+        }
+
+        #endregion
+
         private bool TryGetEditablePath(HttpListenerResponse response, out string path)
         {
             path = _agent.Configuration?.Path;
@@ -646,7 +789,7 @@ namespace MTConnect.Modules.WebUI
             }
         }
 
-        private void WriteConfigurationFile(string path, string content, HttpListenerResponse response)
+        private void WriteConfigurationFile(string path, string content, HttpListenerResponse response, string what = "Agent configuration")
         {
             // Keep a copy of the previous file, and its byte order mark if it had one
             var hadBom = false;
@@ -661,7 +804,7 @@ namespace MTConnect.Modules.WebUI
             }
             File.WriteAllText(path, content, new UTF8Encoding(hadBom));
 
-            LogReceived?.Invoke(this, $"Agent configuration saved from Web UI ({path})");
+            LogReceived?.Invoke(this, $"{what} saved from Web UI ({path})");
 
             var applicationConfiguration = _agent.Configuration as IAgentApplicationConfiguration;
             WriteJson(response, new
