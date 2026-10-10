@@ -11,6 +11,7 @@ The module set:
 - [SHDR adapter](#shdr-adapter) — inbound TCP-SHDR adapter.
 - [HTTP adapter](#http-adapter) — inbound HTTP-poll adapter.
 - [Haas adapter](#haas-adapter) — reads a Haas CNC control over Ethernet or RS-232.
+- [Fanuc adapter](#fanuc-adapter) — reads a Fanuc CNC using FOCAS over Ethernet.
 
 Every module is declared in `agent.config.yaml` under `modules:` as a single-key map. The key is the module's name; the value is the module's config object.
 
@@ -209,6 +210,19 @@ Reads a Haas CNC control directly over Ethernet or RS-232 using Haas Q-commands.
     axes: [X, Y, Z]                # axes to read positions for (X, Y, Z, A, B, C).
 ```
 
+## Fanuc adapter
+
+Reads a Fanuc CNC directly using FOCAS over Ethernet. Module key: `fanuc-adapter`. Implementation: `MTConnect.NET-AgentModule-FanucAdapter`. The Fanuc FOCAS libraries (`Fwlib64.dll` / `Fwlib32.dll`) are not included and must be copied next to the agent. See [Fanuc adapter](/modules/fanuc-adapter) for every key and the DataItems it reports.
+
+```yaml
+- fanuc-adapter:
+    deviceKey: M1                  # the Device observations are added to (created by default).
+    server: 192.168.1.70           # CNC address.
+    port: 8193                     # FOCAS port.
+    readInterval: 1000             # delay between read cycles (ms).
+    workPositions: false           # also report absolute (work) positions.
+```
+
 ## Configuration objects
 
 Each module's YAML keys deserialize into a configuration class:
@@ -222,6 +236,7 @@ Each module's YAML keys deserialize into a configuration class:
 | `shdr-adapter` | [`MTConnect.Configurations.ShdrAdapterModuleConfiguration`](/api/MTConnect.Configurations.ShdrAdapterModuleConfiguration) |
 | `http-adapter` | [`MTConnect.Configurations.HttpAdapterModuleConfiguration`](/api/MTConnect.Configurations.HttpAdapterModuleConfiguration) |
 | `haas-adapter` | [`MTConnect.Configurations.HaasAdapterModuleConfiguration`](/api/MTConnect.Configurations.HaasAdapterModuleConfiguration) |
+| `fanuc-adapter` | [`MTConnect.Configurations.FanucAdapterModuleConfiguration`](/api/MTConnect.Configurations.FanucAdapterModuleConfiguration) |
 
 Programmatic configuration uses the class directly:
 

@@ -205,6 +205,7 @@ export default withMermaid(
               { text: 'HTTP adapter', link: '/modules/http-adapter' },
               { text: 'SHDR adapter', link: '/modules/shdr-adapter' },
               { text: 'Haas adapter', link: '/modules/haas-adapter' },
+              { text: 'Fanuc adapter', link: '/modules/fanuc-adapter' },
             ],
           },
           {
