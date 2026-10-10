@@ -219,6 +219,9 @@ namespace MTConnect.Modules.WebUI
                 configurationPath = configuration?.Path,
                 monitorConfigurationFiles = applicationConfiguration?.MonitorConfigurationFiles ?? false,
                 allowConfigurationEdit = _configuration.AllowConfigurationEdit,
+                enableValidation = configuration?.EnableValidation ?? false,
+                inputValidationLevel = configuration?.InputValidationLevel.ToString(),
+                deviceValidationLevel = configuration?.DeviceValidationLevel.ToString(),
                 observationCounts = _observationCounts.ToDictionary(o => o.Key, o => o.Value),
                 mtconnectServer = GetMTConnectServer(applicationConfiguration)
             };
@@ -358,6 +361,10 @@ namespace MTConnect.Modules.WebUI
                 representation = observation.Representation.ToString(),
                 sequence = observation.Sequence,
                 timestamp = observation.Timestamp,
+                // Validation flags (only set by the Agent when enableValidation is true; quality is UNVERIFIABLE otherwise)
+                quality = observation.Quality.ToString(),
+                deprecated = observation.Deprecated,
+                extended = observation.Extended,
                 values = observation.Values != null
                     ? observation.Values.Where(v => v.Key != null).GroupBy(v => v.Key).ToDictionary(g => g.Key, g => g.First().Value)
                     : new Dictionary<string, string>()

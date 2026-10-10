@@ -54,6 +54,7 @@
     --code-bg: #f0f2f5;
     --scrollbar: #c3c9d1;
     --scrollbar-hover: #a3abb6;
+    --err-soft: #fdeeee;
     --header-bg: linear-gradient(180deg, #2c6bb7 0%, #1f5597 100%);
     --header-border: #17457d;
     --header-text: #ffffff;
@@ -82,6 +83,7 @@
       --code-bg: #14181d;
       --scrollbar: #3a424c;
       --scrollbar-hover: #4f5965;
+      --err-soft: #2e1c20;
       --header-bg: linear-gradient(180deg, #1f4f8a 0%, #183f70 100%);
       --header-border: #0f2a4c;
     }
@@ -213,6 +215,17 @@
   .level-WARNING { color: var(--warn); font-weight: 500; }
   .level-NORMAL { color: var(--ok); }
   .unavailable { color: var(--muted); font-style: italic; }
+
+  /* Validation flags (Quality / Deprecated / Extended) */
+  .vflag { display: inline-flex; vertical-align: -2px; margin-left: 6px; cursor: help; }
+  .vflag svg { width: 14px; height: 14px; fill: currentColor; }
+  .vflag.invalid { color: var(--err); }
+  .vflag.deprecated { color: var(--warn); }
+  .badge.ext { margin-left: 6px; cursor: help; }
+  tbody tr.invalid { background: var(--err-soft); }
+  tbody tr.invalid:hover, tbody tr.invalid.selected { background: var(--accent-soft); }
+  .validation-note { margin: -4px 0 10px; font-size: 12px; }
+  .validation-note a { color: var(--accent); }
   .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
   .toolbar .spacer { flex: 1; }
   input[type=text], input[type=number], select {
@@ -383,6 +396,10 @@
             <label class="check"><input type="checkbox" id="data-auto" checked> Auto refresh</label>
             <button class="btn" id="data-refresh">Refresh</button>
           </div>
+          <p class="validation-note muted" id="validation-note" hidden>
+            Validation is off, so values are not checked against the MTConnect Standard.
+            Set <span class="mono">enableValidation: true</span> in the <a href="#config" id="validation-config-link">Configuration</a> to flag invalid and deprecated values.
+          </p>
           <div class="table-wrap">
             <table>
               <thead id="current-head"><tr><th data-sort="name">Name / Id</th><th data-sort="type">Type</th><th data-sort="subType">SubType</th><th data-sort="value">Value</th><th data-sort="timestamp" class="hide-sm">Timestamp</th><th data-sort="sequence" class="hide-sm">Seq</th></tr></thead>
@@ -693,17 +710,55 @@
     }).catch(showError);
   }
 
+  // ---------- validation flags ----------
+  var warningIcon = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8.9 1.5a1 1 0 0 0-1.8 0L.2 13.5A1 1 0 0 0 1.1 15h13.8a1 1 0 0 0 .9-1.5zM8 5a.9.9 0 0 1 .9.95l-.2 4a.7.7 0 0 1-1.4 0l-.2-4A.9.9 0 0 1 8 5m0 6.6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg>';
+
+  function isInvalid(o) { return o.quality === 'INVALID'; }
+
+  // Icon + tooltip for an observation's Quality / Deprecated / Extended flags (empty when there is nothing to report)
+  function validationFlags(o) {
+    var issues = [];
+    if (isInvalid(o)) issues.push('Invalid: the value does not conform to the MTConnect Standard for ' + o.type + '.');
+    if (o.deprecated) issues.push('Deprecated: ' + o.type + ' is deprecated in MTConnect ' + ((state.agent && state.agent.mtconnectVersion) || '') + '.');
+
+    var html = '';
+    if (issues.length) {
+      var text = issues.join('\n');
+      html += '<span class="vflag ' + (isInvalid(o) ? 'invalid' : 'deprecated') + '" role="img" title="' + esc(text) + '" aria-label="' + esc(text) + '">' + warningIcon + '</span>';
+    }
+    // The Agent also marks invalid values as extended, so only show EXT for genuinely extended types
+    if (o.extended && !isInvalid(o)) {
+      html += '<span class="badge ext" title="Extended: ' + esc(o.type) + ' is not defined in the MTConnect Standard">EXT</span>';
+    }
+    return html;
+  }
+
+  function validationSearchText(o) {
+    return (isInvalid(o) ? ' invalid' : '') + (o.deprecated ? ' deprecated' : '') + (o.extended && !isInvalid(o) ? ' extended' : '');
+  }
+
+  function renderValidationNote() {
+    $('validation-note').hidden = !state.agent || !!state.agent.enableValidation;
+  }
+
+  $('validation-config-link').addEventListener('click', function (e) {
+    e.preventDefault();
+    showView('config');
+  });
+
   function renderCurrent() {
     var filter = $('data-filter').value.trim().toLowerCase();
     var rows = state.current.filter(function (o) {
       if (!filter) return true;
-      return [o.name, o.dataItemId, o.type, o.subType, JSON.stringify(o.values)].join(' ').toLowerCase().indexOf(filter) >= 0;
+      return [o.name, o.dataItemId, o.type, o.subType, JSON.stringify(o.values), validationSearchText(o)].join(' ').toLowerCase().indexOf(filter) >= 0;
     });
     sortRows(rows);
+    renderValidationNote();
     var selectedId = state.historyItem && state.historyItem.dataItemId;
     $('current-rows').innerHTML = rows.map(function (o) {
-      return '<tr data-id="' + esc(o.dataItemId) + '"' + (o.dataItemId === selectedId ? ' class="selected"' : '') + '>' +
-        '<td>' + esc(o.name || o.dataItemId) + (o.name ? '<div class="muted mono">' + esc(o.dataItemId) + '</div>' : '') + '</td>' +
+      var classes = (o.dataItemId === selectedId ? 'selected ' : '') + (isInvalid(o) ? 'invalid' : '');
+      return '<tr data-id="' + esc(o.dataItemId) + '"' + (classes ? ' class="' + classes.trim() + '"' : '') + '>' +
+        '<td>' + esc(o.name || o.dataItemId) + validationFlags(o) + (o.name ? '<div class="muted mono">' + esc(o.dataItemId) + '</div>' : '') + '</td>' +
         '<td><span class="badge ' + esc(o.category) + '">' + esc(o.category) + '</span> ' + esc(o.type) + '</td>' +
         '<td>' + (o.subType ? esc(o.subType) : '<span class="muted">–</span>') + '</td>' +
         '<td class="value">' + formatValue(o) + '</td>' +
@@ -801,7 +856,7 @@
       '&dataItemId=' + encodeURIComponent(item.dataItemId) + '&count=' + encodeURIComponent($('history-count').value || 50);
     api(url).then(function (rows) {
       $('history-rows').innerHTML = rows.map(function (o) {
-        return '<tr><td class="muted nowrap">' + esc(fmtTime(o.timestamp)) + '</td><td class="value">' + formatValue(o) +
+        return '<tr' + (isInvalid(o) ? ' class="invalid"' : '') + '><td class="muted nowrap">' + esc(fmtTime(o.timestamp)) + '</td><td class="value">' + formatValue(o) + validationFlags(o) +
           '</td><td class="muted">' + esc(o.sequence) + '</td></tr>';
       }).join('') || '<tr><td colspan="3" class="empty">No observations in buffer</td></tr>';
     }).catch(showError);
