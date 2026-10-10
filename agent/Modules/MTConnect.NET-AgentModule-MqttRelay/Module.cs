@@ -40,6 +40,12 @@ namespace MTConnect
         /// (<c>type: mqtt-relay</c>).
         /// </summary>
         public const string ConfigurationTypeId = "mqtt-relay";
+
+        /// <summary>
+        /// The class this module's <c>agent.config.yaml</c> settings are read into.
+        /// Lets tools such as the Web UI describe the module's options.
+        /// </summary>
+        public static readonly System.Type ConfigurationType = typeof(MqttRelayModuleConfiguration);
         private const string ModuleId = "MQTT Relay";
 
         private readonly MqttRelayModuleConfiguration _configuration;

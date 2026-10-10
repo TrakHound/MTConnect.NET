@@ -27,6 +27,12 @@ namespace MTConnect.Modules.Http
         /// (<c>type: http-server</c>).
         /// </summary>
         public const string ConfigurationTypeId = "http-server";
+
+        /// <summary>
+        /// The class this module's <c>agent.config.yaml</c> settings are read into.
+        /// Lets tools such as the Web UI describe the module's options.
+        /// </summary>
+        public static readonly System.Type ConfigurationType = typeof(HttpServerModuleConfiguration);
         private const string ModuleId = "HTTP Server";
         private const string HttpServerLogId = "HTTP-Server";
         private const string ValidationLogId = "Agent-Validation";

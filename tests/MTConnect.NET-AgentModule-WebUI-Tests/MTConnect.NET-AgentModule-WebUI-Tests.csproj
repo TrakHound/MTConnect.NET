@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>MTConnect.AgentModule.WebUI.Tests</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.3.1" />
+    <PackageReference Include="coverlet.collector" Version="6.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\agent\Modules\MTConnect.NET-AgentModule-WebUI\MTConnect.NET-AgentModule-WebUI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The sample agent configuration, used to check that a heavily commented real file round-trips unchanged -->
+    <None Include="..\..\agent\MTConnect.NET-Agent\agent.config.yaml" Link="Samples\agent.config.yaml" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

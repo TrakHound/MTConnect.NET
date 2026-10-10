@@ -41,6 +41,7 @@ namespace MTConnect.Modules.WebUI
     /// <item><c>GET /api/assets?device=</c> – Asset list</item>
     /// <item><c>GET /api/asset?id=</c> – a single Asset as an MTConnectAssets XML document</item>
     /// <item><c>GET /api/validation?device=</c> – validation problems reported by the Agent, with per-Device totals</item>
+    /// <item><c>GET /api/config/form</c> / <c>PUT /api/config/form</c> – the configuration as form fields, and key-by-key changes to it</item>
     /// <item><c>GET /api/config</c> / <c>PUT /api/config</c> – read / save the Agent configuration file</item>
     /// </list>
     /// </remarks>
@@ -60,6 +61,10 @@ namespace MTConnect.Modules.WebUI
         private readonly IMTConnectAgentBroker _agent;
         private readonly ConcurrentDictionary<string, long> _observationCounts = new ConcurrentDictionary<string, long>();
         private readonly ValidationProblemTracker _validation;
+
+        // Loaded module / processor types for the Configuration form (scanning assemblies once is enough)
+        private readonly Lazy<List<ConfigurationEntryType>> _moduleTypes = new Lazy<List<ConfigurationEntryType>>(ConfigurationSchema.GetModuleTypes);
+        private readonly Lazy<List<ConfigurationEntryType>> _processorTypes = new Lazy<List<ConfigurationEntryType>>(ConfigurationSchema.GetProcessorTypes);
         private HttpListener _listener;
         private CancellationTokenSource _stop;
 
@@ -186,6 +191,8 @@ namespace MTConnect.Modules.WebUI
                 else if (method == "GET" && path == "/api/assets") WriteJson(response, GetAssets(request.QueryString["device"]));
                 else if (method == "GET" && path == "/api/asset") WriteAsset(response, request.QueryString["id"]);
                 else if (method == "GET" && path == "/api/validation") WriteJson(response, GetValidation(request.QueryString["device"]));
+                else if (method == "GET" && path == "/api/config/form") GetConfigurationForm(response);
+                else if (method == "PUT" && path == "/api/config/form") SaveConfigurationForm(request, response);
                 else if (method == "GET" && path == "/api/config") WriteJson(response, GetConfiguration());
                 else if (method == "PUT" && path == "/api/config") SaveConfiguration(request, response);
                 else WriteJson(response, new { error = "Not Found" }, 404);
@@ -497,31 +504,9 @@ namespace MTConnect.Modules.WebUI
 
         private void SaveConfiguration(HttpListenerRequest request, HttpListenerResponse response)
         {
-            if (!_configuration.AllowConfigurationEdit)
-            {
-                WriteJson(response, new { error = "Configuration editing is disabled (allowConfigurationEdit: false)" }, 403);
-                return;
-            }
+            if (!TryGetEditablePath(response, out var path)) return;
 
-            var path = _agent.Configuration?.Path;
-            if (string.IsNullOrEmpty(path))
-            {
-                WriteJson(response, new { error = "The Agent was not loaded from a configuration file" }, 400);
-                return;
-            }
-
-            if (!path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase) && !path.EndsWith(".yml", StringComparison.OrdinalIgnoreCase))
-            {
-                WriteJson(response, new { error = "Only YAML configuration files can be edited from the UI" }, 400);
-                return;
-            }
-
-            string content;
-            using (var reader = new StreamReader(request.InputStream, request.ContentEncoding ?? Encoding.UTF8))
-            {
-                content = reader.ReadToEnd();
-            }
-
+            var content = ReadBody(request);
             if (string.IsNullOrWhiteSpace(content))
             {
                 WriteJson(response, new { error = "Configuration is empty" }, 400);
@@ -544,9 +529,137 @@ namespace MTConnect.Modules.WebUI
                 return;
             }
 
-            // Keep a copy of the previous file before overwriting it
-            if (File.Exists(path)) File.Copy(path, path + ".bak", true);
-            File.WriteAllText(path, content, new UTF8Encoding(false));
+            WriteConfigurationFile(path, content, response);
+        }
+
+        private ConfigurationForm CreateConfigurationForm()
+        {
+            // The Agent may use a subclass of the standard settings class
+            var agentType = _agent.Configuration?.GetType();
+            if (agentType == null || !typeof(AgentConfiguration).IsAssignableFrom(agentType)) agentType = typeof(AgentApplicationConfiguration);
+
+            return new ConfigurationForm(agentType, _moduleTypes.Value, _processorTypes.Value);
+        }
+
+        private void GetConfigurationForm(HttpListenerResponse response)
+        {
+            var path = _agent.Configuration?.Path;
+            if (string.IsNullOrEmpty(path) || !File.Exists(path))
+            {
+                WriteJson(response, new { error = "The Agent was not loaded from a configuration file" }, 404);
+                return;
+            }
+
+            try
+            {
+                var editable = _configuration.AllowConfigurationEdit && IsYamlPath(path);
+                WriteJson(response, CreateConfigurationForm().BuildModel(File.ReadAllText(path), path, editable));
+            }
+            catch (Exception ex) when (ex is YamlException || ex is ConfigurationEditException)
+            {
+                // The UI falls back to the YAML editor when the file cannot be shown as a form
+                var message = ex is YamlException yamlException ? ConfigurationDocument.DescribeYamlError(yamlException) : ex.Message;
+                WriteJson(response, new { error = "The configuration file cannot be shown as a form: " + message }, 422);
+            }
+        }
+
+        private void SaveConfigurationForm(HttpListenerRequest request, HttpListenerResponse response)
+        {
+            if (!TryGetEditablePath(response, out var path)) return;
+
+            ConfigurationFormRequest formRequest;
+            try
+            {
+                formRequest = JsonSerializer.Deserialize<ConfigurationFormRequest>(ReadBody(request), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            catch (JsonException ex)
+            {
+                WriteJson(response, new { error = "Invalid request: " + ex.Message }, 400);
+                return;
+            }
+
+            var text = File.Exists(path) ? File.ReadAllText(path) : "";
+            if (formRequest?.Version != ConfigurationDocument.ComputeVersion(text))
+            {
+                WriteJson(response, new { error = "The configuration file has changed since it was loaded. Reload it and make your changes again." }, 409);
+                return;
+            }
+
+            string updated;
+            try
+            {
+                updated = CreateConfigurationForm().Apply(text, formRequest);
+            }
+            catch (ConfigurationEditException ex)
+            {
+                WriteJson(response, new { error = ex.Message }, 400);
+                return;
+            }
+            catch (YamlException ex)
+            {
+                WriteJson(response, new { error = "Invalid YAML (" + ConfigurationDocument.DescribeYamlError(ex) + ")" }, 400);
+                return;
+            }
+
+            if (updated == text)
+            {
+                WriteJson(response, new { saved = false, restartPending = false });
+                return;
+            }
+
+            WriteConfigurationFile(path, updated, response);
+        }
+
+        private bool TryGetEditablePath(HttpListenerResponse response, out string path)
+        {
+            path = _agent.Configuration?.Path;
+
+            if (!_configuration.AllowConfigurationEdit)
+            {
+                WriteJson(response, new { error = "Configuration editing is disabled (allowConfigurationEdit: false)" }, 403);
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(path))
+            {
+                WriteJson(response, new { error = "The Agent was not loaded from a configuration file" }, 400);
+                return false;
+            }
+
+            if (!IsYamlPath(path))
+            {
+                WriteJson(response, new { error = "Only YAML configuration files can be edited from the UI" }, 400);
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsYamlPath(string path) =>
+            path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase) || path.EndsWith(".yml", StringComparison.OrdinalIgnoreCase);
+
+        private static string ReadBody(HttpListenerRequest request)
+        {
+            using (var reader = new StreamReader(request.InputStream, request.ContentEncoding ?? Encoding.UTF8))
+            {
+                return reader.ReadToEnd();
+            }
+        }
+
+        private void WriteConfigurationFile(string path, string content, HttpListenerResponse response)
+        {
+            // Keep a copy of the previous file, and its byte order mark if it had one
+            var hadBom = false;
+            if (File.Exists(path))
+            {
+                using (var stream = File.OpenRead(path))
+                {
+                    var bom = new byte[3];
+                    hadBom = stream.Read(bom, 0, 3) == 3 && bom[0] == 0xEF && bom[1] == 0xBB && bom[2] == 0xBF;
+                }
+                File.Copy(path, path + ".bak", true);
+            }
+            File.WriteAllText(path, content, new UTF8Encoding(hadBom));
 
             LogReceived?.Invoke(this, $"Agent configuration saved from Web UI ({path})");
 

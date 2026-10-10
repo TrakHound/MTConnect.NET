@@ -40,6 +40,12 @@ namespace MTConnect.Modules
         /// (<c>type: mqtt-broker</c>).
         /// </summary>
         public const string ConfigurationTypeId = "mqtt-broker";
+
+        /// <summary>
+        /// The class this module's <c>agent.config.yaml</c> settings are read into.
+        /// Lets tools such as the Web UI describe the module's options.
+        /// </summary>
+        public static readonly System.Type ConfigurationType = typeof(MqttBrokerModuleConfiguration);
         private const string ModuleId = "MQTT Broker";
 
         private readonly MqttBrokerModuleConfiguration _configuration;
