@@ -358,6 +358,45 @@
   .add-module select { min-width: 240px; }
   .config-complex { display: grid; grid-template-columns: minmax(160px, 220px) minmax(0, 1fr); gap: 6px 16px; }
   .config-complex pre { margin: 0; padding: 6px 8px; background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; overflow: auto; max-height: 160px; }
+  /* Device editor */
+  /* The tree keeps the width the user chose, limited so the form always has room */
+  .device-editor { display: grid; grid-template-columns: clamp(200px, var(--device-tree-width, 420px), calc(100% - 296px)) 12px minmax(0, 1fr); gap: 0 4px; align-items: stretch; }
+  .device-editor > .device-form { align-self: start; }
+  .device-splitter { cursor: col-resize; display: flex; justify-content: center; touch-action: none; border-radius: var(--radius-sm); }
+  .device-splitter::before { content: ''; width: 2px; height: 100%; min-height: 40px; background: var(--border); border-radius: 1px; }
+  .device-splitter:hover::before, .device-splitter:focus-visible::before, .device-splitter.dragging::before { background: var(--accent); }
+  .device-splitter:focus-visible { outline: none; }
+  body.resizing { cursor: col-resize; user-select: none; }
+  .device-tree-panel { border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .device-tree-tools { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; border-bottom: 1px solid var(--border); }
+  .device-tree-tools button:disabled { opacity: .45; cursor: default; }
+  .device-tree { max-height: calc(100vh - 260px); overflow: auto; padding: 6px; font-size: 13px; }
+  .device-tree ul { list-style: none; margin: 0; padding-left: 14px; }
+  .device-tree > ul { padding-left: 0; }
+  .device-tree .node { display: flex; align-items: center; gap: 6px; padding: 3px 6px; border-radius: var(--radius-sm); cursor: pointer; white-space: nowrap; }
+  .device-tree .node:hover { background: var(--accent-soft); }
+  .device-tree .node.selected { background: var(--accent); color: #fff; }
+  .device-tree .node.selected .muted, .device-tree .node.selected .badge { color: #dde8ff; }
+  .device-tree .node .label { overflow: hidden; text-overflow: ellipsis; }
+  .device-tree .node.new .label::after { content: ' •'; color: var(--warn); }
+  .device-tree .toggle { width: 12px; color: var(--muted); flex-shrink: 0; }
+  .device-tree .badge { font-size: 9px; padding: 0 4px; }
+  .device-form h3 { font-size: 13px; font-weight: 500; margin: 0 0 8px; }
+  .device-form .config-fields { margin-bottom: 14px; }
+  .device-form textarea.values { width: 100%; max-width: 420px; min-height: 80px; font: 13px/1.4 var(--font-mono); color: var(--text); background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 5px 8px; }
+  .device-add { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px; background: var(--code-bg); }
+  /* The editor adapts to its own width (the side list and window size both affect it) */
+  #config-device-panel { container-type: inline-size; }
+  @container (max-width: 820px) {
+    .device-editor { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .device-splitter { display: none; }
+    .device-tree { max-height: 320px; }
+  }
+  @container (max-width: 560px) {
+    .device-form .config-fields { grid-template-columns: minmax(0, 1fr); }
+    .device-form .config-fields .field-label { border-bottom: 0; padding-bottom: 0; }
+  }
+
   textarea.entry-yaml {
     width: 100%;
     min-height: 240px;
@@ -412,6 +451,9 @@
     .table-wrap { max-height: none; }
     .hide-sm { display: none; }
     .config-nav { max-height: 220px; }
+    .device-editor { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .device-splitter { display: none; }
+    .device-tree { max-height: 260px; }
     .config-fields, .config-complex { grid-template-columns: minmax(0, 1fr); }
     .config-fields .field-label { border-bottom: 0; padding-bottom: 0; }
   }
@@ -607,6 +649,20 @@
           <div id="config-form"></div>
         </div>
 
+        <!-- Device file editor: tree of the device and a form for the selected element -->
+        <div class="panel" id="config-device-panel" hidden>
+          <div class="toolbar">
+            <strong id="device-title">Device</strong>
+            <span class="muted mono" id="device-subtitle"></span>
+            <span class="spacer"></span>
+            <span class="status" id="device-status"></span>
+            <button class="btn" id="device-discard" disabled>Discard</button>
+            <button class="btn primary" id="device-save" disabled>Save</button>
+          </div>
+          <p class="validation-note muted" id="device-note"></p>
+          <div id="device-body"></div>
+        </div>
+
         <!-- Whole-file YAML editor -->
         <div class="panel" id="config-yaml-panel" hidden>
           <div class="toolbar">
@@ -722,6 +778,7 @@
     if (name === 'assets') loadAssets();
     if (name === 'validation') loadValidation().then(renderProblems).catch(showError);
     if (name === 'config' && !formHasChanges() && !state.configDirty) loadConfigForm();
+    if (name === 'config' && !deviceHasChanges()) loadDeviceFiles();
   }
   document.querySelectorAll('nav button').forEach(function (b) {
     b.addEventListener('click', function () { showView(b.dataset.view); });
@@ -1144,7 +1201,7 @@
   });
 
   window.addEventListener('beforeunload', function (e) {
-    if (state.configDirty || formHasChanges()) { e.preventDefault(); e.returnValue = ''; }
+    if (state.configDirty || formHasChanges() || deviceHasChanges()) { e.preventDefault(); e.returnValue = ''; }
   });
 
   // ---------- configuration form ----------
@@ -1203,7 +1260,7 @@
       state.formEdits = newFormEdits();
       if (state.selectAfterReload && findEntry(state.selectAfterReload)) state.configSelection = state.selectAfterReload;
       state.selectAfterReload = null;
-      if (['agent', 'yaml', 'add'].indexOf(state.configSelection) < 0 && !findEntry(state.configSelection)) state.configSelection = 'agent';
+      if (['agent', 'yaml', 'add'].indexOf(state.configSelection) < 0 && !isDeviceSelection(state.configSelection) && !findEntry(state.configSelection)) state.configSelection = 'agent';
       setFormStatus(m.editable ? '' : 'Read only', m.editable ? '' : 'warn');
       renderConfigNav();
       renderConfigSelection();
@@ -1245,6 +1302,7 @@
         }
       });
     }
+    html += renderDeviceNav(item);
     html += '<div class="group">File</div>' + item('yaml', 'YAML (advanced)', '', state.configDirty);
     $('config-nav').innerHTML = html;
   }
@@ -1256,6 +1314,10 @@
       if (!confirm('Discard unsaved YAML changes?')) return;
       state.configDirty = false;
     }
+    if (deviceHasChanges() && button.dataset.key !== state.configSelection) {
+      if (!confirm('Discard unsaved device changes?')) return;
+      state.deviceEditor = null;
+    }
     state.configSelection = button.dataset.key;
     renderConfigNav();
     renderConfigSelection();
@@ -1264,8 +1326,15 @@
   function renderConfigSelection() {
     var sel = state.configSelection;
     var yaml = sel === 'yaml';
+    var device = isDeviceSelection(sel);
     $('config-yaml-panel').hidden = !yaml;
-    $('config-form-panel').hidden = yaml;
+    $('config-form-panel').hidden = yaml || device;
+    $('config-device-panel').hidden = !device;
+
+    if (device) {
+      renderDeviceSelection();
+      return;
+    }
 
     if (yaml) {
       if (formHasChanges()) {
@@ -1555,6 +1624,790 @@
   $('config-form-discard').addEventListener('click', function () {
     if (formHasChanges() && !confirm('Discard all unsaved changes?')) return;
     loadConfigForm();
+  });
+
+  // ---------- configuration: devices ----------
+  // state.deviceEditor = { file, version, devices, ops, selectedId, collapsed, adding }
+  var kindTitles = { device: 'Device', component: 'Component', dataItem: 'Data item', composition: 'Composition' };
+
+  function isDeviceSelection(sel) { return sel === 'newdevice' || String(sel).indexOf('devfile:') === 0; }
+  function deviceHasChanges() { return !!(state.deviceEditor && state.deviceEditor.ops.length); }
+
+  function setDeviceStatus(text, cls) {
+    var el = $('device-status');
+    el.textContent = text || '';
+    el.className = 'status ' + (cls || '');
+  }
+
+  function loadDeviceFiles() {
+    return api('/api/devicefiles').then(function (r) {
+      state.deviceFiles = r;
+      renderConfigNav();
+      return r;
+    }).catch(function () {
+      state.deviceFiles = null;
+    });
+  }
+
+  function loadDeviceTypes() {
+    if (!state.deviceTypesPromise) {
+      state.deviceTypesPromise = api('/api/devicetypes').then(function (c) { state.deviceTypes = c; return c; });
+    }
+    return state.deviceTypesPromise;
+  }
+
+  function renderDeviceNav(item) {
+    var files = state.deviceFiles;
+    if (!files) return '';
+    var html = '<div class="group">Devices</div>';
+    files.files.forEach(function (f) {
+      var key = 'devfile:' + f.file;
+      var names = f.devices.map(function (d) { return d.name || d.id; }).join(', ');
+      var dirty = deviceHasChanges() && state.deviceEditor.file === f.file;
+      // The file name is shown as a tooltip rather than beside the device name
+      html += item(key, names || f.file, '', dirty, f.error ? f.file + ' cannot be read: ' + f.error : f.file);
+    });
+    if (files.canCreate) html += item('newdevice', '+ New device', '', false);
+    return html;
+  }
+
+  // ----- version filtering of the type catalog -----
+  function versionNumber(v) {
+    if (!v) return null;
+    var parts = String(v).split('.');
+    return (parseInt(parts[0], 10) || 0) * 1000 + (parseInt(parts[1], 10) || 0);
+  }
+
+  // Types available in the Agent's MTConnect version (newer types are left out; deprecated ones are labelled)
+  function availableTypes(list) {
+    var agentVersion = versionNumber(state.agent && state.agent.mtconnectVersion) || 999999;
+    return (list || []).filter(function (t) {
+      var min = versionNumber(t.minimumVersion);
+      return min == null || min <= agentVersion;
+    }).map(function (t) {
+      var max = versionNumber(t.maximumVersion);
+      return Object.assign({}, t, { deprecated: max != null && max < agentVersion });
+    });
+  }
+
+  function typeOptions(list) {
+    return list.map(function (t) {
+      var label = (t.deprecated ? '(deprecated) ' : '') + (t.description || '');
+      return '<option value="' + esc(t.type) + '">' + esc(label.length > 110 ? label.slice(0, 107) + '…' : label) + '</option>';
+    }).join('');
+  }
+
+  function findDataItemType(type) { return state.deviceTypes ? state.deviceTypes.dataItems.find(function (t) { return t.type === type; }) : null; }
+  function findComponentType(type) { return state.deviceTypes ? state.deviceTypes.components.find(function (t) { return t.type === type; }) : null; }
+  function findCompositionType(type) { return state.deviceTypes ? state.deviceTypes.compositions.find(function (t) { return t.type === type; }) : null; }
+
+  // ----- tree model helpers -----
+  function walkDevice(fn) {
+    function visit(node, parent) { fn(node, parent); node.children.forEach(function (c) { visit(c, node); }); }
+    state.deviceEditor.devices.forEach(function (d) { visit(d, null); });
+  }
+
+  function findDeviceNode(id) {
+    var found = null;
+    walkDevice(function (node, parent) { if (!found && node.id === id) found = { node: node, parent: parent }; });
+    return found;
+  }
+
+  function allDeviceIds() {
+    var ids = {};
+    walkDevice(function (node) { if (node.id) ids[node.id] = true; });
+    return ids;
+  }
+
+  function uniqueDeviceId(base) {
+    base = String(base || 'item').replace(/[^A-Za-z0-9_.\-]/g, '_');
+    if (!/^[A-Za-z_]/.test(base)) base = '_' + base;
+    var ids = allDeviceIds(), id = base, n = 2;
+    while (ids[id]) id = base + '_' + (n++);
+    return id;
+  }
+
+  // Merge consecutive edits of the same element into one operation
+  function pushDeviceOp(op) {
+    var ops = state.deviceEditor.ops, last = ops[ops.length - 1];
+    var mergeable = { setAttributes: true, setDescription: true, setConstraints: true };
+    if (last && mergeable[op.op] && last.op === op.op && last.target === op.target) {
+      if (op.op === 'setAttributes') Object.assign(last.attributes, op.attributes);
+      else ops[ops.length - 1] = op;
+    } else {
+      ops.push(op);
+    }
+    updateDeviceButtons();
+    renderConfigNav();
+  }
+
+  function updateDeviceButtons() {
+    var dirty = deviceHasChanges();
+    var editable = state.deviceFiles && state.deviceFiles.editable;
+    $('device-save').disabled = !dirty || !editable;
+    $('device-discard').disabled = !dirty;
+    if (dirty && !$('device-status').classList.contains('err')) setDeviceStatus('Unsaved changes', 'warn');
+  }
+
+  // ----- loading and rendering -----
+  function openDeviceFile(file, selectId) {
+    $('device-body').innerHTML = '<div class="empty">Loading…</div>';
+    return Promise.all([api('/api/devicefiles/tree?file=' + encodeURIComponent(file)), loadDeviceTypes()]).then(function (results) {
+      var tree = results[0];
+      state.deviceEditor = {
+        file: tree.file,
+        version: tree.version,
+        devices: tree.devices,
+        ops: [],
+        selectedId: selectId && findInTree(tree.devices, selectId) ? selectId : (tree.devices[0] && tree.devices[0].id),
+        collapsed: {},
+        adding: null
+      };
+      renderDeviceSelection();
+      renderConfigNav();
+    }).catch(function (e) {
+      state.deviceEditor = null;
+      $('device-body').innerHTML = '<div class="empty">' + esc(e.message) + '</div>';
+    });
+  }
+
+  function findInTree(devices, id) {
+    var found = false;
+    (function visit(nodes) { nodes.forEach(function (n) { if (n.id === id) found = true; visit(n.children); }); })(devices);
+    return found;
+  }
+
+  function renderDeviceSelection() {
+    var sel = state.configSelection;
+    if (sel === 'newdevice') {
+      renderNewDeviceForm();
+      return;
+    }
+
+    var file = sel.slice('devfile:'.length);
+    if (!state.deviceEditor || state.deviceEditor.file !== file) {
+      $('device-title').textContent = file;
+      $('device-subtitle').textContent = '';
+      setDeviceStatus('');
+      openDeviceFile(file);
+      return;
+    }
+
+    var editor = state.deviceEditor;
+    $('device-title').textContent = editor.devices.map(function (d) { return d.attributes.name || d.id; }).join(', ') || editor.file;
+    $('device-subtitle').textContent = editor.file;
+    $('device-save').hidden = false;
+    $('device-discard').hidden = false;
+    var notice = state.deviceNotice && state.deviceNotice.file === editor.file ? state.deviceNotice.text + ' ' : '';
+    $('device-note').textContent = notice + (state.deviceFiles && state.deviceFiles.editable
+      ? 'Select an item to edit it, or use the buttons above the tree to add, move or remove items. Saving updates the file and the Agent reloads the device.'
+      : 'Configuration editing is disabled (allowConfigurationEdit: false), so devices are shown read-only.');
+
+    $('device-body').innerHTML =
+      '<div class="device-editor">' +
+        '<div class="device-tree-panel">' + renderDeviceTools() + '<div class="device-tree" id="device-tree">' + renderDeviceTree() + '</div></div>' +
+        '<div class="device-splitter" id="device-splitter" role="separator" aria-orientation="vertical" aria-label="Resize the tree" tabindex="0" title="Drag to resize (double-click to reset)"></div>' +
+        '<div class="device-form" id="device-form">' + renderDeviceForm() + '</div>' +
+      '</div>';
+    setDeviceTreeWidth(getDeviceTreeWidth(), false);
+    updateDeviceButtons();
+  }
+
+  function renderDeviceTools() {
+    var editor = state.deviceEditor;
+    var found = findDeviceNode(editor.selectedId);
+    var editable = state.deviceFiles && state.deviceFiles.editable;
+    var node = found && found.node;
+    var canAdd = editable && node && (node.kind === 'device' || node.kind === 'component');
+    var siblings = found && found.parent ? found.parent.children.filter(function (c) { return c.kind === node.kind; }) : [];
+    var index = siblings.indexOf(node);
+    var canRemove = editable && node && node.kind !== 'device';
+
+    function tool(name, label, enabled, title) {
+      return '<button type="button" class="icon-btn" data-tool="' + name + '"' + (enabled ? '' : ' disabled') + (title ? ' title="' + esc(title) + '"' : '') + '>' + label + '</button>';
+    }
+    return '<div class="device-tree-tools">' +
+      tool('add-component', '+ Component', canAdd, 'Add a component to the selected item') +
+      tool('add-dataItem', '+ Data item', canAdd, 'Add a data item to the selected item') +
+      tool('add-composition', '+ Composition', canAdd && node.kind === 'component', 'Add a composition to the selected component') +
+      tool('up', '↑', editable && index > 0, 'Move up') +
+      tool('down', '↓', editable && index >= 0 && index < siblings.length - 1, 'Move down') +
+      tool('remove', 'Remove', canRemove, 'Remove the selected item and everything in it') +
+      '</div>';
+  }
+
+  function nodeLabel(n) {
+    var a = n.attributes || {};
+    if (n.kind === 'device') return esc(a.name || n.id);
+    if (n.kind === 'component') return esc(n.tag) + (a.name ? ' <span class="muted">' + esc(a.name) + '</span>' : '');
+    if (n.kind === 'dataItem') {
+      return esc(a.name || n.id) + ' <span class="muted">' + esc(a.type || '') + (a.subType ? ':' + esc(a.subType) : '') + '</span>';
+    }
+    if (n.kind === 'composition') return 'Composition <span class="muted">' + esc(a.type || n.id) + '</span>';
+    return esc(n.tag);
+  }
+
+  // Full name, id and type of a tree row (labels can be cut off when the tree is narrow)
+  function nodeTooltip(n) {
+    var a = n.attributes || {};
+    var parts = [n.kind === 'component' ? n.tag : kindTitles[n.kind]];
+    if (a.name) parts.push('name: ' + a.name);
+    if (n.id) parts.push('id: ' + n.id);
+    if (n.kind === 'dataItem' || n.kind === 'composition') parts.push('type: ' + (a.type || '') + (a.subType ? ':' + a.subType : ''));
+    return parts.join('\n');
+  }
+
+  // ----- resizable tree -----
+  // The default fits the tree toolbar on one row
+  var deviceTreeDefaultWidth = 420, deviceTreeMinWidth = 200, deviceFormMinWidth = 280;
+
+  function getDeviceTreeWidth() {
+    try { return parseInt(localStorage.getItem('webui.deviceTreeWidth'), 10) || deviceTreeDefaultWidth; } catch (e) { return deviceTreeDefaultWidth; }
+  }
+
+  // While dragging, the width is limited to what fits; the CSS also limits it when the window is narrower later
+  function setDeviceTreeWidth(width, save, fit) {
+    var editor = document.querySelector('#device-body .device-editor');
+    var max = fit && editor ? Math.max(deviceTreeMinWidth, editor.getBoundingClientRect().width - deviceFormMinWidth) : 4000;
+    width = Math.round(Math.min(Math.max(width, deviceTreeMinWidth), max));
+    $('device-body').style.setProperty('--device-tree-width', width + 'px');
+    if (save) { try { localStorage.setItem('webui.deviceTreeWidth', String(width)); } catch (e) { } }
+    return width;
+  }
+
+  $('device-body').addEventListener('pointerdown', function (e) {
+    var splitter = e.target.closest('#device-splitter');
+    if (!splitter || e.button !== 0) return;
+    e.preventDefault();
+    var editor = splitter.parentElement;
+    splitter.setPointerCapture(e.pointerId);
+    splitter.classList.add('dragging');
+    document.body.classList.add('resizing');
+
+    function move(ev) { setDeviceTreeWidth(ev.clientX - editor.getBoundingClientRect().left - 4, false, true); }
+    function end(ev) {
+      splitter.releasePointerCapture(ev.pointerId);
+      splitter.classList.remove('dragging');
+      document.body.classList.remove('resizing');
+      splitter.removeEventListener('pointermove', move);
+      splitter.removeEventListener('pointerup', end);
+      splitter.removeEventListener('pointercancel', end);
+      setDeviceTreeWidth(parseInt(getComputedStyle($('device-body')).getPropertyValue('--device-tree-width'), 10), true);
+    }
+    splitter.addEventListener('pointermove', move);
+    splitter.addEventListener('pointerup', end);
+    splitter.addEventListener('pointercancel', end);
+  });
+
+  $('device-body').addEventListener('dblclick', function (e) {
+    if (e.target.closest('#device-splitter')) setDeviceTreeWidth(deviceTreeDefaultWidth, true);
+  });
+
+  $('device-body').addEventListener('keydown', function (e) {
+    if (!e.target.closest('#device-splitter') || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+    e.preventDefault();
+    var current = Math.round(document.querySelector('.device-tree-panel').getBoundingClientRect().width);
+    setDeviceTreeWidth(current + (e.key === 'ArrowRight' ? 20 : -20), true, true);
+  });
+
+  function renderDeviceTree() {
+    var editor = state.deviceEditor;
+    function render(n) {
+      var hasChildren = n.children.length > 0;
+      var collapsed = !!editor.collapsed[n.id];
+      var badge = n.kind === 'dataItem' ? '<span class="badge ' + esc(n.attributes.category) + '">' + esc((n.attributes.category || '?').charAt(0)) + '</span>' : '';
+      return '<li><div class="node' + (n.id === editor.selectedId ? ' selected' : '') + (n.isNew ? ' new' : '') + '" data-node="' + esc(n.id) + '" title="' + esc(nodeTooltip(n)) + '">' +
+        '<span class="toggle" data-toggle="' + esc(n.id) + '">' + (hasChildren ? (collapsed ? '▸' : '▾') : '') + '</span>' +
+        badge + '<span class="label">' + nodeLabel(n) + '</span></div>' +
+        (hasChildren && !collapsed ? '<ul>' + n.children.map(render).join('') + '</ul>' : '') + '</li>';
+    }
+    return '<ul>' + editor.devices.map(render).join('') + '</ul>';
+  }
+
+  function rerenderDeviceTree() {
+    var tree = $('device-tree');
+    if (!tree) return;
+    var scroll = tree.scrollTop;
+    tree.innerHTML = renderDeviceTree();
+    tree.scrollTop = scroll;
+    var tools = document.querySelector('#device-body .device-tree-tools');
+    if (tools) tools.outerHTML = renderDeviceTools();
+  }
+
+  // ----- forms -----
+  function textField(group, key, value, options) {
+    options = options || {};
+    var editable = state.deviceFiles && state.deviceFiles.editable;
+    var control;
+    if (options.select) {
+      control = '<select data-' + group + '="' + esc(key) + '"' + (editable ? '' : ' disabled') + '>' +
+        '<option value="">' + esc(options.emptyLabel || 'Not set') + '</option>' +
+        options.select.map(function (o) { return '<option' + (o === value ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') +
+        (value && options.select.indexOf(value) < 0 ? '<option selected>' + esc(value) + '</option>' : '') + '</select>';
+    } else {
+      control = '<input type="text" data-' + group + '="' + esc(key) + '" value="' + esc(value || '') + '"' +
+        (options.list ? ' list="' + options.list + '"' : '') + (options.placeholder ? ' placeholder="' + esc(options.placeholder) + '"' : '') +
+        ' autocomplete="off" spellcheck="false"' + (editable ? '' : ' disabled') + '>';
+    }
+    return '<div class="field-label">' + esc(options.label || key) + '</div>' +
+      '<div class="field-control"><div class="field-row">' + control + '</div>' +
+      (options.help ? '<div class="help">' + esc(options.help) + '</div>' : '') + '</div>';
+  }
+
+  function datalist(id, items) {
+    return '<datalist id="' + id + '">' + items + '</datalist>';
+  }
+
+  function renderDeviceForm() {
+    var editor = state.deviceEditor;
+    if (editor.adding) return renderAddForm();
+
+    var found = findDeviceNode(editor.selectedId);
+    if (!found) return '<div class="empty">Select an item in the tree</div>';
+    var n = found.node, a = n.attributes || {}, types = state.deviceTypes || {};
+    var html = '<h3>' + kindTitles[n.kind] + (n.kind === 'component' ? ' · ' + esc(n.tag) : '') + '</h3>';
+
+    if (n.kind === 'device' || n.kind === 'component') {
+      var componentType = n.kind === 'component' ? findComponentType(n.tag) : null;
+      html += '<div class="config-fields">' +
+        textField('attr', 'id', a.id, { help: 'Unique within the file. Adapters may refer to it.' }) +
+        textField('attr', 'name', a.name, { help: n.kind === 'device' ? 'Adapters and clients refer to the device by its name or UUID.' : (componentType && componentType.description) }) +
+        (n.kind === 'device' ? textField('attr', 'uuid', a.uuid, { help: 'Unique across all devices.' }) : '') +
+        textField('attr', 'nativeName', a.nativeName) +
+        textField('attr', 'sampleInterval', a.sampleInterval, { help: 'Interval in milliseconds between samples.' }) +
+        '</div>';
+
+      var d = n.description || { attributes: {}, text: '' };
+      html += '<h3>Description</h3><div class="config-fields">' +
+        textField('desc', 'manufacturer', d.attributes.manufacturer) +
+        textField('desc', 'model', d.attributes.model) +
+        textField('desc', 'serialNumber', d.attributes.serialNumber) +
+        textField('desc', 'station', d.attributes.station) +
+        textField('desc', 'text', d.text, { label: 'text' }) +
+        '</div>';
+    } else if (n.kind === 'dataItem') {
+      var available = availableTypes(types.dataItems).filter(function (t) { return !a.category || t.category === a.category; });
+      var dataItemType = findDataItemType(a.type);
+      var subTypes = (dataItemType && dataItemType.subTypes) || [];
+      var subType = subTypes.find(function (s) { return s.subType === a.subType; });
+      var compositions = found.parent ? found.parent.children.filter(function (c) { return c.kind === 'composition'; }) : [];
+
+      html += '<div class="config-fields">' +
+        textField('attr', 'id', a.id, { help: 'Unique within the file. Adapters may send values using the id or name.' }) +
+        textField('attr', 'name', a.name) +
+        textField('attr', 'category', a.category, { select: types.categories || ['SAMPLE', 'EVENT', 'CONDITION'], emptyLabel: 'Choose…' }) +
+        textField('attr', 'type', a.type, { list: 'dl-di-types', help: dataItemType ? dataItemType.description : (a.type && a.type.indexOf(':') > 0 ? 'Extended (custom) type.' : 'Not a standard type for this category.') }) +
+        textField('attr', 'subType', a.subType, { list: 'dl-di-subtypes', help: subType ? subType.description : '' }) +
+        textField('attr', 'units', a.units, { list: 'dl-units', placeholder: dataItemType && dataItemType.units ? 'Standard: ' + dataItemType.units : '' }) +
+        textField('attr', 'nativeUnits', a.nativeUnits, { list: 'dl-native-units' }) +
+        textField('attr', 'representation', a.representation, { select: types.representations || [] }) +
+        textField('attr', 'statistic', a.statistic, { select: types.statistics || [] }) +
+        textField('attr', 'significantDigits', a.significantDigits) +
+        textField('attr', 'coordinateSystem', a.coordinateSystem, { select: ['MACHINE', 'WORK'] }) +
+        (compositions.length ? textField('attr', 'compositionId', a.compositionId, { select: compositions.map(function (c) { return c.id; }) }) : '') +
+        '</div>' +
+        datalist('dl-di-types', typeOptions(available)) +
+        datalist('dl-di-subtypes', subTypes.map(function (s) { return '<option value="' + esc(s.subType) + '">' + esc(s.description || '') + '</option>'; }).join('')) +
+        datalist('dl-units', (types.units || []).map(function (u) { return '<option value="' + esc(u) + '">'; }).join('')) +
+        datalist('dl-native-units', (types.nativeUnits || []).map(function (u) { return '<option value="' + esc(u) + '">'; }).join(''));
+
+      var c = n.constraints || { values: [], minimum: '', maximum: '', nominal: '' };
+      var standardValues = dataItemType && dataItemType.values;
+      html += '<h3>Constraints</h3><div class="config-fields">' +
+        '<div class="field-label">values</div><div class="field-control"><div class="field-row">' +
+        '<textarea class="values" data-cons="values" spellcheck="false"' + (state.deviceFiles.editable ? '' : ' disabled') + '>' + esc((c.values || []).join('\n')) + '</textarea></div>' +
+        '<div class="help">Allowed values, one per line.' +
+        (standardValues ? ' <a href="#" data-standard-values>Use the standard values (' + standardValues.length + ')</a>' : '') + '</div></div>' +
+        textField('cons', 'minimum', c.minimum) +
+        textField('cons', 'maximum', c.maximum) +
+        textField('cons', 'nominal', c.nominal) +
+        '</div>';
+    } else if (n.kind === 'composition') {
+      var compositionType = findCompositionType(a.type);
+      html += '<div class="config-fields">' +
+        textField('attr', 'id', a.id) +
+        textField('attr', 'name', a.name) +
+        textField('attr', 'type', a.type, { list: 'dl-comp-types', help: compositionType && compositionType.description }) +
+        '</div>' + datalist('dl-comp-types', typeOptions(availableTypes(types.compositions)));
+    }
+
+    // Everything else (Configuration, References, Filters, ...) is edited as XML
+    if (n.other && n.other.length) {
+      html += '<p class="validation-note muted">Also contains <span class="mono">' + esc(n.other.join(', ')) + '</span>, which can be edited in the XML below.</p>';
+    }
+    if (n.xml != null && state.deviceFiles.editable) {
+      html += '<details class="device-xml"' + (editor.xmlOpen ? ' open' : '') + '><summary>Edit XML</summary>' +
+        (deviceHasChanges()
+          ? '<p class="validation-note muted">Save or discard your changes before editing the XML.</p>'
+          : '<textarea class="entry-yaml" data-node-xml spellcheck="false">' + esc(n.xml) + '</textarea>' +
+            '<div class="toolbar" style="margin-top:8px"><span class="spacer"></span><button type="button" class="btn primary" data-save-xml>Save XML</button></div>') +
+        '</details>';
+    }
+    return html;
+  }
+
+  function renderAddForm() {
+    var adding = state.deviceEditor.adding, types = state.deviceTypes || {};
+    var parent = findDeviceNode(adding.parentId).node;
+    var html = '<h3>Add ' + kindTitles[adding.kind].toLowerCase() + ' to ' + nodeLabel(parent) + '</h3><div class="device-add"><div class="config-fields">';
+
+    if (adding.kind === 'component') {
+      html += textField('add', 'type', adding.type, { list: 'dl-add-types', help: (findComponentType(adding.type) || {}).description || 'Choose a component type, or type a custom one.' }) +
+        datalist('dl-add-types', typeOptions(availableTypes(types.components)));
+    } else if (adding.kind === 'dataItem') {
+      var available = availableTypes(types.dataItems).filter(function (t) { return t.category === adding.category; });
+      var dataItemType = findDataItemType(adding.type);
+      html += textField('add', 'category', adding.category, { select: types.categories || ['SAMPLE', 'EVENT', 'CONDITION'], emptyLabel: 'Choose…' }) +
+        textField('add', 'type', adding.type, { list: 'dl-add-types', help: dataItemType ? dataItemType.description : 'Choose a type, or type a custom one (for example x:CUSTOM_TYPE).' }) +
+        datalist('dl-add-types', typeOptions(available)) +
+        textField('add', 'subType', adding.subType, { list: 'dl-add-subtypes' }) +
+        datalist('dl-add-subtypes', ((dataItemType && dataItemType.subTypes) || []).map(function (s) { return '<option value="' + esc(s.subType) + '">' + esc(s.description || '') + '</option>'; }).join('')) +
+        textField('add', 'units', adding.units, { list: 'dl-add-units' }) +
+        datalist('dl-add-units', (types.units || []).map(function (u) { return '<option value="' + esc(u) + '">'; }).join(''));
+    } else {
+      html += textField('add', 'type', adding.type, { list: 'dl-add-types', help: (findCompositionType(adding.type) || {}).description }) +
+        datalist('dl-add-types', typeOptions(availableTypes(types.compositions)));
+    }
+
+    html += textField('add', 'name', adding.name) +
+      textField('add', 'id', adding.id, { help: 'Filled in from the parent and name; change it if you like.' }) +
+      '</div><div class="toolbar"><span class="spacer"></span>' +
+      '<button type="button" class="btn" data-add-cancel>Cancel</button><button type="button" class="btn primary" data-add-confirm>Add</button></div></div>';
+    return html;
+  }
+
+  // Suggest a name, id and units for the item being added from its type
+  function updateAddingDefaults(changedKey) {
+    var adding = state.deviceEditor.adding;
+    var parentId = adding.parentId;
+    if (changedKey === 'type' || changedKey === 'category') {
+      var catalogType = adding.kind === 'dataItem' ? findDataItemType(adding.type) : adding.kind === 'component' ? findComponentType(adding.type) : findCompositionType(adding.type);
+      if (catalogType && adding.kind === 'dataItem' && !adding.touched.category) adding.category = catalogType.category;
+      if (!adding.touched.name) adding.name = (catalogType && catalogType.name) || (adding.kind === 'component' && adding.type ? adding.type.toLowerCase() : adding.name);
+      if (adding.kind === 'dataItem' && !adding.touched.units) adding.units = (catalogType && catalogType.units) || '';
+    }
+    if (!adding.touched.id) adding.id = uniqueDeviceId(parentId + '_' + (adding.name || (adding.type || adding.kind).toLowerCase()));
+  }
+
+  // Update one tree row in place (re-rendering the whole tree while the user clicks would swallow the click)
+  function updateTreeNode(oldId, node) {
+    var row = document.querySelector('#device-tree [data-node="' + CSS.escape(oldId) + '"]');
+    if (!row) return;
+    row.dataset.node = node.id;
+    row.title = nodeTooltip(node);
+    var toggle = row.querySelector('[data-toggle]');
+    if (toggle) toggle.dataset.toggle = node.id;
+    row.querySelector('.label').innerHTML = nodeLabel(node);
+    var badge = row.querySelector('.badge');
+    if (badge && node.kind === 'dataItem') {
+      badge.className = 'badge ' + (node.attributes.category || '');
+      badge.textContent = (node.attributes.category || '?').charAt(0);
+    }
+  }
+
+  // Refresh the add form's suggested values, help and lists in place
+  function syncAddForm() {
+    var adding = state.deviceEditor.adding, form = $('device-form'), types = state.deviceTypes || {};
+    ['category', 'name', 'id', 'units'].forEach(function (k) {
+      var el = form.querySelector('[data-add="' + k + '"]');
+      if (el && el !== document.activeElement) el.value = adding[k] || '';
+    });
+    var catalogType = adding.kind === 'dataItem' ? findDataItemType(adding.type) : adding.kind === 'component' ? findComponentType(adding.type) : findCompositionType(adding.type);
+    var typeHelp = form.querySelector('[data-add="type"]').closest('.field-control').querySelector('.help');
+    if (typeHelp) typeHelp.textContent = catalogType ? catalogType.description || '' : 'Choose a type, or type a custom one.';
+    if (adding.kind === 'dataItem') {
+      $('dl-add-types').innerHTML = typeOptions(availableTypes(types.dataItems).filter(function (t) { return t.category === adding.category; }));
+      $('dl-add-subtypes').innerHTML = ((catalogType && catalogType.subTypes) || []).map(function (s) { return '<option value="' + esc(s.subType) + '">' + esc(s.description || '') + '</option>'; }).join('');
+    }
+  }
+
+  // Refresh the help and lists of a data item form that depend on its category and type, in place
+  function syncDataItemForm(node) {
+    var form = $('device-form'), a = node.attributes, types = state.deviceTypes || {};
+    var dataItemType = findDataItemType(a.type);
+    var subTypes = (dataItemType && dataItemType.subTypes) || [];
+    var subType = subTypes.find(function (s) { return s.subType === a.subType; });
+    function help(key, text) {
+      var el = form.querySelector('[data-attr="' + key + '"]');
+      var h = el && el.closest('.field-control').querySelector('.help');
+      if (h) h.textContent = text || '';
+    }
+    help('type', dataItemType ? dataItemType.description : (a.type && a.type.indexOf(':') > 0 ? 'Extended (custom) type.' : 'Not a standard type for this category.'));
+    help('subType', subType ? subType.description : '');
+    var units = form.querySelector('[data-attr="units"]');
+    if (units) units.placeholder = dataItemType && dataItemType.units ? 'Standard: ' + dataItemType.units : '';
+    if ($('dl-di-types')) $('dl-di-types').innerHTML = typeOptions(availableTypes(types.dataItems).filter(function (t) { return !a.category || t.category === a.category; }));
+    if ($('dl-di-subtypes')) $('dl-di-subtypes').innerHTML = subTypes.map(function (s) { return '<option value="' + esc(s.subType) + '">' + esc(s.description || '') + '</option>'; }).join('');
+    var valuesHelp = form.querySelector('[data-cons="values"]');
+    if (valuesHelp) {
+      var h = valuesHelp.closest('.field-control').querySelector('.help');
+      h.innerHTML = 'Allowed values, one per line.' + (dataItemType && dataItemType.values ? ' <a href="#" data-standard-values>Use the standard values (' + dataItemType.values.length + ')</a>' : '');
+    }
+  }
+
+  function selectDeviceNode(id) {
+    state.deviceEditor.selectedId = id;
+    state.deviceEditor.adding = null;
+    rerenderDeviceTree();
+    $('device-form').innerHTML = renderDeviceForm();
+  }
+
+  // ----- recording changes -----
+  function recordAttribute(node, key, value) {
+    if (key === 'id') {
+      if (!value) { setDeviceStatus('An id is required', 'err'); return false; }
+      if (value !== node.id && allDeviceIds()[value]) { setDeviceStatus('The id \'' + value + '\' is already used in this file', 'err'); return false; }
+    }
+    var attributes = {};
+    attributes[key] = value;
+    pushDeviceOp({ op: 'setAttributes', target: node.id, attributes: attributes });
+
+    if (value) node.attributes[key] = value; else delete node.attributes[key];
+    if (key === 'id') {
+      if (state.deviceEditor.selectedId === node.id) state.deviceEditor.selectedId = value;
+      node.id = value;
+    }
+    return true;
+  }
+
+  function recordDescription(node) {
+    var form = $('device-form'), attributes = {};
+    ['manufacturer', 'model', 'serialNumber', 'station'].forEach(function (k) {
+      var v = form.querySelector('[data-desc="' + k + '"]').value.trim();
+      if (v) attributes[k] = v;
+    });
+    var text = form.querySelector('[data-desc="text"]').value.trim();
+    node.description = Object.keys(attributes).length || text ? { attributes: attributes, text: text } : null;
+    pushDeviceOp({ op: 'setDescription', target: node.id, attributes: attributes, text: text });
+  }
+
+  function recordConstraints(node) {
+    var form = $('device-form');
+    var values = form.querySelector('[data-cons="values"]').value.split('\n').map(function (v) { return v.trim(); }).filter(Boolean);
+    var c = {
+      values: values,
+      minimum: form.querySelector('[data-cons="minimum"]').value.trim(),
+      maximum: form.querySelector('[data-cons="maximum"]').value.trim(),
+      nominal: form.querySelector('[data-cons="nominal"]').value.trim()
+    };
+    node.constraints = values.length || c.minimum || c.maximum || c.nominal ? c : null;
+    pushDeviceOp({ op: 'setConstraints', target: node.id, values: c.values, minimum: c.minimum, maximum: c.maximum, nominal: c.nominal });
+  }
+
+  function confirmAdd() {
+    var editor = state.deviceEditor, adding = editor.adding;
+    var parent = findDeviceNode(adding.parentId).node;
+    if (!adding.type) { setDeviceStatus('Choose a type', 'err'); return; }
+    if (adding.kind === 'dataItem' && !adding.category) { setDeviceStatus('Choose a category', 'err'); return; }
+    if (adding.kind === 'component' && !/^([A-Za-z_][\w.\-]*:)?[A-Za-z_][\w.\-]*$/.test(adding.type)) { setDeviceStatus('A component type is a single word, for example Linear', 'err'); return; }
+    if (!adding.id) { setDeviceStatus('An id is required', 'err'); return; }
+    if (allDeviceIds()[adding.id]) { setDeviceStatus('The id \'' + adding.id + '\' is already used in this file', 'err'); return; }
+
+    var attributes = {};
+    if (adding.kind === 'dataItem') {
+      attributes = { category: adding.category, id: adding.id, name: adding.name, type: adding.type, subType: adding.subType, units: adding.units };
+    } else if (adding.kind === 'composition') {
+      attributes = { id: adding.id, name: adding.name, type: adding.type };
+    } else {
+      attributes = { id: adding.id, name: adding.name };
+    }
+    Object.keys(attributes).forEach(function (k) { if (!attributes[k]) delete attributes[k]; });
+
+    pushDeviceOp({ op: 'add', target: parent.id, kind: adding.kind, tag: adding.kind === 'component' ? adding.type : null, attributes: attributes });
+
+    // Mirror the change in the tree: data items first, then components, then compositions (the server's order)
+    var node = {
+      id: adding.id, kind: adding.kind, tag: adding.kind === 'component' ? adding.type : adding.kind === 'dataItem' ? 'DataItem' : 'Composition',
+      attributes: attributes, description: null, constraints: null, other: [], xml: null, children: [], isNew: true
+    };
+    var order = { dataItem: 0, component: 1, composition: 2 };
+    var insertAt = parent.children.length;
+    for (var i = parent.children.length - 1; i >= 0; i--) {
+      if (order[parent.children[i].kind] <= order[node.kind]) { insertAt = i + 1; break; }
+      insertAt = i;
+    }
+    parent.children.splice(insertAt, 0, node);
+    editor.collapsed[parent.id] = false;
+    setDeviceStatus('');
+    selectDeviceNode(node.id);
+    updateDeviceButtons();
+  }
+
+  // ----- events -----
+  $('device-body').addEventListener('click', function (e) {
+    var editor = state.deviceEditor;
+    if (!editor) return;
+
+    var toggle = e.target.closest('[data-toggle]');
+    if (toggle && toggle.textContent) {
+      editor.collapsed[toggle.dataset.toggle] = !editor.collapsed[toggle.dataset.toggle];
+      rerenderDeviceTree();
+      return;
+    }
+
+    var nodeEl = e.target.closest('[data-node]');
+    if (nodeEl) { selectDeviceNode(nodeEl.dataset.node); return; }
+
+    var tool = e.target.closest('[data-tool]');
+    if (tool && !tool.disabled) {
+      var found = findDeviceNode(editor.selectedId);
+      var name = tool.dataset.tool;
+      if (name.indexOf('add-') === 0) {
+        editor.adding = { kind: name.slice(4), parentId: found.node.id, type: '', category: name === 'add-dataItem' ? 'EVENT' : '', subType: '', units: '', name: '', id: '', touched: {} };
+        updateAddingDefaults('kind');
+        $('device-form').innerHTML = renderDeviceForm();
+      } else if (name === 'up' || name === 'down') {
+        var siblings = found.parent.children;
+        var sameKind = siblings.filter(function (c) { return c.kind === found.node.kind; });
+        var other = sameKind[sameKind.indexOf(found.node) + (name === 'up' ? -1 : 1)];
+        var i1 = siblings.indexOf(found.node), i2 = siblings.indexOf(other);
+        siblings[i1] = other;
+        siblings[i2] = found.node;
+        pushDeviceOp({ op: 'move', target: found.node.id, direction: name });
+        rerenderDeviceTree();
+      } else if (name === 'remove') {
+        if (!confirm('Remove ' + kindTitles[found.node.kind].toLowerCase() + ' \'' + (found.node.attributes.name || found.node.id) + '\'' + (found.node.children.length ? ' and everything in it' : '') + '?')) return;
+        found.parent.children.splice(found.parent.children.indexOf(found.node), 1);
+        pushDeviceOp({ op: 'remove', target: found.node.id });
+        selectDeviceNode(found.parent.id);
+      }
+      return;
+    }
+
+    if (e.target.closest('[data-add-cancel]')) { editor.adding = null; setDeviceStatus(deviceHasChanges() ? 'Unsaved changes' : '', deviceHasChanges() ? 'warn' : ''); $('device-form').innerHTML = renderDeviceForm(); return; }
+    if (e.target.closest('[data-add-confirm]')) { confirmAdd(); return; }
+
+    if (e.target.closest('[data-standard-values]')) {
+      e.preventDefault();
+      var node = findDeviceNode(editor.selectedId).node;
+      var standard = findDataItemType(node.attributes.type).values.map(function (v) { return v.value; });
+      $('device-form').querySelector('[data-cons="values"]').value = standard.join('\n');
+      recordConstraints(node);
+      return;
+    }
+
+    if (e.target.closest('[data-save-xml]')) {
+      var xml = $('device-form').querySelector('[data-node-xml]').value;
+      editor.ops = [{ op: 'replaceXml', target: editor.selectedId, xml: xml }];
+      saveDevice();
+    }
+  });
+
+  $('device-body').addEventListener('toggle', function (e) {
+    if (e.target.classList && e.target.classList.contains('device-xml') && state.deviceEditor) state.deviceEditor.xmlOpen = e.target.open;
+  }, true);
+
+  // Field edits are recorded when a field is committed (change), not on every keystroke
+  $('device-body').addEventListener('change', function (e) {
+    var editor = state.deviceEditor;
+    if (!editor) return;
+    var t = e.target;
+
+    if (t.dataset.add) {
+      editor.adding[t.dataset.add] = t.value.trim();
+      if (t.dataset.add !== 'type' && t.dataset.add !== 'category') editor.adding.touched[t.dataset.add] = true;
+      updateAddingDefaults(t.dataset.add);
+      syncAddForm();
+      return;
+    }
+
+    var found = findDeviceNode(editor.selectedId);
+    if (!found) return;
+    setDeviceStatus('');
+
+    if (t.dataset.attr) {
+      var key = t.dataset.attr;
+      var oldId = found.node.id;
+      if (!recordAttribute(found.node, key, t.value.trim())) { t.value = found.node.attributes[key] || ''; return; }
+      updateTreeNode(oldId, found.node);
+      if (found.node.kind === 'dataItem' && (key === 'category' || key === 'type' || key === 'subType')) syncDataItemForm(found.node);
+    } else if (t.dataset.desc) {
+      recordDescription(found.node);
+    } else if (t.dataset.cons) {
+      recordConstraints(found.node);
+    }
+  });
+
+  // Typing in the add form updates its suggestions straight away (choosing from a type list fires input)
+  $('device-body').addEventListener('input', function (e) {
+    var editor = state.deviceEditor;
+    var key = e.target.dataset && e.target.dataset.add;
+    if (!editor || !editor.adding || !key) return;
+    editor.adding[key] = e.target.value.trim();
+    if (key !== 'type' && key !== 'category') editor.adding.touched[key] = true;
+    if (key === 'type' || key === 'category' || key === 'name') {
+      updateAddingDefaults(key);
+      syncAddForm();
+    }
+  });
+
+  function saveDevice() {
+    var editor = state.deviceEditor;
+    if (!editor || !editor.ops.length) return;
+    $('device-save').disabled = true;
+    setDeviceStatus('Saving…');
+    var selectId = editor.selectedId;
+    api('/api/devicefiles/tree?file=' + encodeURIComponent(editor.file), {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ version: editor.version, operations: editor.ops })
+    }).then(function (r) {
+      var message = !r.saved ? 'No changes to save' : r.restartPending ? 'Saved – the Agent reloads the device' : 'Saved – restart the Agent to apply';
+      return openDeviceFile(editor.file, selectId).then(function () {
+        loadDeviceFiles();
+        setDeviceStatus(message, 'ok');
+      });
+    }).catch(function (e) {
+      // A failed XML save is not kept as a pending change
+      if (editor.ops.length === 1 && editor.ops[0].op === 'replaceXml') editor.ops = [];
+      updateDeviceButtons();
+      setDeviceStatus(e.message, 'err');
+    });
+  }
+
+  $('device-save').addEventListener('click', saveDevice);
+  $('device-discard').addEventListener('click', function () {
+    if (deviceHasChanges() && !confirm('Discard unsaved device changes?')) return;
+    var editor = state.deviceEditor;
+    openDeviceFile(editor.file, editor.selectedId).then(function () { setDeviceStatus(''); renderConfigNav(); });
+  });
+
+  // ----- new device -----
+  function renderNewDeviceForm() {
+    state.deviceEditor = null;
+    $('device-title').textContent = 'New device';
+    $('device-subtitle').textContent = '';
+    $('device-save').hidden = true;
+    $('device-discard').hidden = true;
+    setDeviceStatus('');
+    $('device-note').textContent = 'Creates a device file in the devices folder with the data items every device needs (availability and asset changes). You can add components and data items once it is created.';
+    $('device-body').innerHTML = '<div class="device-form"><div class="config-fields">' +
+      textField('new', 'name', '', { help: 'Adapters and clients refer to the device by its name or UUID.' }) +
+      textField('new', 'fileName', '', { label: 'file name', placeholder: 'Defaults to the name', help: 'Saved as an .xml file in the devices folder.' }) +
+      textField('new', 'uuid', '', { placeholder: 'Generated automatically', help: 'Must be unique across all devices.' }) +
+      '</div><div class="toolbar"><span class="spacer"></span><button type="button" class="btn primary" data-create-device>Create device</button></div></div>';
+  }
+
+  $('device-body').addEventListener('click', function (e) {
+    if (!e.target.closest('[data-create-device]')) return;
+    var form = $('device-body');
+    var body = {
+      name: form.querySelector('[data-new="name"]').value.trim(),
+      fileName: form.querySelector('[data-new="fileName"]').value.trim(),
+      uuid: form.querySelector('[data-new="uuid"]').value.trim()
+    };
+    setDeviceStatus('Creating…');
+    api('/api/devicefiles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(function (r) {
+      state.deviceNotice = {
+        file: r.file,
+        text: 'Created ' + r.file + '. The Agent reads new device files when it restarts, for example after saving the Agent configuration (adding an adapter module for this device does both).'
+      };
+      return loadDeviceFiles().then(function () {
+        state.configSelection = 'devfile:' + r.file;
+        renderConfigNav();
+        renderConfigSelection();
+      });
+    }).catch(function (e) { setDeviceStatus(e.message, 'err'); });
   });
 
   // ---------- validation problems ----------

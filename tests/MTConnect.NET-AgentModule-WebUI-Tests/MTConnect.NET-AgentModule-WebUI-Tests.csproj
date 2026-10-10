@@ -23,6 +23,7 @@
   <ItemGroup>
     <!-- The sample agent configuration, used to check that a heavily commented real file round-trips unchanged -->
     <None Include="..\..\agent\MTConnect.NET-Agent\agent.config.yaml" Link="Samples\agent.config.yaml" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\agent\MTConnect.NET-Agent\devices\*.xml" Link="Samples\devices\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
