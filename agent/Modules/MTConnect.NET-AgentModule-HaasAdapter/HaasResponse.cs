@@ -74,6 +74,137 @@ namespace MTConnect.Haas
 
 
         /// <summary>
+        /// Returns the labels a reply to the specified command starts with (ex. <c>SERIAL NUMBER</c> for <c>?Q100</c>).
+        /// </summary>
+        /// <param name="command">The command (ex. <c>?Q100</c> or <c>?Q600 3027</c>).</param>
+        /// <returns>The expected reply labels, or <c>null</c> if the command is not known.</returns>
+        public static string[] GetReplyLabels(string command)
+        {
+            if (command == null) return null;
+
+            var query = command.Trim().ToUpperInvariant();
+            var space = query.IndexOf(' ');
+            if (space > 0) query = query.Substring(0, space);
+
+            switch (query)
+            {
+                case "?Q100": return new[] { "SERIAL NUMBER" };
+                case "?Q101": return new[] { "SOFTWARE VERSION" };
+                case "?Q102": return new[] { "MODEL" };
+                case "?Q104": return new[] { "MODE" };
+                case "?Q200": return new[] { "TOOL CHANGES" };
+                case "?Q201": return new[] { "USING TOOL" };
+                case "?Q300": return new[] { "P.O. TIME" };
+                case "?Q301": return new[] { "C.S. TIME" };
+                case "?Q303": return new[] { "LAST CYCLE" };
+                case "?Q304": return new[] { "PREV CYCLE" };
+                case "?Q402": return new[] { "M30 #1" };
+                case "?Q403": return new[] { "M30 #2" };
+                case "?Q500": return new[] { "PROGRAM", "STATUS" };
+                case "?Q600": return new[] { "MACRO" };
+                default: return null;
+            }
+        }
+
+        /// <summary>
+        /// Returns whether a reply belongs to the specified command. The control sends every reply to
+        /// every connected client, so replies to commands sent by other clients must be ignored.
+        /// </summary>
+        /// <param name="reply">The raw reply.</param>
+        /// <param name="command">The command that was sent.</param>
+        /// <returns><c>true</c> if the reply starts with a label expected for <paramref name="command"/>,
+        /// or is the control's "unrecognized command" reply for it (ex. <c>?, ?Q105</c>).</returns>
+        public static bool IsReplyTo(string reply, string command)
+        {
+            var cleaned = Clean(reply);
+            if (cleaned == null) return false;
+
+            if (cleaned.StartsWith("?"))
+            {
+                return cleaned.IndexOf(command.Trim(), StringComparison.OrdinalIgnoreCase) >= 0;
+            }
+
+            var labels = GetReplyLabels(command);
+            if (labels == null) return true;
+
+            foreach (var label in labels)
+            {
+                if (StartsWithLabel(cleaned, label)) return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns whether a reply is the control's "unrecognized command" reply (ex. <c>?, ?Q105</c>).
+        /// </summary>
+        /// <param name="reply">The raw reply.</param>
+        /// <returns><c>true</c> if the command is not supported by the control.</returns>
+        public static bool IsUnsupported(string reply)
+        {
+            var cleaned = Clean(reply);
+            return cleaned != null && cleaned.StartsWith("?");
+        }
+
+        /// <summary>
+        /// Returns the value following the label of a single value reply (ex. <c>380</c> from <c>M30 #1, 380</c>).
+        /// </summary>
+        /// <param name="reply">The raw reply.</param>
+        /// <param name="label">The expected reply label.</param>
+        /// <returns>The trimmed value, or <c>null</c> if the reply does not start with <paramref name="label"/>.</returns>
+        public static string ParseValue(string reply, string label)
+        {
+            var cleaned = Clean(reply);
+            if (cleaned == null || !StartsWithLabel(cleaned, label)) return null;
+
+            var value = cleaned.Substring(label.Length).TrimStart(',', ' ').Trim();
+            return value.Length > 0 ? value : null;
+        }
+
+        /// <summary>
+        /// Parses an integer single value reply (ex. <c>M30 #1, 380</c>).
+        /// </summary>
+        /// <param name="reply">The raw reply.</param>
+        /// <param name="label">The expected reply label.</param>
+        /// <returns>The value, or <c>null</c> if the reply is not recognized.</returns>
+        public static int? ParseInteger(string reply, string label)
+        {
+            int value;
+            if (int.TryParse(ParseValue(reply, label), NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+            {
+                return value;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Parses a timer reply in hours:minutes:seconds (ex. <c>P.O. TIME, 06282:17:13</c>).
+        /// </summary>
+        /// <param name="reply">The raw reply.</param>
+        /// <param name="label">The expected reply label.</param>
+        /// <returns>The duration in seconds, or <c>null</c> if the reply is not recognized.</returns>
+        public static long? ParseDuration(string reply, string label)
+        {
+            var value = ParseValue(reply, label);
+            if (value == null) return null;
+
+            var parts = value.Split(':');
+            if (parts.Length != 3) return null;
+
+            long hours;
+            int minutes, seconds;
+            if (long.TryParse(parts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out hours)
+                && int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out minutes)
+                && int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out seconds))
+            {
+                return (hours * 3600) + (minutes * 60) + seconds;
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Parses a <c>?Q104</c> reply (ex. <c>MODE, (MEM)</c>).
         /// </summary>
         /// <param name="reply">The raw reply.</param>
@@ -96,6 +227,7 @@ namespace MTConnect.Haas
                 case "JOG":
                 case "HAND JOG":
                 case "HANDLE JOG":
+                case "ZERO":
                 case "ZERO RET":
                     return ControllerMode.MANUAL;
 
@@ -176,5 +308,11 @@ namespace MTConnect.Haas
 
 
         private static bool IsKey(string field, string key) => string.Equals(field, key, StringComparison.OrdinalIgnoreCase);
+
+        private static bool StartsWithLabel(string cleaned, string label)
+        {
+            if (!cleaned.StartsWith(label, StringComparison.OrdinalIgnoreCase)) return false;
+            return cleaned.Length == label.Length || cleaned[label.Length] == ',' || cleaned[label.Length] == ' ';
+        }
     }
 }

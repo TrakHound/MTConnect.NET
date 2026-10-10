@@ -204,7 +204,9 @@ Reads a Haas CNC control directly over Ethernet or RS-232 using Haas Q-commands.
     server: 192.168.1.60           # Haas control address (Ethernet).
     port: 5051                     # Q-command port (Setting 143).
     readInterval: 1000             # delay between read cycles (ms).
+    slowReadInterval: 10000        # delay between reads of timers, counters and version (ms).
     units: inch                    # units the control reports positions in (Setting 9).
+    axes: [X, Y, Z]                # axes to read positions for (X, Y, Z, A, B, C).
 ```
 
 ## Configuration objects

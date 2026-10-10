@@ -57,7 +57,7 @@ namespace MTConnect.Modules
                     return;
                 }
 
-                Agent.AddDevice(HaasDevice.Create(_configuration.DeviceKey, _configuration.DeviceUuid), initializeDataItems);
+                Agent.AddDevice(HaasDevice.Create(_configuration.DeviceKey, _configuration.DeviceUuid, _configuration), initializeDataItems);
             }
         }
 
@@ -88,6 +88,7 @@ namespace MTConnect.Modules
             _dataSource.Configuration = new DataSourceConfiguration { ReadInterval = _configuration.ReadInterval };
             _dataSource.ObservationAdded += DataSourceObservationAdded;
             _dataSource.LogReceived += DataSourceLogReceived;
+            _dataSource.MachineInfoChanged += DataSourceMachineInfoChanged;
             _dataSource.Start();
         }
 
@@ -102,6 +103,7 @@ namespace MTConnect.Modules
                 _dataSource.Stop();
                 _dataSource.ObservationAdded -= DataSourceObservationAdded;
                 _dataSource.LogReceived -= DataSourceLogReceived;
+                _dataSource.MachineInfoChanged -= DataSourceMachineInfoChanged;
                 _dataSource = null;
             }
         }
@@ -110,6 +112,15 @@ namespace MTConnect.Modules
         private void DataSourceObservationAdded(object sender, IObservationInput observation)
         {
             Agent.AddObservation(_configuration.DeviceKey, observation);
+        }
+
+        private void DataSourceMachineInfoChanged(object sender, HaasMachineInfo machineInfo)
+        {
+            // Update the Device Description with the model and serial number read from the control
+            if (_configuration.CreateDevice && !string.IsNullOrEmpty(_configuration.DeviceKey))
+            {
+                Agent.AddDevice(HaasDevice.Create(_configuration.DeviceKey, _configuration.DeviceUuid, _configuration, machineInfo), false);
+            }
         }
 
         private void DataSourceLogReceived(object sender, MTConnectLogLevel logLevel, string message, string logId)

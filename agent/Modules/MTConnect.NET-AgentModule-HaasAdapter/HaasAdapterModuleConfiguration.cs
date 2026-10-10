@@ -103,14 +103,14 @@ namespace MTConnect.Configurations
         /// <returns>A new <see cref="HaasEthernetConfiguration"/>.</returns>
         public HaasEthernetConfiguration ToEthernetConfiguration()
         {
-            return new HaasEthernetConfiguration
+            var configuration = new HaasEthernetConfiguration
             {
                 Server = Server,
                 Port = Port,
-                ConnectionTimeout = ConnectionTimeout,
-                ResponseTimeout = ResponseTimeout,
-                Units = Units
+                ConnectionTimeout = ConnectionTimeout
             };
+            CopyTo(configuration);
+            return configuration;
         }
 
         /// <summary>
@@ -119,16 +119,16 @@ namespace MTConnect.Configurations
         /// <returns>A new <see cref="HaasSerialConfiguration"/>.</returns>
         public HaasSerialConfiguration ToSerialConfiguration()
         {
-            return new HaasSerialConfiguration
+            var configuration = new HaasSerialConfiguration
             {
                 ComPort = ComPort,
                 BaudRate = BaudRate,
                 Parity = Parity,
                 DataBits = DataBits,
-                StopBits = StopBits,
-                ResponseTimeout = ResponseTimeout,
-                Units = Units
+                StopBits = StopBits
             };
+            CopyTo(configuration);
+            return configuration;
         }
     }
 }

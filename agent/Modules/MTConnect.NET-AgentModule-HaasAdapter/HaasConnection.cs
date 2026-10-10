@@ -3,7 +3,9 @@
 
 using MTConnect.Logging;
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Net.Sockets;
 using System.Text;
 
 namespace MTConnect.Haas
@@ -105,45 +107,70 @@ namespace MTConnect.Haas
 
 
         /// <summary>
-        /// Sends a Q-command (ex. <c>?Q500</c>) and returns the raw reply.
+        /// Sends a Q-command (ex. <c>?Q500</c>) and returns the raw reply. Replies that belong to
+        /// other commands (ex. sent by another client connected to the control) are ignored.
         /// </summary>
         /// <param name="command">The command to send, without a line terminator.</param>
+        /// <param name="attempts">The number of times to send the command if no reply is received before
+        /// <see cref="ResponseTimeout"/> expires. The control may not answer the first command after connecting.</param>
         /// <returns>The raw reply, or <c>null</c> if the connection is not open or no reply was received.
         /// A failed exchange closes the connection so the next call reconnects.</returns>
-        public string SendCommand(string command)
+        public string SendCommand(string command, int attempts = 1)
         {
             lock (_lock)
             {
                 var stream = _stream;
                 if (stream == null) return null;
 
-                try
+                for (var attempt = 1; ; attempt++)
                 {
-                    DiscardInput(stream);
+                    try
+                    {
+                        DiscardInput(stream);
 
-                    var data = Encoding.ASCII.GetBytes(command + "\r\n");
-                    stream.Write(data, 0, data.Length);
-                    stream.Flush();
+                        var data = Encoding.ASCII.GetBytes(command + "\r\n");
+                        stream.Write(data, 0, data.Length);
+                        stream.Flush();
 
-                    return ReadReply(stream);
-                }
-                catch (Exception ex)
-                {
-                    Log(MTConnectLogLevel.Warning, $"Command '{command}' Failed : {ex.Message}");
-                    CloseInternal();
-                    return null;
+                        return ReadReply(stream, command);
+                    }
+                    catch (Exception ex) when (attempt < attempts && IsTimeout(ex))
+                    {
+                        Log(MTConnectLogLevel.Debug, $"No reply to '{command}', retrying");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log(MTConnectLogLevel.Warning, $"Command '{command}' Failed : {ex.Message}");
+                        CloseInternal();
+                        return null;
+                    }
                 }
             }
         }
 
 
-        private static string ReadReply(Stream stream)
+        private string ReadReply(Stream stream, string command)
+        {
+            var timer = Stopwatch.StartNew();
+
+            while (true)
+            {
+                var line = ReadLine(stream, timer);
+                if (HaasResponse.IsReplyTo(line, command)) return line;
+
+                Log(MTConnectLogLevel.Trace, $"Ignoring reply to another command : {line}");
+            }
+        }
+
+        private string ReadLine(Stream stream, Stopwatch timer)
         {
             var buffer = new MemoryStream();
             var hasContent = false;
 
             while (true)
             {
+                if (timer.ElapsedMilliseconds > ResponseTimeout) throw new TimeoutException("Timed out waiting for reply");
+
                 // Throws IOException / TimeoutException when ResponseTimeout expires
                 var b = stream.ReadByte();
                 if (b < 0) throw new IOException("Connection closed by remote host");
@@ -157,6 +184,14 @@ namespace MTConnect.Haas
             }
 
             return Encoding.ASCII.GetString(buffer.ToArray());
+        }
+
+        private static bool IsTimeout(Exception ex)
+        {
+            if (ex is TimeoutException) return true;
+
+            var socketException = ex.InnerException as SocketException;
+            return ex is IOException && socketException != null && socketException.SocketErrorCode == SocketError.TimedOut;
         }
 
         /// <summary>
