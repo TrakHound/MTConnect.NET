@@ -273,10 +273,127 @@ namespace MTConnect.Modules.WebUI
         }
 
         /// <summary>
+        /// Sets (or, with a null builder, removes) a top-level setting whose value is a list, map or object.
+        /// The builder returns the complete "key: ..." lines for the given indentation.
+        /// </summary>
+        public void SetRootBlock(string key, Func<string, string> build)
+        {
+            if (Root != null && TryFindChild(Root, key, out var keyNode, out var valueNode))
+            {
+                ReplaceBlock(keyNode, valueNode, build);
+            }
+            else if (build != null)
+            {
+                var prefix = Text.Length > 0 && !Text.EndsWith("\n") ? Newline : "";
+                AddInsertion(Text.Length, build(""), prefix);
+            }
+        }
+
+        /// <summary>
+        /// Sets (or, with a null builder, removes) a setting of a module / processor entry whose value is a
+        /// list, map or object. The builder returns the complete "key: ..." lines for the given indentation.
+        /// </summary>
+        public void SetEntryBlock(ConfigurationEntry entry, string key, Func<string, string> build)
+        {
+            if (!entry.IsEditable) throw new ConfigurationEditException($"{entry.Section}[{entry.Index}] ({entry.TypeId}) can only be edited as YAML");
+
+            if (entry.ValueNode is YamlMappingNode mapping && TryFindChild(mapping, key, out var keyNode, out var valueNode))
+            {
+                ReplaceBlock(keyNode, valueNode, build);
+                return;
+            }
+            if (build == null) return;
+
+            string indent;
+            int position;
+            if (entry.ValueNode is YamlMappingNode existing && existing.Children.Count > 0)
+            {
+                indent = new string(' ', (int)existing.Children.First().Key.Start.Column - 1);
+                position = NextLineStart(LastValueEnd(existing));
+            }
+            else
+            {
+                indent = new string(' ', (int)entry.KeyNode.Start.Column - 1 + 2);
+                position = NextLineStart((int)entry.KeyNode.End.Index);
+            }
+
+            var prefix = position == Text.Length && Text.Length > 0 && !Text.EndsWith("\n") ? Newline : "";
+            AddInsertion(position, build(indent), prefix);
+        }
+
+        /// <summary>Replaces (or removes) the "key: value" lines of an existing setting.</summary>
+        private void ReplaceBlock(YamlNode keyNode, YamlNode valueNode, Func<string, string> build)
+        {
+            var start = LineStart((int)keyNode.Start.Index);
+            var end = NextLineStart(LastValueEnd(valueNode));
+            var indent = new string(' ', (int)keyNode.Start.Column - 1);
+            var text = build?.Invoke(indent) ?? "";
+            // Keep the line ending when the block was the last thing in the file without one
+            if (end == Text.Length && !Text.EndsWith("\n") && text.EndsWith(Newline)) text = text.Substring(0, text.Length - Newline.Length);
+            AddEdit(start, end, text);
+        }
+
+        /// <summary>
+        /// Removes an entry (its "- type:" line through its last setting). When it was separated from the
+        /// others by blank lines, the blank line before it goes with it (the one before rather than after, so
+        /// a new entry can still be added right after it in the same change).
+        /// </summary>
+        public void RemoveEntry(ConfigurationEntry entry)
+        {
+            var start = LineStart((int)entry.Item.Start.Index);
+            var end = NextLineStart(LastValueEnd(entry.Item));
+
+            var previousStart = start > 0 ? LineStart(start - 1) : 0;
+            var blankBefore = start > 0 && Text.Substring(previousStart, start - previousStart).Trim().Length == 0;
+            var blankAfter = end < Text.Length && Text.Substring(end, NextLineStart(end) - end).Trim().Length == 0;
+            if (blankBefore && blankAfter) start = previousStart;
+
+            AddEdit(start, end, "");
+        }
+
+        /// <summary>The non-scalar settings of a mapping (lists, maps, objects) as plain data.</summary>
+        public Dictionary<string, object> GetStructuredValues(YamlNode node)
+        {
+            var result = new Dictionary<string, object>();
+            if (!(node is YamlMappingNode mapping)) return result;
+            foreach (var child in mapping.Children)
+            {
+                var key = (child.Key as YamlScalarNode)?.Value;
+                if (key != null && !(child.Value is YamlScalarNode)) result[key] = ToPlainValue(child.Value);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// A YAML value as plain data for the form: mappings become dictionaries, sequences become lists
+        /// and scalars become strings.
+        /// </summary>
+        public static object ToPlainValue(YamlNode node)
+        {
+            switch (node)
+            {
+                case YamlMappingNode mapping:
+                    var result = new Dictionary<string, object>();
+                    foreach (var child in mapping.Children)
+                    {
+                        var key = (child.Key as YamlScalarNode)?.Value;
+                        if (key != null) result[key] = ToPlainValue(child.Value);
+                    }
+                    return result;
+                case YamlSequenceNode sequence:
+                    return sequence.Children.Select(ToPlainValue).ToList();
+                case YamlScalarNode scalar:
+                    return scalar.Value;
+                default:
+                    return null;
+            }
+        }
+
+        /// <summary>
         /// Adds a new <c>- type-id:</c> entry with the given (already formatted) settings at the end of a list
         /// section such as <c>modules</c>, creating the section when the file does not have one.
         /// </summary>
-        public void AddEntry(string section, string typeId, IList<KeyValuePair<string, string>> formattedValues)
+        public void AddEntry(string section, string typeId, IList<KeyValuePair<string, string>> formattedValues, IList<Func<string, string>> blocks = null)
         {
             if (string.IsNullOrEmpty(typeId)) throw new ConfigurationEditException("A type is required");
 
@@ -289,6 +406,10 @@ namespace MTConnect.Modules.WebUI
                 {
                     // Settings are indented two further than the type key, matching the sample configuration
                     sb.Append(pad).Append("    ").Append(value.Key).Append(": ").Append(value.Value).Append(Newline);
+                }
+                foreach (var block in blocks ?? new List<Func<string, string>>())
+                {
+                    sb.Append(block(pad + "    "));
                 }
                 return sb.ToString();
             }

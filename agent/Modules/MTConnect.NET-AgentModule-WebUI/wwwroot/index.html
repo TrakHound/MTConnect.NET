@@ -256,7 +256,7 @@
   .stat .value.off { color: var(--warn); }
   .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
   .toolbar .spacer { flex: 1; }
-  input[type=text], input[type=number], select {
+  input[type=text], input[type=number], input[type=password], select {
     font: inherit;
     color: var(--text);
     background: var(--panel);
@@ -354,6 +354,34 @@
   }
   button.icon-btn:hover { color: var(--text); border-color: var(--accent); }
   .config-section-title { font-size: 13px; font-weight: 500; margin: 18px 0 6px; }
+  /* Structured settings: lists, maps and nested objects */
+  .s-editor { display: flex; flex-direction: column; gap: 6px; max-width: 560px; }
+  .s-rows { display: flex; flex-direction: column; gap: 6px; }
+  .s-rows:empty { display: none; }
+  .s-row { display: flex; gap: 6px; align-items: center; }
+  .s-row > input, .s-row > select { flex: 1; min-width: 0; }
+  .s-row.s-card { align-items: flex-start; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px; }
+  .s-row.s-card > .s-editor { flex: 1; min-width: 0; }
+  .s-editor > .icon-btn { align-self: flex-start; }
+  .s-object { border-left: 2px solid var(--border); padding-left: 10px; }
+  .s-row.s-card > .s-object { border-left: 0; padding-left: 0; }
+  /* Nested settings stack each label above its control so any depth stays readable */
+  .s-fields { display: flex; flex-direction: column; gap: 10px; }
+  .s-field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .s-label { font-family: var(--font-mono); font-size: 12px; overflow-wrap: anywhere; }
+  .s-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .s-body > input, .s-body > select { max-width: 100%; }
+  .field-control.changed > .s-editor { border-left: 3px solid var(--warn); padding-left: 8px; }
+  .config-nav button.removed > span:first-child { text-decoration: line-through; color: var(--muted); }
+  /* Change summary dialog */
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, .45); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 100; }
+  .modal { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); width: min(560px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; padding: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, .3); }
+  .modal h2 { font-size: 15px; margin: 0 0 10px; }
+  .modal-body { overflow: auto; }
+  .summary-group { margin-bottom: 10px; }
+  .summary-title { font-weight: 500; font-size: 13px; }
+  .summary-group ul { margin: 4px 0 0; padding-left: 18px; font-size: 13px; font-family: var(--font-mono); }
+  .summary-group li { overflow-wrap: anywhere; }
   .add-module { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
   .add-module select { min-width: 240px; }
   .config-complex { display: grid; grid-template-columns: minmax(160px, 220px) minmax(0, 1fr); gap: 6px 16px; }
@@ -1234,15 +1262,20 @@
   }
 
   function entryEdits(key) {
-    return state.formEdits.entries[key] || (state.formEdits.entries[key] = { values: {} });
+    return state.formEdits.entries[key] || (state.formEdits.entries[key] = { values: {}, structured: {} });
   }
 
   function entryHasChanges(key) {
     var x = state.formEdits.entries[key];
-    return !!x && (x.yaml != null || Object.keys(x.values).length > 0);
+    return !!x && (x.removed || x.yaml != null || Object.keys(x.values).length > 0 || Object.keys(x.structured).length > 0);
   }
 
-  // Unsaved form changes: agent key -> value; "section:index" -> { values, yaml }; new modules not saved yet
+  function isRemoved(key) {
+    var x = state.formEdits.entries[key];
+    return !!(x && x.removed);
+  }
+
+  // Unsaved form changes: agent key -> value; "section:index" -> { values, structured, yaml, removed }; entries added but not saved yet
   function newFormEdits() {
     return { agent: {}, entries: {}, added: [] };
   }
@@ -1262,6 +1295,13 @@
     return v.deviceKey || v.name || (v.port ? 'port ' + v.port : '') || v.server || v.directory || '';
   }
 
+  function sectionSingular(section) { return section === 'processors' ? 'processor' : 'module'; }
+
+  function typeFieldsFor(section, typeId) {
+    var type = ((state.form && state.form.types[section]) || []).find(function (t) { return t.typeId === typeId; });
+    return type ? type.fields : null;
+  }
+
   function setFormStatus(text, cls) {
     var el = $('config-form-status');
     el.textContent = text || '';
@@ -1275,7 +1315,7 @@
       state.formEdits = newFormEdits();
       if (state.selectAfterReload && findEntry(state.selectAfterReload)) state.configSelection = state.selectAfterReload;
       state.selectAfterReload = null;
-      if (['agent', 'yaml', 'add'].indexOf(state.configSelection) < 0 && !isDeviceSelection(state.configSelection) && !findEntry(state.configSelection)) state.configSelection = 'agent';
+      if (['agent', 'yaml', 'add:modules', 'add:processors'].indexOf(state.configSelection) < 0 && !isDeviceSelection(state.configSelection) && !findEntry(state.configSelection)) state.configSelection = 'agent';
       setFormStatus(m.editable ? '' : 'Read only', m.editable ? '' : 'warn');
       renderConfigNav();
       renderConfigSelection();
@@ -1291,8 +1331,9 @@
 
   function renderConfigNav() {
     var sel = state.configSelection;
-    function item(key, title, detail, dirty, note) {
-      return '<button type="button" data-key="' + esc(key) + '"' + (key === sel ? ' class="selected" aria-current="true"' : '') + (note ? ' title="' + esc(note) + '"' : '') + '>' +
+    function item(key, title, detail, dirty, note, cls) {
+      return '<button type="button" data-key="' + esc(key) + '"' + (key === sel || cls ? ' class="' + (key === sel ? 'selected ' : '') + (cls || '') + '"' : '') +
+        (key === sel ? ' aria-current="true"' : '') + (note ? ' title="' + esc(note) + '"' : '') + '>' +
         '<span>' + esc(title) + '</span>' + (detail ? '<span class="detail">' + esc(detail) + '</span>' : '') +
         (dirty ? '<span class="dirty-dot" title="Unsaved changes"></span>' : '') + '</button>';
     }
@@ -1302,19 +1343,19 @@
       html += '<div class="group">Agent</div>' + item('agent', 'Settings', '', Object.keys(state.formEdits.agent).length > 0);
       ['modules', 'processors'].forEach(function (section) {
         var entries = state.form.entries.filter(function (e) { return e.section === section; });
-        var canAdd = section === 'modules' && state.form.editable;
+        var canAdd = state.form.editable && (state.form.types[section] || []).length > 0;
         if (!entries.length && !canAdd) return;
         html += '<div class="group">' + sectionTitles[section] + '</div>';
         entries.forEach(function (e) {
-          html += item(entryKey(e), e.typeId || '(unnamed)', entryDetail(e), entryHasChanges(entryKey(e)), e.known ? '' : 'Not loaded by the Agent');
+          var key = entryKey(e);
+          html += item(key, e.typeId || '(unnamed)', entryDetail(e), entryHasChanges(key),
+            isRemoved(key) ? 'Removed when you save' : e.known ? '' : 'Not loaded by the Agent', isRemoved(key) ? 'removed' : '');
         });
-        if (section === 'modules') {
-          // Modules added on the form but not saved yet
-          state.formEdits.added.forEach(function (a) {
-            html += item(a.id, a.typeId, entryDetail(a) || 'new', true, 'Not saved yet');
-          });
-          if (canAdd) html += item('add', '+ Add module', '', false);
-        }
+        // Entries added on the form but not saved yet
+        state.formEdits.added.filter(function (a) { return a.section === section; }).forEach(function (a) {
+          html += item(a.id, a.typeId, entryDetail(a) || 'new', true, 'Not saved yet');
+        });
+        if (canAdd) html += item('add:' + section, '+ Add ' + sectionSingular(section), '', false);
       });
     }
     html += renderDeviceNav(item);
@@ -1368,52 +1409,60 @@
       $('config-form-title').textContent = 'Agent';
       $('config-form-subtitle').textContent = 'top-level settings';
       note = 'Settings that apply to the whole Agent. Leave a field empty to use its default.';
-      html = renderFields(form.agent.fields, form.agent.values, form.agent.complex, form.agent.otherKeys, state.formEdits.agent);
-    } else if (sel === 'add') {
-      // Choose a module type to add (the module types the Agent has loaded)
-      $('config-form-title').textContent = 'Add module';
+      html = renderFields(form.agent.fields, form.agent.values, form.agent.complex, form.agent.otherKeys, state.formEdits.agent, null);
+    } else if (sel === 'add:modules' || sel === 'add:processors') {
+      // Choose a type to add (the module / processor types the Agent has loaded)
+      var section = sel.slice(4), singular = sectionSingular(section);
+      $('config-form-title').textContent = 'Add ' + singular;
       $('config-form-subtitle').textContent = '';
-      note = 'Choose the type of module to add. You can fill in its settings before saving.';
+      note = 'Choose the type of ' + singular + ' to add. You can fill in its settings before saving.';
       var inUse = {};
-      form.entries.forEach(function (e) { if (e.section === 'modules') inUse[e.typeId] = (inUse[e.typeId] || 0) + 1; });
+      form.entries.forEach(function (e) { if (e.section === section) inUse[e.typeId] = (inUse[e.typeId] || 0) + 1; });
       html = '<div class="add-module">' +
-        '<label for="add-module-type">Module type</label>' +
-        '<select id="add-module-type">' + (form.types.modules || []).map(function (t) {
+        '<label for="add-module-type">' + (section === 'processors' ? 'Processor' : 'Module') + ' type</label>' +
+        '<select id="add-module-type">' + (form.types[section] || []).map(function (t) {
           return '<option value="' + esc(t.typeId) + '">' + esc(t.typeId) +
             (inUse[t.typeId] ? ' (' + inUse[t.typeId] + ' configured)' : '') + (t.fields ? '' : ' – YAML only') + '</option>';
         }).join('') + '</select>' +
-        '<button type="button" class="btn primary" data-add-module>Add</button>' +
+        '<button type="button" class="btn primary" data-add-module="' + section + '">Add</button>' +
         '</div>';
     } else if (findAdded(sel)) {
-      // A module added on the form that has not been saved yet
+      // An entry added on the form that has not been saved yet
       var added = findAdded(sel);
-      var addedFields = (form.types.modules || []).find(function (t) { return t.typeId === added.typeId; }).fields;
+      var addedFields = typeFieldsFor(added.section, added.typeId);
       $('config-form-title').textContent = added.typeId;
-      $('config-form-subtitle').textContent = 'new module · not saved yet';
+      $('config-form-subtitle').textContent = 'new ' + sectionSingular(added.section) + ' · not saved yet';
       note = addedFields
-        ? 'Fill in the settings you need; empty fields use their defaults. The module is added when you save.'
-        : 'This module does not describe its settings, so it is added with its defaults. Edit its settings in the YAML view after saving.';
-      html = '<div class="toolbar"><span class="spacer"></span><button type="button" class="icon-btn" data-remove-added>Don\'t add this module</button></div>' +
-        (addedFields ? renderFields(addedFields, {}, {}, [], added.values) : '');
+        ? 'Fill in the settings you need; empty fields use their defaults. It is added when you save.'
+        : 'This ' + sectionSingular(added.section) + ' does not describe its settings, so it is added with its defaults. Edit its settings in the YAML view after saving.';
+      html = '<div class="toolbar"><span class="spacer"></span><button type="button" class="icon-btn" data-remove-added>Don\'t add this ' + sectionSingular(added.section) + '</button></div>' +
+        (addedFields ? renderFields(addedFields, {}, {}, [], added.values, { edits: added.structured, data: {} }) : '');
     } else {
       var entry = findEntry(sel);
       var fields = entryFields(entry);
       var key = entryKey(entry);
+      var singularName = sectionSingular(entry.section);
       $('config-form-title').textContent = entry.typeId || '(unnamed)';
-      $('config-form-subtitle').textContent = (entry.section === 'processors' ? 'processor ' : 'module ') + (entry.index + 1) + (entryDetail(entry) ? ' · ' + entryDetail(entry) : '');
+      $('config-form-subtitle').textContent = singularName + ' ' + (entry.index + 1) + (entryDetail(entry) ? ' · ' + entryDetail(entry) : '');
 
-      if (entry.hasForm) {
+      var removeBar = form.editable ? '<div class="toolbar"><span class="spacer"></span><button type="button" class="icon-btn" data-remove-entry>Remove this ' + singularName + '</button></div>' : '';
+      if (isRemoved(key)) {
+        note = '';
+        html = '<div class="rename-note">This ' + singularName + ' will be removed from the configuration when you save. ' +
+          '<a href="#" data-undo-remove>Keep it</a></div>';
+      } else if (entry.hasForm) {
         note = 'Leave a field empty to use its default.';
-        html = renderFields(fields, entry.values, entry.complex, entry.otherKeys, entryEdits(key).values);
+        var edits = entryEdits(key);
+        html = removeBar + renderFields(fields, entry.values, entry.complex, entry.otherKeys, edits.values, { edits: edits.structured, data: entry.data || {} });
       } else {
         note = !entry.known
-          ? 'This ' + (entry.section === 'processors' ? 'processor' : 'module') + ' is not loaded by the Agent, so its settings are edited as YAML.'
+          ? 'This ' + singularName + ' is not loaded by the Agent, so its settings are edited as YAML.'
           : !fields
-            ? 'This ' + (entry.section === 'processors' ? 'processor' : 'module') + ' does not describe its settings, so they are edited as YAML.'
+            ? 'This ' + singularName + ' does not describe its settings, so they are edited as YAML.'
             : 'This entry is written in a compact style the form cannot edit, so it is edited as YAML.';
-        var edits = state.formEdits.entries[key];
-        var text = edits && edits.yaml != null ? edits.yaml : entry.yaml;
-        html = '<textarea class="entry-yaml' + (edits && edits.yaml != null ? ' changed' : '') + '" data-entry-yaml spellcheck="false"' +
+        var yamlEdits = state.formEdits.entries[key];
+        var text = yamlEdits && yamlEdits.yaml != null ? yamlEdits.yaml : entry.yaml;
+        html = removeBar + '<textarea class="entry-yaml' + (yamlEdits && yamlEdits.yaml != null ? ' changed' : '') + '" data-entry-yaml spellcheck="false"' +
           (form.editable ? '' : ' readonly') + '>' + esc(text) + '</textarea>';
       }
     }
@@ -1423,11 +1472,168 @@
     updateFormButtons();
   }
 
-  function renderFields(fields, values, complex, otherKeys, edits) {
-    var editable = state.form.editable;
-    var simple = fields.filter(function (f) { return f.type !== 'complex'; });
+  // ----- structured settings (lists, maps, nested objects) -----
+  // Each editor keeps a reference to its field so rows and sections can be added in place
+  var structuredSchemas = [];
 
-    var rows = simple.map(function (f) {
+  function schemaId(field) {
+    var i = structuredSchemas.indexOf(field);
+    if (i < 0) { structuredSchemas.push(field); i = structuredSchemas.length - 1; }
+    return i;
+  }
+
+  function cloneValue(v) { return v == null ? v : JSON.parse(JSON.stringify(v)); }
+
+  // Drops empty strings, lists and objects so "not set" compares and saves consistently
+  function normalizeValue(v) {
+    if (v == null) return undefined;
+    if (Array.isArray(v)) {
+      var items = v.map(normalizeValue).filter(function (x) { return x !== undefined; });
+      return items.length ? items : undefined;
+    }
+    if (typeof v === 'object') {
+      var result = {}, any = false;
+      Object.keys(v).forEach(function (k) {
+        var x = normalizeValue(v[k]);
+        if (x !== undefined) { result[k] = x; any = true; }
+      });
+      return any ? result : undefined;
+    }
+    var s = String(v).trim();
+    return s === '' ? undefined : s;
+  }
+
+  function scalarControl(type, options, secret, value, attribute, defaultLabel) {
+    var editable = state.form.editable;
+    value = value == null ? '' : String(value);
+    if (type === 'boolean' || type === 'enum') {
+      var list = type === 'boolean' ? ['true', 'false'] : (options || []);
+      var match = list.find(function (o) { return o.toLowerCase() === value.toLowerCase(); });
+      return '<select ' + attribute + (editable ? '' : ' disabled') + '><option value="">' + esc(defaultLabel || 'Not set') + '</option>' +
+        list.map(function (o) { return '<option' + (o === match ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') +
+        (value && !match ? '<option selected value="' + esc(value) + '">' + esc(value) + '</option>' : '') + '</select>';
+    }
+    return '<input type="' + (secret ? 'password' : 'text') + '" ' + attribute + ' value="' + esc(value) + '"' +
+      (type === 'integer' || type === 'number' ? ' inputmode="decimal"' : '') + ' autocomplete="off" spellcheck="false"' + (editable ? '' : ' disabled') + '>';
+  }
+
+  function renderStructured(field, value, options) {
+    options = options || {};
+    var editable = state.form.editable;
+    var id = schemaId(field);
+
+    if (field.type === 'list') {
+      var items = Array.isArray(value) ? value : [];
+      return '<div class="s-editor" data-s-type="list" data-s-schema="' + id + '"><div class="s-rows">' +
+        items.map(function (v) { return renderListRow(field, v); }).join('') + '</div>' +
+        (editable ? '<button type="button" class="icon-btn" data-s-add-row>+ Add</button>' : '') + '</div>';
+    }
+    if (field.type === 'map') {
+      var obj = value && typeof value === 'object' ? value : {};
+      return '<div class="s-editor" data-s-type="map" data-s-schema="' + id + '"><div class="s-rows">' +
+        Object.keys(obj).map(function (k) { return renderMapRow(field, k, obj[k]); }).join('') + '</div>' +
+        (editable ? '<button type="button" class="icon-btn" data-s-add-row>+ Add</button>' : '') + '</div>';
+    }
+    if (field.type === 'objectList') {
+      var list = Array.isArray(value) ? value : [];
+      return '<div class="s-editor" data-s-type="objectList" data-s-schema="' + id + '"><div class="s-rows">' +
+        list.map(function (v) { return renderObjectListRow(field, v); }).join('') + '</div>' +
+        (editable ? '<button type="button" class="icon-btn" data-s-add-row>+ Add</button>' : '') + '</div>';
+    }
+    if (field.type === 'object') {
+      if (value == null || typeof value !== 'object') {
+        return '<div class="s-editor" data-s-type="object" data-s-schema="' + id + '" data-s-null="true">' +
+          '<span class="muted">Not set</span> ' + (editable ? '<button type="button" class="icon-btn" data-s-create>Set up</button>' : '') + '</div>';
+      }
+      return '<div class="s-editor s-object" data-s-type="object" data-s-schema="' + id + '">' +
+        '<div class="s-fields">' + (field.fields || []).map(function (f) {
+          var v = value[f.key];
+          var control = f.type === 'complex'
+            ? '<span class="muted">Edit in the YAML view</span>'
+            : (f.type === 'list' || f.type === 'map' || f.type === 'object' || f.type === 'objectList')
+              ? renderStructured(f, v)
+              : scalarControl(f.type, f.options, f.secret, v, 'data-s-value', f.default != null ? 'Default (' + f.default + ')' : 'Not set');
+          return '<div class="s-field" data-s-field="' + esc(f.key) + '"><div class="s-label">' + esc(f.key) + '</div>' +
+            '<div class="s-body">' + control + (f.description ? '<div class="help">' + esc(f.description) + '</div>' : '') + '</div></div>';
+        }).join('') + '</div>' +
+        (editable && !options.noClear ? '<button type="button" class="icon-btn" data-s-clear>Remove these settings</button>' : '') + '</div>';
+    }
+    return '<span class="muted">Edit in the YAML view</span>';
+  }
+
+  function renderListRow(field, v) {
+    return '<div class="s-row">' + scalarControl(field.itemType, field.itemOptions, false, v, 'data-s-item') +
+      (state.form.editable ? '<button type="button" class="icon-btn" data-s-remove-row title="Remove">✕</button>' : '') + '</div>';
+  }
+
+  function renderMapRow(field, k, v) {
+    return '<div class="s-row"><input type="text" data-s-k value="' + esc(k || '') + '" placeholder="name" autocomplete="off" spellcheck="false"' + (state.form.editable ? '' : ' disabled') + '>' +
+      scalarControl(field.valueType, null, false, v, 'data-s-v') +
+      (state.form.editable ? '<button type="button" class="icon-btn" data-s-remove-row title="Remove">✕</button>' : '') + '</div>';
+  }
+
+  function renderObjectListRow(field, v) {
+    var itemField = { type: 'object', fields: field.itemFields };
+    // Items of a list are removed with the row button rather than "Remove these settings"
+    var html = renderStructured(itemField, v && typeof v === 'object' ? v : {}, { noClear: true });
+    return '<div class="s-row s-card">' + html +
+      (state.form.editable ? '<button type="button" class="icon-btn" data-s-remove-row title="Remove this item">✕</button>' : '') + '</div>';
+  }
+
+  // Reads an editor's value back from its controls
+  function readStructured(el) {
+    var type = el.dataset.sType;
+    var rows = el.querySelector(':scope > .s-rows');
+    if (type === 'list') {
+      return Array.prototype.map.call(rows.children, function (row) { return row.querySelector(':scope > [data-s-item]').value; });
+    }
+    if (type === 'map') {
+      var map = {};
+      Array.prototype.forEach.call(rows.children, function (row) {
+        var k = row.querySelector(':scope > [data-s-k]').value.trim();
+        if (k) map[k] = row.querySelector(':scope > [data-s-v]').value;
+      });
+      return map;
+    }
+    if (type === 'objectList') {
+      return Array.prototype.map.call(rows.children, function (row) { return readStructured(row.querySelector(':scope > .s-editor')); });
+    }
+    if (type === 'object') {
+      if (el.dataset.sNull === 'true') return null;
+      var obj = {};
+      el.querySelectorAll(':scope > .s-fields > .s-field').forEach(function (fieldEl) {
+        var body = fieldEl.querySelector(':scope > .s-body');
+        var nested = body.querySelector(':scope > .s-editor');
+        var input = body.querySelector(':scope > [data-s-value]');
+        if (nested) obj[fieldEl.dataset.sField] = readStructured(nested);
+        else if (input) obj[fieldEl.dataset.sField] = input.value;
+      });
+      return obj;
+    }
+    return null;
+  }
+
+  // Records the value of a top-level structured setting after any change inside its editor
+  function recordStructuredChange(root) {
+    var ctx = selectionContext();
+    if (!ctx.structured) return;
+    var key = root.dataset.sRoot;
+    var editor = root.querySelector(':scope > .s-editor');
+    var value = normalizeValue(editor ? readStructured(editor) : null);
+    var original = normalizeValue(ctx.structured.data[key]);
+    if (JSON.stringify(value) === JSON.stringify(original)) delete ctx.structured.edits[key];
+    else ctx.structured.edits[key] = value === undefined ? null : value;
+    root.classList.toggle('changed', Object.prototype.hasOwnProperty.call(ctx.structured.edits, key));
+    renderConfigNav();
+    updateFormButtons();
+  }
+
+  function renderFields(fields, values, complex, otherKeys, edits, structured) {
+    var editable = state.form.editable;
+    structuredSchemas = [];
+    var isStructured = function (f) { return structured && (f.type === 'list' || f.type === 'map' || f.type === 'object' || f.type === 'objectList'); };
+
+    var rows = fields.filter(function (f) { return f.type !== 'complex' && !isStructured(f) && ['list', 'map', 'object', 'objectList'].indexOf(f.type) < 0; }).map(function (f) {
       var inFile = Object.prototype.hasOwnProperty.call(values, f.key);
       var changed = Object.prototype.hasOwnProperty.call(edits, f.key);
       var current = changed ? edits[f.key] : (inFile ? values[f.key] : '');
@@ -1458,11 +1664,27 @@
 
     var html = '<div class="config-fields">' + rows + '</div>';
 
-    // Lists and nested settings are shown read-only for now and edited in the YAML view
-    var complexKeys = Object.keys(complex);
-    var complexFields = fields.filter(function (f) { return f.type === 'complex'; });
+    // Lists, maps and nested settings, each with its own editor
+    var structuredFields = fields.filter(isStructured);
+    if (structuredFields.length) {
+      html += '<div class="config-section-title">Lists and nested settings</div><div class="config-fields">' + structuredFields.map(function (f) {
+        var changed = Object.prototype.hasOwnProperty.call(structured.edits, f.key);
+        var value = changed ? structured.edits[f.key] : cloneValue(structured.data[f.key]);
+        var hasValue = normalizeValue(value) !== undefined;
+        return '<div class="field-label">' + esc(f.key) + '</div>' +
+          '<div class="field-control' + (changed ? ' changed' : '') + '" data-s-root="' + esc(f.key) + '">' +
+          renderStructured(f, value) +
+          (f.description ? '<div class="help">' + esc(f.description) + '</div>' : '') +
+          (editable && hasValue && f.type !== 'object' ? '<div><button type="button" class="icon-btn" data-s-reset="' + esc(f.key) + '" title="Remove this setting so the default is used">Use default</button></div>' : '') +
+          '</div>';
+      }).join('') + '</div>';
+    }
+
+    // Anything the form cannot describe is shown read-only and edited in the YAML view
+    var complexFields = fields.filter(function (f) { return f.type === 'complex' || (!structured && ['list', 'map', 'object', 'objectList'].indexOf(f.type) >= 0); });
+    var complexKeys = Object.keys(complex).filter(function (k) { return complexFields.some(function (f) { return f.key === k; }) || !fields.some(function (f) { return f.key === k; }); });
     if (complexKeys.length || complexFields.length) {
-      html += '<div class="config-section-title">Lists and nested settings</div>' +
+      html += '<div class="config-section-title">Other settings</div>' +
         '<p class="validation-note muted">These are edited in the <a href="#" data-goto-yaml>YAML (advanced)</a> view.</p>';
       if (complexKeys.length) {
         html += '<div class="config-complex">' + complexKeys.map(function (k) {
@@ -1480,13 +1702,14 @@
     return html;
   }
 
-  // The current edits object and file values for the selection
+  // The current edits and file values for the selection
   function selectionContext() {
-    if (state.configSelection === 'agent') return { edits: state.formEdits.agent, values: state.form.agent.values };
+    if (state.configSelection === 'agent') return { edits: state.formEdits.agent, values: state.form.agent.values, structured: null };
     var added = findAdded(state.configSelection);
-    if (added) return { edits: added.values, values: {} };
+    if (added) return { edits: added.values, values: {}, structured: { edits: added.structured, data: {} } };
     var entry = findEntry(state.configSelection);
-    return { edits: entryEdits(state.configSelection).values, values: entry.values, entry: entry };
+    var edits = entryEdits(state.configSelection);
+    return { edits: edits.values, values: entry.values, entry: entry, structured: { edits: edits.structured, data: entry.data || {} } };
   }
 
   function recordFieldChange(key, value) {
@@ -1498,6 +1721,11 @@
 
   function onFormInput(e) {
     var target = e.target;
+    var root = target.closest && target.closest('[data-s-root]');
+    if (root) {
+      recordStructuredChange(root);
+      return;
+    }
     if (target.matches('[data-entry-yaml]')) {
       var entry = findEntry(state.configSelection);
       var edits = entryEdits(state.configSelection);
@@ -1519,9 +1747,10 @@
   $('config-form').addEventListener('change', onFormInput);
 
   $('config-form').addEventListener('click', function (e) {
-    if (e.target.closest('[data-add-module]')) {
-      // Add the chosen type as a new (unsaved) module and open its form
-      var added = { id: 'new:' + (++state.addedSeq), typeId: $('add-module-type').value, values: {} };
+    var addButton = e.target.closest('[data-add-module]');
+    if (addButton) {
+      // Add the chosen type as a new (unsaved) entry and open its form
+      var added = { id: 'new:' + (++state.addedSeq), section: addButton.dataset.addModule, typeId: $('add-module-type').value, values: {}, structured: {} };
       state.formEdits.added.push(added);
       state.configSelection = added.id;
       renderConfigNav();
@@ -1529,12 +1758,62 @@
       return;
     }
     if (e.target.closest('[data-remove-added]')) {
-      state.formEdits.added = state.formEdits.added.filter(function (a) { return a.id !== state.configSelection; });
-      state.configSelection = 'add';
+      var removedAdded = findAdded(state.configSelection);
+      state.formEdits.added = state.formEdits.added.filter(function (a) { return a !== removedAdded; });
+      state.configSelection = 'add:' + removedAdded.section;
       renderConfigNav();
       renderConfigSelection();
       return;
     }
+    if (e.target.closest('[data-remove-entry]')) {
+      var entry = findEntry(state.configSelection);
+      if (!confirm('Remove this ' + sectionSingular(entry.section) + ' (' + entry.typeId + ') from the configuration when you save?')) return;
+      // Its other unsaved changes are dropped; removing it replaces them
+      state.formEdits.entries[state.configSelection] = { values: {}, structured: {}, removed: true };
+      renderConfigNav();
+      renderConfigSelection();
+      return;
+    }
+    if (e.target.closest('[data-undo-remove]')) {
+      e.preventDefault();
+      delete state.formEdits.entries[state.configSelection];
+      renderConfigNav();
+      renderConfigSelection();
+      return;
+    }
+
+    // Structured editors: rows and sections are added and removed in place
+    var root = e.target.closest('[data-s-root]');
+    if (root) {
+      var editor = e.target.closest('.s-editor');
+      if (e.target.closest('[data-s-add-row]')) {
+        var field = structuredSchemas[+editor.dataset.sSchema];
+        var rows = editor.querySelector(':scope > .s-rows');
+        rows.insertAdjacentHTML('beforeend', field.type === 'list' ? renderListRow(field, '') : field.type === 'map' ? renderMapRow(field, '', '') : renderObjectListRow(field, {}));
+        var first = rows.lastElementChild.querySelector('input, select');
+        if (first) first.focus();
+      } else if (e.target.closest('[data-s-remove-row]')) {
+        e.target.closest('.s-row').remove();
+      } else if (e.target.closest('[data-s-create]')) {
+        editor.outerHTML = renderStructured(structuredSchemas[+editor.dataset.sSchema], {});
+      } else if (e.target.closest('[data-s-clear]')) {
+        editor.outerHTML = renderStructured(structuredSchemas[+editor.dataset.sSchema], null);
+      } else if (e.target.closest('[data-s-reset]')) {
+        var ctx = selectionContext();
+        var resetKey = e.target.closest('[data-s-reset]').dataset.sReset;
+        var original = normalizeValue(ctx.structured.data[resetKey]);
+        if (original === undefined) delete ctx.structured.edits[resetKey];
+        else ctx.structured.edits[resetKey] = null;
+        renderConfigNav();
+        renderConfigSelection();
+        return;
+      } else {
+        return;
+      }
+      recordStructuredChange(root);
+      return;
+    }
+
     var reset = e.target.closest('[data-reset]');
     if (reset) {
       recordFieldChange(reset.dataset.reset, '');
@@ -1558,7 +1837,7 @@
   });
 
   $('view-config').addEventListener('keydown', function (e) {
-    if ((e.ctrlKey || e.metaKey) && e.key === 's' && state.configSelection !== 'yaml') {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's' && state.configSelection !== 'yaml' && !isDeviceSelection(state.configSelection)) {
       e.preventDefault();
       saveConfigForm();
     }
@@ -1573,28 +1852,156 @@
     else if ($('config-form-status').classList.contains('warn') && editable) setFormStatus('');
   }
 
-  function saveConfigForm() {
-    if (!formHasChanges() || !state.form || !state.form.editable) return;
-
-    var request = { version: state.form.version, agent: state.formEdits.agent, entries: [] };
+  // ----- saving -----
+  function buildFormRequest() {
+    var request = { version: state.form.version, agent: state.formEdits.agent, entries: [], add: [], remove: [] };
     Object.keys(state.formEdits.entries).forEach(function (key) {
       if (!entryHasChanges(key)) return;
       var entry = findEntry(key), edits = state.formEdits.entries[key];
-      request.entries.push(edits.yaml != null
-        ? { section: entry.section, index: entry.index, yaml: edits.yaml }
-        : { section: entry.section, index: entry.index, values: edits.values });
+      if (edits.removed) request.remove.push({ section: entry.section, index: entry.index });
+      else if (edits.yaml != null) request.entries.push({ section: entry.section, index: entry.index, yaml: edits.yaml });
+      else request.entries.push({ section: entry.section, index: entry.index, values: edits.values, structured: edits.structured });
     });
 
-    // New modules, with their settings in form order so the file reads naturally
-    request.add = state.formEdits.added.map(function (a) {
-      var type = (state.form.types.modules || []).find(function (t) { return t.typeId === a.typeId; });
-      var values = {};
-      ((type && type.fields) || []).forEach(function (f) {
+    // New entries, with their settings in form order so the file reads naturally
+    state.formEdits.added.forEach(function (a) {
+      var values = {}, structured = {};
+      (typeFieldsFor(a.section, a.typeId) || []).forEach(function (f) {
         if (Object.prototype.hasOwnProperty.call(a.values, f.key)) values[f.key] = a.values[f.key];
+        if (a.structured[f.key] != null) structured[f.key] = a.structured[f.key];
       });
-      return { section: 'modules', typeId: a.typeId, values: values };
+      request.add.push({ section: a.section, typeId: a.typeId, values: values, structured: structured });
+    });
+    return request;
+  }
+
+  // ----- change summary -----
+  function describeValue(field, value) {
+    if (value == null || value === '') return 'default';
+    if (field && field.secret) return '••••••';
+    if (typeof value === 'object') return Array.isArray(value) ? value.length + ' item' + (value.length === 1 ? '' : 's') : 'settings';
+    return String(value);
+  }
+
+  // What changed in a list, map or nested object, in a few words
+  function describeStructuredChange(field, before, after) {
+    if (after == null) return 'removed (default)';
+    if (before === undefined) return field && field.type === 'object' ? 'set up' : 'set to ' + describeStructured(field, after);
+    var type = field ? field.type : '';
+    var parts = [];
+    if (type === 'list') {
+      var added = after.filter(function (v) { return before.indexOf(v) < 0; });
+      var removed = before.filter(function (v) { return after.indexOf(v) < 0; });
+      if (added.length) parts.push('added ' + added.join(', '));
+      if (removed.length) parts.push('removed ' + removed.join(', '));
+      return parts.join('; ') || 'reordered';
+    }
+    if (type === 'map') {
+      Object.keys(after).forEach(function (k) {
+        if (!(k in before)) parts.push('added ' + k + ': ' + after[k]);
+        else if (before[k] !== after[k]) parts.push(k + ': ' + before[k] + ' → ' + after[k]);
+      });
+      Object.keys(before).forEach(function (k) { if (!(k in after)) parts.push('removed ' + k); });
+      return parts.join('; ') || 'reordered';
+    }
+    if (type === 'objectList') {
+      var beforeItems = before.map(function (x) { return JSON.stringify(x); });
+      var afterItems = after.map(function (x) { return JSON.stringify(x); });
+      var addedCount = afterItems.filter(function (x) { return beforeItems.indexOf(x) < 0; }).length;
+      var removedCount = beforeItems.filter(function (x) { return afterItems.indexOf(x) < 0; }).length;
+      if (addedCount) parts.push(addedCount + ' added or changed');
+      if (removedCount) parts.push(removedCount + ' removed or changed');
+      return (parts.join(', ') || 'reordered') + ' (' + after.length + ' item' + (after.length === 1 ? '' : 's') + ')';
+    }
+    return 'changed';
+  }
+
+  function describeStructured(field, value) {
+    if (Array.isArray(value)) {
+      return value.every(function (v) { return typeof v !== 'object'; }) ? value.join(', ') : value.length + ' item' + (value.length === 1 ? '' : 's');
+    }
+    if (value && typeof value === 'object' && field && field.type === 'map') {
+      return Object.keys(value).map(function (k) { return k + ': ' + value[k]; }).join(', ');
+    }
+    return 'settings';
+  }
+
+  function summarizeChanges() {
+    var groups = [];
+    var agentLines = Object.keys(state.formEdits.agent).map(function (k) {
+      var f = state.form.agent.fields.find(function (x) { return x.key === k; });
+      return k + ': ' + describeValue(f, state.form.agent.values[k]) + ' → ' + describeValue(f, state.formEdits.agent[k]);
+    });
+    if (agentLines.length) groups.push({ title: 'Agent settings', lines: agentLines });
+
+    Object.keys(state.formEdits.entries).forEach(function (key) {
+      if (!entryHasChanges(key)) return;
+      var entry = findEntry(key), edits = state.formEdits.entries[key], fields = entryFields(entry) || [];
+      var title = entry.typeId + (entryDetail(entry) ? ' · ' + entryDetail(entry) : '');
+      var lines = [];
+      if (edits.removed) lines.push('Remove this ' + sectionSingular(entry.section));
+      else if (edits.yaml != null) lines.push('Settings edited as YAML');
+      else {
+        Object.keys(edits.values).forEach(function (k) {
+          var f = fields.find(function (x) { return x.key === k; });
+          lines.push(k + ': ' + describeValue(f, entry.values[k]) + ' → ' + describeValue(f, edits.values[k]));
+        });
+        Object.keys(edits.structured).forEach(function (k) {
+          var f = fields.find(function (x) { return x.key === k; });
+          lines.push(k + ': ' + describeStructuredChange(f, normalizeValue((entry.data || {})[k]), edits.structured[k]));
+        });
+      }
+      groups.push({ title: title, lines: lines });
     });
 
+    state.formEdits.added.forEach(function (a) {
+      var fields = typeFieldsFor(a.section, a.typeId) || [];
+      var lines = ['Add a new ' + sectionSingular(a.section)];
+      Object.keys(a.values).forEach(function (k) {
+        if (a.values[k] === '') return;
+        lines.push(k + ': ' + describeValue(fields.find(function (x) { return x.key === k; }), a.values[k]));
+      });
+      Object.keys(a.structured).forEach(function (k) {
+        if (a.structured[k] != null) lines.push(k + ': ' + describeStructured(fields.find(function (x) { return x.key === k; }), a.structured[k]));
+      });
+      groups.push({ title: a.typeId + ' (new)', lines: lines });
+    });
+    return groups;
+  }
+
+  function showChangeSummary(onConfirm) {
+    var groups = summarizeChanges();
+    var modal = document.createElement('div');
+    modal.className = 'modal-backdrop';
+    modal.innerHTML = '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="summary-title">' +
+      '<h2 id="summary-title">Save these changes?</h2>' +
+      '<div class="modal-body">' + groups.map(function (g) {
+        return '<div class="summary-group"><div class="summary-title">' + esc(g.title) + '</div><ul>' +
+          g.lines.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul></div>';
+      }).join('') + '</div>' +
+      '<p class="validation-note muted">The configuration file is updated (a .bak copy is kept) and the Agent restarts to apply it.</p>' +
+      '<div class="toolbar"><span class="spacer"></span><button type="button" class="btn" data-modal-cancel>Cancel</button>' +
+      '<button type="button" class="btn primary" data-modal-confirm>Save</button></div></div>';
+    document.body.appendChild(modal);
+    var confirmButton = modal.querySelector('[data-modal-confirm]');
+    confirmButton.focus();
+
+    function close() { modal.remove(); document.removeEventListener('keydown', onKey, true); }
+    function onKey(e) { if (e.key === 'Escape') { e.preventDefault(); close(); } }
+    document.addEventListener('keydown', onKey, true);
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal || e.target.closest('[data-modal-cancel]')) close();
+      else if (e.target.closest('[data-modal-confirm]')) { close(); onConfirm(); }
+    });
+  }
+
+  function saveConfigForm() {
+    if (!formHasChanges() || !state.form || !state.form.editable) return;
+    var request = buildFormRequest();
+    showChangeSummary(function () { sendConfigForm(request); });
+  }
+
+  function sendConfigForm(request) {
     $('config-form-save').disabled = true;
     setFormStatus('Saving…');
     api('/api/config/form', {
@@ -1602,10 +2009,15 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request)
     }).then(function (r) {
-      // Open the last module added once the saved file is reloaded
-      if (request.add.length) {
-        var moduleCount = state.form.entries.filter(function (e) { return e.section === 'modules'; }).length;
-        state.selectAfterReload = 'modules:' + (moduleCount + request.add.length - 1);
+      // Open the last entry added once the saved file is reloaded
+      var last = request.add[request.add.length - 1];
+      if (last) {
+        var remaining = state.form.entries.filter(function (e) { return e.section === last.section; }).length -
+          request.remove.filter(function (x) { return x.section === last.section; }).length;
+        var addedInSection = request.add.filter(function (x) { return x.section === last.section; }).length;
+        state.selectAfterReload = last.section + ':' + (remaining + addedInSection - 1);
+      } else if (request.remove.length && findEntry(state.configSelection) && isRemoved(state.configSelection)) {
+        state.configSelection = 'agent';
       }
       state.formEdits = newFormEdits();
       renderConfigNav();
