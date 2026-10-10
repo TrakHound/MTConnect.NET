@@ -38,7 +38,7 @@ Every agent module derives from `MTConnectAgentModule` (under `MTConnect.Modules
 
 ## Agent modules — shipped
 
-These eight modules ship under `agent/Modules/MTConnect.NET-AgentModule-*` and load into the standalone agent application (`MTConnect.NET-Agent` / `MTConnect.NET-Agent-Application`). Each one is also available as a standalone NuGet package for embedding in a custom agent host.
+These nine modules ship under `agent/Modules/MTConnect.NET-AgentModule-*` and load into the standalone agent application (`MTConnect.NET-Agent` / `MTConnect.NET-Agent-Application`). Each one is also available as a standalone NuGet package for embedding in a custom agent host.
 
 | Module | YAML key | Purpose |
 | --- | --- | --- |
@@ -50,6 +50,7 @@ These eight modules ship under `agent/Modules/MTConnect.NET-AgentModule-*` and l
 | [SHDR adapter](./shdr-adapter) | `shdr-adapter` | Reads SHDR-protocol input from one or more SHDR adapters and feeds observations into the agent. |
 | [Haas adapter](./haas-adapter) | `haas-adapter` | Reads a Haas CNC control directly over Ethernet or RS-232 (Q-commands) and feeds observations into the agent. |
 | [Fanuc adapter](./fanuc-adapter) | `fanuc-adapter` | Reads a Fanuc CNC directly using FOCAS over Ethernet and feeds observations into the agent. |
+| [Tormach adapter](./tormach-adapter) | `tormach-adapter` | Reads a Tormach PathPilot controller through the included PathPilot status server and feeds observations into the agent. |
 
 ## Agent processors — shipped
 

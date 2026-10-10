@@ -125,5 +125,7 @@ libraries:
      projectPath: agent/Modules/MTConnect.NET-AgentModule-MqttRelay
    - name: MTConnect.NET-AgentModule-ShdrAdapter
      projectPath: agent/Modules/MTConnect.NET-AgentModule-ShdrAdapter
+   - name: MTConnect.NET-AgentModule-TormachAdapter
+     projectPath: agent/Modules/MTConnect.NET-AgentModule-TormachAdapter
    - name: MTConnect.NET-AgentProcessor-Python
      projectPath: agent/Processors/MTConnect.NET-AgentProcessor-Python
