@@ -102,7 +102,11 @@ namespace MTConnect.Modules.WebUI
                 nativeUnits = ConstStrings(typeof(NativeUnits)),
                 representations = Enum.GetNames(typeof(DataItemRepresentation)),
                 statistics = Enum.GetNames(typeof(DataItemStatistic)),
-                categories = Enum.GetNames(typeof(DataItemCategory))
+                categories = Enum.GetNames(typeof(DataItemCategory)),
+                motionTypes = Enum.GetNames(typeof(MTConnect.Devices.Configurations.MotionType)),
+                motionActuations = Enum.GetNames(typeof(MTConnect.Devices.Configurations.MotionActuationType)),
+                coordinateSystemTypes = Enum.GetNames(typeof(MTConnect.Devices.Configurations.CoordinateSystemType)),
+                originators = Enum.GetNames(typeof(MTConnect.Devices.Configurations.Originator))
             };
         }
 

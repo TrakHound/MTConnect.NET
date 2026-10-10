@@ -168,12 +168,14 @@ namespace MTConnect.Modules.WebUI
                 foreach (var element in device.DescendantsAndSelf())
                 {
                     var kind = DeviceDocument.GetKind(element);
+                    var id = (string)element.Attribute("id");
+
+                    // Every id (including coordinate systems, motions and specifications) must be unique
+                    if (!string.IsNullOrEmpty(id) && !ids.Add(id)) errors.Add($"The id '{id}' is used more than once");
                     if (kind == "other") continue;
 
-                    var id = (string)element.Attribute("id");
                     var label = $"{element.Name.LocalName}{(string.IsNullOrEmpty(id) ? "" : " '" + id + "'")}";
                     if (string.IsNullOrEmpty(id)) errors.Add($"{label} has no id");
-                    else if (!ids.Add(id)) errors.Add($"The id '{id}' is used more than once");
 
                     if (kind == "device")
                     {

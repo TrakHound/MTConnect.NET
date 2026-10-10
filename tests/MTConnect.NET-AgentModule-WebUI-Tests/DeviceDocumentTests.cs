@@ -261,6 +261,146 @@ namespace MTConnect.AgentModule.WebUI.Tests
             Assert.That(result, Does.StartWith("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<MTConnectDevices"));
         }
 
+        [Test]
+        public void MoveTo_AnotherComponent_MovesTheTextAndCleansUpContainers()
+        {
+            // ypos is the only data item of y: its container goes, and x (self-closing) gets one
+            var result = Apply(Sample, new DeviceOperation { Op = "moveTo", Target = "ypos", Parent = "x" });
+
+            Assert.That(result, Does.Contain(
+                "\t\t\t\t<Linear id=\"x\" name=\"X\">\n" +
+                "\t\t\t\t\t<DataItems>\n" +
+                "\t\t\t\t\t\t<DataItem category=\"SAMPLE\" id=\"ypos\" type=\"POSITION\" subType=\"ACTUAL\" units=\"MILLIMETER\"/>\n" +
+                "\t\t\t\t\t</DataItems>\n" +
+                "\t\t\t\t</Linear>\n" +
+                "\t\t\t\t<Linear id=\"y\" name=\"Y\">\n" +
+                "\t\t\t\t</Linear>\n"));
+        }
+
+        [Test]
+        public void MoveTo_BeforeASibling_Reorders()
+        {
+            var result = Apply(Sample, new DeviceOperation { Op = "moveTo", Target = "y", Parent = "axes", Before = "x" });
+            Assert.That(result, Does.Contain("\t\t\t<Components>\n\t\t\t\t<Linear id=\"y\" name=\"Y\">\n"));
+            Assert.That(result, Does.Contain("\t\t\t\t</Linear>\n\t\t\t\t<Linear id=\"x\" name=\"X\"/>\n\t\t\t</Components>"));
+        }
+
+        [Test]
+        public void MoveTo_ComponentWithChildren_KeepsItsContentAndReindents()
+        {
+            // Move the Linear 'y' (with its data items) from Axes up to the device's Components
+            var result = Apply(Sample, new DeviceOperation { Op = "moveTo", Target = "y", Parent = "mill" });
+
+            Assert.That(result, Does.Contain(
+                "\t\t</Controller>\n" +
+                "\t\t<Linear id=\"y\" name=\"Y\">\n" +
+                "\t\t\t<DataItems>\n" +
+                "\t\t\t\t<DataItem category=\"SAMPLE\" id=\"ypos\" type=\"POSITION\" subType=\"ACTUAL\" units=\"MILLIMETER\"/>\n" +
+                "\t\t\t</DataItems>\n" +
+                "\t\t</Linear>\n" +
+                "\t</Components>"));
+            var moved = DeviceDocument.Parse(result);
+            Assert.That(moved.FindById("y").Parent.Parent, Is.SameAs(moved.FindById("mill")));
+        }
+
+        [Test]
+        public void MoveTo_IntoItselfOrToAnInvalidParent_IsRejected()
+        {
+            Assert.Throws<ConfigurationEditException>(() => Apply(Sample, new DeviceOperation { Op = "moveTo", Target = "axes", Parent = "y" }));
+            Assert.Throws<ConfigurationEditException>(() => Apply(Sample, new DeviceOperation { Op = "moveTo", Target = "x", Parent = "ypos" }));
+            Assert.Throws<ConfigurationEditException>(() => Apply(Sample, new DeviceOperation { Op = "moveTo", Target = "mill", Parent = "axes" }));
+        }
+
+        [Test]
+        public void AddSpecification_CreatesConfigurationAndBlock()
+        {
+            var result = Apply(Sample, new DeviceOperation
+            {
+                Op = "addConfigItem", Target = "y", Block = "Specifications",
+                Attributes = A("type", "POSITION", "units", "MILLIMETER"),
+                Children = A("Maximum", "500", "Minimum", "0")
+            });
+
+            Assert.That(result, Does.Contain(
+                "\t\t\t\t<Linear id=\"y\" name=\"Y\">\n" +
+                "\t\t\t\t\t<Configuration>\n" +
+                "\t\t\t\t\t\t<Specifications>\n" +
+                "\t\t\t\t\t\t\t<Specification type=\"POSITION\" units=\"MILLIMETER\">\n" +
+                "\t\t\t\t\t\t\t\t<Maximum>500</Maximum>\n" +
+                "\t\t\t\t\t\t\t\t<Minimum>0</Minimum>\n" +
+                "\t\t\t\t\t\t\t</Specification>\n" +
+                "\t\t\t\t\t\t</Specifications>\n" +
+                "\t\t\t\t\t</Configuration>\n" +
+                "\t\t\t\t\t<DataItems>\n"));
+        }
+
+        [Test]
+        public void SetSpecification_InsertsLimitsInOrderAndRemovesEmptyOnes()
+        {
+            var text = Apply(Sample, new DeviceOperation { Op = "addConfigItem", Target = "y", Block = "Specifications", Attributes = A("type", "POSITION"), Children = A("Maximum", "500", "Minimum", "0") });
+
+            var result = Apply(text, new DeviceOperation
+            {
+                Op = "setConfigItem", Target = "y", Block = "Specifications", Index = 0,
+                Attributes = A("units", "MILLIMETER"),
+                Children = A("Nominal", "250", "Minimum", "")
+            });
+
+            Assert.That(result, Does.Contain(
+                "<Specification type=\"POSITION\" units=\"MILLIMETER\">\n" +
+                "\t\t\t\t\t\t\t\t<Maximum>500</Maximum>\n" +
+                "\t\t\t\t\t\t\t\t<Nominal>250</Nominal>\n" +
+                "\t\t\t\t\t\t\t</Specification>"));
+        }
+
+        [Test]
+        public void CoordinateSystemAndMotion_WithTransformation()
+        {
+            var result = Apply(Sample,
+                new DeviceOperation { Op = "addConfigItem", Target = "mill", Block = "CoordinateSystems", Attributes = A("id", "machine", "type", "MACHINE"), Children = A("Transformation/Translation", "0 0 0", "Transformation/Rotation", "0 0 90") },
+                new DeviceOperation { Op = "addConfigItem", Target = "x", Block = "Motion", Attributes = A("id", "xmotion", "type", "PRISMATIC", "actuation", "DIRECT", "coordinateSystemIdRef", "machine"), Children = A("Axis", "1 0 0") });
+
+            var document = DeviceDocument.Parse(result);
+            var cs = document.FindById("machine");
+            Assert.That(cs.Parent.Name.LocalName, Is.EqualTo("CoordinateSystems"));
+            Assert.That(cs.Elements().Single().Name.LocalName, Is.EqualTo("Transformation"));
+            Assert.That(cs.Elements().Single().Elements().Select(e => e.Name.LocalName + "=" + e.Value), Is.EqualTo(new[] { "Translation=0 0 0", "Rotation=0 0 90" }));
+
+            // The device's Configuration goes after its Description and before its DataItems
+            Assert.That(document.FindById("mill").Elements().Select(e => e.Name.LocalName), Is.EqualTo(new[] { "Description", "Configuration", "DataItems", "Components" }));
+            Assert.That(document.FindById("xmotion").Parent.Name.LocalName, Is.EqualTo("Configuration"));
+            Assert.Throws<ConfigurationEditException>(() => Apply(result, new DeviceOperation { Op = "addConfigItem", Target = "x", Block = "Motion", Attributes = A("id", "m2") }));
+        }
+
+        [Test]
+        public void RemoveConfigItem_CleansUpEmptyBlocks()
+        {
+            var text = Apply(Sample,
+                new DeviceOperation { Op = "addConfigItem", Target = "y", Block = "Specifications", Attributes = A("type", "POSITION"), Children = A("Maximum", "1") },
+                new DeviceOperation { Op = "addConfigItem", Target = "y", Block = "Specifications", Attributes = A("type", "LOAD"), Children = A("Maximum", "2") });
+
+            var oneLeft = Apply(text, new DeviceOperation { Op = "removeConfigItem", Target = "y", Block = "Specifications", Index = 0 });
+            Assert.That(DeviceDocument.Parse(oneLeft).FindById("y").Descendants().Count(e => e.Name.LocalName == "Specification"), Is.EqualTo(1));
+            Assert.That(oneLeft, Does.Contain("<Specification type=\"LOAD\">"));
+
+            var none = Apply(oneLeft, new DeviceOperation { Op = "removeConfigItem", Target = "y", Block = "Specifications", Index = 0 });
+            Assert.That(none, Is.EqualTo(Sample));
+        }
+
+        [Test]
+        public void ConfigurationItems_AppearInTheTree()
+        {
+            var text = Apply(Sample, new DeviceOperation { Op = "addConfigItem", Target = "y", Block = "Specifications", Attributes = A("type", "POSITION"), Children = A("Maximum", "500") });
+            var document = DeviceDocument.Parse(text);
+            var json = JsonSerializer.Serialize(document.BuildNode(document.FindById("y")));
+            var configuration = JsonDocument.Parse(json).RootElement.GetProperty("configuration");
+
+            var specification = configuration.GetProperty("specifications").EnumerateArray().Single();
+            Assert.That(specification.GetProperty("attributes").GetProperty("type").GetString(), Is.EqualTo("POSITION"));
+            Assert.That(specification.GetProperty("values").GetProperty("Maximum").GetString(), Is.EqualTo("500"));
+            Assert.That(configuration.GetProperty("motion").ValueKind, Is.EqualTo(JsonValueKind.Null));
+        }
+
         [TestCase("okuma.xml")]
         [TestCase("mazak.xml")]
         public void SampleDeviceFiles_RoundTripAndCanBeEdited(string fileName)
