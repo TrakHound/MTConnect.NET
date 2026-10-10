@@ -26,6 +26,7 @@
             "agent/Modules/MTConnect.NET-AgentModule-MqttRelay/bin/Debug/net8.0/MTConnect.NET-AgentModule-MqttRelay.dll",
             "agent/Modules/MTConnect.NET-AgentModule-FanucAdapter/bin/Debug/net8.0/MTConnect.NET-AgentModule-FanucAdapter.dll",
             "agent/Modules/MTConnect.NET-AgentModule-HaasAdapter/bin/Debug/net8.0/MTConnect.NET-AgentModule-HaasAdapter.dll",
+            "agent/Modules/MTConnect.NET-AgentModule-TormachAdapter/bin/Debug/net8.0/MTConnect.NET-AgentModule-TormachAdapter.dll",
             "agent/Modules/MTConnect.NET-AgentModule-ShdrAdapter/bin/Debug/net8.0/MTConnect.NET-AgentModule-ShdrAdapter.dll",
             "agent/Processors/MTConnect.NET-AgentProcessor-Python/bin/Debug/net8.0/MTConnect.NET-AgentProcessor-Python.dll",
             "adapter/MTConnect.NET-Adapter/bin/Debug/net8.0/MTConnect.NET-Adapter.dll",

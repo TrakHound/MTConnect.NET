@@ -12,6 +12,7 @@ The module set:
 - [HTTP adapter](#http-adapter) — inbound HTTP-poll adapter.
 - [Haas adapter](#haas-adapter) — reads a Haas CNC control over Ethernet or RS-232.
 - [Fanuc adapter](#fanuc-adapter) — reads a Fanuc CNC using FOCAS over Ethernet.
+- [Tormach adapter](#tormach-adapter) — reads a Tormach PathPilot controller.
 
 Every module is declared in `agent.config.yaml` under `modules:` as a single-key map. The key is the module's name; the value is the module's config object.
 
@@ -223,6 +224,18 @@ Reads a Fanuc CNC directly using FOCAS over Ethernet. Module key: `fanuc-adapter
     workPositions: false           # also report absolute (work) positions.
 ```
 
+## Tormach adapter
+
+Reads a Tormach PathPilot controller through the PathPilot status server (`pathpilot/pathpilot_status_server.py`), which runs on the controller and streams the LinuxCNC status over TCP. Module key: `tormach-adapter`. Implementation: `MTConnect.NET-AgentModule-TormachAdapter`. See [Tormach adapter](/modules/tormach-adapter) for installing the status server, every key, and the DataItems it reports.
+
+```yaml
+- tormach-adapter:
+    deviceKey: PCNC1100            # the Device observations are added to (created by default).
+    server: 192.168.1.80           # PathPilot controller address.
+    port: 7890                     # status server port.
+    workPositions: false           # also report work coordinate positions.
+```
+
 ## Configuration objects
 
 Each module's YAML keys deserialize into a configuration class:
@@ -237,6 +250,7 @@ Each module's YAML keys deserialize into a configuration class:
 | `http-adapter` | [`MTConnect.Configurations.HttpAdapterModuleConfiguration`](/api/MTConnect.Configurations.HttpAdapterModuleConfiguration) |
 | `haas-adapter` | [`MTConnect.Configurations.HaasAdapterModuleConfiguration`](/api/MTConnect.Configurations.HaasAdapterModuleConfiguration) |
 | `fanuc-adapter` | [`MTConnect.Configurations.FanucAdapterModuleConfiguration`](/api/MTConnect.Configurations.FanucAdapterModuleConfiguration) |
+| `tormach-adapter` | [`MTConnect.Configurations.TormachAdapterModuleConfiguration`](/api/MTConnect.Configurations.TormachAdapterModuleConfiguration) |
 
 Programmatic configuration uses the class directly:
 
