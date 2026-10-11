@@ -18,16 +18,6 @@ The MTConnect Standard's three formal sources disagree on whether an `ASSET_COUN
 
 **Filed**: [Redmine #3890](https://projects.mtconnect.org/issues/3890) (Agent Working Group).
 
-## v2.6 SysML XMI byte-identical to v2.7
-
-**Disagreement**: spec release versioning.
-
-The published v2.6 SysML XMI file (`MTConnectSysMLModel_V2.6.xml`) is byte-identical to v2.7. v2.6 and v2.7 should differ — the spec release cadence assumes each major increment has at least one substantive XMI change — and the byte-identical publication suggests a release-engineering mistake at the standard body, not a deliberate "no-change" version.
-
-**Library posture**: `MTConnectVersions.Version26` and `Version27` are both shipped as distinct constants because the spec body advertises both as released versions. Any type's `MinimumVersion = Version26` is treated as equivalent to `Version27` for serialization gating.
-
-**Filed**: [Redmine #3892](https://projects.mtconnect.org/issues/3892) (SysML Model Related Issues).
-
 ## DataSet vs Table result class disagreement
 
 **Disagreement**: SysML XMI vs XSD.

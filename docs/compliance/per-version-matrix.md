@@ -51,7 +51,7 @@ A subset of spec-version-introduced types the matrix tracks (the full inventory 
 - **v2.3**: `Quality` field on Observation made first-class.
 - **v2.4**: Rich-template Pallet measurements (`HeightMeasurement`, `WidthMeasurement`, `LoadedHeightMeasurement`, etc.) replace free-form `Measurement`.
 - **v2.5**: spec-internal cleanup; no new wire-format-visible types.
-- **v2.6**: per the spec's `Part_3` cleanup; v2.6 SysML XMI is byte-identical to v2.7 per the spec's own publication (see [Compliance: Known divergences](/compliance/known-divergences)).
+- **v2.6**: introduces new asset-linkage types (`AssociatedAssetId`, `AssetAdded`) and `CuttingTorch` component.
 - **v2.7**: spec cleanup; multiple minor enum and attribute additions.
 
 Every introduction is auditable through the generated `.g.cs` files under `libraries/MTConnect.NET-Common/`, which carry the per-type `MinimumVersion` value sourced from the SysML model's `introducedAtVersion` ([`mtconnect/mtconnect_sysml_model`](https://github.com/mtconnect/mtconnect_sysml_model)).

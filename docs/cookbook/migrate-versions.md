@@ -24,7 +24,7 @@ The high-frequency-of-impact version transitions:
 | v2.2 → v2.3 | low | `Quality` first-class on Observations | new `quality` attribute on Observations |
 | v2.3 → v2.4 | medium | rich-template Pallet measurements (typed classes replace free-form `Measurement`) | new Measurement element names in `MTConnectAssets` |
 | v2.4 → v2.5 | low | spec-internal cleanup; no new wire-format-visible types | no new attributes |
-| v2.5 → v2.6 | low | v2.6 XMI is byte-identical to v2.7 in the published spec | no wire-format change |
+| v2.5 → v2.6 | medium | new asset-linkage types + `CuttingTorch` component | additive; no breaking changes |
 | v2.6 → v2.7 | low | spec cleanup; minor attribute additions | no breaking wire-format changes |
 
 The "impact" column is the typical code-side surface area for a consumer / agent author. None of the transitions above are forced-rewrite; the library handles each through version-aware serialization.
