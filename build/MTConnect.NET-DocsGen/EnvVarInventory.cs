@@ -45,6 +45,15 @@ public static class EnvVarInventory
     private static readonly string[] ExcludedDirectoryNames =
     {
         "bin", "obj", "node_modules", ".git", ".vitepress",
+        // ".claude" holds sibling git-worktree checkouts (see repo
+        // convention: .claude/worktrees/<slug>/) used by agent sessions
+        // for isolated branch work. Left unexcluded, a repo-root-relative
+        // walk descends into every nested worktree and mixes in
+        // env-var reads from whatever branch each one happens to have
+        // checked out — producing a false "out of sync" verdict against
+        // docs/reference/environment-variables.md that has nothing to
+        // do with the actual source tree on the current branch.
+        ".claude",
     };
 
     // Match `MTCONNECT_FOO`, `DOTNET_BAR`, plus any other ALL-CAPS env-var

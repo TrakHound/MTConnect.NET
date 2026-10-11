@@ -31,8 +31,13 @@ namespace MTConnect.NET_Docs_Tests;
 ///   dotnet test tests/MTConnect.NET-Docs-Tests --filter Category=E2E
 ///
 /// Prerequisites:
-///   - Node.js (the setup invokes `npm ci` + `npm run build` if the
-///     docs/.vitepress/dist/ artifact is missing).
+///   - Node.js. In producer mode (local + unsharded CI) the setup
+///     runs `npm ci` when `node_modules/` is absent and then always
+///     invokes `vitepress build` directly (bypassing the docfx
+///     `prebuild` hook that would clobber `obj/project.assets.json`).
+///     In consumer mode (`ROUTE_SHARD_TOTAL > 1`) the shard consumes
+///     a `dist/` produced by the `docs-prepare` CI job and skips the
+///     rebuild when `docs/.vitepress/dist/index.html` is present.
 ///   - The Microsoft.Playwright package's chromium browser binary
 ///     (installed automatically by the fixture's one-time setup).
 /// </summary>
@@ -53,13 +58,34 @@ public class RouteCheckTests
     /// cost trivial while still ringing the door bell ~5x per second.</summary>
     private const int ServerReadyPollMs = 200;
 
-    /// <summary>Hard deadline for the preview-server bind. 60 s
-    /// accommodates a cold CI runner where `npm ci` + `npm run build`
-    /// + vitepress startup land before the first port probe — anything
-    /// past that is a real failure (dist/ missing, port collision,
-    /// vitepress CLI usage error) worth surfacing as a TimeoutException
-    /// with the drained startup log.</summary>
+    /// <summary>Hard deadline for the preview-server bind. `npm ci` and
+    /// `vitepress build` are earlier, sequential <c>OneTimeSetUp</c>
+    /// stages that already ran to completion before this countdown
+    /// starts (see <see cref="RunVitepressBuild"/>), so 60 s covers only
+    /// vitepress preview's own startup — anything past that is a real
+    /// failure (dist/ missing, port collision, vitepress CLI usage
+    /// error) worth surfacing as a TimeoutException with the drained
+    /// startup log.</summary>
     private const int ServerReadyTimeoutMs = 60_000;
+
+    /// <summary>Hard deadline for the vitepress build spawned by
+    /// <see cref="RunVitepressBuild"/>. 20 minutes bounds the worst
+    /// documented cold path (cold node_modules cache + full SSR pass
+    /// on a slow runner completes in ~5 min); anything past that
+    /// implies a hang (deadlocked worker, HMR loop, wedged fetch)
+    /// worth surfacing as an InvalidOperationException with the
+    /// drained output rather than a wall-clock CI timeout that
+    /// discards the diagnostic.</summary>
+    private const int VitepressBuildTimeoutMs = 20 * 60 * 1000;
+
+    /// <summary>Hard deadline for `npm ci`, spawned by
+    /// <see cref="RunNpm"/> when <c>docs/node_modules</c> is absent. 10
+    /// minutes bounds a cold registry fetch on a slow runner; anything
+    /// past that implies a hang (registry outage, interactive prompt,
+    /// corrupt lockfile) worth surfacing as an InvalidOperationException
+    /// with the drained output rather than hanging OneTimeSetUp
+    /// indefinitely with no diagnostic.</summary>
+    private const int NpmTimeoutMs = 10 * 60 * 1000;
 
     /// <summary>Per-page navigation timeout. 30 s covers a slow runner
     /// with a cold network cache; anything past that is a real failure
@@ -125,23 +151,55 @@ public class RouteCheckTests
                 RunNpm("ci", _docsRoot);
             }
 
-            // Rebuild dist only when it is missing so the test asserts against
-            // a tree generated from the current source. CI's sharded
-            // route-check jobs download the dist/ tree from the `docs-prepare`
-            // workflow artefact and do NOT install docfx, so re-running
-            // `npm run build` here would invoke the `prebuild` hook
-            // (`scripts/generate-api-ref.sh` → `docfx metadata`) and fail
-            // with "docfx not found on PATH". Honouring the pre-existing
-            // dist/index.html sentinel matches the workflow's documented
-            // contract: docs-prepare is the single docfx-owning producer
-            // and each shard consumes its artefact. Locally, deleting
-            // docs/.vitepress/dist/ (or running on a clean clone) still
-            // triggers a full build.
+            // Producer vs. consumer mode.
+            //
+            // Producer mode (non-shard local + non-shard CI leg): the
+            // fixture is the sole authority on dist/, so it always
+            // rebuilds — a warm-cache local run must still walk a tree
+            // generated from the CURRENT source markdown, current
+            // config.ts, current sidebar, and so on. Honoring a
+            // pre-existing dist/index.html sentinel was the earlier
+            // policy and it silently walked a stale tree whenever a
+            // developer re-ran `dotnet test` after editing source: the
+            // walked routes, meta tags, and rendered HTML lagged the
+            // source by an arbitrary distance (a stale dist from Jun 2
+            // failed the landing-page og:image assertion on Aug 17 for
+            // exactly this reason, because the config-side fix that
+            // added the https:// og:image URL had landed since the last
+            // build).
+            //
+            // Consumer mode (sharded CI matrix, ROUTE_SHARD_TOTAL > 1):
+            // CI's sharded route-check jobs download the dist/ tree
+            // from the `docs-prepare` workflow artifact and skip the
+            // rebuild. The docs-prepare job is the single docfx-owning
+            // producer.
+            //
+            // Why call vitepress directly instead of `npm run build`:
+            // the `prebuild` hook wired into `package.json` runs
+            // `docs/scripts/generate-api-ref.sh`, which does a
+            // `dotnet build -c Debug --no-incremental` sweep of every
+            // library, agent, adapter and module project. Under a full
+            // `dotnet test MTConnect.NET.sln -c Release` invocation the
+            // solution build is still in flight (multi-TFM Release
+            // outputs for net47, net461, net472, net9.0, net10.0, …
+            // build in parallel with the net8.0 test hosts), so
+            // clobbering each project's `obj/project.assets.json` back
+            // to a Debug-only net8.0 view races the Release build and
+            // trips NETSDK1005 on every non-net8.0 target that MSBuild
+            // has not yet linked. Invoking vitepress directly walks the
+            // same source markdown, produces the same dist/, keeps the
+            // producer-mode rebuild guarantee, and leaves the obj/
+            // tree untouched. The api reference sub-tree under
+            // docs/api/ stays as whatever the last regen produced —
+            // this fixture does not own that regen (the docs-prepare
+            // workflow and `docs/scripts/generate-api-ref.sh` do).
             var distIndex = Path.Combine(distDir, "index.html");
-            if (!File.Exists(distIndex))
+            var (_, shardTotal) = RouteCheckHelpers.ReadShardEnv();
+            var isConsumerShard = shardTotal > 1;
+            if (!isConsumerShard || !File.Exists(distIndex))
             {
-                stage = "npm run build";
-                RunNpm("run build", _docsRoot);
+                stage = "vitepress build";
+                RunVitepressBuild(_docsRoot);
             }
 
             // Install the chromium binary the Playwright .NET binding drives.
@@ -468,15 +526,15 @@ public class RouteCheckTests
     /// </summary>
     /// <remarks>
     /// Sharded CI runs (matrix env var <c>ROUTE_SHARD_TOTAL</c> &gt; 1)
-    /// download the dist artefact from the upstream <c>docs-prepare</c>
-    /// job and intentionally bypass the in-fixture build — the shard
-    /// runners do not install docfx, so re-running <c>npm run build</c>
-    /// would fail on the <c>prebuild</c> hook
-    /// (<c>scripts/generate-api-ref.sh</c> → <c>docfx metadata</c>). In
-    /// that mode the upstream job is the producer and this fixture is a
-    /// pure consumer, so the mtime invariant does not apply and the test
-    /// is inconclusive. Local invocations and the unsharded leg still
-    /// enforce it.
+    /// download the dist artifact from the upstream <c>docs-prepare</c>
+    /// job and intentionally bypass the in-fixture build — the
+    /// <c>docs-prepare</c> job is the single docfx-owning producer
+    /// and each shard is a pure consumer, so the mtime invariant does
+    /// not apply and the test is inconclusive. Local invocations and
+    /// the unsharded CI leg still enforce it (the producer path
+    /// invokes <c>vitepress build</c> directly, bypassing the
+    /// <c>package.json</c> <c>prebuild</c> hook so the shard runners'
+    /// missing docfx binary is a non-issue for the fixture itself).
     /// </remarks>
     [Test]
     [Category("E2E")]
@@ -790,6 +848,70 @@ public class RouteCheckTests
 
     // ─── npm bootstrap ───────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Invoke the local vitepress binary directly against the docs root,
+    /// bypassing the <c>package.json</c> <c>prebuild</c> hook that
+    /// <c>npm run build</c> would trigger. The prebuild step runs
+    /// <c>docs/scripts/generate-api-ref.sh</c>, which does a
+    /// <c>dotnet build -c Debug --no-incremental</c> sweep across the
+    /// entire library, agent, adapter and module surface; that sweep
+    /// rewrites every touched project's <c>obj/project.assets.json</c>
+    /// to a Debug-only <c>net8.0</c> view and races any in-flight
+    /// multi-TFM Release build (NETSDK1005 on <c>net47</c>,
+    /// <c>net9.0</c>, <c>net10.0</c>, …). This helper resolves
+    /// <c>node_modules/vitepress/bin/vitepress.js</c> relative to the
+    /// docs root, drains stdout+stderr concurrently to avoid the
+    /// classic pipe-deadlock pattern, bounds the child by
+    /// <see cref="VitepressBuildTimeoutMs"/> so a wedged worker
+    /// surfaces as an actionable exception rather than a job-level
+    /// timeout that discards the diagnostic, and rethrows with the
+    /// captured output when the child exits non-zero. The
+    /// <see cref="Process"/> handle is disposed on every path so a
+    /// warm test-runner does not leak file descriptors across reruns.
+    /// </summary>
+    /// <param name="docsRoot">
+    /// Absolute path to the docs site (<c>docs/</c> under the repo
+    /// root); becomes the child process's working directory and the
+    /// anchor for the <c>node_modules</c> lookup.
+    /// </param>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the vitepress binary cannot be located,
+    /// <see cref="Process.Start(ProcessStartInfo)"/> returns
+    /// <see langword="null"/>, the child fails to exit within
+    /// <see cref="VitepressBuildTimeoutMs"/> milliseconds (the child
+    /// tree is killed before the exception is thrown), or the child
+    /// process exits with a non-zero code. The captured stdout and
+    /// stderr are appended to the exception message in every failure
+    /// mode for diagnosis.
+    /// </exception>
+    private static void RunVitepressBuild(string docsRoot)
+    {
+        var vitepressEntry = Path.Combine(docsRoot, "node_modules", "vitepress", "bin", "vitepress.js");
+        if (!File.Exists(vitepressEntry))
+        {
+            throw new InvalidOperationException(
+                $"Cannot invoke vitepress build directly — expected entry point at '{vitepressEntry}' does not exist. Run `npm ci` under {docsRoot} first (the OneTimeSetUp does this when node_modules is missing).");
+        }
+
+        var psi = new ProcessStartInfo
+        {
+            FileName = "node",
+            WorkingDirectory = docsRoot,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true,
+        };
+        // Mirror package.json's `build` script memory budget — vitepress
+        // build's Vue SSR pass can exceed V8's default 2 GB old-space
+        // when the source tree is thousands of pages.
+        psi.ArgumentList.Add("--max-old-space-size=8192");
+        psi.ArgumentList.Add(vitepressEntry);
+        psi.ArgumentList.Add("build");
+
+        RunProcess(psi, VitepressBuildTimeoutMs, "`node … vitepress.js build`");
+    }
+
     private static void RunNpm(string arguments, string workingDirectory)
     {
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
@@ -809,25 +931,95 @@ public class RouteCheckTests
             psi.ArgumentList.Add(token);
         }
 
-        var proc = Process.Start(psi)
-            ?? throw new InvalidOperationException($"Failed to start `npm {arguments}`");
+        RunProcess(psi, NpmTimeoutMs, $"`npm {arguments}`");
+    }
 
-        // Drain both pipes concurrently so the child doesn't block on a
-        // full stderr buffer while the parent waits on stdout — the
-        // classic pipe-deadlock pattern. `npm ci` emits stderr volume in
-        // the form of deprecation warnings and peer-dep notices that on a
-        // verbose run can exceed the OS pipe buffer (typically 64 KB).
+    /// <summary>
+    /// Spawn <paramref name="psi"/>, drain stdout/stderr concurrently to
+    /// avoid the classic pipe-deadlock pattern, bound the wait by
+    /// <paramref name="timeoutMs"/> so a wedged child surfaces as an
+    /// actionable exception rather than a wall-clock CI timeout that
+    /// discards the diagnostic, and rethrow with the captured output on
+    /// either a timeout (after killing the child tree) or a non-zero
+    /// exit code. Shared by <see cref="RunVitepressBuild"/> and
+    /// <see cref="RunNpm"/> so both child-process launches get the same
+    /// dispose/timeout/kill hardening rather than diverging over time.
+    /// </summary>
+    /// <param name="psi">Fully configured start info; stdout/stderr must
+    /// already be redirected.</param>
+    /// <param name="timeoutMs">Hard wait deadline in milliseconds.</param>
+    /// <param name="label">Human-readable command label used in
+    /// exception messages (e.g. <c>`npm ci`</c>).</param>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when <see cref="Process.Start(ProcessStartInfo)"/> returns
+    /// <see langword="null"/>, the child fails to exit within
+    /// <paramref name="timeoutMs"/> milliseconds (the child tree is
+    /// killed before the exception is thrown), or the child process
+    /// exits with a non-zero code. The captured stdout and stderr are
+    /// appended to the exception message in every failure mode for
+    /// diagnosis.
+    /// </exception>
+    private static void RunProcess(ProcessStartInfo psi, int timeoutMs, string label)
+    {
+        // `using` guarantees the OS handle + redirected pipes are
+        // released even when the drain/wait/exit-code path throws — a
+        // warm test-runner otherwise accumulates handles and can starve
+        // pipes across reruns.
+        using var proc = Process.Start(psi)
+            ?? throw new InvalidOperationException($"Failed to start {label}");
+
         var stdoutTask = proc.StandardOutput.ReadToEndAsync();
         var stderrTask = proc.StandardError.ReadToEndAsync();
+
+        // Bound the child wait so a wedged process (deadlocked worker,
+        // hung fetch, interactive prompt, infinite loop) surfaces as an
+        // actionable exception with the drained partial output rather
+        // than a wall-clock CI timeout that discards it.
+        if (!proc.WaitForExit(timeoutMs))
+        {
+            try
+            {
+                proc.Kill(entireProcessTree: true);
+            }
+            catch
+            {
+                // Best-effort — the child may already be exiting; a
+                // failure to signal is not itself the diagnostic.
+            }
+            // Give the drains one last chance to complete after the
+            // kill; ignore any fault so the timeout message is what
+            // the caller sees.
+            try { Task.WaitAll(new[] { stdoutTask, stderrTask }, millisecondsTimeout: 2_000); } catch { }
+            var partialStdout = stdoutTask.IsCompletedSuccessfully ? SanitizeForException(stdoutTask.Result) : "<drain incomplete>";
+            var partialStderr = stderrTask.IsCompletedSuccessfully ? SanitizeForException(stderrTask.Result) : "<drain incomplete>";
+            throw new InvalidOperationException(
+                $"{label} did not exit within {timeoutMs} ms — killed the child tree and captured what stdout/stderr had been drained.{Environment.NewLine}stdout:{Environment.NewLine}{partialStdout}{Environment.NewLine}stderr:{Environment.NewLine}{partialStderr}");
+        }
+
         Task.WaitAll(stdoutTask, stderrTask);
-        var stdout = stdoutTask.Result;
-        var stderr = stderrTask.Result;
-        proc.WaitForExit();
+        var stdout = SanitizeForException(stdoutTask.Result);
+        var stderr = SanitizeForException(stderrTask.Result);
 
         if (proc.ExitCode != 0)
         {
             throw new InvalidOperationException(
-                $"`npm {arguments}` exited {proc.ExitCode}{Environment.NewLine}stdout:{Environment.NewLine}{stdout}{Environment.NewLine}stderr:{Environment.NewLine}{stderr}");
+                $"{label} exited {proc.ExitCode}{Environment.NewLine}stdout:{Environment.NewLine}{stdout}{Environment.NewLine}stderr:{Environment.NewLine}{stderr}");
         }
+    }
+
+    /// <summary>
+    /// Strip ASCII control characters (other than newline/carriage
+    /// return/tab) from captured child-process output before it is
+    /// interpolated into an exception message. A compromised or
+    /// misbehaving npm dependency could otherwise emit control
+    /// sequences that spoof adjacent lines in aggregated CI log
+    /// viewers; this keeps the diagnostic text inert.
+    /// </summary>
+    /// <param name="text">Raw captured stdout or stderr.</param>
+    /// <returns><paramref name="text"/> with disallowed control
+    /// characters removed.</returns>
+    private static string SanitizeForException(string text)
+    {
+        return new string(text.Where(c => !char.IsControl(c) || c is '\n' or '\r' or '\t').ToArray());
     }
 }

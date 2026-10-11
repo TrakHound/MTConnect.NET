@@ -64,7 +64,10 @@ public class DocsReferenceGenerationTests
         }
     }
 
-    /// <summary>Pins the behaviour expressed by the test name: environment variables page is in sync with source.</summary>
+    /// <summary>Pins the behavior expressed by the test name: environment variables page is in sync with source.
+    /// Historically flaky as collateral damage from a prebuild-hook <c>obj/</c> race triggered elsewhere in the
+    /// same <c>dotnet test</c> invocation — see <see cref="RouteCheckTests.RunVitepressBuild"/>'s remarks on why
+    /// producer-mode OneTimeSetUp no longer shells out through `npm run build`'s `prebuild` hook.</summary>
     [Test]
     public void EnvironmentVariables_Page_Is_In_Sync_With_Source()
     {
