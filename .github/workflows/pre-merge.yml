@@ -1,0 +1,112 @@
+name: pre-merge
+
+# ------------------------------------------------------------------
+# Per-PR gate that runs on every non-draft PR targeting `master`.
+#
+# Three responsibilities:
+#
+#   1. `commitlint` — every commit in the range
+#      `<merge-base with master>..HEAD` must parse under
+#      `commitlint.config.mjs`. Blocks a PR whose commits break the
+#      Conventional Commits contract; this is the promise the release
+#      pipeline's semver-bump relies on.
+#
+#   2. `unit-tests-tools` — runs `npm test` under `tools/` so the
+#      TypeScript unit suites for `tools/ci/*.ts` and
+#      `tools/release/*.ts` participate in the required-check set.
+#      Those tests only cover TypeScript in `tools/`; the .NET matrix
+#      remains the responsibility of `dotnet.yml`.
+#
+#   3. Test matrix — the pre-existing `dotnet.yml` workflow already
+#      runs the ubuntu-latest + windows-latest matrix on every PR;
+#      this file does NOT duplicate it.
+#
+# The workflow is intentionally lightweight — no dotnet build, no
+# docker, no long-lived jobs.
+# ------------------------------------------------------------------
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+concurrency:
+  # A rapid succession of pushes to the PR head collapses into the
+  # latest one; older commitlint + tools-test runs are canceled.
+  group: pre-merge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  commitlint:
+    # Skip drafts — the same gate on `dotnet.yml`.
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history for commit range)
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+        with:
+          # `commitlint --from <sha> --to HEAD` needs both endpoints
+          # reachable; a shallow clone drops the merge-base.
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b  # v4
+        with:
+          node-version: '20'
+
+      - name: Install commitlint
+        run: |
+          set -euo pipefail
+          npm install --no-save --no-audit --no-fund \
+            @commitlint/cli@^19 \
+            @commitlint/config-conventional@^19
+
+      - name: Determine commit range
+        id: range
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          # `merge-base` gives the fork point; commits from there to
+          # HEAD are the ones this PR introduces.
+          FROM=$(git merge-base "$BASE_SHA" "$HEAD_SHA")
+          echo "from=$FROM" >>"$GITHUB_OUTPUT"
+          echo "to=$HEAD_SHA" >>"$GITHUB_OUTPUT"
+
+      - name: Run commitlint
+        env:
+          FROM: ${{ steps.range.outputs.from }}
+          TO: ${{ steps.range.outputs.to }}
+        run: npx commitlint --from "$FROM" --to "$TO" --verbose
+
+  unit-tests-tools:
+    # Skip drafts — matches the same gate on commitlint above.
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b  # v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: tools/package-lock.json
+
+      - name: Install tools deps
+        working-directory: tools
+        run: npm ci
+
+      - name: Typecheck
+        working-directory: tools
+        run: npm run typecheck
+
+      - name: Run unit tests
+        working-directory: tools
+        run: npm test

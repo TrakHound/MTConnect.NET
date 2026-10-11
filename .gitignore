@@ -15,6 +15,10 @@
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
+# The `tools/release/` directory holds the release-pipeline scripts and
+# must NOT match the `[Rr]elease/` build-output glob above. This
+# negation re-includes it without loosening the build-output ignore.
+!/tools/release/
 x64/
 x86/
 bld/

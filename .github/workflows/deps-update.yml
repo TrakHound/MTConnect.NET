@@ -1,0 +1,190 @@
+name: deps-update
+
+# ------------------------------------------------------------------
+# Weekly dependency update. Fires every Saturday at 02:00 UTC (avoids
+# the working-hours release window and clears reviewer attention over
+# the weekend). Bumps four ecosystems, split across two PR shapes:
+#
+#   - GitHub Actions plugin versions in `.github/workflows/*.yml` —
+#     Renovate opens one PR per package;
+#   - Docker base images in every Dockerfile — Renovate opens one PR
+#     per base image;
+#   - npm packages under `docs/` — this workflow opens a single
+#     `chore/deps-weekly-npm-nuget` PR;
+#   - NuGet packages across every `.csproj` — same PR as npm.
+#
+# Actions + Dockerfile bases (via Renovate) and npm packages (via
+# `npm-check-updates --cooldown`) enforce a >=7-day supply-chain
+# quarantine — no version younger than a week is accepted, so a
+# poisoned publish that gets yanked within the standard OSS response
+# window is excluded automatically. NuGet does NOT enforce the
+# quarantine: `dotnet-outdated` has no built-in age filter, so NuGet
+# bumps rely on downstream CI + review to catch a hot-published bad
+# release. Adding a NuGet quarantine is tracked in issue #237.
+#
+# A prior npm+NuGet PR that is still open when the workflow re-fires
+# is closed as superseded — only one bulk PR from this workflow is
+# ever open at once. Renovate's per-package PRs live under their own
+# `renovate/*` branches and follow Renovate's usual open/close rules.
+# ------------------------------------------------------------------
+
+on:
+  schedule:
+    # Saturday 02:00 UTC
+    - cron: '0 2 * * 6'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # A dispatched run cancels a prior scheduled run on the same branch —
+  # a single deps PR is the invariant.
+  group: deps-update
+  cancel-in-progress: true
+
+env:
+  # Minimum age (days) a release must have before it is eligible for
+  # inclusion. Increase to widen the quarantine.
+  MIN_AGE_DAYS: '7'
+  # Branch that holds the npm + NuGet bulk bump. Renovate opens its
+  # own per-package branches under `renovate/*` for GH Actions +
+  # Dockerfile bases and manages them independently.
+  BRANCH_NAME: chore/deps-weekly-npm-nuget
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    permissions:
+      # Needed to push the branch, open the PR, and close a prior one.
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+        with:
+          # Full history so `git log` can compute a stable branch name.
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b  # v4
+        with:
+          node-version: '20'
+
+      - name: Setup .NET 8.0 + 9.0
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9  # v4.3.1
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: Close prior npm+NuGet deps PR if still open
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH_NAME: ${{ env.BRANCH_NAME }}
+        run: |
+          set -euo pipefail
+          # Enumerate open PRs targeting this workflow's own bulk branch —
+          # expected 0 or 1. Renovate's per-package PRs live on their own
+          # `renovate/*` branches and are NOT touched here. Close each as
+          # "superseded"; the fresh branch push below opens the replacement.
+          for n in $(gh pr list --state open --head "$BRANCH_NAME" --json number --jq '.[].number'); do
+            gh pr close "$n" --comment "Superseded by the next weekly deps run."
+          done
+
+      - name: Reset deps branch to master
+        env:
+          BRANCH_NAME: ${{ env.BRANCH_NAME }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH_NAME" origin/master
+
+      # ------------------------------------------------------------
+      # 1) GitHub Actions plugin versions AND Dockerfile base images.
+      #    Renovate handles both managers from the same config file
+      #    and opens one PR per package on its own `renovate/*`
+      #    branches — this step's output is out-of-band from the
+      #    npm + NuGet bulk PR that follows.
+      # ------------------------------------------------------------
+      - name: Bump GitHub Actions + Dockerfile bases (via Renovate)
+        uses: renovatebot/github-action@85b17ebd5abf43d1c34c01bd4c8dbb8d45bbc2c7  # v43.0.7
+        with:
+          configurationFile: .github/renovate-actions-only.json
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ------------------------------------------------------------
+      # 2) npm packages under docs/.
+      # ------------------------------------------------------------
+      - name: Bump npm deps under docs/
+        working-directory: docs
+        env:
+          MIN_AGE_DAYS: ${{ env.MIN_AGE_DAYS }}
+        run: |
+          set -euo pipefail
+          # `npm-check-updates --cooldown <n>` (added in v18) rejects any
+          # candidate release whose publish timestamp on the npm
+          # registry is younger than <n> days. Pins npm to the same
+          # supply-chain quarantine Renovate enforces on GH-Actions +
+          # Dockerfile bases.
+          npx --yes npm-check-updates@^18 --upgrade --minimal --enginesNode --target minor --cooldown "$MIN_AGE_DAYS"
+          # Fall back to package-lock refresh so the diff round-trips.
+          npm install --package-lock-only
+
+      # ------------------------------------------------------------
+      # 3) NuGet packages across every .csproj. `dotnet-outdated-tool`
+      #    walks the whole solution and rewrites the version pins in
+      #    place. `dotnet-outdated` has NO built-in age filter, so
+      #    NuGet bumps do NOT participate in the MIN_AGE_DAYS
+      #    quarantine — downstream CI + reviewer eyes are the only
+      #    protection against a hot-published bad release. Adding a
+      #    proper quarantine is tracked in issue #237.
+      # ------------------------------------------------------------
+      - name: Bump NuGet package versions
+        run: |
+          set -euo pipefail
+          dotnet tool install --global dotnet-outdated-tool
+          # `~/.dotnet/tools` is not on PATH after install in a fresh shell.
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          # `--upgrade` rewrites .csproj files in place with the newest
+          # eligible version subject to the pre-release filter (dev
+          # pre-releases are excluded — stable only). No age filter is
+          # applied; see the comment above the step.
+          dotnet outdated --upgrade --pre-release Never MTConnect.NET.sln
+
+      - name: Commit + push if any changes
+        env:
+          BRANCH_NAME: ${{ env.BRANCH_NAME }}
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No dep bumps to commit; skipping PR."
+            exit 0
+          fi
+          git add -A
+          git commit -m "chore(deps): weekly npm+nuget bulk update"
+          git push --set-upstream origin "$BRANCH_NAME" --force-with-lease
+
+      - name: Open PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH_NAME: ${{ env.BRANCH_NAME }}
+        run: |
+          set -euo pipefail
+          BODY="Automated weekly bulk update for npm (docs/) + NuGet"
+          BODY="$BODY (all .csproj). GH Actions + Dockerfile bumps ship"
+          BODY="$BODY as separate per-package Renovate PRs."
+          BODY="$BODY npm candidates passed the ${MIN_AGE_DAYS}-day"
+          BODY="$BODY supply-chain quarantine via ncu --cooldown; NuGet"
+          BODY="$BODY bumps have no age filter (dotnet-outdated lacks one)."
+          BODY="$BODY Auto-merge is enabled — a green CI run merges"
+          BODY="$BODY without maintainer action."
+          if ! gh pr view "$BRANCH_NAME" --json number >/dev/null 2>&1; then
+            gh pr create \
+              --title "chore(deps): weekly npm+nuget bulk update" \
+              --body "$BODY" \
+              --base master \
+              --head "$BRANCH_NAME"
+          fi
+          gh pr merge "$BRANCH_NAME" --squash --auto

@@ -1,0 +1,24 @@
+{
+  "name": "@mtconnect-net/tools",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Repo-side automation scripts run by CI workflows. Not published; not consumed by application code.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "tsx run-tests.ts"
+  },
+  "dependencies": {
+    "@octokit/rest": "^21.0.0",
+    "semver": "^7.6.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/semver": "^7.5.8",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  }
+}
