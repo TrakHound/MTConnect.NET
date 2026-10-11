@@ -89,10 +89,10 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             // and route the exception to the fault logger.
             string loggedFault = null;
 
-            Assert.DoesNotThrow(() => MqttRelayLifecycle.DisconnectWithTimeout(
+            Assert.DoesNotThrow((Action)(() => MqttRelayLifecycle.DisconnectWithTimeout(
                 disconnect: () => throw new InvalidOperationException("sync throw"),
                 timeout: TimeSpan.FromSeconds(1),
-                onFault: ex => loggedFault = ex.Message));
+                onFault: ex => loggedFault = ex.Message)));
 
             Assert.That(loggedFault, Is.EqualTo("sync throw"));
         }
@@ -104,10 +104,10 @@ namespace MTConnect.AgentModule.MqttRelay.Tests
             // The shutdown path must tolerate a null disconnect factory
             // (for example when _mqttClient is null because the worker
             // never ran).
-            Assert.DoesNotThrow(() => MqttRelayLifecycle.DisconnectWithTimeout(
+            Assert.DoesNotThrow((Action)(() => MqttRelayLifecycle.DisconnectWithTimeout(
                 disconnect: null,
                 timeout: TimeSpan.FromSeconds(1),
-                onFault: _ => { }));
+                onFault: _ => { })));
         }
     }
 }

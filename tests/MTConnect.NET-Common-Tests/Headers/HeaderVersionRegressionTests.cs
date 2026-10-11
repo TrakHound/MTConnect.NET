@@ -144,7 +144,7 @@ namespace MTConnect.Tests.Common.Headers
             var assets = broker.GetAssetsResponseDocument();
             var error = broker.GetErrorResponseDocument(ErrorCode.UNSUPPORTED, "test");
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)(() =>
             {
                 Assert.That(devices!.Header.Version, Is.Not.EqualTo(libraryVersion),
                     "Devices Header.version must not echo the library assembly version.");
@@ -152,7 +152,7 @@ namespace MTConnect.Tests.Common.Headers
                     "Assets Header.version must not echo the library assembly version.");
                 Assert.That(error!.Header.Version, Is.Not.EqualTo(libraryVersion),
                     "Error Header.version must not echo the library assembly version.");
-            });
+            }));
         }
     }
 }

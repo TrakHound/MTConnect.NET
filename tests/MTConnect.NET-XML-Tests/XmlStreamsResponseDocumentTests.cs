@@ -35,10 +35,10 @@ namespace MTConnect.Tests.XML
             using var xmlStream = XmlReader.Create(new MemoryStream(Encoding.UTF8.GetBytes(text)));
             var doc = XmlStreamsResponseDocument.ReadXml(xmlStream);
 
-            Assert.AreEqual(1, doc.Streams.Count());
+            Assert.That(doc.Streams.Count(), Is.EqualTo(1));
             var stream = doc.Streams.Single();
             var conditions = stream.Conditions.ToArray();
-            Assert.AreEqual(2, conditions.Length);
+            Assert.That(conditions.Length, Is.EqualTo(2));
 
             var cond1 = new ConditionObservation()
             {

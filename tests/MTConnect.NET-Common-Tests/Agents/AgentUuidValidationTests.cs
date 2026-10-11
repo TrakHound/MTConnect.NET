@@ -601,7 +601,7 @@ namespace MTConnect.Tests.Common.Agents
         [Test]
         public void Null_warn_delegate_does_not_throw_on_either_rejection_path()
         {
-            Assert.DoesNotThrow(() =>
+            Assert.DoesNotThrow((Action)(() =>
             {
                 _ = AgentUuidResolver.Resolve(
                     operatorSuppliedUuid: "not-a-uuid",
@@ -609,7 +609,7 @@ namespace MTConnect.Tests.Common.Agents
                     agentName: "test-agent",
                     hostname: "test-host",
                     warn: null);
-            });
+            }));
         }
 
         /// <summary>
@@ -620,14 +620,14 @@ namespace MTConnect.Tests.Common.Agents
         [Test]
         public void Default_warn_argument_omitted_does_not_throw()
         {
-            Assert.DoesNotThrow(() =>
+            Assert.DoesNotThrow((Action)(() =>
             {
                 _ = AgentUuidResolver.Resolve(
                     operatorSuppliedUuid: "not-a-uuid",
                     persistedUuid: "also-not-a-uuid",
                     agentName: "test-agent",
                     hostname: "test-host");
-            });
+            }));
         }
 
         // ------------------------------------------------------------------
@@ -1056,7 +1056,7 @@ namespace MTConnect.Tests.Common.Agents
         public void Derive_throws_when_both_agent_name_and_hostname_are_empty(string agentName, string hostname)
         {
             Assert.Throws<ArgumentException>(
-                () => DeterministicAgentUuid.Derive(agentName, hostname, port: 0),
+                (Action)(() => DeterministicAgentUuid.Derive(agentName, hostname, port: 0)),
                 "Both seed components empty must not silently derive a fleet-wide collision UUID.");
         }
 

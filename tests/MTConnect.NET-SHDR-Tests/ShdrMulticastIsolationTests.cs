@@ -50,7 +50,7 @@ namespace MTConnect.Tests.Shdr
         {
             EventHandler<string> handler = (_, _) => throw new InvalidOperationException("shdr-fault");
 
-            Assert.DoesNotThrow(() => handler.Raise(this, "x", null));
+            Assert.DoesNotThrow((Action)(() => handler.Raise(this, "x", null)));
         }
 
         /// <summary>Pins the behavior expressed by the test name: multiple string-payload subscribers all fire when no subscriber throws, covering the happy path for AgentConnected and related events.</summary>
@@ -98,7 +98,7 @@ namespace MTConnect.Tests.Shdr
             var payload = new AdapterEventArgs<string>("c1", "data");
             EventHandler<AdapterEventArgs<string>> handler = (_, _) => throw new InvalidOperationException("fault");
 
-            Assert.DoesNotThrow(() => handler.Raise(this, payload, null));
+            Assert.DoesNotThrow((Action)(() => handler.Raise(this, payload, null)));
         }
 
         // -----------------------------------------------------------------------
@@ -156,7 +156,7 @@ namespace MTConnect.Tests.Shdr
         {
             EventHandler<string> handler = null;
 
-            Assert.DoesNotThrow(() => handler.Raise(this, "x", null));
+            Assert.DoesNotThrow((Action)(() => handler.Raise(this, "x", null)));
         }
     }
 }

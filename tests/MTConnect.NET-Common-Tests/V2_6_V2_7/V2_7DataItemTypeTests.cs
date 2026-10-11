@@ -49,7 +49,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
             // surfaces as a clear NUnit failure with the offending type name
             // rather than a bare MissingMethodException.
             object? instance = null;
-            Assert.DoesNotThrow(() => instance = Activator.CreateInstance(dataItemType),
+            Assert.DoesNotThrow((Action)(() => instance = Activator.CreateInstance(dataItemType)),
                 $"{dataItemType.Name} should have a public parameterless constructor");
             Assert.That(instance, Is.Not.Null);
             Assert.That(instance, Is.InstanceOf<DataItem>());

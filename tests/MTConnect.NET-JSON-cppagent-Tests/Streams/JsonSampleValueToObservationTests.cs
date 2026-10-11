@@ -5,6 +5,7 @@ using MTConnect.Devices;
 using MTConnect.Observations;
 using MTConnect.Streams.Json;
 using NUnit.Framework;
+using System;
 
 namespace MTConnect.NET_JSON_cppagent_Tests.Streams
 {
@@ -35,7 +36,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
 
             ISampleValueObservation? observation = null;
             Assert.That(
-                () => observation = sample.ToObservation("Temperature"),
+                (Action)(() => observation = sample.ToObservation("Temperature")),
                 Throws.Nothing,
                 "ToObservation must null-guard ResetTriggered/Statistic " +
                 "rather than calling ConvertEnum on a null surface.");

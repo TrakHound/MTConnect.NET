@@ -114,7 +114,7 @@ namespace MTConnect.NET_Common_Tests.Devices.Configurations
             Type simpleType, Type abstractInterface, Type simpleInterface)
         {
             object? instance = null;
-            Assert.DoesNotThrow(() => instance = Activator.CreateInstance(simpleType),
+            Assert.DoesNotThrow((Action)(() => instance = Activator.CreateInstance(simpleType)),
                 $"{simpleType.Name} must have a public parameterless ctor");
             Assert.That(instance, Is.Not.Null);
         }
@@ -146,7 +146,7 @@ namespace MTConnect.NET_Common_Tests.Devices.Configurations
             Type dataSetType, Type abstractInterface, Type simpleInterface, Type dataSetInterface)
         {
             object? instance = null;
-            Assert.DoesNotThrow(() => instance = Activator.CreateInstance(dataSetType),
+            Assert.DoesNotThrow((Action)(() => instance = Activator.CreateInstance(dataSetType)),
                 $"{dataSetType.Name} must have a public parameterless ctor");
             Assert.That(instance, Is.Not.Null);
         }

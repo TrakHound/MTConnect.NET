@@ -86,7 +86,7 @@ namespace MTConnect.Tests.Common
         {
             TestDeviceHandler handler = (_, _) => throw new InvalidOperationException("DeviceFound fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h(this, "device-1")));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h(this, "device-1"))));
         }
 
         // -----------------------------------------------------------------------
@@ -113,7 +113,7 @@ namespace MTConnect.Tests.Common
         {
             TestRequestStatusHandler handler = (_, _) => throw new InvalidOperationException("SearchCompleted fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h(this, 0L)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h(this, 0L))));
         }
 
         // -----------------------------------------------------------------------
@@ -141,7 +141,7 @@ namespace MTConnect.Tests.Common
         {
             TestPingSentHandlerOnFinder handler = (_, _) => throw new InvalidOperationException("PingSent fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h(this, IPAddress.Loopback)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h(this, IPAddress.Loopback))));
         }
 
         // -----------------------------------------------------------------------
@@ -169,7 +169,7 @@ namespace MTConnect.Tests.Common
         {
             TestPingReceivedHandlerOnFinder handler = (_, _, _) => throw new InvalidOperationException("PingReceived fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h(this, IPAddress.Loopback, null!)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h(this, IPAddress.Loopback, null!))));
         }
 
         // -----------------------------------------------------------------------
@@ -196,7 +196,7 @@ namespace MTConnect.Tests.Common
         {
             TestPortRequestHandler handler = (_, _, _) => throw new InvalidOperationException("PortRequest fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h(this, IPAddress.Loopback, 5000)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h(this, IPAddress.Loopback, 5000))));
         }
 
         // -----------------------------------------------------------------------
@@ -223,7 +223,7 @@ namespace MTConnect.Tests.Common
         {
             TestProbeRequestHandler handler = (_, _, _) => throw new InvalidOperationException("ProbeRequest fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h(this, IPAddress.Loopback, 5000)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h(this, IPAddress.Loopback, 5000))));
         }
 
         // -----------------------------------------------------------------------
@@ -251,7 +251,7 @@ namespace MTConnect.Tests.Common
         {
             TestPingSentHandlerOnQueue handler = _ => throw new InvalidOperationException("PingQueue.PingSent fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h(IPAddress.Loopback)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h(IPAddress.Loopback))));
         }
 
         // -----------------------------------------------------------------------
@@ -279,7 +279,7 @@ namespace MTConnect.Tests.Common
         {
             TestPingReceivedHandlerOnQueue handler = (_, _) => throw new InvalidOperationException("PingQueue.PingReceived fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h(IPAddress.Loopback, null!)));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h(IPAddress.Loopback, null!))));
         }
 
         // -----------------------------------------------------------------------
@@ -307,7 +307,7 @@ namespace MTConnect.Tests.Common
         {
             TestCompletedHandler handler = _ => throw new InvalidOperationException("PingQueue.Completed fault");
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler, h => h(new List<IPAddress>())));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler, h => h(new List<IPAddress>()))));
         }
 
         // -----------------------------------------------------------------------
@@ -320,7 +320,7 @@ namespace MTConnect.Tests.Common
         {
             TestDeviceHandler? handler = null;
 
-            Assert.DoesNotThrow(() => MulticastIsolation.Raise(handler!, h => h(this, "any")));
+            Assert.DoesNotThrow((Action)(() => MulticastIsolation.Raise(handler!, h => h(this, "any"))));
         }
     }
 }

@@ -115,7 +115,7 @@ public class RouteCheckHelpersTests
     public void MdFileToRoute_NullDocsRoot_Throws()
     {
         var ex = Assert.Throws<ArgumentNullException>(
-            () => RouteCheckHelpers.MdFileToRoute(null!, "/repo/docs/index.md"));
+            (Action)(() => RouteCheckHelpers.MdFileToRoute(null!, "/repo/docs/index.md")));
         Assert.That(ex!.ParamName, Is.EqualTo("docsRoot"));
     }
 
@@ -127,7 +127,7 @@ public class RouteCheckHelpersTests
     public void MdFileToRoute_NullAbsPath_Throws()
     {
         var ex = Assert.Throws<ArgumentNullException>(
-            () => RouteCheckHelpers.MdFileToRoute("/repo/docs", null!));
+            (Action)(() => RouteCheckHelpers.MdFileToRoute("/repo/docs", null!)));
         Assert.That(ex!.ParamName, Is.EqualTo("absPath"));
     }
 
@@ -276,7 +276,7 @@ public class RouteCheckHelpersTests
     {
         var results = new List<string>();
         var ex = Assert.Throws<ArgumentNullException>(
-            () => RouteCheckHelpers.CollectMarkdownFiles(null!, results));
+            (Action)(() => RouteCheckHelpers.CollectMarkdownFiles(null!, results)));
         Assert.That(ex!.ParamName, Is.EqualTo("dir"));
     }
 
@@ -288,7 +288,7 @@ public class RouteCheckHelpersTests
     public void CollectMarkdownFiles_NullResults_Throws()
     {
         var ex = Assert.Throws<ArgumentNullException>(
-            () => RouteCheckHelpers.CollectMarkdownFiles("/tmp", null!));
+            (Action)(() => RouteCheckHelpers.CollectMarkdownFiles("/tmp", null!)));
         Assert.That(ex!.ParamName, Is.EqualTo("results"));
     }
 
@@ -300,7 +300,7 @@ public class RouteCheckHelpersTests
     public void CollectRoutes_NullDocsRoot_Throws()
     {
         var ex = Assert.Throws<ArgumentNullException>(
-            () => RouteCheckHelpers.CollectRoutes(null!));
+            (Action)(() => RouteCheckHelpers.CollectRoutes(null!)));
         Assert.That(ex!.ParamName, Is.EqualTo("docsRoot"));
     }
 
@@ -405,7 +405,7 @@ public class RouteCheckHelpersTests
     public void ExtractBannerPort_NullLog_Throws()
     {
         var ex = Assert.Throws<ArgumentNullException>(
-            () => RouteCheckHelpers.ExtractBannerPort(null!));
+            (Action)(() => RouteCheckHelpers.ExtractBannerPort(null!)));
         Assert.That(ex!.ParamName, Is.EqualTo("log"));
     }
 
@@ -459,7 +459,7 @@ public class RouteCheckHelpersTests
         // ancestor of the temp directory. The walk will exhaust at
         // the filesystem root.
         var ex = Assert.Throws<InvalidOperationException>(
-            () => RouteCheckHelpers.LocateRepoRoot(fixture.Path, "no-such-marker-12345.txt"));
+            (Action)(() => RouteCheckHelpers.LocateRepoRoot(fixture.Path, "no-such-marker-12345.txt")));
         Assert.That(ex!.Message, Does.Contain(fixture.Path));
         Assert.That(ex.Message, Does.Contain("ancestor"));
     }
@@ -472,7 +472,7 @@ public class RouteCheckHelpersTests
     public void LocateRepoRoot_NullStartDirectory_Throws()
     {
         var ex = Assert.Throws<ArgumentNullException>(
-            () => RouteCheckHelpers.LocateRepoRoot(null!, "marker.txt"));
+            (Action)(() => RouteCheckHelpers.LocateRepoRoot(null!, "marker.txt")));
         Assert.That(ex!.ParamName, Is.EqualTo("startDirectory"));
     }
 
@@ -484,7 +484,7 @@ public class RouteCheckHelpersTests
     public void LocateRepoRoot_NullMarkerFile_Throws()
     {
         var ex = Assert.Throws<ArgumentNullException>(
-            () => RouteCheckHelpers.LocateRepoRoot("/tmp", null!));
+            (Action)(() => RouteCheckHelpers.LocateRepoRoot("/tmp", null!)));
         Assert.That(ex!.ParamName, Is.EqualTo("markerFile"));
     }
 
@@ -715,7 +715,7 @@ public class RouteCheckHelpersTests
     public void ShardRoutes_NullRoutes_Throws()
     {
         var ex = Assert.Throws<ArgumentNullException>(
-            () => RouteCheckHelpers.ShardRoutes(null!, 1, 1));
+            (Action)(() => RouteCheckHelpers.ShardRoutes(null!, 1, 1)));
         Assert.That(ex!.ParamName, Is.EqualTo("routes"));
     }
 
@@ -729,7 +729,7 @@ public class RouteCheckHelpersTests
     public void ShardRoutes_NonPositiveTotal_Throws(int total)
     {
         var ex = Assert.Throws<ArgumentOutOfRangeException>(
-            () => RouteCheckHelpers.ShardRoutes(SampleRoutes, 1, total));
+            (Action)(() => RouteCheckHelpers.ShardRoutes(SampleRoutes, 1, total)));
         Assert.That(ex!.ParamName, Is.EqualTo("total"));
     }
 
@@ -745,7 +745,7 @@ public class RouteCheckHelpersTests
     public void ShardRoutes_IndexOutOfRange_Throws(int index, int total)
     {
         var ex = Assert.Throws<ArgumentOutOfRangeException>(
-            () => RouteCheckHelpers.ShardRoutes(SampleRoutes, index, total));
+            (Action)(() => RouteCheckHelpers.ShardRoutes(SampleRoutes, index, total)));
         Assert.That(ex!.ParamName, Is.EqualTo("index"));
     }
 

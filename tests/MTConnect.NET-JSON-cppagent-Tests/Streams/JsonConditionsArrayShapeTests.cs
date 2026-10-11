@@ -425,8 +425,8 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
                 "\"Normal\":[{\"dataItemId\":\"n1\"}]," +
                 "\"Unavailable\":[{\"dataItemId\":\"u1\"}]}";
 
-            Assert.Throws<JsonException>(() =>
-                JsonSerializer.Deserialize<JsonConditions>(legacyV1));
+            Assert.Throws<JsonException>((Action)(() =>
+                JsonSerializer.Deserialize<JsonConditions>(legacyV1)));
         }
 
         /// <summary>
@@ -495,7 +495,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
         [TestCase("false")]
         public void Deserialize_non_array_root_throws_JsonException(string wire)
         {
-            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<JsonConditions>(wire));
+            Assert.Throws<JsonException>((Action)(() => JsonSerializer.Deserialize<JsonConditions>(wire)));
         }
 
         /// <summary>
@@ -513,7 +513,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
         [TestCase("[[]]")]
         public void Deserialize_scalar_or_array_element_throws_JsonException(string wire)
         {
-            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<JsonConditions>(wire));
+            Assert.Throws<JsonException>((Action)(() => JsonSerializer.Deserialize<JsonConditions>(wire)));
         }
 
         /// <summary>
@@ -527,7 +527,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
         [TestCase("not-json-at-all")]
         public void Deserialize_malformed_wire_throws_JsonException(string wire)
         {
-            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<JsonConditions>(wire));
+            Assert.Throws<JsonException>((Action)(() => JsonSerializer.Deserialize<JsonConditions>(wire)));
         }
 
         /// <summary>

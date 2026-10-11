@@ -93,7 +93,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
         {
             object? instance = null;
             Assert.DoesNotThrow(
-                () => instance = Activator.CreateInstance(type),
+                (Action)(() => instance = Activator.CreateInstance(type)),
                 $"{type.FullName} parameterless ctor threw");
             Assert.That(instance, Is.Not.Null,
                 $"{type.FullName} parameterless ctor returned null");

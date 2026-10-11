@@ -164,7 +164,7 @@ namespace MTConnect.Tests.Common
             EventHandler<string>? handler = null;
             EventHandler<Exception>? internalError = null;
 
-            Assert.DoesNotThrow(() => handler.Raise(this, "x", internalError));
+            Assert.DoesNotThrow((Action)(() => handler.Raise(this, "x", internalError)));
         }
 
         /// <summary>Pins the behavior expressed by the test name: Raise non-generic with a null handler is a safe no-op.</summary>
@@ -174,7 +174,7 @@ namespace MTConnect.Tests.Common
             EventHandler? handler = null;
             EventHandler<Exception>? internalError = null;
 
-            Assert.DoesNotThrow(() => handler.Raise(this, EventArgs.Empty, internalError));
+            Assert.DoesNotThrow((Action)(() => handler.Raise(this, EventArgs.Empty, internalError)));
         }
     }
 }

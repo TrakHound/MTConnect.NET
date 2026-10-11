@@ -32,12 +32,12 @@ namespace MTConnect.Tests.Common.Regressions
         public void Device_default_constructor_leaves_identity_fields_null()
         {
             var device = new Device();
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)(() =>
             {
                 Assert.That(device.Id, Is.Null, "Device.Id");
                 Assert.That(device.Name, Is.Null, "Device.Name");
                 Assert.That(device.Uuid, Is.Null, "Device.Uuid");
-            });
+            }));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: agent default constructor leaves identity fields null.</summary>
@@ -45,12 +45,12 @@ namespace MTConnect.Tests.Common.Regressions
         public void Agent_default_constructor_leaves_identity_fields_null()
         {
             var agent = new Agent();
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)(() =>
             {
                 Assert.That(agent.Id, Is.Null, "Agent.Id");
                 Assert.That(agent.Name, Is.Null, "Agent.Name");
                 Assert.That(agent.Uuid, Is.Null, "Agent.Uuid");
-            });
+            }));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: sequential default devices share null uuid.</summary>
@@ -71,12 +71,12 @@ namespace MTConnect.Tests.Common.Regressions
         public void Object_initializer_continues_to_set_Device_identity()
         {
             var device = new Device { Id = "id-A", Name = "name-A", Uuid = "uuid-A" };
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)(() =>
             {
                 Assert.That(device.Id, Is.EqualTo("id-A"));
                 Assert.That(device.Name, Is.EqualTo("name-A"));
                 Assert.That(device.Uuid, Is.EqualTo("uuid-A"));
-            });
+            }));
         }
 
         // ---- Reflection guard --------------------------------------

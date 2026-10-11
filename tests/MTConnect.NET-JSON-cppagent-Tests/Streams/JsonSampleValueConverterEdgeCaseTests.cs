@@ -1,6 +1,7 @@
 // Copyright (c) 2026 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using System;
 using System.Text.Json;
 using MTConnect.NET_JSON_cppagent.Streams;
 using MTConnect.Streams.Json;
@@ -139,7 +140,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             options.Converters.Add(converter);
 
             Assert.That(
-                () => JsonSerializer.Deserialize<object>(payload, options),
+                (Action)(() => JsonSerializer.Deserialize<object>(payload, options)),
                 Throws.InstanceOf<JsonException>(),
                 $"Unsupported token payload '{payload}' must surface as a " +
                 "JsonException so feed corruption is visible to callers.");
