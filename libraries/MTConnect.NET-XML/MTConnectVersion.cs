@@ -8,7 +8,7 @@ namespace MTConnect
     internal static class MTConnectVersion
     {
         /// <summary>
-        /// Gets the Version of the MTConnect standard being used based on the XML Namespace that is used
+        /// Gets the Version of the MTConnect standard from a raw XML document by extracting the root element's namespace URI and dispatching through <see cref="GetByNamespace"/>.
         /// </summary>
         public static Version Get(string xml)
         {
@@ -17,12 +17,14 @@ namespace MTConnect
         }
 
         /// <summary>
-        /// Gets the Version of the MTConnect standard being used based on the XML Namespace that is used
+        /// Gets the Version of the MTConnect standard from an already-resolved namespace URI. Returns <see cref="MTConnectVersions.Max"/> when the namespace is null, empty, or does not match a declared MTConnect namespace.
         /// </summary>
         public static Version GetByNamespace(string ns)
         {
             if (ns != null)
             {
+                if (Namespaces.Version27.Match(ns)) return MTConnectVersions.Version27;
+                if (Namespaces.Version26.Match(ns)) return MTConnectVersions.Version26;
                 if (Namespaces.Version25.Match(ns)) return MTConnectVersions.Version25;
                 if (Namespaces.Version24.Match(ns)) return MTConnectVersions.Version24;
                 if (Namespaces.Version23.Match(ns)) return MTConnectVersions.Version23;
@@ -40,7 +42,8 @@ namespace MTConnect
                 if (Namespaces.Version10.Match(ns)) return MTConnectVersions.Version10;
             }
 
-            return new Version();
+            // unknown namespace → default to latest supported version
+            return MTConnectVersions.Max;
         }
     }
 }
