@@ -277,14 +277,14 @@
   :is(input[type=text], input[type=number], input[type=password], select, textarea):disabled { opacity: .65; cursor: not-allowed; }
   button.btn {
     font: inherit;
-    border: 1px solid var(--border);
+    border: 1px solid var(--input-border);
     background: var(--panel);
     color: var(--text);
     border-radius: var(--radius-sm);
     padding: 5px 12px;
     cursor: pointer;
   }
-  button.btn:hover { border-color: var(--accent); }
+  button.btn:hover:not(:disabled) { border-color: var(--accent); }
   button.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
   button.btn:disabled { opacity: .5; cursor: default; }
   label.check { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
@@ -355,7 +355,7 @@
   .config-fields .changed .field-row input, .config-fields .changed .field-row select { border-color: var(--warn); box-shadow: inset 3px 0 0 var(--warn); }
   .config-fields .set-marker { font-size: 11px; color: var(--accent); }
   button.icon-btn {
-    border: 1px solid var(--border);
+    border: 1px solid var(--input-border);
     background: var(--panel);
     color: var(--muted);
     border-radius: var(--radius-sm);
