@@ -46,6 +46,10 @@
     --border: #dfe3e8;
     --text: #1f2933;
     --muted: #6b7785;
+    --help-text: #4f5a66;   /* descriptions: quieter than text, easier to read than muted */
+    --input-bg: #ffffff;
+    --input-border: #aeb7c2; /* stronger than --border so fields stand apart from the row dividers */
+    --input-border-hover: #87929f;
     --accent: #1f6feb;
     --accent-soft: #e7f0fe;
     --ok: #1a7f37;
@@ -75,6 +79,10 @@
       --border: #2d343c;
       --text: #e3e7eb;
       --muted: #8b96a3;
+      --help-text: #a9b3be;
+      --input-bg: #12161b;
+      --input-border: #4a5562;
+      --input-border-hover: #66727f;
       --accent: #4c8dff;
       --accent-soft: #1d2b44;
       --ok: #3fb950;
@@ -256,14 +264,17 @@
   .stat .value.off { color: var(--warn); }
   .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
   .toolbar .spacer { flex: 1; }
-  input[type=text], input[type=number], input[type=password], select {
+  input[type=text], input[type=number], input[type=password], select, .device-form textarea.values, textarea.entry-yaml, textarea#config {
     font: inherit;
     color: var(--text);
-    background: var(--panel);
-    border: 1px solid var(--border);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
     border-radius: var(--radius-sm);
     padding: 5px 8px;
   }
+  :is(input[type=text], input[type=number], input[type=password], select, textarea):hover:not(:disabled) { border-color: var(--input-border-hover); }
+  :is(input[type=text], input[type=number], input[type=password], select, textarea):focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  :is(input[type=text], input[type=number], input[type=password], select, textarea):disabled { opacity: .65; cursor: not-allowed; }
   button.btn {
     font: inherit;
     border: 1px solid var(--border);
@@ -334,13 +345,13 @@
   .config-nav button .detail { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .config-nav button.selected .detail { color: #dde8ff; }
   .config-nav .dirty-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); margin-left: auto; flex-shrink: 0; }
-  .config-fields { display: grid; grid-template-columns: minmax(160px, 220px) minmax(0, 1fr); gap: 2px 16px; align-items: start; }
-  .config-fields .field-label { padding: 7px 0 0; font-family: var(--font-mono); font-size: 13px; overflow-wrap: anywhere; }
+  .config-fields { display: grid; grid-template-columns: minmax(140px, min(270px, 34%)) minmax(0, 1fr); gap: 2px 20px; align-items: start; }
+  .config-fields .field-label { padding: 7px 0 0; font-family: var(--font-mono); font-size: 13px; line-height: 1.35; overflow-wrap: break-word; min-width: 0; }
   .config-fields .field-control { display: flex; flex-direction: column; gap: 2px; padding: 3px 0 10px; border-bottom: 1px solid var(--border); }
   .config-fields .field-label { border-bottom: 1px solid var(--border); align-self: stretch; padding-bottom: 10px; }
   .config-fields .field-row { display: flex; gap: 6px; align-items: center; }
   .config-fields .field-row input, .config-fields .field-row select { flex: 1; min-width: 0; max-width: 420px; }
-  .config-fields .help { font-size: 12px; color: var(--muted); }
+  .config-fields .help { font-size: 12.5px; line-height: 1.45; color: var(--help-text); max-width: 72ch; margin-top: 3px; }
   .config-fields .changed .field-row input, .config-fields .changed .field-row select { border-color: var(--warn); box-shadow: inset 3px 0 0 var(--warn); }
   .config-fields .set-marker { font-size: 11px; color: var(--accent); }
   button.icon-btn {
@@ -370,7 +381,7 @@
   /* Nested settings stack each label above its control so any depth stays readable */
   .s-fields { display: flex; flex-direction: column; gap: 10px; }
   .s-field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-  .s-label { font-family: var(--font-mono); font-size: 12px; overflow-wrap: anywhere; }
+  .s-label { font-family: var(--font-mono); font-size: 12px; line-height: 1.35; overflow-wrap: break-word; }
   .s-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .s-body > input, .s-body > select { max-width: 100%; }
   .field-control.changed > .s-editor { border-left: 3px solid var(--warn); padding-left: 8px; }
@@ -428,7 +439,7 @@
   .device-tree .badge { font-size: 9px; padding: 0 4px; }
   .device-form h3 { font-size: 13px; font-weight: 500; margin: 0 0 8px; }
   .device-form .config-fields { margin-bottom: 14px; }
-  .device-form textarea.values { width: 100%; max-width: 420px; min-height: 80px; font: 13px/1.4 var(--font-mono); color: var(--text); background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 5px 8px; }
+  .device-form textarea.values { width: 100%; max-width: 420px; min-height: 80px; font: 13px/1.4 var(--font-mono); color: var(--text); background: var(--input-bg); border: 1px solid var(--input-border); border-radius: var(--radius-sm); padding: 5px 8px; }
   .device-add { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px; background: var(--code-bg); }
   /* The editor adapts to its own width (the side list and window size both affect it) */
   #config-device-panel { container-type: inline-size; }
@@ -448,7 +459,7 @@
     font: 13px/1.5 var(--font-mono);
     color: var(--text);
     background: var(--code-bg);
-    border: 1px solid var(--border);
+    border: 1px solid var(--input-border);
     border-radius: var(--radius-sm);
     padding: 12px;
     resize: vertical;
@@ -462,7 +473,7 @@
     font: 13px/1.5 var(--font-mono);
     color: var(--text);
     background: var(--code-bg);
-    border: 1px solid var(--border);
+    border: 1px solid var(--input-border);
     border-radius: var(--radius-sm);
     padding: 12px;
     resize: vertical;
@@ -816,6 +827,11 @@
   function esc(s) {
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // Setting names are camelCase; allow long ones to wrap between words instead of mid-word
+  function fieldName(key) {
+    return esc(key).replace(/([a-z0-9])(?=[A-Z])/g, '$1<wbr>');
   }
 
   function api(path, options) {
@@ -1633,7 +1649,7 @@
             : (f.type === 'list' || f.type === 'map' || f.type === 'object' || f.type === 'objectList')
               ? renderStructured(f, v)
               : scalarControl(f.type, f.options, f.secret, v, 'data-s-value', f.default != null ? 'Default (' + f.default + ')' : 'Not set');
-          return '<div class="s-field" data-s-field="' + esc(f.key) + '"><div class="s-label">' + esc(f.key) + '</div>' +
+          return '<div class="s-field" data-s-field="' + esc(f.key) + '"><div class="s-label">' + fieldName(f.key) + '</div>' +
             '<div class="s-body">' + control + (f.description ? '<div class="help">' + esc(f.description) + '</div>' : '') + '</div></div>';
         }).join('') + '</div>' +
         (editable && !options.noClear ? '<button type="button" class="icon-btn" data-s-clear>Remove these settings</button>' : '') + '</div>';
@@ -1735,7 +1751,7 @@
       }
 
       var reset = editable && current !== '' ? '<button type="button" class="icon-btn" data-reset="' + esc(f.key) + '" title="Remove this setting so the default is used">Use default</button>' : '';
-      return '<div class="field-label">' + esc(f.key) + '</div>' +
+      return '<div class="field-label">' + fieldName(f.key) + '</div>' +
         '<div class="field-control' + (changed ? ' changed' : '') + '">' +
         '<div class="field-row">' + control + reset + '</div>' +
         (f.description ? '<div class="help">' + esc(f.description) + '</div>' : '') +
@@ -1751,7 +1767,7 @@
         var changed = Object.prototype.hasOwnProperty.call(structured.edits, f.key);
         var value = changed ? structured.edits[f.key] : cloneValue(structured.data[f.key]);
         var hasValue = normalizeValue(value) !== undefined;
-        return '<div class="field-label">' + esc(f.key) + '</div>' +
+        return '<div class="field-label">' + fieldName(f.key) + '</div>' +
           '<div class="field-control' + (changed ? ' changed' : '') + '" data-s-root="' + esc(f.key) + '">' +
           renderStructured(f, value) +
           (f.description ? '<div class="help">' + esc(f.description) + '</div>' : '') +
@@ -2435,7 +2451,7 @@
         (options.list ? ' list="' + options.list + '"' : '') + (options.placeholder ? ' placeholder="' + esc(options.placeholder) + '"' : '') +
         ' autocomplete="off" spellcheck="false"' + (editable ? '' : ' disabled') + '>';
     }
-    return '<div class="field-label">' + esc(options.label || key) + '</div>' +
+    return '<div class="field-label">' + fieldName(options.label || key) + '</div>' +
       '<div class="field-control"><div class="field-row">' + control + '</div>' +
       (options.help ? '<div class="help">' + esc(options.help) + '</div>' : '') + '</div>';
   }
@@ -2566,7 +2582,7 @@
         (value && options.select.indexOf(value) < 0 ? '<option selected>' + esc(value) + '</option>' : '') + '</select>'
       : '<input type="text"' + data + ' value="' + esc(value || '') + '"' + (options.list ? ' list="' + options.list + '"' : '') +
         (options.placeholder ? ' placeholder="' + esc(options.placeholder) + '"' : '') + ' autocomplete="off" spellcheck="false">';
-    return '<div class="field-label">' + esc(options.label || key) + '</div><div class="field-control"><div class="field-row">' + control + '</div>' +
+    return '<div class="field-label">' + fieldName(options.label || key) + '</div><div class="field-control"><div class="field-row">' + control + '</div>' +
       (options.help ? '<div class="help">' + esc(options.help) + '</div>' : '') + '</div>';
   }
 
