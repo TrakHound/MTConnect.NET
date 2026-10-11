@@ -33,15 +33,16 @@ namespace {{namespace}}
 {{- end }}{{ end }}
         };
 {{- end }}
-{{ i = 0 }}{{- for property in properties }}{{ i = i + 1 }}
 
+{{ for property in properties }}
         /// <summary>
         /// {{property.description}}
         /// </summary>
-        {{ if (property.is_array) }}public {{ if (property.is_inherited) }}new {{ end }}System.Collections.Generic.IEnumerable<{{property.data_type}}> {{property.name}} { get; set; }{{ end }}
-        {{- if (!property.is_array) }}public {{ if (property.is_inherited) }}new {{ end }}{{property.data_type}}{{ if (property.is_optional) }}?{{ end }} {{property.name}} { get; set; }{{ end }}
-        {{- if (i < (properties | array.size)) }}
-        {{ end }}
-{{- end }}
+        {{- if (property.is_array) }}
+        public {{ if (property.is_inherited) }}new {{ end }}System.Collections.Generic.IEnumerable<{{property.data_type}}> {{property.name}} { get; set; }
+        {{- else }}
+        public {{ if (property.is_inherited) }}new {{ end }}{{property.data_type}}{{ if (property.is_optional) }}?{{ end }} {{property.name}} { get; set; }
+        {{- end }}
+{{ end ~}}
     }
 }

@@ -297,6 +297,7 @@ export default withMermaid(
             text: 'Migration notes',
             items: [
               { text: 'v7: ValidationResult consolidation', link: '/migration/v7-validation-result' },
+              { text: 'v7: CuttingTools Measurement.Code relocation', link: '/migration/v7-cuttingtools-measurement-code-relocation' },
             ],
           },
         ],

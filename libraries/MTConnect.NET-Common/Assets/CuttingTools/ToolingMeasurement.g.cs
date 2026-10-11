@@ -19,6 +19,6 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// Shop specific code for the measurement. ISO 13399 codes **MAY** be used for these codes as well. code values.
         /// </summary>
-        public new string Code { get; set; }
+        public string Code { get; set; }
     }
 }

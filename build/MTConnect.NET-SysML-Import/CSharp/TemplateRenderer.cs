@@ -299,11 +299,10 @@ namespace MTConnect.SysML.CSharp
                         //
                         // The full import-side classModels list is passed too so the
                         // walk can find parents that are present in the SysML graph but
-                        // never reach `templates` (e.g. `Assets.CuttingTools.Measurement`,
-                        // an abstract base whose .g.cs is hand-maintained / frozen and
-                        // therefore not re-emitted by any current renderer flow). The
-                        // child ToolingMeasurement still extends it at C# compile time,
-                        // so its `Code` property hides Measurement.Code and needs `new`.
+                        // never reach `templates` (e.g. abstract bases whose .g.cs is
+                        // hand-maintained / frozen and therefore not re-emitted by any
+                        // current renderer flow) — the child class still extends them at
+                        // C# compile time, so any name collision needs the `new` marker.
                         MarkInheritedProperties(templates, classModels);
 
 
@@ -490,7 +489,7 @@ namespace MTConnect.SysML.CSharp
         ///     <see cref="MTConnectClassModel.ParentName"/> through every
         ///     ClassModel the renderer has assembled. This catches the
         ///     overwhelming majority of cases (Asset.SerialNumber ⇒
-        ///     CuttingToolAsset, Measurement.Code ⇒ ToolingMeasurement, etc.).
+        ///     CuttingToolAsset, Component.Uuid ⇒ Device, etc.).
         ///   </item>
         ///   <item>
         ///     Hand-stitched seeds for inheritance links the SysML model does
@@ -644,18 +643,16 @@ namespace MTConnect.SysML.CSharp
                     case "Assets.CuttingTools.ToolingMeasurement":
                         // ToolingMeasurement extends `Measurement` (the
                         // CuttingTools abstract Measurement base, NOT
-                        // Assets.Pallet.Measurement). The CuttingTools
-                        // Measurement.g.cs is hand-maintained / frozen —
-                        // not produced by any current renderer flow — so
-                        // it never enters the export-side ClassModel
-                        // graph the inheritance walk traverses, and a
-                        // Name-only lookup of "Measurement" resolves to
-                        // Pallet.Measurement (which lacks Code). Class
-                        // side only — IMeasurement.g.cs has `Code`
-                        // commented out, so the interface child does NOT
-                        // hide anything and emitting `new` there would
-                        // produce CS0109 instead.
-                        classOnlyNames.Add("Code");
+                        // Assets.Pallet.Measurement). The SysML v2.7 XMI
+                        // relocates `Code` onto ToolingMeasurement — the
+                        // parent Measurement (both class and interface)
+                        // no longer declares Code, so ToolingMeasurement's
+                        // `Code` is a fresh introduction that hides
+                        // nothing. Emitting `new` here would raise CS0109
+                        // on both the class and the interface. No hand-
+                        // stitched inheritance seed is needed for this
+                        // template — leave the case block as a marker so
+                        // the intentional emptiness is documented.
                         break;
                 }
 
