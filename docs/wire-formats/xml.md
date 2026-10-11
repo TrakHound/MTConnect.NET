@@ -1,6 +1,6 @@
 # XML
 
-XML is the canonical MTConnect wire format. Every MTConnect Standard version (v1.0 through v2.5 in this library; v2.7 in the standard at large) defines an XSD set that pins the on-the-wire envelope shape — `MTConnectStreams_<ver>.xsd`, `MTConnectDevices_<ver>.xsd`, `MTConnectAssets_<ver>.xsd`, and `MTConnectError_<ver>.xsd`. The library's XML codec produces output that validates against the matching-version XSD published at [schemas.mtconnect.org](https://schemas.mtconnect.org/).
+XML is the canonical MTConnect wire format. Every MTConnect Standard version (v1.0 through v2.7 in this library) defines an XSD set that pins the on-the-wire envelope shape — `MTConnectStreams_<ver>.xsd`, `MTConnectDevices_<ver>.xsd`, `MTConnectAssets_<ver>.xsd`, and `MTConnectError_<ver>.xsd`. The library's XML codec produces output that validates against the matching-version XSD published at [schemas.mtconnect.org](https://schemas.mtconnect.org/).
 
 The codec round-trips: it both reads agent output (e.g. an HTTP `GET /current` response) and writes envelopes for the agent to serve. Reads dispatch on the document's `xmlns` value to select the matching MTConnect version (see [`MTConnect.Namespaces`](/api/MTConnect.Namespaces) for the URI → version table).
 
@@ -79,11 +79,13 @@ The codec walks the `xmlns` attribute on the root element to pick the version. T
 | v2.2 | `urn:mtconnect.org:MTConnectStreams:2.2` | Read + write. |
 | v2.3 | `urn:mtconnect.org:MTConnectStreams:2.3` | Read + write. |
 | v2.4 | `urn:mtconnect.org:MTConnectStreams:2.4` | Read + write. |
-| v2.5 | `urn:mtconnect.org:MTConnectStreams:2.5` | Read + write. The library's current `MTConnectVersions.Max`. |
+| v2.5 | `urn:mtconnect.org:MTConnectStreams:2.5` | Read + write. |
+| v2.6 | `urn:mtconnect.org:MTConnectStreams:2.6` | Read + write. |
+| v2.7 | `urn:mtconnect.org:MTConnectStreams:2.7` | Read + write. The library's current `MTConnectVersions.Max`. |
 
 The per-envelope coverage rolls up to the same table — Streams, Devices, Assets, and Error all ship XSDs across the same version span. There is no v1.9 row because the MTConnect Standard skipped that number between v1.8 and v2.0; the XSD set has no `1.9` namespace and the library tracks the canonical gap. See the [`MTConnectVersions`](/api/MTConnect.MTConnectVersions) constants for the full enum.
 
-For v2.6 and v2.7 namespaces, the codec falls through to the v2.5 reader path; the library's compliance posture for those versions is tracked under [Compliance](/compliance/). Authoritative XSDs for every version are at [schemas.mtconnect.org](https://schemas.mtconnect.org/) and the normative SysML XMI is at [`mtconnect/mtconnect_sysml_model`](https://github.com/mtconnect/mtconnect_sysml_model). Prose narration lives at [docs.mtconnect.org](https://docs.mtconnect.org/) in Part 2.0 (Streams), Part 3.0 (Devices), and Part 4.0 (Assets).
+For any namespace not enumerated above — including future spec versions the library has not yet been rebuilt against — the codec defaults to the latest supported version (`MTConnectVersions.Max`) rather than to an older reader path. This preserves forward compatibility: an incoming document declaring a namespace one minor version ahead of the library's compiled surface is still read against the newest known reader. The library's compliance posture for v2.6 and v2.7 is tracked under [Compliance](/compliance/). Authoritative XSDs for every version are at [schemas.mtconnect.org](https://schemas.mtconnect.org/) and the normative SysML XMI is at [`mtconnect/mtconnect_sysml_model`](https://github.com/mtconnect/mtconnect_sysml_model). Prose narration lives at [docs.mtconnect.org](https://docs.mtconnect.org/) in Part 2.0 (Streams), Part 3.0 (Devices), and Part 4.0 (Assets).
 
 ## Wire-flow sequence
 
@@ -114,7 +116,7 @@ Reads run the same pipeline in reverse: the agent (or an `XmlAdapter` peer) read
 ## Caveats and known divergences
 
 - **Schema validation is opt-in.** The codec emits XML unconditionally; it does not validate every write against the XSD. Call [`XmlValidator.ValidateXml`](/api/MTConnect.XmlValidator) explicitly when validation matters (e.g. before persisting an envelope or before relaying to a downstream consumer that gates on validation).
-- **The v1.9 namespace does not exist.** The MTConnect Standard numbered v1.8 → v2.0 directly. A document carrying `urn:mtconnect.org:MTConnectStreams:1.9` is malformed by definition; the codec's namespace lookup returns the default empty `Version` for it, and downstream code paths treat the result as an unknown version.
+- **The v1.9 namespace does not exist.** The MTConnect Standard numbered v1.8 → v2.0 directly. A document carrying `urn:mtconnect.org:MTConnectStreams:1.9` is malformed by definition; the codec's namespace lookup falls through to `MTConnectVersions.Max` (currently v2.7) rather than an empty `Version`; downstream code paths receive the newest known reader instead of an unknown-version sentinel.
 - **XSD 1.1 features are not enforced.** The published XSDs include XSD 1.1 assertions and conditional type assignments that .NET's `XmlReader` does not evaluate. Validation catches structural shape only; spec-prose rules (e.g. cross-element constraints not expressible in pure XSD 1.0) are enforced by the agent's typed object model, not by the validator. The compliance harness under `tests/Compliance/` carries the XSD 1.1 + xlink runner that fills the gap.
 - **Schema-pinned attribute order is not load-bearing.** The MTConnect XSDs declare attributes in a documented order, but XML itself is order-insensitive for attributes. The codec emits attributes in the order the DTOs declare them; consumers that gate on a particular ordering are non-conformant to the XML specification, not to MTConnect.
 - **The `m:` namespace prefix is conventional, not required.** The library emits `xmlns:m="urn:mtconnect.org:MTConnectStreams:<ver>"` alongside the default `xmlns` declaration because the reference fixtures use that prefix. Consumers must accept any prefix (or none) bound to the same URI — the MTConnect Standard pins the namespace URI, not the prefix.
