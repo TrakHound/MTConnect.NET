@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a unit that provides power to electric mechanisms.
     /// </summary>
-    public class PowerSupplyComposition : Composition 
+    public class PowerSupplyComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

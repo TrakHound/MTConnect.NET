@@ -1,0 +1,57 @@
+// Baseline mutation score is 7.75% on 2026-08-20 (measured with
+// MTConnect.NET-Common as the pilot assembly + the full
+// MTConnect.NET-Common-Tests suite, at PR #233 head 43497c5d, Stryker.NET
+// v4.16.0 with the Regex mutator ignored).
+//
+// Thresholds. `break: 5` and `low: 5` sit below the 7.75% baseline, so a
+// baseline-conforming run passes CI (Stryker exits non-zero only when the
+// score drops below `break`). `high: 8` sits deliberately ABOVE the
+// baseline as an aspirational marker — a baseline-conforming run reports
+// yellow (`low <= score < high`) rather than green, keeping visible
+// pressure on the follow-up campaign until the floor rises above `high`.
+// See TrakHound/MTConnect.NET#242 for the phase-by-phase plan
+// (categorize survivors -> kill by subsystem -> raise thresholds in step
+// to 20 -> 40 -> 60 -> 80%+ -> expand Stryker to sibling assemblies).
+//
+// Stryker.NET tool version is pinned in `.config/dotnet-tools.json`
+// alongside the thresholds so the 7.75% baseline stays reproducible; a
+// mutator-set change in a later Stryker release could shift the score
+// even against unchanged production code.
+//
+// JSONC (JSON with comments) is the Stryker.NET native config format;
+// leave these comments in place through subsequent edits.
+{
+  "stryker-config": {
+    "project": "MTConnect.NET-Common.csproj",
+    "solution": "MTConnect.NET.sln",
+    "test-projects": [
+      "tests/MTConnect.NET-Common-Tests/MTConnect.NET-Common-Tests.csproj"
+    ],
+    "target-framework": "net8.0",
+    "reporters": [
+      "progress",
+      "cleartext",
+      "html",
+      "json"
+    ],
+    "thresholds": {
+      "high": 8,
+      "low": 5,
+      "break": 5
+    },
+    "concurrency": 4,
+    "mutation-level": "Complete",
+    "since": {
+      "enabled": false
+    },
+    "mutate": [
+      "!**/*.g.cs",
+      "!libraries/MTConnect.NET-Common/Assets/**/*.g.cs",
+      "!libraries/MTConnect.NET-Common/Devices/**/*.g.cs",
+      "!libraries/MTConnect.NET-Common/Observations/**/*.g.cs"
+    ],
+    "ignore-mutations": [
+      "Regex"
+    ]
+  }
+}

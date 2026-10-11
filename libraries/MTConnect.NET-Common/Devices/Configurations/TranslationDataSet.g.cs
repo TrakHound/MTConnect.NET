@@ -20,11 +20,13 @@ namespace MTConnect.Devices.Configurations
         /// Translation along X axis.
         /// </summary>
         public string X { get; set; }
+        
 
         /// <summary>
         /// Translation along Y axis.
         /// </summary>
         public string Y { get; set; }
+        
 
         /// <summary>
         /// Translation along Z axis.

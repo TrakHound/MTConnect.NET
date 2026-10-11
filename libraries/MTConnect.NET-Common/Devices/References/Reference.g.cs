@@ -20,16 +20,19 @@ namespace MTConnect.Devices.References
         /// Id that contains the information to be associated with this entity.
         /// </summary>
         public string DataItemId { get; set; }
+        
 
         /// <summary>
         /// Pointer to the `id` of an entity that contains the information to be associated with this entity.
         /// </summary>
         public string IdRef { get; set; }
+        
 
         /// <summary>
         /// name of an element or a piece of equipment.
         /// </summary>
         public string Name { get; set; }
+        
 
         /// <summary>
         /// Id that contains the information to be associated with this entity.

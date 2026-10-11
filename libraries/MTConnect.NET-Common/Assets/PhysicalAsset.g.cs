@@ -20,21 +20,25 @@ namespace MTConnect.Assets
         /// Date of calibration of the Asset.
         /// </summary>
         public System.DateTime CalibrationDate { get; set; }
+        
 
         /// <summary>
         /// Date of last inspection of the Asset.
         /// </summary>
         public System.DateTime InspectionDate { get; set; }
+        
 
         /// <summary>
         /// Date of creation or built of the Asset.
         /// </summary>
         public System.DateTime ManufactureDate { get; set; }
+        
 
         /// <summary>
         /// Constrained scalar value associated with an Asset
         /// </summary>
         public MTConnect.Assets.CuttingTools.IMeasurement Measurement { get; set; }
+        
 
         /// <summary>
         /// Date of next inspection of the Asset.

@@ -24,13 +24,10 @@ namespace MTConnect.Tests.Common.Devices.DataItems
     ///   v2.7. The result class for each pinned DataItem generalizes
     ///   from the abstract <c>DataSet</c> class:
     ///     ALARM_LIMITS         -> AlarmLimitResult       -> DataSet
-    ///     ALARM_LIMIT          -> AlarmLimitResult       -> DataSet
     ///     CONTROL_LIMITS       -> ControlLimitsResult    -> DataSet
-    ///     CONTROL_LIMIT        -> ControlLimitsResult    -> DataSet
     ///     LOCATION_ADDRESS     -> AddressResult          -> DataSet
     ///     LOCATION_SPATIAL_GEOGRAPHIC -> GeographicLocationResult -> DataSet
     ///     SPECIFICATION_LIMITS -> SpecificationLimitsResult -> DataSet
-    ///     SPECIFICATION_LIMIT  -> SpecificationLimitResult  -> DataSet
     ///     SENSOR_ATTACHMENT    -> SensorAttachmentResult -> DataSet
     /// - XSD: https://schemas.mtconnect.org/schemas/MTConnectStreams_2.7.xsd
     ///   declares the matching DataSet-substitution observation
@@ -38,6 +35,13 @@ namespace MTConnect.Tests.Common.Devices.DataItems
     ///   that pair with each of the DataItems below.
     /// - Reference implementation: cppagent v2.7.0.7 emits these
     ///   types as DATA_SET observations (not TABLE).
+    ///
+    /// The now-obsolete singular predecessors (ALARM_LIMIT, CONTROL_LIMIT,
+    /// SPECIFICATION_LIMIT - deprecated in v2.5) shared their result
+    /// class (or an equally DataSet-rooted one) with the plural
+    /// replacement pinned below, so the generalization-chain walk they
+    /// exercised is still covered without referencing the obsolete
+    /// types directly.
     /// </summary>
     [TestFixture]
     [Category("StructuredRepresentationClassifier")]
@@ -52,30 +56,12 @@ namespace MTConnect.Tests.Common.Devices.DataItems
                 Is.EqualTo(DataItemRepresentation.DATA_SET));
         }
 
-        /// <summary>Pins the behaviour expressed by the test name: alarm limit default representation is data set.</summary>
-        [Test]
-        public void AlarmLimit_DefaultRepresentation_Is_DataSet()
-        {
-            Assert.That(
-                AlarmLimitDataItem.DefaultRepresentation,
-                Is.EqualTo(DataItemRepresentation.DATA_SET));
-        }
-
         /// <summary>Pins the behaviour expressed by the test name: control limits default representation is data set.</summary>
         [Test]
         public void ControlLimits_DefaultRepresentation_Is_DataSet()
         {
             Assert.That(
                 ControlLimitsDataItem.DefaultRepresentation,
-                Is.EqualTo(DataItemRepresentation.DATA_SET));
-        }
-
-        /// <summary>Pins the behaviour expressed by the test name: control limit default representation is data set.</summary>
-        [Test]
-        public void ControlLimit_DefaultRepresentation_Is_DataSet()
-        {
-            Assert.That(
-                ControlLimitDataItem.DefaultRepresentation,
                 Is.EqualTo(DataItemRepresentation.DATA_SET));
         }
 
@@ -103,15 +89,6 @@ namespace MTConnect.Tests.Common.Devices.DataItems
         {
             Assert.That(
                 SpecificationLimitsDataItem.DefaultRepresentation,
-                Is.EqualTo(DataItemRepresentation.DATA_SET));
-        }
-
-        /// <summary>Pins the behaviour expressed by the test name: specification limit default representation is data set.</summary>
-        [Test]
-        public void SpecificationLimit_DefaultRepresentation_Is_DataSet()
-        {
-            Assert.That(
-                SpecificationLimitDataItem.DefaultRepresentation,
                 Is.EqualTo(DataItemRepresentation.DATA_SET));
         }
 

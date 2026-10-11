@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of an interconnected series of objects that band together and transmit motion for a piece of equipment or to convey materials and objects.
     /// </summary>
-    public class ChainComposition : Composition 
+    public class ChainComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

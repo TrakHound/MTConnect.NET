@@ -20,41 +20,49 @@ namespace MTConnect.Assets.Files
         /// Time the file was created.
         /// </summary>
         public System.DateTime CreationTime { get; set; }
+        
 
         /// <summary>
         /// Reference to the target Device for this File.
         /// </summary>
         public System.Collections.Generic.IEnumerable<MTConnect.Assets.Files.IDestination> Destinations { get; set; }
+        
 
         /// <summary>
         /// URL reference to the file location.
         /// </summary>
         public MTConnect.Assets.Files.IFileLocation Location { get; set; }
+        
 
         /// <summary>
         /// Time the file was modified.
         /// </summary>
         public System.DateTime? ModificationTime { get; set; }
+        
 
         /// <summary>
         /// Public key used to verify the signature.
         /// </summary>
         public string PublicKey { get; set; }
+        
 
         /// <summary>
         /// Secure hash of the file.
         /// </summary>
         public string Signature { get; set; }
+        
 
         /// <summary>
         /// Size of the file in bytes.
         /// </summary>
         public int Size { get; set; }
+        
 
         /// <summary>
         /// State of the file.
         /// </summary>
         public MTConnect.Assets.Files.FileState State { get; set; }
+        
 
         /// <summary>
         /// Version identifier of the file.

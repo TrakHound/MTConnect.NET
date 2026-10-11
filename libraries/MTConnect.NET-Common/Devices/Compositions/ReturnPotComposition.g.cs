@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Pot for a tool removed from spindle or Turret and awaiting for return to a ToolMagazine.
     /// </summary>
-    public class ReturnPotComposition : Composition 
+    public class ReturnPotComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

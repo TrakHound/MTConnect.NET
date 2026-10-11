@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that allows material to flow for the purpose of drainage from, for example, a vessel or tank.
     /// </summary>
-    public class DrainComposition : Composition 
+    public class DrainComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

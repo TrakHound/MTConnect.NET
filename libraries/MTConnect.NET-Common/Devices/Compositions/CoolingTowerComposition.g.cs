@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a heat exchange system that uses a fluid to transfer heat to the atmosphere.
     /// </summary>
-    public class CoolingTowerComposition : Composition 
+    public class CoolingTowerComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

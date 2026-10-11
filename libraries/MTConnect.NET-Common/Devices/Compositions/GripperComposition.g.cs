@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that holds a part, stock material, or any other item in place.
     /// </summary>
-    public class GripperComposition : Composition 
+    public class GripperComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

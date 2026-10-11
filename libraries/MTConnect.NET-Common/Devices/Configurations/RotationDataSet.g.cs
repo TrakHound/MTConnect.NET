@@ -20,11 +20,13 @@ namespace MTConnect.Devices.Configurations
         /// Rotation about X axis.
         /// </summary>
         public string A { get; set; }
+        
 
         /// <summary>
         /// Rotation about Y axis.
         /// </summary>
         public string B { get; set; }
+        
 
         /// <summary>
         /// Rotation about Z axis.

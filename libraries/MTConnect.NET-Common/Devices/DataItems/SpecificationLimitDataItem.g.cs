@@ -8,6 +8,7 @@ namespace MTConnect.Devices.DataItems
     /// <summary>
     /// Set of limits defining a range of values designating acceptable performance for a variable.**DEPRECATED** in *Version 2.5*. Replaced by  `SPECIFICATION_LIMITS`.
     /// </summary>
+    [System.Obsolete("Deprecated in v2.5")]
     public class SpecificationLimitDataItem : DataItem
     {
         /// <summary>

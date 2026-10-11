@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that emits a type of radiation.
     /// </summary>
-    public class ExposureUnitComposition : Composition 
+    public class ExposureUnitComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

@@ -20,21 +20,25 @@ namespace MTConnect.Devices.Configurations
         /// Reference to the Component providing observations about the power source.
         /// </summary>
         public string ComponentIdRef { get; set; }
+        
 
         /// <summary>
         /// Unique identifier for the power source.
         /// </summary>
         public string Id { get; set; }
+        
 
         /// <summary>
         /// Optional precedence for a given power source.
         /// </summary>
         public int Order { get; set; }
+        
 
         /// <summary>
         /// Type of the power source.
         /// </summary>
         public MTConnect.Devices.Configurations.PowerSourceType Type { get; set; }
+        
 
         /// <summary>
         /// Name of the power source.

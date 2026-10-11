@@ -23,20 +23,42 @@ namespace MTConnect.SysML.Xml
         {
             if (mtconnectModel != null && !string.IsNullOrEmpty(outputPath))
             {
-                // All three Xml templates render the same CuttingToolMeasurementsModel —
-                // build it once, then drive the three (template, output) pairs through
-                // a shared helper. Output is byte-identical to the previous three-method
-                // form; the templates differ only in which model fields they read.
+                // The one CuttingToolMeasurementsModel drives every Xml artefact.
+                // The XmlMeasurements.scriban template emits the per-measurement
+                // Xml<Name> wrapper subclasses; the shared Shape-A host template
+                // (XmlMeasurementArrayHost.scriban) emits both partial-class
+                // artefacts (XmlCuttingToolLifeCycle + XmlCuttingItem), each with
+                // its own class name and doc-summary values. Consolidating the
+                // two per-host templates into one keeps emission byte-identical.
                 var measurementsModel = BuildCuttingToolMeasurementsModel(mtconnectModel);
-                var renders = new (string Template, string OutputRelative)[]
+
+                RenderTo("XmlMeasurements.scriban", measurementsModel, "Assets/CuttingTools/XmlMeasurements", outputPath);
+
+                var arrayHosts = new (string ClassName, string Summary, string OutputRelative)[]
                 {
-                    ("XmlMeasurements.scriban",      "Assets/CuttingTools/XmlMeasurements"),
-                    ("XmlCuttingToolLifeCycle.scriban", "Assets/CuttingTools/XmlCuttingToolLifeCycle"),
-                    ("XmlCuttingItem.scriban",       "Assets/CuttingTools/XmlCuttingItem"),
+                    (
+                        "XmlCuttingToolLifeCycle",
+                        "The set of physical and geometric measurements that characterize the cutting tool\n        /// over its life cycle. Each element is deserialized into the concrete\n        /// <see cref=\"XmlMeasurement\"/> subclass registered for its MTConnect measurement type.",
+                        "Assets/CuttingTools/XmlCuttingToolLifeCycle"
+                    ),
+                    (
+                        "XmlCuttingItem",
+                        "The set of physical and geometric measurements that characterize this cutting item.\n        /// Each element is deserialized into the concrete <see cref=\"XmlMeasurement\"/> subclass\n        /// registered for its MTConnect measurement type.",
+                        "Assets/CuttingTools/XmlCuttingItem"
+                    ),
                 };
-                foreach (var (template, output) in renders)
+                foreach (var (className, summary, output) in arrayHosts)
                 {
-                    RenderTo(template, measurementsModel, output, outputPath);
+                    // Anonymous model — Scriban resolves properties by snake_case
+                    // convention, so ClassName → class_name, Summary → summary,
+                    // Types → types.
+                    var hostModel = new
+                    {
+                        class_name = className,
+                        summary = summary,
+                        types = measurementsModel.Types
+                    };
+                    RenderTo("XmlMeasurementArrayHost.scriban", hostModel, output, outputPath);
                 }
             }
         }

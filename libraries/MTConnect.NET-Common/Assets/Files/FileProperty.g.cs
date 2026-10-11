@@ -20,6 +20,7 @@ namespace MTConnect.Assets.Files
         /// Name of the FileProperty.
         /// </summary>
         public string Name { get; set; }
+        
 
         /// <summary>
         /// The value of the FileProperty.

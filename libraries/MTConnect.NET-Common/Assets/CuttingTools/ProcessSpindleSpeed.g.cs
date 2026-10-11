@@ -20,16 +20,19 @@ namespace MTConnect.Assets.CuttingTools
         /// Upper bound for the tool’s target spindle speed.
         /// </summary>
         public double? Maximum { get; set; }
+        
 
         /// <summary>
         /// Lower bound for the tools spindle speed.
         /// </summary>
         public double? Minimum { get; set; }
+        
 
         /// <summary>
         /// Nominal speed the tool is designed to operate at.
         /// </summary>
         public double? Nominal { get; set; }
+        
 
         /// <summary>
         /// 

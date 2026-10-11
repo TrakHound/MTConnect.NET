@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that turns on or off an electric current or makes or breaks a circuit.
     /// </summary>
-    public class SwitchComposition : Composition 
+    public class SwitchComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

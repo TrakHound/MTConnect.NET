@@ -20,6 +20,7 @@ namespace MTConnect.Assets.ComponentConfigurationParameters
         /// Name of the parameter set if more than one exists.
         /// </summary>
         public string Name { get; set; }
+        
 
         /// <summary>
         /// Property that determines the characteristic or behavior of an entity.

@@ -20,6 +20,7 @@ namespace MTConnect.Devices
         /// Type of Filter.
         /// </summary>
         public MTConnect.Devices.DataItemFilterType Type { get; set; }
+        
 
         /// <summary>
         /// 

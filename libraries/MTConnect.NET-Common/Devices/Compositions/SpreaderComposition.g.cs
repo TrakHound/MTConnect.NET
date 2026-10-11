@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that flattens or spreads materials.
     /// </summary>
-    public class SpreaderComposition : Composition 
+    public class SpreaderComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

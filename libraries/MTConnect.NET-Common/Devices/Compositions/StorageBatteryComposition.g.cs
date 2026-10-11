@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of one or more cells that converts chemical energy to electricity and serves as a source of power.
     /// </summary>
-    public class StorageBatteryComposition : Composition 
+    public class StorageBatteryComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

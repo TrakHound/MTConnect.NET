@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that provides or applies a stretch or strain to another mechanism.
     /// </summary>
-    public class TensionerComposition : Composition 
+    public class TensionerComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

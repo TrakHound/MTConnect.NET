@@ -20,11 +20,13 @@ namespace MTConnect.Devices.Configurations
         /// X-coordinate.
         /// </summary>
         public string X { get; set; }
+        
 
         /// <summary>
         /// Y-coordinate.
         /// </summary>
         public string Y { get; set; }
+        
 
         /// <summary>
         /// X-coordinate.

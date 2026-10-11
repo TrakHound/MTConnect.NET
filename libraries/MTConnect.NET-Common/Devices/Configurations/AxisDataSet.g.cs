@@ -20,11 +20,13 @@ namespace MTConnect.Devices.Configurations
         /// X-component of Axis.
         /// </summary>
         public double X { get; set; }
+        
 
         /// <summary>
         /// Y-component of Axis.
         /// </summary>
         public double Y { get; set; }
+        
 
         /// <summary>
         /// Z-component of Axis.

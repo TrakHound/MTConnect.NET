@@ -8,6 +8,7 @@ namespace MTConnect.Devices.DataItems
     /// <summary>
     /// Programmatic code being executed.**DEPRECATED** in *Version 1.1*.
     /// </summary>
+    [System.Obsolete("Deprecated in v1.1")]
     public class CodeDataItem : DataItem
     {
         /// <summary>

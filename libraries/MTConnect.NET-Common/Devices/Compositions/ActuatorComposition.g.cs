@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that moves or controls a mechanical part of a piece of equipment.It takes energy usually provided by air, electric current, or liquid and converts the energy into some kind of motion.
     /// </summary>
-    public class ActuatorComposition : Composition 
+    public class ActuatorComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

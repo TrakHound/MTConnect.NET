@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that measures linear motion or position.
     /// </summary>
-    public class LinearPositionFeedbackComposition : Composition 
+    public class LinearPositionFeedbackComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

@@ -8,6 +8,7 @@ namespace MTConnect.Devices.DataItems
     /// <summary>
     /// Current line of code being executed.**DEPRECATED** in *Version 1.4.0*.
     /// </summary>
+    [System.Obsolete("Deprecated in v1.4")]
     public class LineDataItem : DataItem
     {
         /// <summary>

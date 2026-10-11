@@ -28,7 +28,7 @@ namespace MTConnect.Tests.Common.Agents
     ///     other Type with a controlled vocabulary) are coerced by default; the
     ///     <see cref="IAgentConfiguration.AllowEmptyResultForEnumEvents"/> escape hatch
     ///     preserves the empty Result when set to <c>true</c>.</item>
-    ///   <item>Free-form String Events (PROGRAM, MESSAGE, TOOL_ID, ASSET_CHANGED, and
+    ///   <item>Free-form String Events (PROGRAM, MESSAGE, TOOL_NUMBER, ASSET_CHANGED, and
     ///     every other non-vocabulary Type) preserve the empty Result verbatim: the
     ///     standard's default value type for <c>Observation::result</c> is <c>string</c>,
     ///     and the reference C++ agent accepts empty strings for these Events
@@ -78,8 +78,8 @@ namespace MTConnect.Tests.Common.Agents
         [TestCaseSource(nameof(_nonStrictLevels))]
         public void Sample_EmptyResult_Coerced_To_Unavailable_Under_NonStrict_Levels(InputValidationLevel level)
         {
-            const string dataItemKey = SpindleSpeedDataItem.NameId;
-            using var agent = NewAgent(level, dataItem: new SpindleSpeedDataItem(DeviceId, SpindleSpeedDataItem.SubTypes.ACTUAL));
+            const string dataItemKey = RotaryVelocityDataItem.NameId;
+            using var agent = NewAgent(level, dataItem: new RotaryVelocityDataItem(DeviceId, RotaryVelocityDataItem.SubTypes.ACTUAL));
 
             var added = agent.AddObservation(DeviceKey, dataItemKey, (object)string.Empty, DateTime.UtcNow);
 
@@ -93,8 +93,8 @@ namespace MTConnect.Tests.Common.Agents
         [TestCaseSource(nameof(_nullEmptyWhitespaceValues))]
         public void Sample_NullEmptyOrWhitespaceResult_Coerced_To_Unavailable(object? badValue)
         {
-            const string dataItemKey = SpindleSpeedDataItem.NameId;
-            using var agent = NewAgent(InputValidationLevel.Warning, dataItem: new SpindleSpeedDataItem(DeviceId, SpindleSpeedDataItem.SubTypes.ACTUAL));
+            const string dataItemKey = RotaryVelocityDataItem.NameId;
+            using var agent = NewAgent(InputValidationLevel.Warning, dataItem: new RotaryVelocityDataItem(DeviceId, RotaryVelocityDataItem.SubTypes.ACTUAL));
 
             var added = agent.AddObservation(DeviceKey, dataItemKey, (object?)badValue!, DateTime.UtcNow);
 
@@ -106,8 +106,8 @@ namespace MTConnect.Tests.Common.Agents
         [Test]
         public void Sample_EmptyResult_Under_Strict_Coerced_And_Lands()
         {
-            const string dataItemKey = SpindleSpeedDataItem.NameId;
-            using var agent = NewAgent(InputValidationLevel.Strict, dataItem: new SpindleSpeedDataItem(DeviceId, SpindleSpeedDataItem.SubTypes.ACTUAL));
+            const string dataItemKey = RotaryVelocityDataItem.NameId;
+            using var agent = NewAgent(InputValidationLevel.Strict, dataItem: new RotaryVelocityDataItem(DeviceId, RotaryVelocityDataItem.SubTypes.ACTUAL));
 
             var added = agent.AddObservation(DeviceKey, dataItemKey, (object)string.Empty, DateTime.UtcNow);
 
@@ -215,19 +215,19 @@ namespace MTConnect.Tests.Common.Agents
                 "MESSAGE is a free-form String Event Type; empty Results MUST be preserved");
         }
 
-        /// <summary>Empty Result on a TOOL_ID Event DataItem is preserved verbatim.</summary>
+        /// <summary>Empty Result on a TOOL_NUMBER Event DataItem is preserved verbatim.</summary>
         [Test]
-        public void StringEvent_ToolId_EmptyResult_Preserved()
+        public void StringEvent_ToolNumber_EmptyResult_Preserved()
         {
-            const string dataItemKey = ToolIdDataItem.NameId;
-            using var agent = NewAgent(InputValidationLevel.Warning, dataItem: new ToolIdDataItem(DeviceId));
+            const string dataItemKey = ToolNumberDataItem.NameId;
+            using var agent = NewAgent(InputValidationLevel.Warning, dataItem: new ToolNumberDataItem(DeviceId));
 
             var added = agent.AddObservation(DeviceKey, dataItemKey, (object)string.Empty, DateTime.UtcNow);
 
             Assert.That(added, Is.True);
             var currentResult = (CurrentResult(agent, dataItemKey) as string) ?? string.Empty;
             Assert.That(currentResult, Is.EqualTo(string.Empty),
-                "TOOL_ID is a free-form String Event Type; empty Results MUST be preserved");
+                "TOOL_NUMBER is a free-form String Event Type; empty Results MUST be preserved");
         }
 
         /// <summary>A concrete String Result is passed through verbatim on a free-form Event DataItem.</summary>
@@ -364,7 +364,7 @@ namespace MTConnect.Tests.Common.Agents
         {
             var observedArms = new System.Collections.Generic.HashSet<DataItemValueClass>
             {
-                DataItem.GetValueClass(new SpindleSpeedDataItem(DeviceId, SpindleSpeedDataItem.SubTypes.ACTUAL)),
+                DataItem.GetValueClass(new RotaryVelocityDataItem(DeviceId, RotaryVelocityDataItem.SubTypes.ACTUAL)),
                 DataItem.GetValueClass(new AvailabilityDataItem(DeviceId)),
                 DataItem.GetValueClass(new ProgramDataItem(DeviceId, ProgramDataItem.SubTypes.ACTIVE)),
             };
@@ -385,7 +385,7 @@ namespace MTConnect.Tests.Common.Agents
         [Test]
         public void GetValueClass_Classifies_Representative_DataItems()
         {
-            Assert.That(DataItem.GetValueClass(new SpindleSpeedDataItem(DeviceId, SpindleSpeedDataItem.SubTypes.ACTUAL)), Is.EqualTo(DataItemValueClass.Numeric),
+            Assert.That(DataItem.GetValueClass(new RotaryVelocityDataItem(DeviceId, RotaryVelocityDataItem.SubTypes.ACTUAL)), Is.EqualTo(DataItemValueClass.Numeric),
                 "SAMPLE observations are Numeric per Part 2 - Sample MUST be float");
             Assert.That(DataItem.GetValueClass(new AvailabilityDataItem(DeviceId)), Is.EqualTo(DataItemValueClass.Enumeration),
                 "AVAILABILITY has a controlled vocabulary (Availability enum)");
@@ -395,7 +395,7 @@ namespace MTConnect.Tests.Common.Agents
                 "PROGRAM carries free-form text");
             Assert.That(DataItem.GetValueClass(new MessageDataItem(DeviceId)), Is.EqualTo(DataItemValueClass.String),
                 "MESSAGE carries free-form text");
-            Assert.That(DataItem.GetValueClass(new ToolIdDataItem(DeviceId)), Is.EqualTo(DataItemValueClass.String),
+            Assert.That(DataItem.GetValueClass(new ToolNumberDataItem(DeviceId)), Is.EqualTo(DataItemValueClass.String),
                 "TOOL_ID carries free-form text");
             Assert.That(DataItem.GetValueClass(new AssetChangedDataItem(DeviceId)), Is.EqualTo(DataItemValueClass.String),
                 "ASSET_CHANGED carries the asset id as free-form text");
@@ -419,8 +419,8 @@ namespace MTConnect.Tests.Common.Agents
         [Test]
         public void Sample_TimeSeries_Payload_Preserved_Not_Coerced()
         {
-            const string dataItemKey = SpindleSpeedDataItem.NameId;
-            var dataItem = new SpindleSpeedDataItem(DeviceId, SpindleSpeedDataItem.SubTypes.ACTUAL)
+            const string dataItemKey = RotaryVelocityDataItem.NameId;
+            var dataItem = new RotaryVelocityDataItem(DeviceId, RotaryVelocityDataItem.SubTypes.ACTUAL)
             {
                 Representation = DataItemRepresentation.TIME_SERIES,
             };
@@ -451,8 +451,8 @@ namespace MTConnect.Tests.Common.Agents
         [Test]
         public void Sample_DataSet_Payload_Preserved_Not_Coerced()
         {
-            const string dataItemKey = SpindleSpeedDataItem.NameId;
-            var dataItem = new SpindleSpeedDataItem(DeviceId, SpindleSpeedDataItem.SubTypes.ACTUAL)
+            const string dataItemKey = RotaryVelocityDataItem.NameId;
+            var dataItem = new RotaryVelocityDataItem(DeviceId, RotaryVelocityDataItem.SubTypes.ACTUAL)
             {
                 Representation = DataItemRepresentation.DATA_SET,
             };
@@ -484,8 +484,8 @@ namespace MTConnect.Tests.Common.Agents
         [Test]
         public void Sample_Table_Payload_Preserved_Not_Coerced()
         {
-            const string dataItemKey = SpindleSpeedDataItem.NameId;
-            var dataItem = new SpindleSpeedDataItem(DeviceId, SpindleSpeedDataItem.SubTypes.ACTUAL)
+            const string dataItemKey = RotaryVelocityDataItem.NameId;
+            var dataItem = new RotaryVelocityDataItem(DeviceId, RotaryVelocityDataItem.SubTypes.ACTUAL)
             {
                 Representation = DataItemRepresentation.TABLE,
             };
@@ -520,21 +520,21 @@ namespace MTConnect.Tests.Common.Agents
         [Test]
         public void GetValueClass_Sample_NonValueRepresentation_Is_String()
         {
-            var timeSeries = new SpindleSpeedDataItem(DeviceId, SpindleSpeedDataItem.SubTypes.ACTUAL)
+            var timeSeries = new RotaryVelocityDataItem(DeviceId, RotaryVelocityDataItem.SubTypes.ACTUAL)
             {
                 Representation = DataItemRepresentation.TIME_SERIES,
             };
             Assert.That(DataItem.GetValueClass(timeSeries), Is.EqualTo(DataItemValueClass.String),
                 "SAMPLE + TIME_SERIES carries a Samples payload rather than a single Result - the classifier must not report Numeric");
 
-            var dataSet = new SpindleSpeedDataItem(DeviceId, SpindleSpeedDataItem.SubTypes.ACTUAL)
+            var dataSet = new RotaryVelocityDataItem(DeviceId, RotaryVelocityDataItem.SubTypes.ACTUAL)
             {
                 Representation = DataItemRepresentation.DATA_SET,
             };
             Assert.That(DataItem.GetValueClass(dataSet), Is.EqualTo(DataItemValueClass.String),
                 "SAMPLE + DATA_SET carries an Entries payload rather than a single Result - the classifier must not report Numeric");
 
-            var table = new SpindleSpeedDataItem(DeviceId, SpindleSpeedDataItem.SubTypes.ACTUAL)
+            var table = new RotaryVelocityDataItem(DeviceId, RotaryVelocityDataItem.SubTypes.ACTUAL)
             {
                 Representation = DataItemRepresentation.TABLE,
             };
@@ -727,8 +727,8 @@ namespace MTConnect.Tests.Common.Agents
         [Test]
         public void Sample_TimeSeries_Explicit_EmptyResult_Preserved()
         {
-            const string dataItemKey = SpindleSpeedDataItem.NameId;
-            var dataItem = new SpindleSpeedDataItem(DeviceId, SpindleSpeedDataItem.SubTypes.ACTUAL)
+            const string dataItemKey = RotaryVelocityDataItem.NameId;
+            var dataItem = new RotaryVelocityDataItem(DeviceId, RotaryVelocityDataItem.SubTypes.ACTUAL)
             {
                 Representation = DataItemRepresentation.TIME_SERIES,
             };
@@ -763,8 +763,8 @@ namespace MTConnect.Tests.Common.Agents
         [Test]
         public void Sample_DataSet_Explicit_WhitespaceResult_Preserved()
         {
-            const string dataItemKey = SpindleSpeedDataItem.NameId;
-            var dataItem = new SpindleSpeedDataItem(DeviceId, SpindleSpeedDataItem.SubTypes.ACTUAL)
+            const string dataItemKey = RotaryVelocityDataItem.NameId;
+            var dataItem = new RotaryVelocityDataItem(DeviceId, RotaryVelocityDataItem.SubTypes.ACTUAL)
             {
                 Representation = DataItemRepresentation.DATA_SET,
             };
@@ -798,8 +798,8 @@ namespace MTConnect.Tests.Common.Agents
         [Test]
         public void Sample_Table_Explicit_EmptyResult_Preserved()
         {
-            const string dataItemKey = SpindleSpeedDataItem.NameId;
-            var dataItem = new SpindleSpeedDataItem(DeviceId, SpindleSpeedDataItem.SubTypes.ACTUAL)
+            const string dataItemKey = RotaryVelocityDataItem.NameId;
+            var dataItem = new RotaryVelocityDataItem(DeviceId, RotaryVelocityDataItem.SubTypes.ACTUAL)
             {
                 Representation = DataItemRepresentation.TABLE,
             };

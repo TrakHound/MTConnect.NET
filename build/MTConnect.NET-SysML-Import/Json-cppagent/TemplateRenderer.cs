@@ -36,7 +36,7 @@ namespace MTConnect.SysML.Json_cppagent
             var componentsModel = new ComponentsModel();
 
             var components = mtconnectModel.DeviceInformationModel.Components.Types;
-            foreach (var component in components.OrderBy(o => o.Type)) componentsModel.Types.Add(component);
+            foreach (var component in components.Where(o => !IsDeprecated(o.Deprecated)).OrderBy(o => o.Type)) componentsModel.Types.Add(component);
 
             RenderTo("Components.scriban", componentsModel, "Devices/JsonComponents", outputPath);
         }
@@ -46,7 +46,7 @@ namespace MTConnect.SysML.Json_cppagent
             var dataItemsModel = new DataItemsModel();
 
             var dataItems = mtconnectModel.DeviceInformationModel.DataItems.Types;
-            foreach (var dataItem in dataItems.Where(o => o.Category == "EVENT").OrderBy(o => o.Type)) dataItemsModel.Types.Add(dataItem);
+            foreach (var dataItem in dataItems.Where(o => o.Category == "EVENT" && !IsDeprecated(o.Deprecated)).OrderBy(o => o.Type)) dataItemsModel.Types.Add(dataItem);
 
             RenderTo("Events.scriban", dataItemsModel, "Streams/JsonEvents", outputPath);
         }
@@ -56,10 +56,22 @@ namespace MTConnect.SysML.Json_cppagent
             var dataItemsModel = new DataItemsModel();
 
             var dataItems = mtconnectModel.DeviceInformationModel.DataItems.Types;
-            foreach (var dataItem in dataItems.Where(o => o.Category == "SAMPLE").OrderBy(o => o.Type)) dataItemsModel.Types.Add(dataItem);
+            foreach (var dataItem in dataItems.Where(o => o.Category == "SAMPLE" && !IsDeprecated(o.Deprecated)).OrderBy(o => o.Type)) dataItemsModel.Types.Add(dataItem);
 
             RenderTo("Samples.scriban", dataItemsModel, "Streams/JsonSamples", outputPath);
         }
+
+        // A Component/DataItem type counts as deprecated exactly when the
+        // CSharp generator's own templates would stamp it
+        // [System.Obsolete] — see Devices.ComponentType.scriban and
+        // Devices.DataItemType.scriban, both guarded by the identical
+        // `{{- if (deprecated) }}` check against the model's `Deprecated`
+        // string. Mirroring that predicate here keeps the two generators
+        // in lockstep: the JSON-cppagent tree never references a Common
+        // type the Common tree itself marks obsolete, so regeneration can
+        // never reintroduce the CS0618-under-TreatWarningsAsErrors failure
+        // class PR #233 exposed.
+        private static bool IsDeprecated(string deprecated) => !string.IsNullOrEmpty(deprecated);
 
         private static void WriteCuttingToolMeasurements(MTConnectModel mtconnectModel, string outputPath)
         {

@@ -39,11 +39,6 @@ namespace MTConnect.Streams.Json
                 if (!AccumulatedTimeTable.IsNullOrEmpty()) foreach (var x in AccumulatedTimeTable) l.Add(x.ToObservation(AccumulatedTimeDataItem.TypeId));
                 if (!AccumulatedTimeTimeSeries.IsNullOrEmpty()) foreach (var x in AccumulatedTimeTimeSeries) l.Add(x.ToObservation(AccumulatedTimeDataItem.TypeId));
 
-                if (!Amperage.IsNullOrEmpty()) foreach (var x in Amperage) l.Add(x.ToObservation(AmperageDataItem.TypeId));
-                if (!AmperageDataSet.IsNullOrEmpty()) foreach (var x in AmperageDataSet) l.Add(x.ToObservation(AmperageDataItem.TypeId));
-                if (!AmperageTable.IsNullOrEmpty()) foreach (var x in AmperageTable) l.Add(x.ToObservation(AmperageDataItem.TypeId));
-                if (!AmperageTimeSeries.IsNullOrEmpty()) foreach (var x in AmperageTimeSeries) l.Add(x.ToObservation(AmperageDataItem.TypeId));
-
                 if (!AmperageAC.IsNullOrEmpty()) foreach (var x in AmperageAC) l.Add(x.ToObservation(AmperageACDataItem.TypeId));
                 if (!AmperageACDataSet.IsNullOrEmpty()) foreach (var x in AmperageACDataSet) l.Add(x.ToObservation(AmperageACDataItem.TypeId));
                 if (!AmperageACTable.IsNullOrEmpty()) foreach (var x in AmperageACTable) l.Add(x.ToObservation(AmperageACDataItem.TypeId));
@@ -234,11 +229,6 @@ namespace MTConnect.Streams.Json
                 if (!FrequencyTable.IsNullOrEmpty()) foreach (var x in FrequencyTable) l.Add(x.ToObservation(FrequencyDataItem.TypeId));
                 if (!FrequencyTimeSeries.IsNullOrEmpty()) foreach (var x in FrequencyTimeSeries) l.Add(x.ToObservation(FrequencyDataItem.TypeId));
 
-                if (!GlobalPosition.IsNullOrEmpty()) foreach (var x in GlobalPosition) l.Add(x.ToObservation(GlobalPositionDataItem.TypeId));
-                if (!GlobalPositionDataSet.IsNullOrEmpty()) foreach (var x in GlobalPositionDataSet) l.Add(x.ToObservation(GlobalPositionDataItem.TypeId));
-                if (!GlobalPositionTable.IsNullOrEmpty()) foreach (var x in GlobalPositionTable) l.Add(x.ToObservation(GlobalPositionDataItem.TypeId));
-                if (!GlobalPositionTimeSeries.IsNullOrEmpty()) foreach (var x in GlobalPositionTimeSeries) l.Add(x.ToObservation(GlobalPositionDataItem.TypeId));
-
                 if (!GravitationalAcceleration.IsNullOrEmpty()) foreach (var x in GravitationalAcceleration) l.Add(x.ToObservation(GravitationalAccelerationDataItem.TypeId));
                 if (!GravitationalAccelerationDataSet.IsNullOrEmpty()) foreach (var x in GravitationalAccelerationDataSet) l.Add(x.ToObservation(GravitationalAccelerationDataItem.TypeId));
                 if (!GravitationalAccelerationTable.IsNullOrEmpty()) foreach (var x in GravitationalAccelerationTable) l.Add(x.ToObservation(GravitationalAccelerationDataItem.TypeId));
@@ -404,11 +394,6 @@ namespace MTConnect.Streams.Json
                 if (!SoundLevelTable.IsNullOrEmpty()) foreach (var x in SoundLevelTable) l.Add(x.ToObservation(SoundLevelDataItem.TypeId));
                 if (!SoundLevelTimeSeries.IsNullOrEmpty()) foreach (var x in SoundLevelTimeSeries) l.Add(x.ToObservation(SoundLevelDataItem.TypeId));
 
-                if (!SpindleSpeed.IsNullOrEmpty()) foreach (var x in SpindleSpeed) l.Add(x.ToObservation(SpindleSpeedDataItem.TypeId));
-                if (!SpindleSpeedDataSet.IsNullOrEmpty()) foreach (var x in SpindleSpeedDataSet) l.Add(x.ToObservation(SpindleSpeedDataItem.TypeId));
-                if (!SpindleSpeedTable.IsNullOrEmpty()) foreach (var x in SpindleSpeedTable) l.Add(x.ToObservation(SpindleSpeedDataItem.TypeId));
-                if (!SpindleSpeedTimeSeries.IsNullOrEmpty()) foreach (var x in SpindleSpeedTimeSeries) l.Add(x.ToObservation(SpindleSpeedDataItem.TypeId));
-
                 if (!Strain.IsNullOrEmpty()) foreach (var x in Strain) l.Add(x.ToObservation(StrainDataItem.TypeId));
                 if (!StrainDataSet.IsNullOrEmpty()) foreach (var x in StrainDataSet) l.Add(x.ToObservation(StrainDataItem.TypeId));
                 if (!StrainTable.IsNullOrEmpty()) foreach (var x in StrainTable) l.Add(x.ToObservation(StrainDataItem.TypeId));
@@ -453,11 +438,6 @@ namespace MTConnect.Streams.Json
                 if (!VoltAmpereReactiveDataSet.IsNullOrEmpty()) foreach (var x in VoltAmpereReactiveDataSet) l.Add(x.ToObservation(VoltAmpereReactiveDataItem.TypeId));
                 if (!VoltAmpereReactiveTable.IsNullOrEmpty()) foreach (var x in VoltAmpereReactiveTable) l.Add(x.ToObservation(VoltAmpereReactiveDataItem.TypeId));
                 if (!VoltAmpereReactiveTimeSeries.IsNullOrEmpty()) foreach (var x in VoltAmpereReactiveTimeSeries) l.Add(x.ToObservation(VoltAmpereReactiveDataItem.TypeId));
-
-                if (!Voltage.IsNullOrEmpty()) foreach (var x in Voltage) l.Add(x.ToObservation(VoltageDataItem.TypeId));
-                if (!VoltageDataSet.IsNullOrEmpty()) foreach (var x in VoltageDataSet) l.Add(x.ToObservation(VoltageDataItem.TypeId));
-                if (!VoltageTable.IsNullOrEmpty()) foreach (var x in VoltageTable) l.Add(x.ToObservation(VoltageDataItem.TypeId));
-                if (!VoltageTimeSeries.IsNullOrEmpty()) foreach (var x in VoltageTimeSeries) l.Add(x.ToObservation(VoltageDataItem.TypeId));
 
                 if (!VoltageAC.IsNullOrEmpty()) foreach (var x in VoltageAC) l.Add(x.ToObservation(VoltageACDataItem.TypeId));
                 if (!VoltageACDataSet.IsNullOrEmpty()) foreach (var x in VoltageACDataSet) l.Add(x.ToObservation(VoltageACDataItem.TypeId));
@@ -564,35 +544,6 @@ namespace MTConnect.Streams.Json
         /// </summary>
         [JsonPropertyName("AccumulatedTimeTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> AccumulatedTimeTimeSeries { get; set; }
-
-
-        /// <summary>
-        /// The <c>Amperage</c> samples reported with the scalar VALUE representation.
-        /// Strength of electrical current.**DEPRECATED** in *Version 1.6*. Replaced by `AMPERAGE_AC` and `AMPERAGE_DC`.
-        /// </summary>
-        [JsonPropertyName("Amperage")]
-        public IEnumerable<JsonSampleValue> Amperage { get; set; }
-
-        /// <summary>
-        /// The <c>Amperage</c> samples reported with the DATA_SET representation
-        /// (a set of key/value entries).
-        /// </summary>
-        [JsonPropertyName("AmperageDataSet")]
-        public IEnumerable<JsonSampleDataSet> AmperageDataSet { get; set; }
-
-        /// <summary>
-        /// The <c>Amperage</c> samples reported with the TABLE representation
-        /// (a set of keyed rows of cells).
-        /// </summary>
-        [JsonPropertyName("AmperageTable")]
-        public IEnumerable<JsonSampleTable> AmperageTable { get; set; }
-
-        /// <summary>
-        /// The <c>Amperage</c> samples reported with the TIME_SERIES representation
-        /// (a sequence of values sampled at a fixed rate).
-        /// </summary>
-        [JsonPropertyName("AmperageTimeSeries")]
-        public IEnumerable<JsonSampleTimeSeries> AmperageTimeSeries { get; set; }
 
 
         /// <summary>
@@ -1698,35 +1649,6 @@ namespace MTConnect.Streams.Json
 
 
         /// <summary>
-        /// The <c>GlobalPosition</c> samples reported with the scalar VALUE representation.
-        /// Position in three-dimensional space.**DEPRECATED** in Version 1.1.
-        /// </summary>
-        [JsonPropertyName("GlobalPosition")]
-        public IEnumerable<JsonSampleValue> GlobalPosition { get; set; }
-
-        /// <summary>
-        /// The <c>GlobalPosition</c> samples reported with the DATA_SET representation
-        /// (a set of key/value entries).
-        /// </summary>
-        [JsonPropertyName("GlobalPositionDataSet")]
-        public IEnumerable<JsonSampleDataSet> GlobalPositionDataSet { get; set; }
-
-        /// <summary>
-        /// The <c>GlobalPosition</c> samples reported with the TABLE representation
-        /// (a set of keyed rows of cells).
-        /// </summary>
-        [JsonPropertyName("GlobalPositionTable")]
-        public IEnumerable<JsonSampleTable> GlobalPositionTable { get; set; }
-
-        /// <summary>
-        /// The <c>GlobalPosition</c> samples reported with the TIME_SERIES representation
-        /// (a sequence of values sampled at a fixed rate).
-        /// </summary>
-        [JsonPropertyName("GlobalPositionTimeSeries")]
-        public IEnumerable<JsonSampleTimeSeries> GlobalPositionTimeSeries { get; set; }
-
-
-        /// <summary>
         /// The <c>GravitationalAcceleration</c> samples reported with the scalar VALUE representation.
         /// Acceleration relative to Earth's gravity of 9.80665 `METER/SECOND^2`.
         /// </summary>
@@ -2684,35 +2606,6 @@ namespace MTConnect.Streams.Json
 
 
         /// <summary>
-        /// The <c>SpindleSpeed</c> samples reported with the scalar VALUE representation.
-        /// Rotational speed of the rotary axis.**DEPRECATED** in *Version 1.2*.  Replaced by `ROTARY_VELOCITY`.
-        /// </summary>
-        [JsonPropertyName("SpindleSpeed")]
-        public IEnumerable<JsonSampleValue> SpindleSpeed { get; set; }
-
-        /// <summary>
-        /// The <c>SpindleSpeed</c> samples reported with the DATA_SET representation
-        /// (a set of key/value entries).
-        /// </summary>
-        [JsonPropertyName("SpindleSpeedDataSet")]
-        public IEnumerable<JsonSampleDataSet> SpindleSpeedDataSet { get; set; }
-
-        /// <summary>
-        /// The <c>SpindleSpeed</c> samples reported with the TABLE representation
-        /// (a set of keyed rows of cells).
-        /// </summary>
-        [JsonPropertyName("SpindleSpeedTable")]
-        public IEnumerable<JsonSampleTable> SpindleSpeedTable { get; set; }
-
-        /// <summary>
-        /// The <c>SpindleSpeed</c> samples reported with the TIME_SERIES representation
-        /// (a sequence of values sampled at a fixed rate).
-        /// </summary>
-        [JsonPropertyName("SpindleSpeedTimeSeries")]
-        public IEnumerable<JsonSampleTimeSeries> SpindleSpeedTimeSeries { get; set; }
-
-
-        /// <summary>
         /// The <c>Strain</c> samples reported with the scalar VALUE representation.
         /// Amount of deformation per unit length of an object when a load is applied.
         /// </summary>
@@ -2971,35 +2864,6 @@ namespace MTConnect.Streams.Json
         /// </summary>
         [JsonPropertyName("VoltAmpereReactiveTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> VoltAmpereReactiveTimeSeries { get; set; }
-
-
-        /// <summary>
-        /// The <c>Voltage</c> samples reported with the scalar VALUE representation.
-        /// Electrical potential between two points.**DEPRECATED** in *Version 1.6*. Replaced by `VOLTAGE_AC` and `VOLTAGE_DC`.
-        /// </summary>
-        [JsonPropertyName("Voltage")]
-        public IEnumerable<JsonSampleValue> Voltage { get; set; }
-
-        /// <summary>
-        /// The <c>Voltage</c> samples reported with the DATA_SET representation
-        /// (a set of key/value entries).
-        /// </summary>
-        [JsonPropertyName("VoltageDataSet")]
-        public IEnumerable<JsonSampleDataSet> VoltageDataSet { get; set; }
-
-        /// <summary>
-        /// The <c>Voltage</c> samples reported with the TABLE representation
-        /// (a set of keyed rows of cells).
-        /// </summary>
-        [JsonPropertyName("VoltageTable")]
-        public IEnumerable<JsonSampleTable> VoltageTable { get; set; }
-
-        /// <summary>
-        /// The <c>Voltage</c> samples reported with the TIME_SERIES representation
-        /// (a sequence of values sampled at a fixed rate).
-        /// </summary>
-        [JsonPropertyName("VoltageTimeSeries")]
-        public IEnumerable<JsonSampleTimeSeries> VoltageTimeSeries { get; set; }
 
 
         /// <summary>
@@ -3376,55 +3240,6 @@ namespace MTConnect.Streams.Json
                             jsonObservations.Add(new JsonSampleTimeSeries(observation));
                         }
                         AccumulatedTimeTimeSeries = jsonObservations;
-                    }
-
-
-                    // Add Amperage
-                    typeObservations = observations.Where(o => o.Type == AmperageDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
-                    if (!typeObservations.IsNullOrEmpty())
-                    {
-                        var jsonObservations = new List<JsonSampleValue>();
-                        foreach (var observation in typeObservations)
-                        {
-                            jsonObservations.Add(new JsonSampleValue(observation));
-                        }
-                        Amperage = jsonObservations;
-                    }
-
-                    // Add AmperageDataSet
-                    typeObservations = observations.Where(o => o.Type == AmperageDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
-                    if (!typeObservations.IsNullOrEmpty())
-                    {
-                        var jsonObservations = new List<JsonSampleDataSet>();
-                        foreach (var observation in typeObservations)
-                        {
-                            jsonObservations.Add(new JsonSampleDataSet(observation));
-                        }
-                        AmperageDataSet = jsonObservations;
-                    }
-
-                    // Add AmperageTable
-                    typeObservations = observations.Where(o => o.Type == AmperageDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
-                    if (!typeObservations.IsNullOrEmpty())
-                    {
-                        var jsonObservations = new List<JsonSampleTable>();
-                        foreach (var observation in typeObservations)
-                        {
-                            jsonObservations.Add(new JsonSampleTable(observation));
-                        }
-                        AmperageTable = jsonObservations;
-                    }
-
-                    // Add AmperageTimeSeries
-                    typeObservations = observations.Where(o => o.Type == AmperageDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
-                    if (!typeObservations.IsNullOrEmpty())
-                    {
-                        var jsonObservations = new List<JsonSampleTimeSeries>();
-                        foreach (var observation in typeObservations)
-                        {
-                            jsonObservations.Add(new JsonSampleTimeSeries(observation));
-                        }
-                        AmperageTimeSeries = jsonObservations;
                     }
 
 
@@ -5290,55 +5105,6 @@ namespace MTConnect.Streams.Json
                     }
 
 
-                    // Add GlobalPosition
-                    typeObservations = observations.Where(o => o.Type == GlobalPositionDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
-                    if (!typeObservations.IsNullOrEmpty())
-                    {
-                        var jsonObservations = new List<JsonSampleValue>();
-                        foreach (var observation in typeObservations)
-                        {
-                            jsonObservations.Add(new JsonSampleValue(observation));
-                        }
-                        GlobalPosition = jsonObservations;
-                    }
-
-                    // Add GlobalPositionDataSet
-                    typeObservations = observations.Where(o => o.Type == GlobalPositionDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
-                    if (!typeObservations.IsNullOrEmpty())
-                    {
-                        var jsonObservations = new List<JsonSampleDataSet>();
-                        foreach (var observation in typeObservations)
-                        {
-                            jsonObservations.Add(new JsonSampleDataSet(observation));
-                        }
-                        GlobalPositionDataSet = jsonObservations;
-                    }
-
-                    // Add GlobalPositionTable
-                    typeObservations = observations.Where(o => o.Type == GlobalPositionDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
-                    if (!typeObservations.IsNullOrEmpty())
-                    {
-                        var jsonObservations = new List<JsonSampleTable>();
-                        foreach (var observation in typeObservations)
-                        {
-                            jsonObservations.Add(new JsonSampleTable(observation));
-                        }
-                        GlobalPositionTable = jsonObservations;
-                    }
-
-                    // Add GlobalPositionTimeSeries
-                    typeObservations = observations.Where(o => o.Type == GlobalPositionDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
-                    if (!typeObservations.IsNullOrEmpty())
-                    {
-                        var jsonObservations = new List<JsonSampleTimeSeries>();
-                        foreach (var observation in typeObservations)
-                        {
-                            jsonObservations.Add(new JsonSampleTimeSeries(observation));
-                        }
-                        GlobalPositionTimeSeries = jsonObservations;
-                    }
-
-
                     // Add GravitationalAcceleration
                     typeObservations = observations.Where(o => o.Type == GravitationalAccelerationDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
@@ -6956,55 +6722,6 @@ namespace MTConnect.Streams.Json
                     }
 
 
-                    // Add SpindleSpeed
-                    typeObservations = observations.Where(o => o.Type == SpindleSpeedDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
-                    if (!typeObservations.IsNullOrEmpty())
-                    {
-                        var jsonObservations = new List<JsonSampleValue>();
-                        foreach (var observation in typeObservations)
-                        {
-                            jsonObservations.Add(new JsonSampleValue(observation));
-                        }
-                        SpindleSpeed = jsonObservations;
-                    }
-
-                    // Add SpindleSpeedDataSet
-                    typeObservations = observations.Where(o => o.Type == SpindleSpeedDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
-                    if (!typeObservations.IsNullOrEmpty())
-                    {
-                        var jsonObservations = new List<JsonSampleDataSet>();
-                        foreach (var observation in typeObservations)
-                        {
-                            jsonObservations.Add(new JsonSampleDataSet(observation));
-                        }
-                        SpindleSpeedDataSet = jsonObservations;
-                    }
-
-                    // Add SpindleSpeedTable
-                    typeObservations = observations.Where(o => o.Type == SpindleSpeedDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
-                    if (!typeObservations.IsNullOrEmpty())
-                    {
-                        var jsonObservations = new List<JsonSampleTable>();
-                        foreach (var observation in typeObservations)
-                        {
-                            jsonObservations.Add(new JsonSampleTable(observation));
-                        }
-                        SpindleSpeedTable = jsonObservations;
-                    }
-
-                    // Add SpindleSpeedTimeSeries
-                    typeObservations = observations.Where(o => o.Type == SpindleSpeedDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
-                    if (!typeObservations.IsNullOrEmpty())
-                    {
-                        var jsonObservations = new List<JsonSampleTimeSeries>();
-                        foreach (var observation in typeObservations)
-                        {
-                            jsonObservations.Add(new JsonSampleTimeSeries(observation));
-                        }
-                        SpindleSpeedTimeSeries = jsonObservations;
-                    }
-
-
                     // Add Strain
                     typeObservations = observations.Where(o => o.Type == StrainDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
@@ -7443,55 +7160,6 @@ namespace MTConnect.Streams.Json
                             jsonObservations.Add(new JsonSampleTimeSeries(observation));
                         }
                         VoltAmpereReactiveTimeSeries = jsonObservations;
-                    }
-
-
-                    // Add Voltage
-                    typeObservations = observations.Where(o => o.Type == VoltageDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
-                    if (!typeObservations.IsNullOrEmpty())
-                    {
-                        var jsonObservations = new List<JsonSampleValue>();
-                        foreach (var observation in typeObservations)
-                        {
-                            jsonObservations.Add(new JsonSampleValue(observation));
-                        }
-                        Voltage = jsonObservations;
-                    }
-
-                    // Add VoltageDataSet
-                    typeObservations = observations.Where(o => o.Type == VoltageDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
-                    if (!typeObservations.IsNullOrEmpty())
-                    {
-                        var jsonObservations = new List<JsonSampleDataSet>();
-                        foreach (var observation in typeObservations)
-                        {
-                            jsonObservations.Add(new JsonSampleDataSet(observation));
-                        }
-                        VoltageDataSet = jsonObservations;
-                    }
-
-                    // Add VoltageTable
-                    typeObservations = observations.Where(o => o.Type == VoltageDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
-                    if (!typeObservations.IsNullOrEmpty())
-                    {
-                        var jsonObservations = new List<JsonSampleTable>();
-                        foreach (var observation in typeObservations)
-                        {
-                            jsonObservations.Add(new JsonSampleTable(observation));
-                        }
-                        VoltageTable = jsonObservations;
-                    }
-
-                    // Add VoltageTimeSeries
-                    typeObservations = observations.Where(o => o.Type == VoltageDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
-                    if (!typeObservations.IsNullOrEmpty())
-                    {
-                        var jsonObservations = new List<JsonSampleTimeSeries>();
-                        foreach (var observation in typeObservations)
-                        {
-                            jsonObservations.Add(new JsonSampleTimeSeries(observation));
-                        }
-                        VoltageTimeSeries = jsonObservations;
                     }
 
 

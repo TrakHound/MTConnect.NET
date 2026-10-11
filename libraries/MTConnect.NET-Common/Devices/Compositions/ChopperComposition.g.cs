@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that breaks material into smaller pieces.
     /// </summary>
-    public class ChopperComposition : Composition 
+    public class ChopperComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

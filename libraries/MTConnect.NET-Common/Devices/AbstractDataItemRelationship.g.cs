@@ -20,6 +20,7 @@ namespace MTConnect.Devices
         /// Reference to the related entity's `id`.
         /// </summary>
         public string IdRef { get; set; }
+        
 
         /// <summary>
         /// Descriptive name associated with this AbstractDataItemRelationship.

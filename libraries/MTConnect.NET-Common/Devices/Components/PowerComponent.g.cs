@@ -8,6 +8,7 @@ namespace MTConnect.Devices.Components
     /// <summary>
     /// Power was **DEPRECATED** in *MTConnect Version 1.1* and was replaced by Availability data item type.
     /// </summary>
+    [System.Obsolete("Deprecated in v1.1")]
     public class PowerComponent : Component
     {
         /// <summary>

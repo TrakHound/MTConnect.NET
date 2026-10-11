@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of an electronic component or circuit that amplifies power, electric current, or voltage.
     /// </summary>
-    public class AmplifierComposition : Composition 
+    public class AmplifierComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

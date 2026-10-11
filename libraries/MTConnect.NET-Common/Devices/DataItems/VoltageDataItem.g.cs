@@ -8,6 +8,7 @@ namespace MTConnect.Devices.DataItems
     /// <summary>
     /// Electrical potential between two points.**DEPRECATED** in *Version 1.6*. Replaced by `VOLTAGE_AC` and `VOLTAGE_DC`.
     /// </summary>
+    [System.Obsolete("Deprecated in v1.6")]
     public class VoltageDataItem : DataItem
     {
         /// <summary>

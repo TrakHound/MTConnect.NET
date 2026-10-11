@@ -8,6 +8,7 @@ namespace MTConnect.Devices.DataItems
     /// <summary>
     /// Set of limits used to trigger warning or alarm indicators.**DEPRECATED** in *Version 2.5*. Replaced by  `ALARM_LIMITS`.
     /// </summary>
+    [System.Obsolete("Deprecated in v2.5")]
     public class AlarmLimitDataItem : DataItem
     {
         /// <summary>

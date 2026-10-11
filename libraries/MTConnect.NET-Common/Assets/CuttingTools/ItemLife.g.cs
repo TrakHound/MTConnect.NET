@@ -20,26 +20,31 @@ namespace MTConnect.Assets.CuttingTools
         /// Indicates if the item life counts from zero to maximum or maximum to zero.
         /// </summary>
         public MTConnect.Assets.CuttingTools.CountDirectionType CountDirection { get; set; }
+        
 
         /// <summary>
         /// Initial life of the item when it is new.
         /// </summary>
         public double? Initial { get; set; }
+        
 
         /// <summary>
         /// End of life limit for this item.
         /// </summary>
         public double? Limit { get; set; }
+        
 
         /// <summary>
         /// Type of item life being accumulated.
         /// </summary>
         public MTConnect.Assets.CuttingTools.ToolLifeType Type { get; set; }
+        
 
         /// <summary>
         /// Value of ItemLife.
         /// </summary>
         public double Value { get; set; }
+        
 
         /// <summary>
         /// Point at which a item life warning will be raised.

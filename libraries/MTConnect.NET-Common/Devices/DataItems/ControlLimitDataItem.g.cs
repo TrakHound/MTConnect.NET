@@ -8,6 +8,7 @@ namespace MTConnect.Devices.DataItems
     /// <summary>
     /// Set of limits used to indicate whether a process variable is stable and in control.**DEPRECATED** in *Version 2.5*. Replaced by `CONTROL_LIMITS`.
     /// </summary>
+    [System.Obsolete("Deprecated in v2.5")]
     public class ControlLimitDataItem : DataItem
     {
         /// <summary>

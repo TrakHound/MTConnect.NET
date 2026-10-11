@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of an inclined channel that conveys material.
     /// </summary>
-    public class ChuteComposition : Composition 
+    public class ChuteComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

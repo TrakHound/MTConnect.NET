@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Pot for a tool that is no longer usable for removal from a ToolMagazine or Turret.
     /// </summary>
-    public class ExpiredPotComposition : Composition 
+    public class ExpiredPotComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>MTConnect.NET_Generator_Tests</RootNamespace>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+  </ItemGroup>
+
+  <!--
+    Build-only dependency on the generator project so `dotnet test` on this
+    project transitively builds the generator into its own bin/, which the
+    byte-identical-regen test then invokes via `dotnet run`. The
+    ReferenceOutputAssembly=false switch keeps the generator's assembly out of
+    the test process's reference graph — the tests treat the generator as an
+    external CLI, not a library dependency.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\build\MTConnect.NET-SysML-Import\MTConnect.NET-SysML-Import.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+</Project>

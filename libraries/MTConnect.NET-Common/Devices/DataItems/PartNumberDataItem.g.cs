@@ -8,6 +8,7 @@ namespace MTConnect.Devices.DataItems
     /// <summary>
     /// Identifier of a part or product moving through the manufacturing process.**DEPRECATED** in *Version 1.7*. `PART_NUMBER` is now a `subType` of `PART_KIND_ID`.
     /// </summary>
+    [System.Obsolete("Deprecated in v1.7")]
     public class PartNumberDataItem : DataItem
     {
         /// <summary>

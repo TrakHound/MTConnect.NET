@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Pot for a tool awaiting transfer to a ToolMagazine or Turret from outside of the piece of equipment.
     /// </summary>
-    public class StagingPotComposition : Composition 
+    public class StagingPotComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.

@@ -20,16 +20,19 @@ namespace MTConnect.Assets.Fixture
         /// Actuation type of the Fixture's clamping mechanism.
         /// </summary>
         public string ClampingMethod { get; set; }
+        
 
         /// <summary>
         /// Identifier of the Pallet.
         /// </summary>
         public string FixtureId { get; set; }
+        
 
         /// <summary>
         /// Number or sequence assigned to the Fixture in a group of Fixtures.
         /// </summary>
         public int FixtureNumber { get; set; }
+        
 
         /// <summary>
         /// Actuation type of the Fixture's mounting mechanism.

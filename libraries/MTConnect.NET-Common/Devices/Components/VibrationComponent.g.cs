@@ -8,6 +8,7 @@ namespace MTConnect.Devices.Components
     /// <summary>
     /// Component composed of a sensor or an instrument that measures the amount and/or frequency of vibration within a system.Vibration was **DEPRECATED** in *MTConnect Version 1.2* and was replaced by Displacement, Frequency etc.
     /// </summary>
+    [System.Obsolete("Deprecated in v1.2")]
     public class VibrationComponent : Component
     {
         /// <summary>

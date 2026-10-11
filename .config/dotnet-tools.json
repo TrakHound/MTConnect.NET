@@ -7,6 +7,12 @@
       "commands": [
         "reportgenerator"
       ]
+    },
+    "dotnet-stryker": {
+      "version": "4.16.0",
+      "commands": [
+        "stryker"
+      ]
     }
   }
 }

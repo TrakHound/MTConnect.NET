@@ -20,6 +20,7 @@ namespace MTConnect.Assets.Files
         /// URL reference to the file.`href` is of type `xlink:href` from the W3C XLink specification.
         /// </summary>
         public string Href { get; set; }
+        
 
         /// <summary>
         /// Type of href for the xlink href type. **MUST** be `locator` referring to a URL.

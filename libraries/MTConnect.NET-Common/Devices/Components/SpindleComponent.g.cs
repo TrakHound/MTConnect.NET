@@ -8,6 +8,7 @@ namespace MTConnect.Devices.Components
     /// <summary>
     /// Component that provides an axis of rotation for the purpose of rapidly rotating a part or a tool to provide sufficient surface speed for cutting operations.Spindle was **DEPRECATED** in *MTConnect Version 1.1* and was replaced by RotaryMode.
     /// </summary>
+    [System.Obsolete("Deprecated in v1.1")]
     public class SpindleComponent : Component
     {
         /// <summary>

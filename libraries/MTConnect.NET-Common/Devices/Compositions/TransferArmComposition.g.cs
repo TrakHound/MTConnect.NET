@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that physically moves a tool from one location to another.
     /// </summary>
-    public class TransferArmComposition : Composition 
+    public class TransferArmComposition : Composition
     {
         /// <summary>
         /// The MTConnect <c>type</c> value that identifies this Composition.
