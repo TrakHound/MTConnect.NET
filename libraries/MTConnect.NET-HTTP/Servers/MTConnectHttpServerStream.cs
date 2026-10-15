@@ -342,52 +342,63 @@ namespace MTConnect.Servers.Http
             {
                 // Format Response Document using the specified DocumentFormatter
                 var result = Formatters.ResponseDocumentFormatter.Format(documentFormat, ref document, formatOptions);
-                if (result.Success)
+                if (result.Success && result.Content != null)
                 {
-                    var bytes = result.Content;
-                    MemoryStream outputStream;
-
-                    try
-                    {
-                        switch (contentEncoding)
-                        {
-                            case HttpContentEncodings.Gzip:
-
-                                outputStream = new MemoryStream();
-                                using (var zip = new GZipStream(outputStream, CompressionMode.Compress, true))
-                                {
-                                    zip.CopyTo(bytes);
-                                }
-                                return outputStream;
-
-#if NET5_0_OR_GREATER
-                            case HttpContentEncodings.Brotli:
-
-                                outputStream = new MemoryStream();
-                                using (var zip = new BrotliStream(outputStream, CompressionMode.Compress, true))
-                                {
-                                    zip.CopyTo(bytes);
-                                }
-                                return outputStream;
-#endif
-
-                            case HttpContentEncodings.Deflate:
-
-                                outputStream = new MemoryStream();
-                                using (var zip = new DeflateStream(outputStream, CompressionMode.Compress, true))
-                                {
-                                    zip.CopyTo(bytes);
-                                }
-                                return outputStream;
-                        }
-                    }
-                    catch { }
-
-                    return bytes;
+                    return EncodeChunk(result.Content, contentEncoding);
                 }
+
+                // Surface the formatter's reasons rather than failing later on a null chunk
+                var errors = result.Errors.IsNullOrEmpty() ? "no details" : string.Join("; ", result.Errors);
+                throw new InvalidOperationException(string.Format("Failed to format {0} stream chunk: {1}", documentFormat, errors));
             }
 
             return null;
+        }
+
+        // Compresses the formatted chunk with the negotiated content encoding (or returns it unchanged when there is none).
+        // The chunk's Content-encoding header is written from the same value, so a compression failure must not fall back
+        // to sending the uncompressed body.
+        private static Stream EncodeChunk(Stream content, string contentEncoding)
+        {
+            if (string.IsNullOrEmpty(contentEncoding)) return content;
+
+            // The formatter (e.g. after XML validation) can leave the stream positioned at its end
+            if (content.CanSeek && content.Position > 0) content.Seek(0, SeekOrigin.Begin);
+
+            var outputStream = new MemoryStream();
+
+            switch (contentEncoding)
+            {
+                case HttpContentEncodings.Gzip:
+                    using (var zip = new GZipStream(outputStream, CompressionMode.Compress, true))
+                    {
+                        content.CopyTo(zip);
+                    }
+                    break;
+
+#if NET5_0_OR_GREATER
+                case HttpContentEncodings.Brotli:
+                    using (var zip = new BrotliStream(outputStream, CompressionMode.Compress, true))
+                    {
+                        content.CopyTo(zip);
+                    }
+                    break;
+#endif
+
+                case HttpContentEncodings.Deflate:
+                    using (var zip = new DeflateStream(outputStream, CompressionMode.Compress, true))
+                    {
+                        content.CopyTo(zip);
+                    }
+                    break;
+
+                default:
+                    // GetContentEncoding only negotiates the encodings above
+                    return content;
+            }
+
+            outputStream.Seek(0, SeekOrigin.Begin);
+            return outputStream;
         }
 
         private static Stream CreateMultipartChunk(ref Stream body, string boundary, string contentType, string contentEncoding)
