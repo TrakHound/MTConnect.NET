@@ -12,6 +12,7 @@ using MTConnect.Streams.Output;
 using MTConnect.Streams.Xml;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -25,8 +26,21 @@ namespace MTConnect.Formatters.Xml
     /// Assets, and Error) to and from the MTConnect XML representation, with
     /// optional XSD validation and stylesheet linking.
     /// </summary>
+    /// <remarks>
+    /// The <c>validationLevel</c> option accepts <c>0</c> / <c>Ignore</c>, <c>1</c> / <c>Warning</c> or
+    /// <c>2</c> / <c>Strict</c> (names are case-insensitive). Validation only runs when at least one
+    /// <c>schema</c> option supplies an XSD.
+    /// </remarks>
     public class XmlResponseDocumentFormatter : IResponseDocumentFormatter
     {
+        private const int ValidationIgnore = 0;
+        private const int ValidationWarning = 1;
+        private const int ValidationStrict = 2;
+
+        private const string ValidationSuccessfulMessage = "XML Validation Successful";
+        private const string ValidationSkippedMessage = "XML Validation Skipped : No XSD Schema was supplied";
+
+
         /// <summary>
         /// The identifier this formatter is selected by; <c>XML</c>.
         /// </summary>
@@ -46,63 +60,11 @@ namespace MTConnect.Formatters.Xml
         /// </summary>
         public FormatWriteResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            // Read XSD Schema
-            var schemas = GetFormatterOptions<string>(options, "schema");
+            var stylesheet = GetFormatterOption(options, "devicesStyle.location");
+            var indentOutput = GetBoolOption(options, "indentOutput");
+            var outputComments = GetBoolOption(options, "outputComments");
 
-            // Read Devices Stylesheet
-            var stylesheet = GetFormatterOption<string>(options, "devicesStyle.location");
-
-            // Read Indent Option passed to Formatter
-            var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
-
-            // Read OutputComments Option passed to Formatter
-            var outputComments = GetFormatterOption<bool>(options, "outputComments");
-
-            // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
-            var validationLevel = GetFormatterOption<int>(options, "validationLevel");
-
-            try
-            {
-                var xml = XmlDevicesResponseDocument.ToXmlStream(document, null, stylesheet, indentOutput, outputComments);
-                if (xml != null && xml.Length > 0)
-                {
-                    if (validationLevel > 0)
-                    {
-                        // Validate XML against XSD Schema
-                        var validationResponse = XmlValidator.Validate(xml, schemas);
-                        if (validationResponse.Success)
-                        {
-                            return FormatWriteResult.Successful(xml, ContentType, "XML Validation Successful");
-                        }
-                        else
-                        {
-                            // Return Successful if ValidationLevel set to Warning
-                            if (validationLevel < 2) return FormatWriteResult.Warning(xml, ContentType, validationResponse.Errors);
-                            else return FormatWriteResult.Error(validationResponse.Errors);
-                        }
-                    }
-                    else
-                    {
-                        return FormatWriteResult.Successful(xml, ContentType);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                var errors = new List<string>();
-                errors.Add(ex.Message);
-
-                var innerException = ex.InnerException;
-                while (innerException != null)
-                {
-                    errors.Add(innerException.Message);
-                    innerException = innerException.InnerException;
-                }
-
-                return FormatWriteResult.Error(errors);
-            }
-
-            return FormatWriteResult.Error();
+            return Write(() => XmlDevicesResponseDocument.ToXmlStream(document, null, stylesheet, indentOutput, outputComments), options, true);
         }
 
         /// <summary>
@@ -112,66 +74,16 @@ namespace MTConnect.Formatters.Xml
         /// </summary>
         public FormatWriteResult Format(ref IStreamsResponseOutputDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            // Read XSD Schema
-            var schemas = GetFormatterOptions<string>(options, "schema");
-
-            // Read Extended Namespaces
             var extendedNamespaces = GetFormatterOptionsJson<Configurations.NamespaceConfiguration>(options, "namespace");
+            var stylesheet = GetFormatterOption(options, "streamsStyle.location");
+            var indentOutput = GetBoolOption(options, "indentOutput");
+            var outputComments = GetBoolOption(options, "outputComments");
 
-            // Read Devices Stylesheet
-            var stylesheet = GetFormatterOption<string>(options, "streamsStyle.location");
+            var streamsDocument = document;
+            var result = Write(() => XmlStreamsResponseDocument.ToXmlStream(ref streamsDocument, extendedNamespaces, stylesheet, indentOutput, outputComments), options, true);
+            document = streamsDocument;
 
-            // Read Indent Option passed to Formatter
-            var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
-
-            // Read OutputComments Option passed to Formatter
-            var outputComments = GetFormatterOption<bool>(options, "outputComments");
-
-            // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
-            var validationLevel = GetFormatterOption<int>(options, "validationLevel");
-
-            try
-            {
-                var xml = XmlStreamsResponseDocument.ToXmlStream(ref document, extendedNamespaces, stylesheet, indentOutput, outputComments);
-                if (xml != null && xml.Length > 0)
-                {
-                    if (validationLevel > 0)
-                    {
-                        // Validate XML against XSD Schema
-                        var validationResponse = XmlValidator.Validate(xml, schemas);
-                        if (validationResponse.Success)
-                        {
-                            return FormatWriteResult.Successful(xml, ContentType, "XML Validation Successful");
-                        }
-                        else
-                        {
-                            // Return Successful if ValidationLevel set to Warning
-                            if (validationLevel < 2) return FormatWriteResult.Warning(xml, ContentType, validationResponse.Errors);
-                            else return FormatWriteResult.Error(validationResponse.Errors);
-                        }
-                    }
-                    else
-                    {
-                        return FormatWriteResult.Successful(xml, ContentType);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                var errors = new List<string>();
-                errors.Add(ex.Message);
-
-                var innerException = ex.InnerException;
-                while (innerException != null)
-                {
-                    errors.Add(innerException.Message);
-                    innerException = innerException.InnerException;
-                }
-
-                return FormatWriteResult.Error(errors);
-            }
-
-            return FormatWriteResult.Error();
+            return result;
         }
 
         /// <summary>
@@ -181,127 +93,29 @@ namespace MTConnect.Formatters.Xml
         /// </summary>
         public FormatWriteResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            // Read XSD Schema
-            var schemas = GetFormatterOptions<string>(options, "schema");
+            var stylesheet = GetFormatterOption(options, "assetsStyle.location");
+            var indentOutput = GetBoolOption(options, "indentOutput");
+            var outputComments = GetBoolOption(options, "outputComments");
 
-            // Read Devices Stylesheet
-            var stylesheet = GetFormatterOption<string>(options, "assetsStyle.location");
-
-            // Read Indent Option passed to Formatter
-            var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
-
-            // Read OutputComments Option passed to Formatter
-            var outputComments = GetFormatterOption<bool>(options, "outputComments");
-
-            // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
-            var validationLevel = GetFormatterOption<int>(options, "validationLevel");
-
-            try
-            {
-                var xml = XmlAssetsResponseDocument.ToXmlStream(document, indentOutput, outputComments, stylesheet);
-                if (xml != null && xml.Length > 0)
-                {
-                    if (validationLevel > 0)
-                    {
-                        // Validate XML against XSD Schema
-                        var validationResponse = XmlValidator.Validate(xml, schemas);
-                        if (validationResponse.Success)
-                        {
-                            return FormatWriteResult.Successful(xml, ContentType, "XML Validation Successful");
-                        }
-                        else
-                        {
-                            // Return Successful if ValidationLevel set to Warning
-                            if (validationLevel < 2) return FormatWriteResult.Warning(xml, ContentType, validationResponse.Errors);
-                            else return FormatWriteResult.Error(validationResponse.Errors);
-                        }
-                    }
-                    else
-                    {
-                        return FormatWriteResult.Successful(xml, ContentType);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                var errors = new List<string>();
-                errors.Add(ex.Message);
-
-                var innerException = ex.InnerException;
-                while (innerException != null)
-                {
-                    errors.Add(innerException.Message);
-                    innerException = innerException.InnerException;
-                }
-
-                return FormatWriteResult.Error(errors);
-            }
-
-            return FormatWriteResult.Error();
+            return Write(() => XmlAssetsResponseDocument.ToXmlStream(document, indentOutput, outputComments, stylesheet), options, true);
         }
 
         /// <summary>
         /// Serializes an <see cref="IErrorResponseDocument"/> to XML, honouring
         /// the indent, comment, stylesheet, and validation-level options.
         /// </summary>
+        /// <remarks>
+        /// Unlike the other documents, a validation failure at the <c>Strict</c> level is returned as a
+        /// warning: the Error document is the reply sent when a request cannot be answered, so rejecting
+        /// it would leave the client with no response at all.
+        /// </remarks>
         public FormatWriteResult Format(IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            // Read XSD Schema
-            var schemas = GetFormatterOptions<string>(options, "schema");
+            var stylesheet = GetFormatterOption(options, "errorStyle.location");
+            var indentOutput = GetBoolOption(options, "indentOutput");
+            var outputComments = GetBoolOption(options, "outputComments");
 
-            // Read Devices Stylesheet
-            var stylesheet = GetFormatterOption<string>(options, "errorStyle.location");
-
-            // Read Indent Option passed to Formatter
-            var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
-
-            // Read OutputComments Option passed to Formatter
-            var outputComments = GetFormatterOption<bool>(options, "outputComments");
-
-            // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
-            var validationLevel = GetFormatterOption<int>(options, "validationLevel");
-
-            try
-            {
-                var xml = XmlErrorResponseDocument.ToXmlStream(document, indentOutput, outputComments, stylesheet);
-                if (xml != null)
-                {
-                    if (validationLevel > 0)
-                    {
-                        // Validate XML against XSD Schema
-                        var validationResponse = XmlValidator.Validate(xml, schemas);
-                        if (validationResponse.Success)
-                        {
-                            return FormatWriteResult.Successful(xml, ContentType, "XML Validation Successful");
-                        }
-                        else
-                        {
-                            // Return Successful if ValidationLevel set to Warning
-                            return FormatWriteResult.Warning(xml, ContentType, validationResponse.Errors);
-                        }
-                    }
-                    else
-                    {
-                        return FormatWriteResult.Successful(xml, ContentType);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                var errors = new List<string>();
-                errors.Add(ex.Message);
-
-                var innerException = ex.InnerException;
-                while (innerException != null)
-                {
-                    errors.Add(innerException.Message);
-                    innerException = innerException.InnerException;
-                }
-
-                return FormatWriteResult.Error(errors);
-            }
-
-            return FormatWriteResult.Error();
+            return Write(() => XmlErrorResponseDocument.ToXmlStream(document, indentOutput, outputComments, stylesheet), options, false);
         }
 
 
@@ -311,70 +125,10 @@ namespace MTConnect.Formatters.Xml
         /// reporting validation problems as warnings or errors per the
         /// validation level.
         /// </summary>
+        /// <remarks>The stream is read from its current position; a seekable stream is returned to that position afterwards.</remarks>
         public FormatReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            IDevicesResponseDocument document = null;
-            var success = false;
-            var messages = new List<string>();
-            var warnings = new List<string>();
-            var errors = new List<string>();
-
-            // Read XSD Schema
-            var schemas = GetFormatterOptions<string>(options, "schema");
-
-            // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
-            var validationLevel = GetFormatterOption<int>(options, "validationLevel");
-
-            if (validationLevel > 0)
-            {
-                // Validate XML against XSD Schema
-                var validationResponse = XmlValidator.Validate(content, schemas);
-                if (validationResponse.Success)
-                {
-                    messages.Add("XML Validation Successful");
-                }
-                else if (!validationResponse.Errors.IsNullOrEmpty())
-                {
-                    if (validationLevel > 1)
-                    {
-                        errors.AddRange(validationResponse.Errors);
-                    }
-                    else
-                    {
-                        warnings.AddRange(validationResponse.Errors);
-                    }
-                }
-            }
-
-            try
-            {
-                if (content != null && content.Length > 0)
-                {
-                    byte[] bytes;
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        content.CopyTo(memoryStream);
-                        bytes = memoryStream.ToArray();
-                    }
-
-                    // Read Document
-                    document = XmlDevicesResponseDocument.FromXml(bytes);
-                    success = document != null;
-                }
-            }
-            catch (Exception ex)
-            {
-                messages.Add(ex.Message);
-
-                var innerException = ex.InnerException;
-                while (innerException != null)
-                {
-                    messages.Add(innerException.Message);
-                    innerException = innerException.InnerException;
-                }
-            }
-
-            return new FormatReadResult<IDevicesResponseDocument>(document, success, messages, warnings, errors);
+            return Read(content, options, XmlDevicesResponseDocument.FromXml);
         }
 
         /// <summary>
@@ -383,65 +137,17 @@ namespace MTConnect.Formatters.Xml
         /// reporting validation problems as warnings or errors per the
         /// validation level.
         /// </summary>
+        /// <remarks>The stream is read from its current position; a seekable stream is returned to that position afterwards.</remarks>
         public FormatReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            IStreamsResponseDocument document = null;
-            var success = false;
-            var messages = new List<string>();
-            var warnings = new List<string>();
-            var errors = new List<string>();
-
-            // Read XSD Schema
-            var schemas = GetFormatterOptions<string>(options, "schema");
-
-            // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
-            var validationLevel = GetFormatterOption<int>(options, "validationLevel");
-
-            if (validationLevel > 0)
+            return Read(content, options, bytes =>
             {
-                // Validate XML against XSD Schema
-                var validationResponse = XmlValidator.Validate(content, schemas);
-                if (validationResponse.Success)
+                using (var stream = new MemoryStream(bytes, false))
+                using (var xmlReader = XmlReader.Create(stream))
                 {
-                    messages.Add("XML Validation Successful");
+                    return XmlStreamsResponseDocument.ReadXml(xmlReader);
                 }
-                else if (!validationResponse.Errors.IsNullOrEmpty())
-                {
-                    if (validationLevel > 1)
-                    {
-                        errors.AddRange(validationResponse.Errors);
-                    }
-                    else
-                    {
-                        warnings.AddRange(validationResponse.Errors);
-                    }
-                }
-            }
-
-            try
-            {
-                if (content != null && content.Length > 0)
-                {
-                    using (var xmlReader = XmlReader.Create(content))
-                    {
-                        document = XmlStreamsResponseDocument.ReadXml(xmlReader);
-                        success = document != null;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                messages.Add(ex.Message);
-
-                var innerException = ex.InnerException;
-                while (innerException != null)
-                {
-                    messages.Add(innerException.Message);
-                    innerException = innerException.InnerException;
-                }
-            }
-
-            return new FormatReadResult<IStreamsResponseDocument>(document, success, messages, warnings, errors);
+            });
         }
 
         /// <summary>
@@ -450,70 +156,10 @@ namespace MTConnect.Formatters.Xml
         /// reporting validation problems as warnings or errors per the
         /// validation level.
         /// </summary>
+        /// <remarks>The stream is read from its current position; a seekable stream is returned to that position afterwards.</remarks>
         public FormatReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            IAssetsResponseDocument document = null;
-            var success = false;
-            var messages = new List<string>();
-            var warnings = new List<string>();
-            var errors = new List<string>();
-
-            // Read XSD Schema
-            var schemas = GetFormatterOptions<string>(options, "schema");
-
-            // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
-            var validationLevel = GetFormatterOption<int>(options, "validationLevel");
-
-            if (validationLevel > 0)
-            {
-                // Validate XML against XSD Schema
-                var validationResponse = XmlValidator.Validate(content, schemas);
-                if (validationResponse.Success)
-                {
-                    messages.Add("XML Validation Successful");
-                }
-                else if (!validationResponse.Errors.IsNullOrEmpty())
-                {
-                    if (validationLevel > 1)
-                    {
-                        errors.AddRange(validationResponse.Errors);
-                    }
-                    else
-                    {
-                        warnings.AddRange(validationResponse.Errors);
-                    }
-                }
-            }
-
-            try
-            {
-                if (content != null && content.Length > 0)
-                {
-                    byte[] bytes;
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        content.CopyTo(memoryStream);
-                        bytes = memoryStream.ToArray();
-                    }
-
-                    // Read Document
-                    document = XmlAssetsResponseDocument.FromXml(bytes);
-                    success = document != null;
-                }
-            }
-            catch (Exception ex)
-            {
-                messages.Add(ex.Message);
-
-                var innerException = ex.InnerException;
-                while (innerException != null)
-                {
-                    messages.Add(innerException.Message);
-                    innerException = innerException.InnerException;
-                }
-            }
-
-            return new FormatReadResult<IAssetsResponseDocument>(document, success, messages, warnings, errors);
+            return Read<IAssetsResponseDocument>(content, options, XmlAssetsResponseDocument.FromXml);
         }
 
         /// <summary>
@@ -522,131 +168,224 @@ namespace MTConnect.Formatters.Xml
         /// reporting validation problems as warnings or errors per the
         /// validation level.
         /// </summary>
+        /// <remarks>The stream is read from its current position; a seekable stream is returned to that position afterwards.</remarks>
         public FormatReadResult<IErrorResponseDocument> CreateErrorResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            IErrorResponseDocument document = null;
+            return Read(content, options, XmlErrorResponseDocument.FromXml);
+        }
+
+
+        #region "Write / Read"
+
+        // Shared by every Format overload: serialize, optionally validate, and wrap the outcome.
+        // strictRejectsInvalid = false downgrades a Strict validation failure to a warning (see the Error overload).
+        private FormatWriteResult Write(Func<Stream> createXml, IEnumerable<KeyValuePair<string, string>> options, bool strictRejectsInvalid)
+        {
+            var schemas = GetFormatterOptions(options, "schema");
+            var validationLevel = GetValidationLevel(options);
+
+            try
+            {
+                var xml = createXml();
+                if (xml == null || xml.Length == 0) return FormatWriteResult.Error();
+
+                Rewind(xml);
+
+                if (validationLevel <= ValidationIgnore)
+                {
+                    return FormatWriteResult.Successful(xml, ContentType);
+                }
+
+                if (schemas.Count == 0)
+                {
+                    return FormatWriteResult.Successful(xml, ContentType, ValidationSkippedMessage);
+                }
+
+                // Validate XML against XSD Schema
+                var validationResponse = XmlValidator.Validate(xml, schemas);
+                Rewind(xml);
+
+                if (validationResponse.Success)
+                {
+                    return FormatWriteResult.Successful(xml, ContentType, ValidationSuccessfulMessage);
+                }
+
+                if (validationLevel >= ValidationStrict && strictRejectsInvalid)
+                {
+                    return FormatWriteResult.Error(validationResponse.Errors);
+                }
+
+                return FormatWriteResult.Warning(xml, ContentType, validationResponse.Errors);
+            }
+            catch (Exception ex)
+            {
+                return FormatWriteResult.Error(GetExceptionMessages(ex));
+            }
+        }
+
+        // Shared by every Create*ResponseDocument method. The content is read into memory once so that
+        // validation and parsing each get the whole document (validation used to consume the stream and
+        // leave nothing for the parser) and so that non-seekable streams can be read.
+        private static FormatReadResult<T> Read<T>(Stream content, IEnumerable<KeyValuePair<string, string>> options, Func<byte[], T> parse) where T : class
+        {
+            T document = null;
             var success = false;
             var messages = new List<string>();
             var warnings = new List<string>();
             var errors = new List<string>();
 
-            // Read XSD Schema
-            var schemas = GetFormatterOptions<string>(options, "schema");
-
-            // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
-            var validationLevel = GetFormatterOption<int>(options, "validationLevel");
-
-            if (validationLevel > 0)
+            if (content == null)
             {
-                // Validate XML against XSD Schema
-                var validationResponse = XmlValidator.Validate(content, schemas);
-                if (validationResponse.Success)
-                {
-                    messages.Add("XML Validation Successful");
-                }
-                else if (!validationResponse.Errors.IsNullOrEmpty())
-                {
-                    if (validationLevel > 1)
-                    {
-                        errors.AddRange(validationResponse.Errors);
-                    }
-                    else
-                    {
-                        warnings.AddRange(validationResponse.Errors);
-                    }
-                }
+                errors.Add("No content to read");
+                return new FormatReadResult<T>(document, success, messages, warnings, errors);
             }
+
+            var startPosition = content.CanSeek ? content.Position : -1;
 
             try
             {
-                if (content != null && content.Length > 0)
+                var bytes = ReadAllBytes(content);
+                if (bytes.Length > 0)
                 {
-                    byte[] bytes;
-                    using (var memoryStream = new MemoryStream())
+                    var validationLevel = GetValidationLevel(options);
+                    if (validationLevel > ValidationIgnore)
                     {
-                        content.CopyTo(memoryStream);
-                        bytes = memoryStream.ToArray();
+                        var schemas = GetFormatterOptions(options, "schema");
+                        if (schemas.Count == 0)
+                        {
+                            messages.Add(ValidationSkippedMessage);
+                        }
+                        else
+                        {
+                            // Validate XML against XSD Schema
+                            using (var validationStream = new MemoryStream(bytes, false))
+                            {
+                                var validationResponse = XmlValidator.Validate(validationStream, schemas);
+                                if (validationResponse.Success)
+                                {
+                                    messages.Add(ValidationSuccessfulMessage);
+                                }
+                                else if (!validationResponse.Errors.IsNullOrEmpty())
+                                {
+                                    if (validationLevel >= ValidationStrict) errors.AddRange(validationResponse.Errors);
+                                    else warnings.AddRange(validationResponse.Errors);
+                                }
+                            }
+                        }
                     }
 
                     // Read Document
-                    document = XmlErrorResponseDocument.FromXml(bytes);
+                    document = parse(bytes);
                     success = document != null;
+                }
+                else
+                {
+                    errors.Add("No content to read");
                 }
             }
             catch (Exception ex)
             {
-                messages.Add(ex.Message);
-
-                var innerException = ex.InnerException;
-                while (innerException != null)
+                errors.AddRange(GetExceptionMessages(ex));
+            }
+            finally
+            {
+                // Leave a seekable stream where the caller had it, so it can be read again (e.g. as an Error document)
+                if (startPosition >= 0 && content.CanSeek)
                 {
-                    messages.Add(innerException.Message);
-                    innerException = innerException.InnerException;
+                    try { content.Seek(startPosition, SeekOrigin.Begin); }
+                    catch (ObjectDisposedException) { }
                 }
             }
 
-            return new FormatReadResult<IErrorResponseDocument>(document, success, messages, warnings, errors);
+            return new FormatReadResult<T>(document, success, messages, warnings, errors);
         }
 
+        private static byte[] ReadAllBytes(Stream content)
+        {
+            // Avoid a copy when handed a whole MemoryStream from its start (the readers copy before modifying)
+            if (content is MemoryStream memoryStream && memoryStream.Position == 0 &&
+                memoryStream.TryGetBuffer(out var buffer) && buffer.Offset == 0 && buffer.Count == buffer.Array.Length)
+            {
+                return buffer.Array;
+            }
 
-        private static T GetFormatterOption<T>(IEnumerable<KeyValuePair<string, string>> options, string key)
+            using (var copy = new MemoryStream())
+            {
+                content.CopyTo(copy);
+                return copy.ToArray();
+            }
+        }
+
+        private static void Rewind(Stream stream)
+        {
+            if (stream.CanSeek && stream.Position > 0) stream.Seek(0, SeekOrigin.Begin);
+        }
+
+        private static List<string> GetExceptionMessages(Exception ex)
+        {
+            var messages = new List<string>();
+
+            var exception = ex;
+            while (exception != null)
+            {
+                messages.Add(exception.Message);
+                exception = exception.InnerException;
+            }
+
+            return messages;
+        }
+
+        #endregion
+
+        #region "Options"
+
+        private static string GetFormatterOption(IEnumerable<KeyValuePair<string, string>> options, string key)
         {
             if (!options.IsNullOrEmpty())
             {
                 var x = options.FirstOrDefault(o => o.Key == key).Value;
-                if (!string.IsNullOrEmpty(x))
-                {
-                    try
-                    {
-                        return (T)Convert.ChangeType(x, typeof(T));
-                    }
-                    catch { }
-                }
+                if (!string.IsNullOrEmpty(x)) return x;
             }
 
-            return default;
+            return null;
         }
 
-        private static T GetFormatterOptionJson<T>(IEnumerable<KeyValuePair<string, string>> options, string key)
+        private static bool GetBoolOption(IEnumerable<KeyValuePair<string, string>> options, string key)
         {
-            if (!options.IsNullOrEmpty())
+            var x = GetFormatterOption(options, key);
+            return x != null && bool.TryParse(x.Trim(), out var value) && value;
+        }
+
+        // Accepts the numeric level (as the HTTP server sends it) or the level name
+        private static int GetValidationLevel(IEnumerable<KeyValuePair<string, string>> options)
+        {
+            var x = GetFormatterOption(options, "validationLevel");
+            if (x != null)
             {
-                var x = options.FirstOrDefault(o => o.Key == key).Value;
-                if (!string.IsNullOrEmpty(x))
+                x = x.Trim();
+
+                if (int.TryParse(x, NumberStyles.Integer, CultureInfo.InvariantCulture, out var level))
                 {
-                    try
-                    {
-                        return JsonSerializer.Deserialize<T>(x);
-                    }
-                    catch { }
+                    return level;
                 }
+
+                if (string.Equals(x, "Ignore", StringComparison.OrdinalIgnoreCase)) return ValidationIgnore;
+                if (string.Equals(x, "Warning", StringComparison.OrdinalIgnoreCase)) return ValidationWarning;
+                if (string.Equals(x, "Strict", StringComparison.OrdinalIgnoreCase)) return ValidationStrict;
             }
 
-            return default;
+            return ValidationIgnore;
         }
 
-
-        private static IEnumerable<T> GetFormatterOptions<T>(IEnumerable<KeyValuePair<string, string>> options, string key)
+        private static List<string> GetFormatterOptions(IEnumerable<KeyValuePair<string, string>> options, string key)
         {
-            var l = new List<T>();
+            var l = new List<string>();
 
             if (!options.IsNullOrEmpty())
             {
-                var x = options.Where(o => o.Key == key);
-                if (!x.IsNullOrEmpty())
+                foreach (var option in options)
                 {
-                    foreach (var y in x)
-                    {
-                        if (!string.IsNullOrEmpty(y.Value))
-                        {
-                            try
-                            {
-                                var obj = (T)Convert.ChangeType(y.Value, typeof(T));
-                                l.Add(obj);
-                            }
-                            catch { }
-                        }
-                    }
+                    if (option.Key == key && !string.IsNullOrEmpty(option.Value)) l.Add(option.Value);
                 }
             }
 
@@ -657,27 +396,19 @@ namespace MTConnect.Formatters.Xml
         {
             var l = new List<T>();
 
-            if (!options.IsNullOrEmpty())
+            foreach (var value in GetFormatterOptions(options, key))
             {
-                var x = options.Where(o => o.Key == key);
-                if (!x.IsNullOrEmpty())
+                try
                 {
-                    foreach (var y in x)
-                    {
-                        if (!string.IsNullOrEmpty(y.Value))
-                        {
-                            try
-                            {
-                                var obj = JsonSerializer.Deserialize<T>(y.Value);
-                                if (obj != null) l.Add(obj);
-                            }
-                            catch { }
-                        }
-                    }
+                    var obj = JsonSerializer.Deserialize<T>(value);
+                    if (obj != null) l.Add(obj);
                 }
+                catch (JsonException) { }
             }
 
             return l;
         }
+
+        #endregion
     }
 }
