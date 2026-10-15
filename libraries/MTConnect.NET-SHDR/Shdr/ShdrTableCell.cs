@@ -2,7 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Observations;
-using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace MTConnect.Shdr
 {
@@ -38,7 +38,7 @@ namespace MTConnect.Shdr
         {
             if (!string.IsNullOrEmpty(Key))
             {
-                return $"{Key}={Value}";
+                return $"{Key}={ShdrLine.FormatEntryValue(Value)}";
             }
 
             return "";
@@ -49,14 +49,10 @@ namespace MTConnect.Shdr
         {
             if (!string.IsNullOrEmpty(segment))
             {
-                var regex = new Regex("(.*)=(.*)");
-                var match = regex.Match(segment);
-                if (match.Success && match.Groups.Count > 2)
+                var entry = ShdrLine.GetEntries(segment).FirstOrDefault();
+                if (entry.Key != null)
                 {
-                    var key = match.Groups[1].Value;
-                    var value = match.Groups[2].Value;
-
-                    return new ShdrTableCell(key, value);
+                    return new ShdrTableCell(entry.Key, entry.Value ?? string.Empty);
                 }
             }
 

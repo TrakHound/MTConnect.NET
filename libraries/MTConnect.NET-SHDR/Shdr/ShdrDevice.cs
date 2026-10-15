@@ -225,29 +225,14 @@ namespace MTConnect.Shdr
         /// <summary>Returns true when <paramref name="input"/> begins with the <see cref="DeviceDesignator"/> token, identifying it as an SHDR device line.</summary>
         public static bool IsDeviceLine(string input)
         {
-            if (!string.IsNullOrEmpty(input))
-            {
-                // Expected format (Single) : <timestamp>|@DEVICE@|<deviceUuid>|<xml>
-                // Expected format (Single) : 2012-02-21T23:59:33.460470Z|@DEVICE@|VMC-3Axis.1234|<Device>...
-
-                if (input[0] == '@' && input.StartsWith(DeviceDesignator))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            // With or without a leading (possibly empty) timestamp field
+            return ShdrLine.HasDesignator(input, DeviceDesignator);
         }
 
         /// <summary>Returns true when <paramref name="input"/> is a device line that opens a multi-line block (the line ends with <c>--multiline--id</c>).</summary>
         public static bool IsDeviceMultilineBegin(string input)
         {
-            if (IsDeviceLine(input))
-            {
-                return _multilineBeginRegex.IsMatch(input);
-            }
-
-            return false;
+            return IsDeviceLine(input) && _multilineBeginRegex.IsMatch(ShdrLine.GetBody(input, out _));
         }
 
         /// <summary>Returns true when <paramref name="input"/> closes the multi-line block whose opener carried the matching <paramref name="multilineId"/>.</summary>
@@ -270,31 +255,15 @@ namespace MTConnect.Shdr
         /// <summary>Returns true when <paramref name="input"/> begins with the <see cref="DeviceRemoveDesignator"/> token.</summary>
         public static bool IsDeviceRemove(string input)
         {
-            if (!string.IsNullOrEmpty(input))
-            {
-                // Expected format : @REMOVE_DEVICE@|<DeviceUuid>
-                if (input[0] == '@' && input.StartsWith(DeviceRemoveDesignator))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            // With or without a leading (possibly empty) timestamp field
+            return ShdrLine.HasDesignator(input, DeviceRemoveDesignator);
         }
 
         /// <summary>Returns true when <paramref name="input"/> begins with the <see cref="DeviceRemoveAllDesignator"/> token.</summary>
         public static bool IsDeviceRemoveAll(string input)
         {
-            if (!string.IsNullOrEmpty(input))
-            {
-                // Expected format : @REMOVE_DEVICE_ALL@|<Type>
-                if (input[0] == '@' && input.StartsWith(DeviceRemoveAllDesignator))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            // With or without a leading (possibly empty) timestamp field
+            return ShdrLine.HasDesignator(input, DeviceRemoveAllDesignator);
         }
 
         #endregion
@@ -304,42 +273,21 @@ namespace MTConnect.Shdr
         /// <summary>Parses the leading ISO timestamp segment of <paramref name="input"/> and returns it as Unix time (milliseconds since epoch); returns 0 when no timestamp is present.</summary>
         public static long ReadTimestamp(string input)
         {
-            if (!string.IsNullOrEmpty(input))
-            {
-                var x = ShdrLine.GetNextValue(input);
-
-                if (DateTime.TryParse(x, out var timestamp))
-                {
-                    return timestamp.ToUnixTime();
-                }
-            }
-
-            return 0;
+            ShdrLine.GetBody(input, out var timestampField);
+            ShdrLine.ParseTimestampField(timestampField, out var timestamp, out _);
+            return timestamp;
         }
 
         /// <summary>Extracts the <c>DeviceUuid</c> field from a multi-line device header (<c>@DEVICE@|uuid|type|--multiline--id</c>); returns null when no match is found.</summary>
         public static string ReadDeviceUuid(string input)
         {
-            if (!string.IsNullOrEmpty(input))
+            var body = ShdrLine.GetBody(input, out _);
+            if (!string.IsNullOrEmpty(body))
             {
-                // Expected format (Multiline) : <timestamp>|@ASSET@|<deviceUuid>|<deviceType>|--multiline--0FED07ACED
-
-                // Start reading input and read Timestamp first (if specified)
-                var x = ShdrLine.GetNextValue(input);
-
-                if (DateTime.TryParse(x, out _))
+                var match = _deviceUuidRegex.Match(body);
+                if (match.Success && match.Groups.Count > 1)
                 {
-                    var y = ShdrLine.GetNextSegment(input);
-
-                    var match = _deviceUuidRegex.Match(y);
-                    if (match.Success && match.Groups.Count > 1)
-                    {
-                        return match.Groups[1].Value;
-                    }
-                }
-                else
-                {
-                    //return FromLine(input);
+                    return match.Groups[1].Value;
                 }
             }
 
@@ -349,26 +297,13 @@ namespace MTConnect.Shdr
         /// <summary>Extracts the device <c>type</c> field from a multi-line device header; returns null when no match is found.</summary>
         public static string ReadDeviceType(string input)
         {
-            if (!string.IsNullOrEmpty(input))
+            var body = ShdrLine.GetBody(input, out _);
+            if (!string.IsNullOrEmpty(body))
             {
-                // Expected format (Multiline) : <timestamp>|@ASSET@|<deviceUuid>|<deviceType>|--multiline--0FED07ACED
-
-                // Start reading input and read Timestamp first (if specified)
-                var x = ShdrLine.GetNextValue(input);
-
-                if (DateTime.TryParse(x, out _))
+                var match = _deviceTypeRegex.Match(body);
+                if (match.Success && match.Groups.Count > 1)
                 {
-                    var y = ShdrLine.GetNextSegment(input);
-
-                    var match = _deviceTypeRegex.Match(y);
-                    if (match.Success && match.Groups.Count > 1)
-                    {
-                        return match.Groups[1].Value;
-                    }
-                }
-                else
-                {
-                    //return FromLine(input);
+                    return match.Groups[1].Value;
                 }
             }
 
@@ -378,9 +313,10 @@ namespace MTConnect.Shdr
         /// <summary>Extracts the multi-line block id that follows the <c>--multiline--</c> marker; returns null when no match is found.</summary>
         public static string ReadDeviceMultilineId(string input)
         {
-            if (!string.IsNullOrEmpty(input))
+            var body = ShdrLine.GetBody(input, out _);
+            if (!string.IsNullOrEmpty(body))
             {
-                var match = _multilineBeginRegex.Match(input);
+                var match = _multilineBeginRegex.Match(body);
                 if (match.Success && match.Groups.Count > 1)
                 {
                     return match.Groups[1].Value;
@@ -393,24 +329,13 @@ namespace MTConnect.Shdr
         /// <summary>Extracts the target UUID from a <c>@REMOVE_DEVICE@|uuid</c> SHDR line; returns null when no match is found.</summary>
         public static string ReadRemoveDeviceUuid(string input)
         {
-            if (!string.IsNullOrEmpty(input))
+            var body = ShdrLine.GetBody(input, out _);
+            if (!string.IsNullOrEmpty(body))
             {
-                // Start reading input and read Timestamp first (if specified)
-                var x = ShdrLine.GetNextValue(input);
-
-                if (DateTime.TryParse(x, out _))
+                var match = _deviceRemoveRegex.Match(body);
+                if (match.Success && match.Groups.Count > 1)
                 {
-                    var y = ShdrLine.GetNextSegment(input);
-
-                    var match = _deviceRemoveRegex.Match(y);
-                    if (match.Success && match.Groups.Count > 1)
-                    {
-                        return match.Groups[1].Value;
-                    }
-                }
-                else
-                {
-                    //return FromLine(input);
+                    return match.Groups[1].Value;
                 }
             }
 
@@ -420,24 +345,13 @@ namespace MTConnect.Shdr
         /// <summary>Extracts the target device <c>type</c> from a <c>@REMOVE_ALL_DEVICE@|type</c> SHDR line; returns null when no match is found.</summary>
         public static string ReadRemoveAllDeviceType(string input)
         {
-            if (!string.IsNullOrEmpty(input))
+            var body = ShdrLine.GetBody(input, out _);
+            if (!string.IsNullOrEmpty(body))
             {
-                // Start reading input and read Timestamp first (if specified)
-                var x = ShdrLine.GetNextValue(input);
-
-                if (DateTime.TryParse(x, out _))
+                var match = _deviceRemoveAllRegex.Match(body);
+                if (match.Success && match.Groups.Count > 1)
                 {
-                    var y = ShdrLine.GetNextSegment(input);
-
-                    var match = _deviceRemoveAllRegex.Match(y);
-                    if (match.Success && match.Groups.Count > 1)
-                    {
-                        return match.Groups[1].Value;
-                    }
-                }
-                else
-                {
-                    //return FromLine(input);
+                    return match.Groups[1].Value;
                 }
             }
 
@@ -450,10 +364,8 @@ namespace MTConnect.Shdr
         {
             if (!string.IsNullOrEmpty(input))
             {
-                // Expected format (Single) : <timestamp>|@ASSET@|<deviceUuid>|<deviceType>|<xml>
-                // Expected format (Single) : 2012-02-21T23:59:33.460470Z|@ASSET@|KSSP300R.1|CuttingTool|<CuttingTool>...
-
-                return FromLine(input);
+                // Expected format (Single) : <timestamp>|@DEVICE@|<deviceUuid>|<xml>
+                return FromLine(ShdrLine.GetBody(input, out _));
             }
 
             return null;

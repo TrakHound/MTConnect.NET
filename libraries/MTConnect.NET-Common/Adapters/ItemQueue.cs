@@ -2,13 +2,17 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
-using System.Linq;
 
 namespace MTConnect.Adapters
 {
+    /// <summary>
+    /// A bounded first-in, first-out queue of items keyed by a unique id (adding an existing id replaces that item
+    /// and moves it to the back).
+    /// </summary>
     internal class ItemQueue<T>
     {
-        private readonly Dictionary<ulong, T> _items = new Dictionary<ulong, T>();
+        private readonly LinkedList<KeyValuePair<ulong, T>> _items = new LinkedList<KeyValuePair<ulong, T>>();
+        private readonly Dictionary<ulong, LinkedListNode<KeyValuePair<ulong, T>>> _nodes = new Dictionary<ulong, LinkedListNode<KeyValuePair<ulong, T>>>();
         private readonly object _lock = new object();
         private readonly int _limit;
 
@@ -32,30 +36,45 @@ namespace MTConnect.Adapters
 
 
         /// <summary>
-        /// Take (n) number of StoredObservations and remove from the Queue
+        /// Take (n) number of items, oldest first, and remove them from the Queue
         /// </summary>
-        public IEnumerable<T> Take(int count = 1)
+        public List<KeyValuePair<ulong, T>> Take(int count = 1)
         {
             lock (_lock)
             {
-                var items = _items.Take(count);
-                if (!items.IsNullOrEmpty())
+                if (_items.Count == 0) return null;
+
+                var taken = new List<KeyValuePair<ulong, T>>(System.Math.Min(count, _items.Count));
+                while (taken.Count < count && _items.First != null)
                 {
-                    var x = new List<T>();
+                    var node = _items.First;
+                    _items.RemoveFirst();
+                    _nodes.Remove(node.Value.Key);
+                    taken.Add(node.Value);
+                }
 
-                    foreach (var item in items)
-                    {
-                        x.Add(item.Value);
-                    }
+                return taken;
+            }
+        }
 
-                    // Remove Items from Queue
-                    foreach (var item in items) _items.Remove(item.Key);
+        /// <summary>
+        /// Puts previously taken items back at the front of the Queue (in their original order), e.g. after a failed send.
+        /// Items whose id has been added again in the meantime are skipped.
+        /// </summary>
+        public void Requeue(IList<KeyValuePair<ulong, T>> items)
+        {
+            if (items == null) return;
 
-                    return x;
+            lock (_lock)
+            {
+                for (var i = items.Count - 1; i >= 0; i--)
+                {
+                    var item = items[i];
+                    if (_nodes.ContainsKey(item.Key)) continue;
+
+                    _nodes[item.Key] = _items.AddFirst(item);
                 }
             }
-
-            return null;
         }
 
         public bool Add(ulong key, T item)
@@ -64,19 +83,17 @@ namespace MTConnect.Adapters
             {
                 lock (_lock)
                 {
-                    if (_items.Count > _limit) return false;
+                    if (_nodes.TryGetValue(key, out var existing))
+                    {
+                        _items.Remove(existing);
+                    }
+                    else if (_items.Count >= _limit)
+                    {
+                        return false;
+                    }
 
-                    if (_items.TryGetValue(key, out var _))
-                    {
-                        _items.Remove(key);
-                        _items.Add(key, item);
-                        return true;
-                    }
-                    else
-                    {
-                        _items.Add(key, item);
-                        return true;
-                    }
+                    _nodes[key] = _items.AddLast(new KeyValuePair<ulong, T>(key, item));
+                    return true;
                 }
             }
 
@@ -85,7 +102,11 @@ namespace MTConnect.Adapters
 
         public void Clear()
         {
-            lock (_lock) _items.Clear();
+            lock (_lock)
+            {
+                _items.Clear();
+                _nodes.Clear();
+            }
         }
     }
 }

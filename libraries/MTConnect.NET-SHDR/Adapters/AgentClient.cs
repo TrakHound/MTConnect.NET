@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 
 namespace MTConnect.Adapters
 {
@@ -26,6 +27,18 @@ namespace MTConnect.Adapters
         {
             Id = id;
             TcpClient = tcpClient;
+        }
+
+
+        private static readonly ConditionalWeakTable<TcpClient, object> _writeLocks = new ConditionalWeakTable<TcpClient, object>();
+
+        /// <summary>
+        /// The lock every writer to <paramref name="tcpClient"/> holds while writing (data lines and heartbeat PONGs),
+        /// so writes never interleave, e.g. inside a multiline asset.
+        /// </summary>
+        internal static object GetWriteLock(TcpClient tcpClient)
+        {
+            return _writeLocks.GetValue(tcpClient, _ => new object());
         }
     }
 }

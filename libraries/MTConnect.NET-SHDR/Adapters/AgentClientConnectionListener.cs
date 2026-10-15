@@ -79,10 +79,11 @@ namespace MTConnect.Adapters
         /// <summary>Starts the listener on a background task. The supplied <paramref name="cancel"/> token also triggers <see cref="Stop"/> when cancelled.</summary>
         public void Start(CancellationToken cancel)
         {
-            _stop = new CancellationTokenSource();
-            cancel.Register(() => { Stop(); });
+            var stop = CancellationTokenSource.CreateLinkedTokenSource(cancel);
+            var previous = Interlocked.Exchange(ref _stop, stop);
+            previous?.Cancel();
 
-            _ = Task.Run(() => ClientListener(_stop.Token));
+            _ = Task.Run(() => ClientListener(stop.Token));
         }
 
         /// <summary>Stops the listener, closes every connected agent socket, and clears the connection table.</summary>
@@ -90,17 +91,7 @@ namespace MTConnect.Adapters
         {
             if (_stop != null) _stop.Cancel();
 
-            if (_listener != null)
-            {
-                try
-                {
-                    _listener.Stop();
-                }
-                catch (SocketException ex)
-                {
-                    if (ListenerErrorReceived != null) ListenerErrorReceived.Invoke(ex);
-                }
-            }
+            StopListener();
 
             if (!_clientConnections.IsNullOrEmpty())
             {
@@ -114,114 +105,152 @@ namespace MTConnect.Adapters
             }
         }
 
-
-        private async Task ClientListener(CancellationToken cancel)
+        private void StopListener()
         {
-            do
+            var listener = Interlocked.Exchange(ref _listener, null);
+            if (listener != null)
             {
                 try
                 {
-                    _listener = new TcpListener(IPAddress.Any, Port);
-                    _listener.Start();
-
-                    // Enter the listening loop.
-                    while (!cancel.IsCancellationRequested)
-                    {
-                        // Wait for new Client Connection
-                        var client = await _listener.AcceptTcpClientAsync();
-                        client.ReceiveTimeout = Heartbeat;
-                        client.SendTimeout = Heartbeat;
-
-                        // Generate Unique ID for Connection
-                        var clientId = StringFunctions.RandomString(10);
-
-                        // Add to internal list of connected clients
-                        _clientConnections.TryAdd(clientId, client);
-
-                        if (ClientConnected != null) ClientConnected.Invoke(clientId, client);
-
-                        // Start new Ping / Pong Task
-                        _ = Task.Run(() => HeartbeatConnection(clientId, client, cancel));
-                    }
+                    listener.Stop();
                 }
                 catch (SocketException ex)
                 {
                     if (ListenerErrorReceived != null) ListenerErrorReceived.Invoke(ex);
                 }
-                catch (Exception ex)
-                {
-                    if (ListenerErrorReceived != null) ListenerErrorReceived.Invoke(ex);
-                }
-
-                if (!cancel.IsCancellationRequested) await Task.Delay(1000);
-
-            } while (!cancel.IsCancellationRequested);
+            }
         }
 
 
-        private async Task HeartbeatConnection(string clientId, TcpClient client, CancellationToken cancel)
+        private async Task ClientListener(CancellationToken cancel)
         {
-            var connectionAttempts = 0;
-            var maxConnectionAttempts = 2;
-
-            // Create PONG Message
-            var message = $"* PONG {Heartbeat} \n";
-            var messageBytes = Encoding.ASCII.GetBytes(message);
-
-            try
+            // Stop() closes the listening socket, which ends a pending accept
+            using (cancel.Register(StopListener))
             {
-                while (!cancel.IsCancellationRequested && client.Connected)
+                do
                 {
-                    connectionAttempts++;
-
                     try
                     {
-                        // Buffer to store the response bytes.
-                        var buffer = new byte[4096];
+                        // Release the previous socket before binding the port again (a failed accept loop used to
+                        // retry against its own still-bound listener forever)
+                        StopListener();
 
-                        // Read PING from stream
-                        var stream = client.GetStream();
-                        stream.ReadTimeout = Heartbeat;
+                        var listener = new TcpListener(IPAddress.Any, Port);
+                        listener.Start();
+                        _listener = listener;
 
-                        // Read the next bytes from the stream response
-                        var responseBytes = await stream.ReadAsync(buffer, 0, buffer.Length, cancel);
+                        // Enter the listening loop.
+                        while (!cancel.IsCancellationRequested)
+                        {
+                            // Wait for new Client Connection
+                            var client = await listener.AcceptTcpClientAsync().ConfigureAwait(false);
+                            client.SendTimeout = Heartbeat;
 
-                        if (ClientPingReceived != null) ClientPingReceived.Invoke(clientId);
+                            // Generate Unique ID for Connection
+                            var clientId = StringFunctions.RandomString(10);
 
-                        // Write the PONG Message back to the stream
-                        await stream.WriteAsync(messageBytes, 0, messageBytes.Length);
+                            // Add to internal list of connected clients
+                            _clientConnections.TryAdd(clientId, client);
 
-                        if (ClientPongSent != null) ClientPongSent.Invoke(clientId);
-
-                        connectionAttempts = 0;
+                            // Handle the connection off the accept loop, so a slow initial dump (or a failing
+                            // handler) cannot hold up or end accepting other Agents
+                            _ = Task.Run(() => HandleConnection(clientId, client, cancel));
+                        }
                     }
-                    catch (IOException ex)
+                    catch (Exception ex) when (!cancel.IsCancellationRequested)
                     {
-                        if (ConnectionErrorReceived != null) ConnectionErrorReceived.Invoke(clientId, ex);
-                        break; // If IOException (Stream Timeout) then close the connection
+                        if (ListenerErrorReceived != null) ListenerErrorReceived.Invoke(ex);
                     }
-                    catch (ArgumentNullException ex)
+                    catch (Exception) { /* Stopped */ }
+
+                    if (!cancel.IsCancellationRequested)
                     {
-                        if (ConnectionErrorReceived != null) ConnectionErrorReceived.Invoke(clientId, ex);
+                        try
+                        {
+                            await Task.Delay(1000, cancel).ConfigureAwait(false);
+                        }
+                        catch (OperationCanceledException) { }
                     }
-                    catch (SocketException ex)
-                    {
-                        if (ConnectionErrorReceived != null) ConnectionErrorReceived.Invoke(clientId, ex);
-                    }
-                    catch (Exception ex)
-                    {
-                        if (ConnectionErrorReceived != null) ConnectionErrorReceived.Invoke(clientId, ex);
-                    }
-                    finally
-                    {
-                        if (connectionAttempts >= maxConnectionAttempts) client.Close();
-                    }
-                }
+
+                } while (!cancel.IsCancellationRequested);
+            }
+
+            StopListener();
+        }
+
+        private async Task HandleConnection(string clientId, TcpClient client, CancellationToken cancel)
+        {
+            try
+            {
+                if (ClientConnected != null) ClientConnected.Invoke(clientId, client);
             }
             catch (Exception ex)
             {
                 if (ConnectionErrorReceived != null) ConnectionErrorReceived.Invoke(clientId, ex);
             }
+
+            await HeartbeatConnection(clientId, client, cancel).ConfigureAwait(false);
+        }
+
+
+        // Answers each "* PING" with "* PONG <heartbeat>" and disconnects an Agent that closes the connection.
+        // A silent Agent is not disconnected: Agents may skip PINGs while they are receiving data (MTConnect.NET's
+        // IgnoreHeartbeatOnChange), and a dead connection is detected by the next data write failing.
+        private async Task HeartbeatConnection(string clientId, TcpClient client, CancellationToken cancel)
+        {
+            // Create PONG Message
+            var message = $"* PONG {Heartbeat}\n";
+            var messageBytes = Encoding.ASCII.GetBytes(message);
+
+            var buffer = new byte[4096];
+            var pending = new StringBuilder();
+
+            try
+            {
+                var stream = client.GetStream();
+
+                // Stop() / cancellation closes the client, which ends a pending read on every target framework
+                using (cancel.Register(() => { try { client.Close(); } catch { } }))
+                while (!cancel.IsCancellationRequested && client.Connected)
+                {
+                    var count = await stream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+                    if (count <= 0) break; // The Agent closed the connection
+
+                    pending.Append(Encoding.ASCII.GetString(buffer, 0, count));
+
+                    // Answer each complete PING line (other commands are ignored)
+                    var text = pending.ToString();
+                    var lastNewLine = text.LastIndexOf('\n');
+                    if (lastNewLine < 0)
+                    {
+                        if (pending.Length > buffer.Length) pending.Clear();
+                        continue;
+                    }
+
+                    pending.Remove(0, lastNewLine + 1);
+
+                    foreach (var line in text.Substring(0, lastNewLine).Split('\n'))
+                    {
+                        if (line.Trim().StartsWith("* PING", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (ClientPingReceived != null) ClientPingReceived.Invoke(clientId);
+
+                            // Write the PONG Message back to the stream (serialized with the Adapter's data writes)
+                            lock (AgentClient.GetWriteLock(client))
+                            {
+                                stream.Write(messageBytes, 0, messageBytes.Length);
+                            }
+
+                            if (ClientPongSent != null) ClientPongSent.Invoke(clientId);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex) when (!cancel.IsCancellationRequested)
+            {
+                if (ConnectionErrorReceived != null) ConnectionErrorReceived.Invoke(clientId, ex);
+            }
+            catch (Exception) { /* Stopped */ }
             finally
             {
                 if (client != null) client.Close();

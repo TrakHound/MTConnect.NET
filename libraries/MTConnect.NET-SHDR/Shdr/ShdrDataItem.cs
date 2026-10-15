@@ -16,7 +16,6 @@ namespace MTConnect.Shdr
     public class ShdrDataItem : ObservationInput
     {
         private static readonly Regex _deviceKeyRegex = new Regex("(.*):(.*)");
-        private static readonly Regex _resetTriggeredRegex = new Regex(@":([A-Z_]+)\s+(.*)");
 
 
         /// <summary>
@@ -102,7 +101,7 @@ namespace MTConnect.Shdr
                     var target = DataItemKey;
                     if (!string.IsNullOrEmpty(DeviceKey)) target = $"{DeviceKey}:{target}";
 
-                    var value = valueString.Replace("|", @"\|").Trim();
+                    var value = ShdrLine.QuoteValue(valueString.Trim());
                     var resetTriggered = ResetTriggered != ResetTriggered.NOT_SPECIFIED ? $":{ResetTriggered}" : "";
 
                     if (Timestamp > 0 && Duration > 0)
@@ -115,7 +114,7 @@ namespace MTConnect.Shdr
                     }
                     else if (Duration > 0)
                     {
-                        return $"@{Duration}|{target}|{value}{resetTriggered}";
+                        return $"@{ShdrLine.FormatDuration(Duration)}|{target}|{value}{resetTriggered}";
                     }
                     else
                     {
@@ -137,7 +136,7 @@ namespace MTConnect.Shdr
                     var target = dataItem.DataItemKey;
                     if (!string.IsNullOrEmpty(dataItem.DeviceKey)) target = $"{dataItem.DeviceKey}:{target}";
 
-                    var value = valueString.Replace("|", @"\|").Trim();
+                    var value = ShdrLine.QuoteValue(valueString.Trim());
                     var resetTriggered = dataItem.ResetTriggered != ResetTriggered.NOT_SPECIFIED ? $":{dataItem.ResetTriggered}" : "";
 
                     if (dataItem.Timestamp > 0 && dataItem.Duration > 0)
@@ -150,7 +149,7 @@ namespace MTConnect.Shdr
                     }
                     else if (dataItem.Duration > 0)
                     {
-                        return $"@{dataItem.Duration}|{target}|{value}{resetTriggered}";
+                        return $"@{ShdrLine.FormatDuration(dataItem.Duration)}|{target}|{value}{resetTriggered}";
                     }
                     else
                     {
@@ -318,19 +317,10 @@ namespace MTConnect.Shdr
 
                 // Start reading input and read Timestamp first (if specified)
                 var x = ShdrLine.GetNextValue(input);
-                var timestamp = ShdrLine.GetTimestamp(x);
-                var duration = ShdrLine.GetDuration(x);
+                ShdrLine.ParseTimestampField(x, out var timestamp, out var duration);
 
-                if (timestamp.HasValue)
-                {
-                    var y = ShdrLine.GetNextSegment(input);
-                    return FromKeyValuePairs(y, timestamp.Value.ToUnixUtcTime(), duration.HasValue ? duration.Value : 0, uppercaseValue);
-                }
-                else
-                {
-                    var y = ShdrLine.GetNextSegment(input);
-                    return FromKeyValuePairs(y, 0, duration.HasValue ? duration.Value : 0, uppercaseValue);
-                }
+                var y = ShdrLine.GetNextSegment(input);
+                return FromKeyValuePairs(y, timestamp, duration, uppercaseValue);
             }
 
             return dataItems;
@@ -342,23 +332,21 @@ namespace MTConnect.Shdr
 
             if (!string.IsNullOrEmpty(input))
             {
-                var y = input;
-
                 try
                 {
-                    while (y != null)
+                    // Split once (multi-item lines used to copy the rest of the line at every field)
+                    var fields = ShdrLine.SplitFields(input);
+
+                    for (var i = 0; i < fields.Count; i += 2)
                     {
                         // Create new ShdrDataItem
                         var dataItem = new ShdrDataItem();
                         dataItem.Timestamp = timestamp;
                         dataItem.Duration = duration;
 
-                        // Set DataItemId
-                        var x = ShdrLine.GetNextValue(y);
-                        y = ShdrLine.GetNextSegment(y);
-
                         // Get Device Key (if specified). Example : Device01:avail
-                        var match = _deviceKeyRegex.Match(x);
+                        var key = fields[i];
+                        var match = _deviceKeyRegex.Match(key);
                         if (match.Success && match.Groups.Count > 2)
                         {
                             dataItem.DeviceKey = match.Groups[1].Value;
@@ -366,40 +354,18 @@ namespace MTConnect.Shdr
                         }
                         else
                         {
-                            dataItem.DataItemKey = x;
+                            dataItem.DataItemKey = key;
                         }
 
-                        if (y != null)
-                        {
-                            // Set Value
-                            x = ShdrLine.GetNextValue(y);
-                            y = ShdrLine.GetNextSegment(y);
+                        // A key without a value is an empty value
+                        var value = i + 1 < fields.Count ? fields[i + 1] : null;
 
-                            dataItem.ResetTriggered = ResetTriggered.NOT_SPECIFIED;
-                            var valueString = x;
+                        // Parse the ResetTriggered (if exists), e.g. "100:DAY"
+                        var valueString = ShdrLine.ParseResetTriggered(value, out var resetTriggered);
+                        dataItem.ResetTriggered = resetTriggered;
 
-                            if (x != null)
-                            {
-                                // Parse the ResetTriggered (if exists)
-                                var resetMatch = _resetTriggeredRegex.Match(x);
-                                if (resetMatch.Success && resetMatch.Groups.Count > 2)
-                                {
-                                    dataItem.ResetTriggered = resetMatch.Groups[1].Value.ConvertEnum<ResetTriggered>();
-                                    valueString = resetMatch.Groups[2].Value;
-                                }
-                            }
-
-
-                            dataItem.AddValue(new ObservationValue(ValueKeys.Result, valueString != null ? valueString.ToString().Trim() : string.Empty));
-                            dataItems.Add(dataItem);
-                        }
-                        else
-                        {
-                            // Assume Empty Value
-
-                            dataItem.AddValue(new ObservationValue(ValueKeys.Result, string.Empty));
-                            dataItems.Add(dataItem);
-                        }
+                        dataItem.AddValue(new ObservationValue(ValueKeys.Result, valueString != null ? valueString.Trim() : string.Empty));
+                        dataItems.Add(dataItem);
                     }
                 }
                 catch { }

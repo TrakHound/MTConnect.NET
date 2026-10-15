@@ -23,16 +23,16 @@ namespace MTConnect.Adapters
 
         private readonly Dictionary<string, IDeviceInput> _currentDevices = new Dictionary<string, IDeviceInput>();
         private readonly Dictionary<string, IDeviceInput> _lastDevices = new Dictionary<string, IDeviceInput>();
-        private readonly Dictionary<byte[], bool> _sentDevices = new Dictionary<byte[], bool>();
+        private readonly Dictionary<string, IDeviceInput> _sentDevices = new Dictionary<string, IDeviceInput>();
 
         private readonly Dictionary<string, IAssetInput> _currentAssets = new Dictionary<string, IAssetInput>();
         private readonly Dictionary<string, IAssetInput> _lastAssets = new Dictionary<string, IAssetInput>();
-        private readonly Dictionary<byte[], bool> _sentAssets = new Dictionary<byte[], bool>();
+        private readonly Dictionary<string, IAssetInput> _sentAssets = new Dictionary<string, IAssetInput>();
 
         private readonly Dictionary<string, IObservationInput> _currentObservations = new Dictionary<string, IObservationInput>();
         private readonly Dictionary<string, IObservationInput> _lastObservations = new Dictionary<string, IObservationInput>();
         private readonly ItemQueue<IObservationInput> _observationsBuffer = new ItemQueue<IObservationInput>();
-        private readonly Dictionary<byte[], bool> _sentObservations = new Dictionary<byte[], bool>();
+        private readonly Dictionary<string, IObservationInput> _sentObservations = new Dictionary<string, IObservationInput>();
 
 
         private CancellationTokenSource _stop;
@@ -95,9 +95,7 @@ namespace MTConnect.Adapters
         /// <summary>
         /// Raised when an error occurs when sending a new line to the Agent. Includes the AgentClient ID and the Error message as an argument.
         /// </summary>
-#pragma warning disable CS0067 // event is part of the public API surface, raised by subclasses
         public event EventHandler<AdapterEventArgs<string>> SendError;
-#pragma warning restore CS0067
 
 
         /// <summary>
@@ -120,12 +118,16 @@ namespace MTConnect.Adapters
         /// </summary>
         public void Start()
         {
+            // Starting again stops the previous worker
+            var previous = _stop;
             _stop = new CancellationTokenSource();
+            previous?.Cancel();
 
             if (_interval != null && _interval >= 0)
             {
                 // Start Write Queue
-                _ = Task.Run(() => Worker(StopToken.Token));
+                var token = _stop.Token;
+                _ = Task.Run(() => Worker(token));
             }
 
             // Call Overridable Method
@@ -157,30 +159,40 @@ namespace MTConnect.Adapters
 
         private async Task Worker(CancellationToken cancellationToken)
         {
-            try
+            do
             {
-                do
+                int interval = Math.Max(1, _interval.Value); // Set Minimum of 1ms to prevent high CPU usage
+
+                var stpw = System.Diagnostics.Stopwatch.StartNew();
+
+                // One failing tick must not end the loop (unsent items are retried on the next tick)
+                try
                 {
-                    int interval = Math.Max(1, _interval.Value); // Set Minimum of 1ms to prevent high CPU usage
-
-                    var stpw = System.Diagnostics.Stopwatch.StartNew();
-
                     // Call Overridable Method
                     OnIntervalElapsed();
+                }
+                catch (Exception ex)
+                {
+                    SendError.Raise(this, new AdapterEventArgs<string>(null, ex.Message), null);
+                }
 
-                    stpw.Stop();
+                stpw.Stop();
 
-                    if (stpw.ElapsedMilliseconds < interval)
+                if (stpw.ElapsedMilliseconds < interval)
+                {
+                    var waitInterval = interval - (int)stpw.ElapsedMilliseconds;
+
+                    try
                     {
-                        var waitInterval = interval - (int)stpw.ElapsedMilliseconds;
-
                         await Task.Delay(waitInterval, cancellationToken);
                     }
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
+                }
 
-                } while (!cancellationToken.IsCancellationRequested);
-            }
-            catch (TaskCanceledException) { }
-            catch (Exception) { }
+            } while (!cancellationToken.IsCancellationRequested);
         }
 
         /// <summary>
@@ -372,13 +384,8 @@ namespace MTConnect.Adapters
                         _currentObservations.Add(newObservation.DataItemKey, newObservation);
                     }
 
-                    // If using Buffer, Add to Buffer
-
-
-                    // -- Need to add Mode property?
-
-
-                    _observationsBuffer.Add(CreateUniqueId(newObservation), newObservation);
+                    // Only buffered adapters drain the buffer; otherwise it would only ever fill up
+                    if (_bufferEnabled) _observationsBuffer.Add(CreateUniqueId(newObservation), newObservation);
 
                     // Call Overridable Method
                     OnObservationAdd(newObservation);
@@ -531,22 +538,16 @@ namespace MTConnect.Adapters
         {
             var now = UnixDateTime.Now;
 
-            // Get a list of all Current Observations
-            List<IObservationInput> dataItems;
+            // Get a list of all Current Observations that have not been written yet
+            var pending = new List<IObservationInput>();
+            var dataItems = new List<IObservationInput>();
             lock (_lock)
             {
-                // Get List of DataItems that need to be Updated
-                dataItems = new List<IObservationInput>();
-                var items = _currentObservations.Values;
-                foreach (var item in items)
+                foreach (var item in _currentObservations.Values)
                 {
-                    var isSent = false;
-                    if (_sentObservations.ContainsKey(item.ChangeId)) isSent = _sentObservations[item.ChangeId];
-
-                    if (!isSent)
+                    if (!_sentObservations.TryGetValue(item.DataItemKey, out var sent) || !ReferenceEquals(sent, item))
                     {
-                        _sentObservations.Remove(item.ChangeId);
-                        _sentObservations.Add(item.ChangeId, true);
+                        pending.Add(item);
 
                         var sendItem = new ObservationInput(item);
                         if (!OutputTimestamps) sendItem.Timestamp = 0;
@@ -561,6 +562,12 @@ namespace MTConnect.Adapters
                 var success = Write(dataItems);
                 if (success)
                 {
+                    // Only mark as sent once the write succeeded, so a failed write is retried
+                    lock (_lock)
+                    {
+                        foreach (var item in pending) _sentObservations[item.DataItemKey] = item;
+                    }
+
                     // Update Last Sent DataItems
                     UpdateLastObservations(dataItems);
                 }
@@ -579,28 +586,11 @@ namespace MTConnect.Adapters
         /// <param name="timestamp">Unused reserved parameter for an override timestamp.</param>
         protected bool WriteLastObservations(long timestamp = 0)
         {
-            // Get a list of all Last Obserations
-            IEnumerable<IObservationInput> dataItems;
-            lock (_lock) dataItems = _lastObservations.Values.ToList();
-
-            if (!dataItems.IsNullOrEmpty())
+            var sendItems = GetLastObservations();
+            if (!sendItems.IsNullOrEmpty())
             {
-                var sendItems = new List<IObservationInput>();
-                foreach (var dataItem in dataItems)
-                {
-                    var sendItem = new ObservationInput(dataItem);
-                    if (!OutputTimestamps) sendItem.Timestamp = 0;
-                    sendItems.Add(sendItem);
-                }
-
-                var success = Write(sendItems);
-                if (success)
-                {
-                    // Update Last Sent DataItems
-                    UpdateLastObservations(dataItems);
-                }
-
-                return success;
+                // The values are already the last sent ones; writing the snapshot back could replace newer values
+                return Write(sendItems);
             }
             else
             {
@@ -609,18 +599,38 @@ namespace MTConnect.Adapters
         }
 
         /// <summary>
+        /// Returns a copy of the last sent value of every DataItem (honoring the timestamp-output policy), for a
+        /// transport to send to a newly connected Agent.
+        /// </summary>
+        public List<IObservationInput> GetLastObservations()
+        {
+            List<IObservationInput> dataItems;
+            lock (_lock) dataItems = _lastObservations.Values.ToList();
+
+            var sendItems = new List<IObservationInput>(dataItems.Count);
+            foreach (var dataItem in dataItems)
+            {
+                var sendItem = new ObservationInput(dataItem);
+                if (!OutputTimestamps) sendItem.Timestamp = 0;
+                sendItems.Add(sendItem);
+            }
+
+            return sendItems;
+        }
+
+        /// <summary>
         /// Dequeues up to <paramref name="count"/> buffered observations and sends them, honoring the timestamp-output policy and recording them as last sent on success.
         /// </summary>
         /// <param name="count">The maximum number of buffered observations to send in this pass.</param>
         public bool WriteBufferObservations(int count = 1000)
         {
-            var observations = _observationsBuffer.Take(count);
-            if (!observations.IsNullOrEmpty())
+            var taken = _observationsBuffer.Take(count);
+            if (!taken.IsNullOrEmpty())
             {
-                var sendObservations = new List<IObservationInput>();
-                foreach (var observation in observations)
+                var sendObservations = new List<IObservationInput>(taken.Count);
+                foreach (var item in taken)
                 {
-                    var sendObservation = new ObservationInput(observation);
+                    var sendObservation = new ObservationInput(item.Value);
                     if (!OutputTimestamps) sendObservation.Timestamp = 0;
                     sendObservations.Add(sendObservation);
                 }
@@ -631,13 +641,16 @@ namespace MTConnect.Adapters
                     // Update Last Sent DataItems
                     UpdateLastObservations(sendObservations);
                 }
-            }
-            else
-            {
-                return true;
+                else
+                {
+                    // Keep them (in order) for the next attempt
+                    _observationsBuffer.Requeue(taken);
+                }
+
+                return success;
             }
 
-            return false;
+            return true;
         }
 
 
@@ -814,34 +827,32 @@ namespace MTConnect.Adapters
         /// </summary>
         protected bool WriteChangedAssets()
         {
-            // Get a list of all Current Assets
-            List<IAssetInput> assets;
+            // Get a list of all Current Assets that have not been written yet
+            var items = new List<IAssetInput>();
             lock (_lock)
             {
-                // Get List of Table that need to be Updated
-                assets = new List<IAssetInput>();
-                var items = _currentAssets.Values;
-                foreach (var item in items)
+                foreach (var item in _currentAssets.Values)
                 {
-                    var isSent = false;
-                    if (_sentAssets.ContainsKey(item.ChangeId)) isSent = _sentAssets[item.ChangeId];
-
-                    if (!isSent)
+                    if (!_sentAssets.TryGetValue(item.AssetId, out var sent) || !ReferenceEquals(sent, item))
                     {
-                        _sentAssets.Remove(item.ChangeId);
-                        _sentAssets.Add(item.ChangeId, true);
-
-                        assets.Add(item);
+                        items.Add(item);
                     }
                 }
             }
 
-            if (!assets.IsNullOrEmpty())
+            if (!items.IsNullOrEmpty())
             {
-                var success = WriteAssetsFunction(assets);
+                // No transport configured: nothing to deliver
+                var success = WriteAssetsFunction == null || WriteAssetsFunction(items);
                 if (success)
                 {
-                    UpdateLastAsset(assets);
+                    // Only mark as sent once the write succeeded, so a failed write is retried
+                    lock (_lock)
+                    {
+                        foreach (var item in items) _sentAssets[item.AssetId] = item;
+                    }
+
+                    UpdateLastAsset(items);
                 }
 
                 return success;
@@ -857,24 +868,23 @@ namespace MTConnect.Adapters
         /// </summary>
         protected bool WriteAllAssets()
         {
-            // Get a list of all Assets
-            IEnumerable<IAssetInput> assets;
-            lock (_lock) assets = _lastAssets.Values.ToList();
-
-            if (!assets.IsNullOrEmpty())
+            var items = GetLastAssets();
+            if (!items.IsNullOrEmpty())
             {
-                var success = WriteAssetsFunction(assets);
-                if (success)
-                {
-                    UpdateLastAsset(assets);
-                }
-
-                return success;
+                return WriteAssetsFunction == null || WriteAssetsFunction(items);
             }
             else
             {
                 return true;
             }
+        }
+
+        /// <summary>
+        /// Returns a copy of the list of last sent assets, for a transport to send to a newly connected Agent.
+        /// </summary>
+        public List<IAssetInput> GetLastAssets()
+        {
+            lock (_lock) return _lastAssets.Values.ToList();
         }
 
 
@@ -1039,34 +1049,32 @@ namespace MTConnect.Adapters
         /// </summary>
         protected bool WriteChangedDevices()
         {
-            // Get a list of all Current Devices
-            List<IDeviceInput> devices;
+            // Get a list of all Current Devices that have not been written yet
+            var items = new List<IDeviceInput>();
             lock (_lock)
             {
-                // Get List of Table that need to be Updated
-                devices = new List<IDeviceInput>();
-                var items = _currentDevices.Values;
-                foreach (var item in items)
+                foreach (var item in _currentDevices.Values)
                 {
-                    var isSent = false;
-                    if (_sentDevices.ContainsKey(item.ChangeId)) isSent = _sentDevices[item.ChangeId];
-
-                    if (!isSent)
+                    if (!_sentDevices.TryGetValue(item.DeviceKey, out var sent) || !ReferenceEquals(sent, item))
                     {
-                        _sentDevices.Remove(item.ChangeId);
-                        _sentDevices.Add(item.ChangeId, true);
-
-                        devices.Add(item);
+                        items.Add(item);
                     }
                 }
             }
 
-            if (!devices.IsNullOrEmpty())
+            if (!items.IsNullOrEmpty())
             {
-                var success = WriteDevicesFunction(devices);
+                // No transport configured: nothing to deliver
+                var success = WriteDevicesFunction == null || WriteDevicesFunction(items);
                 if (success)
                 {
-                    UpdateLastDevice(devices);
+                    // Only mark as sent once the write succeeded, so a failed write is retried
+                    lock (_lock)
+                    {
+                        foreach (var item in items) _sentDevices[item.DeviceKey] = item;
+                    }
+
+                    UpdateLastDevice(items);
                 }
 
                 return success;
@@ -1082,24 +1090,23 @@ namespace MTConnect.Adapters
         /// </summary>
         protected bool WriteAllDevices()
         {
-            // Get a list of all Devices
-            IEnumerable<IDeviceInput> devices;
-            lock (_lock) devices = _lastDevices.Values.ToList();
-
-            if (!devices.IsNullOrEmpty())
+            var items = GetLastDevices();
+            if (!items.IsNullOrEmpty())
             {
-                var success = WriteDevicesFunction(devices);
-                if (success)
-                {
-                    UpdateLastDevice(devices);
-                }
-
-                return success;
+                return WriteDevicesFunction == null || WriteDevicesFunction(items);
             }
             else
             {
                 return true;
             }
+        }
+
+        /// <summary>
+        /// Returns a copy of the list of last sent devices, for a transport to send to a newly connected Agent.
+        /// </summary>
+        public List<IDeviceInput> GetLastDevices()
+        {
+            lock (_lock) return _lastDevices.Values.ToList();
         }
 
 

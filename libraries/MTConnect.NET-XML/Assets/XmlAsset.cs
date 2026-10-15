@@ -187,6 +187,14 @@ namespace MTConnect.Assets.Xml
         }
 
 
+        // The writer must not close the stream it writes to, since the stream is returned
+        private static XmlWriterSettings CloseOutputDisabled(XmlWriterSettings settings)
+        {
+            var copy = settings.Clone();
+            copy.CloseOutput = false;
+            return copy;
+        }
+
         /// <summary>
         /// Serializes the given <see cref="IAsset"/> to a <see cref="Stream"/>
         /// of XML, optionally indented, returning <c>null</c> if serialization
@@ -199,33 +207,35 @@ namespace MTConnect.Assets.Xml
                 var namespaces = new XmlSerializerNamespaces();
                 namespaces.Add("", "");
 
-                using (var stream = new MemoryStream())
+                // Not disposed here: it is returned to the caller (it used to be returned from inside a using block,
+                // so every caller received an already-closed stream)
+                var stream = new MemoryStream();
+
+                // Set the XmlWriterSettings to use
+                var xmlWriterSettings = indent ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
+
+                // Use XmlWriter to write XML to stream
+                using (var xmlWriter = XmlWriter.Create(stream, CloseOutputDisabled(xmlWriterSettings)))
                 {
-                    // Set the XmlWriterSettings to use
-                    var xmlWriterSettings = indent ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
-
-                    // Use XmlWriter to write XML to stream
-                    using (var xmlWriter = XmlWriter.Create(stream, xmlWriterSettings))
+                    var assetType = GetAssetType(asset.Type);
+                    if (assetType != null)
                     {
-                        var assetType = GetAssetType(asset.Type);
-                        if (assetType != null)
+                        var writeXmlMethod = assetType.GetMethod("WriteXml");
+                        if (writeXmlMethod != null)
                         {
-                            var writeXmlMethod = assetType.GetMethod("WriteXml");
-                            if (writeXmlMethod != null)
-                            {
-                                writeXmlMethod.Invoke(null, new object[] { xmlWriter, asset });
-                            }
-                            else
-                            {
-                                // Write Unknown ?
-                            }
+                            writeXmlMethod.Invoke(null, new object[] { xmlWriter, asset });
                         }
-
-                        xmlWriter.Flush();
-
-                        return stream;
+                        else
+                        {
+                            // Write Unknown ?
+                        }
                     }
+
+                    xmlWriter.Flush();
                 }
+
+                stream.Seek(0, SeekOrigin.Begin);
+                return stream;
             }
             catch { }
 
