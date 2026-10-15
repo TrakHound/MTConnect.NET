@@ -132,8 +132,8 @@ namespace MTConnect.Shdr
 
                 if (valueString != null || nativeCodeString != null)
                 {
-                    var value = valueString != null ? valueString.Replace("|", @"\|") : "";
-                    var nativeCode = nativeCodeString != null ? nativeCodeString.Replace("|", @"\|") : "";
+                    var value = valueString != null ? ShdrLine.QuoteValue(valueString) : "";
+                    var nativeCode = nativeCodeString != null ? ShdrLine.QuoteValue(nativeCodeString) : "";
                     var resetTriggered = ResetTriggered != ResetTriggered.NOT_SPECIFIED ? $":{ResetTriggered} " : "";
 
                     if (Timestamp > 0 && Duration > 0)
@@ -146,7 +146,7 @@ namespace MTConnect.Shdr
                     }
                     else
                     {
-                        return $"|{target}|{resetTriggered}{value}";
+                        return $"|{target}|{nativeCode}|{resetTriggered}{value}";
                     }
                 }
             }
@@ -167,23 +167,16 @@ namespace MTConnect.Shdr
 
                 // Start reading input and read Timestamp first (if specified)
                 var x = ShdrLine.GetNextValue(input);
+                ShdrLine.ParseTimestampField(x, out var timestamp, out var duration);
 
-                if (DateTime.TryParse(x, null, System.Globalization.DateTimeStyles.AdjustToUniversal, out var timestamp))
-                {
-                    var y = ShdrLine.GetNextSegment(input);
-                    return FromLine(y, timestamp.ToUnixTime());
-                }
-                else
-                {
-                    var y = ShdrLine.GetNextSegment(input);
-                    return FromLine(y);
-                }
+                var y = ShdrLine.GetNextSegment(input);
+                return FromLine(y, timestamp, duration);
             }
 
             return null;
         }
 
-        private static ShdrMessage FromLine(string input, long timestamp = 0)
+        private static ShdrMessage FromLine(string input, long timestamp = 0, double duration = 0)
         {
             if (!string.IsNullOrEmpty(input))
             {
@@ -191,6 +184,7 @@ namespace MTConnect.Shdr
                 {
                     var message = new ShdrMessage();
                     message.Timestamp = timestamp;
+                    message.Duration = duration;
 
                     // Set DataItemKey
                     var x = ShdrLine.GetNextValue(input);
@@ -215,9 +209,10 @@ namespace MTConnect.Shdr
                         y = ShdrLine.GetNextSegment(y);
                         message.NativeCode = x;
 
-                        // Set Text
+                        // Set Text (written with an optional ":RESET " prefix)
                         x = ShdrLine.GetNextValue(y);
-                        message.CDATA = x;
+                        message.CDATA = ShdrLine.ParseResetTriggered(x, out var resetTriggered, allowSuffix: false);
+                        message.ResetTriggered = resetTriggered;
                     }
 
                     return message;

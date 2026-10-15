@@ -39,7 +39,13 @@ namespace MTConnect.Observations
                         var tableKey = ValueKeys.GetTableKey(entryValue.Key);
                         var tableCellKey = ValueKeys.GetTableCellKey(entryValue.Key);
 
-                        if (tableKey != null && tableCellKey != null)
+                        // A removed row is stored as Table[row] = removed marker; GetTableCellKey does not return null
+                        // for that key, so check the marker first or the row reads back as a row with one cell
+                        if (tableKey != null && entryValue.Value == EntryRemovedValue && ValueKeys.CreateTableValueKey(tableKey) == entryValue.Key)
+                        {
+                            if (!emptyKeys.Contains(tableKey)) emptyKeys.Add(tableKey);
+                        }
+                        else if (tableKey != null && tableCellKey != null)
                         {
                             Dictionary<string, string> entry;
                             if (tempEntries.ContainsKey(tableKey)) entry = tempEntries[tableKey];
@@ -79,6 +85,12 @@ namespace MTConnect.Observations
 
                             entries.Add(new TableEntry(tableKey, cells));
                         }
+                    }
+
+                    // Removed rows carry only the removed marker (no cells), so they are not in tempEntries
+                    foreach (var emptyKey in emptyKeys)
+                    {
+                        if (!tempEntries.ContainsKey(emptyKey)) entries.Add(new TableEntry(emptyKey, true));
                     }
                 }
             }

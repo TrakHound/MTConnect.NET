@@ -27,6 +27,7 @@ namespace MTConnect.Adapters
         private readonly AgentClientConnectionListener _connectionListener;
         private readonly Dictionary<string, AgentClient> _clients = new Dictionary<string, AgentClient>();
         private readonly object _lock = new object();
+        private static readonly Encoding _encoding = new UTF8Encoding(false);
 
 
         private CancellationTokenSource _stop;
@@ -76,12 +77,20 @@ namespace MTConnect.Adapters
         /// <summary>
         /// Determines whether to filter out duplicate data
         /// </summary>
-        public bool FilterDuplicates { get; set; }
+        public bool FilterDuplicates
+        {
+            get => _adapter.FilterDuplicates;
+            set => _adapter.FilterDuplicates = value;
+        }
 
         /// <summary>
         /// Determines whether to output Timestamps for each SHDR line
         /// </summary>
-        public bool OutputTimestamps { get; set; }
+        public bool OutputTimestamps
+        {
+            get => _adapter.OutputTimestamps;
+            set => _adapter.OutputTimestamps = value;
+        }
 
 
         /// <summary>
@@ -137,159 +146,58 @@ namespace MTConnect.Adapters
 
         /// <summary>Creates an SHDR adapter that listens on <paramref name="port"/> with the supplied <paramref name="heartbeat"/> interval (milliseconds), no device-key scope, duplicate filtering enabled, and timestamps emitted on every line.</summary>
         public ShdrAdapter(int port = 7878, int heartbeat = 10000)
-        {
-            FilterDuplicates = true;
-            OutputTimestamps = true;
-            Port = port;
-            Heartbeat = heartbeat;
-            Timeout = 5000;
-
-            var adapter = new MTConnectAdapter(null, false);
-            adapter.OutputTimestamps = OutputTimestamps;
-            adapter.WriteObservationsFunction = WriteObservations;
-            adapter.WriteAssetsFunction = WriteAssets;
-            adapter.WriteDevicesFunction = WriteDevices;
-            _adapter = adapter;
-
-            _connectionListener = new AgentClientConnectionListener(Port, heartbeat);
-            _connectionListener.ClientConnected += ClientConnected;
-            _connectionListener.ClientDisconnected += ClientDisconnected;
-            _connectionListener.ClientPingReceived += ClientPingReceived;
-            _connectionListener.ClientPongSent += ClientPongSent;
-            _connectionListener.ConnectionErrorReceived += ClientConnectionError;
-        }
+            : this(null, port, heartbeat, null, false, false) { }
 
         /// <summary>Creates an SHDR adapter scoped to <paramref name="deviceKey"/>, listening on <paramref name="port"/> with the supplied <paramref name="heartbeat"/> interval; lines targeting other devices are skipped.</summary>
         public ShdrAdapter(string deviceKey, int port = 7878, int heartbeat = 10000)
-        {
-            FilterDuplicates = true;
-            OutputTimestamps = true;
-            DeviceKey = deviceKey;
-            Port = port;
-            Heartbeat = heartbeat;
-            Timeout = 5000;
-
-            var adapter = new MTConnectAdapter(null, false);
-            adapter.OutputTimestamps = OutputTimestamps;
-            adapter.WriteObservationsFunction = WriteObservations;
-            adapter.WriteAssetsFunction = WriteAssets;
-            adapter.WriteDevicesFunction = WriteDevices;
-            _adapter = adapter;
-
-            _connectionListener = new AgentClientConnectionListener(Port, heartbeat);
-            _connectionListener.ClientConnected += ClientConnected;
-            _connectionListener.ClientDisconnected += ClientDisconnected;
-            _connectionListener.ClientPingReceived += ClientPingReceived;
-            _connectionListener.ClientPongSent += ClientPongSent;
-            _connectionListener.ConnectionErrorReceived += ClientConnectionError;
-        }
+            : this(deviceKey, port, heartbeat, null, false, false) { }
 
         /// <summary>Creates an SHDR adapter from <paramref name="configuration"/>, pulling device key, port, heartbeat, and the <c>IgnoreTimestamps</c> flag from the configuration object.</summary>
         public ShdrAdapter(ShdrAdapterClientConfiguration configuration)
-        {
-            FilterDuplicates = true;
-            OutputTimestamps = true;
-
-            if (configuration != null)
-            {
-                DeviceKey = configuration.DeviceKey;
-                Port = configuration.Port;
-                Heartbeat = configuration.Heartbeat;
-                Timeout = 5000;
-
-                var adapter = new MTConnectAdapter(null, false);
-                adapter.IgnoreTimestamps = configuration.IgnoreTimestamps;
-                adapter.OutputTimestamps = OutputTimestamps;
-                adapter.WriteObservationsFunction = WriteObservations;
-                adapter.WriteAssetsFunction = WriteAssets;
-                adapter.WriteDevicesFunction = WriteDevices;
-                _adapter = adapter;
-
-                _connectionListener = new AgentClientConnectionListener(Port, Heartbeat);
-                _connectionListener.ClientConnected += ClientConnected;
-                _connectionListener.ClientDisconnected += ClientDisconnected;
-                _connectionListener.ClientPingReceived += ClientPingReceived;
-                _connectionListener.ClientPongSent += ClientPongSent;
-                _connectionListener.ConnectionErrorReceived += ClientConnectionError;
-            }
-        }
+            : this(configuration, null, false) { }
 
         /// <summary>Protected constructor used by interval and queue subclasses to wire the optional flush <paramref name="interval"/> (milliseconds) and to opt in to the queue-buffer mode via <paramref name="bufferEnabled"/>.</summary>
         protected ShdrAdapter(int port = 7878, int heartbeat = 10000, int? interval = null, bool bufferEnabled = false)
-        {
-            FilterDuplicates = true;
-            OutputTimestamps = true;
-            Port = port;
-            Heartbeat = heartbeat;
-            Timeout = 5000;
-
-            var adapter = new MTConnectAdapter(interval, bufferEnabled);
-            adapter.OutputTimestamps = OutputTimestamps;
-            adapter.WriteObservationsFunction = WriteObservations;
-            adapter.WriteAssetsFunction = WriteAssets;
-            adapter.WriteDevicesFunction = WriteDevices;
-            _adapter = adapter;
-
-            _connectionListener = new AgentClientConnectionListener(Port, heartbeat);
-            _connectionListener.ClientConnected += ClientConnected;
-            _connectionListener.ClientDisconnected += ClientDisconnected;
-            _connectionListener.ClientPingReceived += ClientPingReceived;
-            _connectionListener.ClientPongSent += ClientPongSent;
-            _connectionListener.ConnectionErrorReceived += ClientConnectionError;
-        }
+            : this(null, port, heartbeat, interval, bufferEnabled, false) { }
 
         /// <summary>Protected device-keyed variant of the interval/queue constructor; see <see cref="ShdrAdapter(int, int, int?, bool)"/> for the <paramref name="interval"/> and <paramref name="bufferEnabled"/> semantics.</summary>
         protected ShdrAdapter(string deviceKey, int port = 7878, int heartbeat = 10000, int? interval = null, bool bufferEnabled = false)
+            : this(deviceKey, port, heartbeat, interval, bufferEnabled, false) { }
+
+        /// <summary>Protected configuration-driven variant of the interval/queue constructor; see <see cref="ShdrAdapter(int, int, int?, bool)"/> for the <paramref name="interval"/> and <paramref name="bufferEnabled"/> semantics. A null configuration uses the defaults.</summary>
+        protected ShdrAdapter(ShdrAdapterClientConfiguration configuration, int? interval = null, bool bufferEnabled = false)
+            : this(
+                  configuration?.DeviceKey,
+                  configuration != null ? configuration.Port : 7878,
+                  configuration != null ? configuration.Heartbeat : 10000,
+                  interval,
+                  bufferEnabled,
+                  configuration != null && configuration.IgnoreTimestamps)
+        { }
+
+        // Every constructor ends up here, so all of them create the adapter and listener the same way
+        private ShdrAdapter(string deviceKey, int port, int heartbeat, int? interval, bool bufferEnabled, bool ignoreTimestamps)
         {
-            FilterDuplicates = true;
-            OutputTimestamps = true;
             DeviceKey = deviceKey;
             Port = port;
             Heartbeat = heartbeat;
             Timeout = 5000;
 
             var adapter = new MTConnectAdapter(interval, bufferEnabled);
-            adapter.OutputTimestamps = OutputTimestamps;
+            adapter.FilterDuplicates = true;
+            adapter.OutputTimestamps = true;
+            adapter.IgnoreTimestamps = ignoreTimestamps;
             adapter.WriteObservationsFunction = WriteObservations;
             adapter.WriteAssetsFunction = WriteAssets;
             adapter.WriteDevicesFunction = WriteDevices;
             _adapter = adapter;
 
-            _connectionListener = new AgentClientConnectionListener(Port, heartbeat);
+            _connectionListener = new AgentClientConnectionListener(Port, Heartbeat);
             _connectionListener.ClientConnected += ClientConnected;
             _connectionListener.ClientDisconnected += ClientDisconnected;
             _connectionListener.ClientPingReceived += ClientPingReceived;
             _connectionListener.ClientPongSent += ClientPongSent;
             _connectionListener.ConnectionErrorReceived += ClientConnectionError;
-        }
-
-        /// <summary>Protected configuration-driven variant of the interval/queue constructor; see <see cref="ShdrAdapter(int, int, int?, bool)"/> for the <paramref name="interval"/> and <paramref name="bufferEnabled"/> semantics.</summary>
-        protected ShdrAdapter(ShdrAdapterClientConfiguration configuration, int? interval = null, bool bufferEnabled = false)
-        {
-            FilterDuplicates = true;
-            OutputTimestamps = true;
-
-            if (configuration != null)
-            {
-                DeviceKey = configuration.DeviceKey;
-                Port = configuration.Port;
-                Heartbeat = configuration.Heartbeat;
-                Timeout = 5000;
-
-                var adapter = new MTConnectAdapter(interval, bufferEnabled);
-                adapter.IgnoreTimestamps = configuration.IgnoreTimestamps;
-                adapter.WriteObservationsFunction = WriteObservations;
-                adapter.WriteAssetsFunction = WriteAssets;
-                adapter.WriteDevicesFunction = WriteDevices;
-                _adapter = adapter;
-
-                _connectionListener = new AgentClientConnectionListener(Port, Heartbeat);
-                _connectionListener.ClientConnected += ClientConnected;
-                _connectionListener.ClientDisconnected += ClientDisconnected;
-                _connectionListener.ClientPingReceived += ClientPingReceived;
-                _connectionListener.ClientPongSent += ClientPongSent;
-                _connectionListener.ConnectionErrorReceived += ClientConnectionError;
-            }
         }
 
 
@@ -343,10 +251,18 @@ namespace MTConnect.Adapters
 
         private void ClientConnected(string clientId, TcpClient client)
         {
-            AddAgentClient(clientId, client);
-            AgentConnected.Raise(this, clientId, null);
+            if (string.IsNullOrEmpty(clientId) || client == null) return;
 
-            SendLast(UnixDateTime.Now);
+            client.SendTimeout = Timeout;
+            var agentClient = new AgentClient(clientId, client);
+
+            lock (AgentClient.GetWriteLock(client))
+            {
+                AddAgentClient(agentClient);
+                SendLastToClient(agentClient);
+            }
+
+            AgentConnected.Raise(this, clientId, null);
         }
 
         private void ClientDisconnected(string clientId)
@@ -374,15 +290,12 @@ namespace MTConnect.Adapters
 
         #region "Clients"
 
-        private void AddAgentClient(string clientId, TcpClient tcpClient)
+        private void AddAgentClient(AgentClient agentClient)
         {
-            if (!string.IsNullOrEmpty(clientId) && tcpClient != null)
+            lock (_lock)
             {
-                lock (_lock)
-                {
-                    _clients.Remove(clientId);
-                    _clients.Add(clientId, new AgentClient(clientId, tcpClient));
-                }
+                _clients.Remove(agentClient.Id);
+                _clients.Add(agentClient.Id, agentClient);
             }
         }
 
@@ -402,11 +315,12 @@ namespace MTConnect.Adapters
             return null;
         }
 
-        private IEnumerable<AgentClient> GetAgentClients()
+        private List<AgentClient> GetAgentClients()
         {
+            // A copy: the dictionary changes as Agents connect and disconnect while lines are being written
             lock (_lock)
             {
-                return _clients.Values;
+                return _clients.Values.ToList();
             }
         }
 
@@ -454,197 +368,164 @@ namespace MTConnect.Adapters
 
         private bool WriteObservations(IEnumerable<IObservationInput> observations)
         {
-            // DataItems
-            var dataItems = observations.Where(o => ShdrObservation.GetObservationType(o) == ShdrObservationType.DataItem);
-            if (!dataItems.IsNullOrEmpty())
-            {
-                var shdrDataItems = new List<ShdrDataItem>();
-                foreach (var x in dataItems) shdrDataItems.Add(new ShdrDataItem(x));
-                var shdrLine = ShdrDataItem.ToString(shdrDataItems, !OutputTimestamps);
-                if (!WriteLine(shdrLine)) return false;
-            }
-
-            // Messages
-            var messages = observations.Where(o => ShdrObservation.GetObservationType(o) == ShdrObservationType.Message);
-            if (!messages.IsNullOrEmpty())
-            {
-                foreach (var x in messages)
-                {
-                    var shdrModel = new ShdrMessage(x);
-                    var shdrLine = shdrModel.ToString();
-                    if (!WriteLine(shdrLine)) return false;
-                }
-            }
-
-            // Conditions
-            var conditions = observations.Where(o => ShdrObservation.GetObservationType(o) == ShdrObservationType.Condition);
-            if (!conditions.IsNullOrEmpty())
-            {
-                foreach (var x in conditions)
-                {
-                    var shdrModel = new ShdrFaultState(new ConditionFaultStateObservationInput(x));
-                    var shdrLine = shdrModel.ToString();
-                    if (!WriteLine(shdrLine)) return false;
-                }
-            }
-
-            // DataSets
-            var dataSets = observations.Where(o => ShdrObservation.GetObservationType(o) == ShdrObservationType.DataSet);
-            if (!dataSets.IsNullOrEmpty())
-            {
-                foreach (var x in dataSets)
-                {
-                    var shdrModel = new ShdrDataSet(new DataSetObservationInput(x));
-                    var shdrLine = shdrModel.ToString();
-                    if (!WriteLine(shdrLine)) return false;
-                }
-            }
-
-            // Tables
-            var tables = observations.Where(o => ShdrObservation.GetObservationType(o) == ShdrObservationType.Table);
-            if (!tables.IsNullOrEmpty())
-            {
-                foreach (var x in tables)
-                {
-                    var shdrModel = new ShdrTable(new TableObservationInput(x));
-                    var shdrLine = shdrModel.ToString();
-                    if (!WriteLine(shdrLine)) return false;
-                }
-            }
-
-            // TimeSeries
-            var timeSeries = observations.Where(o => ShdrObservation.GetObservationType(o) == ShdrObservationType.TimeSeries);
-            if (!timeSeries.IsNullOrEmpty())
-            {
-                foreach (var x in timeSeries)
-                {
-                    var shdrModel = new ShdrTimeSeries(new TimeSeriesObservationInput(x));
-                    var shdrLine = shdrModel.ToString();
-                    if (!WriteLine(shdrLine)) return false;
-                }
-            }
-
-            return true;
+            return WriteLines(FormatObservations(observations));
         }
 
         private bool WriteAssets(IEnumerable<IAssetInput> assets)
         {
-            foreach (var asset in assets)
-            {
-                var shdrModel = new ShdrAsset(asset.Asset);
-                var shdrLine = shdrModel.ToString(MultilineAssets);
-                if (!WriteLine(shdrLine)) return false;
-            }
-
-            return true;
+            return WriteLines(FormatAssets(assets));
         }
 
         private bool WriteDevices(IEnumerable<IDeviceInput> devices)
         {
+            return WriteLines(FormatDevices(devices));
+        }
+
+        private List<string> FormatObservations(IEnumerable<IObservationInput> observations)
+        {
+            var lines = new List<string>();
+            if (observations.IsNullOrEmpty()) return lines;
+
+            // Group by type in one pass (scalar DataItems are combined into as few lines as possible)
+            var dataItems = new List<ShdrDataItem>();
+            var others = new List<string>();
+
+            foreach (var observation in observations)
+            {
+                switch (ShdrObservation.GetObservationType(observation))
+                {
+                    case ShdrObservationType.DataItem: dataItems.Add(new ShdrDataItem(observation)); break;
+                    case ShdrObservationType.Message: others.Add(new ShdrMessage(observation).ToString()); break;
+                    case ShdrObservationType.Condition: others.Add(new ShdrFaultState(new ConditionFaultStateObservationInput(observation)).ToString()); break;
+                    case ShdrObservationType.DataSet: others.Add(new ShdrDataSet(new DataSetObservationInput(observation)).ToString()); break;
+                    case ShdrObservationType.Table: others.Add(new ShdrTable(new TableObservationInput(observation)).ToString()); break;
+                    case ShdrObservationType.TimeSeries: others.Add(new ShdrTimeSeries(new TimeSeriesObservationInput(observation)).ToString()); break;
+                }
+            }
+
+            if (dataItems.Count > 0) lines.Add(ShdrDataItem.ToString(dataItems, !OutputTimestamps));
+            lines.AddRange(others);
+
+            return lines;
+        }
+
+        private List<string> FormatAssets(IEnumerable<IAssetInput> assets)
+        {
+            var lines = new List<string>();
+            if (assets.IsNullOrEmpty()) return lines;
+
+            foreach (var asset in assets)
+            {
+                lines.Add(new ShdrAsset(asset.Asset).ToString(MultilineAssets));
+            }
+
+            return lines;
+        }
+
+        private List<string> FormatDevices(IEnumerable<IDeviceInput> devices)
+        {
+            var lines = new List<string>();
+            if (devices.IsNullOrEmpty()) return lines;
+
             foreach (var device in devices)
             {
-                var shdrModel = new ShdrDevice(device.Device);
-                var shdrLine = shdrModel.ToString(MultilineDevices);
-                if (!WriteLine(shdrLine)) return false;
+                lines.Add(new ShdrDevice(device.Device).ToString(MultilineDevices));
+            }
+
+            return lines;
+        }
+
+
+        /// <summary>
+        /// Writes a fully-formatted SHDR <paramref name="line"/> (may span several lines) to every connected agent.
+        /// Returns <c>true</c> unless the line could not be formatted: with no agents connected there is nothing to
+        /// deliver (a connecting agent receives the last values), and an agent whose write fails is disconnected
+        /// (it receives the last values again when it reconnects).
+        /// </summary>
+        protected bool WriteLine(string line)
+        {
+            if (string.IsNullOrEmpty(line)) return false;
+            return WriteLines(new[] { line });
+        }
+
+        private bool WriteLines(IEnumerable<string> lines)
+        {
+            var payload = Encode(lines, out var singleLines);
+            if (payload == null) return true;
+
+            foreach (var client in GetAgentClients())
+            {
+                WriteToClient(client, payload, singleLines);
             }
 
             return true;
         }
 
-
-        /// <summary>Writes a fully-formatted SHDR <paramref name="line"/> (terminator included) to every connected agent and returns <c>true</c> when at least one write succeeded.</summary>
-        protected bool WriteLine(string line)
+        // Encodes once for every client: each line is terminated by "\n" (UTF-8, so non-ASCII text survives)
+        private static byte[] Encode(IEnumerable<string> lines, out List<string> singleLines)
         {
-            if (!string.IsNullOrEmpty(line))
+            singleLines = new List<string>();
+            if (lines == null) return null;
+
+            foreach (var line in lines)
             {
-                try
-                {
-                    // Write Line to each client in stored client list
-                    var clients = GetAgentClients();
-                    if (!clients.IsNullOrEmpty())
-                    {
-                        var success = true;
-
-                        foreach (var client in clients)
-                        {
-                            if (!WriteLineToClient(client, line)) success = false;
-                        }
-
-                        return success;
-                    }
-                }
-                catch { }
+                var split = SplitLines(line);
+                if (split != null) singleLines.AddRange(split);
             }
 
-            return false;
+            if (singleLines.Count == 0) return null;
+
+            var sb = new StringBuilder();
+            foreach (var singleLine in singleLines) sb.Append(singleLine).Append('\n');
+            return _encoding.GetBytes(sb.ToString());
         }
 
-        private bool WriteLineToClient(AgentClient client, string line)
+        private bool WriteToClient(AgentClient client, byte[] payload, List<string> singleLines)
         {
-            if (client != null && !string.IsNullOrEmpty(line))
+            if (client == null || payload == null) return false;
+
+            try
             {
-                var lines = SplitLines(line);
-                if (!lines.IsNullOrEmpty())
+                // One write per payload, under the connection's write lock, so heartbeat PONGs and other writers
+                // cannot land inside a multiline block
+                lock (AgentClient.GetWriteLock(client.TcpClient))
                 {
-                    foreach (var singleLine in lines)
-                    {
-                        try
-                        {
-                            // Convert string to ASCII bytes and add line terminator
-                            var bytes = Encoding.ASCII.GetBytes(singleLine + "\n");
-
-                            // Get the TcpClient Stream
-                            var stream = client.TcpClient.GetStream();
-                            stream.ReadTimeout = Timeout;
-                            stream.WriteTimeout = Timeout;
-
-                            // Write the line (in bytes) to the Stream
-                            stream.Write(bytes, 0, bytes.Length);
-
-                            LineSent.Raise(this, new AdapterEventArgs<string>(client.Id, singleLine), null);
-                        }
-                        catch (Exception ex)
-                        {
-                            SendError.Raise(this, new AdapterEventArgs<string>(client.Id, ex.Message), null);
-                            return false;
-                        }
-                    }
-
-                    return true;
+                    client.TcpClient.GetStream().Write(payload, 0, payload.Length);
                 }
-            }
 
-            return false;
+                foreach (var singleLine in singleLines)
+                {
+                    LineSent.Raise(this, new AdapterEventArgs<string>(client.Id, singleLine), null);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                SendError.Raise(this, new AdapterEventArgs<string>(client.Id, ex.Message), null);
+
+                // Drop the connection: a stalled or broken Agent must not slow every later write, and it receives
+                // the last values again when it reconnects
+                RemoveAgentClient(client.Id);
+                try { client.TcpClient.Close(); } catch { }
+
+                return false;
+            }
         }
 
-        private async Task<bool> WriteLineToClientAsync(AgentClient client, string line)
+        // Sends the last values, Assets and Devices to a newly connected Agent only
+        private void SendLastToClient(AgentClient client)
         {
-            if (client != null)
-            {
-                try
-                {
-                    // Convert string to ASCII bytes and add line terminator
-                    var bytes = Encoding.ASCII.GetBytes(line + "\n");
+            var baseAdapter = _adapter as MTConnectAdapter;
+            if (baseAdapter == null) return;
 
-                    // Get the TcpClient Stream
-                    var stream = client.TcpClient.GetStream();
-                    stream.ReadTimeout = Timeout;
-                    stream.WriteTimeout = Timeout;
+            var lines = new List<string>();
+            lines.AddRange(FormatObservations(baseAdapter.GetLastObservations()));
+            lines.AddRange(FormatAssets(baseAdapter.GetLastAssets()));
+            lines.AddRange(FormatDevices(baseAdapter.GetLastDevices()));
 
-                    // Write the line (in bytes) to the Stream
-                    await stream.WriteAsync(bytes, 0, bytes.Length);
-
-                    LineSent.Raise(this, new AdapterEventArgs<string>(client.Id, line), null);
-
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    SendError.Raise(this, new AdapterEventArgs<string>(client.Id, ex.Message), null);
-                }
-            }
-
-            return false;
+            var payload = Encode(lines, out var singleLines);
+            if (payload != null) WriteToClient(client, payload, singleLines);
         }
 
 

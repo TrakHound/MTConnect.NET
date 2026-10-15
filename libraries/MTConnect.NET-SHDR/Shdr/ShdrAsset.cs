@@ -95,13 +95,6 @@ namespace MTConnect.Shdr
                     if (asset.Asset != null)
                     {
                         ((Asset)asset.Asset).Timestamp = DateTime.MinValue;
-                        //asset.Asset.Timestamp = 0;
-
-                        var xmlBytes = XmlAsset.ToXml(asset.Asset);
-                        if (xmlBytes != null)
-                        {
-                            //asset.Xml = Encoding.UTF8.GetString(xmlBytes);
-                        }
                     }
 
                     changeId = _utf8.GetBytes(ToString(asset, true));
@@ -151,10 +144,19 @@ namespace MTConnect.Shdr
                 Asset = asset;
                 Timestamp = asset.Timestamp.ToUnixTime();
 
-                var xmlBytes = XmlAsset.ToXml(asset);
-                if (xmlBytes != null)
+                // Without the XML the asset formats to nothing, so ShdrAdapter.AddAsset sent no assets at all.
+                // Compact (no declaration, no line breaks) so the single-line form stays on one SHDR line.
+                var xmlStream = XmlAsset.ToXml(asset);
+                if (xmlStream != null)
                 {
-                    //Xml = Encoding.UTF8.GetString(xmlBytes);
+                    using (xmlStream)
+                    using (var reader = new System.IO.StreamReader(xmlStream, Encoding.UTF8))
+                    {
+                        if (xmlStream.CanSeek) xmlStream.Seek(0, System.IO.SeekOrigin.Begin);
+
+                        var xml = reader.ReadToEnd().TrimStart('﻿');
+                        if (!string.IsNullOrEmpty(xml)) Xml = XmlFunctions.FormatXml(xml, false, false, true) ?? xml;
+                    }
                 }
             }
         }
@@ -256,52 +258,15 @@ namespace MTConnect.Shdr
         /// <summary>Returns true when <paramref name="input"/> begins with the <see cref="AssetDesignator"/> token (with or without a leading ISO timestamp).</summary>
         public static bool IsAssetLine(string input)
         {
-            if (!string.IsNullOrEmpty(input))
-            {
-                // Expected format (Single) : <timestamp>|@ASSET@|<assetId>|<assetType>|<xml>
-                // Expected format (Single) : 2012-02-21T23:59:33.460470Z|@ASSET@|KSSP300R.1|CuttingTool|<CuttingTool>...
-
-                // Check if no Timestamp
-                if (input[0] == '@' && input.StartsWith(AssetDesignator))
-                {
-                    return true;
-                }
-
-                // Check for Timestamp
-                var i = input.IndexOf('|');
-                if (i > 0 && i + 1 < input.Length - 1)
-                {
-                    var x = input.Substring(i + 1);
-                    return x[0] == '@' && x.StartsWith(AssetDesignator);
-                }
-            }
-
-            return false;
+            // With or without a leading (possibly empty) timestamp field
+            return ShdrLine.HasDesignator(input, AssetDesignator);
         }
 
         /// <summary>Returns true when <paramref name="input"/> is an asset line that opens a multi-line block (the line ends with <c>--multiline--id</c>).</summary>
         public static bool IsAssetMultilineBegin(string input)
         {
-            if (IsAssetLine(input))
-            {
-                // Expected format (Multiline) : <timestamp>|@ASSET@|<assetId>|<assetType>|--multiline--0FED07ACED
-
-                // Start reading input and read Timestamp first (if specified)
-                var x = ShdrLine.GetNextValue(input);
-
-                if (DateTime.TryParse(x, out _))
-                {
-                    var y = ShdrLine.GetNextSegment(input);
-
-                    return _multilineBeginRegex.IsMatch(y);
-                }
-                else
-                {
-                    //return FromLine(input);
-                }
-            }
-
-            return false;
+            // Expected format (Multiline) : <timestamp>|@ASSET@|<assetId>|<assetType>|--multiline--0FED07ACED
+            return IsAssetLine(input) && _multilineBeginRegex.IsMatch(ShdrLine.GetBody(input, out _));
         }
 
 
@@ -326,78 +291,24 @@ namespace MTConnect.Shdr
         /// <summary>Returns true when <paramref name="input"/> begins with the <see cref="AssetRemoveDesignator"/> token (with or without a leading timestamp).</summary>
         public static bool IsAssetRemove(string input)
         {
-            if (!string.IsNullOrEmpty(input))
-            {
-                // Expected format : @REMOVE_ASSET@|<AssetId>
-
-                // Check if no Timestamp
-                if (input[0] == '@' && input.StartsWith(AssetRemoveDesignator))
-                {
-                    return true;
-                }
-
-                // Check for Timestamp
-                var i = input.IndexOf('|');
-                if (i > 0 && i + 1 < input.Length - 1)
-                {
-                    var x = input.Substring(i + 1);
-                    return x[0] == '@' && x.StartsWith(AssetRemoveDesignator);
-                }
-            }
-
-            return false;
+            // With or without a leading (possibly empty) timestamp field
+            return ShdrLine.HasDesignator(input, AssetRemoveDesignator);
         }
 
 
         /// <summary>Returns true when <paramref name="input"/> begins with the <see cref="AssetRemoveAllDesignator"/> token (with or without a leading timestamp).</summary>
         public static bool IsAssetRemoveAll(string input)
         {
-            if (!string.IsNullOrEmpty(input))
-            {
-                // Expected format : @REMOVE_ALL_ASSETS@|<AssetId>
-
-                // Check if no Timestamp
-                if (input[0] == '@' && input.StartsWith(AssetRemoveAllDesignator))
-                {
-                    return true;
-                }
-
-                // Check for Timestamp
-                var i = input.IndexOf('|');
-                if (i > 0 && i + 1 < input.Length - 1)
-                {
-                    var x = input.Substring(i + 1);
-                    return x[0] == '@' && x.StartsWith(AssetRemoveAllDesignator);
-                }
-            }
-
-            return false;
+            // With or without a leading (possibly empty) timestamp field
+            return ShdrLine.HasDesignator(input, AssetRemoveAllDesignator);
         }
 
 
         /// <summary>Returns true when <paramref name="input"/> begins with the <see cref="AssetUpdateDesignator"/> token (with or without a leading timestamp).</summary>
         public static bool IsAssetUpdate(string input)
         {
-            if (!string.IsNullOrEmpty(input))
-            {
-                // Expected format : @UPDATE_ASSET@|<AssetId>|<PropertyName>|<PropertyValue>|...
-
-                // Check if no Timestamp
-                if (input[0] == '@' && input.StartsWith(AssetUpdateDesignator))
-                {
-                    return true;
-                }
-
-                // Check for Timestamp
-                var i = input.IndexOf('|');
-                if (i > 0 && i + 1 < input.Length - 1)
-                {
-                    var x = input.Substring(i + 1);
-                    return x[0] == '@' && x.StartsWith(AssetUpdateDesignator);
-                }
-            }
-
-            return false;
+            // With or without a leading (possibly empty) timestamp field
+            return ShdrLine.HasDesignator(input, AssetUpdateDesignator);
         }
 
         #endregion
@@ -407,42 +318,21 @@ namespace MTConnect.Shdr
         /// <summary>Parses the leading ISO timestamp segment of <paramref name="input"/> and returns it as Unix time (milliseconds since epoch); returns 0 when no timestamp is present.</summary>
         public static long ReadTimestamp(string input)
         {
-            if (!string.IsNullOrEmpty(input))
-            {
-                var x = ShdrLine.GetNextValue(input);
-
-                if (DateTime.TryParse(x, out var timestamp))
-                {
-                    return timestamp.ToUnixTime();
-                }
-            }
-
-            return 0;
+            ShdrLine.GetBody(input, out var timestampField);
+            ShdrLine.ParseTimestampField(timestampField, out var timestamp, out _);
+            return timestamp;
         }
 
         /// <summary>Extracts the asset id from a multi-line asset header (<c>@ASSET@|assetId|assetType|--multiline--id</c>); returns null when no match is found.</summary>
         public static string ReadAssetId(string input)
         {
-            if (!string.IsNullOrEmpty(input))
+            var body = ShdrLine.GetBody(input, out _);
+            if (!string.IsNullOrEmpty(body))
             {
-                // Expected format (Multiline) : <timestamp>|@ASSET@|<assetId>|<assetType>|--multiline--0FED07ACED
-
-                // Start reading input and read Timestamp first (if specified)
-                var x = ShdrLine.GetNextValue(input);
-
-                if (DateTime.TryParse(x, out _))
+                var match = _assetIdRegex.Match(body);
+                if (match.Success && match.Groups.Count > 1)
                 {
-                    var y = ShdrLine.GetNextSegment(input);
-
-                    var match = _assetIdRegex.Match(y);
-                    if (match.Success && match.Groups.Count > 1)
-                    {
-                        return match.Groups[1].Value;
-                    }
-                }
-                else
-                {
-                    //return FromLine(input);
+                    return match.Groups[1].Value;
                 }
             }
 
@@ -452,26 +342,13 @@ namespace MTConnect.Shdr
         /// <summary>Extracts the asset type from a multi-line asset header; returns null when no match is found.</summary>
         public static string ReadAssetType(string input)
         {
-            if (!string.IsNullOrEmpty(input))
+            var body = ShdrLine.GetBody(input, out _);
+            if (!string.IsNullOrEmpty(body))
             {
-                // Expected format (Multiline) : <timestamp>|@ASSET@|<assetId>|<assetType>|--multiline--0FED07ACED
-
-                // Start reading input and read Timestamp first (if specified)
-                var x = ShdrLine.GetNextValue(input);
-
-                if (DateTime.TryParse(x, out _))
+                var match = _assetTypeRegex.Match(body);
+                if (match.Success && match.Groups.Count > 1)
                 {
-                    var y = ShdrLine.GetNextSegment(input);
-
-                    var match = _assetTypeRegex.Match(y);
-                    if (match.Success && match.Groups.Count > 1)
-                    {
-                        return match.Groups[1].Value;
-                    }
-                }
-                else
-                {
-                    //return FromLine(input);
+                    return match.Groups[1].Value;
                 }
             }
 
@@ -481,26 +358,13 @@ namespace MTConnect.Shdr
         /// <summary>Extracts the multi-line block id that follows the <c>--multiline--</c> marker on an asset header; returns null when no match is found.</summary>
         public static string ReadAssetMultilineId(string input)
         {
-            if (!string.IsNullOrEmpty(input))
+            var body = ShdrLine.GetBody(input, out _);
+            if (!string.IsNullOrEmpty(body))
             {
-                // Expected format (Multiline) : <timestamp>|@ASSET@|<assetId>|<assetType>|--multiline--0FED07ACED
-
-                // Start reading input and read Timestamp first (if specified)
-                var x = ShdrLine.GetNextValue(input);
-
-                if (DateTime.TryParse(x, out _))
+                var match = _multilineBeginRegex.Match(body);
+                if (match.Success && match.Groups.Count > 1)
                 {
-                    var y = ShdrLine.GetNextSegment(input);
-
-                    var match = _multilineBeginRegex.Match(y);
-                    if (match.Success && match.Groups.Count > 1)
-                    {
-                        return match.Groups[1].Value;
-                    }
-                }
-                else
-                {
-                    //return FromLine(input);
+                    return match.Groups[1].Value;
                 }
             }
 
@@ -510,24 +374,13 @@ namespace MTConnect.Shdr
         /// <summary>Extracts the target asset id from a <c>@REMOVE_ASSET@|assetId</c> SHDR line; returns null when no match is found.</summary>
         public static string ReadRemoveAssetId(string input)
         {
-            if (!string.IsNullOrEmpty(input))
+            var body = ShdrLine.GetBody(input, out _);
+            if (!string.IsNullOrEmpty(body))
             {
-                // Start reading input and read Timestamp first (if specified)
-                var x = ShdrLine.GetNextValue(input);
-
-                if (DateTime.TryParse(x, out _))
+                var match = _assetRemoveRegex.Match(body);
+                if (match.Success && match.Groups.Count > 1)
                 {
-                    var y = ShdrLine.GetNextSegment(input);
-
-                    var match = _assetRemoveRegex.Match(y);
-                    if (match.Success && match.Groups.Count > 1)
-                    {
-                        return match.Groups[1].Value;
-                    }
-                }
-                else
-                {
-                    //return FromLine(input);
+                    return match.Groups[1].Value;
                 }
             }
 
@@ -537,24 +390,13 @@ namespace MTConnect.Shdr
         /// <summary>Extracts the target asset type from a <c>@REMOVE_ALL_ASSETS@|type</c> SHDR line; returns null when no match is found.</summary>
         public static string ReadRemoveAllAssetType(string input)
         {
-            if (!string.IsNullOrEmpty(input))
+            var body = ShdrLine.GetBody(input, out _);
+            if (!string.IsNullOrEmpty(body))
             {
-                // Start reading input and read Timestamp first (if specified)
-                var x = ShdrLine.GetNextValue(input);
-
-                if (DateTime.TryParse(x, out _))
+                var match = _assetRemoveAllRegex.Match(body);
+                if (match.Success && match.Groups.Count > 1)
                 {
-                    var y = ShdrLine.GetNextSegment(input);
-
-                    var match = _assetRemoveAllRegex.Match(y);
-                    if (match.Success && match.Groups.Count > 1)
-                    {
-                        return match.Groups[1].Value;
-                    }
-                }
-                else
-                {
-                    //return FromLine(input);
+                    return match.Groups[1].Value;
                 }
             }
 
@@ -569,19 +411,9 @@ namespace MTConnect.Shdr
             {
                 // Expected format (Single) : <timestamp>|@ASSET@|<assetId>|<assetType>|<xml>
                 // Expected format (Single) : 2012-02-21T23:59:33.460470Z|@ASSET@|KSSP300R.1|CuttingTool|<CuttingTool>...
-
-                // Start reading input and read Timestamp first (if specified)
-                var x = ShdrLine.GetNextValue(input);
-
-                if (DateTime.TryParse(x, out var timestamp))
-                {
-                    var y = ShdrLine.GetNextSegment(input);
-                    return FromLine(y, timestamp.ToUnixTime());
-                }
-                else
-                {
-                    return FromLine(input);
-                }
+                var body = ShdrLine.GetBody(input, out var timestampField);
+                ShdrLine.ParseTimestampField(timestampField, out var timestamp, out _);
+                return FromLine(body, timestamp);
             }
 
             return null;

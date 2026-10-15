@@ -7,6 +7,7 @@ using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.Xml;
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -36,10 +37,15 @@ namespace MTConnect.Shdr
         /// <summary>Default delay (in milliseconds) before attempting to reconnect after the adapter connection is lost; 10 seconds.</summary>
         public const int DefaultReconnectInterval = 10000; // 10 seconds
 
-        private TcpClient _client;
-        private long _lastHeartbeat = 0;
+        // Read chunk size; lines are reassembled across reads (up to BufferSize per line)
+        private const int ReadBufferSize = 65536;
+
+        // How often the heartbeat watchdog checks the connection
+        private const int WatchdogInterval = 250;
+
+        private static readonly Regex _pongRegex = new Regex(@"\* PONG ([0-9]*)", RegexOptions.Compiled);
+
         private CancellationTokenSource _stop;
-        private int _heartbeat = DefaultPongHeartbeat;
 
 
         /// <summary>
@@ -175,14 +181,27 @@ namespace MTConnect.Shdr
         /// <summary>Launches the listen-and-reconnect loop on a background task. Returns immediately; <see cref="Connected"/> is raised once the adapter socket is established.</summary>
         public void Start()
         {
-            _stop = new CancellationTokenSource();
-            _ = Task.Run(() => ListenForAdapter(_stop.Token));
+            // Starting again stops the previous loop, which only ever checks its own token and socket
+            var stop = new CancellationTokenSource();
+            var previous = Interlocked.Exchange(ref _stop, stop);
+            CancelQuietly(previous);
+
+            _ = Task.Run(() => ListenForAdapter(stop.Token));
         }
 
         /// <summary>Signals the background loop to exit and disconnect from the adapter.</summary>
         public void Stop()
         {
-            if (_stop != null) _stop.Cancel();
+            CancelQuietly(_stop);
+        }
+
+        private static void CancelQuietly(CancellationTokenSource source)
+        {
+            try
+            {
+                source?.Cancel();
+            }
+            catch (ObjectDisposedException) { }
         }
 
 
@@ -233,385 +252,354 @@ namespace MTConnect.Shdr
         private async Task ListenForAdapter(CancellationToken cancel)
         {
             var reconnectInterval = Math.Max(ReconnectInterval, 100);
-            var connected = false;
 
-            long lastResponse = 0;
-            long now = UnixDateTime.Now;
-
-            var buffer = new byte[BufferSize];
-            int bufferIndex = 0;
-            char[] chars = new char[BufferSize];
-            var bufferString = new StringBuilder();
-            var responseString = new StringBuilder();
-            var encoder = new ASCIIEncoding();
-
-            try
+            while (!cancel.IsCancellationRequested)
             {
-                while (!cancel.IsCancellationRequested)
+                var connected = false;
+
+                // Each connection owns its socket, so a newer Start() can never close it (or be closed by it)
+                var client = new TcpClient(GetIpAddressType(Hostname));
+
+                // Stop() closes the socket, which ends any blocking connect / read immediately
+                using (cancel.Register(() => CloseQuietly(client)))
                 {
                     try
                     {
-                        // Create new TCP Client
-                        var addressFamily = GetIpAddressType(Hostname);
-                        _client = new TcpClient(addressFamily);
-                        _client.Connect(Hostname, Port);
-                        _client.ReceiveTimeout = ConnectionTimeout;
-                        _client.SendTimeout = ConnectionTimeout;
+                        await ConnectAsync(client, cancel).ConfigureAwait(false);
+                        client.SendTimeout = ConnectionTimeout;
 
                         Connected.Raise(this, $"Connected to Adapter at {Hostname} on Port {Port}", null);
                         connected = true;
 
                         OnConnect();
 
-                        // Get the TCP Client Stream
-                        using (var stream = _client.GetStream())
+                        using (var stream = client.GetStream())
                         {
-                            // Send Initial PING Request
-                            var messageBytes = Encoding.ASCII.GetBytes(PingMessage);
-                            stream.Write(messageBytes, 0, messageBytes.Length);
-                            PingSent.Raise(this, $"Initial PING sent to : {Hostname} on Port {Port}", null);
-
-                            // Read the Initial PONG Response
-                            bufferIndex = stream.Read(buffer, 0, buffer.Length);
-
-                            while (!cancel.IsCancellationRequested)
-                            {
-                                now = UnixDateTime.Now;
-
-                                if (bufferIndex > 0)
-                                {
-                                    Array.Copy(encoder.GetChars(buffer, 0, bufferIndex), 0, chars, 0, bufferIndex);
-
-                                    var hasResponse = ProcessResponse(ref chars, bufferIndex);
-
-                                    if (hasResponse) lastResponse = now;
-                                    else _lastHeartbeat = now;
-
-                                    // Clear Buffers
-                                    Array.Clear(buffer, 0, bufferIndex);
-                                    Array.Clear(chars, 0, bufferIndex);
-                                }
-
-                                // Send PING Heartbeat if needed
-                                if ((!IgnoreHeartbeatOnChange || ((now - lastResponse) > _heartbeat * 10000)) && ((now - _lastHeartbeat) > _heartbeat * 10000))
-                                {
-                                    messageBytes = Encoding.ASCII.GetBytes(PingMessage);
-                                    stream.Write(messageBytes, 0, messageBytes.Length);
-                                    PingSent.Raise(this, $"PING sent to : {Hostname} on Port {Port}", null);
-                                    _lastHeartbeat = now;
-                                }
-
-                                // Read Next Chunk if new Data is Available
-                                if (stream.DataAvailable)
-                                {
-                                    bufferIndex = stream.Read(buffer, 0, buffer.Length);
-                                }
-                                else
-                                {
-                                    bufferIndex = 0;
-                                }
-
-                                Thread.Sleep(1);
-                            }
+                            await RunConnection(client, stream, cancel).ConfigureAwait(false);
                         }
                     }
-                    catch (TaskCanceledException) { }
-                    catch (Exception ex)
+                    catch (Exception ex) when (!cancel.IsCancellationRequested)
                     {
                         ConnectionError.Raise(this, ex, null);
                     }
+                    catch (Exception) { /* Stopped */ }
                     finally
                     {
-                        if (_client != null)
+                        CloseQuietly(client);
+
+                        if (connected)
                         {
-                            _client.Close();
-                            _client.Dispose();
+                            Disconnected.Raise(this, $"Disconnected from {Hostname} on Port {Port}", null);
 
-                            if (connected)
-                            {
-                                Disconnected.Raise(this, $"Disconnected from {Hostname} on Port {Port}", null);
+                            OnDisconnect();
+                        }
+                    }
+                }
 
-                                OnDisconnect();
-                            }
+                if (cancel.IsCancellationRequested) break;
+
+                // Wait for the ReconnectInterval (in milliseconds) until continuing while loop
+                try
+                {
+                    await Task.Delay(reconnectInterval, cancel).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+
+                Listening.Raise(this, $"Listening for connection from {Hostname} on Port {Port}", null);
+            }
+        }
+
+        private async Task ConnectAsync(TcpClient client, CancellationToken cancel)
+        {
+            // Bound the connect too; a ConnectionTimeout of 0 used to wait forever
+            var timeout = ConnectionTimeout > 0 ? ConnectionTimeout : DefaultConnectionTimeout;
+
+            var connect = client.ConnectAsync(Hostname, Port);
+            var completed = await Task.WhenAny(connect, Task.Delay(timeout, cancel)).ConfigureAwait(false);
+            if (completed != connect)
+            {
+                CloseQuietly(client);
+                cancel.ThrowIfCancellationRequested();
+                throw new TimeoutException($"Timed out connecting to Adapter at {Hostname} on Port {Port} ({timeout} ms)");
+            }
+
+            await connect.ConfigureAwait(false);
+        }
+
+        // Reads lines until the adapter disconnects, the connection goes silent, or the client is stopped.
+        // A watchdog sends PING heartbeats and closes the socket when nothing has been received for too long.
+        private async Task RunConnection(TcpClient client, NetworkStream stream, CancellationToken cancel)
+        {
+            var reader = new ShdrLineReader(BufferSize);
+            var state = new ConnectionState();
+            state.LastReceived = UnixDateTime.Now;
+
+            // Send Initial PING Request
+            SendPing(stream, state, $"Initial PING sent to : {Hostname} on Port {Port}");
+
+            using (var connectionStop = CancellationTokenSource.CreateLinkedTokenSource(cancel))
+            {
+                var watchdog = Task.Run(() => Watchdog(client, stream, state, connectionStop.Token));
+
+                try
+                {
+                    var buffer = new byte[ReadBufferSize];
+
+                    while (!cancel.IsCancellationRequested)
+                    {
+                        var read = await stream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+                        if (read <= 0) break; // The adapter closed the connection
+
+                        Interlocked.Exchange(ref state.LastReceived, UnixDateTime.Now);
+
+                        reader.Append(buffer, read);
+
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            if (ProcessLine(line, state)) Interlocked.Exchange(ref state.LastDataReceived, UnixDateTime.Now);
                         }
 
-                        connected = false;
+                        if (reader.Overflowed)
+                        {
+                            ConnectionError.Raise(this, new InvalidDataException($"SHDR line from {Hostname} on Port {Port} exceeded {BufferSize} bytes without a line terminator and was discarded"), null);
+                        }
+                    }
+                }
+                catch (Exception) when (state.TimedOut != null)
+                {
+                    // The watchdog closed the socket; report why instead of the resulting read error
+                }
+                finally
+                {
+                    connectionStop.Cancel();
+                    try { await watchdog.ConfigureAwait(false); } catch { }
+                }
+
+                if (state.TimedOut != null) throw state.TimedOut;
+            }
+        }
+
+        private async Task Watchdog(TcpClient client, NetworkStream stream, ConnectionState state, CancellationToken cancel)
+        {
+            try
+            {
+                while (!cancel.IsCancellationRequested)
+                {
+                    await Task.Delay(WatchdogInterval, cancel).ConfigureAwait(false);
+
+                    var now = UnixDateTime.Now;
+                    var heartbeat = Volatile.Read(ref state.Heartbeat);
+
+                    // Adapters that answer PING are expected to send something (data or PONG) every heartbeat;
+                    // allow two heartbeats. Legacy adapters without heartbeats are bounded by ConnectionTimeout.
+                    var silentLimit = heartbeat > 0 ? heartbeat * 2 : ConnectionTimeout;
+                    var silentFor = (now - Interlocked.Read(ref state.LastReceived)) / TimeSpan.TicksPerMillisecond;
+                    if (silentLimit > 0 && silentFor > silentLimit)
+                    {
+                        state.TimedOut = new TimeoutException($"No data received from Adapter at {Hostname} on Port {Port} for {silentFor} ms");
+                        CloseQuietly(client);
+                        return;
                     }
 
-                    // Wait for the ReconnectInterval (in milliseconds) until continuing while loop
-                    await Task.Delay(reconnectInterval, cancel);
-
-                    Listening.Raise(this, $"Listening for connection from {Hostname} on Port {Port}", null);
+                    // Send PING Heartbeat if needed
+                    var pingInterval = (long)(heartbeat > 0 ? heartbeat : DefaultPongHeartbeat) * TimeSpan.TicksPerMillisecond;
+                    var dataRecently = (now - Interlocked.Read(ref state.LastDataReceived)) <= pingInterval;
+                    if ((!IgnoreHeartbeatOnChange || !dataRecently) && (now - Interlocked.Read(ref state.LastPingSent)) > pingInterval)
+                    {
+                        SendPing(stream, state, $"PING sent to : {Hostname} on Port {Port}");
+                    }
                 }
             }
-            catch (TaskCanceledException) { }
+            catch (OperationCanceledException) { }
             catch (Exception ex)
             {
-                ConnectionError.Raise(this, ex, null);
-
-                if (_client != null)
-                {
-                    _client.Close();
-                    _client.Dispose();
-
-                    GC.Collect();
-
-                    if (connected)
-                    {
-                        Disconnected.Raise(this, $"Disconnected from {Hostname} on Port {Port}", null);
-
-                        OnDisconnect();
-                    }
-                }
-
-                connected = false;
+                // A failed PING write means the connection is gone
+                state.TimedOut = ex;
+                CloseQuietly(client);
             }
         }
 
-        private bool ProcessResponse(ref char[] chars, int length)
+        private void SendPing(NetworkStream stream, ConnectionState state, string message)
         {
-            var response = new string(chars, 0, length);
+            var messageBytes = Encoding.ASCII.GetBytes(PingMessage);
+            stream.Write(messageBytes, 0, messageBytes.Length);
+            Interlocked.Exchange(ref state.LastPingSent, UnixDateTime.Now);
+            PingSent.Raise(this, message, null);
+        }
 
-            if (response.Contains("\n"))
+        private static void CloseQuietly(TcpClient client)
+        {
+            try
             {
-                var lines = response.Split('\n');
-                if (lines != null && lines.Length > 0)
-                {
-                    var j = 0;
-
-                    bool multilineAsset = false;
-                    long multilineAssetTimestamp = 0;
-                    string multilineAssetId = null;
-                    string multilineAssetType = null;
-
-                    bool multilineDevice = false;
-                    string multilineDeviceUuid = null;
-                    string multilineDeviceType = null;
-
-                    string multilineId = null;
-                    var multilineContent = new StringBuilder();
-
-                    var found = false;
-
-                    do
-                    {
-                        var line = lines[j];
-                        if (!string.IsNullOrEmpty(line))
-                        {
-                            // Detect if message is a Command (Ping or Agent Command)
-                            if (line[0] == '*')
-                            {
-                                if (line.StartsWith("* PONG"))
-                                {
-                                    _heartbeat = GetPongHeartbeat(line);
-
-                                    PongReceived.Raise(this, $"PONG Received from : {Hostname} on Port {Port} : Heartbeat = {_heartbeat}ms", null);
-                                }
-                                else
-                                {
-                                    //await ProcessCommand(line);
-
-                                    //lastResponse = now;
-
-                                    // Raise CommandReceived Event passing the Line that was read as a parameter
-                                    //CommandReceived?.Invoke(this, line);
-
-                                    found = true;
-                                }
-                            }
-                            else if (ShdrAsset.IsAssetMultilineBegin(line))
-                            {
-                                multilineAssetTimestamp = ShdrAsset.ReadTimestamp(line);
-                                multilineAssetId = ShdrAsset.ReadAssetId(line);
-                                multilineAssetType = ShdrAsset.ReadAssetType(line);
-                                multilineId = ShdrAsset.ReadAssetMultilineId(line);
-                                multilineContent.Clear();
-                                multilineAsset = true;
-
-                                // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived.Raise(this, line, null);
-
-                                found = true;
-                            }
-                            else if (multilineAsset && ShdrAsset.IsAssetMultilineEnd(multilineId, line))
-                            {
-                                var assetType = Asset.GetAssetType(multilineAssetType);
-                                if (assetType != null)
-                                {
-                                    var asset = XmlAsset.FromXml(assetType, Encoding.UTF8.GetBytes(multilineContent.ToString()));
-                                    if (asset != null)
-                                    {
-                                        OnAssetReceived(asset);
-                                    }
-                                }
-
-                                multilineContent.Clear();
-                                multilineAsset = false;
-
-                                // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived.Raise(this, line, null);
-
-                                found = true;
-                            }
-                            else if (multilineAsset)
-                            {
-                                multilineContent.Append(line);
-
-                                // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived.Raise(this, line, null);
-
-                                found = true;
-                            }
-                            else if (ShdrAsset.IsAssetLine(line))
-                            {
-                                var shdrAsset = ShdrAsset.FromString(line);
-                                if (shdrAsset != null)
-                                {
-                                    var asset = XmlAsset.FromXml(shdrAsset.AssetType, Encoding.UTF8.GetBytes(shdrAsset.Xml));
-                                    if (asset != null)
-                                    {
-                                        OnAssetReceived(asset);
-                                    }
-
-                                    //var assetType = Asset.GetAssetType(shdrAsset.AssetType);
-                                    //if (assetType != null)
-                                    //{
-                                    //    var asset = XmlAsset.FromXml(assetType, Encoding.UTF8.GetBytes(shdrAsset.Xml));
-                                    //    if (asset != null)
-                                    //    {
-                                    //        OnAssetReceived(asset);
-                                    //    }
-                                    //}
-                                }
-
-                                // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived.Raise(this, line, null);
-
-                                found = true;
-                            }
-                            else if (ShdrAsset.IsAssetRemove(line))
-                            {
-                                var removeAssetTimestamp = ShdrAsset.ReadTimestamp(line);
-                                var removeAssetId = ShdrAsset.ReadRemoveAssetId(line);
-                                if (!string.IsNullOrEmpty(removeAssetId))
-                                {
-                                    OnRemoveAssetReceived(removeAssetId, removeAssetTimestamp);
-                                }
-
-                                // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived.Raise(this, line, null);
-
-                                found = true;
-                            }
-                            else if (ShdrAsset.IsAssetRemoveAll(line))
-                            {
-                                var removeAssetTimestamp = ShdrAsset.ReadTimestamp(line);
-                                var removeAssetType = ShdrAsset.ReadRemoveAllAssetType(line);
-                                if (!string.IsNullOrEmpty(removeAssetType))
-                                {
-                                    OnRemoveAllAssetsReceived(removeAssetType, removeAssetTimestamp);
-                                }
-
-                                // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived.Raise(this, line, null);
-
-                                found = true;
-                            }
-                            else if (ShdrDevice.IsDeviceMultilineBegin(line))
-                            {
-                                multilineDeviceUuid = ShdrDevice.ReadDeviceUuid(line);
-                                multilineDeviceType = ShdrDevice.ReadDeviceType(line);
-                                multilineId = ShdrDevice.ReadDeviceMultilineId(line);
-                                multilineContent.Clear();
-                                multilineDevice = true;
-
-                                // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived.Raise(this, line, null);
-
-                                found = true;
-                            }
-                            else if (multilineDevice && ShdrDevice.IsDeviceMultilineEnd(multilineId, line))
-                            {
-                                var device = XmlDevice.FromXml(Encoding.UTF8.GetBytes(multilineContent.ToString()));
-                                if (device != null)
-                                {
-                                    OnDeviceReceived(device);
-                                }
-
-                                multilineContent.Clear();
-                                multilineDevice = false;
-
-                                // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived.Raise(this, line, null);
-
-                                found = true;
-                            }
-                            else if (multilineDevice)
-                            {
-                                multilineContent.Append(line);
-
-                                // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived.Raise(this, line, null);
-
-                                found = true;
-                            }
-                            else if (ShdrDevice.IsDeviceLine(line))
-                            {
-                                var shdrDevice = ShdrDevice.FromString(line);
-                                if (shdrDevice != null && shdrDevice.Device != null)
-                                {
-                                    OnDeviceReceived(shdrDevice.Device);
-                                }
-
-                                // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived.Raise(this, line, null);
-
-                                found = true;
-                            }
-                            else
-                            {
-                                ProcessProtocol(line);
-
-                                // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                ProtocolReceived.Raise(this, line, null);
-
-                                found = true;
-                            }
-                        }
-
-                        j++;
-                    }
-                    while (j < lines.Length);
-
-                    return found;
-                }
+                client?.Close();
             }
-
-            return false;
+            catch { }
         }
 
 
-        private int GetPongHeartbeat(string input)
+        // Per-connection state shared by the read loop and the watchdog. Multiline asset / device state lives here
+        // (not per TCP read), so a multiline block that arrives over several reads is still reassembled.
+        private sealed class ConnectionState
         {
-            var regex = new Regex(@"\* PONG ([0-9]*)");
-            var match = regex.Match(input);
+            public long LastReceived;
+            public long LastDataReceived;
+            public long LastPingSent;
+            public int Heartbeat; // 0 until the adapter answers a PING
+            public Exception TimedOut;
+
+            public bool MultilineAsset;
+            public long MultilineAssetTimestamp;
+            public string MultilineAssetId;
+            public string MultilineAssetType;
+
+            public bool MultilineDevice;
+            public string MultilineDeviceUuid;
+            public string MultilineDeviceType;
+
+            public string MultilineId;
+            public readonly StringBuilder MultilineContent = new StringBuilder();
+        }
+
+        // Returns true when the line carried data (anything other than a PONG)
+        private bool ProcessLine(string line, ConnectionState state)
+        {
+            if (string.IsNullOrEmpty(line)) return false;
+
+            // Multiline content is taken verbatim until its end marker
+            if (state.MultilineAsset || state.MultilineDevice)
+            {
+                if (state.MultilineAsset && ShdrAsset.IsAssetMultilineEnd(state.MultilineId, line))
+                {
+                    // By type name, like single-line assets: the Type overload expects the XML surrogate type, and
+                    // passing the model type (Asset.GetAssetType) made every multiline asset fail to parse
+                    var asset = XmlAsset.FromXml(state.MultilineAssetType, Encoding.UTF8.GetBytes(state.MultilineContent.ToString()));
+                    if (asset != null)
+                    {
+                        OnAssetReceived(asset);
+                    }
+
+                    state.MultilineContent.Clear();
+                    state.MultilineAsset = false;
+                }
+                else if (state.MultilineDevice && ShdrDevice.IsDeviceMultilineEnd(state.MultilineId, line))
+                {
+                    var device = XmlDevice.FromXml(Encoding.UTF8.GetBytes(state.MultilineContent.ToString()));
+                    if (device != null)
+                    {
+                        OnDeviceReceived(device);
+                    }
+
+                    state.MultilineContent.Clear();
+                    state.MultilineDevice = false;
+                }
+                else
+                {
+                    // Keep the line break so unindented continuation lines do not run together
+                    state.MultilineContent.Append(line).Append('\n');
+                }
+
+                // Raise ProtocolReceived Event passing the Line that was read as a parameter
+                ProtocolReceived.Raise(this, line, null);
+                return true;
+            }
+
+            // Detect if message is a Command (Ping or Agent Command)
+            if (line[0] == '*')
+            {
+                if (line.StartsWith("* PONG"))
+                {
+                    var heartbeat = GetPongHeartbeat(line);
+                    Volatile.Write(ref state.Heartbeat, heartbeat);
+
+                    PongReceived.Raise(this, $"PONG Received from : {Hostname} on Port {Port} : Heartbeat = {heartbeat}ms", null);
+                    return false;
+                }
+
+                return true;
+            }
+
+            if (ShdrAsset.IsAssetMultilineBegin(line))
+            {
+                state.MultilineAssetTimestamp = ShdrAsset.ReadTimestamp(line);
+                state.MultilineAssetId = ShdrAsset.ReadAssetId(line);
+                state.MultilineAssetType = ShdrAsset.ReadAssetType(line);
+                state.MultilineId = ShdrAsset.ReadAssetMultilineId(line);
+                state.MultilineContent.Clear();
+                state.MultilineAsset = true;
+            }
+            else if (ShdrAsset.IsAssetLine(line))
+            {
+                var shdrAsset = ShdrAsset.FromString(line);
+                if (shdrAsset != null)
+                {
+                    var asset = XmlAsset.FromXml(shdrAsset.AssetType, Encoding.UTF8.GetBytes(shdrAsset.Xml));
+                    if (asset != null)
+                    {
+                        OnAssetReceived(asset);
+                    }
+                }
+            }
+            else if (ShdrAsset.IsAssetRemove(line))
+            {
+                var removeAssetTimestamp = ShdrAsset.ReadTimestamp(line);
+                var removeAssetId = ShdrAsset.ReadRemoveAssetId(line);
+                if (!string.IsNullOrEmpty(removeAssetId))
+                {
+                    OnRemoveAssetReceived(removeAssetId, removeAssetTimestamp);
+                }
+            }
+            else if (ShdrAsset.IsAssetRemoveAll(line))
+            {
+                var removeAssetTimestamp = ShdrAsset.ReadTimestamp(line);
+                var removeAssetType = ShdrAsset.ReadRemoveAllAssetType(line);
+                if (!string.IsNullOrEmpty(removeAssetType))
+                {
+                    OnRemoveAllAssetsReceived(removeAssetType, removeAssetTimestamp);
+                }
+            }
+            else if (ShdrDevice.IsDeviceMultilineBegin(line))
+            {
+                state.MultilineDeviceUuid = ShdrDevice.ReadDeviceUuid(line);
+                state.MultilineDeviceType = ShdrDevice.ReadDeviceType(line);
+                state.MultilineId = ShdrDevice.ReadDeviceMultilineId(line);
+                state.MultilineContent.Clear();
+                state.MultilineDevice = true;
+            }
+            else if (ShdrDevice.IsDeviceLine(line))
+            {
+                var shdrDevice = ShdrDevice.FromString(line);
+                if (shdrDevice != null && shdrDevice.Device != null)
+                {
+                    OnDeviceReceived(shdrDevice.Device);
+                }
+            }
+            else
+            {
+                ProcessProtocol(line);
+            }
+
+            // Raise ProtocolReceived Event passing the Line that was read as a parameter
+            ProtocolReceived.Raise(this, line, null);
+            return true;
+        }
+
+
+        private static int GetPongHeartbeat(string input)
+        {
+            var match = _pongRegex.Match(input);
             if (match.Success && match.Groups.Count > 1)
             {
-                return match.Groups[1].Value.ToInt();
+                var heartbeat = match.Groups[1].Value.ToInt();
+                if (heartbeat > 0) return heartbeat;
             }
 
             return DefaultPongHeartbeat;
         }
 
-
-        private async Task ProcessCommand(string line)
-        {
-            await Task.CompletedTask;
-            if (!string.IsNullOrEmpty(line))
-            {
-
-            }
-        }
 
         private void ProcessProtocol(string line)
         {
@@ -619,40 +607,39 @@ namespace MTConnect.Shdr
             {
                 // Get DataItem based on Key in line
                 var dataItem = GetDataItem(line);
-                if (dataItem != null)
+                if (dataItem != null && dataItem.Category == DataItemCategory.CONDITION)
                 {
-                    if (dataItem.Category == DataItemCategory.CONDITION)
+                    var condition = ShdrFaultState.FromString(line);
+                    if (condition != null) OnConditionFaultStateReceived(condition);
+                }
+                else if (dataItem != null && dataItem.Type == Devices.DataItems.MessageDataItem.TypeId)
+                {
+                    var message = ShdrMessage.FromString(line);
+                    if (message != null) OnMessageReceived(message);
+                }
+                else if (dataItem != null && dataItem.Representation == DataItemRepresentation.TABLE)
+                {
+                    var table = ShdrTable.FromString(line);
+                    if (table != null) OnTableReceived(table);
+                }
+                else if (dataItem != null && dataItem.Representation == DataItemRepresentation.DATA_SET)
+                {
+                    var dataSet = ShdrDataSet.FromString(line);
+                    if (dataSet != null) OnDataSetReceived(dataSet);
+                }
+                else if (dataItem != null && dataItem.Representation == DataItemRepresentation.TIME_SERIES)
+                {
+                    var timeSeries = ShdrTimeSeries.FromString(line);
+                    if (timeSeries != null) OnTimeSeriesReceived(timeSeries);
+                }
+                else
+                {
+                    // Plain key|value pairs. Pass every pair on, even when the first key is unknown, so one
+                    // unrecognised key does not drop the other DataItems on the line (receivers resolve each key).
+                    var dataItems = ShdrDataItem.FromString(line);
+                    if (!dataItems.IsNullOrEmpty())
                     {
-                        var condition = ShdrFaultState.FromString(line);
-                        if (condition != null) OnConditionFaultStateReceived(condition);
-                    }
-                    else if (dataItem.Type == Devices.DataItems.MessageDataItem.TypeId)
-                    {
-                        var message = ShdrMessage.FromString(line);
-                        if (message != null) OnMessageReceived(message);
-                    }
-                    else if (dataItem.Representation == DataItemRepresentation.TABLE)
-                    {
-                        var table = ShdrTable.FromString(line);
-                        if (table != null) OnTableReceived(table);
-                    }
-                    else if (dataItem.Representation == DataItemRepresentation.DATA_SET)
-                    {
-                        var dataSet = ShdrDataSet.FromString(line);
-                        if (dataSet != null) OnDataSetReceived(dataSet);
-                    }
-                    else if (dataItem.Representation == DataItemRepresentation.TIME_SERIES)
-                    {
-                        var timeSeries = ShdrTimeSeries.FromString(line);
-                        if (timeSeries != null) OnTimeSeriesReceived(timeSeries);
-                    }
-                    else
-                    {
-                        var dataItems = ShdrDataItem.FromString(line);
-                        if (!dataItems.IsNullOrEmpty())
-                        {
-                            foreach (var item in dataItems) OnDataItemReceived(item);
-                        }
+                        foreach (var item in dataItems) OnDataItemReceived(item);
                     }
                 }
             }
@@ -681,9 +668,10 @@ namespace MTConnect.Shdr
                 var x = ShdrLine.GetNextSegment(line);
                 var y = ShdrLine.GetNextValue(x);
 
+                // "device:key" prefix: use the same split (last ':') as the line parsers
                 if (y != null && y.Contains(":"))
                 {
-                    var i = y.IndexOf(':');
+                    var i = y.LastIndexOf(':');
                     y = y.Substring(i + 1);
                 }
 
@@ -704,6 +692,75 @@ namespace MTConnect.Shdr
             }
 
             return AddressFamily.InterNetwork;
+        }
+    }
+
+
+    /// <summary>
+    /// Splits a byte stream into SHDR lines. Bytes are kept across reads until a line feed arrives, a trailing
+    /// carriage return is removed, and each line is decoded as UTF-8 (so a multi-byte character split across
+    /// reads is decoded correctly). A partial line longer than the limit is discarded.
+    /// </summary>
+    internal sealed class ShdrLineReader
+    {
+        private readonly int _maxLineLength;
+        private byte[] _buffer = new byte[4096];
+        private int _start;
+        private int _end;
+
+        /// <summary>True when the last <see cref="Append"/> discarded an over-long partial line.</summary>
+        public bool Overflowed { get; private set; }
+
+
+        public ShdrLineReader(int maxLineLength)
+        {
+            _maxLineLength = maxLineLength;
+        }
+
+
+        public void Append(byte[] bytes, int count)
+        {
+            Overflowed = false;
+
+            // Compact, then grow if needed
+            if (_start > 0)
+            {
+                Buffer.BlockCopy(_buffer, _start, _buffer, 0, _end - _start);
+                _end -= _start;
+                _start = 0;
+            }
+
+            if (_end + count > _buffer.Length)
+            {
+                var size = _buffer.Length;
+                while (size < _end + count) size *= 2;
+                Array.Resize(ref _buffer, size);
+            }
+
+            Buffer.BlockCopy(bytes, 0, _buffer, _end, count);
+            _end += count;
+
+            // A partial line that never ends would grow without bound
+            if (_end - _start > _maxLineLength && Array.IndexOf(_buffer, (byte)'\n', _start, _end - _start) < 0)
+            {
+                _start = 0;
+                _end = 0;
+                Overflowed = true;
+            }
+        }
+
+        /// <summary>Returns the next complete line (without its terminator), or <c>null</c> when none is buffered.</summary>
+        public string ReadLine()
+        {
+            var newLine = Array.IndexOf(_buffer, (byte)'\n', _start, _end - _start);
+            if (newLine < 0) return null;
+
+            var length = newLine - _start;
+            if (length > 0 && _buffer[newLine - 1] == (byte)'\r') length--;
+
+            var line = Encoding.UTF8.GetString(_buffer, _start, length);
+            _start = newLine + 1;
+            return line;
         }
     }
 }

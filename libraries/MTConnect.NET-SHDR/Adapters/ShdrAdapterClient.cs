@@ -97,19 +97,19 @@ namespace MTConnect.Adapters
         /// <summary>Forwards a parsed scalar Sample/Event DataItem observation to the agent, applying the configuration's <c>IgnoreTimestamps</c>, <c>ConvertUnits</c>, and <c>IgnoreObservationCase</c> overrides.</summary>
         protected override void OnDataItemReceived(ShdrDataItem dataItem)
         {
-            if (_device != null && _configuration != null)
+            if (_device != null)
             {
                 // Set Ignore Timestamp Override
                 bool? ignoreTimestamp = null;
-                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+                if (_configuration != null && _configuration.IgnoreTimestamps) ignoreTimestamp = true;
 
                 // Set Convert Units Override
                 bool? convertUnits = null;
-                if (_configuration.ConvertUnits) convertUnits = true;
+                if (_configuration != null && _configuration.ConvertUnits) convertUnits = true;
 
                 // Set Ignore Case Override
                 bool? ignoreCase = null;
-                if (_configuration.IgnoreObservationCase) ignoreCase = true;
+                if (_configuration != null && _configuration.IgnoreObservationCase) ignoreCase = true;
 
                 _agent.AddObservation(_device.Uuid, dataItem, ignoreTimestamp, convertUnits, ignoreCase);
             }
@@ -122,7 +122,7 @@ namespace MTConnect.Adapters
             {
                 // Set Ignore Timestamp Override
                 bool? ignoreTimestamp = null;
-                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+                if (_configuration != null && _configuration.IgnoreTimestamps) ignoreTimestamp = true;
 
                 _agent.AddObservation(_device.Uuid, faultState, ignoreTimestamp);
             }
@@ -135,7 +135,7 @@ namespace MTConnect.Adapters
             {
                 // Set Ignore Timestamp Override
                 bool? ignoreTimestamp = null;
-                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+                if (_configuration != null && _configuration.IgnoreTimestamps) ignoreTimestamp = true;
 
                 _agent.AddObservation(_device.Uuid, message, ignoreTimestamp);
             }
@@ -148,15 +148,15 @@ namespace MTConnect.Adapters
             {
                 // Set Ignore Timestamp Override
                 bool? ignoreTimestamp = null;
-                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+                if (_configuration != null && _configuration.IgnoreTimestamps) ignoreTimestamp = true;
 
                 // Set Convert Units Override
                 bool? convertUnits = null;
-                if (_configuration.ConvertUnits) convertUnits = true;
+                if (_configuration != null && _configuration.ConvertUnits) convertUnits = true;
 
                 // Set Ignore Case Override
                 bool? ignoreCase = null;
-                if (_configuration.IgnoreObservationCase) ignoreCase = true;
+                if (_configuration != null && _configuration.IgnoreObservationCase) ignoreCase = true;
 
                 _agent.AddObservation(_device.Uuid, table, ignoreTimestamp, convertUnits, ignoreCase);
             }
@@ -169,15 +169,15 @@ namespace MTConnect.Adapters
             {
                 // Set Ignore Timestamp Override
                 bool? ignoreTimestamp = null;
-                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+                if (_configuration != null && _configuration.IgnoreTimestamps) ignoreTimestamp = true;
 
                 // Set Convert Units Override
                 bool? convertUnits = null;
-                if (_configuration.ConvertUnits) convertUnits = true;
+                if (_configuration != null && _configuration.ConvertUnits) convertUnits = true;
 
                 // Set Ignore Case Override
                 bool? ignoreCase = null;
-                if (_configuration.IgnoreObservationCase) ignoreCase = true;
+                if (_configuration != null && _configuration.IgnoreObservationCase) ignoreCase = true;
 
                 _agent.AddObservation(_device.Uuid, dataSet, ignoreTimestamp, convertUnits, ignoreCase);
             }
@@ -190,11 +190,11 @@ namespace MTConnect.Adapters
             {
                 // Set Ignore Timestamp Override
                 bool? ignoreTimestamp = null;
-                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+                if (_configuration != null && _configuration.IgnoreTimestamps) ignoreTimestamp = true;
 
                 // Set Convert Units Override
                 bool? convertUnits = null;
-                if (_configuration.ConvertUnits) convertUnits = true;
+                if (_configuration != null && _configuration.ConvertUnits) convertUnits = true;
 
                 _agent.AddObservation(_device.Uuid, timeSeries, ignoreTimestamp, convertUnits);
             }
@@ -208,7 +208,7 @@ namespace MTConnect.Adapters
             {
                 // Set Ignore Timestamp Override
                 bool? ignoreTimestamp = null;
-                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+                if (_configuration != null && _configuration.IgnoreTimestamps) ignoreTimestamp = true;
 
                 _agent.AddAsset(_device.Uuid, asset, ignoreTimestamp);
             }
@@ -221,7 +221,7 @@ namespace MTConnect.Adapters
             {
                 // Set Ignore Timestamp Override
                 bool? ignoreTimestamp = null;
-                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+                if (_configuration != null && _configuration.IgnoreTimestamps) ignoreTimestamp = true;
 
                 var ts = timestamp;
                 if (ignoreTimestamp.HasValue && ignoreTimestamp.Value) ts = 0;
@@ -237,7 +237,7 @@ namespace MTConnect.Adapters
             {
                 // Set Ignore Timestamp Override
                 bool? ignoreTimestamp = null;
-                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+                if (_configuration != null && _configuration.IgnoreTimestamps) ignoreTimestamp = true;
 
                 var ts = timestamp;
                 if (ignoreTimestamp.HasValue && ignoreTimestamp.Value) ts = 0;
@@ -270,7 +270,7 @@ namespace MTConnect.Adapters
             {
                 // Set Ignore Timestamp Override
                 bool? ignoreTimestamp = null;
-                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+                if (_configuration != null && _configuration.IgnoreTimestamps) ignoreTimestamp = true;
 
                 var dataItems = _device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
@@ -294,7 +294,7 @@ namespace MTConnect.Adapters
             {
                 // Set Ignore Timestamp Override
                 bool? ignoreTimestamp = null;
-                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+                if (_configuration != null && _configuration.IgnoreTimestamps) ignoreTimestamp = true;
 
                 var dataItems = _device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())

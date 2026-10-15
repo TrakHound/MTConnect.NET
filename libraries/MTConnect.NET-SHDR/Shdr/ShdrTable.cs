@@ -16,7 +16,6 @@ namespace MTConnect.Shdr
     public class ShdrTable : TableObservationInput
     {
         private static readonly Regex _deviceKeyRegex = new Regex("(.*):(.*)");
-        private static readonly Regex _resetTriggeredRegex = new Regex(@":([A-Z_]+)\s+(.*)");
 
 
         /// <summary>
@@ -135,17 +134,10 @@ namespace MTConnect.Shdr
             {
                 // Start reading input and read Timestamp first (if specified)
                 var x = ShdrLine.GetNextValue(input);
+                ShdrLine.ParseTimestampField(x, out var timestamp, out var duration);
 
-                if (DateTime.TryParse(x, null, System.Globalization.DateTimeStyles.AdjustToUniversal, out var timestamp))
-                {
-                    var y = ShdrLine.GetNextSegment(input);
-                    return FromLine(y, timestamp.ToUnixTime());
-                }
-                else
-                {
-                    var y = ShdrLine.GetNextSegment(input);
-                    return FromLine(y);
-                }
+                var y = ShdrLine.GetNextSegment(input);
+                return FromLine(y, timestamp, duration);
             }
 
             return null;
@@ -159,6 +151,7 @@ namespace MTConnect.Shdr
                 {
                     var table = new ShdrTable();
                     table.Timestamp = timestamp;
+                    table.Duration = duration;
 
                     // Set DataItemKey
                     var x = ShdrLine.GetNextValue(input);
@@ -184,16 +177,9 @@ namespace MTConnect.Shdr
                             x = ShdrLine.GetNextValue(y);
                             if (x.ToLower() != Observation.Unavailable.ToLower())
                             {
-                                table.ResetTriggered = ResetTriggered.NOT_SPECIFIED;
-                                var entriesString = x;
-
-                                // Parse the ResetTriggered (if exists)
-                                var resetMatch = _resetTriggeredRegex.Match(x);
-                                if (resetMatch.Success && resetMatch.Groups.Count > 2)
-                                {
-                                    table.ResetTriggered = resetMatch.Groups[1].Value.ConvertEnum<ResetTriggered>();
-                                    entriesString = resetMatch.Groups[2].Value;
-                                }
+                                // Parse the ResetTriggered (if exists), e.g. ":MANUAL row={c=1}"
+                                var entriesString = ShdrLine.ParseResetTriggered(x, out var resetTriggered, allowSuffix: false);
+                                table.ResetTriggered = resetTriggered;
 
                                 var tableEntries = new List<ShdrTableEntry>();
 
@@ -207,11 +193,12 @@ namespace MTConnect.Shdr
 
                                         if (!string.IsNullOrEmpty(entry.Value))
                                         {
-                                            // Trim the quote values
-                                            var entryValue = entry.Value.Trim('\'');
-                                            entryValue = entryValue.Trim('\"');
-                                            entryValue = entryValue.Trim('{');
-                                            entryValue = entryValue.Trim('}');
+                                            // Remove the enclosing braces (exactly one pair; cells may contain braces)
+                                            var entryValue = entry.Value;
+                                            if (entryValue.Length > 1 && entryValue[0] == '{' && entryValue[entryValue.Length - 1] == '}')
+                                            {
+                                                entryValue = entryValue.Substring(1, entryValue.Length - 2);
+                                            }
 
                                             // Get a list of Entries representing Table Cells
                                             var cells = ShdrLine.GetEntries(entryValue);

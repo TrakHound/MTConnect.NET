@@ -3,7 +3,7 @@
 
 using MTConnect.Observations;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace MTConnect.Shdr
 {
@@ -39,7 +39,7 @@ namespace MTConnect.Shdr
         /// <summary>Clones the supplied <see cref="ITableEntry"/> into a new SHDR-flavoured entry.</summary>
         public ShdrTableEntry(ITableEntry entry)
         {
-            if (entry != null)
+            if (entry.Key != null)
             {
                 Key = entry.Key;
                 Cells = entry.Cells;
@@ -81,33 +81,19 @@ namespace MTConnect.Shdr
         {
             if (!string.IsNullOrEmpty(segment))
             {
-                var regex = new Regex(@"(.*)=\{(.*)\}");
-                var match = regex.Match(segment);
-                if (match.Success && match.Groups.Count > 2)
+                var entry = ShdrLine.GetEntries(segment).FirstOrDefault();
+                if (entry.Key != null && !entry.Removed && entry.Value != null &&
+                    entry.Value.Length > 1 && entry.Value[0] == '{' && entry.Value[entry.Value.Length - 1] == '}')
                 {
-                    var key = match.Groups[1].Value;
-                    var values = match.Groups[2].Value;
-                    if (!string.IsNullOrEmpty(values))
+                    var cells = new List<TableCell>();
+                    foreach (var cell in ShdrLine.GetEntries(entry.Value.Substring(1, entry.Value.Length - 2)))
                     {
-                        var cellSegments = values.Split(' ');
-                        if (!cellSegments.IsNullOrEmpty())
-                        {
-                            var cells = new List<TableCell>();
+                        cells.Add(new ShdrTableCell(cell.Key, cell.Value ?? string.Empty));
+                    }
 
-                            foreach (var cellSegment in cellSegments)
-                            {
-                                var cell = ShdrTableCell.FromString(cellSegment);
-                                if (cell != null)
-                                {
-                                    cells.Add(cell);
-                                }
-                            }
-
-                            if (!cells.IsNullOrEmpty())
-                            {
-                                return new ShdrTableEntry(key, cells);
-                            }
-                        }
+                    if (!cells.IsNullOrEmpty())
+                    {
+                        return new ShdrTableEntry(entry.Key, cells);
                     }
                 }
             }

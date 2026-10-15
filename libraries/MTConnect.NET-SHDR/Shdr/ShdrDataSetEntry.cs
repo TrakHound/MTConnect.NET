@@ -1,7 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using System.Text.RegularExpressions;
+using System.Linq;
 using MTConnect.Observations;
 
 namespace MTConnect.Shdr
@@ -27,7 +27,7 @@ namespace MTConnect.Shdr
         /// <summary>Clones the supplied <see cref="IDataSetEntry"/> into a new SHDR-flavoured entry.</summary>
         public ShdrDataSetEntry(IDataSetEntry entry)
         {
-            if (entry != null)
+            if (entry.Key != null)
             {
                 Key = entry.Key;
                 Value = entry.Value;
@@ -46,7 +46,8 @@ namespace MTConnect.Shdr
                 }
                 else
                 {
-                    return $"{Key}={Value}";
+                    // Quote values with spaces / quotes / braces, and empty values (which would read back as removed)
+                    return $"{Key}={ShdrLine.FormatEntryValue(Value)}";
                 }
             }
 
@@ -58,14 +59,10 @@ namespace MTConnect.Shdr
         {
             if (!string.IsNullOrEmpty(segment))
             {
-                var regex = new Regex("(.*)=(.*)");
-                var match = regex.Match(segment);
-                if (match.Success && match.Groups.Count > 2)
+                var entry = ShdrLine.GetEntries(segment).FirstOrDefault();
+                if (entry.Key != null)
                 {
-                    var key = match.Groups[1].Value;
-                    var value = match.Groups[2].Value;
-
-                    return new ShdrDataSetEntry(key, value);
+                    return new ShdrDataSetEntry(entry.Key, entry.Value, entry.Removed);
                 }
             }
 

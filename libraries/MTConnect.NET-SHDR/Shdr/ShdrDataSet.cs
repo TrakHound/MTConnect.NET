@@ -15,7 +15,6 @@ namespace MTConnect.Shdr
     public class ShdrDataSet : DataSetObservationInput
     {
         private static readonly Regex _deviceKeyRegex = new Regex("(.*):(.*)");
-        private static readonly Regex _resetTriggeredRegex = new Regex(@":([A-Z_]+)\s+(.*)");
 
 
         /// <summary>
@@ -137,19 +136,10 @@ namespace MTConnect.Shdr
             {
                 // Start reading input and read Timestamp first (if specified)
                 var x = ShdrLine.GetNextValue(input);
-                var timestamp = ShdrLine.GetTimestamp(x);
-                var duration = ShdrLine.GetDuration(x);
+                ShdrLine.ParseTimestampField(x, out var timestamp, out var duration);
 
-                if (timestamp.HasValue)
-                {
-                    var y = ShdrLine.GetNextSegment(input);
-                    return FromLine(y, timestamp.Value.ToUnixTime(), duration.HasValue ? duration.Value : 0);
-                }
-                else
-                {
-                    var y = ShdrLine.GetNextSegment(input);
-                    return FromLine(y);
-                }
+                var y = ShdrLine.GetNextSegment(input);
+                return FromLine(y, timestamp, duration);
             }
 
             return null;
@@ -163,6 +153,7 @@ namespace MTConnect.Shdr
                 {
                     var dataSet = new ShdrDataSet();
                     dataSet.Timestamp = timestamp;
+                    dataSet.Duration = duration;
 
                     // Set DataItemKey
                     var x = ShdrLine.GetNextValue(input);
@@ -188,16 +179,9 @@ namespace MTConnect.Shdr
                             x = ShdrLine.GetNextValue(y);
                             if (x.ToLower() != Observation.Unavailable.ToLower())
                             {
-                                dataSet.ResetTriggered = ResetTriggered.NOT_SPECIFIED;
-                                var entriesString = x;
-
-                                // Parse the ResetTriggered (if exists)
-                                var resetMatch = _resetTriggeredRegex.Match(x);
-                                if (resetMatch.Success && resetMatch.Groups.Count > 2)
-                                {
-                                    dataSet.ResetTriggered = resetMatch.Groups[1].Value.ConvertEnum<ResetTriggered>();
-                                    entriesString = resetMatch.Groups[2].Value;
-                                }
+                                // Parse the ResetTriggered (if exists), e.g. ":MANUAL a=1 b=2"
+                                var entriesString = ShdrLine.ParseResetTriggered(x, out var resetTriggered, allowSuffix: false);
+                                dataSet.ResetTriggered = resetTriggered;
 
                                 var dataSetEntries = new List<ShdrDataSetEntry>();
 

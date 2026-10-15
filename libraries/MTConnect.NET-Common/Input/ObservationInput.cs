@@ -345,7 +345,7 @@ namespace MTConnect.Input
                 {
                     if (duration > 0)
                     {
-                        return $"{dateTimeOffset.ToString("o")}@{duration}";
+                        return $"{dateTimeOffset.ToString("o")}@{duration.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
                     }
                     else
                     {
@@ -356,7 +356,7 @@ namespace MTConnect.Input
                 {
                     if (duration > 0)
                     {
-                        return $"{dateTimeOffset.UtcDateTime.ToString("o")}@{duration}";
+                        return $"{dateTimeOffset.UtcDateTime.ToString("o")}@{duration.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
                     }
                     else
                     {
@@ -366,7 +366,7 @@ namespace MTConnect.Input
             }
             else if (duration > 0)
             {
-                return $"@{duration}";
+                return $"@{duration.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
             }
 
             return null;
