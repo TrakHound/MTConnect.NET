@@ -33,6 +33,7 @@ namespace MTConnect.Errors.Xml
         /// <c>Errors</c> container.
         /// </summary>
         [XmlArray("Errors")]
+        [XmlArrayItem("Error")]
         public List<XmlError> Errors { get; set; }
 
         /// <summary>
