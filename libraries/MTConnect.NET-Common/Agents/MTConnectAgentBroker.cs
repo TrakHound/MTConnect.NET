@@ -1435,9 +1435,9 @@ namespace MTConnect.Agents
             {
                 var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
 
-                // Get the Asset from the Buffer
+                // Get the Asset from the Buffer (an already removed Asset was already counted out)
                 var asset = _assetBuffer.GetAsset(assetId);
-                if (asset != null)
+                if (asset != null && !asset.Removed)
                 {
                     var deviceUuid = asset.DeviceUuid;
 
@@ -1494,8 +1494,8 @@ namespace MTConnect.Agents
             {
                 var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
 
-                // Get the Assets from the Buffer
-                var assets = _assetBuffer.GetAssets(assetType);
+                // Get the (not yet removed) Assets of this Type from the Buffer
+                var assets = _assetBuffer.GetAssets(type: assetType)?.ToList();
                 if (!assets.IsNullOrEmpty())
                 {
                     var deviceUuids = assets.Select(o => o.DeviceUuid).Distinct();
@@ -1553,7 +1553,8 @@ namespace MTConnect.Agents
 
         private void AssetRemovedFromBuffer(object sender, IAsset asset)
         {
-            if (asset != null)
+            // An Asset already marked removed was counted out (and reported) when it was removed
+            if (asset != null && !asset.Removed)
             {
                 var device = GetDevice(asset.DeviceUuid);
                 if (device != null)
@@ -1863,9 +1864,21 @@ namespace MTConnect.Agents
         }
 
         /// <inheritdoc />
+        protected override bool IsCurrentAsset(string assetId)
+        {
+            if (_assetBuffer != null && !string.IsNullOrEmpty(assetId))
+            {
+                var existing = _assetBuffer.GetAsset(assetId);
+                return existing != null && !existing.Removed;
+            }
+
+            return false;
+        }
+
+        /// <inheritdoc />
         protected override bool OnNewAssetAdded(IAsset asset)
         {
-            if (asset != null)
+            if (asset != null && !asset.Removed)
             {
                 // Update Asset Count
                 IncrementAssetCount(asset.DeviceUuid, asset.Type);

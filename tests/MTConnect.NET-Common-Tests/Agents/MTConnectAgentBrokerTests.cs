@@ -102,16 +102,127 @@ namespace MTConnect.Tests.Common.Agents
             using var broker = CreateBroker();
             broker.AddDevice(CreateDevice("d1", "p1"));
 
-            broker.AddAsset("d1", new FileAsset { AssetId = "a1" });
-            broker.AddAsset("d1", new FileAsset { AssetId = "a2" });
+            broker.AddAsset("d1", NewFileAsset("a1"));
+            broker.AddAsset("d1", NewFileAsset("a2"));
             broker.RemoveAsset("a1");
-            broker.AddAsset("d1", new FileAsset { AssetId = "a3" });
+            broker.AddAsset("d1", NewFileAsset("a3"));
 
-            var assetCount = AllObservations(broker.GetDeviceStreamsResponseDocument("d1"))
+            Assert.That(FileAssetCount(broker, "d1"), Is.EqualTo("2"));
+        }
+
+        private static FileAsset NewFileAsset(string assetId)
+        {
+            // Size and VersionId are required for the Asset to appear in an MTConnectAssets response
+            return new FileAsset { AssetId = assetId, Size = 1, VersionId = "1" };
+        }
+
+        private static string? FileAssetCount(MTConnectAgentBroker broker, string deviceKey)
+        {
+            var assetCount = AllObservations(broker.GetDeviceStreamsResponseDocument(deviceKey))
                 .Single(o => o.Type == AssetCountDataItem.TypeId);
 
-            var entry = assetCount.Values.FirstOrDefault(v => v.Key == ValueKeys.CreateDataSetValueKey(FileAsset.TypeId));
-            Assert.That(entry.Value, Is.EqualTo("2"));
+            return assetCount.Values?.FirstOrDefault(v => v.Key == ValueKeys.CreateDataSetValueKey(FileAsset.TypeId)).Value;
+        }
+
+        [Test]
+        public void AssetCount_UpdatingAnExistingAsset_DoesNotIncrement()
+        {
+            using var broker = CreateBroker();
+            broker.AddDevice(CreateDevice("d1", "p1"));
+
+            broker.AddAsset("d1", NewFileAsset("a1"));
+            broker.AddAsset("d1", NewFileAsset("a1"));
+            broker.AddAsset("d1", NewFileAsset("a1"));
+
+            Assert.That(FileAssetCount(broker, "d1"), Is.EqualTo("1"));
+        }
+
+        [Test]
+        public void AssetCount_ReAddingARemovedAsset_CountsItAgain()
+        {
+            using var broker = CreateBroker();
+            broker.AddDevice(CreateDevice("d1", "p1"));
+
+            broker.AddAsset("d1", NewFileAsset("a1"));
+            broker.AddAsset("d1", NewFileAsset("a2"));
+            broker.RemoveAsset("a1");
+            broker.AddAsset("d1", NewFileAsset("a1"));
+
+            Assert.That(FileAssetCount(broker, "d1"), Is.EqualTo("2"));
+        }
+
+        [Test]
+        public void AssetCount_RemovingTheSameAssetTwice_DecrementsOnce()
+        {
+            using var broker = CreateBroker();
+            broker.AddDevice(CreateDevice("d1", "p1"));
+
+            broker.AddAsset("d1", NewFileAsset("a1"));
+            broker.AddAsset("d1", NewFileAsset("a2"));
+            broker.AddAsset("d1", NewFileAsset("a3"));
+
+            Assert.That(broker.RemoveAsset("a1"), Is.True);
+            Assert.That(broker.RemoveAsset("a1"), Is.False);
+
+            Assert.That(FileAssetCount(broker, "d1"), Is.EqualTo("2"));
+        }
+
+        [Test]
+        public void AssetCount_OverflowEviction_Decrements()
+        {
+            using var broker = new MTConnectAgentBroker(new AgentConfiguration { AssetBufferSize = 2 }, initializeAgentDevice: false);
+            broker.AddDevice(CreateDevice("d1", "p1"));
+
+            broker.AddAsset("d1", NewFileAsset("a1"));
+            broker.AddAsset("d1", NewFileAsset("a2"));
+            broker.AddAsset("d1", NewFileAsset("a3")); // Evicts a1
+
+            Assert.That(FileAssetCount(broker, "d1"), Is.EqualTo("2"));
+        }
+
+        [Test]
+        public void AssetCount_EvictingAnAlreadyRemovedAsset_DoesNotDecrementAgain()
+        {
+            using var broker = new MTConnectAgentBroker(new AgentConfiguration { AssetBufferSize = 3 }, initializeAgentDevice: false);
+            broker.AddDevice(CreateDevice("d1", "p1"));
+
+            broker.AddAsset("d1", NewFileAsset("a1"));
+            broker.AddAsset("d1", NewFileAsset("a2"));
+            broker.AddAsset("d1", NewFileAsset("a3"));
+            broker.RemoveAsset("a2");                                    // Removed assets stay in the buffer, moved to the end: a1, a3, a2
+            broker.AddAsset("d1", NewFileAsset("a4"));     // Evicts a1 (still counted): a3, a2, a4
+            broker.AddAsset("d1", NewFileAsset("a5"));     // Evicts a3 (still counted): a2, a4, a5
+            broker.AddAsset("d1", NewFileAsset("a6"));     // Evicts a2 (already removed): a4, a5, a6
+
+            Assert.That(FileAssetCount(broker, "d1"), Is.EqualTo("3"));
+        }
+
+        [Test]
+        public void RemoveAllAssets_RemovesEveryAssetOfTheType()
+        {
+            using var broker = CreateBroker();
+            broker.AddDevice(CreateDevice("d1", "p1"));
+
+            broker.AddAsset("d1", NewFileAsset("a1"));
+            broker.AddAsset("d1", NewFileAsset("a2"));
+
+            Assert.That(broker.RemoveAllAssets(FileAsset.TypeId), Is.True);
+            Assert.That(broker.GetAssetsResponseDocument(type: FileAsset.TypeId).Assets, Is.Empty);
+
+            broker.AddAsset("d1", NewFileAsset("a3"));
+            Assert.That(FileAssetCount(broker, "d1"), Is.EqualTo("1"));
+        }
+
+        [Test]
+        public void GetAssetsResponseDocument_DefaultCount_ReturnsAllAssets()
+        {
+            using var broker = CreateBroker();
+            broker.AddDevice(CreateDevice("d1", "p1"));
+
+            broker.AddAsset("d1", NewFileAsset("a1"));
+            broker.AddAsset("d1", NewFileAsset("a2"));
+
+            Assert.That(broker.GetAssetsResponseDocument().Assets.Count(), Is.EqualTo(2));
         }
 
         [Test]
