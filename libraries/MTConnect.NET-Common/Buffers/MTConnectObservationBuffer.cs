@@ -46,7 +46,14 @@ namespace MTConnect.Buffers
         {
             get
             {
-                lock (_lock) return _archiveObservations[0].Sequence > 0 ? _archiveObservations[0].Sequence : 1;
+                lock (_lock)
+                {
+                    // Empty (or disposed) archive: nothing has been stored yet
+                    if (_archiveObservations == null || _archiveObservations.Size == 0) return 1;
+
+                    var sequence = _archiveObservations[0]._sequence;
+                    return sequence > 0 ? sequence : 1;
+                }
             }
         }
 
@@ -217,15 +224,18 @@ namespace MTConnect.Buffers
             return x;
         }
 
-        private static int[] GetIndexes(ref CircularBuffer observations, int[] keys, int fromIndex, int toIndex, uint count = 0)
+        private static int[] GetIndexes(CircularBuffer observations, int[] keys, int fromIndex, int toIndex, uint count = 0)
         {
-            if (observations != null && observations.Capacity > 0 && keys != null && keys.Length > 0)
+            if (observations != null && observations.Size > 0 && keys != null && keys.Length > 0)
             {
                 uint totalCount = 0; // Total number of Observations that were matched
-                int oi = fromIndex; // Observations Iterator
-                var oil = Math.Min(toIndex, observations.Capacity - 1);
+                int oi = Math.Max(fromIndex, 0); // Observations Iterator
+                var oil = Math.Min(toIndex, observations.Size - 1);
+                if (oi > oil) return null;
 
-                uint max = observations.Capacity; // Max Observations length
+                // A key can never match more observations than the scanned range holds,
+                // so size the per-key arrays to the range rather than the whole buffer capacity
+                uint max = (uint)(oil - oi + 1); // Max Observations length
                 if (count > 0) max = Math.Min(count, max); // Ensure max length doesn't exceed array length
 
                 int bki; // BufferKey Iterator
@@ -310,11 +320,12 @@ namespace MTConnect.Buffers
             return null;
         }
 
-        private static int GetLatestIndex(ref CircularBuffer observations, int key, int atIndex)
+        private static int GetLatestIndex(CircularBuffer observations, int key, int atIndex)
         {
             var index = -1;
 
-            if (observations != null && observations.Capacity > 0 && atIndex <= observations.Capacity - 1)
+            // Bound by Size, not Capacity: slots past Size have not been written yet
+            if (observations != null && observations.Size > 0 && atIndex < observations.Size)
             {
                 // Loop through the observations in reverse order (sequence desc)
                 // This find the most recent observation in the buffer
@@ -413,7 +424,6 @@ namespace MTConnect.Buffers
                 ulong lastSequence = 0;
                 ulong nextSequence = 0;
                 var observations = new BufferObservation[bufferKeys.Count()];
-                CircularBuffer bufferObservations = null;
 
                 lock (_lock)
                 {
@@ -424,17 +434,17 @@ namespace MTConnect.Buffers
                     // Determine Indexes
                     int atIndex;
                     if (at < 1) atIndex = 0;
+                    else if (at < firstSequence) atIndex = -1; // Older than the archive (avoids ulong underflow)
+                    else if (at - firstSequence > int.MaxValue) atIndex = int.MaxValue;
                     else atIndex = (int)(at - firstSequence);
 
                     if (_archiveObservations.Size > 0)
                     {
-                        bufferObservations = _archiveObservations;
-
                         var indexes = new int[oBufferKeys.Length];
                         for (var i = 0; i < oBufferKeys.Length; i++)
                         {
                             // Get the latest observation based on the "at" parameter
-                            indexes[i] = GetLatestIndex(ref bufferObservations, oBufferKeys[i], atIndex);
+                            indexes[i] = GetLatestIndex(_archiveObservations, oBufferKeys[i], atIndex);
                         }
 
                         for (var i = 0; i < oBufferKeys.Length; i++)
@@ -507,7 +517,6 @@ namespace MTConnect.Buffers
                 ulong nextSequence = 0;
                 uint observationCount = 0;
                 BufferObservation[] observations = null;
-                CircularBuffer bufferObservations = null;
                 ulong firstObservationSequence = 0;
                 ulong lastObservationSequence = 0;
                 int lowestIndex = int.MaxValue;
@@ -535,13 +544,11 @@ namespace MTConnect.Buffers
                     //if (_archiveObservations.Size > 0 && toIndex <= _archiveObservations.Size && toIndex >= fromIndex)
                     if (_archiveObservations.Size > 0 && toIndex < _archiveObservations.Size && toIndex >= fromIndex)
                     {
-                        bufferObservations = _archiveObservations;
-
                         // Order Buffer Keys (this effects the order of the resulting array and should always be in Ascending order)
                         var oBufferKeys = bufferKeys.OrderBy(o => o).ToArray();
 
                         // Get list of indexes that match the requested Keys
-                        var indexes = GetIndexes(ref bufferObservations, oBufferKeys, fromIndex, toIndex, count);
+                        var indexes = GetIndexes(_archiveObservations, oBufferKeys, fromIndex, toIndex, count);
                         if (indexes != null && indexes.Length > 0)
                         {
                             // Initialize array to return using the number of indexes found as the size
@@ -562,8 +569,8 @@ namespace MTConnect.Buffers
                                 observationCount++; // Increment the total observations matched count
                             }
 
-                            firstObservationSequence = _archiveObservations[lowestIndex].Sequence;
-                            lastObservationSequence = _archiveObservations[highestIndex].Sequence;
+                            firstObservationSequence = _archiveObservations[lowestIndex]._sequence;
+                            lastObservationSequence = _archiveObservations[highestIndex]._sequence;
                         }
                     }
                 }
@@ -856,10 +863,14 @@ namespace MTConnect.Buffers
         /// <param name="observation">The buffer observation to archive, passed by reference to avoid copying.</param>
         protected void AddBufferObservation(ref BufferObservation observation)
         {
-            WriteObservation(ref observation);
+            // CircularBuffer is not thread-safe; subclasses can call this without holding _lock (re-entrant when they do)
+            lock (_lock)
+            {
+                WriteObservation(ref observation);
 
-            // Call Overridable Method
-            OnBufferObservationAdd(ref observation);
+                // Call Overridable Method
+                OnBufferObservationAdd(ref observation);
+            }
         }
 
         /// <summary>
@@ -870,12 +881,16 @@ namespace MTConnect.Buffers
         {
             if (observations != null && observations.Length > 0)
             {
-                for (var i = 0; i < observations.Length; i++)
+                // CircularBuffer is not thread-safe; subclasses (e.g. the file buffer load) call this without holding _lock
+                lock (_lock)
                 {
-                    WriteObservation(ref observations[i]);
+                    for (var i = 0; i < observations.Length; i++)
+                    {
+                        WriteObservation(ref observations[i]);
 
-                    // Call Overridable Method
-                    OnBufferObservationAdd(ref observations[i]);
+                        // Call Overridable Method
+                        OnBufferObservationAdd(ref observations[i]);
+                    }
                 }
             }
         }
