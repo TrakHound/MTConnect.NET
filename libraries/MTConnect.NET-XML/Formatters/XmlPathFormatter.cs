@@ -28,12 +28,18 @@ namespace MTConnect.Formatters.Xml
         public string Id => "XML";
 
 
+        private const int MaxCachedDocuments = 256;
+
         private byte[] GetDocumentBytes(IDevice device)
         {
             if (device != null)
             {
+                // Key on the device content too: the same Id is reused when a device model changes
+                // (or by another Agent in the same process), and its cached XML must not be reused then
+                var key = string.Concat(device.Id, ":", device.Hash ?? Device.GenerateHash(device));
+
                 byte[] bytes;
-                lock (_lock) _documents.TryGetValue(device.Id, out bytes);
+                lock (_lock) _documents.TryGetValue(key, out bytes);
                 if (bytes == null)
                 {
                     try
@@ -52,7 +58,12 @@ namespace MTConnect.Formatters.Xml
                             bytes = stream.ToArray();
                             if (bytes != null && bytes.Length > 0)
                             {
-                                lock (_lock) _documents.Add(device.Id, bytes);
+                                lock (_lock)
+                                {
+                                    // Keep the cache bounded as superseded device models accumulate
+                                    if (_documents.Count >= MaxCachedDocuments) _documents.Clear();
+                                    _documents[key] = bytes;
+                                }
                             }
                         }
                     }

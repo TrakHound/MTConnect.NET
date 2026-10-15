@@ -208,7 +208,9 @@ namespace MTConnect.Servers.Http
                 ContentType = result.ContentType;
                 FormatDuration = result.ResponseDuration;
                 Success = result.Success;
-                StatusCode = result.Success ? 200 : 500;
+
+                // Keep the Error document's own status (e.g. 400 INVALID_REQUEST, 404 NO_DEVICE); only a formatting failure is a 500
+                StatusCode = result.Success ? statusCode : 500;
                 FormatMessages = result.Messages;
                 FormatWarnings = result.Warnings;
                 FormatErrors = result.Errors;

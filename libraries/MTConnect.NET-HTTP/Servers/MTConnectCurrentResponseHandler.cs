@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MTConnect.Errors;
 
 namespace MTConnect.Servers.Http
 {
@@ -37,7 +38,6 @@ namespace MTConnect.Servers.Http
 
         protected async override Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context, CancellationToken cancellationToken)
         {
-            await Task.CompletedTask;
             var httpRequest = context.Request;
             var httpResponse = context.Response;
 
@@ -56,57 +56,42 @@ namespace MTConnect.Servers.Http
                 // Read "path" parameter from Query string
                 var path = httpRequest.QueryString["path"];
 
-                // Read "at" parameter from Query string
-                ulong? at = null;
-                if (httpRequest.QueryString.ContainsKey("at")) at = httpRequest.QueryString["at"].ToULong();
+                // Read version, documentFormat, validationLevel, indentOutput and outputComments
+                var format = GetRequestFormat(httpRequest, MTConnectRequestType.Current);
 
-                // Read "interval" parameter from Query string
-                var interval = httpRequest.QueryString["interval"].ToInt();
+                // Read "at" parameter from Query string
+                if (!TryGetQueryInteger(httpRequest, "at", out var atValue) || atValue < 0)
+                {
+                    return CreateInvalidRequestResponse(ErrorText.InvalidRequestNegativeAt, format);
+                }
+                ulong? at = atValue.HasValue ? (ulong?)atValue.Value : null;
+
+                // Read "interval" parameter from Query string (absent = not streaming)
+                if (!TryGetQueryInteger(httpRequest, "interval", out var intervalValue) || intervalValue < 0 || intervalValue > int.MaxValue)
+                {
+                    return CreateInvalidRequestResponse("The interval parameter must be a non-negative integer number of milliseconds.", format);
+                }
+                var interval = intervalValue.HasValue ? (int)intervalValue.Value : -1;
+
+                // The "at" parameter would make a stream repeat the same data
+                if (at.HasValue && interval > -1)
+                {
+                    return CreateInvalidRequestResponse(ErrorText.InvalidRequestAtIntervalConjunction, format);
+                }
 
                 // Read "heartbeat" parameter from Query string
-                var heartbeat = httpRequest.QueryString["heartbeat"].ToInt();
-                if (heartbeat < 1) heartbeat = _defaultHeartbeat;
-                if (heartbeat < _minimumHeartbeat) heartbeat = _minimumHeartbeat;
-
-                // Read MTConnectVersion from Query string
-                var versionString = httpRequest.QueryString["version"];
-                Version.TryParse(versionString, out var version);
-                if (version == null) Version.TryParse(_serverConfiguration.DefaultVersion, out version);
-                if (version == null) version = _mtconnectAgent.MTConnectVersion;
-
-                // Read DocumentFormat from Query string
-                var documentFormat = httpRequest.QueryString["documentFormat"];
-                if (string.IsNullOrEmpty(documentFormat) && !_serverConfiguration.Accept.IsNullOrEmpty() && httpRequest.Headers["Accept"] != null)
+                if (!TryGetQueryInteger(httpRequest, "heartbeat", out var heartbeatValue) || heartbeatValue < 0 || heartbeatValue > int.MaxValue)
                 {
-                    if (_serverConfiguration.Accept.ContainsKey(httpRequest.Headers["Accept"])) documentFormat = _serverConfiguration.Accept[httpRequest.Headers["Accept"]];
+                    return CreateInvalidRequestResponse("The heartbeat parameter must be a non-negative integer number of milliseconds.", format);
                 }
-                if (string.IsNullOrEmpty(documentFormat)) documentFormat = _serverConfiguration.DocumentFormat;
-
-                // Read ValidationLevel from Query string
-                int validationLevel = (int)_serverConfiguration.OutputValidationLevel;
-                var validationLevelString = httpRequest.QueryString["validationLevel"];
-                if (!string.IsNullOrEmpty(validationLevelString)) validationLevel = validationLevelString.ToInt();
-
-
-                // Set Format Options
-                var formatOptions = CreateFormatOptions(MTConnectRequestType.Current, documentFormat, version, validationLevel);
-                formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevel.ToString()));
-
-                // Read IndentOutput from Query string
-                var indentOutputString = httpRequest.QueryString["indentOutput"];
-                if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
-                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _serverConfiguration.IndentOutput.ToString()));
-
-                // Read OutputComments from Query string
-                var outputCommentsString = httpRequest.QueryString["outputComments"];
-                if (!string.IsNullOrEmpty(outputCommentsString)) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputCommentsString));
-                else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _serverConfiguration.OutputComments.ToString()));
+                var heartbeat = heartbeatValue.HasValue && heartbeatValue.Value > 0 ? (int)heartbeatValue.Value : _defaultHeartbeat;
+                if (heartbeat < _minimumHeartbeat) heartbeat = _minimumHeartbeat;
 
 
                 if (interval > -1)
                 {
                     // Get list of DataItem ID's based on Path (XPath) parameter
-                    var dataItemIds = PathProcessor.GetDataItemIds(_mtconnectAgent, path, documentFormat);
+                    var dataItemIds = PathProcessor.GetDataItemIds(_mtconnectAgent, path, format.DocumentFormat);
 
                     var sampleStream = new MTConnectHttpServerStream(
                         _serverConfiguration,
@@ -117,24 +102,23 @@ namespace MTConnect.Servers.Http
                         0,
                         interval,
                         heartbeat,
-                        documentFormat,
+                        format.DocumentFormat,
                         acceptEncodings,
-                        formatOptions
+                        format.FormatOptions
                         );
+                    sampleStream.DeviceType = deviceType;
+                    sampleStream.MTConnectVersion = format.Version;
 
                     try
                     {
+                        // Set HTTP Headers and Settings for Streaming, and send them before the first chunk
+                        SetupStreamResponse(ref httpResponse, sampleStream.Boundary);
+                        await httpResponse.FlushHeadersAsync();
+
                         using (var responseStream = httpResponse.GetResponseStream())
                         {
-                            // Create Sample Stream
-                            sampleStream.HeartbeatReceived += async (s, args) => await WriteFromStream(sampleStream, responseStream, args);
-                            sampleStream.DocumentReceived += async (s, args) => await WriteFromStream(sampleStream, responseStream, args);
-
-                            // Set HTTP Headers and Settings for Streaming
-                            SetupStreamResponse(ref httpResponse, sampleStream.Boundary);
-
-                            // Run the MTConnectHttpStream
-                            sampleStream.RunCurrent();
+                            // Run the MTConnectHttpStream, writing each chunk before the next is produced
+                            await sampleStream.RunCurrentAsync(args => WriteFromStream(sampleStream, responseStream, args), cancellationToken);
                         }
                     }
                     catch { }
@@ -148,12 +132,12 @@ namespace MTConnect.Servers.Http
                     if (!string.IsNullOrEmpty(deviceKey))
                     {
                         // Get MTConnectStreams document from the MTConnectAgent
-                        return MTConnectHttpRequests.GetDeviceCurrentRequest(_mtconnectAgent, deviceKey, path, at, interval, version, documentFormat, formatOptions);
+                        return MTConnectHttpRequests.GetDeviceCurrentRequest(_mtconnectAgent, deviceKey, path, at, interval, format.Version, format.DocumentFormat, format.FormatOptions);
                     }
                     else
                     {
                         // Get MTConnectStreams document from the MTConnectAgent
-                        return MTConnectHttpRequests.GetCurrentRequest(_mtconnectAgent, deviceType, path, at, interval, version, documentFormat, formatOptions);
+                        return MTConnectHttpRequests.GetCurrentRequest(_mtconnectAgent, deviceType, path, at, interval, format.Version, format.DocumentFormat, format.FormatOptions);
                     }
                 }
             }

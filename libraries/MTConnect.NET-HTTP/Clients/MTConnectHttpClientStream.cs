@@ -7,6 +7,7 @@ using MTConnect.Http;
 using MTConnect.Streams;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net.Http;
 using System.Text;
@@ -23,8 +24,6 @@ namespace MTConnect.Clients
         private const int DefaultTimeout = 300000;
         private const byte LineFeed = 10;
         private const byte CarriageReturn = 13;
-        private const byte Dash = 45;
-        private static readonly byte[] _trimBytes = new byte[] { LineFeed, CarriageReturn };
         private static readonly HttpClient _defaultHttpClient;
         private readonly HttpClient _httpClient;
 
@@ -145,13 +144,15 @@ namespace MTConnect.Clients
         /// </summary>
         public void Start(CancellationToken cancellationToken)
         {
-            _stop = new CancellationTokenSource();
-            cancellationToken.Register(() => Stop());
+            // Linked to the caller's token (no registration is left behind), and a restart stops the previous loop
+            var stop = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            var previous = Interlocked.Exchange(ref _stop, stop);
+            CancelQuietly(previous);
 
             // Raise Starting Event
             Starting.Raise(this, EventArgs.Empty, InternalError);
 
-            _ = Task.Run(() => Run(_stop.Token));
+            _ = Task.Run(() => Run(stop.Token));
         }
 
         /// <summary>
@@ -164,7 +165,16 @@ namespace MTConnect.Clients
             // Raise Stopping Event
             Stopping.Raise(this, EventArgs.Empty, InternalError);
 
-            if (_stop != null) _stop.Cancel();
+            CancelQuietly(_stop);
+        }
+
+        private static void CancelQuietly(CancellationTokenSource source)
+        {
+            try
+            {
+                source?.Cancel();
+            }
+            catch (ObjectDisposedException) { }
         }
 
 
@@ -180,154 +190,62 @@ namespace MTConnect.Clients
         {
             if (!string.IsNullOrEmpty(Url))
             {
-                var stop = new CancellationTokenSource();
-                cancellationToken.Register(() => stop.Cancel());
-
-                // Response Timer to Timeout Stream Read
-                // : For some reason the HttpClient stream doesn't have a timeout
-                var responseTimer = new System.Timers.Timer();
-                if (Timeout > 0)
+                // Read timeout: the HttpClient response stream has none of its own, so every read is bounded by
+                // a token that is re-armed (CancelAfter) whenever data arrives
+                using (var timeout = new CancellationTokenSource())
+                using (var stop = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeout.Token))
                 {
-                    responseTimer.AutoReset = false;
-                    responseTimer.Interval = Timeout;
-                    responseTimer.Elapsed += (o, e) =>
+                    if (Timeout > 0) timeout.CancelAfter(Timeout);
+
+                    try
                     {
-                        stop.Cancel();
-                        ConnectionError.Raise(this, new TimeoutException($"HTTP Stream Timeout Exceeded ({Timeout})"), InternalError);
-                    };
-                    responseTimer.Start();
-                }
+                        stop.Token.ThrowIfCancellationRequested();
 
-                try
-                {
-                    stop.Token.ThrowIfCancellationRequested();
+                        // Raise Started Event
+                        Started.Raise(this, EventArgs.Empty, InternalError);
 
-                    // Raise Started Event
-                    Started.Raise(this, EventArgs.Empty, InternalError);
-
-
-                    using (var httpRequest = CreateRequest())
-                    using (var response = await _httpClient.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead, stop.Token))
+                        using (var httpRequest = CreateRequest())
+                        using (var response = await _httpClient.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead, stop.Token).ConfigureAwait(false))
 #if NET5_0_OR_GREATER
-                    using (var stream = await response.Content.ReadAsStreamAsync(stop.Token))
+                        using (var stream = await response.Content.ReadAsStreamAsync(stop.Token).ConfigureAwait(false))
 #else
-                    using (var stream = await response.Content.ReadAsStreamAsync())
+                        using (var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
 #endif
-                    {
-                        var header = new List<byte>();
-                        var headerActive = false;
-                        var cr = false;
-                        var lf = false;
-
-                        var prevByte = -1;
-                        var prevNewLine = false;
-                        var line = new List<byte>();
-                        var contentLength = 0;
-                        string contentEncoding = null;
-                        string lineStr = null;
-
-
-                        var readBuffer = new byte[1];
-                        var read = await stream.ReadAsync(readBuffer, 0, readBuffer.Length, stop.Token);
-                        int b = read > 0 ? readBuffer[0] : -1;
-
-                        if (Timeout > 0)
                         {
-                            responseTimer.Stop();
-                            responseTimer.Start();
-                        }
+                            var reader = new MultipartReader(stream, () => { if (Timeout > 0) timeout.CancelAfter(Timeout); });
 
-                        while (b > -1 && !stop.Token.IsCancellationRequested)
-                        {
-                            // Look for Start of Http Multipart boundary
-                            if (b == Dash && prevByte == Dash) // 45 = UTF-8 '-'
+                            while (!stop.Token.IsCancellationRequested)
                             {
-                                headerActive = true;
-                            }
+                                var part = await reader.ReadPartAsync(stop.Token).ConfigureAwait(false);
+                                if (part == null) break; // The Agent closed the stream
 
-                            // Look for New Line characters
-                            if (b == CarriageReturn) cr = true; // 13 = UTF-8 Carriage Return
-                            else if (b == LineFeed) lf = true; // 10 = UTF-8 Line Feed
-
-                            if (cr && lf)
-                            {
-                                // Get the current line as a UTF-8 string
-                                lineStr = Encoding.UTF8.GetString(line.ToArray());
-
-                                if (headerActive)
-                                {
-                                    // Add Header
-                                    header.AddRange(line.ToArray());
-
-                                    if (prevNewLine)
-                                    {
-                                        // If 2 consecutive new lines, then signal the end of the Http Header
-                                        headerActive = false;
-                                        header.Clear();
-                                    }
-                                }
-
-                                // Read Content Length
-                                var headerValue = GetHeaderValue(lineStr, HttpHeaders.ContentLength.ToLower());
-                                if (headerValue != null) contentLength = headerValue.ToInt();
-
-                                // Read Content Encoding
-                                headerValue = GetHeaderValue(lineStr, HttpHeaders.ContentEncoding.ToLower());
-                                if (headerValue != null) contentEncoding = headerValue;
-
-                                if (!headerActive && contentLength > 0)
-                                {
-                                    // Once the Header is no longer active and a Content-length has been read
-                                    // Read the response body based on the Content-length
-                                    var bodyBytes = ReadBody(stream, contentLength);
-                                    if (bodyBytes != null)
-                                    {
-                                        // Call overridable method to process the bytes contained in the body of the response
-                                        ProcessResponseBody(bodyBytes, contentEncoding);
-                                    }
-
-                                    contentLength = 0;
-                                }
-
-                                cr = false;
-                                lf = false;
-                                line.Clear();
-                                prevNewLine = true;
-                            }
-
-                            // Add byte to Line Buffer
-                            line.Add((byte)b);
-
-                            prevByte = b;
-
-                            // Read the next Byte
-                            read = await stream.ReadAsync(readBuffer, 0, readBuffer.Length, stop.Token);
-                            b = read > 0 ? readBuffer[0] : -1;
-
-                            if (Timeout > 0)
-                            {
-                                responseTimer.Stop();
-                                responseTimer.Start();
+                                // Call overridable method to process the bytes contained in the body of the response
+                                ProcessResponseBody(part.Body, part.ContentEncoding);
                             }
                         }
                     }
-                }
-                catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
-                {
-                    ConnectionError.Raise(this, ex, InternalError);
-                }
-                catch (TaskCanceledException) { /* Ignore Task Cancelled */  }
-                catch (HttpRequestException ex)
-                {
-                    ConnectionError.Raise(this, ex, InternalError);
-                }
-                catch (Exception ex)
-                {
-                    InternalError.Raise(this, ex, InternalError);
-                }
-                finally
-                {
-                    responseTimer.Dispose();
+                    catch (OperationCanceledException) when (timeout.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+                    {
+                        ConnectionError.Raise(this, new TimeoutException($"HTTP Stream Timeout Exceeded ({Timeout})"), InternalError);
+                    }
+                    catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
+                    {
+                        ConnectionError.Raise(this, ex, InternalError);
+                    }
+                    catch (OperationCanceledException) { /* Ignore Task Cancelled */  }
+                    catch (HttpRequestException ex)
+                    {
+                        ConnectionError.Raise(this, ex, InternalError);
+                    }
+                    catch (IOException ex)
+                    {
+                        // The connection was reset or closed mid-read
+                        ConnectionError.Raise(this, ex, InternalError);
+                    }
+                    catch (Exception ex)
+                    {
+                        InternalError.Raise(this, ex, InternalError);
+                    }
                 }
             }
 
@@ -357,68 +275,6 @@ namespace MTConnect.Clients
             return httpRequest;
         }
 
-        private static string GetHeaderValue(string s, string name)
-        {
-            if (!string.IsNullOrEmpty(s))
-            {
-                var x = s.ToLower().TrimStart();
-                if (x.StartsWith(name + ":"))
-                {
-                    var i = x.IndexOf(':');
-                    if (i > 0)
-                    {
-                        return x.Substring(i + 1).Trim();
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        private static Stream ReadBody(Stream stream, int length)
-        {
-            if (stream != null && length > 0)
-            {
-                int i = 0;
-                int size = length;
-                bool isHeader = true;
-                int j;
-                int k;
-
-                // Create a buffer to contain body of the response
-                // based on the size of the content-length received in the Http Headers
-                var body = new MemoryStream();
-
-                // Create a 255 byte buffer
-                var chunk = new byte[255];
-
-                while (i < size)
-                {
-                    // Read from the Network stream and store in the chunk buffer
-                    j = stream.Read(chunk, 0, chunk.Length);
-
-                    // Remove blank lines before header (can cause XML deserialization error if Xml Declaration is not the first line)
-                    if (isHeader)
-                    {
-                        k = ObjectExtensions.TrimStartBytes(ref chunk, _trimBytes);
-                        j -= k;
-                    }
-
-                    // Add the chunk bytes to the body buffer
-                    body.Write(chunk, 0, j);
-
-                    // Increment the index of the body buffer based on the number of bytes read in this chunk
-                    i += j;
-
-                    isHeader = false;
-                }
-
-                return body;
-            }
-
-            return null;
-        }
-
         /// <summary>
         /// Decompresses <paramref name="responseBody"/> according to <paramref name="contentEncoding"/>
         /// (the agent's <c>Content-Encoding</c> response header) and dispatches the resulting
@@ -437,35 +293,186 @@ namespace MTConnect.Clients
                 if (stream.Position > 0) stream.Seek(0, SeekOrigin.Begin);
 
                 var formatResult = ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, stream);
-                if (formatResult.Success)
+                if (formatResult.Success && formatResult.Content != null)
                 {
-                    // Process MTConnectDevices Document
-                    var document = formatResult.Content;
-                    if (document != null)
-                    {
-                        DocumentReceived.Raise(this, document, InternalError);
-                    }
-                    else
-                    {
-                        // Process MTConnectError Document (if MTConnectStreams fails)
-                        var errorFormatResult = ResponseDocumentFormatter.CreateErrorResponseDocument(_documentFormat, stream);
-                        if (errorFormatResult.Success)
-                        {
-                            var errorDocument = errorFormatResult.Content;
-                            if (errorDocument != null) ErrorReceived.Raise(this, errorDocument, InternalError);
-                        }
-                        else
-                        {
-                            // Raise Format Error
-                            FormatError.Raise(this, errorFormatResult, InternalError);
-                        }
-                    }
+                    DocumentReceived.Raise(this, formatResult.Content, InternalError);
+                    return;
+                }
+
+                // Not an MTConnectStreams document: the Agent may have sent an MTConnectError part (e.g. OUT_OF_RANGE)
+                if (stream.CanSeek) stream.Seek(0, SeekOrigin.Begin);
+                var errorFormatResult = ResponseDocumentFormatter.CreateErrorResponseDocument(_documentFormat, stream);
+                if (errorFormatResult.Success && errorFormatResult.Content != null)
+                {
+                    ErrorReceived.Raise(this, errorFormatResult.Content, InternalError);
                 }
                 else
                 {
-                    // Raise Format Error
+                    // Raise Format Error (for the Streams document that was expected)
                     FormatError.Raise(this, formatResult, InternalError);
                 }
+            }
+        }
+
+
+        /// <summary>
+        /// One multipart part: its decoded headers and exactly Content-length bytes of body.
+        /// </summary>
+        internal sealed class MultipartPart
+        {
+            public string ContentEncoding { get; set; }
+            public MemoryStream Body { get; set; }
+        }
+
+        /// <summary>
+        /// Buffered reader for an MTConnect multipart/x-mixed-replace stream. Each part is a boundary line
+        /// (starting with "--"), header lines in any order and case, a blank line, then Content-length bytes.
+        /// </summary>
+        internal sealed class MultipartReader
+        {
+            private const int BufferSize = 16384;
+
+            private readonly Stream _stream;
+            private readonly Action _onData;
+            private readonly byte[] _buffer = new byte[BufferSize];
+            private int _position;
+            private int _length;
+
+
+            public MultipartReader(Stream stream, Action onData = null)
+            {
+                _stream = stream;
+                _onData = onData;
+            }
+
+
+            /// <summary>
+            /// Reads the next part, or returns <c>null</c> when the stream ends.
+            /// </summary>
+            public async Task<MultipartPart> ReadPartAsync(CancellationToken cancellationToken)
+            {
+                while (true)
+                {
+                    // Find the next boundary line
+                    string line;
+                    do
+                    {
+                        line = await ReadLineAsync(cancellationToken).ConfigureAwait(false);
+                        if (line == null) return null;
+                    }
+                    while (!line.TrimStart().StartsWith("--"));
+
+                    // Read the part headers up to the blank line
+                    var contentLength = -1;
+                    string contentEncoding = null;
+
+                    while (true)
+                    {
+                        line = await ReadLineAsync(cancellationToken).ConfigureAwait(false);
+                        if (line == null) return null;
+                        if (line.Length == 0) break;
+
+                        var separator = line.IndexOf(':');
+                        if (separator <= 0) continue;
+
+                        var name = line.Substring(0, separator).Trim();
+                        var value = line.Substring(separator + 1).Trim();
+
+                        if (string.Equals(name, HttpHeaders.ContentLength, StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var length)) contentLength = length;
+                        }
+                        else if (string.Equals(name, HttpHeaders.ContentEncoding, StringComparison.OrdinalIgnoreCase))
+                        {
+                            contentEncoding = value.ToLowerInvariant();
+                        }
+                    }
+
+                    // A part without a usable Content-length cannot be framed; look for the next boundary
+                    if (contentLength <= 0) continue;
+
+                    var body = new MemoryStream(contentLength);
+                    if (!await ReadExactlyAsync(body, contentLength, cancellationToken).ConfigureAwait(false)) return null;
+
+                    body.Seek(0, SeekOrigin.Begin);
+                    return new MultipartPart { ContentEncoding = contentEncoding, Body = TrimLeadingNewLines(body) };
+                }
+            }
+
+            // Reads one line terminated by LF (a preceding CR is removed); null at end of stream
+            private async Task<string> ReadLineAsync(CancellationToken cancellationToken)
+            {
+                var line = new MemoryStream();
+
+                while (true)
+                {
+                    if (_position >= _length && !await FillAsync(cancellationToken).ConfigureAwait(false))
+                    {
+                        return line.Length > 0 ? Decode(line) : null;
+                    }
+
+                    var newLine = Array.IndexOf(_buffer, (byte)'\n', _position, _length - _position);
+                    if (newLine < 0)
+                    {
+                        line.Write(_buffer, _position, _length - _position);
+                        _position = _length;
+                        continue;
+                    }
+
+                    line.Write(_buffer, _position, newLine - _position);
+                    _position = newLine + 1;
+                    return Decode(line);
+                }
+            }
+
+            private async Task<bool> ReadExactlyAsync(Stream destination, int count, CancellationToken cancellationToken)
+            {
+                var remaining = count;
+                while (remaining > 0)
+                {
+                    if (_position >= _length && !await FillAsync(cancellationToken).ConfigureAwait(false)) return false;
+
+                    var n = Math.Min(remaining, _length - _position);
+                    destination.Write(_buffer, _position, n);
+                    _position += n;
+                    remaining -= n;
+                }
+
+                return true;
+            }
+
+            private async Task<bool> FillAsync(CancellationToken cancellationToken)
+            {
+                _position = 0;
+                _length = await _stream.ReadAsync(_buffer, 0, _buffer.Length, cancellationToken).ConfigureAwait(false);
+                if (_length <= 0)
+                {
+                    _length = 0;
+                    return false;
+                }
+
+                _onData?.Invoke();
+                return true;
+            }
+
+            private static string Decode(MemoryStream line)
+            {
+                var bytes = line.GetBuffer();
+                var length = (int)line.Length;
+                if (length > 0 && bytes[length - 1] == '\r') length--;
+                return Encoding.UTF8.GetString(bytes, 0, length);
+            }
+
+            // Remove blank lines before the document (the XML Declaration must be the first line)
+            private static MemoryStream TrimLeadingNewLines(MemoryStream body)
+            {
+                var bytes = body.GetBuffer();
+                var length = (int)body.Length;
+                var start = 0;
+                while (start < length && (bytes[start] == LineFeed || bytes[start] == CarriageReturn)) start++;
+
+                if (start == 0) return body;
+                return new MemoryStream(bytes, start, length - start, false);
             }
         }
     }

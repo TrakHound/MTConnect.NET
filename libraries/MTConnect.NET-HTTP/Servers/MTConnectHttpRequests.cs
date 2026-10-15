@@ -150,7 +150,7 @@ namespace MTConnect.Servers.Http
             string deviceType = null,
             string path = null,
             ulong? at = null,
-            int interval = 0,
+            int interval = -1,
             Version mtconnectVersion = null,
             string documentFormat = DocumentFormat.XML,
             IEnumerable<KeyValuePair<string, string>> formatOptions = null
@@ -161,15 +161,8 @@ namespace MTConnect.Servers.Http
             // Get list of DataItem ID's based on Path (XPath) parameter
             var dataItemIds = PathProcessor.GetDataItemIds(mtconnectAgent, path, documentFormat);
 
-            // Return MTConnectError Response Document : Invalid Request if "at" is less than zero
-            if (at < 0)
-            {
-                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeAt, mtconnectVersion);
-                return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
-            }
-
             // Return MTConnectError Response Document : Invalid Request if "at" and "interval" are specified
-            if (at > 0 && interval > 0)
+            if (at > 0 && interval > -1)
             {
                 var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestAtIntervalConjunction, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
@@ -264,13 +257,6 @@ namespace MTConnect.Servers.Http
 
             // Get list of DataItem ID's based on Path (XPath) parameter
             var dataItemIds = PathProcessor.GetDataItemIds(mtconnectAgent, path, documentFormat);
-
-            // Return MTConnectError Response Document : Invalid Request if "at" is less than zero
-            if (at < 0)
-            {
-                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeAt, mtconnectVersion);
-                return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
-            }
 
             // Return MTConnectError Response Document : Invalid Request if "at" and "interval" are specified
             if (at > 0 && interval > -1)
@@ -380,31 +366,10 @@ namespace MTConnect.Servers.Http
             // Get list of DataItem ID's based on Path (XPath) parameter
             var dataItemIds = PathProcessor.GetDataItemIds(mtconnectAgent, path, documentFormat);
 
-            // Return MTConnectError Response Document : Invalid Request if "from" is less than zero
-            if (from < 0)
-            {
-                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeFrom, mtconnectVersion);
-                return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
-            }
-
-            // Return MTConnectError Response Document : Invalid Request if "to" is less than zero
-            if (to < 0)
-            {
-                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeTo, mtconnectVersion);
-                return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
-            }
-
             // Return MTConnectError Response Document : Invalid Request if "to" is less than "from"
             if (to > 0 && to < from)
             {
                 var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestToLessThanFrom, mtconnectVersion);
-                return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
-            }
-
-            // Return MTConnectError Response Document : Invalid Request if "to" is given and "count" is less than zero
-            if (to > 0 && count < 0)
-            {
-                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeCount, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
@@ -423,7 +388,7 @@ namespace MTConnect.Servers.Http
             }
 
             // Return MTConnectError Response Document : Out Of Range if "count" is greater than the size of the buffer or equal to zero
-            if (count == 0 && count > mtconnectAgent.BufferSize)
+            if (count == 0 || count > mtconnectAgent.BufferSize)
             {
                 var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeCount, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
@@ -498,31 +463,10 @@ namespace MTConnect.Servers.Http
             // Get list of DataItem ID's based on Path (XPath) parameter
             var dataItemIds = PathProcessor.GetDataItemIds(mtconnectAgent, path, documentFormat);
 
-            // Return MTConnectError Response Document : Invalid Request if "from" is less than zero
-            if (from < 0)
-            {
-                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeFrom, mtconnectVersion);
-                return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
-            }
-
-            // Return MTConnectError Response Document : Invalid Request if "to" is less than zero
-            if (to < 0)
-            {
-                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeTo, mtconnectVersion);
-                return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
-            }
-
             // Return MTConnectError Response Document : Invalid Request if "to" is less than "from"
             if (to > 0 && to < from)
             {
                 var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestToLessThanFrom, mtconnectVersion);
-                return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
-            }
-
-            // Return MTConnectError Response Document : Invalid Request if "to" is given and "count" is less than zero
-            if (to > 0 && count < 0)
-            {
-                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeCount, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
@@ -541,7 +485,7 @@ namespace MTConnect.Servers.Http
             }
 
             // Return MTConnectError Response Document : Out Of Range if "count" is greater than the size of the buffer or equal to zero
-            if (count == 0 && count > mtconnectAgent.BufferSize)
+            if (count == 0 || count > mtconnectAgent.BufferSize)
             {
                 var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeCount, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
