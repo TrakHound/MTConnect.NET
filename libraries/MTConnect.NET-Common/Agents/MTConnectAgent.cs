@@ -80,7 +80,6 @@ namespace MTConnect.Agents
 
         private readonly ConcurrentDictionary<string, IObservation> _currentObservations = new ConcurrentDictionary<string, IObservation>();
         private readonly ConcurrentDictionary<string, IEnumerable<IObservation>> _currentConditions = new ConcurrentDictionary<string, IEnumerable<IObservation>>();
-        private readonly List<string> _assetIds = new List<string>();
         private MTConnectAgentMetrics _metrics;
         private readonly string _uuid;
         private readonly ulong _instanceId;
@@ -2456,6 +2455,16 @@ namespace MTConnect.Agents
             return true;
         }
 
+        /// <summary>
+        /// Extension point that reports whether an Asset with the given ID is currently held and not removed, so <c>AddAsset</c> can tell a new Asset (which triggers <see cref="OnNewAssetAdded"/>) from an update; the base implementation stores no Assets and returns <c>false</c>.
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset being added.</param>
+        /// <returns><c>true</c> if the Asset is already held and not marked removed.</returns>
+        protected virtual bool IsCurrentAsset(string assetId)
+        {
+            return false;
+        }
+
 
         /// <summary>
         /// Add a new Asset to the Agent for the specified Device and DataItem
@@ -2495,7 +2504,7 @@ namespace MTConnect.Agents
                     if (validationResults.IsValid || _configuration.InputValidationLevel < InputValidationLevel.Strict)
                     {
                         // Set flag whether the Asset already exists in the Buffer
-                        var exists = _assetIds.Contains(asset.AssetId);
+                        var exists = IsCurrentAsset(asset.AssetId);
 
                         // Add Asset to AssetBuffer
                         if (OnAssetUpdate(asset))

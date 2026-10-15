@@ -131,7 +131,10 @@ namespace MTConnect.Buffers
                 assets = assets.Where(o => o != null && !o.Removed).ToList();
             }
 
-            return assets?.Take((int)count);
+            // A count of 0 (the interface default) means no limit
+            if (count > 0) assets = assets.Take((int)Math.Min(count, int.MaxValue));
+
+            return assets;
         }
 
         /// <summary>
@@ -277,14 +280,18 @@ namespace MTConnect.Buffers
         {
             if (!string.IsNullOrEmpty(assetType))
             {
-                var assets = GetAssets(assetType);
-                if (!assets.IsNullOrEmpty())
+                // Every not-yet-removed Asset of the Type (snapshot, since AddAsset reorders the buffer)
+                var assets = GetAssets(type: assetType, count: 0).ToList();
+                if (assets.Count > 0)
                 {
+                    var removed = false;
                     foreach (var asset in assets)
                     {
                         ((Asset)asset).Removed = true;
-                        return AddAsset(asset);
+                        removed |= AddAsset(asset);
                     }
+
+                    return removed;
                 }
             }
 

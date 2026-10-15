@@ -24,11 +24,19 @@ namespace MTConnect.Agents
     /// </summary>
     public class MTConnectAgentBroker : MTConnectAgent, IMTConnectAgentBroker, IDisposable
     {
+        // Buffer keys pack (deviceIndex * BufferKeyDeviceMultiplier) + dataItemIndex into an int
+        // (see BufferObservation.GetDeviceIndexFromBufferKey), so DataItem indexes are allocated
+        // per Device and must stay below the multiplier to avoid colliding with the next Device.
+        private const int BufferKeyDeviceMultiplier = 10000;
+        private const int MaxDataItemIndex = BufferKeyDeviceMultiplier - 1;
+
         private readonly object _lock = new object();
-        //private readonly IMTConnectDeviceBuffer _deviceBuffer;
         private readonly IMTConnectObservationBuffer _observationBuffer;
         private readonly IMTConnectAssetBuffer _assetBuffer;
         private readonly List<AssetCount> _deviceAssetCounts = new List<AssetCount>();
+        private readonly Dictionary<int, int> _lastDeviceDataItemIndexes = new Dictionary<int, int>(); // Device index -> last DataItem index allocated for it
+        private readonly Dictionary<int, string> _bufferKeyDataItemIds = new Dictionary<int, string>(); // Buffer key -> DataItem Id
+
         /// <summary>
         /// Backing store mapping Device UUID to its assigned buffer index; accessed under the broker lock.
         /// </summary>
@@ -74,33 +82,51 @@ namespace MTConnect.Agents
 
 
         /// <inheritdoc />
+        /// <remarks>Returns a snapshot copy; setting it replaces the Device index assignments.</remarks>
         public Dictionary<string, int> DeviceIndexes
         {
             get
             {
-                lock (_lock) return _deviceIndexes;
+                lock (_lock) return new Dictionary<string, int>(_deviceIndexes);
             }
             set
             {
                 if (value != null)
                 {
-                    lock (_lock) _deviceIndexes = value;
+                    lock (_lock)
+                    {
+                        _deviceIndexes = new Dictionary<string, int>(value);
+                        _deviceUuids.Clear();
+                        _lastDeviceIndex = 0;
+                        foreach (var index in _deviceIndexes)
+                        {
+                            _deviceUuids[index.Value] = index.Key;
+                            if (index.Value > _lastDeviceIndex) _lastDeviceIndex = index.Value;
+                        }
+
+                        RebuildDataItemLookups();
+                    }
                 }
             }
         }
 
         /// <inheritdoc />
+        /// <remarks>Returns a snapshot copy; setting it replaces the DataItem index assignments.</remarks>
         public Dictionary<string, int> DataItemIndexes
         {
             get
             {
-                lock (_lock) return _dataItemIndexes;
+                lock (_lock) return new Dictionary<string, int>(_dataItemIndexes);
             }
             set
             {
                 if (value != null)
                 {
-                    lock (_lock) _dataItemIndexes = value;
+                    lock (_lock)
+                    {
+                        _dataItemIndexes = new Dictionary<string, int>(value);
+                        RebuildDataItemLookups();
+                    }
                 }
             }
         }
@@ -167,8 +193,6 @@ namespace MTConnect.Agents
             bool initializeAgentDevice = true
             ) : base(uuid, instanceId, deviceModelChangeTime, false)
         {
-            var config = new AgentConfiguration();
-            //_deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer();
             _assetBuffer = new MTConnectAssetBuffer();
             _assetBuffer.AssetRemoved += AssetRemovedFromBuffer;
@@ -192,7 +216,6 @@ namespace MTConnect.Agents
             ) : base(configuration, uuid, instanceId, deviceModelChangeTime, false)
         {
             var config = configuration != null ? configuration : new AgentConfiguration();
-            //_deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer(config);
             _assetBuffer = new MTConnectAssetBuffer(config);
             _assetBuffer.AssetRemoved += AssetRemovedFromBuffer;
@@ -267,7 +290,7 @@ namespace MTConnect.Agents
                 foreach (var bufferObservation in lBufferObservations)
                 {
                     var deviceUuid = GetDeviceUuid(bufferObservation.DeviceIndex);
-                    var dataItemId = GetDataItemId(bufferObservation.DataItemIndex);
+                    var dataItemId = GetDataItemIdFromBufferKey(bufferObservation.Key);
 
                     var dataItem = GetDataItem(deviceUuid, dataItemId);
                     if (dataItem != null)
@@ -314,6 +337,9 @@ namespace MTConnect.Agents
 
                         if (index.Value > _lastDeviceIndex) _lastDeviceIndex = index.Value;
                     }
+
+                    // Buffer keys depend on the Device index, so refresh any DataItem lookups already loaded
+                    RebuildDataItemLookups();
                 }
             }
         }
@@ -321,6 +347,11 @@ namespace MTConnect.Agents
         /// <summary>
         /// Seed the DataItem buffer-index lookup from previously persisted assignments so DataItems retain their buffer slots across restarts.
         /// </summary>
+        /// <remarks>
+        /// Call <see cref="InitializeDeviceIndex"/> first so each DataItem resolves to its persisted Device index.
+        /// Indexes above 9,999 (written by versions that shared one counter across all Devices) cannot be encoded
+        /// in a buffer key without colliding with another Device, so they are dropped and reassigned on next use.
+        /// </remarks>
         /// <param name="indexes">A mapping of DataItem key to its buffer index.</param>
         public void InitializeDataItemIndex(IDictionary<string, int> indexes)
         {
@@ -330,18 +361,53 @@ namespace MTConnect.Agents
                 {
                     foreach (var index in indexes)
                     {
-                        // Needs to be optimized
-                        var dataItemId = new System.Text.RegularExpressions.Regex(".*:(.*)").Match(index.Key).Groups[1].Value;
-
-                        _dataItemIds.Remove(index.Value);
-                        _dataItemIds.Add(index.Value, dataItemId);
-
-                        _dataItemIndexes.Remove(index.Key);
-                        _dataItemIndexes.Add(index.Key, index.Value);
-
-                        if (index.Value > _lastDataItemIndex) _lastDataItemIndex = index.Value;
+                        _dataItemIndexes[index.Key] = index.Value;
                     }
+
+                    RebuildDataItemLookups();
                 }
+            }
+        }
+
+        // Rebuilds the buffer key and per-Device counter lookups from _dataItemIndexes / _deviceIndexes.
+        // Caller must hold _lock.
+        private void RebuildDataItemLookups()
+        {
+            _bufferKeyDataItemIds.Clear();
+            _lastDeviceDataItemIndexes.Clear();
+            _dataItemIds.Clear();
+
+            List<string> invalidKeys = null;
+
+            foreach (var entry in _dataItemIndexes)
+            {
+                // DataItem keys are "{deviceUuid}:{dataItemId}"
+                var separator = entry.Key.LastIndexOf(':');
+                if (separator < 0 || entry.Value < 1 || entry.Value > MaxDataItemIndex)
+                {
+                    if (invalidKeys == null) invalidKeys = new List<string>();
+                    invalidKeys.Add(entry.Key);
+                    continue;
+                }
+
+                var deviceUuid = entry.Key.Substring(0, separator);
+                var dataItemId = entry.Key.Substring(separator + 1);
+                var deviceIndex = deviceUuid.Length > 0 ? GetDeviceIndex(deviceUuid) : 0;
+
+                _bufferKeyDataItemIds[GenerateBufferKey(deviceIndex, entry.Value)] = dataItemId;
+                _dataItemIds[entry.Value] = dataItemId;
+
+                if (!_lastDeviceDataItemIndexes.TryGetValue(deviceIndex, out var last) || entry.Value > last)
+                {
+                    _lastDeviceDataItemIndexes[deviceIndex] = entry.Value;
+                }
+
+                if (entry.Value > _lastDataItemIndex) _lastDataItemIndex = entry.Value;
+            }
+
+            if (invalidKeys != null)
+            {
+                foreach (var key in invalidKeys) _dataItemIndexes.Remove(key);
             }
         }
 
@@ -349,6 +415,8 @@ namespace MTConnect.Agents
 
         #region "Cache Lookup"
 
+        // Read paths only look up existing keys: a DataItem without an index has no observations, and
+        // assigning indexes here would let request parameters grow the (persisted) index tables.
         private IEnumerable<int> GenerateBufferKeys(IEnumerable<IDevice> devices)
         {
             if (!devices.IsNullOrEmpty())
@@ -371,12 +439,7 @@ namespace MTConnect.Agents
                 // Read Cached DataItemIds for the Device
                 _deviceDataItemIds.TryGetValue(device.Uuid, out var dataItemIds);
 
-                var bufferKeys = new List<int>();
-                if (!dataItemIds.IsNullOrEmpty())
-                {
-                    bufferKeys.AddRange(GenerateBufferKeys(device.Uuid, dataItemIds));
-                }
-                return bufferKeys;
+                return GenerateBufferKeys(device.Uuid, dataItemIds);
             }
 
             return Enumerable.Empty<int>();
@@ -386,19 +449,31 @@ namespace MTConnect.Agents
         {
             if (!string.IsNullOrEmpty(deviceUuid) && !dataItemIds.IsNullOrEmpty())
             {
-                var a = dataItemIds.ToArray();
-                var keys = new int[a.Length];
-                for (var i = 0; i < a.Length; i++)
+                var keys = new List<int>();
+
+                lock (_lock)
                 {
-                    var key = GenerateBufferKey(deviceUuid, a[i]);
-                    keys[i] = key;
+                    if (_deviceIndexes.TryGetValue(deviceUuid, out var deviceIndex) && deviceIndex > 0)
+                    {
+                        foreach (var dataItemId in dataItemIds)
+                        {
+                            if (dataItemId != null &&
+                                _dataItemIndexes.TryGetValue(string.Concat(deviceUuid, ":", dataItemId), out var dataItemIndex) &&
+                                dataItemIndex > 0)
+                            {
+                                keys.Add(GenerateBufferKey(deviceIndex, dataItemIndex));
+                            }
+                        }
+                    }
                 }
+
                 return keys;
             }
 
             return Enumerable.Empty<int>();
         }
 
+        // Write path: assigns Device / DataItem indexes when they do not exist yet
         private int GenerateBufferKey(string deviceUuid, string dataItemId)
         {
             var deviceIndex = GetDeviceIndex(deviceUuid);
@@ -409,7 +484,7 @@ namespace MTConnect.Agents
 
         private static int GenerateBufferKey(int deviceIndex, int dataItemIndex)
         {
-            return (deviceIndex * 10000) + dataItemIndex;
+            return (deviceIndex * BufferKeyDeviceMultiplier) + dataItemIndex;
         }
 
 
@@ -420,9 +495,12 @@ namespace MTConnect.Agents
         /// <returns>The Device UUID, or <c>null</c> if the index is not assigned.</returns>
         public string GetDeviceUuid(int deviceIndex)
         {
-            if (_deviceUuids.TryGetValue(deviceIndex, out var deviceUuid))
+            lock (_lock)
             {
-                return deviceUuid;
+                if (_deviceUuids.TryGetValue(deviceIndex, out var deviceUuid))
+                {
+                    return deviceUuid;
+                }
             }
 
             return null;
@@ -445,8 +523,8 @@ namespace MTConnect.Agents
                     if (index < 1)
                     {
                         _lastDeviceIndex++;
-                        _deviceUuids.Add(_lastDeviceIndex, deviceUuid);
-                        _deviceIndexes.Add(deviceUuid, _lastDeviceIndex);
+                        _deviceUuids[_lastDeviceIndex] = deviceUuid;
+                        _deviceIndexes[deviceUuid] = _lastDeviceIndex;
                         index = _lastDeviceIndex;
                     }
                 }
@@ -479,29 +557,39 @@ namespace MTConnect.Agents
         /// <summary>
         /// Resolve a DataItem buffer index back to its DataItem Id.
         /// </summary>
+        /// <remarks>
+        /// DataItem indexes are allocated per Device, so the same index can belong to DataItems on different Devices.
+        /// Use <see cref="GetDataItemIdFromBufferKey"/>, which also encodes the Device.
+        /// </remarks>
         /// <param name="dataItemIndex">The buffer index assigned to the DataItem.</param>
         /// <returns>The DataItem Id, or <c>null</c> if the index is not assigned.</returns>
+        [Obsolete("DataItem indexes are allocated per Device and are not unique on their own. Use GetDataItemIdFromBufferKey instead.")]
         public string GetDataItemId(int dataItemIndex)
         {
-            if (_dataItemIds.TryGetValue(dataItemIndex, out var dataItemId))
+            lock (_lock)
             {
-                return dataItemId;
+                if (_dataItemIds.TryGetValue(dataItemIndex, out var dataItemId))
+                {
+                    return dataItemId;
+                }
             }
 
             return null;
         }
 
         /// <summary>
-        /// Extract the DataItem index encoded in a composite buffer key and resolve it to its DataItem Id.
+        /// Resolve a composite buffer key (which encodes both the Device and DataItem indexes) to its DataItem Id.
         /// </summary>
         /// <param name="bufferKey">The composite buffer key that encodes both the Device and DataItem indexes.</param>
-        /// <returns>The DataItem Id, or <c>null</c> if the encoded index is not assigned.</returns>
+        /// <returns>The DataItem Id, or <c>null</c> if the key is not assigned.</returns>
         public string GetDataItemIdFromBufferKey(int bufferKey)
         {
-            var dataItemIndex = BufferObservation.GetDataItemIndexFromBufferKey(bufferKey);
-            if (_dataItemIds.TryGetValue(dataItemIndex, out var dataItemId))
+            lock (_lock)
             {
-                return dataItemId;
+                if (_bufferKeyDataItemIds.TryGetValue(bufferKey, out var dataItemId))
+                {
+                    return dataItemId;
+                }
             }
 
             return null;
@@ -510,9 +598,11 @@ namespace MTConnect.Agents
         /// <summary>
         /// Resolve a Device-scoped DataItem to its buffer index, assigning and caching a new index if one does not yet exist.
         /// </summary>
+        /// <remarks>Indexes are allocated per Device, from 1 up to 9,999.</remarks>
         /// <param name="deviceUuid">The UUID of the Device that owns the DataItem.</param>
         /// <param name="dataItemId">The Id of the DataItem.</param>
         /// <returns>The buffer index for the DataItem, or <c>0</c> if the DataItem Id is <c>null</c>.</returns>
+        /// <exception cref="InvalidOperationException">The Device already has 9,999 DataItems indexed.</exception>
         public int GetDataItemIndex(string deviceUuid, string dataItemId)
         {
             var index = 0;
@@ -525,10 +615,20 @@ namespace MTConnect.Agents
                     _dataItemIndexes.TryGetValue(key, out index);
                     if (index < 1)
                     {
-                        _lastDataItemIndex++;
-                        _dataItemIds.Add(_lastDataItemIndex, dataItemId);
-                        _dataItemIndexes.Add(key, _lastDataItemIndex);
-                        index = _lastDataItemIndex;
+                        var deviceIndex = GetDeviceIndex(deviceUuid);
+
+                        _lastDeviceDataItemIndexes.TryGetValue(deviceIndex, out var lastIndex);
+                        if (lastIndex >= MaxDataItemIndex)
+                        {
+                            throw new InvalidOperationException(string.Format("Device '{0}' cannot index more than {1} DataItems in the observation buffer", deviceUuid, MaxDataItemIndex));
+                        }
+
+                        index = lastIndex + 1;
+                        _lastDeviceDataItemIndexes[deviceIndex] = index;
+                        _dataItemIndexes[key] = index;
+                        _dataItemIds[index] = dataItemId;
+                        _bufferKeyDataItemIds[GenerateBufferKey(deviceIndex, index)] = dataItemId;
+                        if (index > _lastDataItemIndex) _lastDataItemIndex = index;
                     }
                 }
             }
@@ -744,6 +844,57 @@ namespace MTConnect.Agents
             return results;
         }
 
+        // Shared implementation behind every GetDeviceStreamsResponseDocument overload.
+        // When dataItemIds is null every DataItem of each Device is queried; otherwise only the listed DataItems.
+        private IStreamsResponseOutputDocument GetStreamsResponseDocument(IEnumerable<IDevice> devices, IEnumerable<string> dataItemIds, ulong from, ulong to, ulong? at, uint count, Version mtconnectVersion)
+        {
+            if (_observationBuffer != null && !devices.IsNullOrEmpty())
+            {
+                // Create list of BufferKeys
+                IEnumerable<int> bufferKeys;
+                if (dataItemIds != null)
+                {
+                    var keys = new List<int>();
+                    foreach (var device in devices)
+                    {
+                        keys.AddRange(GenerateBufferKeys(device.Uuid, dataItemIds));
+                    }
+                    bufferKeys = keys;
+                }
+                else
+                {
+                    bufferKeys = GenerateBufferKeys(devices);
+                }
+
+                // Query the Observation Buffer
+                var results = GetObservations(bufferKeys, from, to, at, count);
+
+                // Create Response Document
+                var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
+                if (document != null)
+                {
+                    StreamsResponseSent.Raise(this, EventArgs.Empty, null);
+                    return document;
+                }
+            }
+
+            return null;
+        }
+
+        private IStreamsResponseOutputDocument GetStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, ulong from, ulong to, ulong? at, uint count, Version mtconnectVersion)
+        {
+            if (_observationBuffer != null)
+            {
+                var device = GetDevice(deviceKey);
+                if (device != null)
+                {
+                    return GetStreamsResponseDocument(new[] { device }, dataItemIds, from, to, at, count, mtconnectVersion);
+                }
+            }
+
+            return null;
+        }
+
         #endregion
 
 
@@ -758,28 +909,7 @@ namespace MTConnect.Agents
         {
             MulticastIsolation.Raise(StreamsRequestReceived, h => h(null));
 
-            if (_observationBuffer != null)
-            {
-                var devices = GetDevices(deviceType);
-                if (!devices.IsNullOrEmpty())
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(devices);
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
-                        return document;
-                    }
-                }
-            }
-
-            return null;
+            return GetStreamsResponseDocument(GetDevices(deviceType), null, 0, 0, null, count, mtconnectVersion);
         }
 
         /// <summary>
@@ -794,28 +924,7 @@ namespace MTConnect.Agents
         {
             MulticastIsolation.Raise(StreamsRequestReceived, h => h(null));
 
-            if (_observationBuffer != null)
-            {
-                var devices = GetDevices(deviceType);
-                if (!devices.IsNullOrEmpty())
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(devices);
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, at: at, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
-                        return document;
-                    }
-                }
-            }
-
-            return null;
+            return GetStreamsResponseDocument(GetDevices(deviceType), null, 0, 0, at, count, mtconnectVersion);
         }
 
         /// <summary>
@@ -830,33 +939,7 @@ namespace MTConnect.Agents
         {
             MulticastIsolation.Raise(StreamsRequestReceived, h => h(null));
 
-            if (_observationBuffer != null)
-            {
-                var devices = GetDevices(deviceType);
-                if (!devices.IsNullOrEmpty())
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = new List<int>();
-                    foreach (var device in devices)
-                    {
-                        var deviceBufferKeys = GenerateBufferKeys(device.Uuid, dataItemIds);
-                        if (!deviceBufferKeys.IsNullOrEmpty()) bufferKeys.AddRange(deviceBufferKeys);
-                    }
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
-                        return document;
-                    }
-                }
-            }
-
-            return null;
+            return GetStreamsResponseDocument(GetDevices(deviceType), dataItemIds ?? Enumerable.Empty<string>(), 0, 0, null, count, mtconnectVersion);
         }
 
         /// <summary>
@@ -872,33 +955,7 @@ namespace MTConnect.Agents
         {
             MulticastIsolation.Raise(StreamsRequestReceived, h => h(null));
 
-            if (_observationBuffer != null)
-            {
-                var devices = GetDevices(deviceType);
-                if (!devices.IsNullOrEmpty())
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = new List<int>();
-                    foreach (var device in devices)
-                    {
-                        var deviceBufferKeys = GenerateBufferKeys(device.Uuid, dataItemIds);
-                        if (!deviceBufferKeys.IsNullOrEmpty()) bufferKeys.AddRange(deviceBufferKeys);
-                    }
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, at: at, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
-                        return document;
-                    }
-                }
-            }
-
-            return null;
+            return GetStreamsResponseDocument(GetDevices(deviceType), dataItemIds ?? Enumerable.Empty<string>(), 0, 0, at, count, mtconnectVersion);
         }
 
         /// <summary>
@@ -914,28 +971,7 @@ namespace MTConnect.Agents
         {
             MulticastIsolation.Raise(StreamsRequestReceived, h => h(null));
 
-            if (_observationBuffer != null)
-            {
-                var devices = GetDevices(deviceType);
-                if (!devices.IsNullOrEmpty())
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(devices);
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, from: from, to: to, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
-                        return document;
-                    }
-                }
-            }
-
-            return null;
+            return GetStreamsResponseDocument(GetDevices(deviceType), null, from, to, null, count, mtconnectVersion);
         }
 
         /// <summary>
@@ -952,28 +988,7 @@ namespace MTConnect.Agents
         {
             MulticastIsolation.Raise(StreamsRequestReceived, h => h(null));
 
-            if (_observationBuffer != null)
-            {
-                var devices = GetDevices(deviceType);
-                if (!devices.IsNullOrEmpty())
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(devices);
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, from, to, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
-                        return document;
-                    }
-                }
-            }
-
-            return null;
+            return GetStreamsResponseDocument(GetDevices(deviceType), dataItemIds ?? Enumerable.Empty<string>(), from, to, null, count, mtconnectVersion);
         }
 
 
@@ -988,28 +1003,7 @@ namespace MTConnect.Agents
         {
             MulticastIsolation.Raise(StreamsRequestReceived, h => h(deviceKey));
 
-            if (_observationBuffer != null)
-            {
-                var device = GetDevice(deviceKey);
-                if (device != null)
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(device);
-
-                    // Query the Observation Buffer
-                    var results = GetObservations(bufferKeys, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
-                        return document;
-                    }
-                }
-            }
-
-            return null;
+            return GetStreamsResponseDocument(deviceKey, null, 0, 0, null, count, mtconnectVersion);
         }
 
         /// <summary>
@@ -1024,28 +1018,7 @@ namespace MTConnect.Agents
         {
             MulticastIsolation.Raise(StreamsRequestReceived, h => h(deviceKey));
 
-            if (_observationBuffer != null)
-            {
-                var device = GetDevice(deviceKey);
-                if (device != null)
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(device);
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, at: at, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
-                        return document;
-                    }
-                }
-            }
-
-            return null;
+            return GetStreamsResponseDocument(deviceKey, null, 0, 0, at, count, mtconnectVersion);
         }
 
         /// <summary>
@@ -1060,28 +1033,7 @@ namespace MTConnect.Agents
         {
             MulticastIsolation.Raise(StreamsRequestReceived, h => h(deviceKey));
 
-            if (_observationBuffer != null)
-            {
-                var device = GetDevice(deviceKey);
-                if (device != null)
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(device.Uuid, dataItemIds);
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
-                        return document;
-                    }
-                }
-            }
-
-            return null;
+            return GetStreamsResponseDocument(deviceKey, dataItemIds ?? Enumerable.Empty<string>(), 0, 0, null, count, mtconnectVersion);
         }
 
         /// <summary>
@@ -1097,28 +1049,7 @@ namespace MTConnect.Agents
         {
             MulticastIsolation.Raise(StreamsRequestReceived, h => h(deviceKey));
 
-            if (_observationBuffer != null)
-            {
-                var device = GetDevice(deviceKey);
-                if (device != null)
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(device.Uuid, dataItemIds);
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, at: at, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
-                        return document;
-                    }
-                }
-            }
-
-            return null;
+            return GetStreamsResponseDocument(deviceKey, dataItemIds ?? Enumerable.Empty<string>(), 0, 0, at, count, mtconnectVersion);
         }
 
         /// <summary>
@@ -1134,28 +1065,7 @@ namespace MTConnect.Agents
         {
             MulticastIsolation.Raise(StreamsRequestReceived, h => h(deviceKey));
 
-            if (_observationBuffer != null)
-            {
-                var device = GetDevice(deviceKey);
-                if (device != null)
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(device);
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, from, to: to, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
-                        return document;
-                    }
-                }
-            }
-
-            return null;
+            return GetStreamsResponseDocument(deviceKey, null, from, to, null, count, mtconnectVersion);
         }
 
         /// <summary>
@@ -1172,41 +1082,43 @@ namespace MTConnect.Agents
         {
             MulticastIsolation.Raise(StreamsRequestReceived, h => h(deviceKey));
 
-            if (_observationBuffer != null)
-            {
-                var device = GetDevice(deviceKey);
-                if (device != null)
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(device.Uuid, dataItemIds);
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, from, to: to, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent.Raise(this, EventArgs.Empty, null);
-                        return document;
-                    }
-                }
-            }
-
-            return null;
+            return GetStreamsResponseDocument(deviceKey, dataItemIds ?? Enumerable.Empty<string>(), from, to, null, count, mtconnectVersion);
         }
 
 
         #region "Create"
 
-        private IStreamsResponseOutputDocument CreateDeviceStreamsDocument(IDevice device, ref IObservationBufferResults results, Version mtconnectVersion)
+        // Position and length of one buffer key's run of observations within the query results
+        private struct ObservationRange
         {
-            if (device != null)
+            public int Start;
+            public int Length;
+        }
+
+        // The buffer returns observations grouped by ascending buffer key, so each key's observations
+        // form one contiguous run. Index the first run of each key once per document instead of
+        // rescanning the results for every DataItem.
+        private static Dictionary<int, ObservationRange> GetObservationRanges(BufferObservation[] observations)
+        {
+            var ranges = new Dictionary<int, ObservationRange>();
+
+            if (observations != null)
             {
-                return CreateDeviceStreamsDocument(new List<IDevice> { device }, ref results, mtconnectVersion);
+                var i = 0;
+                while (i < observations.Length)
+                {
+                    var key = observations[i]._key;
+                    var start = i;
+                    while (i < observations.Length && observations[i]._key == key) i++;
+
+                    if (!ranges.ContainsKey(key))
+                    {
+                        ranges.Add(key, new ObservationRange { Start = start, Length = i - start });
+                    }
+                }
             }
 
-            return null;
+            return ranges;
         }
 
         private IStreamsResponseOutputDocument CreateDeviceStreamsDocument(IEnumerable<IDevice> devices, ref IObservationBufferResults results, Version mtconnectVersion)
@@ -1215,13 +1127,14 @@ namespace MTConnect.Agents
             {
                 var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
                 var lDevices = devices.ToArray();
+                var ranges = GetObservationRanges(results.Observations);
 
                 // Create list of DeviceStreams to return
                 var deviceStreams = new IDeviceStreamOutput[lDevices.Length];
                 for (var i = 0; i < lDevices.Length; i++)
                 {
                     // Create a DeviceStream based on the query results from the buffer
-                    deviceStreams[i] = CreateDeviceStream(lDevices[i], ref results, version);
+                    deviceStreams[i] = CreateDeviceStream(lDevices[i], results, ranges, version);
                 }
 
                 if (!deviceStreams.IsNullOrEmpty())
@@ -1242,7 +1155,7 @@ namespace MTConnect.Agents
             return null;
         }
 
-        private IDeviceStreamOutput CreateDeviceStream(IDevice device, ref IObservationBufferResults dataItemResults, Version mtconnectVersion)
+        private IDeviceStreamOutput CreateDeviceStream(IDevice device, IObservationBufferResults dataItemResults, Dictionary<int, ObservationRange> ranges, Version mtconnectVersion)
         {
             // Create DeviceStream
             var deviceStream = new DeviceStreamOutput();
@@ -1260,7 +1173,7 @@ namespace MTConnect.Agents
             deviceComponentStream.Component = device;
             deviceComponentStream.Name = device.Name;
             deviceComponentStream.Uuid = device.Uuid;
-            deviceComponentStream.Observations = GetObservations(device.Uuid, ref dataItemResults, device.DataItems, mtconnectVersion);
+            deviceComponentStream.Observations = GetObservations(device.Uuid, dataItemResults, ranges, device.DataItems, mtconnectVersion);
             if (deviceComponentStream.Observations != null && deviceComponentStream.Observations.Length > 0)
             {
                 componentStreams.Add(deviceComponentStream);
@@ -1295,7 +1208,7 @@ namespace MTConnect.Agents
                         componentStream.Component = component;
                         componentStream.Name = component.Name;
                         componentStream.Uuid = component.Uuid;
-                        componentStream.Observations = GetObservations(device.Uuid, ref dataItemResults, dataItems, mtconnectVersion);
+                        componentStream.Observations = GetObservations(device.Uuid, dataItemResults, ranges, dataItems, mtconnectVersion);
                         if (componentStream.Observations != null && componentStream.Observations.Length > 0)
                         {
                             componentStreams.Add(componentStream);
@@ -1312,52 +1225,53 @@ namespace MTConnect.Agents
             return deviceStream;
         }
 
-        private IObservationOutput[] GetObservations(string deviceUuid, ref IObservationBufferResults dataItemResults, IEnumerable<IDataItem> dataItems, Version mtconnectVersion = null)
+        private IObservationOutput[] GetObservations(string deviceUuid, IObservationBufferResults dataItemResults, Dictionary<int, ObservationRange> ranges, IEnumerable<IDataItem> dataItems, Version mtconnectVersion)
         {
-            if (dataItemResults != null && !dataItemResults.Observations.IsNullOrEmpty() && !dataItems.IsNullOrEmpty())
+            if (deviceUuid != null && dataItemResults != null && !dataItemResults.Observations.IsNullOrEmpty() && ranges.Count > 0 && !dataItems.IsNullOrEmpty())
             {
-                var dDataItems = dataItems.ToDictionary(o => o.Id);
+                // Pair each DataItem that has observations with its BufferKey
+                var keyedDataItems = new List<KeyValuePair<int, IDataItem>>();
+                var seenKeys = new HashSet<int>();
 
-                var objs = new List<IObservationOutput>();
-                var objIndex = 0;
-                var previousIndex = 0;
-                var found = false;
-
-                // Create a sorted list of BufferKeys
-                var bufferKeys = GenerateBufferKeys(deviceUuid, dDataItems.Keys);
-                bufferKeys = bufferKeys.OrderBy(o => o);
-
-                foreach (var bufferKey in bufferKeys)
+                lock (_lock)
                 {
-                    var dataItemId = GetDataItemIdFromBufferKey(bufferKey);
-                    found = false;
+                    if (!_deviceIndexes.TryGetValue(deviceUuid, out var deviceIndex) || deviceIndex < 1) return null;
 
-                    dDataItems.TryGetValue(dataItemId, out var dataItem);
-                    if (dataItem != null)
+                    foreach (var dataItem in dataItems)
                     {
-                        // Check Version Compatibility and Create Derived Class (if found)
-                        if (DataItem.IsCompatible(dataItem, mtconnectVersion))
+                        if (dataItem != null && dataItem.Id != null &&
+                            _dataItemIndexes.TryGetValue(string.Concat(deviceUuid, ":", dataItem.Id), out var dataItemIndex) &&
+                            dataItemIndex > 0)
                         {
-                            // Loop through StoredObservations
-                            // List is already sorted and uses the sorted BufferKeys to set the last start index
-                            for (var i = previousIndex; i < dataItemResults.Observations.Length; i++)
+                            var bufferKey = GenerateBufferKey(deviceIndex, dataItemIndex);
+                            if (ranges.ContainsKey(bufferKey) && seenKeys.Add(bufferKey))
                             {
-                                if (dataItemResults.Observations[i].Key == bufferKey)
-                                {
-                                    objs.Add(CreateObservation(dataItem, ref dataItemResults.Observations[i]));
-                                    objIndex++;
-
-                                    previousIndex = i;
-                                    found = true;
-                                }
-                                else if (found) break;
+                                keyedDataItems.Add(new KeyValuePair<int, IDataItem>(bufferKey, dataItem));
                             }
                         }
                     }
                 }
 
-                if (objIndex > 0)
+                // Check Version Compatibility
+                keyedDataItems.RemoveAll(o => !DataItem.IsCompatible(o.Value, mtconnectVersion));
+
+                if (keyedDataItems.Count > 0)
                 {
+                    // Output in BufferKey order (the order the buffer returned them in)
+                    keyedDataItems.Sort((a, b) => a.Key.CompareTo(b.Key));
+
+                    var observations = dataItemResults.Observations;
+                    var objs = new List<IObservationOutput>();
+
+                    foreach (var keyedDataItem in keyedDataItems)
+                    {
+                        var range = ranges[keyedDataItem.Key];
+                        for (var i = range.Start; i < range.Start + range.Length; i++)
+                        {
+                            objs.Add(CreateObservation(keyedDataItem.Value, ref observations[i], mtconnectVersion));
+                        }
+                    }
+
                     return objs.ToArray();
                 }
             }
@@ -1365,7 +1279,7 @@ namespace MTConnect.Agents
             return null;
         }
 
-        private IObservationOutput CreateObservation(IDataItem dataItem, ref BufferObservation bufferObservation)
+        private IObservationOutput CreateObservation(IDataItem dataItem, ref BufferObservation bufferObservation, Version mtconnectVersion)
         {
             var observation = new ObservationOutput();
             observation._dataItem = dataItem;
@@ -1382,7 +1296,8 @@ namespace MTConnect.Agents
             observation._timestamp = bufferObservation.Timestamp.ToDateTime();
             observation._timeZoneTimestamp = MTConnectTimeZone.GetTimestamp(observation._timestamp, TimeZoneOutput);
 
-            if (MTConnectVersion >= MTConnectVersions.Version25)
+            // Quality / deprecated / extended were introduced in 2.5; follow the requested version like the Header does
+            if (mtconnectVersion >= MTConnectVersions.Version25)
             {
                 observation._quality = bufferObservation.Quality;
                 observation._deprecated = bufferObservation.Deprecated;
@@ -1520,9 +1435,9 @@ namespace MTConnect.Agents
             {
                 var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
 
-                // Get the Asset from the Buffer
+                // Get the Asset from the Buffer (an already removed Asset was already counted out)
                 var asset = _assetBuffer.GetAsset(assetId);
-                if (asset != null)
+                if (asset != null && !asset.Removed)
                 {
                     var deviceUuid = asset.DeviceUuid;
 
@@ -1579,8 +1494,8 @@ namespace MTConnect.Agents
             {
                 var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
 
-                // Get the Assets from the Buffer
-                var assets = _assetBuffer.GetAssets(assetType);
+                // Get the (not yet removed) Assets of this Type from the Buffer
+                var assets = _assetBuffer.GetAssets(type: assetType)?.ToList();
                 if (!assets.IsNullOrEmpty())
                 {
                     var deviceUuids = assets.Select(o => o.DeviceUuid).Distinct();
@@ -1638,7 +1553,8 @@ namespace MTConnect.Agents
 
         private void AssetRemovedFromBuffer(object sender, IAsset asset)
         {
-            if (asset != null)
+            // An Asset already marked removed was counted out (and reported) when it was removed
+            if (asset != null && !asset.Removed)
             {
                 var device = GetDevice(asset.DeviceUuid);
                 if (device != null)
@@ -1717,7 +1633,8 @@ namespace MTConnect.Agents
                         typeCount = assetCount.Count;
                         typeCount -= 1;
 
-                        if (typeCount > 1)
+                        // Keep the entry while any Assets of this type remain
+                        if (typeCount > 0)
                         {
                             _deviceAssetCounts.Add(new AssetCount(deviceUuid, assetType, typeCount));
                         }
@@ -1810,38 +1727,34 @@ namespace MTConnect.Agents
                 var dataItems = device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
-                    var deviceIndex = GetDeviceIndex(device.Uuid);
-                    var dataItemIndexes = new List<int>();
-
-                    // Create list of DataItemIndexes
+                    // Assign indexes for every DataItem
+                    GetDeviceIndex(device.Uuid);
                     foreach (var dataItem in dataItems)
                     {
-                        dataItemIndexes.Add(GetDataItemIndex(device.Uuid, dataItem.Id));
+                        GetDataItemIndex(device.Uuid, dataItem.Id);
                     }
 
                     // Get the BufferKeys to use for the ObservationBuffer
                     var bufferKeys = GenerateBufferKeys(device);
 
-                    // Get all Current Observations for the Device
-                    var results = _observationBuffer.GetObservations(bufferKeys);
+                    // Get the Current Observations for the Device. These survive the archive wrapping,
+                    // so DataItems that have not changed recently are not mistaken for having no value.
+                    var results = _observationBuffer.GetCurrentObservations(bufferKeys);
+                    var existingKeys = new HashSet<int>();
+                    if (results != null && results.Observations != null)
+                    {
+                        foreach (var result in results.Observations) existingKeys.Add(result.Key);
+                    }
 
                     var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
 
                     foreach (var dataItem in dataItems)
                     {
-                        bool exists = false;
-
                         // Lookup Buffer Key
                         var bufferKey = GenerateBufferKey(device.Uuid, dataItem.Id);
 
-                        // Check if the DataItem has an observation
-                        if (results != null && !results.Observations.IsNullOrEmpty())
-                        {
-                            exists = results.Observations.Any(o => o.Key == bufferKey);
-                        }
-
                         // If no observation exists, then add an Unavailable observation
-                        if (!exists)
+                        if (!existingKeys.Contains(bufferKey))
                         {
                             var valueType = dataItem.Category == DataItemCategory.CONDITION ? ValueKeys.Level : ValueKeys.Result;
                             var value = !string.IsNullOrEmpty(dataItem.InitialValue) ? dataItem.InitialValue : Observation.Unavailable;
@@ -1951,9 +1864,21 @@ namespace MTConnect.Agents
         }
 
         /// <inheritdoc />
+        protected override bool IsCurrentAsset(string assetId)
+        {
+            if (_assetBuffer != null && !string.IsNullOrEmpty(assetId))
+            {
+                var existing = _assetBuffer.GetAsset(assetId);
+                return existing != null && !existing.Removed;
+            }
+
+            return false;
+        }
+
+        /// <inheritdoc />
         protected override bool OnNewAssetAdded(IAsset asset)
         {
-            if (asset != null)
+            if (asset != null && !asset.Removed)
             {
                 // Update Asset Count
                 IncrementAssetCount(asset.DeviceUuid, asset.Type);
