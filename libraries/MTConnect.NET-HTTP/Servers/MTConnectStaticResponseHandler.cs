@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2026 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using Ceen;
@@ -46,56 +46,12 @@ namespace MTConnect.Servers
                     var statusCode = 404;
                     var contentType = "text/plain";
                     Stream fileContents = null;
-                    var requestedPath = httpRequest.Path.Trim('/');
-                    var localPath = httpRequest.Path.TrimEnd('/');
 
-                    // Get File extension to prevent certain files (.exe, .dll, etc) from being accessed
-                    // that could cause security concerns
-                    var pathExtension = Path.GetExtension(requestedPath);
-                    var valid = pathExtension != ".exe" && pathExtension != ".dll";
-
-                    if (valid)
+                    var localPath = ResolveLocalPath(httpRequest.Path);
+                    if (localPath != null)
                     {
-                        valid = false;
+                        contentType = MimeTypes.GetMimeType(Path.GetFileName(httpRequest.Path.Trim('/')));
 
-                        // Check to see if the path matches one that is configured
-                        if (!_serverConfiguration.Files.IsNullOrEmpty())
-                        {
-                            var resource = Path.GetFileName(requestedPath);
-                            contentType = MimeTypes.GetMimeType(resource);
-
-                            var relativePath = Path.GetDirectoryName(requestedPath);
-                            if (!string.IsNullOrEmpty(relativePath)) relativePath = relativePath.Replace('\\', '/');
-                            else relativePath = "/"; // Assume Root
-
-                            if (!string.IsNullOrEmpty(relativePath))
-                            {
-                                // Find a FileConfiguration whose Location matches the requested Resource
-                                var fileConfiguration = _serverConfiguration.Files.FirstOrDefault(o => o.Location == resource);
-                                if (fileConfiguration != null)
-                                {
-                                    // Rewrite the localPath to the one that is configured that matches the 'Location' property
-                                    localPath = fileConfiguration.Path;
-                                    valid = true;
-                                }
-                                else
-                                {
-                                    // Find a FileConfiguration whose Location matches the requested Resource
-                                    fileConfiguration = _serverConfiguration.Files.FirstOrDefault(o => o.Location == relativePath);
-                                    if (fileConfiguration != null)
-                                    {
-                                        // Rewrite the localPath to the one that is configured that matches the 'Location' property
-                                        localPath = Path.Combine(fileConfiguration.Path, resource);
-                                        localPath = localPath.Replace('/', '\\');
-                                        valid = true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (valid)
-                    {
                         // Read MTConnectVersion from Query string
                         var versionString = httpRequest.QueryString["version"];
                         Version.TryParse(versionString, out var version);
@@ -118,6 +74,7 @@ namespace MTConnect.Servers
                             }
 
                             // If nothing found in the overridden method, then read directly from filePath
+                            // (disposed by the base handler once the response has been written)
                             if (fileContents == null)
                             {
                                 fileContents = File.OpenRead(filePath);
@@ -143,63 +100,61 @@ namespace MTConnect.Servers
         {
             try
             {
-                var requestedPath = path.Trim('/');
-                var localPath = path.TrimEnd('/');
-
-                // Get File extension to prevent certain files (.exe, .dll, etc) from being accessed
-                // that could cause security concerns
-                var pathExtension = Path.GetExtension(requestedPath);
-                var valid = pathExtension != ".exe" && pathExtension != ".dll";
-
-                if (valid)
-                {
-                    valid = false;
-
-                    // Check to see if the path matches one that is configured
-                    if (!_serverConfiguration.Files.IsNullOrEmpty())
-                    {
-                        var resource = Path.GetFileName(requestedPath);
-
-                        var relativePath = Path.GetDirectoryName(requestedPath);
-                        if (!string.IsNullOrEmpty(relativePath)) relativePath = relativePath.Replace('\\', '/');
-                        else relativePath = "/"; // Assume Root
-
-                        if (!string.IsNullOrEmpty(relativePath))
-                        {
-                            // Find a FileConfiguration whose Location matches the requested Resource
-                            var fileConfiguration = _serverConfiguration.Files.FirstOrDefault(o => o.Location == resource);
-                            if (fileConfiguration != null)
-                            {
-                                // Rewrite the localPath to the one that is configured that matches the 'Location' property
-                                localPath = fileConfiguration.Path;
-                                valid = true;
-                            }
-                            else
-                            {
-                                // Find a FileConfiguration whose Location matches the requested Resource
-                                fileConfiguration = _serverConfiguration.Files.FirstOrDefault(o => o.Location == relativePath);
-                                if (fileConfiguration != null)
-                                {
-                                    // Rewrite the localPath to the one that is configured that matches the 'Location' property
-                                    localPath = Path.Combine(fileConfiguration.Path, resource);
-                                    localPath = localPath.Replace('/', '\\');
-                                    valid = true;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (valid)
+                var localPath = ResolveLocalPath(path);
+                if (localPath != null)
                 {
                     var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, localPath);
-
                     return File.Exists(filePath);
                 }
             }
             catch { }
 
             return false;
+        }
+
+        // Maps a request path to the configured local file path, or null when no FileConfiguration matches.
+        // A configuration matches either the file name itself or the request's directory exactly, and only the
+        // file name (never a directory part) is appended to a configured directory, so ".." cannot escape it.
+        private string ResolveLocalPath(string path)
+        {
+            if (string.IsNullOrEmpty(path) || _serverConfiguration.Files.IsNullOrEmpty()) return null;
+
+            var requestedPath = path.Trim('/');
+
+            // Get File extension to prevent certain files (.exe, .dll, etc) from being accessed
+            // that could cause security concerns
+            var pathExtension = Path.GetExtension(requestedPath);
+            if (pathExtension == ".exe" || pathExtension == ".dll") return null;
+
+            var resource = Path.GetFileName(requestedPath);
+
+            var relativePath = Path.GetDirectoryName(requestedPath);
+            if (!string.IsNullOrEmpty(relativePath)) relativePath = relativePath.Replace('\\', '/');
+            else relativePath = "/"; // Assume Root
+
+            // Find a FileConfiguration whose Location matches the requested Resource
+            var fileConfiguration = _serverConfiguration.Files.FirstOrDefault(o => o.Location == resource);
+            if (fileConfiguration != null)
+            {
+                // Rewrite the localPath to the one that is configured that matches the 'Location' property
+                return NormalizeSeparators(fileConfiguration.Path);
+            }
+
+            // Find a FileConfiguration whose Location matches the requested Directory
+            fileConfiguration = _serverConfiguration.Files.FirstOrDefault(o => o.Location == relativePath);
+            if (fileConfiguration != null)
+            {
+                return NormalizeSeparators(Path.Combine(fileConfiguration.Path, resource));
+            }
+
+            return null;
+        }
+
+        // Configured paths may use either separator; File APIs on Linux / macOS only understand '/'
+        private static string NormalizeSeparators(string path)
+        {
+            if (path == null) return null;
+            return path.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
         }
     }
 }

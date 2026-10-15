@@ -56,10 +56,9 @@ namespace MTConnect.Clients
         public MTConnectHttpClient(string authority, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
         {
             Id = Guid.NewGuid().ToString();
-            Init();
+            Init(documentFormat);
             Authority = authority;
             Device = device;
-            DocumentFormat = documentFormat;
         }
 
         /// <summary>
@@ -80,10 +79,9 @@ namespace MTConnect.Clients
         public MTConnectHttpClient(string hostname, int port, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
         {
             Id = Guid.NewGuid().ToString();
-            Init();
+            Init(documentFormat);
             Authority = CreateUrl(hostname, port);
             Device = device;
-            DocumentFormat = documentFormat;
         }
 
         /// <summary>
@@ -104,10 +102,9 @@ namespace MTConnect.Clients
         {
             _httpClient = httpClient;
             Id = Guid.NewGuid().ToString();
-            Init();
+            Init(documentFormat);
             Authority = authority;
             Device = device;
-            DocumentFormat = documentFormat;
         }
 
         /// <summary>
@@ -129,14 +126,14 @@ namespace MTConnect.Clients
         {
             _httpClient = httpClient;
             Id = Guid.NewGuid().ToString();
-            Init();
+            Init(documentFormat);
             Authority = CreateUrl(hostname, port);
             Device = device;
-            DocumentFormat = documentFormat;
         }
 
-        private void Init()
+        private void Init(string documentFormat)
         {
+            DocumentFormat = documentFormat;
             Interval = 500;
             Timeout = 5000;
             Heartbeat = 1000;
@@ -396,16 +393,7 @@ namespace MTConnect.Clients
         /// </summary>
         public void Start()
         {
-            _stop = new CancellationTokenSource();
-
-            ClientStarting.Raise(this, EventArgs.Empty, InternalError);
-
-            _initializeFromBuffer = false;
-            _lastInstanceId = 0;
-            _lastSequence = 0;
-            _streamPath = null;
-
-            _ = Task.Run(Worker, _stop.Token);
+            StartWorker(false, 0, 0, null, CancellationToken.None);
         }
 
         /// <summary>
@@ -413,16 +401,7 @@ namespace MTConnect.Clients
         /// </summary>
         public void Start(string path)
         {
-            _stop = new CancellationTokenSource();
-
-            ClientStarting.Raise(this, EventArgs.Empty, InternalError);
-
-            _initializeFromBuffer = false;
-            _lastInstanceId = 0;
-            _lastSequence = 0;
-            _streamPath = path;
-
-            _ = Task.Run(Worker, _stop.Token);
+            StartWorker(false, 0, 0, path, CancellationToken.None);
         }
 
         /// <summary>
@@ -430,17 +409,7 @@ namespace MTConnect.Clients
         /// </summary>
         public void Start(CancellationToken cancellationToken, string path = null)
         {
-            _stop = new CancellationTokenSource();
-            cancellationToken.Register(() => { Stop(); });
-
-            ClientStarting.Raise(this, EventArgs.Empty, InternalError);
-
-            _initializeFromBuffer = false;
-            _lastInstanceId = 0;
-            _lastSequence = 0;
-            _streamPath = path;
-
-            _ = Task.Run(Worker, _stop.Token);
+            StartWorker(false, 0, 0, path, cancellationToken);
         }
 
         /// <summary>
@@ -448,16 +417,7 @@ namespace MTConnect.Clients
         /// </summary>
         public void StartFromSequence(ulong instanceId, ulong sequence, string path = null)
         {
-            _stop = new CancellationTokenSource();
-
-            ClientStarting.Raise(this, EventArgs.Empty, InternalError);
-
-            _initializeFromBuffer = true;
-            _lastInstanceId = instanceId;
-            _lastSequence = sequence;
-            _streamPath = path;
-
-            _ = Task.Run(Worker, _stop.Token);
+            StartWorker(true, instanceId, sequence, path, CancellationToken.None);
         }
 
         /// <summary>
@@ -465,17 +425,7 @@ namespace MTConnect.Clients
         /// </summary>
         public void StartFromSequence(ulong instanceId, ulong sequence, CancellationToken cancellationToken, string path = null)
         {
-            _stop = new CancellationTokenSource();
-            cancellationToken.Register(() => { Stop(); });
-
-            ClientStarting.Raise(this, EventArgs.Empty, InternalError);
-
-            _initializeFromBuffer = true;
-            _lastInstanceId = instanceId;
-            _lastSequence = sequence;
-            _streamPath = path;
-
-            _ = Task.Run(Worker, _stop.Token);
+            StartWorker(true, instanceId, sequence, path, cancellationToken);
         }
 
         /// <summary>
@@ -483,16 +433,7 @@ namespace MTConnect.Clients
         /// </summary>
         public void StartFromBuffer(string path = null)
         {
-            _stop = new CancellationTokenSource();
-
-            ClientStarting.Raise(this, EventArgs.Empty, InternalError);
-
-            _initializeFromBuffer = true;
-            _lastInstanceId = 0;
-            _lastSequence = 0;
-            _streamPath = path;
-
-            _ = Task.Run(Worker, _stop.Token);
+            StartWorker(true, 0, 0, path, CancellationToken.None);
         }
 
         /// <summary>
@@ -500,17 +441,7 @@ namespace MTConnect.Clients
         /// </summary>
         public void StartFromBuffer(CancellationToken cancellationToken, string path = null)
         {
-            _stop = new CancellationTokenSource();
-            cancellationToken.Register(() => { Stop(); });
-
-            ClientStarting.Raise(this, EventArgs.Empty, InternalError);
-
-            _initializeFromBuffer = true;
-            _lastInstanceId = 0;
-            _lastSequence = 0;
-            _streamPath = path;
-
-            _ = Task.Run(Worker, _stop.Token);
+            StartWorker(true, 0, 0, path, cancellationToken);
         }
 
         /// <summary>
@@ -520,7 +451,7 @@ namespace MTConnect.Clients
         {
             ClientStopping.Raise(this, EventArgs.Empty, InternalError);
 
-            if (_stop != null) _stop.Cancel();
+            CancelQuietly(_stop);
         }
 
         /// <summary>
@@ -533,6 +464,33 @@ namespace MTConnect.Clients
             _lastResponse = 0;
         }
 
+        private void StartWorker(bool initializeFromBuffer, ulong instanceId, ulong sequence, string path, CancellationToken cancellationToken)
+        {
+            // Linked to the caller's token (no registration is left behind). Starting again stops the previous worker,
+            // which only ever checks its own token, so it cannot keep running alongside the new one.
+            var stop = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            var previous = Interlocked.Exchange(ref _stop, stop);
+            CancelQuietly(previous);
+
+            ClientStarting.Raise(this, EventArgs.Empty, InternalError);
+
+            _initializeFromBuffer = initializeFromBuffer;
+            _lastInstanceId = instanceId;
+            _lastSequence = sequence;
+            _streamPath = path;
+
+            _ = Task.Run(() => Worker(stop.Token));
+        }
+
+        private static void CancelQuietly(CancellationTokenSource source)
+        {
+            try
+            {
+                source?.Cancel();
+            }
+            catch (ObjectDisposedException) { }
+        }
+
 
         #region "Requests"
 
@@ -541,39 +499,23 @@ namespace MTConnect.Clients
         /// </summary>
         public IDevicesResponseDocument GetProbe()
         {
-            var client = new MTConnectHttpProbeClient(_httpClient, Authority, Device, DocumentFormat);
-            client.Timeout = Timeout;
-            client.ContentEncodings = ContentEncodings;
-            client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => MTConnectError.Raise(this, doc, InternalError);
-            client.FormatError += (s, r) => FormatError.Raise(this, r, InternalError);
-            client.ConnectionError += (s, ex) => ConnectionError.Raise(this, ex, InternalError);
-            client.InternalError += (s, ex) => InternalError.Raise(this, ex, InternalError);
-            return client.Get();
+            return CreateProbeClient().Get();
         }
 
         /// <summary>
         /// Execute a Probe Request to return an MTConnectDevices Response Document
         /// </summary>
-        public async Task<IDevicesResponseDocument> GetProbeAsync()
+        public Task<IDevicesResponseDocument> GetProbeAsync()
         {
-            return await GetProbeAsync(CancellationToken.None);
+            return GetProbeAsync(CancellationToken.None);
         }
 
         /// <summary>
         /// Execute a Probe Request to return an MTConnectDevices Response Document
         /// </summary>
-        public async Task<IDevicesResponseDocument> GetProbeAsync(CancellationToken cancellationToken)
+        public Task<IDevicesResponseDocument> GetProbeAsync(CancellationToken cancellationToken)
         {
-            var client = new MTConnectHttpProbeClient(_httpClient, Authority, Device, DocumentFormat);
-            client.Timeout = Timeout;
-            client.ContentEncodings = ContentEncodings;
-            client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => MTConnectError.Raise(this, doc, InternalError);
-            client.FormatError += (s, r) => FormatError.Raise(this, r, InternalError);
-            client.ConnectionError += (s, ex) => ConnectionError.Raise(this, ex, InternalError);
-            client.InternalError += (s, ex) => InternalError.Raise(this, ex, InternalError);
-            return await client.GetAsync(cancellationToken);
+            return CreateProbeClient().GetAsync(cancellationToken);
         }
 
 
@@ -582,39 +524,23 @@ namespace MTConnect.Clients
         /// </summary>
         public IStreamsResponseDocument GetCurrent(long at = 0, string path = null)
         {
-            var client = new MTConnectHttpCurrentClient(_httpClient, Authority, Device, at: at, path: path, documentFormat: DocumentFormat);
-            client.Timeout = Timeout;
-            client.ContentEncodings = ContentEncodings;
-            client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => MTConnectError.Raise(this, doc, InternalError);
-            client.FormatError += (s, r) => FormatError.Raise(this, r, InternalError);
-            client.ConnectionError += (s, ex) => ConnectionError.Raise(this, ex, InternalError);
-            client.InternalError += (s, ex) => InternalError.Raise(this, ex, InternalError);
-            return client.Get();
+            return CreateCurrentClient(at, path).Get();
         }
 
         /// <summary>
         /// Execute a Current Request to return an MTConnectStreams Response Document
         /// </summary>
-        public async Task<IStreamsResponseDocument> GetCurrentAsync(long at = 0, string path = null)
+        public Task<IStreamsResponseDocument> GetCurrentAsync(long at = 0, string path = null)
         {
-            return await GetCurrentAsync(CancellationToken.None, at, path);
+            return GetCurrentAsync(CancellationToken.None, at, path);
         }
 
         /// <summary>
         /// Execute a Current Request to return an MTConnectStreams Response Document
         /// </summary>
-        public async Task<IStreamsResponseDocument> GetCurrentAsync(CancellationToken cancellationToken, long at = 0, string path = null)
+        public Task<IStreamsResponseDocument> GetCurrentAsync(CancellationToken cancellationToken, long at = 0, string path = null)
         {
-            var client = new MTConnectHttpCurrentClient(_httpClient, Authority, Device, at: at, path: path, documentFormat: DocumentFormat);
-            client.Timeout = Timeout;
-            client.ContentEncodings = ContentEncodings;
-            client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => MTConnectError.Raise(this, doc, InternalError);
-            client.FormatError += (s, r) => FormatError.Raise(this, r, InternalError);
-            client.ConnectionError += (s, ex) => ConnectionError.Raise(this, ex, InternalError);
-            client.InternalError += (s, ex) => InternalError.Raise(this, ex, InternalError);
-            return await client.GetAsync(cancellationToken);
+            return CreateCurrentClient(at, path).GetAsync(cancellationToken);
         }
 
 
@@ -623,39 +549,23 @@ namespace MTConnect.Clients
         /// </summary>
         public IStreamsResponseDocument GetSample(long from = 0, long to = 0, int count = 0, string path = null)
         {
-            var client = new MTConnectHttpSampleClient(_httpClient, Authority, Device, from: from, to: to, count: count, path: path, documentFormat: DocumentFormat);
-            client.Timeout = Timeout;
-            client.ContentEncodings = ContentEncodings;
-            client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => MTConnectError.Raise(this, doc, InternalError);
-            client.FormatError += (s, r) => FormatError.Raise(this, r, InternalError);
-            client.ConnectionError += (s, ex) => ConnectionError.Raise(this, ex, InternalError);
-            client.InternalError += (s, ex) => InternalError.Raise(this, ex, InternalError);
-            return client.Get();
+            return CreateSampleClient(from, to, count, path).Get();
         }
 
         /// <summary>
         /// Execute a Sample Request to return an MTConnectStreams Response Document
         /// </summary>
-        public async Task<IStreamsResponseDocument> GetSampleAsync(long from = 0, long to = 0, int count = 0, string path = null)
+        public Task<IStreamsResponseDocument> GetSampleAsync(long from = 0, long to = 0, int count = 0, string path = null)
         {
-            return await GetSampleAsync(CancellationToken.None, from, to, count, path);
+            return GetSampleAsync(CancellationToken.None, from, to, count, path);
         }
 
         /// <summary>
         /// Execute a Sample Request to return an MTConnectStreams Response Document
         /// </summary>
-        public async Task<IStreamsResponseDocument> GetSampleAsync(CancellationToken cancellationToken, long from = 0, long to = 0, int count = 0, string path = null)
+        public Task<IStreamsResponseDocument> GetSampleAsync(CancellationToken cancellationToken, long from = 0, long to = 0, int count = 0, string path = null)
         {
-            var client = new MTConnectHttpSampleClient(_httpClient, Authority, Device, from: from, to: to, count: count, path: path, documentFormat: DocumentFormat);
-            client.Timeout = Timeout;
-            client.ContentEncodings = ContentEncodings;
-            client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => MTConnectError.Raise(this, doc, InternalError);
-            client.FormatError += (s, r) => FormatError.Raise(this, r, InternalError);
-            client.ConnectionError += (s, ex) => ConnectionError.Raise(this, ex, InternalError);
-            client.InternalError += (s, ex) => InternalError.Raise(this, ex, InternalError);
-            return await client.GetAsync(cancellationToken);
+            return CreateSampleClient(from, to, count, path).GetAsync(cancellationToken);
         }
 
 
@@ -664,39 +574,23 @@ namespace MTConnect.Clients
         /// </summary>
         public IAssetsResponseDocument GetAssets(long count = 100)
         {
-            var client = new MTConnectHttpAssetClient(_httpClient, Authority, count, null, null, DocumentFormat);
-            client.Timeout = Timeout;
-            client.ContentEncodings = ContentEncodings;
-            client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => MTConnectError.Raise(this, doc, InternalError);
-            client.FormatError += (s, r) => FormatError.Raise(this, r, InternalError);
-            client.ConnectionError += (s, ex) => ConnectionError.Raise(this, ex, InternalError);
-            client.InternalError += (s, ex) => InternalError.Raise(this, ex, InternalError);
-            return client.Get();
+            return CreateAssetClient(new MTConnectHttpAssetClient(_httpClient, Authority, count, null, null, DocumentFormat)).Get();
         }
 
         /// <summary>
         /// Execute a Assets Request to return an MTConnectAssets Response Document
         /// </summary>
-        public async Task<IAssetsResponseDocument> GetAssetsAsync(ulong count = 100)
+        public Task<IAssetsResponseDocument> GetAssetsAsync(ulong count = 100)
         {
-            return await GetAssetsAsync(CancellationToken.None, count);
+            return GetAssetsAsync(CancellationToken.None, count);
         }
 
         /// <summary>
         /// Execute a Assets Request to return an MTConnectAssets Response Document
         /// </summary>
-        public async Task<IAssetsResponseDocument> GetAssetsAsync(CancellationToken cancellationToken, ulong count = 100)
+        public Task<IAssetsResponseDocument> GetAssetsAsync(CancellationToken cancellationToken, ulong count = 100)
         {
-            var client = new MTConnectHttpAssetClient(_httpClient, Authority, (long)count, null, null, DocumentFormat);
-            client.Timeout = Timeout;
-            client.ContentEncodings = ContentEncodings;
-            client.ContentType = ContentType;
-            client.MTConnectError += (s, doc) => MTConnectError.Raise(this, doc, InternalError);
-            client.FormatError += (s, r) => FormatError.Raise(this, r, InternalError);
-            client.ConnectionError += (s, ex) => ConnectionError.Raise(this, ex, InternalError);
-            client.InternalError += (s, ex) => InternalError.Raise(this, ex, InternalError);
-            return await client.GetAsync(cancellationToken);
+            return CreateAssetClient(new MTConnectHttpAssetClient(_httpClient, Authority, (long)count, null, null, DocumentFormat)).GetAsync(cancellationToken);
         }
 
 
@@ -705,7 +599,31 @@ namespace MTConnect.Clients
         /// </summary>
         public IAssetsResponseDocument GetAsset(string assetId)
         {
-            var client = new MTConnectHttpAssetClient(_httpClient, Authority, assetId, DocumentFormat);
+            return CreateAssetClient(new MTConnectHttpAssetClient(_httpClient, Authority, assetId, DocumentFormat)).Get();
+        }
+
+        /// <summary>
+        /// Execute a Assets Request to return an MTConnectAssets Response Document for the specified AssetId
+        /// </summary>
+        public Task<IAssetsResponseDocument> GetAssetAsync(string assetId)
+        {
+            return GetAssetAsync(assetId, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Execute a Assets Request to return an MTConnectAssets Response Document for the specified AssetId
+        /// </summary>
+        public Task<IAssetsResponseDocument> GetAssetAsync(string assetId, CancellationToken cancellationToken)
+        {
+            return CreateAssetClient(new MTConnectHttpAssetClient(_httpClient, Authority, assetId, DocumentFormat)).GetAsync(cancellationToken);
+        }
+
+
+        // The request clients share Timeout / ContentEncodings / ContentType and report through this client's events
+
+        private MTConnectHttpProbeClient CreateProbeClient()
+        {
+            var client = new MTConnectHttpProbeClient(_httpClient, Authority, Device, DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -713,23 +631,12 @@ namespace MTConnect.Clients
             client.FormatError += (s, r) => FormatError.Raise(this, r, InternalError);
             client.ConnectionError += (s, ex) => ConnectionError.Raise(this, ex, InternalError);
             client.InternalError += (s, ex) => InternalError.Raise(this, ex, InternalError);
-            return client.Get();
+            return client;
         }
 
-        /// <summary>
-        /// Execute a Assets Request to return an MTConnectAssets Response Document for the specified AssetId
-        /// </summary>
-        public async Task<IAssetsResponseDocument> GetAssetAsync(string assetId)
+        private MTConnectHttpCurrentClient CreateCurrentClient(long at, string path)
         {
-            return await GetAssetAsync(assetId, CancellationToken.None);
-        }
-
-        /// <summary>
-        /// Execute a Assets Request to return an MTConnectAssets Response Document for the specified AssetId
-        /// </summary>
-        public async Task<IAssetsResponseDocument> GetAssetAsync(string assetId, CancellationToken cancellationToken)
-        {
-            var client = new MTConnectHttpAssetClient(_httpClient, Authority, assetId, DocumentFormat);
+            var client = new MTConnectHttpCurrentClient(_httpClient, Authority, Device, at: at, path: path, documentFormat: DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -737,14 +644,39 @@ namespace MTConnect.Clients
             client.FormatError += (s, r) => FormatError.Raise(this, r, InternalError);
             client.ConnectionError += (s, ex) => ConnectionError.Raise(this, ex, InternalError);
             client.InternalError += (s, ex) => InternalError.Raise(this, ex, InternalError);
-            return await client.GetAsync(cancellationToken);
+            return client;
+        }
+
+        private MTConnectHttpSampleClient CreateSampleClient(long from, long to, int count, string path)
+        {
+            var client = new MTConnectHttpSampleClient(_httpClient, Authority, Device, from: from, to: to, count: count, path: path, documentFormat: DocumentFormat);
+            client.Timeout = Timeout;
+            client.ContentEncodings = ContentEncodings;
+            client.ContentType = ContentType;
+            client.MTConnectError += (s, doc) => MTConnectError.Raise(this, doc, InternalError);
+            client.FormatError += (s, r) => FormatError.Raise(this, r, InternalError);
+            client.ConnectionError += (s, ex) => ConnectionError.Raise(this, ex, InternalError);
+            client.InternalError += (s, ex) => InternalError.Raise(this, ex, InternalError);
+            return client;
+        }
+
+        private MTConnectHttpAssetClient CreateAssetClient(MTConnectHttpAssetClient client)
+        {
+            client.Timeout = Timeout;
+            client.ContentEncodings = ContentEncodings;
+            client.ContentType = ContentType;
+            client.MTConnectError += (s, doc) => MTConnectError.Raise(this, doc, InternalError);
+            client.FormatError += (s, r) => FormatError.Raise(this, r, InternalError);
+            client.ConnectionError += (s, ex) => ConnectionError.Raise(this, ex, InternalError);
+            client.InternalError += (s, ex) => InternalError.Raise(this, ex, InternalError);
+            return client;
         }
 
         #endregion
 
         #region "Streams"
 
-        private async Task Worker()
+        private async Task Worker(CancellationToken cancellationToken)
         {
             var initialRequest = true;
 
@@ -755,7 +687,7 @@ namespace MTConnect.Clients
                 try
                 {
                     // Run Probe Request
-                    var probe = await GetProbeAsync(_stop.Token);
+                    var probe = await GetProbeAsync(cancellationToken).ConfigureAwait(false);
                     if (probe != null)
                     {
                         _lastResponse = UnixDateTime.Now;
@@ -766,7 +698,7 @@ namespace MTConnect.Clients
                         // Get All Assets
                         if (probe.Header.AssetCount > 0)
                         {
-                            var assets = await GetAssetsAsync(_stop.Token, probe.Header.AssetCount);
+                            var assets = await GetAssetsAsync(cancellationToken, probe.Header.AssetCount).ConfigureAwait(false);
                             if (assets != null)
                             {
                                 _lastResponse = UnixDateTime.Now;
@@ -779,48 +711,14 @@ namespace MTConnect.Clients
                         if (UseStreaming)
                         {
                             // Run Current Request
-                            var current = await GetCurrentAsync(_stop.Token, path: _streamPath);
+                            var current = await GetCurrentAsync(cancellationToken, path: _streamPath).ConfigureAwait(false);
                             if (current != null)
                             {
-                                _lastResponse = UnixDateTime.Now;
-                                ResponseReceived.Raise(this, EventArgs.Empty, InternalError);
-
-                                // Raise CurrentReceived Event
-                                ProcessCurrentDocument(current, _stop.Token);
-
-                                // Check Assets
-                                if (!current.Streams.IsNullOrEmpty())
-                                {
-                                    var deviceStream = current.Streams.FirstOrDefault(o => o.Uuid == Device || o.Name == Device);
-                                    if (deviceStream != null && deviceStream.Observations != null) CheckAssetChanged(deviceStream.Observations, _stop.Token);
-                                }
-
-                                // Read the Next Available Sequence from the MTConnect Agent
-                                if (initialRequest && !_initializeFromBuffer && _lastSequence == 0)
-                                {
-                                    _lastSequence = current.Header.NextSequence;
-                                }
-
-                                // Check if Agent Instance ID has changed (Agent has been reset)
-                                if (_lastInstanceId != 0 && _lastInstanceId != current.Header.InstanceId)
-                                {
-                                    // Reset 'From' query parameter
-                                    _lastSequence = 0;
-                                }
-
-                                // Read & Save the Instance ID of the MTConnect Agent
-                                _lastInstanceId = current.Header.InstanceId;
-
-                                // If the LastSequence is not within the current sequence range then reset Sequeunce to 0
-                                if (current.Header.FirstSequence > _lastSequence ||
-                                    current.Header.NextSequence < _lastSequence)
-                                {
-                                    _lastSequence = 0;
-                                }
+                                ProcessCurrentResponse(current, initialRequest, cancellationToken);
 
                                 // Create the Url to use for the Sample Stream
-                                string url = CreateSampleUrl(Authority, Device, _lastSequence, Interval, Heartbeat, MaximumSampleCount, _streamPath);
-                                if (CurrentOnly) url = CreateCurrentUrl(Authority, Device, Interval, _streamPath);
+                                string url = CreateSampleUrl(Authority, Device, _lastSequence, Interval, Heartbeat, MaximumSampleCount, _streamPath, DocumentFormat);
+                                if (CurrentOnly) url = CreateCurrentUrl(Authority, Device, Interval, _streamPath, DocumentFormat);
 
                                 // Create and Start the Stream
                                 using (_stream = new MTConnectHttpClientStream(_httpClient, url, DocumentFormat))
@@ -832,26 +730,17 @@ namespace MTConnect.Clients
                                     _stream.Started += (s, o) => StreamStarted.Raise(this, url, InternalError);
                                     _stream.Stopping += (s, o) => StreamStopping.Raise(this, url, InternalError);
                                     _stream.Stopped += (s, o) => StreamStopped.Raise(this, url, InternalError);
-                                    _stream.DocumentReceived += (s, doc) => ProcessSampleDocument(doc, _stop.Token);
-                                    _stream.ErrorReceived += (s, doc) => ProcessSampleError(doc);
+                                    _stream.DocumentReceived += (s, doc) => { if (!cancellationToken.IsCancellationRequested) ProcessSampleDocument(doc, cancellationToken); };
+                                    _stream.ErrorReceived += (s, doc) => { if (!cancellationToken.IsCancellationRequested) ProcessSampleError(doc); };
                                     _stream.FormatError += (s, r) => FormatError.Raise(this, r, InternalError);
                                     _stream.ConnectionError += (s, ex) => ConnectionError.Raise(this, ex, InternalError);
                                     _stream.InternalError += (s, ex) => InternalError.Raise(this, ex, InternalError);
 
                                     // Run Stream (Blocking call)
-                                    await _stream.Run(_stop.Token);
+                                    await _stream.Run(cancellationToken).ConfigureAwait(false);
                                 }
 
                                 initialRequest = false;
-
-                                if (!_stop.Token.IsCancellationRequested)
-                                {
-                                    await Task.Delay(ReconnectionInterval, _stop.Token);
-                                }
-                            }
-                            else
-                            {
-                                await Task.Delay(ReconnectionInterval, _stop.Token);
                             }
                         }
                         else
@@ -859,75 +748,67 @@ namespace MTConnect.Clients
                             do
                             {
                                 // Run Current Request
-                                var current = await GetCurrentAsync(_stop.Token, path: _streamPath);
-                                if (current != null)
-                                {
-                                    _lastResponse = UnixDateTime.Now;
-                                    ResponseReceived.Raise(this, EventArgs.Empty, InternalError);
+                                var current = await GetCurrentAsync(cancellationToken, path: _streamPath).ConfigureAwait(false);
+                                if (current == null) break; // Break out of the Current Polling loop and start at a new Probe Request
 
-                                    // Raise CurrentReceived Event
-                                    ProcessCurrentDocument(current, _stop.Token);
+                                ProcessCurrentResponse(current, initialRequest, cancellationToken);
+                                initialRequest = false;
 
-                                    // Check Assets
-                                    if (!current.Streams.IsNullOrEmpty())
-                                    {
-                                        var deviceStream = current.Streams.FirstOrDefault(o => o.Uuid == Device || o.Name == Device);
-                                        if (deviceStream != null && deviceStream.Observations != null) CheckAssetChanged(deviceStream.Observations, _stop.Token);
-                                    }
-
-                                    // Read the Next Available Sequence from the MTConnect Agent
-                                    if (initialRequest && !_initializeFromBuffer && _lastSequence == 0)
-                                    {
-                                        _lastSequence = current.Header.NextSequence;
-                                    }
-
-                                    // Check if Agent Instance ID has changed (Agent has been reset)
-                                    if (_lastInstanceId != 0 && _lastInstanceId != current.Header.InstanceId)
-                                    {
-                                        // Reset 'From' query parameter
-                                        _lastSequence = 0;
-                                    }
-
-                                    // Read & Save the Instance ID of the MTConnect Agent
-                                    _lastInstanceId = current.Header.InstanceId;
-
-                                    // If the LastSequence is not within the current sequence range then reset Sequeunce to 0
-                                    if (current.Header.FirstSequence > _lastSequence ||
-                                        current.Header.NextSequence < _lastSequence)
-                                    {
-                                        _lastSequence = 0;
-                                    }
-
-                                    initialRequest = false;
-
-                                    // Wait for the specified pollingInterval between Current Requests
-                                    var pollingInterval = Math.Max(1, Interval);
-                                    await Task.Delay(pollingInterval);
-                                }
-                                else
-                                {
-                                    break; // Break out of the Current Polling loop and start at a new Probe Request
-                                }
+                                // Wait for the specified pollingInterval between Current Requests
+                                var pollingInterval = Math.Max(1, Interval);
+                                await Task.Delay(pollingInterval, cancellationToken).ConfigureAwait(false);
                             }
-                            while (!_stop.Token.IsCancellationRequested);
-
-                            await Task.Delay(ReconnectionInterval, _stop.Token);
+                            while (!cancellationToken.IsCancellationRequested);
                         }
                     }
-                    else
+
+                    if (!cancellationToken.IsCancellationRequested)
                     {
-                        await Task.Delay(ReconnectionInterval, _stop.Token);
+                        await Task.Delay(ReconnectionInterval, cancellationToken).ConfigureAwait(false);
                     }
                 }
-                catch (TaskCanceledException) { }
+                catch (OperationCanceledException) { }
                 catch (Exception ex)
                 {
                     InternalError.Raise(this, ex, InternalError);
                 }
 
-            } while (!_stop.Token.IsCancellationRequested);
+            } while (!cancellationToken.IsCancellationRequested);
 
             ClientStopped.Raise(this, EventArgs.Empty, InternalError);
+        }
+
+        // Shared by the streaming and polling paths: raise the Current events and work out where the Sample stream resumes
+        private void ProcessCurrentResponse(IStreamsResponseDocument current, bool initialRequest, CancellationToken cancellationToken)
+        {
+            _lastResponse = UnixDateTime.Now;
+            ResponseReceived.Raise(this, EventArgs.Empty, InternalError);
+
+            // Raise CurrentReceived Event (also checks for changed Assets)
+            ProcessCurrentDocument(current, cancellationToken);
+
+            // Read the Next Available Sequence from the MTConnect Agent
+            if (initialRequest && !_initializeFromBuffer && _lastSequence == 0)
+            {
+                _lastSequence = current.Header.NextSequence;
+            }
+
+            // Check if Agent Instance ID has changed (Agent has been reset)
+            if (_lastInstanceId != 0 && _lastInstanceId != current.Header.InstanceId)
+            {
+                // Reset 'From' query parameter
+                _lastSequence = 0;
+            }
+
+            // Read & Save the Instance ID of the MTConnect Agent
+            _lastInstanceId = current.Header.InstanceId;
+
+            // If the LastSequence is not within the current sequence range then reset Sequeunce to 0
+            if (current.Header.FirstSequence > _lastSequence ||
+                current.Header.NextSequence < _lastSequence)
+            {
+                _lastSequence = 0;
+            }
         }
 
         private void ProcessProbeDocument(IDevicesResponseDocument document)
@@ -990,20 +871,19 @@ namespace MTConnect.Clients
                     CurrentReceived.Raise(this, response, InternalError);
 
 
-                    // Process Device Streams
+                    // Check to see if any Assets have changed
                     foreach (var deviceStream in response.Streams)
                     {
-                        // Check to see if any Assets have changed
                         CheckAssetChanged(deviceStream.Observations, cancel);
+                    }
 
-                        // Get Observations from Device Stream
-                        var observations = response.GetObservations();
-                        if (!observations.IsNullOrEmpty())
+                    // GetObservations returns the Observations of every Device Stream, so raise them once
+                    var observations = response.GetObservations();
+                    if (!observations.IsNullOrEmpty())
+                    {
+                        foreach (var observation in observations)
                         {
-                            foreach (var observation in observations)
-                            {
-                                ObservationReceived.Raise(this, observation, InternalError);
-                            }
+                            ObservationReceived.Raise(this, observation, InternalError);
                         }
                     }
                 }
@@ -1033,24 +913,20 @@ namespace MTConnect.Clients
                     }
                     response.Streams = deviceStreams;
 
-
-                    var receivedObservations = new List<IObservation>();
-
-                    // Process Device Streams
+                    // Check to see if any Assets have changed
                     foreach (var deviceStream in response.Streams)
                     {
-                        // Save the most recent Sequence that was read
-                        _lastSequence = deviceStream.Observations.Max(o => o.Sequence);
-
-                        // Check to see if any Assets have changed
                         CheckAssetChanged(deviceStream.Observations, cancel);
+                    }
 
-                        // Get Observations from Device Stream
-                        var observations = response.GetObservations();
-                        if (!observations.IsNullOrEmpty())
-                        {
-                            receivedObservations.AddRange(observations);
-                        }
+                    // GetObservations returns the Observations of every Device Stream
+                    var receivedObservations = response.GetObservations()?.ToList() ?? new List<IObservation>();
+
+                    // Resume after the newest Observation received across all Device Streams ('from' is inclusive)
+                    if (receivedObservations.Count > 0)
+                    {
+                        var nextSequence = receivedObservations.Max(o => o.Sequence) + 1;
+                        if (nextSequence > _lastSequence) _lastSequence = nextSequence;
                     }
 
                     SampleReceived.Raise(this, response, InternalError);
@@ -1253,35 +1129,47 @@ namespace MTConnect.Clients
             }
         }
 
-        private async void CheckAssetChanged(IEnumerable<IObservation> observations, CancellationToken cancel)
+        // Requests changed Assets in the background; failures are reported through InternalError and nothing is
+        // raised once the client has been stopped
+        private void CheckAssetChanged(IEnumerable<IObservation> observations, CancellationToken cancel)
         {
-            if (observations != null && observations.Count() > 0)
-            {
-                // Fully-qualified to disambiguate from the Devices property below; the namespace using above is shadowed inside this class.
-                var assetsChanged = observations.Where(o => o.Type.ToUnderscoreUpper() == MTConnect.Devices.DataItems.AssetChangedDataItem.TypeId);
-                if (assetsChanged != null)
-                {
-                    foreach (var assetChanged in assetsChanged)
-                    {
-                        string assetId = assetChanged.GetValue(ValueKeys.Result);
-                        if (assetId != Observation.Unavailable)
-                        {
-                            var doc = await GetAssetAsync(assetId, cancel);
-                            if (doc != null)
-                            {
-                                AssetsReceived.Raise(this, doc, InternalError);
+            if (observations.IsNullOrEmpty() || cancel.IsCancellationRequested) return;
 
-                                if (doc != null && !doc.Assets.IsNullOrEmpty())
-                                {
-                                    foreach (var asset in doc.Assets)
-                                    {
-                                        AssetReceived.Raise(this, asset, InternalError);
-                                    }
-                                }
+            // Fully-qualified to disambiguate from the Devices property below; the namespace using above is shadowed inside this class.
+            var assetIds = observations
+                .Where(o => o.Type != null && o.Type.ToUnderscoreUpper() == MTConnect.Devices.DataItems.AssetChangedDataItem.TypeId)
+                .Select(o => o.GetValue(ValueKeys.Result))
+                .Where(o => !string.IsNullOrEmpty(o) && o != Observation.Unavailable)
+                .ToList();
+
+            if (assetIds.Count > 0) _ = ReadChangedAssetsAsync(assetIds, cancel);
+        }
+
+        private async Task ReadChangedAssetsAsync(IEnumerable<string> assetIds, CancellationToken cancel)
+        {
+            try
+            {
+                foreach (var assetId in assetIds)
+                {
+                    var doc = await GetAssetAsync(assetId, cancel).ConfigureAwait(false);
+                    if (doc != null && !cancel.IsCancellationRequested)
+                    {
+                        AssetsReceived.Raise(this, doc, InternalError);
+
+                        if (!doc.Assets.IsNullOrEmpty())
+                        {
+                            foreach (var asset in doc.Assets)
+                            {
+                                AssetReceived.Raise(this, asset, InternalError);
                             }
                         }
                     }
                 }
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception ex)
+            {
+                InternalError.Raise(this, ex, InternalError);
             }
         }
 
@@ -1306,7 +1194,7 @@ namespace MTConnect.Clients
             return null;
         }
 
-        private static string CreateCurrentUrl(string baseUrl, string deviceKey, int interval, string path = null)
+        private static string CreateCurrentUrl(string baseUrl, string deviceKey, int interval, string path = null, string documentFormat = null)
         {
             var url = baseUrl;
             if (!string.IsNullOrEmpty(deviceKey)) url = Url.Combine(url, deviceKey + "/current");
@@ -1320,11 +1208,12 @@ namespace MTConnect.Clients
 
             if (interval > -1) url = Url.AddQueryParameter(url, "interval", interval);
             if (!string.IsNullOrEmpty(path)) url = Url.AddQueryParameter(url, "path", path);
+            url = AddDocumentFormat(url, documentFormat);
 
             return url;
         }
 
-        private static string CreateSampleUrl(string baseUrl, string deviceKey, ulong from, int interval, int heartbeat, long count, string path = null)
+        private static string CreateSampleUrl(string baseUrl, string deviceKey, ulong from, int interval, int heartbeat, long count, string path = null, string documentFormat = null)
         {
             var url = baseUrl;
             if (!string.IsNullOrEmpty(deviceKey)) url = Url.Combine(url, deviceKey + "/sample");
@@ -1341,6 +1230,18 @@ namespace MTConnect.Clients
             if (interval > -1) url = Url.AddQueryParameter(url, "interval", interval);
             if (heartbeat > 0) url = Url.AddQueryParameter(url, "heartbeat", heartbeat);
             if (!string.IsNullOrEmpty(path)) url = Url.AddQueryParameter(url, "path", path);
+            url = AddDocumentFormat(url, documentFormat);
+
+            return url;
+        }
+
+        // Like the Probe / Current / Sample request URIs, ask for a non-XML format explicitly rather than relying on the Accept header
+        private static string AddDocumentFormat(string url, string documentFormat)
+        {
+            if (!string.IsNullOrEmpty(documentFormat) && documentFormat != MTConnect.DocumentFormat.XML)
+            {
+                url = Url.AddQueryParameter(url, "documentFormat", documentFormat.ToLower());
+            }
 
             return url;
         }

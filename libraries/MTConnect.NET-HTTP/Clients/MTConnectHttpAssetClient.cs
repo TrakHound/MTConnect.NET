@@ -203,111 +203,32 @@ namespace MTConnect.Clients
         /// </summary>
         public IAssetsResponseDocument Get()
         {
-            try
-            {
-                // Create Http Request
-                using (var request = new HttpRequestMessage())
-                {
-                    request.Method = HttpMethod.Get;
-                    request.RequestUri = CreateUri();
-
-                    // Add 'Accept' HTTP Header
-                    var contentType = Formatters.ResponseDocumentFormatter.GetContentType(DocumentFormat);
-                    if (!string.IsNullOrEmpty(contentType))
-                    {
-                        request.Headers.Add(HttpHeaders.Accept, contentType);
-                    }
-
-                    // Add 'Accept-Encoding' HTTP Header 
-                    if (!ContentEncodings.IsNullOrEmpty())
-                    {
-                        foreach (var contentEncoding in ContentEncodings)
-                        {
-                            request.Headers.Add(HttpHeaders.AcceptEncoding, contentEncoding.ToString().ToLower());
-                        }
-                    }
-
-                    // Create Uri and Send Request
-#if NET5_0_OR_GREATER
-                    using (var response = _httpClient.Send(request))
-#else
-                    using (var response = _httpClient.SendAsync(request).Result)
-#endif
-                    {
-                        response.EnsureSuccessStatusCode();
-                        return HandleResponse(response);
-                    }
-                }
-            }
-            catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
-            {
-                ConnectionError.Raise(this, ex, InternalError);
-            }
-            catch (TaskCanceledException) { /* Ignore Task Cancelled */  }
-            catch (HttpRequestException ex)
-            {
-                ConnectionError.Raise(this, ex, InternalError);
-            }
-            catch (Exception ex)
-            {
-                InternalError.Raise(this, ex, InternalError);
-            }
-
-            return null;
+            // Honours ContentType like GetAsync; runs on the thread pool so a blocked caller cannot deadlock
+            return MTConnectHttpDocumentRequest.Send(_httpClient, CreateRequest, DocumentFormat, Timeout, ResponseDocumentFormatter.CreateAssetsResponseDocument, CreateHandlers());
         }
 
         /// <summary>
         /// Asynchronously execute the Asset Request
         /// </summary>
-        public async Task<IAssetsResponseDocument> GetAsync(CancellationToken cancellationToken)
+        public Task<IAssetsResponseDocument> GetAsync(CancellationToken cancellationToken)
         {
-            try
-            {
-                // Create Http Request
-                using (var request = new HttpRequestMessage())
-                {
-                    request.Method = HttpMethod.Get;
-                    request.RequestUri = CreateUri();
+            return MTConnectHttpDocumentRequest.SendAsync(_httpClient, CreateRequest, DocumentFormat, Timeout, ResponseDocumentFormatter.CreateAssetsResponseDocument, CreateHandlers(), cancellationToken);
+        }
 
-                    // Add 'Accept' HTTP Header
-                    var contentType = Formatters.ResponseDocumentFormatter.GetContentType(DocumentFormat);
-                    if (!string.IsNullOrEmpty(contentType))
-                    {
-                        request.Headers.Add(HttpHeaders.Accept, contentType);
-                    }
+        private HttpRequestMessage CreateRequest()
+        {
+            return MTConnectHttpDocumentRequest.CreateRequest(CreateUri(), ContentType, DocumentFormat, ContentEncodings);
+        }
 
-                    // Add 'Accept-Encoding' HTTP Header 
-                    if (!ContentEncodings.IsNullOrEmpty())
-                    {
-                        foreach (var contentEncoding in ContentEncodings)
-                        {
-                            request.Headers.Add(HttpHeaders.AcceptEncoding, contentEncoding.ToString().ToLower());
-                        }
-                    }
-
-                    // Create Uri and Send Request
-                    using (var response = await _httpClient.SendAsync(request, cancellationToken))
-                    {
-                        response.EnsureSuccessStatusCode();
-                        return await HandleResponseAsync(response, cancellationToken);
-                    }
-                }
-            }
-            catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
+        private MTConnectHttpDocumentRequest.Handlers CreateHandlers()
+        {
+            return new MTConnectHttpDocumentRequest.Handlers
             {
-                ConnectionError.Raise(this, ex, InternalError);
-            }
-            catch (TaskCanceledException) { /* Ignore Task Cancelled */  }
-            catch (HttpRequestException ex)
-            {
-                ConnectionError.Raise(this, ex, InternalError);
-            }
-            catch (Exception ex)
-            {
-                InternalError.Raise(this, ex, InternalError);
-            }
-
-            return null;
+                MTConnectError = document => MTConnectError.Raise(this, document, InternalError),
+                FormatError = result => FormatError.Raise(this, result, InternalError),
+                ConnectionError = exception => ConnectionError.Raise(this, exception, InternalError),
+                InternalError = exception => InternalError.Raise(this, exception, InternalError)
+            };
         }
 
 
@@ -386,93 +307,6 @@ namespace MTConnect.Clients
             }
 
             return new Uri(url);
-        }
-
-
-        private IAssetsResponseDocument HandleResponse(HttpResponseMessage response)
-        {
-            if (response != null)
-            {
-                if (!response.IsSuccessStatusCode)
-                {
-                    ConnectionError.Raise(this, new Exception(response.ReasonPhrase), InternalError);
-                }
-                else if (response.Content != null)
-                {
-                    var documentStream = response.Content.ReadAsStreamAsync().Result;
-                    return ReadDocument(response, documentStream);
-                }
-            }
-
-            return null;
-        }
-
-        private async Task<IAssetsResponseDocument> HandleResponseAsync(HttpResponseMessage response, CancellationToken cancel)
-        {
-            if (response != null)
-            {
-                if (!response.IsSuccessStatusCode)
-                {
-                    ConnectionError.Raise(this, new Exception(response.ReasonPhrase), InternalError);
-                }
-                else if (response.Content != null)
-                {
-#if NET5_0_OR_GREATER
-                    var documentStream = await response.Content.ReadAsStreamAsync(cancel);
-#else
-                    var documentStream = await response.Content.ReadAsStreamAsync();
-#endif
-
-                    return ReadDocument(response, documentStream);
-                }
-            }
-
-            return null;
-        }
-
-
-        private IAssetsResponseDocument ReadDocument(HttpResponseMessage response, Stream documentStream)
-        {
-            if (documentStream != null && documentStream.Length > 0)
-            {
-                // Handle Compression Encoding
-                var contentEncoding = MTConnectHttpResponse.GetContentHeaderValue(response, HttpHeaders.ContentEncoding);
-                var stream = MTConnectHttpResponse.HandleContentEncoding(contentEncoding, documentStream);
-                if (stream != null && stream.Position > 0) stream.Seek(0, SeekOrigin.Begin);
-
-                var formatResult = ResponseDocumentFormatter.CreateAssetsResponseDocument(DocumentFormat, stream);
-                if (formatResult.Success)
-                {
-                    // Process MTConnectDevices Document
-                    var document = formatResult.Content;
-                    if (document != null)
-                    {
-                        return document;
-                    }
-                    else
-                    {
-                        // Process MTConnectError Document (if MTConnectStreams fails)
-                        var errorFormatResult = ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat, stream);
-                        if (errorFormatResult.Success)
-                        {
-                            var errorDocument = errorFormatResult.Content;
-                            if (errorDocument != null) MTConnectError.Raise(this, errorDocument, InternalError);
-                        }
-                        else
-                        {
-                            // Raise Format Error
-                            FormatError.Raise(this, errorFormatResult, InternalError);
-                        }
-                    }
-                }
-                else
-                {
-                    // Raise Format Error
-                    FormatError.Raise(this, formatResult, InternalError);
-                }
-            }
-
-            return null;
         }
     }
 }

@@ -8,6 +8,7 @@ using MTConnect.Errors;
 using MTConnect.Servers.Http;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,6 +26,8 @@ namespace MTConnect.Servers
     /// </summary>
     class MTConnectPostResponseHandler : MTConnectHttpResponseHandler
     {
+        private const int MaxRequestBodySize = 1048576 * 2; // 2 MB
+
         public Func<MTConnectAssetInputArgs, bool> ProcessFunction { get; set; }
 
 
@@ -40,7 +43,30 @@ namespace MTConnect.Servers
 
             if (httpRequest != null && httpRequest.Path != null && httpResponse != null)
             {
+                // POST writes to the Agent just like PUT, so it is governed by the same AllowPut / AllowPutFrom settings
+                if (!_serverConfiguration.AllowPut || (!_serverConfiguration.AllowPutFrom.IsNullOrEmpty() && !_serverConfiguration.AllowPutFrom.Contains(httpRequest.GetRemoteIP())))
+                {
+                    response.StatusCode = 403;
+                    return response;
+                }
+
+                // Reject bodies larger than the read buffer instead of silently truncating them
+                if (httpRequest.Headers.TryGetValue("Content-Length", out var contentLengthHeader) &&
+                    long.TryParse(contentLengthHeader, out var contentLength) && contentLength > MaxRequestBodySize)
+                {
+                    response.StatusCode = 413;
+                    return response;
+                }
+
                 var requestBytes = await ReadRequestBytes(context.Request.Body, cancellationToken);
+
+                // Without a Content-Length (e.g. chunked), a full buffer may mean more data follows
+                if (requestBytes != null && requestBytes.Length >= MaxRequestBodySize && await HasMoreData(context.Request.Body, cancellationToken))
+                {
+                    response.StatusCode = 413;
+                    return response;
+                }
+
                 if (!requestBytes.IsNullOrEmpty())
                 {
                     var urlSegments = GetUriSegments(httpRequest.Path);
@@ -97,13 +123,32 @@ namespace MTConnect.Servers
             return response;
         }
 
+        private static async Task<bool> HasMoreData(Stream inputStream, CancellationToken cancellationToken)
+        {
+            if (inputStream == null) return false;
+
+            try
+            {
+                var probe = new byte[1];
+                return await inputStream.ReadAsync(probe, 0, 1, cancellationToken) > 0;
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         private static async Task<byte[]> ReadRequestBytes(Stream inputStream, CancellationToken cancellationToken)
         {
             if (inputStream != null)
             {
                 try
                 {
-                    var bufferSize = 1048576 * 2; // 2 MB
+                    var bufferSize = MaxRequestBodySize;
                     var bytes = new byte[bufferSize];
 
                     // CA2022 short-read accumulator — TFM-uniform. Every supported

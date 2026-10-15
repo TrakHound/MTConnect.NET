@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using Ceen;
@@ -7,8 +7,8 @@ using MTConnect.Configurations;
 using MTConnect.Http;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -64,7 +64,15 @@ namespace MTConnect.Servers.Http
                 acceptEncodings = ProcessAcceptEncodings(acceptEncodings);
 
                 var mtconnectResponse = await OnRequestReceived(context, cancellationToken);
-                mtconnectResponse.WriteDuration = await WriteResponse(mtconnectResponse, context.Response, acceptEncodings, cancellationToken);
+                try
+                {
+                    mtconnectResponse.WriteDuration = await WriteResponse(mtconnectResponse, context.Response, acceptEncodings, cancellationToken);
+                }
+                finally
+                {
+                    // The body (e.g. an open static file) is not needed once it has been written
+                    mtconnectResponse.Content?.Dispose();
+                }
 
                 ResponseSent.Raise(this, mtconnectResponse, ClientException);
 
@@ -146,58 +154,19 @@ namespace MTConnect.Servers.Http
             if (httpResponse != null && inputStream != null && inputStream.Length > 0)
             {
                 if (inputStream.Position > 0) inputStream.Seek(0, SeekOrigin.Begin);
-                MemoryStream outputStream;
 
                 try
                 {
-                    // Gzip
-                    if (!_serverConfiguration.ResponseCompression.IsNullOrEmpty() &&
-                        _serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Gzip) &&
-                        !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains("gzip"))
+                    var contentEncoding = HttpContentEncoder.Select(_serverConfiguration, acceptEncodings);
+                    if (contentEncoding != null)
                     {
-                        httpResponse.AddHeader("Content-Encoding", "gzip");
+                        httpResponse.AddHeader("Content-Encoding", contentEncoding);
 
-                        outputStream = new MemoryStream();
-                        using (var zip = new GZipStream(outputStream, CompressionMode.Compress, true))
+                        using (var encoded = HttpContentEncoder.Encode(inputStream, contentEncoding))
                         {
-                            inputStream.CopyTo(zip);
+                            await httpResponse.WriteAllAsync(encoded, cancellationToken);
                         }
-                        outputStream.Seek(0, SeekOrigin.Begin);
-                        await httpResponse.WriteAllAsync(outputStream, cancellationToken);
                     }
-
-#if NET5_0_OR_GREATER
-                    else if (!_serverConfiguration.ResponseCompression.IsNullOrEmpty() &&
-                        _serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Br) &&
-                        !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains("br"))
-                    {
-                        httpResponse.AddHeader("Content-Encoding", "br");
-
-                        outputStream = new MemoryStream();
-                        using (var zip = new BrotliStream(inputStream, CompressionMode.Compress, true))
-                        {
-                            inputStream.CopyTo(zip);
-                        }
-                        outputStream.Seek(0, SeekOrigin.Begin);
-                        await httpResponse.WriteAllAsync(outputStream, cancellationToken);
-                    }
-#endif
-
-                    else if (!_serverConfiguration.ResponseCompression.IsNullOrEmpty() &&
-                        _serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Deflate) &&
-                        !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains("deflate"))
-                    {
-                        httpResponse.AddHeader("Content-Encoding", "deflate");
-
-                        outputStream = new MemoryStream();
-                        using (var zip = new DeflateStream(inputStream, CompressionMode.Compress, true))
-                        {
-                            inputStream.CopyTo(zip);
-                        }
-                        outputStream.Seek(0, SeekOrigin.Begin);
-                        await httpResponse.WriteAllAsync(outputStream, cancellationToken);
-                    }
-
                     else
                     {
                         await httpResponse.WriteAllAsync(inputStream, cancellationToken);
@@ -209,9 +178,15 @@ namespace MTConnect.Servers.Http
 
         protected static async Task WriteToResponseStream(Stream responseStream, MTConnectHttpStreamArgs args)
         {
-            if (responseStream != null)
+            if (responseStream != null && args.Message != null)
             {
-                await args.Message.CopyToAsync(responseStream);
+                using (var message = args.Message)
+                {
+                    await message.CopyToAsync(responseStream);
+                }
+
+                // Push each chunk to the client as it is produced
+                await responseStream.FlushAsync();
             }
         }
 
@@ -256,25 +231,8 @@ namespace MTConnect.Servers.Http
             {
                 var output = new List<string>();
 
-                if (_serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Gzip) &&
-                    !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains(HttpContentEncodings.Gzip))
-                {
-                    output.Add(HttpContentEncodings.Gzip);
-                }
-
-#if NET5_0_OR_GREATER
-                else if (_serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Br) &&
-                    !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains(HttpContentEncodings.Brotli))
-                {
-                    output.Add(HttpContentEncodings.Brotli);
-                }
-#endif
-
-                else if (_serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Deflate) &&
-                    !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains(HttpContentEncodings.Deflate))
-                {
-                    output.Add(HttpContentEncodings.Deflate);
-                }
+                var contentEncoding = HttpContentEncoder.Select(_serverConfiguration, acceptEncodings);
+                if (contentEncoding != null) output.Add(contentEncoding);
 
                 return output;
             }
@@ -368,6 +326,139 @@ namespace MTConnect.Servers.Http
 
             return null;
         }
+
+
+        #region "Request Parameters"
+
+        /// <summary>
+        /// The response format negotiated for a request: MTConnect version, document format,
+        /// validation level, and the formatter options built from them.
+        /// </summary>
+        protected class RequestFormat
+        {
+            public Version Version { get; set; }
+            public string DocumentFormat { get; set; }
+            public int ValidationLevel { get; set; }
+            public List<KeyValuePair<string, string>> FormatOptions { get; set; }
+        }
+
+        /// <summary>
+        /// Reads the version, documentFormat, validationLevel, indentOutput and outputComments parameters
+        /// (shared by every document request) and builds the formatter options.
+        /// </summary>
+        protected RequestFormat GetRequestFormat(IHttpRequestInternal httpRequest, string requestType)
+        {
+            // Read MTConnectVersion from Query string, then the configured default, then the Agent version
+            Version.TryParse(httpRequest.QueryString["version"], out var version);
+            if (version == null) Version.TryParse(_serverConfiguration.DefaultVersion, out version);
+            if (version == null) version = _mtconnectAgent.MTConnectVersion;
+
+            var documentFormat = GetDocumentFormat(httpRequest);
+
+            // Read ValidationLevel from Query string (number or name)
+            var validationLevel = (int)_serverConfiguration.OutputValidationLevel;
+            var validationLevelString = httpRequest.QueryString["validationLevel"];
+            if (!string.IsNullOrEmpty(validationLevelString))
+            {
+                if (int.TryParse(validationLevelString, NumberStyles.Integer, CultureInfo.InvariantCulture, out var level)) validationLevel = level;
+                else if (Enum.TryParse<OutputValidationLevel>(validationLevelString, true, out var namedLevel)) validationLevel = (int)namedLevel;
+            }
+
+            // Set Format Options
+            var formatOptions = CreateFormatOptions(requestType, documentFormat, version, validationLevel);
+            formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevel.ToString(CultureInfo.InvariantCulture)));
+
+            // Read IndentOutput from Query string
+            var indentOutputString = httpRequest.QueryString["indentOutput"];
+            if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
+            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _serverConfiguration.IndentOutput.ToString()));
+
+            // Read OutputComments from Query string
+            var outputCommentsString = httpRequest.QueryString["outputComments"];
+            if (!string.IsNullOrEmpty(outputCommentsString)) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputCommentsString));
+            else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _serverConfiguration.OutputComments.ToString()));
+
+            return new RequestFormat
+            {
+                Version = version,
+                DocumentFormat = documentFormat,
+                ValidationLevel = validationLevel,
+                FormatOptions = formatOptions
+            };
+        }
+
+        /// <summary>
+        /// Resolves the document format from the documentFormat query parameter, then the Accept header,
+        /// then the configured default.
+        /// </summary>
+        protected string GetDocumentFormat(IHttpRequestInternal httpRequest)
+        {
+            var documentFormat = httpRequest.QueryString["documentFormat"];
+            if (string.IsNullOrEmpty(documentFormat))
+            {
+                httpRequest.Headers.TryGetValue("Accept", out var acceptHeader);
+                documentFormat = MatchAcceptHeader(_serverConfiguration.Accept, acceptHeader);
+            }
+            if (string.IsNullOrEmpty(documentFormat)) documentFormat = _serverConfiguration.DocumentFormat;
+
+            return documentFormat;
+        }
+
+        /// <summary>
+        /// Maps an Accept header to a configured document format. The whole header is tried first (for
+        /// configurations keyed on an exact header), then each media range in order with its parameters
+        /// (such as q=0.9) removed, so "application/json, */*;q=0.8" selects the JSON format.
+        /// </summary>
+        internal static string MatchAcceptHeader(IDictionary<string, string> accept, string acceptHeader)
+        {
+            if (accept.IsNullOrEmpty() || string.IsNullOrEmpty(acceptHeader)) return null;
+
+            if (accept.TryGetValue(acceptHeader, out var exact)) return exact;
+
+            foreach (var range in acceptHeader.Split(','))
+            {
+                var mediaType = range.Split(';')[0].Trim();
+                if (mediaType.Length == 0) continue;
+
+                foreach (var entry in accept)
+                {
+                    if (string.Equals(entry.Key, mediaType, StringComparison.OrdinalIgnoreCase)) return entry.Value;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Reads an optional integer query parameter. Returns <c>false</c> when the parameter is present but
+        /// is not an integer, so the caller can reject the request instead of silently using a default.
+        /// </summary>
+        protected static bool TryGetQueryInteger(IHttpRequestInternal httpRequest, string name, out long? value)
+        {
+            value = null;
+
+            var s = httpRequest.QueryString[name];
+            if (string.IsNullOrEmpty(s)) return true;
+
+            if (long.TryParse(s.Trim(), NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var x))
+            {
+                value = x;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Builds a 400 INVALID_REQUEST MTConnectError response in the negotiated format.
+        /// </summary>
+        protected MTConnectHttpResponse CreateInvalidRequestResponse(string message, RequestFormat format)
+        {
+            var errorDocument = _mtconnectAgent.GetErrorResponseDocument(Errors.ErrorCode.INVALID_REQUEST, message, format.Version);
+            return new MTConnectHttpResponse(errorDocument, 400, format.DocumentFormat, 0, format.FormatOptions);
+        }
+
+        #endregion
 
 
         protected List<KeyValuePair<string, string>> CreateFormatOptions(string requestType, string documentFormat, Version mtconnectVersion, int validationLevel = 0)
