@@ -5,94 +5,85 @@ using System;
 
 namespace MTConnect.Buffers
 {
-    class CircularBuffer
+    /// <summary>
+    /// Fixed-capacity ring of <see cref="BufferObservation"/> entries that overwrites the oldest entry once full.
+    /// Logical index 0 is always the oldest stored observation and <c>Size - 1</c> the newest.
+    /// </summary>
+    /// <remarks>
+    /// Not thread-safe. <see cref="MTConnectObservationBuffer"/> serializes every access under its own lock,
+    /// which lets a request scan the whole archive without taking a lock per element.
+    /// </remarks>
+    sealed class CircularBuffer
     {
-        private readonly object _lock = new object();
         private readonly BufferObservation[] _buffer;
-        private int _start;
-        private int _end;
+        private int _start; // Physical slot of the oldest observation
         private int _size;
-        private bool _full;
 
 
-        public uint Capacity
-        {
-            get
-            {
-                lock (_lock) return (uint)_buffer.Length;
-            }
-        }
+        /// <summary>
+        /// The maximum number of observations the buffer can hold.
+        /// </summary>
+        public int Capacity => _buffer.Length;
 
-        public int Size
-        {
-            get
-            {
-                lock (_lock) return _size;
-            }
-        }
+        /// <summary>
+        /// The number of observations currently stored.
+        /// </summary>
+        public int Size => _size;
 
 
+        /// <summary>
+        /// Initializes an empty buffer.
+        /// </summary>
+        /// <param name="capacity">The maximum number of observations to hold; must be between 1 and <see cref="int.MaxValue"/>.</param>
         public CircularBuffer(uint capacity)
         {
+            if (capacity == 0 || capacity > int.MaxValue)
+            {
+                throw new ArgumentOutOfRangeException(nameof(capacity), capacity, "Observation buffer capacity must be between 1 and " + int.MaxValue);
+            }
+
             _buffer = new BufferObservation[capacity];
-            _start = 0;
-            _end = 0;
         }
 
 
-        public BufferObservation this[int index]
+        /// <summary>
+        /// Returns a read-only reference to the observation at the given logical index (0 = oldest) without copying it.
+        /// </summary>
+        public ref readonly BufferObservation this[int index]
         {
             get
             {
-                lock (_lock)
+                // The unsigned compare also rejects negative indexes
+                if ((uint)index >= (uint)_size)
                 {
-                    if (_size == 0)
-                    {
-                        throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer is empty", index));
-                    }
-                    if (index >= _size)
-                    {
-                        throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer size is {1}", index, _size));
-                    }
-                    int actualIndex = _start + (index < (_buffer.Length - _start) ? index : index - _buffer.Length);
-                    return _buffer[actualIndex];
+                    if (_size == 0) throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer is empty", index));
+                    throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer size is {1}", index, _size));
                 }
-            }
-            set
-            {
-                lock (_lock)
-                {
-                    if (_size == 0)
-                    {
-                        throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer is empty", index));
-                    }
-                    if (index >= _size)
-                    {
-                        throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer size is {1}", index, _size));
-                    }
-                    int actualIndex = _start + (index < (_buffer.Length - _start) ? index : index - _buffer.Length);
-                    _buffer[actualIndex] = value;
-                }
+
+                var actualIndex = _start + index;
+                if (actualIndex >= _buffer.Length) actualIndex -= _buffer.Length;
+                return ref _buffer[actualIndex];
             }
         }
 
+        /// <summary>
+        /// Appends an observation, overwriting the oldest one when the buffer is full.
+        /// </summary>
         public void Add(ref BufferObservation observation)
         {
-            lock (_lock)
+            var end = _start + _size;
+            if (end >= _buffer.Length) end -= _buffer.Length;
+
+            _buffer[end] = observation;
+
+            if (_size == _buffer.Length)
             {
-                if (_full)
-                {
-                    _buffer[_end] = observation;
-                    if (++_end == _buffer.Length) _end = 0;
-                    _start = _end;
-                }
-                else
-                {
-                    _buffer[_end] = observation;
-                    if (++_end == _buffer.Length) _end = 0;
-                    ++_size;
-                    _full = _size == _buffer.Length;
-                }
+                // Full: the slot just written held the oldest entry, so the oldest moves forward
+                if (++_start == _buffer.Length) _start = 0;
+            }
+            else
+            {
+                _size++;
             }
         }
     }
