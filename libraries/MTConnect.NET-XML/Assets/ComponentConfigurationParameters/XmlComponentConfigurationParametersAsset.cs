@@ -34,12 +34,7 @@ namespace MTConnect.Assets.ComponentConfigurationParameters
         {
             var asset = new ComponentConfigurationParametersAsset();
 
-            asset.AssetId = AssetId;
-            asset.Timestamp = Timestamp;
-            asset.DeviceUuid = DeviceUuid;
-            asset.Removed = Removed;
-
-            //if (Description != null) asset.Description = Description.ToDescription();
+            CopyCommonProperties(asset);
 
             if (!ParameterSets.IsNullOrEmpty())
             {
@@ -74,6 +69,8 @@ namespace MTConnect.Assets.ComponentConfigurationParameters
                 {
                     XmlParameterSet.WriteXml(writer, componentConfigurationParametersAsset.ParameterSets);
                 }
+
+                WriteCommonElementsXml(writer, asset);
 
                 writer.WriteEndElement();
             }

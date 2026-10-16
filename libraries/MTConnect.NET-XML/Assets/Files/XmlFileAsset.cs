@@ -123,12 +123,7 @@ namespace MTConnect.Assets.Xml.Files
         {
             var asset = new FileAsset();
 
-            asset.AssetId = AssetId;
-            asset.Timestamp = Timestamp;
-            asset.DeviceUuid = DeviceUuid;
-            asset.Removed = Removed;
-
-            //if (Description != null) asset.Description = Description.ToDescription();
+            CopyCommonProperties(asset);
 
             asset.Size = Size;
             asset.VersionId = VersionId;
@@ -241,6 +236,8 @@ namespace MTConnect.Assets.Xml.Files
                 {
                     XmlDestination.WriteXml(writer, file.Destinations);
                 }
+
+                WriteCommonElementsXml(writer, asset);
 
                 writer.WriteEndElement();
             }

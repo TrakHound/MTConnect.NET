@@ -44,6 +44,7 @@ namespace MTConnect.Assets.Xml
         [XmlArray("Assets")]
         [XmlArrayItem(typeof(XmlComponentConfigurationParametersAsset), ElementName = ComponentConfigurationParametersAsset.TypeId)]
         [XmlArrayItem(typeof(XmlCuttingToolAsset), ElementName = CuttingToolAsset.TypeId)]
+        [XmlArrayItem(typeof(XmlCuttingToolArchetypeAsset), ElementName = CuttingToolArchetypeAsset.TypeId)]
         [XmlArrayItem(typeof(XmlFileAsset), ElementName = FileAsset.TypeId)]
         [XmlArrayItem(typeof(XmlQIFDocumentWrapperAsset), ElementName = QIFDocumentWrapperAsset.TypeId)]
         [XmlArrayItem(typeof(XmlRawMaterialAsset), ElementName = RawMaterialAsset.TypeId)]
@@ -73,40 +74,8 @@ namespace MTConnect.Assets.Xml
 
                 foreach (var asset in Assets)
                 {
-                    // ComponentConfigurationParameters
-                    if (asset.GetType() == typeof(XmlComponentConfigurationParametersAsset))
-                    {
-                        var componentConfigurationParametersAsset = ((XmlComponentConfigurationParametersAsset)asset).ToAsset();
-                        if (componentConfigurationParametersAsset != null) assets.Add(componentConfigurationParametersAsset);
-                    }
-
-                    // CuttingTool
-                    if (asset.GetType() == typeof(XmlCuttingToolAsset))
-                    {
-                        var cuttingToolAsset = ((XmlCuttingToolAsset)asset).ToAsset();
-                        if (cuttingToolAsset != null) assets.Add(cuttingToolAsset);
-                    }
-
-                    // File
-                    if (asset.GetType() == typeof(XmlFileAsset))
-                    {
-                        var fileAsset = ((XmlFileAsset)asset).ToAsset();
-                        if (fileAsset != null) assets.Add(fileAsset);
-                    }
-
-                    // QIF
-                    if (asset.GetType() == typeof(XmlQIFDocumentWrapperAsset))
-                    {
-                        var qifAsset = ((XmlQIFDocumentWrapperAsset)asset).ToAsset();
-                        if (qifAsset != null) assets.Add(qifAsset);
-                    }
-
-                    // RawMaterial
-                    if (asset.GetType() == typeof(XmlRawMaterialAsset))
-                    {
-                        var rawMaterialAsset = ((XmlRawMaterialAsset)asset).ToAsset();
-                        if (rawMaterialAsset != null) assets.Add(rawMaterialAsset);
-                    }
+                    var converted = (asset as XmlAsset)?.ToAsset();
+                    if (converted != null) assets.Add(converted);
                 }
 
                 assetsDocument.Assets = assets;
@@ -119,7 +88,7 @@ namespace MTConnect.Assets.Xml
         /// <summary>
         /// Deserializes an <c>MTConnectAssets</c> XML document into a
         /// strongly-typed <see cref="AssetsResponseDocument"/>, detecting the
-        /// MTConnect version and clearing namespaces first; returns <c>null</c>
+        /// MTConnect version and ignoring the MTConnect namespaces; returns <c>null</c>
         /// if the input cannot be parsed.
         /// </summary>
         public static AssetsResponseDocument FromXml(byte[] xmlBytes)
@@ -128,24 +97,17 @@ namespace MTConnect.Assets.Xml
             {
                 try
                 {
-                    // Clean whitespace and Encoding Marks (BOM)
-                    var bytes = XmlFunctions.SanitizeBytes(xmlBytes);
+                    var version = MTConnectVersion.Get(Encoding.UTF8.GetString(XmlFunctions.SanitizeBytes(xmlBytes)));
 
-                    var xml = Encoding.UTF8.GetString(bytes);
-                    var version = MTConnectVersion.Get(xml);
-
-                    xml = xml.Trim();
-                    xml = Namespaces.Clear(xml);
-
-                    using (var textReader = new StringReader(xml))
+                    // Read with the MTConnect namespaces ignored, rather than removing namespace declarations
+                    // from the text (which broke prefixed content and stripped an embedded QIF document's namespace)
+                    using (var xmlReader = MTConnectNamespaceXmlReader.Create(xmlBytes))
                     {
-                        using (var xmlReader = XmlReader.Create(textReader))
+                        var doc = (XmlAssetsResponseDocument)_serializer.Deserialize(xmlReader);
+                        if (doc != null)
                         {
-                            var doc = (XmlAssetsResponseDocument)_serializer.Deserialize(xmlReader);
-                            if (doc != null)
-                            {
-                                return doc.ToAssetsDocument();
-                            }
+                            doc.Version = version;
+                            return doc.ToAssetsDocument();
                         }
                     }
                 }
@@ -238,7 +200,7 @@ namespace MTConnect.Assets.Xml
                 if (!document.Assets.IsNullOrEmpty())
                 {
                     // Write Assets
-                    new XmlAssetCollection(document.Assets, indentOutput).WriteXml(writer);
+                    new XmlAssetCollection(document.Assets, indentOutput) { MTConnectVersion = document.Version }.WriteXml(writer);
                 }
 
                 writer.WriteEndElement(); // Assets

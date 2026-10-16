@@ -129,12 +129,7 @@ namespace MTConnect.Assets.Xml.RawMaterials
         {
             var asset = new RawMaterialAsset();
 
-            asset.AssetId = AssetId;
-            asset.Timestamp = Timestamp;
-            asset.DeviceUuid = DeviceUuid;
-            asset.Removed = Removed;
-
-            //if (Description != null) asset.Description = Description.ToDescription();
+            CopyCommonProperties(asset);
 
             asset.Name = Name;
             asset.ContainerType = ContainerType;
@@ -274,6 +269,8 @@ namespace MTConnect.Assets.Xml.RawMaterials
                 {
                     XmlMaterial.WriteXml(writer, rawMaterial.Material);
                 }
+
+                WriteCommonElementsXml(writer, asset);
 
                 writer.WriteEndElement();
             }

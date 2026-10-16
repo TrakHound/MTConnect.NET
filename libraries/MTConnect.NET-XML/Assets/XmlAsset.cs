@@ -4,9 +4,10 @@
 using MTConnect.Extensions;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
@@ -22,8 +23,17 @@ namespace MTConnect.Assets.Xml
     public class XmlAsset
     {
         private static readonly Dictionary<Type, XmlSerializer> _serializers = new Dictionary<Type, XmlSerializer>();
+        private static readonly Dictionary<Type, Action<XmlWriter, IAsset>> _writers = new Dictionary<Type, Action<XmlWriter, IAsset>>();
         private static readonly object _lock = new object();
-        private static Dictionary<string, Type> _types;
+        private static readonly Lazy<Dictionary<string, Type>> _types = new Lazy<Dictionary<string, Type>>(GetAllTypes);
+        private static readonly Regex _typeNameRegex = new Regex("^Xml(.+)Asset$");
+
+        // The MTConnect version of the document being written by WriteXml on this thread (null when unknown)
+        [ThreadStatic]
+        private static Version _writeVersion;
+
+        // Settings for the discarding writer each asset is first written to (see WriteXml)
+        private static readonly XmlWriterSettings _rehearsalWriterSettings = new XmlWriterSettings { ConformanceLevel = ConformanceLevel.Fragment };
 
 
         /// <summary>
@@ -57,10 +67,39 @@ namespace MTConnect.Assets.Xml
         public bool Removed { get; set; }
 
         /// <summary>
-        /// The free-form description of the asset.
+        /// The asset hash (an asset attribute in MTConnect 2.2 through 2.5).
         /// </summary>
-        [XmlAttribute("description")]
+        [XmlAttribute("hash")]
+        public string Hash { get; set; }
+
+        /// <summary>
+        /// The free-form description of the asset, read from its <c>Description</c> element.
+        /// </summary>
+        [XmlIgnore]
         public string Description { get; set; }
+
+        /// <summary>
+        /// The <c>Description</c> element as read; sets <see cref="Description"/> to its text, or to its
+        /// inner markup when it holds child elements. Used by the XML serializer only.
+        /// </summary>
+        [XmlAnyElement("Description", Namespace = "")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public XmlElement DescriptionElement
+        {
+            get { return null; }
+            set
+            {
+                if (value != null)
+                {
+                    var hasElements = value.ChildNodes.OfType<XmlNode>().Any(o => o.NodeType == XmlNodeType.Element);
+                    Description = (hasElements ? value.InnerXml : value.InnerText)?.Trim();
+                }
+                else
+                {
+                    Description = null;
+                }
+            }
+        }
 
 
         /// <summary>
@@ -70,120 +109,236 @@ namespace MTConnect.Assets.Xml
         /// </summary>
         public virtual IAsset ToAsset() { return null; }
 
+        /// <summary>
+        /// Copies the properties common to every asset onto <paramref name="asset"/>; called by the
+        /// concrete surrogates' <see cref="ToAsset"/>.
+        /// </summary>
+        protected void CopyCommonProperties(Asset asset)
+        {
+            if (asset != null)
+            {
+                asset.AssetId = AssetId;
+                asset.Timestamp = Timestamp;
+                asset.DeviceUuid = DeviceUuid;
+                asset.Removed = Removed;
+                asset.Hash = !string.IsNullOrEmpty(Hash) ? Hash : null;
+                asset.Description = !string.IsNullOrEmpty(Description) ? Description : null;
+            }
+        }
+
 
         /// <summary>
         /// Deserializes an asset XML document into a strongly-typed
         /// <see cref="IAsset"/>, selecting the surrogate that matches the given
-        /// asset type name.
+        /// asset type name. Returns <c>null</c> if the input cannot be parsed;
+        /// <see cref="TryFromXml(string, byte[], out IAsset, out string)"/> also reports why.
         /// </summary>
         public static IAsset FromXml(string type, byte[] xmlBytes)
         {
-            var asset = Asset.Create(type);
-            if (asset != null)
-            {
-                var xmlType = GetAssetType(type);
-                if (xmlType == null) xmlType = typeof(XmlUnknownAsset);
-
-                return FromXml(xmlType, xmlBytes);
-            }
-
-            return default;
+            TryFromXml(type, xmlBytes, out var asset, out _);
+            return asset;
         }
 
         /// <summary>
         /// Deserializes an asset XML document into a strongly-typed
         /// <see cref="IAsset"/> using the given surrogate
-        /// <paramref name="type"/>, caching the <see cref="XmlSerializer"/> per
-        /// type. Returns the default value if the input cannot be parsed.
+        /// <paramref name="type"/>. Returns <c>null</c> if the input cannot be parsed.
         /// </summary>
         public static IAsset FromXml(Type type, byte[] xmlBytes)
         {
-            if (type != null && xmlBytes != null && xmlBytes.Length > 0)
+            TryFromXml(type, xmlBytes, out var asset, out _);
+            return asset;
+        }
+
+        /// <summary>
+        /// Deserializes an asset XML document, selecting the surrogate that matches the given asset
+        /// type name. On failure returns <c>false</c> with the reason in <paramref name="error"/>.
+        /// </summary>
+        public static bool TryFromXml(string type, byte[] xmlBytes, out IAsset asset, out string error)
+        {
+            var xmlType = GetAssetType(type);
+            if (xmlType == null)
             {
-                // Check if XmlAsset
-                if (typeof(XmlAsset).IsAssignableFrom(type))
-                {
-                    try
-                    {
-                        var xml = Encoding.UTF8.GetString(xmlBytes);
-                        xml = xml.Trim();
-
-                        // Create an XmlSerializer using the specified Type
-                        XmlSerializer serializer;
-                        lock (_lock)
-                        {
-                            _serializers.TryGetValue(type, out serializer);
-                            if (serializer == null)
-                            {
-                                serializer = new XmlSerializer(type);
-                                _serializers.Add(type, serializer);
-                            }
-                        }
-
-                        xml = Namespaces.Clear(xml);
-
-                        using (var textReader = new StringReader(xml))
-                        {
-                            using (var xmlReader = XmlReader.Create(textReader))
-                            {
-                                // Deserialize and cast to IAsset
-                                var asset = (XmlAsset)serializer.Deserialize(xmlReader);
-                                if (asset != null)
-                                {
-                                    return asset.ToAsset();
-                                }
-                            }
-                        }
-                    }
-                    catch { }
-                }
+                asset = null;
+                error = $"No XML serializer is available for asset type '{type}'";
+                return false;
             }
 
-            return default;
+            return TryFromXml(xmlType, xmlBytes, out asset, out error);
         }
+
+        /// <summary>
+        /// Deserializes an asset XML document using the given surrogate <paramref name="type"/>,
+        /// caching the <see cref="XmlSerializer"/> per type. On failure returns <c>false</c> with the
+        /// reason in <paramref name="error"/>.
+        /// </summary>
+        public static bool TryFromXml(Type type, byte[] xmlBytes, out IAsset asset, out string error)
+        {
+            asset = null;
+            error = null;
+
+            if (type == null || !typeof(XmlAsset).IsAssignableFrom(type))
+            {
+                error = $"'{type}' is not an XML asset type";
+                return false;
+            }
+
+            if (xmlBytes == null || xmlBytes.Length < 1)
+            {
+                error = "The asset XML is empty";
+                return false;
+            }
+
+            try
+            {
+                var serializer = GetSerializer(type);
+
+                // Read with the MTConnect namespaces ignored, rather than removing namespace declarations
+                // from the text (which broke prefixed content and stripped an embedded QIF document's namespace)
+                using (var xmlReader = MTConnectNamespaceXmlReader.Create(xmlBytes))
+                {
+                    var xmlAsset = (XmlAsset)serializer.Deserialize(xmlReader);
+                    asset = xmlAsset?.ToAsset();
+                }
+
+                if (asset == null) error = $"The XML did not produce a {type.Name} asset";
+            }
+            catch (Exception ex)
+            {
+                // XmlSerializer reports the position in the exception and the cause in its inner exception
+                error = ex.InnerException != null ? $"{ex.Message} {ex.InnerException.Message}" : ex.Message;
+            }
+
+            return asset != null;
+        }
+
+        private static XmlSerializer GetSerializer(Type type)
+        {
+            lock (_lock)
+            {
+                if (!_serializers.TryGetValue(type, out var serializer))
+                {
+                    serializer = new XmlSerializer(type);
+                    _serializers.Add(type, serializer);
+                }
+
+                return serializer;
+            }
+        }
+
 
         /// <summary>
         /// Writes the given <see cref="IAsset"/> to <paramref name="writer"/> by
         /// dispatching to the <c>WriteXml</c> method of the concrete surrogate
-        /// that matches the asset's type.
+        /// that matches the asset's type, using the MTConnect 2.6+ element layout.
+        /// Writes nothing when the type has no surrogate or the asset cannot be written.
         /// </summary>
         public static void WriteXml(XmlWriter writer, IAsset asset)
         {
+            WriteXml(writer, asset, null);
+        }
+
+        /// <summary>
+        /// Writes the given <see cref="IAsset"/> to <paramref name="writer"/> for a document of the given
+        /// MTConnect version, which decides where (or whether) elements whose position changed between
+        /// versions, such as <c>Description</c>, are written; <c>null</c> uses the 2.6+ layout.
+        /// Writes nothing when the type has no surrogate or the asset cannot be written.
+        /// </summary>
+        public static void WriteXml(XmlWriter writer, IAsset asset, Version mtconnectVersion)
+        {
+            if (writer == null || asset == null) return;
+
+            var write = GetWriter(asset.Type);
+            if (write == null) return;
+
+            var previousVersion = _writeVersion;
+            _writeVersion = mtconnectVersion;
             try
             {
-                var assetType = GetAssetType(asset.Type);
-                if (assetType != null)
+                // Write to a discarding writer first: a surrogate that throws part-way (an asset whose Type
+                // does not match its class, an invalid character, ...) would otherwise leave an unclosed
+                // element in the real document, and every later asset would be written inside it
+                try
                 {
-                    var writeXmlMethod = assetType.GetMethod("WriteXml");
-                    if (writeXmlMethod != null)
+                    using (var rehearsal = XmlWriter.Create(Stream.Null, _rehearsalWriterSettings))
                     {
-                        writeXmlMethod.Invoke(null, new object[] { writer, asset });
-                    }
-                    else
-                    {
-                        // Write Unknown ?
+                        write(rehearsal, asset);
                     }
                 }
+                catch
+                {
+                    return;
+                }
+
+                write(writer, asset);
             }
-            catch { }
+            finally
+            {
+                _writeVersion = previousVersion;
+            }
         }
 
         /// <summary>
         /// Writes the attributes common to every asset (<c>assetId</c>,
-        /// <c>deviceUuid</c>, <c>timestamp</c>, and <c>removed</c>) onto the
-        /// current element. Intended to be called by concrete surrogates after
-        /// opening their root element.
+        /// <c>deviceUuid</c>, <c>timestamp</c>, <c>removed</c>, and <c>hash</c>) onto the
+        /// current element, omitting those that are not set. Intended to be called by
+        /// concrete surrogates after opening their root element.
         /// </summary>
         public static void WriteCommonXml(XmlWriter writer, IAsset asset)
         {
             if (asset != null)
             {
                 // Write Properties
-                writer.WriteAttributeString("assetId", asset.AssetId);
-                writer.WriteAttributeString("deviceUuid", asset.DeviceUuid);
-                writer.WriteAttributeString("timestamp", asset.Timestamp.ToString("o"));
+                if (!string.IsNullOrEmpty(asset.AssetId)) writer.WriteAttributeString("assetId", asset.AssetId);
+                if (!string.IsNullOrEmpty(asset.DeviceUuid)) writer.WriteAttributeString("deviceUuid", asset.DeviceUuid);
+                writer.WriteAttributeString("timestamp", FormatTimestamp(asset.Timestamp));
                 if (asset.Removed) writer.WriteAttributeString("removed", "true");
+                if (!string.IsNullOrEmpty(asset.Hash)) writer.WriteAttributeString("hash", asset.Hash);
             }
+        }
+
+        /// <summary>
+        /// Writes the elements common to every asset that MTConnect 2.6 and later place last
+        /// (currently <c>Description</c>). Intended to be called by concrete surrogates as the last
+        /// content of their element; writes nothing for a document of an earlier version.
+        /// </summary>
+        public static void WriteCommonElementsXml(XmlWriter writer, IAsset asset)
+        {
+            if (_writeVersion == null || _writeVersion >= MTConnectVersions.Version26)
+            {
+                WriteDescriptionXml(writer, asset);
+            }
+        }
+
+        /// <summary>
+        /// Writes the <c>Description</c> element where versions before 2.6 place it, as the first child
+        /// of a <c>CuttingTool</c> or <c>CuttingToolArchetype</c> (the only assets those versions give
+        /// one). Intended to be called by those surrogates right after their attributes; writes nothing
+        /// for a 2.6+ document or when no version is known.
+        /// </summary>
+        public static void WriteLeadingCommonElementsXml(XmlWriter writer, IAsset asset)
+        {
+            if (_writeVersion != null && _writeVersion < MTConnectVersions.Version26)
+            {
+                WriteDescriptionXml(writer, asset);
+            }
+        }
+
+        private static void WriteDescriptionXml(XmlWriter writer, IAsset asset)
+        {
+            if (asset != null && !string.IsNullOrEmpty(asset.Description))
+            {
+                writer.WriteElementString("Description", asset.Description);
+            }
+        }
+
+        // Timestamps are UTC; one of unspecified kind is taken to be UTC already
+        private static string FormatTimestamp(DateTime timestamp)
+        {
+            if (timestamp.Kind == DateTimeKind.Local) timestamp = timestamp.ToUniversalTime();
+            else if (timestamp.Kind == DateTimeKind.Unspecified) timestamp = DateTime.SpecifyKind(timestamp, DateTimeKind.Utc);
+
+            return XmlFunctions.GetTimestamp(timestamp);
         }
 
 
@@ -197,18 +352,17 @@ namespace MTConnect.Assets.Xml
 
         /// <summary>
         /// Serializes the given <see cref="IAsset"/> to a <see cref="Stream"/>
-        /// of XML, optionally indented, returning <c>null</c> if serialization
-        /// fails.
+        /// of XML, optionally indented, returning <c>null</c> when the asset's type
+        /// has no surrogate or serialization fails.
         /// </summary>
         public static Stream ToXml(IAsset asset, bool indent = false)
         {
+            var write = asset != null ? GetWriter(asset.Type) : null;
+            if (write == null) return null;
+
             try
             {
-                var namespaces = new XmlSerializerNamespaces();
-                namespaces.Add("", "");
-
-                // Not disposed here: it is returned to the caller (it used to be returned from inside a using block,
-                // so every caller received an already-closed stream)
+                // Not disposed here: it is returned to the caller
                 var stream = new MemoryStream();
 
                 // Set the XmlWriterSettings to use
@@ -217,20 +371,7 @@ namespace MTConnect.Assets.Xml
                 // Use XmlWriter to write XML to stream
                 using (var xmlWriter = XmlWriter.Create(stream, CloseOutputDisabled(xmlWriterSettings)))
                 {
-                    var assetType = GetAssetType(asset.Type);
-                    if (assetType != null)
-                    {
-                        var writeXmlMethod = assetType.GetMethod("WriteXml");
-                        if (writeXmlMethod != null)
-                        {
-                            writeXmlMethod.Invoke(null, new object[] { xmlWriter, asset });
-                        }
-                        else
-                        {
-                            // Write Unknown ?
-                        }
-                    }
-
+                    write(xmlWriter, asset);
                     xmlWriter.Flush();
                 }
 
@@ -242,6 +383,38 @@ namespace MTConnect.Assets.Xml
             return null;
         }
 
+        // The concrete surrogate's static WriteXml(XmlWriter, IAsset), bound once per type
+        private static Action<XmlWriter, IAsset> GetWriter(string type)
+        {
+            var xmlType = GetAssetType(type);
+            if (xmlType == null) return null;
+
+            lock (_lock)
+            {
+                if (_writers.TryGetValue(xmlType, out var cached)) return cached;
+            }
+
+            Action<XmlWriter, IAsset> write = null;
+            var method = xmlType.GetMethod(
+                "WriteXml",
+                BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly,
+                null,
+                new[] { typeof(XmlWriter), typeof(IAsset) },
+                null);
+
+            if (method != null && method.ReturnType == typeof(void))
+            {
+                write = (Action<XmlWriter, IAsset>)Delegate.CreateDelegate(typeof(Action<XmlWriter, IAsset>), method);
+            }
+
+            lock (_lock)
+            {
+                _writers[xmlType] = write;
+            }
+
+            return write;
+        }
+
         /// <summary>
         /// Resolves the concrete surrogate <see cref="Type"/> registered for
         /// the given asset type name, or <c>null</c> when none is known. The
@@ -251,14 +424,9 @@ namespace MTConnect.Assets.Xml
         {
             if (!string.IsNullOrEmpty(type))
             {
-                if (_types == null) _types = GetAllTypes();
-
-                if (!_types.IsNullOrEmpty())
+                if (_types.Value.TryGetValue(type, out Type t))
                 {
-                    if (_types.TryGetValue(type, out Type t))
-                    {
-                        return t;
-                    }
+                    return t;
                 }
             }
 
@@ -267,37 +435,27 @@ namespace MTConnect.Assets.Xml
 
         private static Dictionary<string, Type> GetAllTypes()
         {
-            var assemblies = Assemblies.Get();
-            if (!assemblies.IsNullOrEmpty())
+            var objs = new Dictionary<string, Type>();
+
+            // This library's surrogates first, so a same-named type elsewhere cannot displace one
+            var builtIn = typeof(XmlAsset).Assembly;
+            var assemblies = new[] { builtIn }.Concat((Assemblies.Get() ?? Enumerable.Empty<Assembly>()).Where(o => o != builtIn));
+
+            var types = assemblies.SelectMany(
+                x => x.GetMatchingTypesInAssembly(
+                    t => typeof(XmlAsset).IsAssignableFrom(t) && !t.IsAbstract && t != typeof(XmlAsset) && t != typeof(XmlUnknownAsset)));
+
+            foreach (var type in types)
             {
-                var types = assemblies
-                    .SelectMany(
-                        x => x.GetMatchingTypesInAssembly(
-                            t => !t.IsInterface && !t.IsAbstract));
-
-                if (!types.IsNullOrEmpty())
+                var match = _typeNameRegex.Match(type.Name);
+                if (match.Success)
                 {
-                    var objs = new Dictionary<string, Type>();
-                    var regex = new Regex("Xml(.+)Asset");
-
-                    foreach (var type in types)
-                    {
-                        if (type.Name != "XmlAsset" && type.Name != "XmlUnknownAsset" && type.Name != "XmlAsset`1")
-                        {
-                            var match = regex.Match(type.Name);
-                            if (match.Success && match.Groups.Count > 1)
-                            {
-                                var key = match.Groups[1].Value;
-                                if (!objs.ContainsKey(key)) objs.Add(key, type);
-                            }
-                        }
-                    }
-
-                    return objs;
+                    var key = match.Groups[1].Value;
+                    if (!objs.ContainsKey(key)) objs.Add(key, type);
                 }
             }
 
-            return new Dictionary<string, Type>();
+            return objs;
         }
     }
 }
