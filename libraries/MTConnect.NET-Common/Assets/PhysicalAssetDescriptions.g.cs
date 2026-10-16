@@ -26,7 +26,7 @@ namespace MTConnect.Assets
         /// <summary>
         /// Constrained scalar value associated with an Asset
         /// </summary>
-        public const string Measurement = "Constrained scalar value associated with an Asset";
+        public const string Measurements = "Constrained scalar value associated with an Asset";
         
         /// <summary>
         /// Date of next inspection of the Asset.

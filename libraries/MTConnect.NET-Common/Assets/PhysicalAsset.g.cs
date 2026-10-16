@@ -8,12 +8,12 @@ namespace MTConnect.Assets
     /// <summary>
     /// Abstract physical Asset.
     /// </summary>
-    public partial class PhysicalAsset : IPhysicalAsset
+    public partial class PhysicalAsset : Asset, IPhysicalAsset
     {
         /// <summary>
         /// The description of this type as defined by the MTConnect Standard.
         /// </summary>
-        public const string DescriptionText = "Abstract physical Asset.";
+        public new const string DescriptionText = "Abstract physical Asset.";
 
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace MTConnect.Assets
         /// <summary>
         /// Constrained scalar value associated with an Asset
         /// </summary>
-        public MTConnect.Assets.CuttingTools.IMeasurement Measurement { get; set; }
+        public System.Collections.Generic.IEnumerable<MTConnect.Assets.Pallet.IMeasurement> Measurements { get; set; }
 
         /// <summary>
         /// Date of next inspection of the Asset.

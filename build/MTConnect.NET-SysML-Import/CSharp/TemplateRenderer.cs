@@ -202,8 +202,16 @@ namespace MTConnect.SysML.CSharp
                                     ApplyAssetSuffix((ClassModel)template, alsoSuffixParent: true);
                                     break;
                                 case "Assets.Fixture.Fixture":
+                                    ApplyAssetSuffix((ClassModel)template, alsoSuffixParent: false);
+                                    break;
                                 case "Assets.Pallet.Pallet":
                                     ApplyAssetSuffix((ClassModel)template, alsoSuffixParent: false);
+                                    // Pallet's own "type" would hide Asset.Type (the asset type name), and
+                                    // IAsset.Type would map to it through IPalletAsset
+                                    foreach (var property in ((ClassModel)template).Properties)
+                                    {
+                                        if (property.Name == "Type") property.Name = "PalletType";
+                                    }
                                     break;
                                 case "Assets.CuttingTools.CuttingToolLifeCycle": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.CuttingTools.CuttingItem": ((ClassModel)template).IsPartial = true; break;
