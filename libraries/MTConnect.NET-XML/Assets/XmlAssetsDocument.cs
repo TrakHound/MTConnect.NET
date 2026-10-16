@@ -4,10 +4,14 @@
 using MTConnect.Assets.ComponentConfigurationParameters;
 using MTConnect.Assets.CuttingTools;
 using MTConnect.Assets.Files;
+using MTConnect.Assets.Fixture;
+using MTConnect.Assets.Pallet;
 using MTConnect.Assets.QIF;
 using MTConnect.Assets.RawMaterials;
 using MTConnect.Assets.Xml.CuttingTools;
 using MTConnect.Assets.Xml.Files;
+using MTConnect.Assets.Xml.Fixture;
+using MTConnect.Assets.Xml.Pallet;
 using MTConnect.Assets.Xml.RawMaterials;
 using System;
 using System.Collections.Generic;
@@ -46,6 +50,8 @@ namespace MTConnect.Assets.Xml
         [XmlArrayItem(typeof(XmlCuttingToolAsset), ElementName = CuttingToolAsset.TypeId)]
         [XmlArrayItem(typeof(XmlCuttingToolArchetypeAsset), ElementName = CuttingToolArchetypeAsset.TypeId)]
         [XmlArrayItem(typeof(XmlFileAsset), ElementName = FileAsset.TypeId)]
+        [XmlArrayItem(typeof(XmlFixtureAsset), ElementName = FixtureAsset.TypeId)]
+        [XmlArrayItem(typeof(XmlPalletAsset), ElementName = PalletAsset.TypeId)]
         [XmlArrayItem(typeof(XmlQIFDocumentWrapperAsset), ElementName = QIFDocumentWrapperAsset.TypeId)]
         [XmlArrayItem(typeof(XmlRawMaterialAsset), ElementName = RawMaterialAsset.TypeId)]
         public List<object> Assets { get; set; }

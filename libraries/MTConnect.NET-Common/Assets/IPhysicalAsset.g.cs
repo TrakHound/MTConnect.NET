@@ -6,7 +6,7 @@ namespace MTConnect.Assets
     /// <summary>
     /// Abstract physical Asset.
     /// </summary>
-    public partial interface IPhysicalAsset
+    public partial interface IPhysicalAsset : IAsset
     {
         /// <summary>
         /// Date of calibration of the Asset.
@@ -26,7 +26,7 @@ namespace MTConnect.Assets
         /// <summary>
         /// Constrained scalar value associated with an Asset
         /// </summary>
-        MTConnect.Assets.CuttingTools.IMeasurement Measurement { get; }
+        System.Collections.Generic.IEnumerable<MTConnect.Assets.Pallet.IMeasurement> Measurements { get; }
         
         /// <summary>
         /// Date of next inspection of the Asset.

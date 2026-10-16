@@ -31,6 +31,6 @@ namespace MTConnect.Assets.Pallet
         /// <summary>
         /// Type of Pallet. Common types of pallet include: Process, Warehouse, Shipping, Fixture and Machine.
         /// </summary>
-        public const string Type = "Type of Pallet. Common types of pallet include: Process, Warehouse, Shipping, Fixture and Machine.";
+        public const string PalletType = "Type of Pallet. Common types of pallet include: Process, Warehouse, Shipping, Fixture and Machine.";
     }
 }

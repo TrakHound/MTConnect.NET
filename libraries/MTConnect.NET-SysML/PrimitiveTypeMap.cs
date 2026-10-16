@@ -34,6 +34,11 @@ namespace MTConnect.SysML
         // MTConnectPropertyModel.ParseType so the diff is a pure move.
         private static readonly Dictionary<string, string> _byPropertyId = new()
         {
+            // PhysicalAsset.Measurements: the model's single Measurement class is emitted twice, as
+            // CuttingTools.Measurement and as Pallet.Measurement (the physical-asset measurements); the
+            // name lookup picks the CuttingTools one
+            ["_2024x_68e0225_1727795745690_23400_24086"] = "MTConnect.Assets.Pallet.IMeasurement",
+
             // RawMaterials.RawMateral.CurrentVolume
             ["_19_0_3_68e0225_1618831247227_54016_392"] = "double",
 

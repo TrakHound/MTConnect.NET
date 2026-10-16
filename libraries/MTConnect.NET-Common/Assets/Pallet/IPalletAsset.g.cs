@@ -31,6 +31,6 @@ namespace MTConnect.Assets.Pallet
         /// <summary>
         /// Type of Pallet. Common types of pallet include: Process, Warehouse, Shipping, Fixture and Machine.
         /// </summary>
-        string Type { get; }
+        string PalletType { get; }
     }
 }

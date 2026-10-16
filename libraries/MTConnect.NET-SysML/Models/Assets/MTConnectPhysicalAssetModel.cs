@@ -15,12 +15,12 @@ namespace MTConnect.SysML.Models.Assets
         public MTConnectPhysicalAssetModel() { }
 
         /// <summary>
-        /// Parses the <c>PhysicalAsset</c> class as a concrete, root-level
-        /// type (parent and abstract flag cleared).
+        /// Parses the <c>PhysicalAsset</c> class as a concrete type deriving
+        /// from <c>Asset</c> (abstract flag cleared).
         /// </summary>
         public MTConnectPhysicalAssetModel(XmiDocument xmiDocument, UmlClass umlClass) : base(xmiDocument, "Assets.PhysicalAsset", umlClass)
         {
-            ParentName = null;
+            // Concrete, so Pallet and Fixture can derive from it; the Asset parent is kept so both are assets
             IsAbstract = false;
         }
     }

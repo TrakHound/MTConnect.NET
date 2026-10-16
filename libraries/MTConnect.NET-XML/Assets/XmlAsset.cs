@@ -332,8 +332,12 @@ namespace MTConnect.Assets.Xml
             }
         }
 
+        // The MTConnect version of the document being written on this thread, for surrogates whose
+        // content differs by version (null when unknown, meaning the latest layout)
+        internal static Version WriteVersion => _writeVersion;
+
         // Timestamps are UTC; one of unspecified kind is taken to be UTC already
-        private static string FormatTimestamp(DateTime timestamp)
+        internal static string FormatTimestamp(DateTime timestamp)
         {
             if (timestamp.Kind == DateTimeKind.Local) timestamp = timestamp.ToUniversalTime();
             else if (timestamp.Kind == DateTimeKind.Unspecified) timestamp = DateTime.SpecifyKind(timestamp, DateTimeKind.Utc);
