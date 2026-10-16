@@ -9,6 +9,10 @@ using MTConnect.Assets.Json.CuttingTools;
 using MTConnect.Assets.Json.Files;
 using MTConnect.Assets.Json.QIF;
 using MTConnect.Assets.Json.RawMaterials;
+using MTConnect.Assets.Json.Fixture;
+using MTConnect.Assets.Json.Pallet;
+using MTConnect.Assets.Fixture;
+using MTConnect.Assets.Pallet;
 using MTConnect.Assets.QIF;
 using MTConnect.Assets.RawMaterials;
 using System.Collections.Generic;
@@ -62,6 +66,8 @@ namespace MTConnect.Assets.Json
                             case "ComponentConfigurationParameters": jsonAsset = new JsonComponentConfigurationParametersAsset(asset as ComponentConfigurationParametersAsset); break;
                             case "CuttingTool": jsonAsset = new JsonCuttingToolAsset(asset as CuttingToolAsset); break;
                             case "File": jsonAsset = new JsonFileAsset(asset as FileAsset); break;
+                            case "Fixture": jsonAsset = new JsonFixtureAsset(asset as IFixtureAsset); break;
+                            case "Pallet": jsonAsset = new JsonPalletAsset(asset as IPalletAsset); break;
                             case "QIFDocumentWrapper": jsonAsset = new JsonQIFDocumentWrapperAsset(asset as QIFDocumentWrapperAsset); break;
                             case "RawMaterial": jsonAsset = new JsonRawMaterialAsset(asset as RawMaterialAsset); break;
                         }

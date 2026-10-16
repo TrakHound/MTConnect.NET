@@ -8,6 +8,10 @@ using MTConnect.Assets.Json.CuttingTools;
 using MTConnect.Assets.Json.Files;
 using MTConnect.Assets.Json.QIF;
 using MTConnect.Assets.Json.RawMaterials;
+using MTConnect.Assets.Json.Fixture;
+using MTConnect.Assets.Json.Pallet;
+using MTConnect.Assets.Fixture;
+using MTConnect.Assets.Pallet;
 using MTConnect.Assets.QIF;
 using MTConnect.Assets.RawMaterials;
 using MTConnect.Devices;
@@ -196,6 +200,8 @@ namespace MTConnect.Formatters
                 {
                     case "CuttingTool": bytes = JsonFunctions.ConvertStream(new JsonCuttingToolAsset(asset as CuttingToolAsset)); break;
                     case "File": bytes = JsonFunctions.ConvertStream(new JsonFileAsset(asset as FileAsset)); break;
+                    case "Fixture": bytes = JsonFunctions.ConvertStream(new JsonFixtureAsset(asset as IFixtureAsset)); break;
+                    case "Pallet": bytes = JsonFunctions.ConvertStream(new JsonPalletAsset(asset as IPalletAsset)); break;
                     case "QIFDocumentWrapper": bytes = JsonFunctions.ConvertStream(new JsonQIFDocumentWrapperAsset(asset as QIFDocumentWrapperAsset)); break;
                     case "RawMaterial": bytes = JsonFunctions.ConvertStream(new JsonRawMaterialAsset(asset as RawMaterialAsset)); break;
 
@@ -345,6 +351,14 @@ namespace MTConnect.Formatters
 
                             case "QIFDocumentWrapper":
                                 asset = JsonSerializer.Deserialize<JsonQIFDocumentWrapperAsset>(json).ToQIFDocumentWrapperAsset();
+                                break;
+
+                            case "Fixture":
+                                asset = JsonSerializer.Deserialize<JsonFixtureAsset>(json).ToFixtureAsset();
+                                break;
+
+                            case "Pallet":
+                                asset = JsonSerializer.Deserialize<JsonPalletAsset>(json).ToPalletAsset();
                                 break;
 
                             case "RawMaterial":
