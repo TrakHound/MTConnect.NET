@@ -50,6 +50,7 @@
 
   <ItemGroup>
     <Compile Include="..\Shared\RepoRootLocator.cs" Link="Shared\RepoRootLocator.cs" />
+    <Compile Include="..\Shared\DockerAvailability.cs" Link="Shared\DockerAvailability.cs" />
   </ItemGroup>
 
   <ItemGroup>

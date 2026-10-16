@@ -121,7 +121,7 @@ namespace MTConnect.Tests.Integration.Workflows
 
         /// <summary>Pins the behaviour expressed by the test name: probe envelope multi device round trip preserves every device.</summary>
         /// <returns>The result of the operation.</returns>
-        [Fact]
+        [DockerFact]
         public async Task Probe_envelope_multi_device_round_trip_preserves_every_device()
         {
             // Subscribe to every Probe topic published under the prefix.
@@ -219,7 +219,7 @@ namespace MTConnect.Tests.Integration.Workflows
 
         /// <summary>Pins the behaviour expressed by the test name: probe envelope round trip through formatter preserves agent name case.</summary>
         /// <returns>The result of the operation.</returns>
-        [Fact]
+        [DockerFact]
         public async Task Probe_envelope_round_trip_through_formatter_preserves_Agent_name_case()
         {
             // The Device3 fixture name "LinuxCNC-Mixed_Case" sets up a
