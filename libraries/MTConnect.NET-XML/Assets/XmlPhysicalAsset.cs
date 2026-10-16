@@ -155,7 +155,7 @@ namespace MTConnect.Assets.Xml
             var measurements = new List<IMeasurement>();
             foreach (var element in Elements)
             {
-                var measurement = CreateMeasurement(element.LocalName);
+                var measurement = Measurement.Create(element.LocalName);
                 measurement.Value = ParseDouble(element.InnerText);
                 measurement.Units = GetAttribute(element, "units");
                 measurement.NativeUnits = GetAttribute(element, "nativeUnits");
@@ -182,8 +182,8 @@ namespace MTConnect.Assets.Xml
         public static void WriteXml(XmlWriter writer, IEnumerable<IMeasurement> measurements)
         {
             var items = measurements?
-                .Where(o => o != null && !string.IsNullOrEmpty(GetMeasurementType(o)))
-                .OrderBy(o => { var i = Array.IndexOf(_typeOrder, GetMeasurementType(o)); return i < 0 ? int.MaxValue : i; })
+                .Where(o => o != null && !string.IsNullOrEmpty(Measurement.GetTypeName(o)))
+                .OrderBy(o => { var i = Array.IndexOf(_typeOrder, Measurement.GetTypeName(o)); return i < 0 ? int.MaxValue : i; })
                 .ToList();
 
             if (items == null || items.Count < 1) return;
@@ -194,7 +194,7 @@ namespace MTConnect.Assets.Xml
 
             foreach (var measurement in items)
             {
-                writer.WriteStartElement(GetMeasurementType(measurement));
+                writer.WriteStartElement(Measurement.GetTypeName(measurement));
 
                 if (measurement.SignificantDigits != null) writer.WriteAttributeString("significantDigits", XmlConvert.ToString(measurement.SignificantDigits.Value));
                 if (!string.IsNullOrEmpty(measurement.Units)) writer.WriteAttributeString("units", measurement.Units);
@@ -210,34 +210,6 @@ namespace MTConnect.Assets.Xml
             writer.WriteEndElement();
         }
 
-
-        // The measurement type is carried by the class (Measurement.Type); IMeasurement does not expose it
-        private static string GetMeasurementType(IMeasurement measurement)
-        {
-            var type = (measurement as Measurement)?.Type;
-            if (string.IsNullOrEmpty(type))
-            {
-                var name = measurement.GetType().Name;
-                if (name != nameof(Measurement) && name.EndsWith(nameof(Measurement))) type = name.Substring(0, name.Length - nameof(Measurement).Length);
-            }
-
-            return type;
-        }
-
-        private static Measurement CreateMeasurement(string type)
-        {
-            Measurement measurement = null;
-
-            var measurementType = typeof(Measurement).Assembly.GetType($"{typeof(Measurement).Namespace}.{type}{nameof(Measurement)}");
-            if (measurementType != null && typeof(Measurement).IsAssignableFrom(measurementType) && measurementType.GetConstructor(Type.EmptyTypes) != null)
-            {
-                measurement = (Measurement)Activator.CreateInstance(measurementType);
-            }
-
-            if (measurement == null) measurement = new Measurement();
-            measurement.Type = type;
-            return measurement;
-        }
 
         private static string GetAttribute(XmlElement element, string name)
         {

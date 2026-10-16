@@ -6,6 +6,10 @@ using MTConnect.Assets.Files;
 using MTConnect.Assets.Json.CuttingTools;
 using MTConnect.Assets.Json.Files;
 using MTConnect.Assets.Json.RawMaterials;
+using MTConnect.Assets.Fixture;
+using MTConnect.Assets.Json.Fixture;
+using MTConnect.Assets.Json.Pallet;
+using MTConnect.Assets.Pallet;
 using MTConnect.Assets.RawMaterials;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
@@ -49,6 +53,18 @@ namespace MTConnect.Assets.Json
         [JsonPropertyName("RawMaterial")]
         public JsonRawMaterialAsset RawMaterial { get; set; }
 
+        /// <summary>
+        /// The wrapped <c>Pallet</c> asset, when the container holds one.
+        /// </summary>
+        [JsonPropertyName("Pallet")]
+        public JsonPalletAsset Pallet { get; set; }
+
+        /// <summary>
+        /// The wrapped <c>Fixture</c> asset, when the container holds one.
+        /// </summary>
+        [JsonPropertyName("Fixture")]
+        public JsonFixtureAsset Fixture { get; set; }
+
 
         /// <summary>
         /// Initializes an empty instance for JSON deserialization.
@@ -76,6 +92,14 @@ namespace MTConnect.Assets.Json
 
                     case RawMaterialAsset.TypeId:
                         RawMaterial = new JsonRawMaterialAsset((IRawMaterialAsset)asset);
+                        break;
+
+                    case PalletAsset.TypeId:
+                        Pallet = new JsonPalletAsset((IPalletAsset)asset);
+                        break;
+
+                    case FixtureAsset.TypeId:
+                        Fixture = new JsonFixtureAsset((IFixtureAsset)asset);
                         break;
                 }
             }
@@ -125,6 +149,16 @@ namespace MTConnect.Assets.Json
             if (RawMaterial != null)
             {
                 return RawMaterial.ToRawMaterialAsset();
+            }
+
+            if (Pallet != null)
+            {
+                return Pallet.ToPalletAsset();
+            }
+
+            if (Fixture != null)
+            {
+                return Fixture.ToFixtureAsset();
             }
 
             return null;

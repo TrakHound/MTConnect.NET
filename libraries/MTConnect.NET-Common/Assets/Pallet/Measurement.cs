@@ -33,5 +33,48 @@ namespace MTConnect.Assets.Pallet
                 Units = measurement.Units;
             }
         }
+
+
+        /// <summary>
+        /// Creates the measurement class for <paramref name="type"/> (a <see cref="WeightMeasurement"/> for "Weight",
+        /// and so on), or a plain <see cref="Measurement"/> carrying the type name when the type has no class of its own.
+        /// </summary>
+        /// <param name="type">The measurement type name, as used for its element name.</param>
+        public static Measurement Create(string type)
+        {
+            switch (type)
+            {
+                case WeightMeasurement.TypeId: return new WeightMeasurement();
+                case HeightMeasurement.TypeId: return new HeightMeasurement();
+                case WidthMeasurement.TypeId: return new WidthMeasurement();
+                case LengthMeasurement.TypeId: return new LengthMeasurement();
+                case SwingMeasurement.TypeId: return new SwingMeasurement();
+                case LoadedWeightMeasurement.TypeId: return new LoadedWeightMeasurement();
+                case LoadedHeightMeasurement.TypeId: return new LoadedHeightMeasurement();
+                case LoadedWidthMeasurement.TypeId: return new LoadedWidthMeasurement();
+                case LoadedLengthMeasurement.TypeId: return new LoadedLengthMeasurement();
+                case LoadedSwingMeasurement.TypeId: return new LoadedSwingMeasurement();
+                default: return new Measurement { Type = type };
+            }
+        }
+
+        /// <summary>
+        /// The type name of <paramref name="measurement"/>: its <see cref="Type"/>, or for another
+        /// <see cref="IMeasurement"/> implementation its class name without the "Measurement" suffix.
+        /// </summary>
+        /// <param name="measurement">The measurement to name.</param>
+        public static string GetTypeName(IMeasurement measurement)
+        {
+            if (measurement == null) return null;
+
+            var type = (measurement as Measurement)?.Type;
+            if (string.IsNullOrEmpty(type))
+            {
+                var name = measurement.GetType().Name;
+                if (name != nameof(Measurement) && name.EndsWith(nameof(Measurement))) type = name.Substring(0, name.Length - nameof(Measurement).Length);
+            }
+
+            return type;
+        }
     }
 }

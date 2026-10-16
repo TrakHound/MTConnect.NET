@@ -9,6 +9,10 @@ using MTConnect.Assets.Json.CuttingTools;
 using MTConnect.Assets.Json.Files;
 using MTConnect.Assets.Json.QIF;
 using MTConnect.Assets.Json.RawMaterials;
+using MTConnect.Assets.Fixture;
+using MTConnect.Assets.Json.Fixture;
+using MTConnect.Assets.Json.Pallet;
+using MTConnect.Assets.Pallet;
 using MTConnect.Assets.RawMaterials;
 using MTConnect.Devices;
 using MTConnect.Devices.Json;
@@ -118,6 +122,16 @@ namespace MTConnect.Formatters
                     case "RawMaterial":
                         assets.RawMaterials = new List<JsonRawMaterialAsset>();
                         assets.RawMaterials.Add(new JsonRawMaterialAsset(asset as RawMaterialAsset));
+                        break;
+
+                    case "Pallet":
+                        assets.Pallets = new List<JsonPalletAsset>();
+                        assets.Pallets.Add(new JsonPalletAsset(asset as IPalletAsset));
+                        break;
+
+                    case "Fixture":
+                        assets.Fixtures = new List<JsonFixtureAsset>();
+                        assets.Fixtures.Add(new JsonFixtureAsset(asset as IFixtureAsset));
                         break;
 
                         //default:
@@ -279,6 +293,14 @@ namespace MTConnect.Formatters
 
                             case "RawMaterial":
                                 asset = JsonSerializer.Deserialize<JsonRawMaterialAsset>(json).ToRawMaterialAsset();
+                                break;
+
+                            case "Pallet":
+                                asset = JsonSerializer.Deserialize<JsonPalletAsset>(json).ToPalletAsset();
+                                break;
+
+                            case "Fixture":
+                                asset = JsonSerializer.Deserialize<JsonFixtureAsset>(json).ToFixtureAsset();
                                 break;
                         }
                     }

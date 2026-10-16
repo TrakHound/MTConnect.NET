@@ -6,6 +6,10 @@ using MTConnect.Assets.Files;
 using MTConnect.Assets.Json.CuttingTools;
 using MTConnect.Assets.Json.Files;
 using MTConnect.Assets.Json.RawMaterials;
+using MTConnect.Assets.Fixture;
+using MTConnect.Assets.Json.Fixture;
+using MTConnect.Assets.Json.Pallet;
+using MTConnect.Assets.Pallet;
 using MTConnect.Assets.RawMaterials;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
@@ -47,6 +51,18 @@ namespace MTConnect.Assets.Json
         [JsonPropertyName("RawMaterial")]
         public List<JsonRawMaterialAsset> RawMaterials { get; set; }
 
+        /// <summary>
+        /// Pallet assets in the document.
+        /// </summary>
+        [JsonPropertyName("Pallet")]
+        public List<JsonPalletAsset> Pallets { get; set; }
+
+        /// <summary>
+        /// Fixture assets in the document.
+        /// </summary>
+        [JsonPropertyName("Fixture")]
+        public List<JsonFixtureAsset> Fixtures { get; set; }
+
 
         /// <summary>
         /// Initializes an empty instance for JSON deserialization.
@@ -80,6 +96,16 @@ namespace MTConnect.Assets.Json
                             if (RawMaterials == null) RawMaterials = new List<JsonRawMaterialAsset>();
                             RawMaterials.Add(new JsonRawMaterialAsset((IRawMaterialAsset)asset));
                             break;
+
+                        case PalletAsset.TypeId:
+                            if (Pallets == null) Pallets = new List<JsonPalletAsset>();
+                            Pallets.Add(new JsonPalletAsset((IPalletAsset)asset));
+                            break;
+
+                        case FixtureAsset.TypeId:
+                            if (Fixtures == null) Fixtures = new List<JsonFixtureAsset>();
+                            Fixtures.Add(new JsonFixtureAsset((IFixtureAsset)asset));
+                            break;
                     }
                 }
             }
@@ -108,6 +134,16 @@ namespace MTConnect.Assets.Json
             if (!RawMaterials.IsNullOrEmpty())
             {
                 foreach (var asset in RawMaterials) assets.Add(asset.ToRawMaterialAsset());
+            }
+
+            if (!Pallets.IsNullOrEmpty())
+            {
+                foreach (var asset in Pallets) assets.Add(asset.ToPalletAsset());
+            }
+
+            if (!Fixtures.IsNullOrEmpty())
+            {
+                foreach (var asset in Fixtures) assets.Add(asset.ToFixtureAsset());
             }
 
             return assets;
