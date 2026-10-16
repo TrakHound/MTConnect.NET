@@ -78,6 +78,9 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
         [OneTimeSetUp]
         public async Task GlobalSetUp()
         {
+            // Skipped, not failed, when Docker is not reachable (unless MTCONNECT_E2E_DOCKER asks for it)
+            await DockerGate.RequireDockerAsync().ConfigureAwait(false);
+
             // Mosquitto refuses anonymous connections by default; stage a
             // per-fixture config that opens 1883/tcp anonymously, mirroring
             // MqttBrokerFixture in MTConnect.NET-Integration-Tests.

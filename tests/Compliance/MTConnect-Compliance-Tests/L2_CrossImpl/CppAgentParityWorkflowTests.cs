@@ -68,6 +68,9 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
         [OneTimeSetUp]
         public async Task GlobalSetUp()
         {
+            // Skipped, not failed, when Docker is not reachable (unless MTCONNECT_E2E_DOCKER asks for it)
+            await DockerGate.RequireDockerAsync().ConfigureAwait(false);
+
             // Stage the fixture into a per-run temp dir so the bind-mount
             // into the cppagent container points at predictable paths.
             // Tests/test-runs are independent of each other; the staging
