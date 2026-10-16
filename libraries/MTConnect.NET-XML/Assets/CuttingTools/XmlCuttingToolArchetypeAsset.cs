@@ -37,7 +37,7 @@ namespace MTConnect.Assets.Xml.CuttingTools
         /// <summary>
         /// The vendor-specific definition document describing the tool.
         /// </summary>
-        [XmlAttribute("CuttingToolDefinition")]
+        [XmlElement("CuttingToolDefinition")]
         public XmlCuttingToolDefinition CuttingToolDefinition { get; set; }
 
         /// <summary>
@@ -55,11 +55,7 @@ namespace MTConnect.Assets.Xml.CuttingTools
         public override IAsset ToAsset()
         {
             var asset = new CuttingToolArchetypeAsset();
-            asset.AssetId = AssetId;
-            asset.Type = CuttingToolAsset.TypeId;
-            asset.Timestamp = Timestamp;
-            asset.DeviceUuid = DeviceUuid;
-            asset.Removed = Removed;
+            CopyCommonProperties(asset);
 
             asset.SerialNumber = SerialNumber;
             asset.ToolId = ToolId;
@@ -104,6 +100,9 @@ namespace MTConnect.Assets.Xml.CuttingTools
                     }
                 }
 
+                // Description is the first element before MTConnect 2.6
+                WriteLeadingCommonElementsXml(writer, asset);
+
                 // Write CuttingToolLifeCycle
                 if (cuttingTool.CuttingToolLifeCycle != null)
                 {
@@ -115,6 +114,8 @@ namespace MTConnect.Assets.Xml.CuttingTools
                 {
                     XmlCuttingToolDefinition.WriteXml(writer, cuttingTool.CuttingToolDefinition);
                 }
+
+                WriteCommonElementsXml(writer, asset);
 
                 writer.WriteEndElement();
             }

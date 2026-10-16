@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets.Xml;
+using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -25,7 +26,25 @@ namespace MTConnect.Assets.QIF
         /// <summary>
         /// The embedded QIF document, captured verbatim as raw XML.
         /// </summary>
+        [XmlIgnore]
         public XmlQIFDocument QIFDocument { get; set; }
+
+        /// <summary>
+        /// The child elements not otherwise mapped, as read; sets <see cref="QIFDocument"/> from the
+        /// <c>QIFDocument</c> element in whatever namespace it carries (a QIF document normally declares
+        /// its own, which a namespace-specific mapping would not match). Used by the XML serializer only.
+        /// </summary>
+        [XmlAnyElement]
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public XmlElement[] OtherElements
+        {
+            get { return null; }
+            set
+            {
+                var element = value?.FirstOrDefault(o => o.LocalName == "QIFDocument");
+                if (element != null) QIFDocument = new XmlQIFDocument { QIFDocument = element.OuterXml };
+            }
+        }
 
 
         /// <summary>
@@ -38,12 +57,7 @@ namespace MTConnect.Assets.QIF
         {
             var asset = new QIFDocumentWrapperAsset();
 
-            asset.AssetId = AssetId;
-            asset.Timestamp = Timestamp;
-            asset.DeviceUuid = DeviceUuid;
-            asset.Removed = Removed;
-
-            //if (Description != null) asset.Description = Description.ToDescription();
+            CopyCommonProperties(asset);
 
             asset.QifDocumentType = QIFDocumentType.ConvertEnum<QIFDocumentType>();
 
@@ -69,6 +83,8 @@ namespace MTConnect.Assets.QIF
 
                 writer.WriteAttributeString("qifDocumentType", qifDocumentWrapper.QifDocumentType.ToString());
                 writer.WriteRaw(qifDocumentWrapper.QIFDocument);
+
+                WriteCommonElementsXml(writer, asset);
 
                 writer.WriteEndElement();
             }

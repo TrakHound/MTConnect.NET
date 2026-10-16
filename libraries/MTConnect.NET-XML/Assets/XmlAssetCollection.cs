@@ -27,6 +27,13 @@ namespace MTConnect.Assets.Xml
         [XmlArrayItem(typeof(XmlCuttingToolAsset), ElementName = "CuttingTool")]
         public List<IAsset> Assets { get; set; }
 
+        /// <summary>
+        /// The MTConnect version of the document the assets are written into, which decides where
+        /// version-dependent elements go; <c>null</c> uses the 2.6+ layout. Not serialized.
+        /// </summary>
+        [XmlIgnore]
+        public System.Version MTConnectVersion { get; set; }
+
 
         /// <summary>
         /// Creates an empty collection.
@@ -60,7 +67,8 @@ namespace MTConnect.Assets.Xml
 
         /// <summary>
         /// Writes each contained asset to <paramref name="writer"/> by
-        /// dispatching to its concrete asset surrogate.
+        /// dispatching to its concrete asset surrogate, laid out for
+        /// <see cref="MTConnectVersion"/>.
         /// </summary>
         public void WriteXml(XmlWriter writer)
         {
@@ -68,66 +76,10 @@ namespace MTConnect.Assets.Xml
             {
                 for (var i = 0; i < Assets.Count; i++)
                 {
-                    var asset = Assets[i];
-                    XmlAsset.WriteXml(writer, asset);
-
-
-                    //var xml = XmlAsset.ToXml(asset, _indentOutput);
-                    //if (!string.IsNullOrEmpty(xml))
-                    //{
-                    //    if (_indentOutput)
-                    //    {
-                    //        writer.WriteWhitespace(XmlFunctions.NewLine);
-
-                    //        // Manually Indent
-                    //        var lines = xml.Split(XmlFunctions.NewLineCharacter);
-                    //        foreach (var line in lines)
-                    //        {
-                    //            writer.WriteWhitespace(XmlFunctions.Tab);
-                    //            writer.WriteWhitespace(XmlFunctions.Tab);
-                    //            writer.WriteRaw(line);
-                    //        }
-                    //    }
-                    //    else
-                    //    {
-                    //        writer.WriteRaw(xml);
-                    //    }
-                    //}
+                    XmlAsset.WriteXml(writer, Assets[i], MTConnectVersion);
                 }
             }
         }
-
-        //public void WriteXml(XmlWriter writer)
-        //{
-        //    if (!Assets.IsNullOrEmpty())
-        //    {
-        //        for (var i = 0; i < Assets.Count; i++)
-        //        {
-        //            var asset = Assets[i];
-        //            var xml = XmlAsset.ToXml(asset, _indentOutput);
-        //            if (!string.IsNullOrEmpty(xml))
-        //            {
-        //                if (_indentOutput)
-        //                {
-        //                    writer.WriteWhitespace(XmlFunctions.NewLine);
-
-        //                    // Manually Indent
-        //                    var lines = xml.Split(XmlFunctions.NewLineCharacter);
-        //                    foreach (var line in lines)
-        //                    {
-        //                        writer.WriteWhitespace(XmlFunctions.Tab);
-        //                        writer.WriteWhitespace(XmlFunctions.Tab);
-        //                        writer.WriteRaw(line);
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    writer.WriteRaw(xml);
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
 
         /// <summary>
         /// Reads the asset child elements from <paramref name="reader"/>,

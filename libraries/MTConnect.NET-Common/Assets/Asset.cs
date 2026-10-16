@@ -134,16 +134,20 @@ namespace MTConnect.Assets
 
 
         /// <summary>
-        /// Prepares this asset for inclusion in a response document for the given MTConnect version: excludes the asset entirely when the version predates 1.2, drops the Hash for versions before 2.2 (where it is not defined), then delegates per-type adjustment to <see cref="OnProcess"/>.
+        /// Prepares a copy of this asset for inclusion in a response document for the given MTConnect version: excludes the asset entirely when the version predates 1.2, drops the Hash outside 2.2 through 2.5 (the versions that define it as an Asset attribute), then delegates per-type adjustment to <see cref="OnProcess"/>. This asset itself is not changed.
         /// </summary>
         /// <param name="mtconnectVersion">The MTConnect version the response document targets.</param>
         public IAsset Process(Version mtconnectVersion)
         {
             if (mtconnectVersion < MTConnectVersions.Version12) return null;
 
-            if (mtconnectVersion < MTConnectVersions.Version22) Hash = null;
+            // Adjust a copy: this is the stored asset, and a request for one version must not change what
+            // requests for other versions see (dropping the Hash here used to erase it for good)
+            var asset = (Asset)MemberwiseClone();
 
-            return OnProcess(mtconnectVersion);
+            if (mtconnectVersion < MTConnectVersions.Version22 || mtconnectVersion >= MTConnectVersions.Version26) asset.Hash = null;
+
+            return asset.OnProcess(mtconnectVersion);
         }
 
         /// <summary>

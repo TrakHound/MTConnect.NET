@@ -61,12 +61,7 @@ namespace MTConnect.Assets.Xml.CuttingTools
         public override IAsset ToAsset()
         {
             var asset = new CuttingToolAsset();
-            asset.AssetId = AssetId;
-            asset.Timestamp = Timestamp;
-            asset.DeviceUuid = DeviceUuid;
-            asset.Removed = Removed;
-
-            //if (Description != null) asset.Description = Description.ToDescription();
+            CopyCommonProperties(asset);
 
             asset.SerialNumber = SerialNumber;
             asset.ToolId = ToolId;
@@ -112,6 +107,9 @@ namespace MTConnect.Assets.Xml.CuttingTools
                     }
                 }
 
+                // Description is the first element before MTConnect 2.6
+                WriteLeadingCommonElementsXml(writer, asset);
+
                 // Write CuttingToolLifeCycle
                 if (cuttingTool.CuttingToolLifeCycle != null)
                 {
@@ -129,6 +127,8 @@ namespace MTConnect.Assets.Xml.CuttingTools
                 {
                     XmlCuttingToolDefinition.WriteXml(writer, cuttingTool.CuttingToolDefinition);
                 }
+
+                WriteCommonElementsXml(writer, asset);
 
                 writer.WriteEndElement();
             }

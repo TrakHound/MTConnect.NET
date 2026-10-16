@@ -134,8 +134,9 @@ namespace MTConnect.Formatters.Xml
         {
             if (asset != null)
             {
+                // Null when the asset's type has no XML serializer or it could not be written
                 var stream = XmlAsset.ToXml(asset, true);
-                return FormatWriteResult.Successful(stream, ContentType);
+                if (stream != null) return FormatWriteResult.Successful(stream, ContentType);
             }
 
             return FormatWriteResult.Error();
@@ -256,8 +257,8 @@ namespace MTConnect.Formatters.Xml
             }
 
             // Read Entity
-            var entity = XmlAsset.FromXml(assetType, bytes);
-            var success = entity != null;
+            var success = XmlAsset.TryFromXml(assetType, bytes, out var entity, out var error);
+            if (!success && !string.IsNullOrEmpty(error)) errors.Add(error);
 
             return new FormatReadResult<IAsset>(entity, success, messages, warnings, errors);
         }
