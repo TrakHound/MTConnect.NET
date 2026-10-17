@@ -13,6 +13,9 @@ namespace MTConnect.Tests.Integration.Workflows
     /// </summary>
     public class DockerFactAttributeTests
     {
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: skips only when docker is unreachable and not asked for.
+        /// </summary>
         [Fact]
         public void Skips_only_when_Docker_is_unreachable_and_not_asked_for()
         {
@@ -21,6 +24,9 @@ namespace MTConnect.Tests.Integration.Workflows
             Assert.Null(DockerFactAttribute.GetSkipReason(DockerGateDecision.Fail));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: decision follows reachability and the environment.
+        /// </summary>
         [Theory]
         [InlineData(true, null, "Run")]
         [InlineData(true, "true", "Run")]
@@ -34,6 +40,9 @@ namespace MTConnect.Tests.Integration.Workflows
             Assert.Equal(expected, DockerAvailability.Decide(reachable, environmentValue).ToString());
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: attribute matches the current environment.
+        /// </summary>
         [Fact]
         public void Attribute_matches_the_current_environment()
         {

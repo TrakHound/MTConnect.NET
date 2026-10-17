@@ -4,6 +4,9 @@
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>MTConnect.NET_Docs_Tests</RootNamespace>
     <Nullable>enable</Nullable>
+    <!-- Always: the docs build's API reference reads this project's XML doc file, and its
+         generate-api-ref.sh step skips rebuilding this project when this test runs it -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>

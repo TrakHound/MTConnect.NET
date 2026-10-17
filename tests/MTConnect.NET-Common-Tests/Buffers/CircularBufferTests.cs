@@ -53,12 +53,18 @@ namespace MTConnect.Tests.Common.Buffers
         }
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: constructor zero capacity throws.
+        /// </summary>
         [Test]
         public void Constructor_ZeroCapacity_Throws()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => CreateBuffer(0));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: first sequence empty buffer returns one.
+        /// </summary>
         [Test]
         public void FirstSequence_EmptyBuffer_ReturnsOne()
         {
@@ -67,6 +73,9 @@ namespace MTConnect.Tests.Common.Buffers
             Assert.That(buffer.FirstSequence, Is.EqualTo(1UL));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: first sequence after wrap is oldest retained.
+        /// </summary>
         [Test]
         public void FirstSequence_AfterWrap_IsOldestRetained()
         {
@@ -77,6 +86,9 @@ namespace MTConnect.Tests.Common.Buffers
             Assert.That(buffer.LastSequence, Is.EqualTo(5UL));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: get observations not full returns all in order.
+        /// </summary>
         [Test]
         public void GetObservations_NotFull_ReturnsAllInOrder()
         {
@@ -88,6 +100,9 @@ namespace MTConnect.Tests.Common.Buffers
             Assert.That(Sequences(results), Is.EqualTo(new ulong[] { 1, 2, 3, 4 }));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: get observations after wrap returns oldest to newest.
+        /// </summary>
         [Test]
         public void GetObservations_AfterWrap_ReturnsOldestToNewest()
         {
@@ -101,6 +116,9 @@ namespace MTConnect.Tests.Common.Buffers
             Assert.That(results.LastObservationSequence, Is.EqualTo(5UL));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: get observations many wraps keeps last capacity observations.
+        /// </summary>
         [Test]
         public void GetObservations_ManyWraps_KeepsLastCapacityObservations()
         {
@@ -112,6 +130,9 @@ namespace MTConnect.Tests.Common.Buffers
             Assert.That(Sequences(results), Is.EqualTo(new ulong[] { 27, 28, 29, 30 }));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: get observations capacity one keeps only newest.
+        /// </summary>
         [Test]
         public void GetObservations_CapacityOne_KeepsOnlyNewest()
         {
@@ -123,6 +144,9 @@ namespace MTConnect.Tests.Common.Buffers
             Assert.That(Sequences(results), Is.EqualTo(new ulong[] { 3 }));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: get observations from to window across wrap returns window.
+        /// </summary>
         [Test]
         public void GetObservations_FromToWindowAcrossWrap_ReturnsWindow()
         {
@@ -134,6 +158,9 @@ namespace MTConnect.Tests.Common.Buffers
             Assert.That(Sequences(results), Is.EqualTo(new ulong[] { 8, 9 }));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: get observations count limits results.
+        /// </summary>
         [Test]
         public void GetObservations_Count_LimitsResults()
         {
@@ -145,6 +172,9 @@ namespace MTConnect.Tests.Common.Buffers
             Assert.That(Sequences(results), Is.EqualTo(new ulong[] { 1, 2 }));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: get observations multiple keys filters and groups by key.
+        /// </summary>
         [Test]
         public void GetObservations_MultipleKeys_FiltersAndGroupsByKey()
         {
@@ -158,6 +188,9 @@ namespace MTConnect.Tests.Common.Buffers
             Assert.That(buffer.GetObservations(new[] { KeyB }, count: 0).Observations.All(o => o.Key == KeyB), Is.True);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: get observations empty buffer returns no observations.
+        /// </summary>
         [Test]
         public void GetObservations_EmptyBuffer_ReturnsNoObservations()
         {
@@ -168,6 +201,9 @@ namespace MTConnect.Tests.Common.Buffers
             Assert.That(results.ObservationCount, Is.EqualTo(0U));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: get current observations at within archive after wrap returns latest at or before.
+        /// </summary>
         [Test]
         public void GetCurrentObservationsAt_WithinArchiveAfterWrap_ReturnsLatestAtOrBefore()
         {
@@ -179,6 +215,9 @@ namespace MTConnect.Tests.Common.Buffers
             Assert.That(Sequences(results), Is.EqualTo(new ulong[] { 8 }));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: get current observations at beyond last while not full does not throw.
+        /// </summary>
         [Test]
         public void GetCurrentObservationsAt_BeyondLastWhileNotFull_DoesNotThrow()
         {
@@ -192,6 +231,9 @@ namespace MTConnect.Tests.Common.Buffers
             Assert.That(Sequences(results!), Is.EqualTo(new ulong[] { 4 }));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: get current observations at older than archive does not return newer observation.
+        /// </summary>
         [Test]
         public void GetCurrentObservationsAt_OlderThanArchive_DoesNotReturnNewerObservation()
         {

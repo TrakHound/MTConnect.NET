@@ -22,6 +22,9 @@ namespace MTConnect.Tests.Common.Assets
             return asset;
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: process does not change the stored asset.
+        /// </summary>
         [Test]
         public void Process_does_not_change_the_stored_asset()
         {
@@ -35,6 +38,9 @@ namespace MTConnect.Tests.Common.Assets
             Assert.That(asset.Process(MTConnectVersions.Version25).Hash, Is.EqualTo("h"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: process keeps the hash only where the version defines it.
+        /// </summary>
         [TestCase("2.1", false)]
         [TestCase("2.2", true)]
         [TestCase("2.5", true)]
@@ -48,6 +54,9 @@ namespace MTConnect.Tests.Common.Assets
             Assert.That(processed.Description, Is.EqualTo("d"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: process keeps the hash on a cutting tool copy.
+        /// </summary>
         [Test]
         public void Process_keeps_the_hash_on_a_cutting_tool_copy()
         {

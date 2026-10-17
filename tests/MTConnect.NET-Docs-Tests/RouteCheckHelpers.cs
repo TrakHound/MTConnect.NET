@@ -271,6 +271,47 @@ internal static class RouteCheckHelpers
     }
 
     /// <summary>
+    /// The full path of <paramref name="fileName"/> (such as <c>npm.cmd</c>) in the first
+    /// <c>PATH</c> directory that contains it, or <paramref name="fileName"/> unchanged when it is
+    /// already a path or is not found. On Windows a <c>.cmd</c> shim must be started by its full
+    /// path: started by bare name, cmd.exe resolves the shim's own <c>%~dp0</c> to the current
+    /// directory, so npm.cmd looks for <c>node_modules/npm/bin/npm-prefix.js</c> under the
+    /// working directory (<c>docs/</c>) and fails with MODULE_NOT_FOUND.
+    /// </summary>
+    /// <param name="fileName">The executable to find.</param>
+    /// <param name="environment">
+    /// Optional environment-variable accessor; defaults to
+    /// <see cref="Environment.GetEnvironmentVariable(string)"/> so tests can inject a <c>PATH</c>.
+    /// </param>
+    public static string ResolveExecutable(string fileName, Func<string, string?>? environment = null)
+    {
+        if (string.IsNullOrEmpty(fileName) || Path.IsPathRooted(fileName) || fileName.IndexOfAny(new[] { '/', '\\' }) >= 0)
+        {
+            return fileName;
+        }
+
+        environment ??= Environment.GetEnvironmentVariable;
+
+        var path = environment("PATH");
+        if (string.IsNullOrEmpty(path)) return fileName;
+
+        foreach (var directory in path.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries))
+        {
+            try
+            {
+                var candidate = Path.Combine(directory.Trim().Trim('"'), fileName);
+                if (File.Exists(candidate)) return Path.GetFullPath(candidate);
+            }
+            catch (ArgumentException)
+            {
+                // A malformed PATH entry: skip it
+            }
+        }
+
+        return fileName;
+    }
+
+    /// <summary>
     /// Ask the OS for a currently-free TCP port on the loopback interface
     /// by binding ephemerally, reading the assigned port, and releasing.
     /// The caller is responsible for handling the unavoidable TOCTOU

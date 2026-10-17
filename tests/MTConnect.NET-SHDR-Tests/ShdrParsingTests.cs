@@ -23,6 +23,9 @@ namespace MTConnect.Tests.Shdr
         private const string Timestamp = "2024-01-01T00:00:00.0000000Z";
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: data item value with pipe round trips.
+        /// </summary>
         [Test]
         public void DataItem_ValueWithPipe_RoundTrips()
         {
@@ -34,6 +37,9 @@ namespace MTConnect.Tests.Shdr
             Assert.That(parsed.CDATA, Is.EqualTo("Program Author | Patrick"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: data item quoted value with pipe in multi item line is one value.
+        /// </summary>
         [Test]
         public void DataItem_QuotedValueWithPipe_InMultiItemLine_IsOneValue()
         {
@@ -44,6 +50,9 @@ namespace MTConnect.Tests.Shdr
             Assert.That(items[2].CDATA, Is.EqualTo("2"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: data item value that only starts with quote is plain text.
+        /// </summary>
         [Test]
         public void DataItem_ValueThatOnlyStartsWithQuote_IsPlainText()
         {
@@ -52,6 +61,9 @@ namespace MTConnect.Tests.Shdr
             Assert.That(item.CDATA, Is.EqualTo("\"Tool broken\" detected"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: data item reset triggered suffix is parsed.
+        /// </summary>
         [Test]
         public void DataItem_ResetTriggeredSuffix_IsParsed()
         {
@@ -61,6 +73,9 @@ namespace MTConnect.Tests.Shdr
             Assert.That(item.ResetTriggered, Is.EqualTo(ResetTriggered.DAY));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: data item text containing colon is not treated as reset trigger.
+        /// </summary>
         [TestCase("(MSG:CHECK TOOL)")]
         [TestCase("10:30")]
         [TestCase("JOB:NOT_A_RESET")]
@@ -72,6 +87,9 @@ namespace MTConnect.Tests.Shdr
             Assert.That(item.ResetTriggered, Is.EqualTo(ResetTriggered.NOT_SPECIFIED));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: data item duration parses in any culture.
+        /// </summary>
         [Test]
         public void DataItem_DurationParses_InAnyCulture()
         {
@@ -86,6 +104,9 @@ namespace MTConnect.Tests.Shdr
         }
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: data set quoted and braced entries are parsed.
+        /// </summary>
         [Test]
         public void DataSet_QuotedAndBracedEntries_AreParsed()
         {
@@ -100,6 +121,9 @@ namespace MTConnect.Tests.Shdr
             Assert.That(entries["f"].Removed, Is.True);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: data set values with spaces and empty values round trip.
+        /// </summary>
         [Test]
         public void DataSet_ValuesWithSpacesAndEmptyValues_RoundTrip()
         {
@@ -121,6 +145,9 @@ namespace MTConnect.Tests.Shdr
             Assert.That(entries["gone"].Removed, Is.True);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: data set reset triggered prefix is parsed.
+        /// </summary>
         [Test]
         public void DataSet_ResetTriggeredPrefix_IsParsed()
         {
@@ -130,6 +157,9 @@ namespace MTConnect.Tests.Shdr
             Assert.That(dataSet.Entries.Select(o => o.Key), Is.EqualTo(new[] { "a", "b" }));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: data set duration is kept.
+        /// </summary>
         [Test]
         public void DataSet_Duration_IsKept()
         {
@@ -139,6 +169,9 @@ namespace MTConnect.Tests.Shdr
         }
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: table quoted cells are unquoted.
+        /// </summary>
         [Test]
         public void Table_QuotedCells_AreUnquoted()
         {
@@ -151,6 +184,9 @@ namespace MTConnect.Tests.Shdr
             Assert.That(table.Entries.Single(o => o.Key == "r2").Removed, Is.True);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: table cells with spaces round trip.
+        /// </summary>
         [Test]
         public void Table_CellsWithSpaces_RoundTrip()
         {
@@ -167,6 +203,9 @@ namespace MTConnect.Tests.Shdr
         }
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: time series parses in any culture and ignores extra spaces.
+        /// </summary>
         [Test]
         public void TimeSeries_ParsesInAnyCulture_AndIgnoresExtraSpaces()
         {
@@ -180,6 +219,9 @@ namespace MTConnect.Tests.Shdr
             });
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: time series non numeric sample is rejected.
+        /// </summary>
         [Test]
         public void TimeSeries_NonNumericSample_IsRejected()
         {
@@ -187,6 +229,9 @@ namespace MTConnect.Tests.Shdr
         }
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: condition with duration is not dropped.
+        /// </summary>
         [Test]
         public void Condition_WithDuration_IsNotDropped()
         {
@@ -198,6 +243,9 @@ namespace MTConnect.Tests.Shdr
             Assert.That(condition.Message, Is.EqualTo("Overheat"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: condition lowercase level is accepted.
+        /// </summary>
         [Test]
         public void Condition_LowercaseLevel_IsAccepted()
         {
@@ -207,6 +255,9 @@ namespace MTConnect.Tests.Shdr
             Assert.That(condition.Level, Is.EqualTo(ConditionLevel.NORMAL));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: condition message with pipe round trips.
+        /// </summary>
         [Test]
         public void Condition_MessageWithPipe_RoundTrips()
         {
@@ -218,6 +269,9 @@ namespace MTConnect.Tests.Shdr
         }
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: message without timestamp keeps native code field.
+        /// </summary>
         [Test]
         public void Message_WithoutTimestamp_KeepsNativeCodeField()
         {
@@ -229,6 +283,9 @@ namespace MTConnect.Tests.Shdr
             Assert.That(parsed.CDATA, Is.EqualTo("hello"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: message quoted text with pipe is one value.
+        /// </summary>
         [Test]
         public void Message_QuotedTextWithPipe_IsOneValue()
         {
@@ -238,6 +295,9 @@ namespace MTConnect.Tests.Shdr
         }
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: asset with empty timestamp is recognised.
+        /// </summary>
         [Test]
         public void Asset_WithEmptyTimestamp_IsRecognised()
         {
@@ -251,6 +311,9 @@ namespace MTConnect.Tests.Shdr
             Assert.That(asset.AssetType, Is.EqualTo("File"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: multiline asset header with and without timestamp is recognised.
+        /// </summary>
         [Test]
         public void MultilineAssetHeader_WithAndWithoutTimestamp_IsRecognised()
         {

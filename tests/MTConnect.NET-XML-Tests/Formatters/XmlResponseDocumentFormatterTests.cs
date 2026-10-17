@@ -74,6 +74,9 @@ namespace MTConnect.Tests.XML.Formatters
         }
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: format returns content positioned at start.
+        /// </summary>
         [Test]
         public void Format_ReturnsContentPositionedAtStart()
         {
@@ -87,6 +90,9 @@ namespace MTConnect.Tests.XML.Formatters
             Assert.That(result.Content.Position, Is.EqualTo(0));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: read with validation still parses every document type.
+        /// </summary>
         [Test]
         public void Read_WithValidation_StillParsesEveryDocumentType()
         {
@@ -110,6 +116,9 @@ namespace MTConnect.Tests.XML.Formatters
             Assert.That(error.Success, Is.True, string.Join("; ", error.Errors ?? Enumerable.Empty<string>()));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: read non seekable stream parses.
+        /// </summary>
         [Test]
         public void Read_NonSeekableStream_Parses()
         {
@@ -121,6 +130,9 @@ namespace MTConnect.Tests.XML.Formatters
             Assert.That(result.Content, Is.Not.Null);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: read restores seekable stream position so it can be read again.
+        /// </summary>
         [Test]
         public void Read_RestoresSeekableStreamPosition_SoItCanBeReadAgain()
         {
@@ -135,6 +147,9 @@ namespace MTConnect.Tests.XML.Formatters
             Assert.That(asError.Content.Errors.Single().ErrorCode, Is.EqualTo(ErrorCode.INVALID_REQUEST));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: read invalid xml reports errors.
+        /// </summary>
         [Test]
         public void Read_InvalidXml_ReportsErrors()
         {
@@ -146,6 +161,9 @@ namespace MTConnect.Tests.XML.Formatters
             Assert.That(result.Errors, Is.Not.Empty);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: read empty or null content reports error.
+        /// </summary>
         [Test]
         public void Read_EmptyOrNullContent_ReportsError()
         {
@@ -153,6 +171,9 @@ namespace MTConnect.Tests.XML.Formatters
             Assert.That(_formatter.CreateDevicesResponseDocument(new MemoryStream()).Errors, Is.Not.Empty);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: read validation failure is warning or error by level.
+        /// </summary>
         [TestCase("1", false)]
         [TestCase("Warning", false)]
         [TestCase("2", true)]
@@ -169,6 +190,9 @@ namespace MTConnect.Tests.XML.Formatters
             Assert.That((expectError ? result.Warnings : result.Errors) ?? Enumerable.Empty<string>(), Is.Empty);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: format devices validation failure strict rejects.
+        /// </summary>
         [TestCase("1", true)]
         [TestCase("Warning", true)]
         [TestCase("2", false)]
@@ -185,6 +209,9 @@ namespace MTConnect.Tests.XML.Formatters
             Assert.That(result.Content != null, Is.EqualTo(expectContent));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: format error strict validation failure is still returned as warning.
+        /// </summary>
         [Test]
         public void Format_Error_StrictValidationFailure_IsStillReturnedAsWarning()
         {
@@ -197,6 +224,9 @@ namespace MTConnect.Tests.XML.Formatters
             Assert.That(result.Warnings, Is.Not.Empty);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: format validation without schema does not claim validation.
+        /// </summary>
         [Test]
         public void Format_ValidationWithoutSchema_DoesNotClaimValidation()
         {
@@ -207,6 +237,9 @@ namespace MTConnect.Tests.XML.Formatters
             Assert.That(result.Messages ?? Enumerable.Empty<string>(), Does.Not.Contain("XML Validation Successful"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: format concurrent validation with cached schemas is consistent.
+        /// </summary>
         [Test]
         public void Format_ConcurrentValidation_WithCachedSchemas_IsConsistent()
         {

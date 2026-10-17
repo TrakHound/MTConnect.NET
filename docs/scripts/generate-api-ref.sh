@@ -93,8 +93,20 @@ if ! "${skip_build}"; then
   # fails on SDKs that lack the legacy reference assemblies. The
   # reference is content, not packaged output, so a Debug build is
   # fine.
+  #
+  # MTCONNECT_DOCS_SKIP_BUILD lists project directories (space-separated,
+  # as written in `projects` above) to leave as they are. The docs test
+  # (tests/MTConnect.NET-Docs-Tests) runs this script through `npm run
+  # build` and passes its own project: its test host runs from that
+  # project's bin/ folder, which Windows keeps locked, and `dotnet test`
+  # has just built it (with its XML doc file) anyway.
+  skip_projects=" ${MTCONNECT_DOCS_SKIP_BUILD:-} "
   for entry in "${projects[@]}"; do
     proj_dir="${entry%%:*}"
+    if [[ "${skip_projects}" == *" ${proj_dir} "* ]]; then
+      echo "    skipping ${proj_dir} (MTCONNECT_DOCS_SKIP_BUILD)"
+      continue
+    fi
     if [[ "${entry}" == *:* ]]; then
       csproj_name="${entry##*:}"
     else

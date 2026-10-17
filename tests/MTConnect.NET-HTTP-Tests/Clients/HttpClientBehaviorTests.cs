@@ -60,6 +60,9 @@ namespace MTConnect.Tests.Http.Clients
         }
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: stream back to back parts in any header order are all raised.
+        /// </summary>
         [Test]
         [Timeout(15000)]
         public async Task Stream_BackToBackParts_InAnyHeaderOrder_AreAllRaised()
@@ -77,6 +80,9 @@ namespace MTConnect.Tests.Http.Clients
             Assert.That(documents, Is.EqualTo(3));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: stream truncated part ends instead of spinning.
+        /// </summary>
         [Test]
         [Timeout(15000)]
         public async Task Stream_TruncatedPart_EndsInsteadOfSpinning()
@@ -96,6 +102,9 @@ namespace MTConnect.Tests.Http.Clients
             Assert.That(stopped, Is.True);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: stream error part raises error received.
+        /// </summary>
         [Test]
         [Timeout(15000)]
         public async Task Stream_ErrorPart_RaisesErrorReceived()
@@ -116,6 +125,9 @@ namespace MTConnect.Tests.Http.Clients
             Assert.That(formatErrors, Is.EqualTo(0));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: probe client error document with404 raises MT connect error.
+        /// </summary>
         [Test]
         [Timeout(15000)]
         public async Task ProbeClient_ErrorDocumentWith404_RaisesMTConnectError()
@@ -136,6 +148,9 @@ namespace MTConnect.Tests.Http.Clients
             Assert.That(connectionError, Is.Null);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: probe client sync get reports error document too.
+        /// </summary>
         [Test]
         [Timeout(15000)]
         public void ProbeClient_SyncGet_ReportsErrorDocumentToo()
@@ -150,6 +165,9 @@ namespace MTConnect.Tests.Http.Clients
             Assert.That(error, Is.Not.Null);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: probe client honours timeout.
+        /// </summary>
         [Test]
         [Timeout(15000)]
         public async Task ProbeClient_HonoursTimeout()
@@ -168,6 +186,9 @@ namespace MTConnect.Tests.Http.Clients
             Assert.That(DateTime.UtcNow - started, Is.LessThan(TimeSpan.FromSeconds(5)));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: http client content type follows document format.
+        /// </summary>
         [Test]
         public void HttpClient_ContentType_FollowsDocumentFormat()
         {
@@ -176,6 +197,9 @@ namespace MTConnect.Tests.Http.Clients
             Assert.That(client.ContentType, Is.EqualTo("application/json"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: http client raises each observation once per current.
+        /// </summary>
         [Test]
         [Timeout(30000)]
         public void HttpClient_RaisesEachObservationOncePerCurrent()
@@ -211,6 +235,9 @@ namespace MTConnect.Tests.Http.Clients
             Assert.That(raisedForFirst, Is.EqualTo(firstCurrentObservations));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: http client starting again stops the previous worker.
+        /// </summary>
         [Test]
         [Timeout(15000)]
         public void HttpClient_StartingAgain_StopsThePreviousWorker()

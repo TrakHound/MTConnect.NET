@@ -33,6 +33,9 @@ namespace MTConnect.Tests.Http.Servers
         private HttpClient _http = null!;
 
 
+        /// <summary>
+        /// Helper for the tests in this fixture: set up.
+        /// </summary>
         [OneTimeSetUp]
         public void SetUp()
         {
@@ -47,6 +50,9 @@ namespace MTConnect.Tests.Http.Servers
             _http = new HttpClient(new HttpClientHandler { AutomaticDecompression = DecompressionMethods.None }) { Timeout = TimeSpan.FromSeconds(20) };
         }
 
+        /// <summary>
+        /// Helper for the tests in this fixture: tear down.
+        /// </summary>
         [OneTimeTearDown]
         public void TearDown()
         {
@@ -97,6 +103,9 @@ namespace MTConnect.Tests.Http.Servers
         }
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: error document keeps its status code.
+        /// </summary>
         [Test]
         public async Task ErrorDocument_KeepsItsStatusCode()
         {
@@ -106,6 +115,9 @@ namespace MTConnect.Tests.Http.Servers
             Assert.That(body, Does.Contain("MTConnectError").And.Contain("NO_DEVICE"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: invalid parameters return invalid request.
+        /// </summary>
         [TestCase("/sample?count=-10")]
         [TestCase("/sample?count=abc")]
         [TestCase("/sample?from=-1")]
@@ -120,6 +132,9 @@ namespace MTConnect.Tests.Http.Servers
             Assert.That(body, Does.Contain("INVALID_REQUEST"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: count larger than buffer returns out of range.
+        /// </summary>
         [Test]
         public async Task CountLargerThanBuffer_ReturnsOutOfRange()
         {
@@ -129,6 +144,9 @@ namespace MTConnect.Tests.Http.Servers
             Assert.That(body, Does.Contain("OUT_OF_RANGE"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: post when put is not allowed is forbidden.
+        /// </summary>
         [Test]
         public async Task Post_WhenPutIsNotAllowed_IsForbidden()
         {
@@ -139,6 +157,9 @@ namespace MTConnect.Tests.Http.Servers
             Assert.That(_server.Agent.GetAssetsResponseDocument().Assets, Is.Empty);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: compressed response has body.
+        /// </summary>
         [TestCase("br")]
         [TestCase("deflate")]
         [TestCase("gzip")]
@@ -161,6 +182,9 @@ namespace MTConnect.Tests.Http.Servers
             Assert.That(reader.ReadToEnd(), Does.Contain("MTConnectDevices"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: current stream delivers chunks without byte order mark.
+        /// </summary>
         [Test]
         public async Task CurrentStream_DeliversChunksWithoutByteOrderMark()
         {
@@ -172,6 +196,9 @@ namespace MTConnect.Tests.Http.Servers
             Assert.That(bytes.Take(2).Select(b => (char)b), Is.EqualTo(new[] { '-', '-' }), "a chunk must start with its boundary, not a UTF-8 byte order mark");
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: agent wide sample stream applies path filter.
+        /// </summary>
         [Test]
         public async Task AgentWideSampleStream_AppliesPathFilter()
         {
@@ -185,6 +212,9 @@ namespace MTConnect.Tests.Http.Servers
             Assert.That(text, Does.Not.Contain("dataItemId=\"q1\""));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: long heartbeat does not send a heartbeat every interval.
+        /// </summary>
         [Test]
         public async Task LongHeartbeat_DoesNotSendAHeartbeatEveryInterval()
         {
@@ -195,6 +225,9 @@ namespace MTConnect.Tests.Http.Servers
             Assert.That(CountOccurrences(text, "Content-length:"), Is.LessThanOrEqualTo(2));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: default version applies to sample and assets.
+        /// </summary>
         [Test]
         public async Task DefaultVersion_AppliesToSampleAndAssets()
         {
@@ -205,6 +238,9 @@ namespace MTConnect.Tests.Http.Servers
             Assert.That(assets, Does.Contain("urn:mtconnect.org:MTConnectAssets:2.0"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: accept header with several media ranges selects first match.
+        /// </summary>
         [Test]
         public async Task AcceptHeaderWithSeveralMediaRanges_SelectsFirstMatch()
         {
@@ -216,6 +252,9 @@ namespace MTConnect.Tests.Http.Servers
         }
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: static file directory resolves with platform separators.
+        /// </summary>
         [Test]
         public void StaticFileDirectory_ResolvesWithPlatformSeparators()
         {

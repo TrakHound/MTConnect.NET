@@ -15,6 +15,9 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
     [Category("DockerGate")]
     public class DockerGateTests
     {
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: truthy values ask for the docker suites.
+        /// </summary>
         [TestCase("true")]
         [TestCase("TRUE")]
         [TestCase("yes")]
@@ -26,6 +29,9 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
             Assert.That(DockerAvailability.IsRequested(value), Is.True);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: other values do not ask for the docker suites.
+        /// </summary>
         [TestCase(null)]
         [TestCase("")]
         [TestCase("   ")]
@@ -39,6 +45,9 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
             Assert.That(DockerAvailability.IsRequested(value), Is.False);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: fixtures run when docker is reachable.
+        /// </summary>
         [TestCase(null)]
         [TestCase("true")]
         [TestCase("false")]
@@ -47,6 +56,9 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
             Assert.That(DockerAvailability.Decide(dockerReachable: true, value), Is.EqualTo(DockerGateDecision.Run));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: fixtures are skipped when docker is unreachable and not asked for.
+        /// </summary>
         [TestCase(null)]
         [TestCase("false")]
         [TestCase("0")]
@@ -55,6 +67,9 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
             Assert.That(DockerAvailability.Decide(dockerReachable: false, value), Is.EqualTo(DockerGateDecision.Skip));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: fixtures fail when docker is unreachable but asked for.
+        /// </summary>
         [TestCase("true")]
         [TestCase("1")]
         public void Fixtures_fail_when_Docker_is_unreachable_but_asked_for(string value)

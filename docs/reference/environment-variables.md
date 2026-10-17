@@ -13,7 +13,7 @@ Every environment-variable reference discovered in the source tree. Both the C# 
 | `MTCONNECT_DOTNET_SDK_TAG` | powershell-read, shell-read | `8.0` |
 | `MTCONNECT_DOTNET_TOOLS_VOLUME` | powershell-read, shell-read | `mtconnect-net-dotnet-tools` |
 | `MTCONNECT_DOTNET_USE_DOCKER` | powershell-read, powershell-write, shell-read, shell-write | `'1'`, `0`, `1` |
-| `MTCONNECT_E2E_DOCKER` | docker-env, powershell-read, powershell-write, shell-read, shell-write | `true`, `'true'`, `false` |
+| `MTCONNECT_E2E_DOCKER` | csharp-read, docker-env, powershell-read, powershell-write, shell-read, shell-write | `true`, `'true'`, `false` |
 | `MTCONNECT_E2E_HOST_REPO_ROOT` | docker-env | `${REPO_ROOT}` |
 | `MTCONNECT_NUGET_VOLUME` | powershell-read, shell-read | `mtconnect-net-nuget` |
 | `MTCONNECT_PARITY_FIXTURE_DIR` | csharp-read |  |
@@ -61,6 +61,7 @@ Every environment-variable reference discovered in the source tree. Both the C# 
 
 | Kind | Source | Default / value | Context |
 | --- | --- | --- | --- |
+| `csharp-read` | [`tests/Shared/DockerAvailability.cs:59`](https://github.com/TrakHound/MTConnect.NET/blob/master/tests/Shared/DockerAvailability.cs#L59) |  | => Environment.GetEnvironmentVariable(EnvironmentVariable) |
 | `docker-env` | [`tools/dotnet.sh:88`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/dotnet.sh#L88) | `true` | -e MTCONNECT_E2E_DOCKER=true |
 | `powershell-read` | [`tools/test.ps1:67`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/test.ps1#L67) |  | $raw = [string]$env:MTCONNECT_E2E_DOCKER |
 | `powershell-write` | [`tools/test.ps1:52`](https://github.com/TrakHound/MTConnect.NET/blob/master/tools/test.ps1#L52) | `'true'` | if ($E2E) { $env:MTCONNECT_E2E_DOCKER = 'true' } |
@@ -84,7 +85,7 @@ Every environment-variable reference discovered in the source tree. Both the C# 
 
 | Kind | Source | Default / value | Context |
 | --- | --- | --- | --- |
-| `csharp-read` | [`tests/Compliance/MTConnect-Compliance-Tests/L2_CrossImpl/CppAgentParityWorkflowTests.cs:499`](https://github.com/TrakHound/MTConnect.NET/blob/master/tests/Compliance/MTConnect-Compliance-Tests/L2_CrossImpl/CppAgentParityWorkflowTests.cs#L499) |  | = Environment.GetEnvironmentVariable(FixtureDirEnv) |
+| `csharp-read` | [`tests/Compliance/MTConnect-Compliance-Tests/L2_CrossImpl/CppAgentParityWorkflowTests.cs:502`](https://github.com/TrakHound/MTConnect.NET/blob/master/tests/Compliance/MTConnect-Compliance-Tests/L2_CrossImpl/CppAgentParityWorkflowTests.cs#L502) |  | = Environment.GetEnvironmentVariable(FixtureDirEnv) |
 
 Adding a new `Environment.GetEnvironmentVariable("…")` call, a new `${MTCONNECT_…}` read in a contributor script, or a new `$env:MTCONNECT_…` reference in a PowerShell script without regenerating this page fails the validation test in CI.
 

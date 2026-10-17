@@ -68,6 +68,9 @@ namespace MTConnect.Tests.Json.Assets
         }
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: pallet round trips.
+        /// </summary>
         [Test]
         public void Pallet_round_trips()
         {
@@ -99,6 +102,9 @@ namespace MTConnect.Tests.Json.Assets
             Assert.That(weight.SignificantDigits, Is.EqualTo(2));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: pallet wire shape keeps type for the asset type.
+        /// </summary>
         [Test]
         public void Pallet_wire_shape_keeps_type_for_the_asset_type()
         {
@@ -112,6 +118,9 @@ namespace MTConnect.Tests.Json.Assets
             }
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: fixture round trips.
+        /// </summary>
         [Test]
         public void Fixture_round_trips()
         {
@@ -140,6 +149,9 @@ namespace MTConnect.Tests.Json.Assets
             Assert.That(read.Measurements.Single(), Is.InstanceOf<SwingMeasurement>());
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: assets document includes pallets and fixtures.
+        /// </summary>
         [Test]
         public void Assets_document_includes_pallets_and_fixtures()
         {
