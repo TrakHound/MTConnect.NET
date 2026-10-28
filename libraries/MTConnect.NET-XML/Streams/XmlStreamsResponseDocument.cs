@@ -20,6 +20,10 @@ namespace MTConnect.Streams.Xml
     /// </summary>
     public static class XmlStreamsResponseDocument
     {
+        // Size of the last Streams document written; the next output buffer starts at that size so it is
+        // not repeatedly grown and copied while the document is written
+        private static int _lastStreamsLength = 4096;
+
 
         #region "Read"
 
@@ -447,7 +451,7 @@ namespace MTConnect.Streams.Xml
             {
                 var mtconnectStreamsNamespace = Namespaces.GetStreams(document.Version.Major, document.Version.Minor);
 
-                var outputStream = new MemoryStream();
+                var outputStream = new MemoryStream(System.Threading.Volatile.Read(ref _lastStreamsLength));
 
                 // Set the XmlWriterSettings to use
                 var xmlWriterSettings = indent ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
@@ -456,8 +460,10 @@ namespace MTConnect.Streams.Xml
                 using (var xmlWriter = XmlWriter.Create(outputStream, xmlWriterSettings))
                 {
                     WriteXml(xmlWriter, ref document, extendedSchemas, styleSheet, indent, outputComments);
-                    return outputStream;
                 }
+
+                System.Threading.Volatile.Write(ref _lastStreamsLength, (int)System.Math.Min(64 * 1024 * 1024, System.Math.Max(4096, outputStream.Length)));
+                return outputStream;
             }
 
             return null;

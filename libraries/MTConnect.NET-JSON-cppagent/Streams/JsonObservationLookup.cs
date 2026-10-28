@@ -60,11 +60,20 @@ namespace MTConnect.Streams.Json
             if (type != null && _groups.TryGetValue(type, out var representations))
             {
                 var index = (int)representation;
-                if (index >= 0 && index < representations.Length) return representations[index];
+                if (index >= 0 && index < representations.Length && representations[index] != null)
+                {
+                    HasReturned = true;
+                    return representations[index];
+                }
             }
 
             return null;
         }
+
+        /// <summary>
+        /// True once <see cref="Get"/> has returned observations (i.e. the typed container will not be empty).
+        /// </summary>
+        public bool HasReturned { get; private set; }
 
 
         private static int GetRepresentationCount()

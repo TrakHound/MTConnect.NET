@@ -53,6 +53,15 @@ namespace MTConnect.Streams.Json
         public string Uuid { get; set; }
 
         /// <summary>
+        /// True when the stream holds at least one observation, without converting them (see <see cref="Observations"/>).
+        /// </summary>
+        [JsonIgnore]
+        internal bool HasObservations =>
+            (Samples != null && (Samples.HasObservations || !Samples.Observations.IsNullOrEmpty())) ||
+            (Events != null && (Events.HasObservations || !Events.Observations.IsNullOrEmpty())) ||
+            (Conditions != null && Conditions.Count > 0);
+
+        /// <summary>
         /// Aggregated view of every observation across the three category
         /// containers; not serialized.
         /// </summary>

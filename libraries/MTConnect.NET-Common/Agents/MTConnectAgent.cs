@@ -81,8 +81,9 @@ namespace MTConnect.Agents
         private readonly ConcurrentDictionary<string, IObservation> _currentObservations = new ConcurrentDictionary<string, IObservation>();
         private readonly ConcurrentDictionary<string, IEnumerable<IObservation>> _currentConditions = new ConcurrentDictionary<string, IEnumerable<IObservation>>();
 
-        // Change-detection state kept alongside the current values so the ChangeId (MD5) of the stored
-        // value is computed once per stored value instead of once per incoming observation
+        // Change-detection state kept alongside the current values. Changes are detected by comparing values
+        // (not ChangeId hashes, which also include the Device / DataItem key as sent and so never matched the
+        // stored value when an Observation was addressed by Name, and cost an MD5 per observation)
         private readonly ConcurrentDictionary<string, CurrentObservationState> _currentObservationStates = new ConcurrentDictionary<string, CurrentObservationState>();
         private readonly ConcurrentDictionary<string, CurrentConditionState> _currentConditionStates = new ConcurrentDictionary<string, CurrentConditionState>();
 
@@ -994,7 +995,7 @@ namespace MTConnect.Agents
                 _currentConditionStates.TryGetValue(hash, out var existingState);
                 var existingObsevationInputs = existingState?.Inputs;
 
-                if (existingObsevationInputs.IsNullOrEmpty() || !existingObsevationInputs.Any(o => ObjectExtensions.ByteArraysEqual(o.ChangeId, observation.ChangeId)))
+                if (existingObsevationInputs.IsNullOrEmpty() || !existingObsevationInputs.Any(o => SameValues(o, observation)))
                 {
                     addedNew = true;
                     observations.Add(observation);
@@ -1003,11 +1004,8 @@ namespace MTConnect.Agents
 
 
                 // Add previous Condition Observations (if new Condition is not NORMAL or UNAVAILABLE)
-                byte[] existingHash = null;
                 if (!existingObsevationInputs.IsNullOrEmpty())
                 {
-                    existingHash = existingState.Hash;
-
                     var conditionLevelValue = observation.GetValue(ValueKeys.Level);
                     var conditionLevel = conditionLevelValue.ConvertEnum<ConditionLevel>();
                     var nativeCode = observation.GetValue(ValueKeys.NativeCode);
@@ -1038,9 +1036,8 @@ namespace MTConnect.Agents
 
                 if (!observations.IsNullOrEmpty())
                 {
-                    // Compare Hashes. If different, then update current list
-                    byte[] newHash = CurrentConditionState.CreateHash(observations);
-                    if (!ObjectExtensions.ByteArraysEqual(existingHash, newHash))
+                    // If the resulting set of conditions differs from the current set, then update the current list
+                    if (existingObsevationInputs.IsNullOrEmpty() || !SameConditionSet(existingObsevationInputs, observations))
                     {
                         return true;
                     }
@@ -1099,7 +1096,7 @@ namespace MTConnect.Agents
                 var existingObservations = existingState?.Observations;
                 var existingObservationInputs = existingState?.Inputs;
 
-                if (existingObservationInputs.IsNullOrEmpty() || !existingObservationInputs.Any(o => ObjectExtensions.ByteArraysEqual(o.ChangeId, observationInput.ChangeId)))
+                if (existingObservationInputs.IsNullOrEmpty() || !existingObservationInputs.Any(o => SameValues(o, observationInput)))
                 {
                     addedNew = true;
                     observations.Add(observation);
@@ -1182,7 +1179,6 @@ namespace MTConnect.Agents
         {
             public readonly List<IObservation> Observations;
             public readonly List<IObservationInput> Inputs;
-            private byte[] _hash;
 
             public CurrentConditionState(List<IObservation> observations, List<IObservationInput> inputs)
             {
@@ -1190,13 +1186,65 @@ namespace MTConnect.Agents
                 Inputs = inputs;
             }
 
-            // Computed once per stored state (benign race: concurrent callers compute the same value)
-            public byte[] Hash => _hash ?? (_hash = CreateHash(Inputs));
+        }
 
-            public static byte[] CreateHash(IEnumerable<IObservationInput> inputs)
+        // True when both inputs carry the same values (Key = Value pairs, in any order)
+        private static bool SameValues(IObservationInput a, IObservationInput b)
+        {
+            if (ReferenceEquals(a, b)) return true;
+            if (a == null || b == null) return false;
+
+            var aValues = a.Values;
+            var bValues = b.Values;
+            if (aValues == null || bValues == null) return aValues == null && bValues == null;
+
+            var aCount = 0;
+            foreach (var value in aValues) aCount++;
+            var bCount = 0;
+            foreach (var value in bValues) bCount++;
+            if (aCount != bCount) return false;
+
+            if (aCount <= 8)
             {
-                return StringFunctions.ToMD5HashBytes(inputs.OrderBy(o => o.GetValue(ValueKeys.NativeCode)).Select(o => o.ChangeId).ToArray());
+                // Small sets (the common case): nested scan without allocating
+                foreach (var value in aValues)
+                {
+                    var found = false;
+                    foreach (var other in bValues)
+                    {
+                        if (other.Key == value.Key)
+                        {
+                            if (other.Value != value.Value) return false;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) return false;
+                }
+                return true;
             }
+
+            var lookup = new Dictionary<string, string>(bCount);
+            foreach (var value in bValues) if (value.Key != null) lookup[value.Key] = value.Value;
+            foreach (var value in aValues)
+            {
+                if (value.Key == null || !lookup.TryGetValue(value.Key, out var other) || other != value.Value) return false;
+            }
+            return true;
+        }
+
+        // True when two condition sets hold the same conditions (compared in NativeCode order)
+        private static bool SameConditionSet(IList<IObservationInput> a, IList<IObservationInput> b)
+        {
+            if (a.Count != b.Count) return false;
+
+            var orderedA = a.OrderBy(o => o.GetValue(ValueKeys.NativeCode)).ToList();
+            var orderedB = b.OrderBy(o => o.GetValue(ValueKeys.NativeCode)).ToList();
+            for (var i = 0; i < orderedA.Count; i++)
+            {
+                if (!SameValues(orderedA[i], orderedB[i])) return false;
+            }
+            return true;
         }
 
 
@@ -1234,7 +1282,7 @@ namespace MTConnect.Agents
         {
             if (dataItem != null)
             {
-                if (!ObjectExtensions.ByteArraysEqual(newObservation.ChangeId, existingObservation.ChangeId))
+                if (!SameValues(newObservation, existingObservation))
                 {
                     if (!dataItem.Filters.IsNullOrEmpty() && dataItem.Representation == DataItemRepresentation.VALUE)
                     {

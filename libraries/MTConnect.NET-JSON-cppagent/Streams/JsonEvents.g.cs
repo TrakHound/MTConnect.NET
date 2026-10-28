@@ -3836,6 +3836,12 @@ namespace MTConnect.Streams.Json
         public JsonEvents() { }
 
         /// <summary>
+        /// True when this container was built from observations and holds at least one (not serialized).
+        /// </summary>
+        [JsonIgnore]
+        internal bool HasObservations { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance from a flat sequence of <paramref name="observations"/>,
         /// routing each one into the typed collection matching its MTConnect type and
         /// representation.
@@ -9250,6 +9256,8 @@ namespace MTConnect.Streams.Json
                     }
 
 
+
+                    HasObservations = observationLookup.HasReturned;
                 }
             }
         }
