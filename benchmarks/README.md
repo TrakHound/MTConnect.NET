@@ -94,3 +94,26 @@ The agent used to request full, blocking collections through a `GarbageCollector
 | Forced collection after each query | 3,032 | 3.8 s | 128 MB | 67 MB |
 
 Forced collections added GC pause time without lowering peak memory.
+
+## HTTP load test
+
+`MTConnect.NET-LoadTest` runs the agent and `MTConnectHttpServer` in a child process and opens many `/sample` streams and `/current` pollers against it from the parent process, so the server's threads and memory are measured on their own. Each observation value carries the time it was added, so every streamed part gives an add-to-receive latency.
+
+```
+dotnet run -c Release --project benchmarks/MTConnect.NET-LoadTest -- run [streams] [pollers] [observations/s] [seconds] [interval ms]
+```
+
+Results on one machine (16 cores, loopback, client and server on the same host), 1,000 observations/s across 100 DataItems, `/sample?interval=100`, 15-second windows. "Before" is origin/master `53dd8f43`.
+
+| Scenario | Before | After |
+|---|---|---|
+| 250 streams | 104 connected, 141 refused | 250 connected |
+| 1,000 streams | 103 connected, 892 refused | 1,000 connected, p99 latency 16 ms, 304 MB peak |
+| 16 `/current` pollers | 376 requests/s, 12,329 errors (client ports exhausted) | 21,282 requests/s, 0 errors |
+| 250 streams + 16 pollers | 100 streams connected, every poll refused | all connected, 15,897 polls/s |
+
+Fixes found by this test:
+
+- **Connection bursts were refused.** The listen backlog was Ceen's default of 5, so more than a handful of simultaneous connects were refused. It is now 512.
+- **Connections were never kept alive.** A request without a body was given a body of unknown length, so the server could never drain it and closed the connection after every response, even when the client asked for keep-alive. HTTP/1.1 clients that don't send a `Connection` header (most of them) also got `Connection: close`. Each request therefore used a new TCP connection, and a client polling quickly ran out of local ports within a couple of minutes.
+- **Every request stayed in memory for 60 seconds.** Its processing-timeout timer wasn't cancelled when the request finished, and the timer referenced the request. At 16 pollers, live memory reached 2.35 GB after 40 seconds; it now stays near 10 MB.

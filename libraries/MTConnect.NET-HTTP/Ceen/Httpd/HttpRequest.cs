@@ -490,7 +490,10 @@ namespace Ceen.Httpd
             }
             else
             {
-                this.Body = new LimitedBodyStream(reader, this.ContentLength, idletime, timeouttask, stoptask);
+                // A request with neither Content-Length nor Transfer-Encoding has no body (RFC 7230 3.3.3). Treating it
+                // as empty (instead of unknown length) lets the connection be kept alive after the response
+                var bodyLength = this.ContentLength < 0 && string.IsNullOrEmpty(this.Headers["Transfer-Encoding"]) ? 0 : this.ContentLength;
+                this.Body = new LimitedBodyStream(reader, bodyLength, idletime, timeouttask, stoptask);
             }
         }
 
@@ -638,8 +641,16 @@ namespace Ceen.Httpd
 
         public void Dispose()
         {
+            if (m_disposed) return;
+            m_disposed = true;
+
+            // Cancel the pending processing timeout so its timer (which references this request) is released now
+            // instead of when it expires
+            m_processingtimeoutcancellation.Cancel();
             m_processingtimeoutcancellation.Dispose();
         }
+
+        private bool m_disposed;
     }
 }
 
