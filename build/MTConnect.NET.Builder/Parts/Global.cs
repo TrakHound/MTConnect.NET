@@ -31,7 +31,7 @@ namespace TrakHound.Builder
         }
 
         [Command("publish")]
-        public static async Task Publish([CommandOption] string configurationId)
+        public static async Task Publish([CommandOption] string configurationId = null)
         {
             if (string.IsNullOrEmpty(configurationId)) configurationId = Configuration.DefaultId;
 

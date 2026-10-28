@@ -125,40 +125,24 @@
 
             foreach (var image in config.Agent.Docker.Images)
             {
+                // Push the same tags BuildImage() created for this image (the untagged
+                // name built for the default image is the same image as ":latest")
                 var version = AppVersion.GetVersion(configurationId);
-                var tag = $"{config.Agent.Docker.ImageName}";
-                var versionTag = $"{config.Agent.Docker.ImageName}:{version}";
-                var latestTag = $"{config.Agent.Docker.ImageName}:latest";
+                var versionTag = $"{config.Agent.Docker.ImageName}:{version}{image.Tag}";
+                var latestTag = $"{config.Agent.Docker.ImageName}:latest{image.Tag}";
 
-                if (CommandLine.Run($"docker image push {tag}", null, verbose))
+                foreach (var pushTag in new[] { versionTag, latestTag })
                 {
-                    if (CommandLine.Run($"docker image push {versionTag}", null, verbose))
+                    if (!CommandLine.Run($"docker image push {pushTag}", null, verbose))
                     {
-                        if (CommandLine.Run($"docker image push {latestTag}", null, verbose))
-                        {
-                            Console.Write("DONE");
-                            Console.WriteLine();
-                        }
-                        else
-                        {
-                            Console.Write("ERROR");
-                            Console.WriteLine();
-                            Environment.Exit(1);
-                        }
-                    }
-                    else
-                    {
-                        Console.Write("ERROR");
+                        Console.Write($"ERROR : {pushTag}");
                         Console.WriteLine();
                         Environment.Exit(1);
                     }
                 }
-                else
-                {
-                    Console.Write("ERROR");
-                    Console.WriteLine();
-                    Environment.Exit(1);
-                }
+
+                Console.Write("DONE");
+                Console.WriteLine();
             }
         }
     }

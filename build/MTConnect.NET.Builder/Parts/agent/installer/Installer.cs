@@ -77,6 +77,16 @@
             }
         }
 
+        /// <summary>
+        /// Returns the installer executable name (without the ".exe" extension) that
+        /// Inno Setup produces for the given version and suffix.
+        /// </summary>
+        public static string GetOutputFilename(Configuration config, string version, string versionSuffix)
+        {
+            if (!string.IsNullOrEmpty(versionSuffix) && !config.RemoveVersionSuffix) return $"{config.Agent.Installer.Filename}-{version}-{versionSuffix}-install";
+            return $"{config.Agent.Installer.Filename}-{version}-install";
+        }
+
         private static async Task CreateInstaller(string configurationId, bool verbose)
         {
             Console.Write("Creating Agent Installer..");
@@ -93,8 +103,7 @@
             var tempFile = Path.Combine(Environment.CurrentDirectory, "Parts", "agent", "installer", "installer-temp.iss");
             File.Copy(installerFile, tempFile, true);
 
-            var outputFilename = $"{config.Agent.Installer.Filename}-{version}-install";
-            if (!string.IsNullOrEmpty(versionSuffix) && !config.RemoveVersionSuffix) outputFilename = $"{config.Agent.Installer.Filename}-{version}-{versionSuffix}-install";
+            var outputFilename = GetOutputFilename(config, version, versionSuffix);
 
             var tempContents = await File.ReadAllTextAsync(tempFile);
             tempContents = tempContents.Replace("[ASSEMBLY_VERSION]", version);

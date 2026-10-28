@@ -25,6 +25,15 @@ namespace TrakHound.Builder.GitHub
             {
                 var githubClient = new GitHubClient(new ProductHeaderValue("mtconnect-net-builder"));
 
+                // Check the installer exists before creating the draft, so a missing
+                // build doesn't leave an empty draft release on GitHub
+                var installerPath = GetInstallerPath(config);
+                if (!File.Exists(installerPath))
+                {
+                    Console.WriteLine($"ERROR : Installer Not Found : {installerPath}");
+                    Environment.Exit(1);
+                }
+
                 var tokenAuth = new Credentials(config.GitHubToken);
                 githubClient.Credentials = tokenAuth;
 
@@ -56,20 +65,26 @@ namespace TrakHound.Builder.GitHub
             return result.Id;
         }
 
-        static async Task UploadReleaseFiles(Configuration configuration, GitHubClient client, long releaseId)
+        static string GetInstallerPath(Configuration configuration)
         {
             var version = AppVersion.GetVersion(configuration.Id);
+            var versionSuffix = AppVersion.GetVersionSuffix(configuration.Id);
             var outputPath = Path.Combine(Environment.CurrentDirectory, configuration.Output, version);
 
+            return Path.Combine(outputPath, $"{Instance.Installer.GetOutputFilename(configuration, version, versionSuffix)}.exe");
+        }
+
+        static async Task UploadReleaseFiles(Configuration configuration, GitHubClient client, long releaseId)
+        {
             // Upload Instance Installer Executable
-            var installerFilename = $"{configuration.Agent.Installer.Filename}-{version}-install.exe";
-            var installerPath = Path.Combine(outputPath, installerFilename);
+            var installerPath = GetInstallerPath(configuration);
+            var installerFilename = Path.GetFileName(installerPath);
             using (var installerExe = File.OpenRead(installerPath))
             {
                 var assetUpload = new ReleaseAssetUpload()
                 {
                     FileName = installerFilename,
-                    ContentType = "application/zip",
+                    ContentType = "application/vnd.microsoft.portable-executable",
                     RawData = installerExe
                 };
                 var release = await client.Repository.Release.Get(configuration.GitHubUser, configuration.GitHubRepo, releaseId);
