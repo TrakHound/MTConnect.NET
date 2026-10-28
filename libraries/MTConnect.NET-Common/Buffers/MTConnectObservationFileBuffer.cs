@@ -30,10 +30,16 @@ namespace MTConnect.Buffers
         private const string DirectoryBuffer = "buffer";
         private const string DirectoryObservations = "observations";
         private const string DirectoryCurrent = "current";
+        private const string ShutdownFileName = "shutdown"; // Written on a clean shutdown; holds the last sequence
 
         private readonly string _basePath;
         private readonly object _lock = new object();
         private readonly MTConnectObservationQueue _items;
+        private readonly int _queueLimit;
+        private readonly SemaphoreSlim _writeLock = new SemaphoreSlim(1, 1);
+        private readonly List<BufferObservation> _failedItems = new List<BufferObservation>(); // Retried before queued items (guarded by _writeLock)
+        private int _persistenceIncomplete; // Set once an observation or current state could not be written
+        private bool _shutdownFileCleared;
 
         private CancellationTokenSource stop;
         private bool _isStarted;
@@ -95,13 +101,22 @@ namespace MTConnect.Buffers
 
         private int _writeDropReported;
 
+        /// <summary>
+        /// True when the last <see cref="Load"/> restored every observation up to the last sequence issued before the
+        /// previous shutdown. False after a crash, or when observations could not be written (write queue full or
+        /// disk errors): observations may then be missing and the next sequence numbers may repeat ones already
+        /// issued, so the agent should start a new instance (new instanceId).
+        /// </summary>
+        public bool LoadIsComplete { get; private set; }
+
 
         /// <summary>
         /// Initializes the durable observation buffer with default settings and starts the background write and retention workers.
         /// </summary>
         public MTConnectObservationFileBuffer()
         {
-            _items = new MTConnectObservationQueue();
+            _queueLimit = GetQueueLimit(BufferSize);
+            _items = new MTConnectObservationQueue(_queueLimit);
 
             Start();
         }
@@ -114,10 +129,15 @@ namespace MTConnect.Buffers
         public MTConnectObservationFileBuffer(IAgentConfiguration configuration, string basePath = null) : base(configuration)
         {
             _basePath = basePath;
-            _items = new MTConnectObservationQueue();
+            _queueLimit = GetQueueLimit(BufferSize);
+            _items = new MTConnectObservationQueue(_queueLimit);
 
             Start();
         }
+
+
+        // The queue holds at least one buffer's worth of observations (older ones would be evicted anyway)
+        private static int GetQueueLimit(uint bufferSize) => (int)Math.Min(int.MaxValue, Math.Max(50000, bufferSize));
 
 
         /// <summary>
@@ -181,17 +201,24 @@ namespace MTConnect.Buffers
             if (_isStarted)
             {
                 if (stop != null) stop.Cancel();
-
-                WriteAllItems();
-
                 _isStarted = false;
+
+                // Flush synchronously so nothing queued is lost when the process exits right after, then record
+                // a clean shutdown when everything up to the last sequence was written
+                try
+                {
+                    // On the thread pool so a caller's synchronization context cannot deadlock the wait
+                    Task.Run(() => FlushAsync(int.MaxValue)).GetAwaiter().GetResult();
+                    WriteShutdownFile();
+                }
+                catch { }
             }
         }
 
         /// <summary>
         /// Stops the background workers, flushing queued observation changes to disk, then releases the base buffer resources.
         /// </summary>
-        public new void Dispose()
+        public override void Dispose()
         {
             Stop();
             base.Dispose();
@@ -235,9 +262,14 @@ namespace MTConnect.Buffers
             }
 
             // A valid observation is only rejected when the queue is full
-            if (observation.IsValid && Interlocked.Exchange(ref _writeDropReported, 1) == 0)
+            if (observation.IsValid)
             {
-                ObservationWriteDropped?.Invoke(this, observation.Sequence);
+                Interlocked.Exchange(ref _persistenceIncomplete, 1);
+
+                if (Interlocked.Exchange(ref _writeDropReported, 1) == 0)
+                {
+                    ObservationWriteDropped?.Invoke(this, observation.Sequence);
+                }
             }
 
             return false;
@@ -277,16 +309,24 @@ namespace MTConnect.Buffers
         {
             var found = false;
             _isLoading = true;
+            LoadIsComplete = false;
 
             var stpw = System.Diagnostics.Stopwatch.StartNew();
             if (BufferLoadStarted != null) BufferLoadStarted.Invoke(this, new EventArgs());
+
+            // The last sequence recorded by a clean shutdown (removed now, so a crash from here on is detected)
+            var shutdownSequence = ReadShutdownFile();
 
             // Read Observations from Page Files
             var observations = ReadBufferObservations();
             if (!observations.IsNullOrEmpty())
             {
+                // Page files may hold observations out of order (e.g. retried writes); the buffer must be in sequence order
+                Array.Sort(observations, (a, b) => a._sequence.CompareTo(b._sequence));
+
                 // Get last Sequence
                 var sequence = observations[observations.Length - 1].Sequence;
+                LoadIsComplete = shutdownSequence == sequence;
 
                 SetSequence(1);
 
@@ -316,7 +356,7 @@ namespace MTConnect.Buffers
                 for (var i = 0; i < currentConditions.Length; i++)
                 {
                     // Add to Current Conditions
-                    AddCurrentObservation(currentConditions[i]);
+                    AddCurrentCondition(currentConditions[i]);
                 }
             }
 
@@ -456,8 +496,7 @@ namespace MTConnect.Buffers
                 var x = new ConcurrentDictionary<ulong, string>();
                 Parallel.ForEach(files, file =>
                 {
-                    var sequence = ulong.Parse(Path.GetFileName(file));
-                    x.TryAdd(sequence, file);
+                    if (ulong.TryParse(Path.GetFileName(file), out var sequence)) x.TryAdd(sequence, file);
                 });
 
                 ulong m = GetSequenceTop(from);
@@ -649,9 +688,9 @@ namespace MTConnect.Buffers
             {
                 var stpw = System.Diagnostics.Stopwatch.StartNew();
                 ulong from = 0;
-                ulong to = GetSequenceBottom(FirstSequence - 1);
+                ulong to = GetSequenceBottom(FirstSequence - 1, PageSize);
 
-                var sequenceFiles = GetFiles(from, to);
+                var sequenceFiles = GetFiles(from, to, PageSize);
                 if (!sequenceFiles.IsNullOrEmpty())
                 {
                     foreach (var sequenceFile in sequenceFiles)
@@ -677,9 +716,7 @@ namespace MTConnect.Buffers
                 {
                     await Task.Delay(WriteInterval, stop.Token);
 
-                    await WriteItems(MaxItemsPerWrite);
-                    await WriteCurrentItems();
-                    await WriteCurrentConditionItems();
+                    await FlushAsync(MaxItemsPerWrite);
                 }
                 catch (TaskCanceledException) { }
                 catch { }
@@ -687,22 +724,95 @@ namespace MTConnect.Buffers
         }
 
         /// <summary>
-        /// Flushes every queued observation change to disk immediately, bypassing the timed write interval.
+        /// Flushes every queued observation change and the current observations to disk, returning once written.
         /// </summary>
         public void WriteAllItems()
         {
-            _ = Task.Run(async () =>
-             {
-                 await WriteItems(int.MaxValue);
-             });
+            // On the thread pool so a caller's synchronization context cannot deadlock the wait
+            Task.Run(() => FlushAsync(MaxItemsPerWrite)).GetAwaiter().GetResult();
         }
 
+        // One flush at a time (the write worker and a flush on shutdown can overlap)
+        private async Task FlushAsync(int maxItemsPerWrite)
+        {
+            await _writeLock.WaitAsync().ConfigureAwait(false);
+            try
+            {
+                await WriteItems(maxItemsPerWrite).ConfigureAwait(false);
+                await WriteCurrentItems().ConfigureAwait(false);
+                await WriteCurrentConditionItems().ConfigureAwait(false);
+            }
+            finally
+            {
+                _writeLock.Release();
+            }
+        }
+
+        // Writes everything queued, in batches of maxItems, after retrying any earlier failed writes
         private async Task WriteItems(int maxItems)
         {
-            var queueItems = _items.Take(maxItems);
-            if (!queueItems.IsNullOrEmpty())
+            if (_failedItems.Count > 0)
             {
-                await WriteToFiles(queueItems);
+                var retry = _failedItems.ToArray();
+                _failedItems.Clear();
+                await WriteToFiles(retry).ConfigureAwait(false);
+            }
+
+            IEnumerable<BufferObservation> queueItems;
+            while ((queueItems = _items.Take(Math.Max(1, maxItems))) != null)
+            {
+                await WriteToFiles(queueItems).ConfigureAwait(false);
+            }
+        }
+
+        // Keeps observations whose write failed for the next flush; past the queue limit they are dropped
+        private void WriteFailed(IEnumerable<BufferObservation> observations)
+        {
+            foreach (var observation in observations)
+            {
+                if (_failedItems.Count < _queueLimit) _failedItems.Add(observation);
+                else Interlocked.Exchange(ref _persistenceIncomplete, 1);
+            }
+        }
+
+        private string GetShutdownFilePath() => Path.Combine(GetCurrentDirectory(), ShutdownFileName);
+
+        // Returns the sequence recorded by the last clean shutdown (0 when there was none) and removes the record
+        private ulong ReadShutdownFile()
+        {
+            ulong sequence = 0;
+            try
+            {
+                var path = GetShutdownFilePath();
+                if (File.Exists(path))
+                {
+                    ulong.TryParse(File.ReadAllText(path).Trim(), out sequence);
+                    File.Delete(path);
+                }
+            }
+            catch { }
+
+            _shutdownFileCleared = true;
+            return sequence;
+        }
+
+        // Removes a clean-shutdown record before anything new is written (for a buffer used without Load)
+        private void ClearShutdownFile()
+        {
+            if (!_shutdownFileCleared)
+            {
+                _shutdownFileCleared = true;
+                try { File.Delete(GetShutdownFilePath()); }
+                catch { }
+            }
+        }
+
+        private void WriteShutdownFile()
+        {
+            if (Volatile.Read(ref _persistenceIncomplete) == 0 && _failedItems.Count == 0 && _items.Count == 0)
+            {
+                try { File.WriteAllText(GetShutdownFilePath(), LastSequence.ToString(System.Globalization.CultureInfo.InvariantCulture)); }
+                catch { }
             }
         }
 
@@ -720,6 +830,7 @@ namespace MTConnect.Buffers
                 var writeItems = GetCurrentObservations();
                 if (!writeItems.IsNullOrEmpty())
                 {
+                    ClearShutdownFile();
                     await WriteToCurrentFiles(writeItems);
                 }
             }
@@ -739,6 +850,7 @@ namespace MTConnect.Buffers
                 var writeItems = GetCurrentConditions();
                 if (!writeItems.IsNullOrEmpty())
                 {
+                    ClearShutdownFile();
                     await WriteToCurrentConditionFiles(writeItems);
                 }
             }
@@ -754,26 +866,32 @@ namespace MTConnect.Buffers
 
             if (!observations.IsNullOrEmpty())
             {
+                ClearShutdownFile();
+
+                string dir;
                 try
                 {
-                    var lines = new StringBuilder();
-
                     // Get the Observations Directory
-                    var dir = GetDirectory();
-
-                    // Group by Page File in a single pass
-                    foreach (var fileObservations in observations.GroupBy(o => GetSequenceTop(o.Sequence, PageSize)))
-                    {
-                        var file = fileObservations.Key;
-                        var oObservations = fileObservations.OrderBy(o => o.Sequence);
-
-                        var path = Path.Combine(dir, file.ToString());
-
-                        // Write the Observations to the Page File
-                        await WriteToFile(path, oObservations);
-                    }
+                    dir = GetDirectory();
                 }
-                catch { }
+                catch
+                {
+                    WriteFailed(observations);
+                    return writtenTotal;
+                }
+
+                // Group by Page File in a single pass
+                foreach (var fileObservations in observations.GroupBy(o => GetSequenceTop(o.Sequence, PageSize)))
+                {
+                    var file = fileObservations.Key;
+                    var oObservations = fileObservations.OrderBy(o => o.Sequence).ToList();
+
+                    var path = Path.Combine(dir, file.ToString());
+
+                    // Write the Observations to the Page File (kept for the next flush when the write fails)
+                    if (await WriteToFile(path, oObservations).ConfigureAwait(false)) writtenTotal += oObservations.Count;
+                    else WriteFailed(oObservations);
+                }
             }
 
             return writtenTotal;
@@ -815,7 +933,7 @@ namespace MTConnect.Buffers
                     foreach (var dataItemIndex in order) currentObservations.Add(latest[dataItemIndex]);
 
                     // Write the Observations to the Page File
-                    await WriteToCurrentFile(path, currentObservations, false);
+                    if (!await WriteToCurrentFile(path, currentObservations, false)) Interlocked.Exchange(ref _persistenceIncomplete, 1);
                 }
             }
 
@@ -846,7 +964,7 @@ namespace MTConnect.Buffers
                     }
 
                     // Write the Observations to the Page File
-                    await WriteToCurrentFile(path, currentObservations, false);
+                    if (!await WriteToCurrentFile(path, currentObservations, false)) Interlocked.Exchange(ref _persistenceIncomplete, 1);
                 }
             }
 

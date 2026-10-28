@@ -137,7 +137,7 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Releases the circular archive and clears the current observation and condition snapshots.
         /// </summary>
-        public void Dispose()
+        public virtual void Dispose()
         {
             _archiveObservations = null;
             _currentObservations.Clear();
@@ -351,6 +351,20 @@ namespace MTConnect.Buffers
             return indexes;
         }
 
+        // Sequence of the oldest observation in the archive (1 when it is empty). Read from the archive rather than
+        // derived from the buffer size, since a reloaded durable buffer need not be full or contiguous
+        private ulong ArchiveFirstSequence()
+        {
+            return _archiveObservations != null && _archiveObservations.Size > 0 ? _archiveObservations[0]._sequence : 1;
+        }
+
+        // True when a current observation is valid and not newer than "at" (or than the oldest buffered sequence when "at" is not set)
+        private static bool IsAtOrBefore(in BufferObservation observation, ulong at, ulong firstSequence)
+        {
+            if (!observation.IsValid) return false;
+            return at < 1 ? observation._sequence <= firstSequence : observation._sequence <= at;
+        }
+
         private static Dictionary<int, int> CreateKeyLookup(int[] keys)
         {
             var keyLookup = new Dictionary<int, int>(keys.Length);
@@ -384,7 +398,7 @@ namespace MTConnect.Buffers
 
                 lock (_lock)
                 {
-                    firstSequence = _sequence > BufferSize ? _sequence - BufferSize : 1;
+                    firstSequence = ArchiveFirstSequence();
                     lastSequence = _sequence > 1 ? _sequence - 1 : 1;
                     nextSequence = _sequence;
 
@@ -440,62 +454,54 @@ namespace MTConnect.Buffers
                 ulong firstSequence = 0;
                 ulong lastSequence = 0;
                 ulong nextSequence = 0;
-                var observations = new BufferObservation[bufferKeys.Count()];
+                var observations = new List<BufferObservation>(oBufferKeys.Length);
 
                 lock (_lock)
                 {
-                    firstSequence = _sequence > BufferSize ? _sequence - BufferSize : 1;
+                    firstSequence = ArchiveFirstSequence();
                     lastSequence = _sequence > 1 ? _sequence - 1 : 1;
                     nextSequence = _sequence;
 
-                    // Determine Indexes
-                    int atIndex;
-                    if (at < 1) atIndex = 0;
-                    else if (at < firstSequence) atIndex = -1; // Older than the archive (avoids ulong underflow)
-                    else if (at - firstSequence > int.MaxValue) atIndex = int.MaxValue;
-                    else atIndex = (int)(at - firstSequence);
-
-                    if (_archiveObservations.Size > 0)
+                    // Index of the newest observation at or before "at" (-1 when "at" is older than the archive)
+                    var atIndex = -1;
+                    if (_archiveObservations != null && _archiveObservations.Size > 0)
                     {
-                        // Get the latest observation for each key based on the "at" parameter
-                        var indexes = GetLatestIndexes(_archiveObservations, oBufferKeys, atIndex);
+                        atIndex = at < 1 ? 0 : _archiveObservations.LastIndexAtOrBefore(at);
+                    }
 
-                        for (var i = 0; i < oBufferKeys.Length; i++)
+                    // Get the latest observation for each key based on the "at" parameter
+                    var indexes = atIndex >= 0 ? GetLatestIndexes(_archiveObservations, oBufferKeys, atIndex) : null;
+
+                    for (var i = 0; i < oBufferKeys.Length; i++)
+                    {
+                        var index = indexes != null ? indexes[i] : -1;
+                        if (index >= 0)
                         {
-                            var index = indexes[i];
-                            if (index >= 0)
+                            observations.Add(_archiveObservations[index]);
+                        }
+                        else
+                        {
+                            // Not in the archive up to "at": use the current value(s) when not newer than "at"
+                            if (_currentObservations.TryGetValue(oBufferKeys[i], out var observation) && IsAtOrBefore(observation, at, firstSequence))
                             {
-                                observations[i] = _archiveObservations[index];
+                                observations.Add(observation);
                             }
-                            else
-                            {
-                                // Get From Current Observations
-                                if (_currentObservations.TryGetValue(oBufferKeys[i], out var observation))
-                                {
-                                    if (observation.IsValid)
-                                    {
-                                        if (at < 1 && observation.Sequence <= firstSequence) observations[i] = observation;
-                                        else if (observation.Sequence <= at) observations[i] = observation;
-                                    }
-                                }
 
-                                // Get From Current Observations
-                                if (_currentConditions.TryGetValue(oBufferKeys[i], out var conditions))
+                            if (_currentConditions.TryGetValue(oBufferKeys[i], out var conditions))
+                            {
+                                foreach (var condition in conditions)
                                 {
-                                    if (observation.IsValid)
-                                    {
-                                        if (at < 1 && observation.Sequence <= firstSequence) observations[i] = observation;
-                                        else if (observation.Sequence <= at) observations[i] = observation;
-                                    }
+                                    if (IsAtOrBefore(condition, at, firstSequence)) observations.Add(condition);
                                 }
                             }
                         }
                     }
                 }
 
+                // Keys with no observation at "at" are left out (not returned as empty entries)
                 var aObservations = observations.ToArray();
-                var firstObservationSequence = observations.Min(o => o.Sequence);
-                var lastObservationSequence = observations.Max(o => o.Sequence);
+                var firstObservationSequence = aObservations.Length > 0 ? aObservations.Min(o => o.Sequence) : 1;
+                var lastObservationSequence = aObservations.Length > 0 ? aObservations.Max(o => o.Sequence) : 1;
 
                 return new ObservationBufferResults
                 {
@@ -505,7 +511,8 @@ namespace MTConnect.Buffers
                     Observations = aObservations,
                     FirstObservationSequence = firstObservationSequence,
                     LastObservationSequence = lastObservationSequence,
-                    ObservationCount = (uint)aObservations.Length
+                    ObservationCount = (uint)aObservations.Length,
+                    IsValid = true
                 };
             }
 
@@ -540,25 +547,24 @@ namespace MTConnect.Buffers
                 var startIndex = 0;
                 long evicted = 0;
                 CircularBuffer snapshotBuffer = null;
+                ulong rangeEndSequence = 0; // Sequence of the last observation in the requested range (when "to" ends it early)
+                var countLimited = false;
+                var evictedDuringScan = false;
 
                 // 1) Under the lock: determine the range and copy only its BufferKeys (a fast array copy)
                 lock (_lock)
                 {
-                    firstSequence = _sequence > BufferSize ? _sequence - BufferSize : 1;
+                    firstSequence = ArchiveFirstSequence();
                     lastSequence = _sequence > 1 ? _sequence - 1 : 1;
                     nextSequence = _sequence;
 
-                    // Determine Indexes
-                    int fromIndex = from > firstSequence ? (int)(from - firstSequence) : 0;
-                    int toIndex = (int)(lastSequence - firstSequence);
-                    if (to > 0)
+                    // Determine Indexes by sequence (the archive can have gaps after a durable buffer is reloaded)
+                    var fromIndex = 0;
+                    var toIndex = -1;
+                    if (_archiveObservations.Size > 0)
                     {
-                        if (to == from) toIndex = fromIndex;
-                        else
-                        {
-                            toIndex = (int)(to - firstSequence);
-                            if (toIndex < 0) toIndex = _archiveObservations.Size - 1;
-                        }
+                        fromIndex = from > firstSequence ? _archiveObservations.FirstIndexAtOrAfter(from) : 0;
+                        toIndex = to > 0 ? _archiveObservations.LastIndexAtOrBefore(to) : _archiveObservations.Size - 1;
                     }
 
                     if (_archiveObservations.Size > 0 && toIndex < _archiveObservations.Size && toIndex >= fromIndex)
@@ -571,6 +577,7 @@ namespace MTConnect.Buffers
                             _archiveObservations.CopyKeys(startIndex, slotKeys, slotCount);
                             evicted = _archiveObservations.Evicted;
                             snapshotBuffer = _archiveObservations;
+                            if (to > 0 && toIndex < _archiveObservations.Size - 1) rangeEndSequence = _archiveObservations[toIndex]._sequence;
                         }
                     }
                 }
@@ -584,6 +591,7 @@ namespace MTConnect.Buffers
                         // Order Buffer Keys (this effects the order of the resulting array and should always be in Ascending order)
                         var oBufferKeys = bufferKeys.OrderBy(o => o).ToArray();
                         indexes = GetIndexes(slotKeys, slotCount, startIndex, oBufferKeys, count);
+                        countLimited = count > 0 && indexes != null && indexes.Length >= count;
                     }
                     finally
                     {
@@ -591,7 +599,7 @@ namespace MTConnect.Buffers
                     }
 
                     // 3) Under the lock: copy the matched observations, adjusting for any observations added since the
-                    // snapshot (each eviction shifts logical indexes down by one; evicted entries are skipped)
+                    // snapshot (each eviction shifts logical indexes down by one; if a match was evicted, the query is redone)
                     if (indexes != null && indexes.Length > 0)
                     {
                         lock (_lock)
@@ -606,7 +614,13 @@ namespace MTConnect.Buffers
                             for (var i = 0; i < indexes.Length; i++)
                             {
                                 var index = indexes[i] - shift;
-                                if (index < 0 || index >= _archiveObservations.Size) continue;
+                                if (index < 0)
+                                {
+                                    // Overwritten by new observations while the keys were matched outside the lock
+                                    evictedDuringScan = true;
+                                    break;
+                                }
+                                if (index >= _archiveObservations.Size) continue;
 
                                 var i32 = (int)index;
                                 if (i32 < lowestIndex) lowestIndex = i32;
@@ -623,10 +637,23 @@ namespace MTConnect.Buffers
 
                                 firstObservationSequence = _archiveObservations[lowestIndex]._sequence;
                                 lastObservationSequence = _archiveObservations[highestIndex]._sequence;
+
+                                // When "count" cut the results short, the next request continues after the last one returned
+                                if (countLimited) nextSequence = lastObservationSequence + 1;
                             }
                         }
                     }
                 }
+
+                // Observations in the range were overwritten during the scan: run the query again while holding the
+                // lock (nothing can be overwritten then), so the results start where the header says they do
+                if (evictedDuringScan)
+                {
+                    lock (_lock) return GetObservations(bufferKeys, from, to, count);
+                }
+
+                // When "to" ended the range before the newest observation, the next request continues after the range
+                if (!countLimited && rangeEndSequence > 0 && rangeEndSequence + 1 < nextSequence) nextSequence = rangeEndSequence + 1;
 
                 // Return a StreamingResults struct containing the observations found
                 // as well as the sequences that were active when the observations were read

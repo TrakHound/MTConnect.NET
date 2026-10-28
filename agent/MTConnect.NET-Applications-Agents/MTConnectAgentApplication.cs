@@ -428,6 +428,7 @@ namespace MTConnect.Applications
             {
                 _deviceConfigurationWatchers.Clear();
                 var initializeDataItems = true;
+                var resetInstance = false;
 
                 // Read Agent Information File
                 var existingAgentInformation = MTConnectAgentInformation.Read();
@@ -480,6 +481,14 @@ namespace MTConnect.Applications
                     // Read Buffer Observations
                     initializeDataItems = !observationBuffer.Load();
 
+                    // Observations issued before the last shutdown are missing (crash, or they could not be written),
+                    // so sequence numbers could repeat: start a new instance so clients reset
+                    if (!initializeDataItems && !observationBuffer.LoadIsComplete)
+                    {
+                        resetInstance = true;
+                        _applicationLogger?.Warn("Durable buffer was not shut down cleanly or is incomplete: starting a new instanceId");
+                    }
+
                     // Read Buffer Assets
                     _assetBuffer.Load();
 
@@ -490,7 +499,7 @@ namespace MTConnect.Applications
                     _observationBuffer = new MTConnectObservationBuffer(configuration);
                 }
 
-                if (!configuration.Durable || initializeDataItems)
+                if (!configuration.Durable || initializeDataItems || resetInstance)
                 {
                     // Reset InstanceId with strict-monotonic guarantee. The Max() floor
                     // makes the counter time-meaningful while the +1 defeats same-second

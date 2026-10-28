@@ -70,9 +70,6 @@ namespace MTConnect.Buffers
         }
 
         /// <summary>
-        /// Appends an observation, overwriting the oldest one when the buffer is full.
-        /// </summary>
-        /// <summary>
         /// Number of observations overwritten so far. The logical index of an entry decreases by one for each eviction.
         /// </summary>
         public long Evicted => _evicted;
@@ -92,6 +89,36 @@ namespace MTConnect.Buffers
             if (count > first) Array.Copy(_keys, 0, destination, first, count - first);
         }
 
+        /// <summary>
+        /// Returns the logical index of the first observation whose sequence is at least <paramref name="sequence"/>,
+        /// or <see cref="Size"/> when there is none. Sequences increase with the logical index but can have gaps
+        /// (e.g. after a durable buffer is reloaded), so the index is found by binary search.
+        /// </summary>
+        public int FirstIndexAtOrAfter(ulong sequence)
+        {
+            int low = 0, high = _size;
+            while (low < high)
+            {
+                var mid = low + ((high - low) >> 1);
+                if (this[mid]._sequence < sequence) low = mid + 1;
+                else high = mid;
+            }
+            return low;
+        }
+
+        /// <summary>
+        /// Returns the logical index of the last observation whose sequence is at most <paramref name="sequence"/>,
+        /// or -1 when there is none.
+        /// </summary>
+        public int LastIndexAtOrBefore(ulong sequence)
+        {
+            if (sequence == ulong.MaxValue) return _size - 1;
+            return FirstIndexAtOrAfter(sequence + 1) - 1;
+        }
+
+        /// <summary>
+        /// Appends an observation, overwriting the oldest one when the buffer is full.
+        /// </summary>
         public void Add(ref BufferObservation observation)
         {
             var end = _start + _size;

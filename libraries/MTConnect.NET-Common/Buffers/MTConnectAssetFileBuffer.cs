@@ -336,14 +336,13 @@ namespace MTConnect.Buffers
         }
 
         /// <summary>
-        /// Flushes every queued asset change to disk immediately, bypassing the timed write interval.
+        /// Flushes every queued asset change to disk immediately, returning once written (so a flush on shutdown
+        /// completes before the process exits).
         /// </summary>
         public void WriteAllItems()
         {
-            _ = Task.Run(async () =>
-             {
-                 await WriteItems(int.MaxValue);
-             });
+            // On the thread pool so a caller's synchronization context cannot deadlock the wait
+            Task.Run(() => WriteItems(int.MaxValue)).GetAwaiter().GetResult();
         }
 
         private async Task WriteItems(uint maxItems)
