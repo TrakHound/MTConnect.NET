@@ -81,3 +81,16 @@ With the default GC settings (workstation, concurrent), a 10-second `profile ing
 | Server with dynamic adaptation (`GCDynamicAdaptationMode=1`) | 1.1× | ~22% | 143 MB |
 
 The GC mode is a deployment setting, so the agent doesn't change it. It can be set with `<ServerGarbageCollection>` and `<GarbageCollectionAdaptationMode>` in the project file, or with the `DOTNET_gcServer` and `DOTNET_GCDynamicAdaptationMode` environment variables.
+
+## Forced collections
+
+The agent used to request full, blocking collections through a `GarbageCollector` helper class: after every `/sample` query, and after loading the file buffer at startup. Forcing collections no longer reduced memory once the query path stopped making large intermediate copies, so the helper has been removed.
+
+`profile large-sample` runs 10,000-observation `/sample` queries formatted as XML while ingest continues. `profile large-sample-forced-gc` does the same and forces a full collection after each query, at most every 500 ms, as the helper did. Mean of two 20-second runs:
+
+| Variant | Queries | GC pause time | Peak working set | Peak GC heap |
+|---|---:|---:|---:|---:|
+| No forced collections | 3,135 | 2.6 s | 122 MB | 55 MB |
+| Forced collection after each query | 3,032 | 3.8 s | 128 MB | 67 MB |
+
+Forced collections added GC pause time without lowering peak memory.

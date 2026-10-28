@@ -99,6 +99,8 @@ namespace MTConnect.Benchmarks
             Console.WriteLine($"Profiling '{scenario}' for {seconds}s (pid {Environment.ProcessId})");
             var sw = Stopwatch.StartNew();
             long i2 = 0;
+            long peakHeap = 0;
+            long lastForcedGc = 0;
             while (sw.Elapsed.TotalSeconds < seconds)
             {
                 switch (scenario)
@@ -114,11 +116,30 @@ namespace MTConnect.Benchmarks
                         break;
                     case "sample-xml": Format("xml", sample); break;
                     case "sample-json": Format("json-cppagent", sample); break;
+                    case "large-sample":
+                    case "large-sample-forced-gc":
+                        // Large /sample request (query + XML response) while ingest continues; the forced-gc variant
+                        // requests a collection after each one, as the agent did for large queries before
+                        for (var k = 0; k < 50; k++) agent.AddObservation(DeviceUuid, "e" + (k % Events), (object)("VALUE_" + ((i2 + k) % 7)), DateTime.UtcNow);
+                        var large = agent.GetDeviceStreamsResponseDocument(agent.LastSequence - 15000, 0, 10000);
+                        Format("xml", large);
+                        // Same as the removed GarbageCollector helper: a full blocking collection at most every 500 ms
+                        if (scenario == "large-sample-forced-gc" && sw.ElapsedMilliseconds - lastForcedGc > 500)
+                        {
+                            GC.Collect();
+                            GC.WaitForPendingFinalizers();
+                            GC.Collect();
+                            lastForcedGc = sw.ElapsedMilliseconds;
+                        }
+                        var heap = GC.GetGCMemoryInfo().HeapSizeBytes;
+                        if (heap > peakHeap) peakHeap = heap;
+                        break;
                     default: throw new ArgumentException("Unknown scenario " + scenario);
                 }
                 i2++;
             }
             Console.WriteLine($"{i2} operations; GC gen0/1/2 = {GC.CollectionCount(0)}/{GC.CollectionCount(1)}/{GC.CollectionCount(2)}; GC pause {GC.GetTotalPauseDuration().TotalMilliseconds:N0} ms of {sw.Elapsed.TotalMilliseconds:N0} ms");
+            Console.WriteLine($"Peak working set {Process.GetCurrentProcess().PeakWorkingSet64 / 1048576} MB; peak GC heap (sampled) {peakHeap / 1048576} MB; heap now {GC.GetGCMemoryInfo().HeapSizeBytes / 1048576} MB");
         }
 
         private static void Format(string formatId, IStreamsResponseOutputDocument document)

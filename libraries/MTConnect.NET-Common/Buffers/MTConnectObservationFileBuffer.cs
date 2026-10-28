@@ -326,8 +326,6 @@ namespace MTConnect.Buffers
             observations = null;
             _isLoading = false;
 
-            if (found) GarbageCollector.HighPriorityCollect();
-
             return found;
         }
 

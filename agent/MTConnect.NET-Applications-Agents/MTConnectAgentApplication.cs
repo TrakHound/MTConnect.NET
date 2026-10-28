@@ -426,8 +426,6 @@ namespace MTConnect.Applications
         {
             if (!_started && configuration != null)
             {
-                GarbageCollector.Initialize();
-
                 _deviceConfigurationWatchers.Clear();
                 var initializeDataItems = true;
 

@@ -324,7 +324,6 @@ namespace MTConnect.Agents
             }
 
             StartAgentInformationUpdateTimer();
-            GarbageCollector.Initialize();
         }
 
         /// <summary>
@@ -337,12 +336,11 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Stop the Agent and release shared resources held by the garbage collector helper.
+        /// Stop the Agent and release its resources.
         /// </summary>
         public void Dispose()
         {
             Stop();
-            GarbageCollector.DisposeInstance();
         }
 
         #endregion
