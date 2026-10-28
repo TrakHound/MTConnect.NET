@@ -35,10 +35,36 @@ namespace MTConnect.Processors
         private const string _defaultExtension = ".py";
 
         private readonly Microsoft.Scripting.Hosting.ScriptEngine _pythonEngine;
-        private readonly Dictionary<string, Func<ProcessObservation, ProcessObservation>> _functions = new Dictionary<string, Func<ProcessObservation, ProcessObservation>>();
+        private readonly Dictionary<string, ScriptFunction> _functions = new Dictionary<string, ScriptFunction>();
 
         // Immutable snapshot of _functions read by OnProcess without locking (replaced whenever _functions changes)
-        private volatile KeyValuePair<string, Func<ProcessObservation, ProcessObservation>>[] _functionSnapshot = new KeyValuePair<string, Func<ProcessObservation, ProcessObservation>>[0];
+        private volatile ScriptFunction[] _functionSnapshot = new ScriptFunction[0];
+
+        // A function that fails this many times in a row is disabled until its script is reloaded
+        private const int MaxConsecutiveFailures = 10;
+
+        private sealed class ScriptFunction
+        {
+            public string Key;
+            public Func<ProcessObservation, ProcessObservation> Process;
+
+            // Optional filters read from the script (data_item_types / data_item_ids); null means every DataItem
+            public HashSet<string> DataItemTypes;
+            public HashSet<string> DataItemIds;
+
+            public int ConsecutiveFailures;
+            public volatile bool Disabled;
+
+            public bool Applies(ProcessObservation observation)
+            {
+                if (Disabled) return false;
+
+                var dataItem = observation.DataItem;
+                if (DataItemTypes != null && (dataItem?.Type == null || !DataItemTypes.Contains(dataItem.Type))) return false;
+                if (DataItemIds != null && (dataItem?.Id == null || !DataItemIds.Contains(dataItem.Id))) return false;
+                return true;
+            }
+        }
         private readonly ProcessorConfiguration _configuration;
         private readonly object _lock = new object();
 
@@ -78,7 +104,7 @@ namespace MTConnect.Processors
         public override void Load()
         {
             // Compile into a separate set so the previous functions keep processing until the swap
-            var functions = new Dictionary<string, Func<ProcessObservation, ProcessObservation>>();
+            var functions = new Dictionary<string, ScriptFunction>();
 
             var dir = GetDirectory();
             if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
@@ -103,7 +129,7 @@ namespace MTConnect.Processors
             }
         }
 
-        private Func<ProcessObservation, ProcessObservation> LoadEngine(string file)
+        private ScriptFunction LoadEngine(string file)
         {
             try
             {
@@ -117,7 +143,13 @@ namespace MTConnect.Processors
                 {
                     Log(Logging.MTConnectLogLevel.Debug, $"Python Script Loaded : {file}");
 
-                    return process;
+                    return new ScriptFunction
+                    {
+                        Key = file,
+                        Process = process,
+                        DataItemTypes = ReadStringSet(scope, "data_item_types"),
+                        DataItemIds = ReadStringSet(scope, "data_item_ids")
+                    };
                 }
             }
             catch (Exception ex)
@@ -128,6 +160,22 @@ namespace MTConnect.Processors
             return null;
         }
 
+
+        // Reads an optional list of strings defined by the script (e.g. data_item_types = ["EXECUTION"])
+        private static HashSet<string> ReadStringSet(Microsoft.Scripting.Hosting.ScriptScope scope, string name)
+        {
+            if (scope.TryGetVariable(name, out object value) && value is System.Collections.IEnumerable items && !(value is string))
+            {
+                var set = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var item in items)
+                {
+                    if (item != null) set.Add(item.ToString());
+                }
+                return set;
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// Pipes the supplied observation through every loaded Python
@@ -153,13 +201,25 @@ namespace MTConnect.Processors
                 {
                     if (outputObservation == null) break;
 
+                    // Skip scripts that don't apply to this DataItem (avoids a call into the Python runtime)
+                    if (!function.Applies(outputObservation)) continue;
+
                     try
                     {
-                        outputObservation = function.Value(outputObservation);
+                        outputObservation = function.Process(outputObservation);
+                        function.ConsecutiveFailures = 0;
                     }
                     catch (Exception ex)
                     {
-                        Log(Logging.MTConnectLogLevel.Error, $"Process Error : {function.Key} : {ex.Message}");
+                        if (++function.ConsecutiveFailures >= MaxConsecutiveFailures)
+                        {
+                            function.Disabled = true;
+                            Log(Logging.MTConnectLogLevel.Error, $"Process Error : {function.Key} : {ex.Message} : Disabled after {MaxConsecutiveFailures} consecutive errors (it is re-enabled when the script changes)");
+                        }
+                        else
+                        {
+                            Log(Logging.MTConnectLogLevel.Error, $"Process Error : {function.Key} : {ex.Message}");
+                        }
                     }
                 }
             }
@@ -185,37 +245,12 @@ namespace MTConnect.Processors
         }
 
 
-        private void AddFunction(string filePath, Func<ProcessObservation, ProcessObservation> function)
-        {
-            if (filePath != null && function != null)
-            {
-                lock (_lock)
-                {
-                    _functions.Remove(filePath);
-                    _functions.Add(filePath, function);
-                    UpdateFunctionSnapshot();
-                }
-            }
-        }
-
-        private void RemoveFunction(string key)
-        {
-            if (key != null)
-            {
-                lock (_lock)
-                {
-                    _functions.Remove(key);
-                    UpdateFunctionSnapshot();
-                }
-            }
-        }
-
         // Must be called while holding _lock
         private void UpdateFunctionSnapshot()
         {
-            var snapshot = new KeyValuePair<string, Func<ProcessObservation, ProcessObservation>>[_functions.Count];
+            var snapshot = new ScriptFunction[_functions.Count];
             var i = 0;
-            foreach (var function in _functions) snapshot[i++] = function;
+            foreach (var function in _functions.Values) snapshot[i++] = function;
             _functionSnapshot = snapshot;
         }
 

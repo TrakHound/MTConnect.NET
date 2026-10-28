@@ -93,24 +93,26 @@ namespace MTConnect.Agents
         /// <returns>The observation input produced by the processor chain; when no processors are loaded, a faithful copy of the input observation.</returns>
         public IObservationInput Process(ProcessObservation observation)
         {
+            Dictionary<string, IMTConnectAgentProcessor> processors;
+            lock (_lock) processors = _processors;
+            if (observation != null && !processors.IsNullOrEmpty())
+            {
+                IObservationInput outputObservation = null;
+                foreach (var processor in processors)
+                {
+                    outputObservation = processor.Value.Process(observation);
+                }
+
+                return outputObservation;
+            }
+
+            // No processors: a faithful copy of the input (built only in this case)
             var defaultObservation = new ObservationInput();
             defaultObservation.DeviceKey = observation.DataItem.Device?.Uuid;
             defaultObservation.DataItemKey = observation.DataItem.Id;
             defaultObservation.Values = observation.Values;
             defaultObservation.Timestamp = observation.Timestamp.ToUnixTime();
-            IObservationInput outputObservation = defaultObservation;
-
-            Dictionary<string, IMTConnectAgentProcessor> processors;
-            lock (_lock) processors = _processors;
-            if (observation != null && !processors.IsNullOrEmpty())
-            {
-                foreach (var processor in processors)
-                {
-                    outputObservation = processor.Value.Process(observation);
-                }
-            }
-
-            return outputObservation;
+            return defaultObservation;
         }
 
         /// <summary>

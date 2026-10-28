@@ -248,7 +248,8 @@ namespace MTConnect.Servers.Http
 
             serverConfig.KeepAliveMaxRequests = 100;
             serverConfig.KeepAliveTimeoutSeconds = 60;
-            serverConfig.MaxActiveRequests = 100;
+            // Streaming clients no longer hold a thread each, so allow more than 100 concurrent requests/streams
+            serverConfig.MaxActiveRequests = 1000;
             serverConfig.RequestIdleTimeoutSeconds = 60;
             serverConfig.MaxProcessingTimeSeconds = 60;
 

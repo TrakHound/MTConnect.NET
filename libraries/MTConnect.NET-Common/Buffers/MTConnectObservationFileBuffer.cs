@@ -87,6 +87,14 @@ namespace MTConnect.Buffers
         /// </summary>
         public event EventHandler<ObservationBufferRetentionArgs> BufferRetentionCompleted;
 
+        /// <summary>
+        /// Raised when the write queue is full and an observation will not be persisted to disk. Raised once per
+        /// overflow (again only after a write has been queued successfully); the argument is the dropped sequence.
+        /// </summary>
+        public event EventHandler<ulong> ObservationWriteDropped;
+
+        private int _writeDropReported;
+
 
         /// <summary>
         /// Initializes the durable observation buffer with default settings and starts the background write and retention workers.
@@ -220,7 +228,19 @@ namespace MTConnect.Buffers
         public bool Add(BufferObservation observation)
         {
             // Add to internal Queue
-            return _items.Add(observation);
+            if (_items.Add(observation))
+            {
+                Interlocked.Exchange(ref _writeDropReported, 0);
+                return true;
+            }
+
+            // A valid observation is only rejected when the queue is full
+            if (observation.IsValid && Interlocked.Exchange(ref _writeDropReported, 1) == 0)
+            {
+                ObservationWriteDropped?.Invoke(this, observation.Sequence);
+            }
+
+            return false;
         }
 
         /// <summary>

@@ -5,6 +5,7 @@ using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Logging;
+using MTConnect.Observations;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,6 +19,34 @@ namespace MTConnect.Input
     {
         private CancellationTokenSource _stop;
         private bool _isStarted;
+
+        // Last values sent per DataItem key (used when SuppressUnchangedObservations is enabled)
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, ObservationValue[]> _lastValues = new System.Collections.Concurrent.ConcurrentDictionary<string, ObservationValue[]>();
+
+        /// <summary>
+        /// When true, an Observation whose values equal the last values sent for the same DataItem key is not raised
+        /// again (the agent would discard it anyway after processing and validating it). Leave false for data sources
+        /// with Discrete DataItems, where a repeated value is a new event.
+        /// </summary>
+        protected bool SuppressUnchangedObservations { get; set; }
+
+        /// <summary>
+        /// Optional check, set by the host, that reports whether a log level is enabled so per-read messages that would
+        /// be discarded are not built. When not set, every level is treated as enabled.
+        /// </summary>
+        public Func<MTConnectLogLevel, bool> LogLevelEnabled { get; set; }
+
+        /// <summary>
+        /// Returns true when a log entry at <paramref name="logLevel"/> would be recorded.
+        /// </summary>
+        /// <param name="logLevel">The severity of the log entry.</param>
+        protected bool IsLogEnabled(MTConnectLogLevel logLevel)
+        {
+            if (LogReceived == null) return false;
+
+            var check = LogLevelEnabled;
+            return check == null || check(logLevel);
+        }
 
 
         /// <summary>
@@ -89,9 +118,15 @@ namespace MTConnect.Input
 
                 _stop = new CancellationTokenSource();
 
+                _lastValues.Clear();
+
                 OnStart();
 
-                _ = Task.Run(Worker, _stop.Token);
+                // Polling runs on its own thread: OnRead implementations make blocking (socket / native) calls,
+                // which would otherwise hold thread-pool threads for the whole read
+                var stopToken = _stop.Token;
+                var thread = new Thread(() => Worker(stopToken)) { IsBackground = true, Name = $"MTConnectDataSource:{GetType().Name}" };
+                thread.Start();
             }
         }
 
@@ -109,23 +144,24 @@ namespace MTConnect.Input
             }
         }
 
-        private async Task Worker()
+        private void Worker(CancellationToken stopToken)
         {
             if (Configuration != null)
             {
                 try
                 {
-                    while (!_stop.Token.IsCancellationRequested)
+                    while (!stopToken.IsCancellationRequested)
                     {
                         try
                         {
                             OnRead();
-                            await OnReadAsync();
-
-                            await Task.Delay(Configuration.ReadInterval, _stop.Token);
+                            OnReadAsync().GetAwaiter().GetResult();
                         }
-                        catch (TaskCanceledException) { }
+                        catch (OperationCanceledException) { }
                         catch { }
+
+                        // Wait for the ReadInterval (returns early when stopped)
+                        stopToken.WaitHandle.WaitOne(Math.Max(0, Configuration.ReadInterval));
                     }
                 }
                 catch { }
@@ -218,7 +254,28 @@ namespace MTConnect.Input
         /// <param name="observation">The Observation to report.</param>
         public void AddObservation(IObservationInput observation)
         {
+            if (observation == null) return;
+
+            if (SuppressUnchangedObservations && observation.DataItemKey != null)
+            {
+                var values = observation.Values != null ? System.Linq.Enumerable.ToArray(observation.Values) : new ObservationValue[0];
+                var key = observation.DeviceKey != null ? observation.DeviceKey + ":" + observation.DataItemKey : observation.DataItemKey;
+
+                if (_lastValues.TryGetValue(key, out var lastValues) && ValuesEqual(lastValues, values)) return;
+                _lastValues[key] = values;
+            }
+
             if (ObservationAdded != null) ObservationAdded.Invoke(this, observation);
+        }
+
+        private static bool ValuesEqual(ObservationValue[] a, ObservationValue[] b)
+        {
+            if (a.Length != b.Length) return false;
+            for (var i = 0; i < a.Length; i++)
+            {
+                if (a[i].Key != b[i].Key || a[i].Value != b[i].Value) return false;
+            }
+            return true;
         }
 
 

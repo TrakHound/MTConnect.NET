@@ -1788,7 +1788,7 @@ namespace MTConnect.Agents
                     foreach (var dataItem in dataItems)
                     {
                         // Lookup Buffer Key
-                        var bufferKey = GenerateBufferKey(device.Uuid, dataItem.Id);
+                        var bufferKey = GetBufferKey(device.Uuid, dataItem);
 
                         // If no observation exists, then add an Unavailable observation
                         if (!existingKeys.Contains(bufferKey))
@@ -1814,13 +1814,13 @@ namespace MTConnect.Agents
                                 case DataItemRepresentation.TIME_SERIES: observation.AddValue(ValueKeys.SampleCount, 0); break;
                             }
 
-                            // Temporarily Set Sequence to a value for validation
-                            observation.Sequence = 1;
-                            var validationResult = dataItem.Validate(MTConnectVersion, observation);
-                            observation.Sequence = 0;
-
                             if (Configuration.EnableValidation)
                             {
+                                // Validate only when the result is used (temporarily set a Sequence for validation)
+                                observation.Sequence = 1;
+                                var validationResult = dataItem.Validate(MTConnectVersion, observation);
+                                observation.Sequence = 0;
+
                                 // Set Quality using Validation
                                 if (validationResult.IsValid) observation.Quality = Quality.VALID;
                                 else observation.Quality = Quality.INVALID;

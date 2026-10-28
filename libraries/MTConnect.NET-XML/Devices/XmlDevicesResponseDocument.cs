@@ -92,7 +92,7 @@ namespace MTConnect.Devices.Xml
                 // Clean whitespace and Encoding Marks (BOM)
                 var bytes = XmlFunctions.SanitizeBytes(xmlBytes);
 
-                var version = MTConnectVersion.Get(Encoding.UTF8.GetString(bytes));
+                var version = MTConnectVersion.Get(bytes);
 
                 // Read with the MTConnect namespaces ignored instead of rewriting the text (no string copies or
                 // regex passes, and prefixed extension content keeps its namespace declarations)

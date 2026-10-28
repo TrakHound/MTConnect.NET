@@ -91,6 +91,21 @@ def process(observation):
     return observation
 ```
 
+### Limiting which DataItems a script receives
+`process` is called for every observation the Agent receives. A script that only handles some DataItems can declare them, and the processor then skips calling it for every other observation:
+
+```python
+# Only call process() for these DataItem Types and/or IDs (either list is optional)
+data_item_types = ['EMERGENCY_STOP', 'PATH_FEEDRATE_OVERRIDE']
+data_item_ids = ['L2p1Fact']
+
+def process(observation):
+    ...
+    return observation
+```
+
+A script whose `process` function raises an error 10 times in a row is disabled until the script file changes.
+
 ## Contribution / Feedback
 - Please use the [Issues](https://github.com/TrakHound/MTConnect.NET/issues) tab to create issues for specific problems that you may encounter 
 - Please feel free to use the [Pull Requests](https://github.com/TrakHound/MTConnect.NET/pulls) tab for any suggested improvements to the source code

@@ -103,7 +103,7 @@ namespace MTConnect.Assets.Xml
             {
                 try
                 {
-                    var version = MTConnectVersion.Get(Encoding.UTF8.GetString(XmlFunctions.SanitizeBytes(xmlBytes)));
+                    var version = MTConnectVersion.Get(xmlBytes);
 
                     // Read with the MTConnect namespaces ignored, rather than removing namespace declarations
                     // from the text (which broke prefixed content and stripped an embedded QIF document's namespace)

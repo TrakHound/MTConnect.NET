@@ -150,6 +150,30 @@ namespace MTConnect.Modules
         }
 
 
+        // Completes when the broker stops or the token is cancelled (no polling)
+        private static async Task WaitForStop(MqttServer server, CancellationToken cancellationToken)
+        {
+            var done = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            Func<EventArgs, Task> onStopped = args =>
+            {
+                done.TrySetResult(true);
+                return Task.CompletedTask;
+            };
+
+            server.StoppedAsync += onStopped;
+            try
+            {
+                using (cancellationToken.Register(() => done.TrySetResult(false)))
+                {
+                    if (server.IsStarted && !cancellationToken.IsCancellationRequested) await done.Task.ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                server.StoppedAsync -= onStopped;
+            }
+        }
+
         private async Task StartAsync()
         {
             do
@@ -234,10 +258,7 @@ namespace MTConnect.Modules
 
                         Log(MTConnectLogLevel.Information, "MQTT Server Started..");
 
-                        while (!_stop.Token.IsCancellationRequested && _mqttServer.IsStarted)
-                        {
-                            await Task.Delay(100);
-                        }
+                        await WaitForStop(_mqttServer, _stop.Token);
                     }
                     catch (Exception ex)
                     {

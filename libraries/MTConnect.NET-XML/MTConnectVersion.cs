@@ -17,6 +17,14 @@ namespace MTConnect
         }
 
         /// <summary>
+        /// Gets the Version of the MTConnect standard from the root element's namespace, reading only up to the root element
+        /// </summary>
+        public static Version Get(byte[] xmlBytes)
+        {
+            return GetByNamespace(Namespaces.GetRootNamespace(xmlBytes));
+        }
+
+        /// <summary>
         /// Gets the Version of the MTConnect standard being used based on the XML Namespace that is used
         /// </summary>
         public static Version GetByNamespace(string ns)

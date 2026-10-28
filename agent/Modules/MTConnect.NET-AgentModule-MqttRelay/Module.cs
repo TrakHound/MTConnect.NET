@@ -391,10 +391,7 @@ namespace MTConnect
                             await PublishAssets();
                         }
 
-                        while (!_stop.Token.IsCancellationRequested && _mqttClient.IsConnected)
-                        {
-                            await Task.Delay(100);
-                        }
+                        await WaitForDisconnect(_mqttClient, _stop.Token);
                     }
                     catch (Exception exception)
                     {
@@ -431,6 +428,31 @@ namespace MTConnect
                 }
 
             } while (!_stop.Token.IsCancellationRequested);
+        }
+
+        // Completes when the client disconnects or the token is cancelled (no polling)
+        private static async Task WaitForDisconnect(IMqttClient client, CancellationToken cancellationToken)
+        {
+            var done = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            Func<MqttClientDisconnectedEventArgs, Task> onDisconnected = args =>
+            {
+                done.TrySetResult(true);
+                return Task.CompletedTask;
+            };
+
+            client.DisconnectedAsync += onDisconnected;
+            try
+            {
+                using (cancellationToken.Register(() => done.TrySetResult(false)))
+                {
+                    // Subscribed before checking, so a disconnect in between is not missed
+                    if (client.IsConnected && !cancellationToken.IsCancellationRequested) await done.Task.ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                client.DisconnectedAsync -= onDisconnected;
+            }
         }
 
         private static IEnumerable<IObservationOutput> GetAllObservations(IStreamsResponseOutputDocument doc)

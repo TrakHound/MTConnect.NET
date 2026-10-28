@@ -94,6 +94,7 @@ namespace MTConnect.Modules
             _dataSource.Configuration = new DataSourceConfiguration { ReadInterval = _configuration.ReadInterval };
             _dataSource.ObservationAdded += DataSourceObservationAdded;
             _dataSource.LogReceived += DataSourceLogReceived;
+            _dataSource.LogLevelEnabled = level => IsLogEnabled(level);
             _dataSource.MachineInfoChanged += DataSourceMachineInfoChanged;
             _dataSource.Start();
         }

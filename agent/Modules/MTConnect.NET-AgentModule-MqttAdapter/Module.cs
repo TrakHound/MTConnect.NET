@@ -214,10 +214,7 @@ namespace MTConnect.Modules
                             Log(MTConnectLogLevel.Information, $"MQTT Adapter : TopicPrefix Configuration Parameter Required");
                         }
 
-                        while (_mqttClient.IsConnected && !_stop.IsCancellationRequested)
-                        {
-                            await Task.Delay(100);
-                        }
+                        await WaitForDisconnect(_mqttClient, _stop.Token);
                     }
                     catch (Exception ex)
                     {
@@ -291,6 +288,31 @@ namespace MTConnect.Modules
             }
 
             return Task.CompletedTask;
+        }
+
+        // Completes when the client disconnects or the token is cancelled (no polling)
+        private static async Task WaitForDisconnect(IMqttClient client, CancellationToken cancellationToken)
+        {
+            var done = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            Func<MqttClientDisconnectedEventArgs, Task> onDisconnected = args =>
+            {
+                done.TrySetResult(true);
+                return Task.CompletedTask;
+            };
+
+            client.DisconnectedAsync += onDisconnected;
+            try
+            {
+                using (cancellationToken.Register(() => done.TrySetResult(false)))
+                {
+                    // Subscribed before checking, so a disconnect in between is not missed
+                    if (client.IsConnected && !cancellationToken.IsCancellationRequested) await done.Task.ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                client.DisconnectedAsync -= onDisconnected;
+            }
         }
 
         private static byte[] GetPayload(MqttApplicationMessage message)

@@ -471,6 +471,7 @@ namespace MTConnect.Applications
                     observationBuffer.BufferLoadStarted += ObservationBufferStarted;
                     observationBuffer.BufferLoadCompleted += ObservationBufferCompleted;
                     observationBuffer.BufferRetentionCompleted += ObservationBufferRetentionCompleted;
+                    observationBuffer.ObservationWriteDropped += ObservationBufferWriteDropped;
 
                     // Create Asset File Buffer
                     _assetBuffer = new MTConnectAssetFileBuffer(configuration, configuration.DurableBufferPath);
@@ -1064,6 +1065,11 @@ namespace MTConnect.Applications
         private void ObservationBufferCompleted(object sender, ObservationBufferLoadArgs args)
         {
             _agentLogger.Info($"{args.Count} Observations Loaded from File Buffer in ({TimeSpan.FromMilliseconds(args.Duration).TotalSeconds}s)");
+        }
+
+        private void ObservationBufferWriteDropped(object sender, ulong sequence)
+        {
+            _agentLogger.Warn($"Observations File Buffer : Write queue is full; observations from Sequence {sequence} are not being saved to disk");
         }
 
         private void ObservationBufferRetentionCompleted(object sender, ObservationBufferRetentionArgs args)
