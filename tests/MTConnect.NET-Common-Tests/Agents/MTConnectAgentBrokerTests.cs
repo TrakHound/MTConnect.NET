@@ -63,6 +63,9 @@ namespace MTConnect.Tests.Common.Agents
         }
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: all devices sample with data item filter and from to returns only requested data items.
+        /// </summary>
         [Test]
         public void AllDevicesSample_WithDataItemFilterAndFromTo_ReturnsOnlyRequestedDataItems()
         {
@@ -78,6 +81,9 @@ namespace MTConnect.Tests.Common.Agents
             Assert.That(observations.Select(o => o.DataItemId).Distinct(), Is.EqualTo(new[] { "p1" }));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: sample returns each data items observations in sequence order.
+        /// </summary>
         [Test]
         public void Sample_ReturnsEachDataItemsObservationsInSequenceOrder()
         {
@@ -96,6 +102,9 @@ namespace MTConnect.Tests.Common.Agents
             Assert.That(p1.Select(o => o.Sequence), Is.Ordered.Ascending);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: asset count after removing one of two and adding another counts two.
+        /// </summary>
         [Test]
         public void AssetCount_AfterRemovingOneOfTwoAndAddingAnother_CountsTwo()
         {
@@ -124,6 +133,9 @@ namespace MTConnect.Tests.Common.Agents
             return assetCount.Values?.FirstOrDefault(v => v.Key == ValueKeys.CreateDataSetValueKey(FileAsset.TypeId)).Value;
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: asset count updating an existing asset does not increment.
+        /// </summary>
         [Test]
         public void AssetCount_UpdatingAnExistingAsset_DoesNotIncrement()
         {
@@ -137,6 +149,9 @@ namespace MTConnect.Tests.Common.Agents
             Assert.That(FileAssetCount(broker, "d1"), Is.EqualTo("1"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: asset count re adding a removed asset counts it again.
+        /// </summary>
         [Test]
         public void AssetCount_ReAddingARemovedAsset_CountsItAgain()
         {
@@ -151,6 +166,9 @@ namespace MTConnect.Tests.Common.Agents
             Assert.That(FileAssetCount(broker, "d1"), Is.EqualTo("2"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: asset count removing the same asset twice decrements once.
+        /// </summary>
         [Test]
         public void AssetCount_RemovingTheSameAssetTwice_DecrementsOnce()
         {
@@ -167,6 +185,9 @@ namespace MTConnect.Tests.Common.Agents
             Assert.That(FileAssetCount(broker, "d1"), Is.EqualTo("2"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: asset count overflow eviction decrements.
+        /// </summary>
         [Test]
         public void AssetCount_OverflowEviction_Decrements()
         {
@@ -180,6 +201,9 @@ namespace MTConnect.Tests.Common.Agents
             Assert.That(FileAssetCount(broker, "d1"), Is.EqualTo("2"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: asset count evicting an already removed asset does not decrement again.
+        /// </summary>
         [Test]
         public void AssetCount_EvictingAnAlreadyRemovedAsset_DoesNotDecrementAgain()
         {
@@ -197,6 +221,9 @@ namespace MTConnect.Tests.Common.Agents
             Assert.That(FileAssetCount(broker, "d1"), Is.EqualTo("3"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: remove all assets removes every asset of the type.
+        /// </summary>
         [Test]
         public void RemoveAllAssets_RemovesEveryAssetOfTheType()
         {
@@ -213,6 +240,9 @@ namespace MTConnect.Tests.Common.Agents
             Assert.That(FileAssetCount(broker, "d1"), Is.EqualTo("1"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: get assets response document default count returns all assets.
+        /// </summary>
         [Test]
         public void GetAssetsResponseDocument_DefaultCount_ReturnsAllAssets()
         {
@@ -225,6 +255,9 @@ namespace MTConnect.Tests.Common.Agents
             Assert.That(broker.GetAssetsResponseDocument().Assets.Count(), Is.EqualTo(2));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: current more than9999 data items across devices returns every data item.
+        /// </summary>
         [Test]
         public void Current_MoreThan9999DataItemsAcrossDevices_ReturnsEveryDataItem()
         {
@@ -246,6 +279,9 @@ namespace MTConnect.Tests.Common.Agents
             Assert.That(observations.Where(o => o.DataItemId == lastId).Select(Result), Is.EqualTo(new[] { "hello" }));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: data item indexes are allocated per device.
+        /// </summary>
         [Test]
         public void DataItemIndexes_AreAllocatedPerDevice()
         {
@@ -257,6 +293,9 @@ namespace MTConnect.Tests.Common.Agents
             Assert.That(broker.GetDataItemIndex("d1", "x"), Is.EqualTo(1));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: initialize data item index drops legacy indexes above9999 and resolves by buffer key.
+        /// </summary>
         [Test]
         public void InitializeDataItemIndex_DropsLegacyIndexesAbove9999AndResolvesByBufferKey()
         {
@@ -273,6 +312,9 @@ namespace MTConnect.Tests.Common.Agents
             Assert.That(broker.GetDataItemIndex("d2", "c"), Is.EqualTo(3));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: streams requests for unknown data item ids do not allocate indexes.
+        /// </summary>
         [Test]
         public void StreamsRequests_ForUnknownDataItemIds_DoNotAllocateIndexes()
         {
@@ -289,6 +331,9 @@ namespace MTConnect.Tests.Common.Agents
             Assert.That(broker.DataItemIndexes.Count, Is.EqualTo(before));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: quality follows requested version.
+        /// </summary>
         [Test]
         public void Quality_FollowsRequestedVersion()
         {
@@ -303,6 +348,9 @@ namespace MTConnect.Tests.Common.Agents
             Assert.That(v20.Quality, Is.EqualTo(Quality.UNVERIFIABLE));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: device model change after archive wraps keeps current values.
+        /// </summary>
         [Test]
         public void DeviceModelChange_AfterArchiveWraps_KeepsCurrentValues()
         {
@@ -320,6 +368,9 @@ namespace MTConnect.Tests.Common.Agents
             Assert.That(Result(p1), Is.EqualTo("keep"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: index properties return snapshots.
+        /// </summary>
         [Test]
         public void IndexProperties_ReturnSnapshots()
         {

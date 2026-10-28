@@ -82,6 +82,9 @@ namespace MTConnect.Tests.XML.Assets
         private static string[] ChildNames(XElement element) => element.Elements().Select(o => o.Name.LocalName).ToArray();
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: surrogates are registered by asset type.
+        /// </summary>
         [Test]
         public void Surrogates_are_registered_by_asset_type()
         {
@@ -90,6 +93,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(XmlAsset.GetAssetType("Physical"), Is.Null);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: pallet round trips.
+        /// </summary>
         [Test]
         public void Pallet_round_trips()
         {
@@ -122,6 +128,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(measurements[1].Nominal, Is.EqualTo(400));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: pallet type is written as the type element.
+        /// </summary>
         [Test]
         public void Pallet_type_is_written_as_the_Type_element()
         {
@@ -132,6 +141,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(element.Attribute("type"), Is.Null);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: fixture round trips.
+        /// </summary>
         [Test]
         public void Fixture_round_trips()
         {
@@ -162,6 +174,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(read.Measurements.Single().Value, Is.EqualTo(300));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: unknown measurement types are kept by name.
+        /// </summary>
         [Test]
         public void Unknown_measurement_types_are_kept_by_name()
         {
@@ -175,6 +190,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(XElement.Parse(ToXmlString(read)).Descendants().Any(o => o.Name.LocalName == "Depth"), Is.True);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: version 2 5 documents carry only the measurements.
+        /// </summary>
         [Test]
         public void Version_2_5_documents_carry_only_the_measurements()
         {
@@ -184,6 +202,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(element.Descendants().Any(o => o.Attribute("nominal") != null), Is.False);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: version 2 7 documents carry the full content.
+        /// </summary>
         [Test]
         public void Version_2_7_documents_carry_the_full_content()
         {
@@ -193,12 +214,18 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(element.Descendants().Any(o => o.Attribute("nominal")?.Value == "400"), Is.True);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: physical assets are excluded from documents before 2 5.
+        /// </summary>
         [Test]
         public void Physical_assets_are_excluded_from_documents_before_2_5()
         {
             Assert.That(CreatePallet().Process(MTConnectVersions.Version24), Is.Null);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: assets document reads pallets and fixtures.
+        /// </summary>
         [Test]
         public void Assets_document_reads_pallets_and_fixtures()
         {

@@ -22,6 +22,9 @@ namespace MTConnect.Tests.Common.Assets
     [Category("PhysicalAsset")]
     public class PhysicalAssetTests
     {
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: pallet is an asset whose type is pallet.
+        /// </summary>
         [Test]
         public void Pallet_is_an_asset_whose_type_is_Pallet()
         {
@@ -33,6 +36,9 @@ namespace MTConnect.Tests.Common.Assets
             Assert.That(((IPalletAsset)pallet).PalletType, Is.EqualTo("Machine"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: fixture is an asset whose type is fixture.
+        /// </summary>
         [Test]
         public void Fixture_is_an_asset_whose_type_is_Fixture()
         {
@@ -42,6 +48,9 @@ namespace MTConnect.Tests.Common.Assets
             Assert.That(asset.Type, Is.EqualTo(FixtureAsset.TypeId));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: asset create makes pallets and fixtures.
+        /// </summary>
         [Test]
         public void Asset_Create_makes_pallets_and_fixtures()
         {
@@ -49,6 +58,9 @@ namespace MTConnect.Tests.Common.Assets
             Assert.That(Asset.Create(FixtureAsset.TypeId), Is.InstanceOf<FixtureAsset>());
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: physical assets are excluded before 2 5.
+        /// </summary>
         [Test]
         public void Physical_assets_are_excluded_before_2_5()
         {
@@ -61,6 +73,9 @@ namespace MTConnect.Tests.Common.Assets
             Assert.That(fixture.Process(MTConnectVersions.Version25), Is.InstanceOf<FixtureAsset>());
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: agent holds and serves physical assets.
+        /// </summary>
         [Test]
         public void Agent_holds_and_serves_physical_assets()
         {

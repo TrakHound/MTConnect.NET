@@ -32,6 +32,7 @@
          Assembly.GetManifestResourceStream so a single binary blob in the
          test assembly is sufficient. -->
     <EmbeddedResource Include="Schemas\**\*.xsd" />
+    <Compile Include="..\..\Shared\DockerAvailability.cs" Link="Shared\DockerAvailability.cs" />
     <None Include="Fixtures\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

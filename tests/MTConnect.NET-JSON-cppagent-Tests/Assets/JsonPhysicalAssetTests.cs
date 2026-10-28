@@ -61,6 +61,9 @@ namespace MTConnect.Tests.JsonCppagent.Assets
         }
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: pallet is written in the cppagent shape.
+        /// </summary>
         [Test]
         public void Pallet_is_written_in_the_cppagent_shape()
         {
@@ -84,6 +87,9 @@ namespace MTConnect.Tests.JsonCppagent.Assets
             }
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: pallet is read from cppagent json.
+        /// </summary>
         [Test]
         public void Pallet_is_read_from_cppagent_json()
         {
@@ -116,6 +122,9 @@ namespace MTConnect.Tests.JsonCppagent.Assets
             Assert.That(measurements[1], Is.InstanceOf<LoadedHeightMeasurement>());
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: fixture is read from cppagent json.
+        /// </summary>
         [Test]
         public void Fixture_is_read_from_cppagent_json()
         {
@@ -135,6 +144,9 @@ namespace MTConnect.Tests.JsonCppagent.Assets
             Assert.That(fixture.Measurements.Single(), Is.InstanceOf<SwingMeasurement>());
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: assets document round trips pallets and fixtures.
+        /// </summary>
         [Test]
         public void Assets_document_round_trips_pallets_and_fixtures()
         {

@@ -3,6 +3,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
+using MTConnect.Tests.Shared;
 using Xunit;
 
 namespace MTConnect.Tests.Integration.Workflows
@@ -40,6 +41,18 @@ namespace MTConnect.Tests.Integration.Workflows
         /// <returns>The result of the operation.</returns>
         public async Task InitializeAsync()
         {
+            // The tests using this fixture are [DockerFact]s, skipped when Docker is not reachable;
+            // xUnit still creates the fixture, so it does not try to start a container then. When the
+            // Docker suites were asked for (MTCONNECT_E2E_DOCKER) the tests run, and this fails them.
+            switch (DockerAvailability.Current)
+            {
+                case DockerGateDecision.Skip:
+                    return;
+
+                case DockerGateDecision.Fail:
+                    throw new InvalidOperationException(DockerAvailability.FailMessage(DockerAvailability.EnvironmentValue));
+            }
+
             // Mosquitto 2.x refuses anonymous remote connections by default.
             // Ship a per-fixture config that opens 1883/tcp to anonymous
             // clients so tests do not need to ship credentials into the

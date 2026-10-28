@@ -1,0 +1,80 @@
+// Copyright (c) 2026 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+using MTConnect.Tests.Shared;
+using NUnit.Framework;
+
+namespace MTConnect.Compliance.Tests.L2_CrossImpl
+{
+    /// <summary>
+    /// Pins <see cref="DockerAvailability"/> (behind <see cref="DockerGate"/>): a RequiresDocker fixture runs when Docker is reachable, is
+    /// skipped when it is not, and fails instead when <c>MTCONNECT_E2E_DOCKER</c> asks for the Docker
+    /// suites (accepting the same truthy values as <c>tools/test.ps1</c>).
+    /// </summary>
+    [TestFixture]
+    [Category("DockerGate")]
+    public class DockerGateTests
+    {
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: truthy values ask for the docker suites.
+        /// </summary>
+        [TestCase("true")]
+        [TestCase("TRUE")]
+        [TestCase("yes")]
+        [TestCase("on")]
+        [TestCase("1")]
+        [TestCase(" true ")]
+        public void Truthy_values_ask_for_the_Docker_suites(string value)
+        {
+            Assert.That(DockerAvailability.IsRequested(value), Is.True);
+        }
+
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: other values do not ask for the docker suites.
+        /// </summary>
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("   ")]
+        [TestCase("false")]
+        [TestCase("0")]
+        [TestCase("no")]
+        [TestCase("off")]
+        [TestCase("enabled")]
+        public void Other_values_do_not_ask_for_the_Docker_suites(string? value)
+        {
+            Assert.That(DockerAvailability.IsRequested(value), Is.False);
+        }
+
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: fixtures run when docker is reachable.
+        /// </summary>
+        [TestCase(null)]
+        [TestCase("true")]
+        [TestCase("false")]
+        public void Fixtures_run_when_Docker_is_reachable(string? value)
+        {
+            Assert.That(DockerAvailability.Decide(dockerReachable: true, value), Is.EqualTo(DockerGateDecision.Run));
+        }
+
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: fixtures are skipped when docker is unreachable and not asked for.
+        /// </summary>
+        [TestCase(null)]
+        [TestCase("false")]
+        [TestCase("0")]
+        public void Fixtures_are_skipped_when_Docker_is_unreachable_and_not_asked_for(string? value)
+        {
+            Assert.That(DockerAvailability.Decide(dockerReachable: false, value), Is.EqualTo(DockerGateDecision.Skip));
+        }
+
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: fixtures fail when docker is unreachable but asked for.
+        /// </summary>
+        [TestCase("true")]
+        [TestCase("1")]
+        public void Fixtures_fail_when_Docker_is_unreachable_but_asked_for(string value)
+        {
+            Assert.That(DockerAvailability.Decide(dockerReachable: false, value), Is.EqualTo(DockerGateDecision.Fail));
+        }
+    }
+}

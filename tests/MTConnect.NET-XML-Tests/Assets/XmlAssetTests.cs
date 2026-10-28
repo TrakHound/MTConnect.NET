@@ -98,6 +98,9 @@ namespace MTConnect.Tests.XML.Assets
         }
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: from xml reads an asset carrying a prefixed vendor namespace.
+        /// </summary>
         [Test]
         public void FromXml_reads_an_asset_carrying_a_prefixed_vendor_namespace()
         {
@@ -110,6 +113,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(asset.AssetId, Is.EqualTo("T1"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: from xml keeps the namespace of an embedded QIF document.
+        /// </summary>
         [Test]
         public void FromXml_keeps_the_namespace_of_an_embedded_QIF_document()
         {
@@ -122,6 +128,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(XElement.Parse(asset.QIFDocument).Name.NamespaceName, Is.EqualTo(QifNamespace));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: from xml reads input with a byte order mark and leading whitespace.
+        /// </summary>
         [Test]
         public void FromXml_reads_input_with_a_byte_order_mark_and_leading_whitespace()
         {
@@ -134,6 +143,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(asset.AssetId, Is.EqualTo("T1"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: from xml reads input without an MT connect namespace.
+        /// </summary>
         [Test]
         public void FromXml_reads_input_without_an_MTConnect_namespace()
         {
@@ -142,6 +154,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(asset, Is.Not.Null);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: try from xml reports why reading failed.
+        /// </summary>
         [Test]
         public void TryFromXml_reports_why_reading_failed()
         {
@@ -157,6 +172,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(wrongRootError, Does.Contain("File"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: create asset reports the read error.
+        /// </summary>
         [Test]
         public void CreateAsset_reports_the_read_error()
         {
@@ -166,6 +184,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(result.Errors, Is.Not.Empty);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: from xml reads the description element and the hash attribute.
+        /// </summary>
         [Test]
         public void FromXml_reads_the_Description_element_and_the_hash_attribute()
         {
@@ -178,6 +199,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(asset.Hash, Is.EqualTo("abc="));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: to xml omits unset attributes and writes timestamps in UTC.
+        /// </summary>
         [Test]
         public void ToXml_omits_unset_attributes_and_writes_timestamps_in_UTC()
         {
@@ -192,6 +216,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(element.Attribute("timestamp").Value, Does.EndWith("Z"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: to xml returns null for a type without a serializer.
+        /// </summary>
         [Test]
         public void ToXml_returns_null_for_a_type_without_a_serializer()
         {
@@ -201,6 +228,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(new XmlEntityFormatter().Format(asset).Success, Is.False);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: get asset type maps only asset surrogates.
+        /// </summary>
         [Test]
         public void GetAssetType_maps_only_asset_surrogates()
         {
@@ -212,6 +242,9 @@ namespace MTConnect.Tests.XML.Assets
         }
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: cutting tool round trips with description and hash.
+        /// </summary>
         [Test]
         public void CuttingTool_round_trips_with_description_and_hash()
         {
@@ -231,6 +264,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(read.Manufacturers, Is.EqualTo(new[] { "Acme" }));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: cutting tool archetype round trips as an archetype.
+        /// </summary>
         [Test]
         public void CuttingToolArchetype_round_trips_as_an_archetype()
         {
@@ -245,6 +281,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(XElement.Parse(ToXmlString(read)).Name.LocalName, Is.EqualTo("CuttingToolArchetype"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: file round trips.
+        /// </summary>
         [Test]
         public void File_round_trips()
         {
@@ -256,6 +295,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(read.Location?.Href, Is.EqualTo("http://example.com/part.nc"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: raw material round trips.
+        /// </summary>
         [Test]
         public void RawMaterial_round_trips()
         {
@@ -268,6 +310,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(read.CurrentQuantity, Is.EqualTo(3));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: QIF document wrapper round trips with its document namespace.
+        /// </summary>
         [Test]
         public void QIFDocumentWrapper_round_trips_with_its_document_namespace()
         {
@@ -280,6 +325,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(XElement.Parse(read.QIFDocument).Name.NamespaceName, Is.EqualTo(QifNamespace));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: component configuration parameters round trips.
+        /// </summary>
         [Test]
         public void ComponentConfigurationParameters_round_trips()
         {
@@ -297,6 +345,9 @@ namespace MTConnect.Tests.XML.Assets
         }
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: an asset that fails part way does not corrupt the assets document.
+        /// </summary>
         [Test]
         public void An_asset_that_fails_part_way_does_not_corrupt_the_assets_document()
         {
@@ -310,6 +361,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(assets[0].Attribute("assetId")?.Value, Is.EqualTo("T2"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: description is placed for the document version.
+        /// </summary>
         [Test]
         public void Description_is_placed_for_the_document_version()
         {
@@ -331,6 +385,9 @@ namespace MTConnect.Tests.XML.Assets
             Assert.That(v27[1].Elements().Last().Value, Is.EqualTo("File description"));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: assets document reads archetypes descriptions and the version.
+        /// </summary>
         [Test]
         public void Assets_document_reads_archetypes_descriptions_and_the_version()
         {

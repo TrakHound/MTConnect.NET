@@ -111,7 +111,7 @@ namespace MTConnect.Tests.Integration.Workflows
 
         /// <summary>Pins the behaviour expressed by the test name: agent publishes observation consumer receives same payload.</summary>
         /// <returns>The result of the operation.</returns>
-        [Fact]
+        [DockerFact]
         public async Task Agent_publishes_observation_consumer_receives_same_payload()
         {
             // No `.ConfigureAwait(false)` on awaits inside [Fact] methods —
@@ -177,7 +177,7 @@ namespace MTConnect.Tests.Integration.Workflows
 
         /// <summary>Pins the behaviour expressed by the test name: consumer disconnects mid publish agent does not lose observations.</summary>
         /// <returns>The result of the operation.</returns>
-        [Fact]
+        [DockerFact]
         public async Task Consumer_disconnects_mid_publish_agent_does_not_lose_observations()
         {
             // Connect a subscriber, then drop it before the observation

@@ -141,7 +141,15 @@ public class RouteCheckTests
             if (!File.Exists(distIndex))
             {
                 stage = "npm run build";
-                RunNpm("run build", _docsRoot);
+
+                // The build's API reference step (scripts/generate-api-ref.sh) rebuilds every
+                // documented project, this one included; this test host runs from this
+                // project's bin/ folder, which Windows keeps locked, so leave it out (the
+                // `dotnet test` that started this run has just built it, XML doc file included)
+                RunNpm("run build", _docsRoot, new Dictionary<string, string>
+                {
+                    ["MTCONNECT_DOCS_SKIP_BUILD"] = "tests/MTConnect.NET-Docs-Tests"
+                });
             }
 
             // Install the chromium binary the Playwright .NET binding drives.
@@ -676,7 +684,7 @@ public class RouteCheckTests
         // `npx` shim is npx.cmd; ProcessStartInfo doesn't auto-resolve
         // the extension, so name it explicitly.
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        var fileName = isWindows ? "npx.cmd" : "npx";
+        var fileName = RouteCheckHelpers.ResolveExecutable(isWindows ? "npx.cmd" : "npx");
 
         var psi = new ProcessStartInfo
         {
@@ -790,10 +798,10 @@ public class RouteCheckTests
 
     // ─── npm bootstrap ───────────────────────────────────────────────────────
 
-    private static void RunNpm(string arguments, string workingDirectory)
+    private static void RunNpm(string arguments, string workingDirectory, IDictionary<string, string>? environment = null)
     {
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        var fileName = isWindows ? "npm.cmd" : "npm";
+        var fileName = RouteCheckHelpers.ResolveExecutable(isWindows ? "npm.cmd" : "npm");
 
         var psi = new ProcessStartInfo
         {
@@ -807,6 +815,10 @@ public class RouteCheckTests
         foreach (var token in arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries))
         {
             psi.ArgumentList.Add(token);
+        }
+        if (environment != null)
+        {
+            foreach (var variable in environment) psi.Environment[variable.Key] = variable.Value;
         }
 
         var proc = Process.Start(psi)

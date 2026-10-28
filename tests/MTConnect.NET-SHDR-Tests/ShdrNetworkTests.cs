@@ -112,6 +112,9 @@ namespace MTConnect.Tests.Shdr
             return (listener, client);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: client line split across reads is reassembled.
+        /// </summary>
         [Test]
         public void Client_LineSplitAcrossReads_IsReassembled()
         {
@@ -139,6 +142,9 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: client multiline asset across reads is reassembled.
+        /// </summary>
         [Test]
         public void Client_MultilineAssetAcrossReads_IsReassembled()
         {
@@ -166,6 +172,9 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: client utf8 text is decoded.
+        /// </summary>
         [Test]
         public void Client_Utf8Text_IsDecoded()
         {
@@ -190,6 +199,9 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: client unknown first key does not drop the rest of the line.
+        /// </summary>
         [Test]
         public void Client_UnknownFirstKey_DoesNotDropTheRestOfTheLine()
         {
@@ -214,6 +226,9 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: client silent adapter is disconnected.
+        /// </summary>
         [Test]
         public void Client_SilentAdapter_IsDisconnected()
         {
@@ -276,6 +291,9 @@ namespace MTConnect.Tests.Shdr
             public void Dispose() => _client.Dispose();
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: adapter value set before agent connects is sent on connect.
+        /// </summary>
         [Test]
         public void Adapter_ValueSetBeforeAgentConnects_IsSentOnConnect()
         {
@@ -298,6 +316,9 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: adapter connect dump goes only to the new agent.
+        /// </summary>
         [Test]
         public void Adapter_ConnectDump_GoesOnlyToTheNewAgent()
         {
@@ -328,6 +349,9 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: queue adapter sends every queued value in order and assets too.
+        /// </summary>
         [Test]
         public void QueueAdapter_SendsEveryQueuedValueInOrder_AndAssetsToo()
         {
@@ -359,6 +383,9 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: adapter answers ping.
+        /// </summary>
         [Test]
         public void Adapter_AnswersPing()
         {
@@ -380,6 +407,9 @@ namespace MTConnect.Tests.Shdr
             }
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: adapter settings pass through to the adapter.
+        /// </summary>
         [Test]
         public void Adapter_Settings_PassThroughToTheAdapter()
         {
@@ -392,6 +422,9 @@ namespace MTConnect.Tests.Shdr
             Assert.That(adapter.OutputTimestamps, Is.False);
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: interval adapter from null configuration starts and stops.
+        /// </summary>
         [Test]
         public void IntervalAdapter_FromNullConfiguration_StartsAndStops()
         {

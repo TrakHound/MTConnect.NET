@@ -508,7 +508,15 @@ namespace MTConnect.Tests.Integration
                 observation) =>
             {
                 _logger.LogTrace($"to {observation.DataItemId} {observation.GetValue("Result")}");
-                observationEvt.Set();
+
+                // Only the update this test sends: any other observation (such as the asset
+                // changes the adapter sends when the agent's connection to it is established,
+                // which under load can happen after this handler is attached) would release the
+                // wait before the program value is in the agent
+                if (observation.DataItemId == "program" && observation.GetValue("Result") == "SuperProg42")
+                {
+                    observationEvt.Set();
+                }
             };
 
             var item = new ShdrDataItem("program", "SuperProg42");

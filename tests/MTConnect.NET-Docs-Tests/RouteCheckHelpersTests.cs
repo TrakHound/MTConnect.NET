@@ -785,6 +785,67 @@ public class RouteCheckHelpersTests
         Assert.That(shard4, Is.Empty);
     }
 
+    // ─── ResolveExecutable ───────────────────────────────────────────────────
+
+    /// <summary>
+    /// A bare executable name resolves to its full path in the first PATH
+    /// directory that has it. Pins the fix for npm.cmd started by bare name on
+    /// Windows, where cmd.exe resolves the shim's %~dp0 to the working directory.
+    /// </summary>
+    [Test]
+    public void ResolveExecutable_FindsFirstPathDirectoryContainingIt()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"resolve-exe-{Guid.NewGuid():N}");
+        var empty = Path.Combine(root, "empty");
+        var first = Path.Combine(root, "first");
+        var second = Path.Combine(root, "second");
+        Directory.CreateDirectory(empty);
+        Directory.CreateDirectory(first);
+        Directory.CreateDirectory(second);
+        File.WriteAllText(Path.Combine(first, "tool.cmd"), "");
+        File.WriteAllText(Path.Combine(second, "tool.cmd"), "");
+
+        try
+        {
+            var path = string.Join(Path.PathSeparator, empty, first, second);
+            string? Env(string key) => key == "PATH" ? path : null;
+
+            Assert.That(RouteCheckHelpers.ResolveExecutable("tool.cmd", Env), Is.EqualTo(Path.Combine(first, "tool.cmd")));
+        }
+        finally
+        {
+            try { Directory.Delete(root, recursive: true); }
+            catch (IOException) { /* best-effort cleanup */ }
+            catch (UnauthorizedAccessException) { /* best-effort cleanup */ }
+        }
+    }
+
+    /// <summary>
+    /// A name that is not on PATH, an unset PATH, and a name that is already a
+    /// path are all returned unchanged (the OS lookup then applies as before).
+    /// </summary>
+    [Test]
+    public void ResolveExecutable_LeavesUnresolvableNamesUnchanged()
+    {
+        var empty = Path.Combine(Path.GetTempPath(), $"resolve-exe-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(empty);
+
+        try
+        {
+            Assert.That(RouteCheckHelpers.ResolveExecutable("missing.cmd", key => key == "PATH" ? empty : null), Is.EqualTo("missing.cmd"));
+            Assert.That(RouteCheckHelpers.ResolveExecutable("tool.cmd", _ => null), Is.EqualTo("tool.cmd"));
+
+            var rooted = Path.Combine(empty, "tool.cmd");
+            Assert.That(RouteCheckHelpers.ResolveExecutable(rooted, _ => throw new AssertionException("PATH should not be read")), Is.EqualTo(rooted));
+        }
+        finally
+        {
+            try { Directory.Delete(empty, recursive: true); }
+            catch (IOException) { /* best-effort cleanup */ }
+            catch (UnauthorizedAccessException) { /* best-effort cleanup */ }
+        }
+    }
+
     // ─── ReadShardEnv ────────────────────────────────────────────────────────
 
     /// <summary>

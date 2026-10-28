@@ -74,6 +74,9 @@ namespace MTConnect.Tests.Http.Servers
         }
 
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: helpers exist.
+        /// </summary>
         [Test]
         public void Helpers_Exist()
         {
@@ -81,6 +84,9 @@ namespace MTConnect.Tests.Http.Servers
             Assert.That(_createMultipartChunk, Is.Not.Null);
         }
 
+        /// <summary>
+        /// Helper for the tests in this fixture: EncodeChunk RoundTripsThroughClientDecoding.
+        /// </summary>
         [TestCaseSource(nameof(Encodings))]
         public void EncodeChunk_RoundTripsThroughClientDecoding(string contentEncoding)
         {
@@ -93,6 +99,9 @@ namespace MTConnect.Tests.Http.Servers
             Assert.That(ReadAll(decoded), Is.EqualTo(Body));
         }
 
+        /// <summary>
+        /// Helper for the tests in this fixture: EncodeChunk ReturnsStreamPositionedAtStart.
+        /// </summary>
         [TestCaseSource(nameof(Encodings))]
         public void EncodeChunk_ReturnsStreamPositionedAtStart(string contentEncoding)
         {
@@ -102,6 +111,9 @@ namespace MTConnect.Tests.Http.Servers
             Assert.That(encoded.Length, Is.GreaterThan(0));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: encode chunk no encoding returns content unchanged.
+        /// </summary>
         [Test]
         public void EncodeChunk_NoEncoding_ReturnsContentUnchanged()
         {
@@ -110,6 +122,9 @@ namespace MTConnect.Tests.Http.Servers
             Assert.That(Encode(content, null), Is.SameAs(content));
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: create multipart chunk gzip part advertises encoding and carries compressed body.
+        /// </summary>
         [Test]
         public void CreateMultipartChunk_GzipPart_AdvertisesEncodingAndCarriesCompressedBody()
         {

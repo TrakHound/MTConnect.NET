@@ -32,6 +32,9 @@ namespace MTConnect.Tests.XML.Formatters
             return new DevicesResponseDocument { Devices = new List<IDevice> { device } };
         }
 
+        /// <summary>
+        /// Pins the behaviour expressed by the test name: changed device model with same id is not served from cache.
+        /// </summary>
         [Test]
         public void ChangedDeviceModel_WithSameId_IsNotServedFromCache()
         {
