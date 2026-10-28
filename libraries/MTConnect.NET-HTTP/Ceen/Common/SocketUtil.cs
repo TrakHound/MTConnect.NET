@@ -19,8 +19,29 @@ namespace Ceen
         public static Socket CreateAndBindSocket(EndPoint addr, int backlog)
         {
             Socket socket;
-            if (addr is IPEndPoint)
-                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
+            if (addr is IPEndPoint ipEndPoint)
+            {
+                // Use the endpoint's address family (an IPv4 socket cannot bind an IPv6 address)
+                socket = new Socket(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.IP);
+
+                // Listening on any IPv6 address also accepts IPv4 clients, so "localhost" works whichever address
+                // the client tries first. Fall back to IPv4 only where IPv6 is disabled.
+                if (ipEndPoint.AddressFamily == AddressFamily.InterNetworkV6 && ipEndPoint.Address.Equals(IPAddress.IPv6Any))
+                {
+                    try
+                    {
+                        socket.DualMode = true;
+                        BindSocket(socket, addr, backlog);
+                        return socket;
+                    }
+                    catch (SocketException)
+                    {
+                        socket.Dispose();
+                        addr = new IPEndPoint(IPAddress.Any, ipEndPoint.Port);
+                        socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
+                    }
+                }
+            }
 
 #if NET5_0_OR_GREATER
             else if (addr is UnixDomainSocketEndPoint)

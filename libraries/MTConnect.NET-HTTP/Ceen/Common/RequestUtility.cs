@@ -446,7 +446,15 @@ namespace Ceen
         /// <param name="self">The request instance</param>
         /// <returns>The remote IP</returns>
         public static string GetRemoteIP(this Ceen.IHttpRequestInternal self)
-            => (self.RemoteEndPoint as System.Net.IPEndPoint)?.Address.ToString();
+        {
+            var address = (self.RemoteEndPoint as System.Net.IPEndPoint)?.Address;
+
+            // A dual-stack listener reports IPv4 clients as IPv4-mapped IPv6 addresses (::ffff:a.b.c.d); return the
+            // IPv4 form so address lists such as AllowPutFrom keep matching
+            if (address != null && address.IsIPv4MappedToIPv6) address = address.MapToIPv4();
+
+            return address?.ToString();
+        }
 
         /// <summary>
         /// Gets the remote IP from the request as a string (or null)

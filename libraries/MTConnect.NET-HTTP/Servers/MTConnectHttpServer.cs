@@ -210,7 +210,13 @@ namespace MTConnect.Servers.Http
                                     }
                                 }
                             }
-                            else endpoint = new IPEndPoint(IPAddress.Any, serverConfiguration.Port);
+                            else
+                            {
+                                // No address configured: listen on every IPv4 and IPv6 address. Listening on IPv4 only
+                                // makes clients that resolve "localhost" to ::1 first (most non-browser clients on
+                                // Windows) wait about 2 seconds for each new connection
+                                endpoint = new IPEndPoint(System.Net.Sockets.Socket.OSSupportsIPv6 ? IPAddress.IPv6Any : IPAddress.Any, serverConfiguration.Port);
+                            }
 
 
                             if (ServerStarted != null) ServerStarted.Invoke(this, endpointId);

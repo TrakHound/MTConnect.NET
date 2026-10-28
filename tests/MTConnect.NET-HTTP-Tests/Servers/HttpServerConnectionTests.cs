@@ -92,6 +92,27 @@ namespace MTConnect.Tests.Http.Servers
         }
 
 
+        /// <summary>Pins the behaviour expressed by the test name: with no address configured, IPv4 and IPv6 clients are both accepted.</summary>
+        [Test]
+        public void Default_server_accepts_IPv4_and_IPv6_clients()
+        {
+            if (!Socket.OSSupportsIPv6) Assert.Ignore("IPv6 is not available");
+
+            // No Server address configured (the agent's default): listens on every IPv4 and IPv6 address
+            using var server = new LoopbackAgentServer(configuration => configuration.Server = null);
+
+            foreach (var address in new[] { IPAddress.Loopback, IPAddress.IPv6Loopback })
+            {
+                using var client = new TcpClient(address.AddressFamily);
+                client.Connect(address, server.Port);
+                client.ReceiveTimeout = 10000;
+
+                var response = SendRequest(client.GetStream(), "GET /probe HTTP/1.1\r\nHost: localhost\r\n\r\n");
+                Assert.That(response.StatusLine, Does.Contain(" 200 "), address.ToString());
+            }
+        }
+
+
         private TcpClient Connect()
         {
             var client = new TcpClient();
