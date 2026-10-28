@@ -117,3 +117,26 @@ Fixes found by this test:
 - **Connection bursts were refused.** The listen backlog was Ceen's default of 5, so more than a handful of simultaneous connects were refused. It is now 512.
 - **Connections were never kept alive.** A request without a body was given a body of unknown length, so the server could never drain it and closed the connection after every response, even when the client asked for keep-alive. HTTP/1.1 clients that don't send a `Connection` header (most of them) also got `Connection: close`. Each request therefore used a new TCP connection, and a client polling quickly ran out of local ports within a couple of minutes.
 - **Every request stayed in memory for 60 seconds.** Its processing-timeout timer wasn't cancelled when the request finished, and the timer referenced the request. At 16 pollers, live memory reached 2.35 GB after 40 seconds; it now stays near 10 MB.
+
+## Filling a running agent's buffer
+
+`MTConnect.NET-BufferFill` fills a running agent's observation buffer so its memory use can be viewed (for example in Task Manager) with a full buffer. It acts as the SHDR adapter that the agent's `shdr-adapter` module connects to, and sends a changing value for every SAMPLE DataItem in the device file until the requested number of observations has been sent. It then keeps the connection open, answering heartbeats, until you press Ctrl+C.
+
+The agent must have an `shdr-adapter` module for the device, for example:
+
+```yaml
+modules:
+- shdr-adapter:
+    deviceKey: Okuma
+    port: 7878
+```
+
+Start the agent, then run:
+
+```
+dotnet run -c Release --project benchmarks/MTConnect.NET-BufferFill
+```
+
+Options: `--device <path>` (default `agent/MTConnect.NET-Agent/devices/okuma.xml`), `--port <n>` (default 7878), `--count <n>` (default 150000, the default buffer size), `--rate <n>` observations per second (default 20000; 0 for no limit), `--agent <url>` to report the buffer state (default `http://localhost:5000`), and `--exit` to exit once sent.
+
+With the default configuration (150,000-observation buffer, Okuma device), a Release agent used 39 MB of private memory before filling and 57 MB with a full buffer, about 115 bytes per buffered observation.
