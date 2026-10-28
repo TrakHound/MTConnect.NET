@@ -1,4 +1,4 @@
-// Copyright (c) 2026 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2026 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MTConnect
+namespace MTConnect.Mqtt
 {
     /// <summary>
     /// Bounded queue that decouples agent observation events from MQTT publishing. Items are
@@ -15,7 +15,7 @@ namespace MTConnect
     /// completions are reported strictly in enqueue order so a durable last-sent sequence only
     /// ever moves forward over sequences that were actually delivered.
     /// </summary>
-    internal sealed class RelayPublishQueue<T>
+    public sealed class MqttPublishQueue<T>
     {
         private readonly ConcurrentQueue<T> _queue = new ConcurrentQueue<T>();
         private readonly SemaphoreSlim _signal = new SemaphoreSlim(0);
@@ -32,7 +32,10 @@ namespace MTConnect
         public SemaphoreSlim Gate { get; } = new SemaphoreSlim(1, 1);
 
 
-        public RelayPublishQueue(int capacity, int maxInFlight)
+        /// <summary>
+        /// Creates a queue holding at most <paramref name="capacity"/> items, publishing up to <paramref name="maxInFlight"/> at once.
+        /// </summary>
+        public MqttPublishQueue(int capacity, int maxInFlight)
         {
             _capacity = Math.Max(1, capacity);
             _maxInFlight = Math.Max(1, maxInFlight);

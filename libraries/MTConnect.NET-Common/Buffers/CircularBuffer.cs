@@ -16,6 +16,8 @@ namespace MTConnect.Buffers
     sealed class CircularBuffer
     {
         private readonly BufferObservation[] _buffer;
+        private readonly int[] _keys; // BufferKey of each physical slot (lets readers copy keys without the observations)
+        private long _evicted; // Number of observations overwritten so far
         private int _start; // Physical slot of the oldest observation
         private int _size;
 
@@ -43,6 +45,7 @@ namespace MTConnect.Buffers
             }
 
             _buffer = new BufferObservation[capacity];
+            _keys = new int[capacity];
         }
 
 
@@ -69,15 +72,38 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Appends an observation, overwriting the oldest one when the buffer is full.
         /// </summary>
+        /// <summary>
+        /// Number of observations overwritten so far. The logical index of an entry decreases by one for each eviction.
+        /// </summary>
+        public long Evicted => _evicted;
+
+        /// <summary>
+        /// Copies the BufferKeys of <paramref name="count"/> entries starting at logical <paramref name="index"/>.
+        /// </summary>
+        public void CopyKeys(int index, int[] destination, int count)
+        {
+            if (index < 0 || count < 0 || index + count > _size) throw new ArgumentOutOfRangeException(nameof(index));
+
+            var physical = _start + index;
+            if (physical >= _buffer.Length) physical -= _buffer.Length;
+
+            var first = Math.Min(count, _buffer.Length - physical);
+            Array.Copy(_keys, physical, destination, 0, first);
+            if (count > first) Array.Copy(_keys, 0, destination, first, count - first);
+        }
+
         public void Add(ref BufferObservation observation)
         {
             var end = _start + _size;
             if (end >= _buffer.Length) end -= _buffer.Length;
 
             _buffer[end] = observation;
+            _keys[end] = observation._key;
 
             if (_size == _buffer.Length)
             {
+                _evicted++;
+
                 // Full: the slot just written held the oldest entry, so the oldest moves forward
                 if (++_start == _buffer.Length) _start = 0;
             }

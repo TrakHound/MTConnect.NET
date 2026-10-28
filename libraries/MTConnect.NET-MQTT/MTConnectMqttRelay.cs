@@ -414,10 +414,11 @@ namespace MTConnect.Mqtt
             }
             else
             {
-                var observations = _mtconnectAgent.GetCurrentObservations(observation.DeviceUuid);
+                // Only this DataItem's current observations (not every DataItem on the Device)
+                var observations = _mtconnectAgent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
                 if (!observations.IsNullOrEmpty())
                 {
-                    var dataItemObservations = observations.Where(o => o.DataItemId == observation.DataItemId);
+                    var dataItemObservations = observations;
                     if (!dataItemObservations.IsNullOrEmpty())
                     {
                         var x = new List<IObservation>();

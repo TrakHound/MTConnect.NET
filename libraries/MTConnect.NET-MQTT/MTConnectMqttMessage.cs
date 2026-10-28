@@ -337,7 +337,43 @@ namespace MTConnect.Mqtt
         }
 
 
+        // Topics cached per DataItem instance (rebuilt only when the Device, format or interval differs)
+        private sealed class TopicCacheEntry
+        {
+            public string DeviceUuid;
+            public string DataItemId;
+            public MTConnectMqttFormat Format;
+            public int Interval;
+            public string Topic;
+        }
+
+        private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<IDataItem, TopicCacheEntry> _topicCache = new System.Runtime.CompilerServices.ConditionalWeakTable<IDataItem, TopicCacheEntry>();
+
         private static string CreateTopic(IObservation observation, MTConnectMqttFormat format, int interval = 0)
+        {
+            var dataItem = observation?.DataItem;
+            if (dataItem == null) return BuildTopic(observation, format, interval);
+
+            if (_topicCache.TryGetValue(dataItem, out var entry) &&
+                entry.Format == format && entry.Interval == interval &&
+                entry.DeviceUuid == observation.DeviceUuid && entry.DataItemId == observation.DataItemId)
+            {
+                return entry.Topic;
+            }
+
+            var topic = BuildTopic(observation, format, interval);
+
+            _topicCache.Remove(dataItem);
+            try
+            {
+                _topicCache.Add(dataItem, new TopicCacheEntry { DeviceUuid = observation.DeviceUuid, DataItemId = observation.DataItemId, Format = format, Interval = interval, Topic = topic });
+            }
+            catch (System.ArgumentException) { } // Added concurrently
+
+            return topic;
+        }
+
+        private static string BuildTopic(IObservation observation, MTConnectMqttFormat format, int interval = 0)
         {
             if (observation != null)
             {

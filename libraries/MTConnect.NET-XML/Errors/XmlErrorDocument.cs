@@ -82,14 +82,11 @@ namespace MTConnect.Errors.Xml
                 // Clean whitespace and Encoding Marks (BOM)
                 var bytes = XmlFunctions.SanitizeBytes(xmlBytes);
 
-                var xml = Encoding.UTF8.GetString(bytes);
-                xml = xml.Trim();
+                var version = MTConnectVersion.Get(Encoding.UTF8.GetString(bytes));
 
-                var version = MTConnectVersion.Get(xml);
-
-                using (var textReader = new StringReader(Namespaces.Clear(xml)))
+                // Read with the MTConnect namespaces ignored instead of rewriting the text
                 {
-                    using (var xmlReader = XmlReader.Create(textReader))
+                    using (var xmlReader = MTConnectNamespaceXmlReader.Create(bytes))
                     {
                         var doc = (XmlErrorResponseDocument)_serializer.Deserialize(xmlReader);
                         if (doc != null)

@@ -14,6 +14,7 @@ using MTConnect.Observations;
 using MTConnect.Observations.Events;
 using MTConnect.Observations.Output;
 using MTConnect.Streams.Output;
+using MTConnect.Mqtt;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -78,15 +79,10 @@ namespace MTConnect
         private const int PublishMaxInFlight = 64;
         private const int PublishBatchSize = 1000;
         private const int CatchUpPageSize = 1000;
-        private readonly RelayPublishQueue<RelayItem> _publishQueue = new RelayPublishQueue<RelayItem>(PublishQueueCapacity, PublishMaxInFlight);
-        // 1 when an observation may not have been delivered (publish failure or queue overflow) since the
-        // last successful catch-up. While set, the durable last-sent sequence is not advanced so the
-        // next catch-up resends from the last contiguous delivered sequence.
-        private int _relayGap = 0;
+        private readonly MqttPublishQueue<RelayItem> _publishQueue = new MqttPublishQueue<RelayItem>(PublishQueueCapacity, PublishMaxInFlight);
+        // Durable delivery state (open gap / sequences already delivered by catch-up)
+        private readonly RelaySequenceTracker _sequenceTracker = new RelaySequenceTracker();
         private int _overflowLogged = 0;
-        // Highest sequence already delivered by the current session's catch-up (queued items at or
-        // below it are skipped instead of being published twice)
-        private long _catchUpThrough = 0;
 
         private sealed class RelayItem
         {
@@ -484,7 +480,7 @@ namespace MTConnect
                     Log(MTConnectLogLevel.Information, $"[MQTT Relay] Relaying buffered observations from Sequence {from} to {to}");
 
                     // Everything after this point is resent below, so a previous gap is covered
-                    Interlocked.Exchange(ref _relayGap, 0);
+                    _sequenceTracker.ClearGap();
 
                     // Page through the backlog instead of loading it all at once, publishing each
                     // page with a bounded number of publishes in flight
@@ -504,13 +500,13 @@ namespace MTConnect
                         var success = await _publishQueue.PublishInOrderAsync(items, PublishRelayItem, OnRelayItemPublished);
                         if (!success)
                         {
-                            Interlocked.Exchange(ref _relayGap, 1);
+                            _sequenceTracker.MarkGap();
                             Log(MTConnectLogLevel.Warning, $"[MQTT Relay] Buffered observation relay stopped at Sequence {pageFrom}; it will resume on the next attempt.");
                             break;
                         }
 
                         sentCount += items.Count;
-                        Interlocked.Exchange(ref _catchUpThrough, (long)pageTo);
+                        _sequenceTracker.SetCatchUpThrough(pageTo);
 
                         // Advance past the page even when it held no observations
                         RecordLastSentSequence(pageTo);
@@ -533,7 +529,7 @@ namespace MTConnect
                 else
                 {
                     // Nothing after the last-sent sequence, so there is no gap left to cover
-                    Interlocked.Exchange(ref _relayGap, 0);
+                    _sequenceTracker.ClearGap();
 
                     Log(MTConnectLogLevel.Information, "[MQTT Relay] No buffered observations to relay.");
                 }
@@ -1014,7 +1010,7 @@ namespace MTConnect
                 else
                 {
                     // Under DurableRelay the gap is resent from the agent buffer by the next catch-up
-                    if (_configuration.DurableRelay) Interlocked.Exchange(ref _relayGap, 1);
+                    if (_configuration.DurableRelay) _sequenceTracker.MarkGap();
 
                     if (Interlocked.Exchange(ref _overflowLogged, 1) == 0)
                     {
@@ -1033,7 +1029,7 @@ namespace MTConnect
             Interlocked.Increment(ref _handlerActiveCount);
 
             // Already delivered by this session's catch-up
-            if (_configuration.DurableRelay && item.Sequence <= (ulong)Interlocked.Read(ref _catchUpThrough))
+            if (_configuration.DurableRelay && _sequenceTracker.IsDelivered(item.Sequence))
             {
                 item.Skipped = true;
                 return true;
@@ -1051,13 +1047,9 @@ namespace MTConnect
         {
             Interlocked.Decrement(ref _handlerActiveCount);
 
-            if (!_configuration.DurableRelay || item.Skipped) return;
+            if (!_configuration.DurableRelay) return;
 
-            if (!success)
-            {
-                Interlocked.Exchange(ref _relayGap, 1);
-            }
-            else if (Interlocked.CompareExchange(ref _relayGap, 0, 0) == 0)
+            if (_sequenceTracker.Completed(success, item.Skipped))
             {
                 RecordLastSentSequence(item.Sequence);
             }
@@ -1066,7 +1058,7 @@ namespace MTConnect
         // Runs (holding the publish gate) whenever the publish queue is drained
         private async Task OnPublishQueueIdle()
         {
-            if (_configuration.DurableRelay && _mqttClient.IsConnected && Interlocked.CompareExchange(ref _relayGap, 0, 0) == 1)
+            if (_configuration.DurableRelay && _mqttClient.IsConnected && _sequenceTracker.HasGap)
             {
                 try
                 {

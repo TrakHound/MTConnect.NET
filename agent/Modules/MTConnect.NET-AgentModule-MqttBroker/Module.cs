@@ -14,6 +14,7 @@ using MTConnect.Logging;
 using MTConnect.Observations;
 using MTConnect.Observations.Output;
 using MTConnect.Streams.Output;
+using MTConnect.Mqtt;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -51,6 +52,12 @@ namespace MTConnect.Modules
         private readonly MqttBrokerModuleConfiguration _configuration;
         private readonly MTConnectMqttDocumentServer _documentServer;
         private readonly MTConnectMqttEntityServer _entityServer;
+
+        // Entity-mode observation publishes (an IObservation, or a condition set) in agent order
+        private const int PublishQueueCapacity = 100000;
+        private const int PublishBatchSize = 1000;
+        private readonly MqttPublishQueue<object> _publishQueue = new MqttPublishQueue<object>(PublishQueueCapacity, 1);
+        private int _queueFullLogged;
         private MqttServer _mqttServer;
         private CancellationTokenSource _stop;
         private readonly ManualResetEventSlim _serverStarted = new ManualResetEventSlim(false);
@@ -108,6 +115,12 @@ namespace MTConnect.Modules
 
             _serverStarted.Reset();
             _ = Task.Run(StartAsync, _stop.Token);
+
+            if (_entityServer != null)
+            {
+                var stopToken = _stop.Token;
+                _ = Task.Run(() => _publishQueue.RunAsync(PublishQueuedItem, (item, success) => { if (success) Interlocked.Exchange(ref _queueFullLogged, 0); }, null, PublishBatchSize, stopToken), stopToken);
+            }
 
             // Wait until the broker has started (at most InitialDelay) instead of always the full delay
             _serverStarted.Wait(Math.Max(0, _configuration.InitialDelay));
@@ -505,26 +518,47 @@ namespace MTConnect.Modules
             }
         }
 
-        private async void AgentObservationAdded(object sender, IObservation observation)
+        private void AgentObservationAdded(object sender, IObservation observation)
         {
+            // Only enqueue: formatting and publishing run on the publish worker, in order, so the agent's
+            // AddObservation path is not blocked and retained topics end with the latest value
             try
             {
-                if (_entityServer != null)
+                if (_entityServer == null || observation == null) return;
+
+                if (observation.Category == DataItemCategory.CONDITION)
                 {
-                    if (observation.Category == DataItemCategory.CONDITION)
-                    {
-                        var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
-                        await PublishObservations(conditionObservations);
-                    }
-                    else
-                    {
-                        await _entityServer.PublishObservation(_mqttServer, observation);
-                    }
+                    // Snapshot the active condition set now (it reflects this observation)
+                    var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
+                    if (conditionObservations.IsNullOrEmpty()) return;
+                    if (!_publishQueue.TryEnqueue(conditionObservations.ToList())) LogQueueFull();
+                }
+                else
+                {
+                    if (!_publishQueue.TryEnqueue(observation)) LogQueueFull();
                 }
             }
             catch (Exception ex)
             {
                 Log(MTConnectLogLevel.Warning, $"AgentObservationAdded handler error : {ex.Message}");
+            }
+        }
+
+        private async Task<bool> PublishQueuedItem(object item)
+        {
+            if (_mqttServer == null || !_mqttServer.IsStarted) return false;
+
+            if (item is IObservation observation) await _entityServer.PublishObservation(_mqttServer, observation);
+            else if (item is IEnumerable<IObservationOutput> conditionObservations) await PublishObservations(conditionObservations);
+
+            return true;
+        }
+
+        private void LogQueueFull()
+        {
+            if (Interlocked.Exchange(ref _queueFullLogged, 1) == 0)
+            {
+                Log(MTConnectLogLevel.Warning, $"MQTT Broker publish queue is full ({PublishQueueCapacity}); observations are being dropped.");
             }
         }
 

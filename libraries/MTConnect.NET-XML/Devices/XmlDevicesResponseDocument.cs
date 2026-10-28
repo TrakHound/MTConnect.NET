@@ -92,15 +92,12 @@ namespace MTConnect.Devices.Xml
                 // Clean whitespace and Encoding Marks (BOM)
                 var bytes = XmlFunctions.SanitizeBytes(xmlBytes);
 
-                var xml = Encoding.UTF8.GetString(bytes);
-                var version = MTConnectVersion.Get(xml);
+                var version = MTConnectVersion.Get(Encoding.UTF8.GetString(bytes));
 
-                xml = xml.Trim();
-                xml = Namespaces.Clear(xml);
-
-                using (var textReader = new StringReader(xml))
+                // Read with the MTConnect namespaces ignored instead of rewriting the text (no string copies or
+                // regex passes, and prefixed extension content keeps its namespace declarations)
                 {
-                    using (var xmlReader = XmlReader.Create(textReader))
+                    using (var xmlReader = MTConnectNamespaceXmlReader.Create(bytes))
                     {
                         var xmlDocument = (XmlDevicesResponseDocument)_serializer.Deserialize(xmlReader);
                         if (xmlDocument != null)

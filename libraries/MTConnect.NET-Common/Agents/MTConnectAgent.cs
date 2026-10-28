@@ -944,7 +944,7 @@ namespace MTConnect.Agents
         {
             if (_currentObservations != null && observation != null && !string.IsNullOrEmpty(deviceUuid) && dataItem != null)
             {
-                var hash = $"{deviceUuid}:{dataItem.Id}";
+                var hash = GetCurrentKey(deviceUuid, dataItem);
 
                 _currentObservationStates.TryGetValue(hash, out var existingState);
                 if (observation != null && existingState != null)
@@ -989,7 +989,7 @@ namespace MTConnect.Agents
                 var i = 0;
 
                 // Get Existing Condition Observations for DataItem
-                var hash = $"{deviceUuid}:{dataItem.Id}";
+                var hash = GetCurrentKey(deviceUuid, dataItem);
 
                 _currentConditionStates.TryGetValue(hash, out var existingState);
                 var existingObsevationInputs = existingState?.Inputs;
@@ -1062,7 +1062,7 @@ namespace MTConnect.Agents
         {
             if (_currentObservations != null && observation != null && !string.IsNullOrEmpty(deviceUuid) && dataItem != null)
             {
-                var hash = $"{deviceUuid}:{dataItem.Id}";
+                var hash = GetCurrentKey(deviceUuid, dataItem);
 
                 _currentObservationStates[hash] = new CurrentObservationState(new ObservationInput(observation));
 
@@ -1089,7 +1089,7 @@ namespace MTConnect.Agents
                 var i = 0;
 
                 // Get Existing Condition Observations for DataItem
-                var hash = $"{deviceUuid}:{dataItem.Id}";
+                var hash = GetCurrentKey(deviceUuid, dataItem);
 
                 _currentConditionStates.TryGetValue(hash, out var existingState);
 
@@ -1144,6 +1144,31 @@ namespace MTConnect.Agents
             }
 
             return false;
+        }
+
+        // DeviceUuid:DataItemId keys cached per DataItem instance (built once instead of on every observation)
+        private sealed class CurrentKey
+        {
+            public readonly string DeviceUuid;
+            public readonly string DataItemId;
+            public readonly string Key;
+
+            public CurrentKey(string deviceUuid, string dataItemId, string key) { DeviceUuid = deviceUuid; DataItemId = dataItemId; Key = key; }
+        }
+
+        private readonly System.Runtime.CompilerServices.ConditionalWeakTable<IDataItem, CurrentKey> _currentKeys = new System.Runtime.CompilerServices.ConditionalWeakTable<IDataItem, CurrentKey>();
+
+        private string GetCurrentKey(string deviceUuid, IDataItem dataItem)
+        {
+            if (_currentKeys.TryGetValue(dataItem, out var cached) && cached.DeviceUuid == deviceUuid && cached.DataItemId == dataItem.Id)
+            {
+                return cached.Key;
+            }
+
+            var key = $"{deviceUuid}:{dataItem.Id}";
+            _currentKeys.Remove(dataItem);
+            try { _currentKeys.Add(dataItem, new CurrentKey(deviceUuid, dataItem.Id, key)); } catch (ArgumentException) { }
+            return key;
         }
 
         private sealed class CurrentObservationState
@@ -1768,14 +1793,12 @@ namespace MTConnect.Agents
             if (!devices.IsNullOrEmpty())
             {
                 var addedDevices = new List<IDevice>();
-                bool success;
 
+                // An invalid Device is skipped; the rest are still added
                 foreach (var device in devices)
                 {
                     var addedDevice = AddDevice(device, initializeDataItems);
-                    success = addedDevice != null;
-                    if (!success) break;
-                    else addedDevices.Add(addedDevice);
+                    if (addedDevice != null) addedDevices.Add(addedDevice);
                 }
 
                 return addedDevices;
@@ -2222,7 +2245,10 @@ namespace MTConnect.Agents
                     }
 
                     var success = false;
-                    var validationResult = dataItem.Validate(MTConnectVersion, input);
+
+                    // Validate once; the raw result is reused for the buffer (Quality) and the stored Observation
+                    var rawValidationResult = dataItem.Validate(MTConnectVersion, input);
+                    var validationResult = rawValidationResult;
 
                     if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
                     {
@@ -2241,8 +2267,12 @@ namespace MTConnect.Agents
                         // Convert Units (if needed)
                         if ((!convertUnits.HasValue && _configuration.ConvertUnits) || (convertUnits.HasValue && convertUnits.Value))
                         {
-                            input = ConvertObservationValue(dataItem, input);
-                            if (input == null) return false;
+                            var convertedInput = ConvertObservationValue(dataItem, input);
+                            if (convertedInput == null) return false;
+
+                            // Converted values must be validated again
+                            if (!ReferenceEquals(convertedInput, input)) rawValidationResult = dataItem.Validate(MTConnectVersion, convertedInput);
+                            input = convertedInput;
                         }
 
                         bool update;
@@ -2268,7 +2298,7 @@ namespace MTConnect.Agents
                         if (update)
                         {
                             // Call Update to Observation Buffer - HERE
-                            var sequence = OnAddObservation(deviceUuid, dataItem, input);
+                            var sequence = OnAddObservation(deviceUuid, dataItem, input, rawValidationResult);
                             if (sequence > 0)
                             {
                                 if (_metrics != null)
@@ -2288,8 +2318,8 @@ namespace MTConnect.Agents
                                 observation.Timestamp = input.Timestamp.ToDateTime();
                                 observation.AddValues(input.Values);
 
-                                // Re-validate after adding default properties/values
-                                validationResult = dataItem.Validate(_mtconnectVersion, observation);
+                                // The Observation holds the same values as the validated input (and a valid Sequence)
+                                validationResult = rawValidationResult;
 
                                 if (_configuration.EnableValidation)
                                 {
@@ -2398,12 +2428,13 @@ namespace MTConnect.Agents
         {
             if (!observationInputs.IsNullOrEmpty())
             {
-                bool success = false;
+                // Every observation is attempted (one invalid item no longer drops the rest);
+                // returns true only when all were added
+                var success = true;
 
                 foreach (var observationInput in observationInputs)
                 {
-                    success = AddObservation(observationInput);
-                    if (!success) break;
+                    if (!AddObservation(observationInput)) success = false;
                 }
 
                 return success;
@@ -2419,12 +2450,13 @@ namespace MTConnect.Agents
         {
             if (!observationInputs.IsNullOrEmpty())
             {
-                bool success = false;
+                // Every observation is attempted (one invalid item no longer drops the rest);
+                // returns true only when all were added
+                var success = true;
 
                 foreach (var observationInput in observationInputs)
                 {
-                    success = AddObservation(deviceKey, observationInput);
-                    if (!success) break;
+                    if (!AddObservation(deviceKey, observationInput)) success = false;
                 }
 
                 return success;
@@ -2443,6 +2475,21 @@ namespace MTConnect.Agents
         protected virtual ulong OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput)
         {
             return 0;
+        }
+
+        /// <summary>
+        /// Extension point invoked when an observation is added, with the result of validating it against the DataItem
+        /// so a derived Agent does not need to validate it again. The base implementation calls
+        /// <see cref="OnAddObservation(string, IDataItem, IObservationInput)"/>.
+        /// </summary>
+        /// <param name="deviceUuid">The UUID of the Device that owns the DataItem.</param>
+        /// <param name="dataItem">The DataItem the observation is reported for.</param>
+        /// <param name="observationInput">The observation input being added.</param>
+        /// <param name="validationResult">The result of validating <paramref name="observationInput"/> against <paramref name="dataItem"/>.</param>
+        /// <returns>The sequence number assigned by the buffer, or <c>0</c> when the observation is not buffered.</returns>
+        protected virtual ulong OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput, ValidationResult? validationResult)
+        {
+            return OnAddObservation(deviceUuid, dataItem, observationInput);
         }
 
         /// <inheritdoc />
@@ -2596,12 +2643,12 @@ namespace MTConnect.Agents
         {
             if (!assets.IsNullOrEmpty())
             {
-                var success = false;
+                // Every asset is attempted; returns true only when all were added
+                var success = true;
 
                 foreach (var asset in assets)
                 {
-                    success = AddAsset(deviceKey, asset);
-                    if (!success) break;
+                    if (!AddAsset(deviceKey, asset)) success = false;
                 }
 
                 return success;

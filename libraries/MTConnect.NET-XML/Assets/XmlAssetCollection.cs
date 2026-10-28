@@ -110,8 +110,8 @@ namespace MTConnect.Assets.Xml
                                     var t = Asset.GetAssetType(child.Name);
                                     if (t != null)
                                     {
-                                        // Create new XmlSerializer using the Type defined above
-                                        var serializer = new XmlSerializer(t);
+                                        // Cached XmlSerializer for the Type defined above
+                                        var serializer = XmlAsset.GetSerializer(t);
 
                                         // Create new Asset
                                         var asset = (IAsset)serializer.Deserialize(new XmlNodeReader(child));

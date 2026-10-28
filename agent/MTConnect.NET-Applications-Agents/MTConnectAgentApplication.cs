@@ -216,8 +216,9 @@ namespace MTConnect.Applications
                         _verboseLogging = false;
                         StartAgent(configuration, _verboseLogging);
 
-                        if (isBlocking) while (true) Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
-                        else break;
+                        // Block without waking up (exit console by 'Ctrl + C')
+                        if (isBlocking) Thread.Sleep(Timeout.Infinite);
+                        break;
 
                     case "run-service":
 
@@ -243,8 +244,9 @@ namespace MTConnect.Applications
 
                         StartAgent(configuration, true);
 
-                        if (isBlocking) while (true) Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
-                        else break;
+                        // Block without waking up (exit console by 'Ctrl + C')
+                        if (isBlocking) Thread.Sleep(Timeout.Infinite);
+                        break;
 
                     case "trace":
 
@@ -259,8 +261,9 @@ namespace MTConnect.Applications
 
                         StartAgent(configuration, true);
 
-                        if (isBlocking) while (true) Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
-                        else break;
+                        // Block without waking up (exit console by 'Ctrl + C')
+                        if (isBlocking) Thread.Sleep(Timeout.Infinite);
+                        break;
 
                     case "install":
 

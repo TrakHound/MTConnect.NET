@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,7 +14,7 @@ namespace MTConnect.Agents.Metrics
     public class MTConnectAgentMetrics : IDisposable
     {
         private readonly object _lock = new object();
-        private readonly Dictionary<string, DeviceMetrics> _devices = new Dictionary<string, DeviceMetrics>();
+        private readonly ConcurrentDictionary<string, DeviceMetrics> _devices = new ConcurrentDictionary<string, DeviceMetrics>();
         private readonly TimeSpan _updateInterval;
         private readonly TimeSpan _windowInterval;
         private System.Timers.Timer _updateTimer;
@@ -168,10 +169,7 @@ namespace MTConnect.Agents.Metrics
         /// </summary>
         public IEnumerable<DeviceMetrics> GetDeviceMetrics()
         {
-            lock (_lock)
-            {
-                return _devices.Values.ToList();
-            }
+            return _devices.Values.ToList();
         }
 
         /// <summary>
@@ -182,12 +180,9 @@ namespace MTConnect.Agents.Metrics
         {
             if (!string.IsNullOrEmpty(deviceUuid))
             {
-                lock (_lock)
+                if (_devices.TryGetValue(deviceUuid, out var deviceStatistics))
                 {
-                    if (_devices.TryGetValue(deviceUuid, out var deviceStatistics))
-                    {
-                        return deviceStatistics;
-                    }
+                    return deviceStatistics;
                 }
             }
 
@@ -243,18 +238,13 @@ namespace MTConnect.Agents.Metrics
         {
             if (!string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(dataItemId))
             {
-                lock (_lock)
+                // Per-device lock only (no agent-wide lock per observation)
+                if (!_devices.TryGetValue(deviceUuid, out var deviceStatistics))
                 {
-                    _devices.TryGetValue(deviceUuid, out var deviceStatistics);
-
-                    if (deviceStatistics == null)
-                    {
-                        deviceStatistics = new DeviceMetrics(deviceUuid);
-                        _devices.Add(deviceUuid, deviceStatistics);
-                    }
-
-                    deviceStatistics.UpdateObservation(dataItemId);
+                    deviceStatistics = _devices.GetOrAdd(deviceUuid, uuid => new DeviceMetrics(uuid));
                 }
+
+                deviceStatistics.UpdateObservation(dataItemId);
             }
         }
 
@@ -267,18 +257,13 @@ namespace MTConnect.Agents.Metrics
         {
             if (!string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(assetId))
             {
-                lock (_lock)
+                // Per-device lock only (no agent-wide lock per observation)
+                if (!_devices.TryGetValue(deviceUuid, out var deviceStatistics))
                 {
-                    _devices.TryGetValue(deviceUuid, out var deviceStatistics);
-
-                    if (deviceStatistics == null)
-                    {
-                        deviceStatistics = new DeviceMetrics(deviceUuid);
-                        _devices.Add(deviceUuid, deviceStatistics);
-                    }
-
-                    deviceStatistics.UpdateAsset(assetId);
+                    deviceStatistics = _devices.GetOrAdd(deviceUuid, uuid => new DeviceMetrics(uuid));
                 }
+
+                deviceStatistics.UpdateAsset(assetId);
             }
         }
     }

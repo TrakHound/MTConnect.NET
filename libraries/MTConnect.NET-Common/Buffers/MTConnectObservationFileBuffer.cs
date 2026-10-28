@@ -20,6 +20,12 @@ namespace MTConnect.Buffers
     /// </summary>
     public class MTConnectObservationFileBuffer : MTConnectObservationBuffer, IDisposable
     {
+#if NETCOREAPP3_0_OR_GREATER
+        private static readonly bool _gzipAppendSupported = true; // GZipStream decompresses concatenated gzip members
+#else
+        private static readonly bool _gzipAppendSupported = false;
+#endif
+
         private const uint DefaultPageSize = 100;
         private const string DirectoryBuffer = "buffer";
         private const string DirectoryObservations = "observations";
@@ -836,8 +842,9 @@ namespace MTConnect.Buffers
                 var fileObservations = new List<FileObservation>();
                 var sb = new StringBuilder();
 
-                // Uncompressed Page Files can be appended to directly instead of read and rewritten
-                var appendToFile = append && !UseCompression && File.Exists(path);
+                // Page Files are appended to instead of read and rewritten. Compressed files get one more gzip
+                // member per write, which is only read back as a whole on .NET Core 3.0+, so other targets rewrite them
+                var appendToFile = append && (!UseCompression || _gzipAppendSupported) && File.Exists(path);
 
                 if (append && !appendToFile)
                 {
@@ -891,7 +898,17 @@ namespace MTConnect.Buffers
                             }
 
                             var fileBytes = stream.ToArray();
-                            File.WriteAllBytes(path, fileBytes);
+                            if (appendToFile)
+                            {
+                                using (var fileStream = new FileStream(path, FileMode.Append, FileAccess.Write))
+                                {
+                                    await fileStream.WriteAsync(fileBytes, 0, fileBytes.Length);
+                                }
+                            }
+                            else
+                            {
+                                File.WriteAllBytes(path, fileBytes);
+                            }
                         }
                     }
                     else if (appendToFile)

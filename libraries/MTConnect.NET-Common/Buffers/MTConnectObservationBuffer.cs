@@ -249,13 +249,16 @@ namespace MTConnect.Buffers
             return x;
         }
 
-        private static int[] GetIndexes(CircularBuffer observations, int[] keys, int fromIndex, int toIndex, uint count = 0)
+        /// <summary>
+        /// Returns the logical buffer indexes (grouped by key, in the order of <paramref name="keys"/>) of the entries in
+        /// <paramref name="slotKeys"/> (a snapshot of the keys of logical indexes <paramref name="startIndex"/> onward) that match.
+        /// </summary>
+        private static int[] GetIndexes(int[] slotKeys, int slotCount, int startIndex, int[] keys, uint count = 0)
         {
-            if (observations != null && observations.Size > 0 && keys != null && keys.Length > 0)
+            if (slotKeys != null && slotCount > 0 && keys != null && keys.Length > 0)
             {
-                int oi = Math.Max(fromIndex, 0); // Observations Iterator
-                var oil = Math.Min(toIndex, observations.Size - 1);
-                if (oi > oil) return null;
+                int oi = 0; // Snapshot Iterator
+                var oil = slotCount - 1;
 
                 uint max = (uint)(oil - oi + 1); // Max Observations length
                 if (count > 0) max = Math.Min(count, max); // Ensure max length doesn't exceed 'count' parameter
@@ -270,10 +273,10 @@ namespace MTConnect.Buffers
 
                 while (oi <= oil && (uint)matchIndexes.Count < max)
                 {
-                    if (keyLookup.TryGetValue(observations[oi]._key, out var k))
+                    if (keyLookup.TryGetValue(slotKeys[oi], out var k))
                     {
                         matchKeys.Add(k);
-                        matchIndexes.Add(oi);
+                        matchIndexes.Add(startIndex + oi);
                         keyCounts[k]++;
                     }
 
@@ -532,6 +535,13 @@ namespace MTConnect.Buffers
                 int lowestIndex = int.MaxValue;
                 int highestIndex = 0;
 
+                int[] slotKeys = null;
+                var slotCount = 0;
+                var startIndex = 0;
+                long evicted = 0;
+                CircularBuffer snapshotBuffer = null;
+
+                // 1) Under the lock: determine the range and copy only its BufferKeys (a fast array copy)
                 lock (_lock)
                 {
                     firstSequence = _sequence > BufferSize ? _sequence - BufferSize : 1;
@@ -551,36 +561,69 @@ namespace MTConnect.Buffers
                         }
                     }
 
-                    //if (_archiveObservations.Size > 0 && toIndex <= _archiveObservations.Size && toIndex >= fromIndex)
                     if (_archiveObservations.Size > 0 && toIndex < _archiveObservations.Size && toIndex >= fromIndex)
                     {
+                        startIndex = Math.Max(fromIndex, 0);
+                        slotCount = toIndex - startIndex + 1;
+                        if (slotCount > 0)
+                        {
+                            slotKeys = ArrayPool<int>.Shared.Rent(slotCount);
+                            _archiveObservations.CopyKeys(startIndex, slotKeys, slotCount);
+                            evicted = _archiveObservations.Evicted;
+                            snapshotBuffer = _archiveObservations;
+                        }
+                    }
+                }
+
+                if (slotKeys != null)
+                {
+                    int[] indexes;
+                    try
+                    {
+                        // 2) Outside the lock: match the requested keys (ingest is not blocked by the scan)
                         // Order Buffer Keys (this effects the order of the resulting array and should always be in Ascending order)
                         var oBufferKeys = bufferKeys.OrderBy(o => o).ToArray();
+                        indexes = GetIndexes(slotKeys, slotCount, startIndex, oBufferKeys, count);
+                    }
+                    finally
+                    {
+                        ArrayPool<int>.Shared.Return(slotKeys);
+                    }
 
-                        // Get list of indexes that match the requested Keys
-                        var indexes = GetIndexes(_archiveObservations, oBufferKeys, fromIndex, toIndex, count);
-                        if (indexes != null && indexes.Length > 0)
+                    // 3) Under the lock: copy the matched observations, adjusting for any observations added since the
+                    // snapshot (each eviction shifts logical indexes down by one; evicted entries are skipped)
+                    if (indexes != null && indexes.Length > 0)
+                    {
+                        lock (_lock)
                         {
-                            // Initialize array to return using the number of indexes found as the size
-                            observations = new BufferObservation[indexes.Length];
-                            var observationIndex = 0; // return array iterator
+                            // The archive was replaced (e.g. cleared) since the snapshot
+                            if (!ReferenceEquals(snapshotBuffer, _archiveObservations)) indexes = Array.Empty<int>();
+
+                            var shift = _archiveObservations.Evicted - evicted;
+                            var found = new BufferObservation[indexes.Length];
+                            var foundCount = 0;
 
                             for (var i = 0; i < indexes.Length; i++)
                             {
-                                // Get the index of the observation in the _readBuffer array
-                                var index = indexes[i];
-                                if (index < lowestIndex) lowestIndex = index;
-                                if (index > highestIndex) highestIndex = index;
+                                var index = indexes[i] - shift;
+                                if (index < 0 || index >= _archiveObservations.Size) continue;
 
-                                // Write the observation at the _readBuffer index to the return array
-                                observations[observationIndex] = _archiveObservations[index];
+                                var i32 = (int)index;
+                                if (i32 < lowestIndex) lowestIndex = i32;
+                                if (i32 > highestIndex) highestIndex = i32;
 
-                                observationIndex++; // Increment the return array iterator
-                                observationCount++; // Increment the total observations matched count
+                                found[foundCount++] = _archiveObservations[i32];
                             }
 
-                            firstObservationSequence = _archiveObservations[lowestIndex]._sequence;
-                            lastObservationSequence = _archiveObservations[highestIndex]._sequence;
+                            if (foundCount > 0)
+                            {
+                                if (foundCount < found.Length) Array.Resize(ref found, foundCount);
+                                observations = found;
+                                observationCount = (uint)foundCount;
+
+                                firstObservationSequence = _archiveObservations[lowestIndex]._sequence;
+                                lastObservationSequence = _archiveObservations[highestIndex]._sequence;
+                            }
                         }
                     }
                 }
@@ -749,19 +792,52 @@ namespace MTConnect.Buffers
         }
 
 
+        // Existing values (minus any whose Table entry is replaced), with each new value replacing the existing value
+        // that has the same key or being appended; preserves the order of the previous RemoveAll/Add approach
+        private static List<ObservationValue> MergeValues(ObservationValue[] existingValues, ObservationValue[] values, HashSet<string> replacedEntries)
+        {
+            var result = new List<ObservationValue>(existingValues.Length + values.Length);
+            foreach (var existing in existingValues)
+            {
+                if (replacedEntries != null && replacedEntries.Contains(ValueKeys.GetTableKey(existing._key))) continue;
+                result.Add(existing);
+            }
+
+            // Last write wins for a key; a replaced key moves to the end (as RemoveAll + Add did)
+            var positions = new Dictionary<string, int>(result.Count + values.Length);
+            for (var i = 0; i < result.Count; i++) if (result[i]._key != null) positions[result[i]._key] = i;
+
+            var removed = new bool[result.Count + values.Length];
+            foreach (var value in values)
+            {
+                if (value._key != null && positions.TryGetValue(value._key, out var position)) removed[position] = true;
+
+                positions[value._key ?? string.Empty] = result.Count;
+                result.Add(value);
+            }
+
+            var merged = new List<ObservationValue>(result.Count);
+            for (var i = 0; i < result.Count; i++)
+            {
+                if (!removed[i]) merged.Add(result[i]);
+            }
+
+            return merged;
+        }
+
+        // Replaces any value with the same key (moving it to the end)
+        private static void SetValue(List<ObservationValue> values, ObservationValue value)
+        {
+            values.RemoveAll(o => o._key == value._key);
+            values.Add(value);
+        }
+
         private static ObservationValue[] CombineDataSetValues(ObservationValue[] values, ref ObservationValue[] existingValues)
         {
             if (!values.IsNullOrEmpty() && !existingValues.IsNullOrEmpty())
             {
-                var returnValues = new List<ObservationValue>();
-                returnValues.AddRange(existingValues);
-
-                // Add Existing Values (if not in new values)
-                foreach (var value in values)
-                {
-                    returnValues.RemoveAll(o => o._key == value._key);
-                    returnValues.Add(value);
-                }
+                // New values replace existing values with the same key (single pass via a key index)
+                var returnValues = MergeValues(existingValues, values, null);
 
                 // Set Count
                 var count = 0;
@@ -771,11 +847,10 @@ namespace MTConnect.Buffers
                 }
 
                 // Add Count Value
-                returnValues.RemoveAll(o => o._key == ValueKeys.Count);
-                returnValues.Add(new ObservationValue(ValueKeys.Count, count));
+                SetValue(returnValues, new ObservationValue(ValueKeys.Count, count));
 
                 // Sort by Key Asc (needed for processing later on, and maybe better performance when searching)
-                return returnValues.OrderBy(o => o._key).ToArray();
+                return BufferObservation.SortValues(returnValues);
             }
 
             return values;
@@ -785,45 +860,31 @@ namespace MTConnect.Buffers
         {
             if (!values.IsNullOrEmpty() && !existingValues.IsNullOrEmpty())
             {
-                var returnValues = new List<ObservationValue>();
-                returnValues.AddRange(existingValues);
-
-                // Remove duplicate Values
-                var tableValues = values.Where(o => o._key.StartsWith(ValueKeys.TablePrefix));
-                if (!tableValues.IsNullOrEmpty())
-                {
-                    var entryKeys = tableValues.Select(o => ValueKeys.GetTableKey(o._key)).Distinct();
-                    foreach (var entryKey in entryKeys)
-                    {
-                        returnValues.RemoveAll(o => ValueKeys.GetTableKey(o._key) == entryKey);
-                    }
-                }
-
-                // Add new Values
+                // Table entries present in the new values replace the whole existing entry (all of its cells)
+                HashSet<string> replacedEntries = null;
                 foreach (var value in values)
                 {
-                    returnValues.RemoveAll(o => o._key == value._key);
-                    returnValues.Add(value);
+                    if (value._key != null && value._key.StartsWith(ValueKeys.TablePrefix))
+                    {
+                        if (replacedEntries == null) replacedEntries = new HashSet<string>();
+                        replacedEntries.Add(ValueKeys.GetTableKey(value._key));
+                    }
                 }
 
-                // Set Count
-                var count = 0;
-                tableValues = returnValues.Where(o => o._key.StartsWith(ValueKeys.TablePrefix));
-                if (!tableValues.IsNullOrEmpty())
+                var returnValues = MergeValues(existingValues, values, replacedEntries);
+
+                // Set Count (number of distinct Table entries)
+                var entries = new HashSet<string>();
+                foreach (var value in returnValues)
                 {
-                    var entryKeys = tableValues.Select(o => ValueKeys.GetTableKey(o._key)).Distinct();
-                    foreach (var entryKey in entryKeys)
-                    {
-                        count++;
-                    }
+                    if (value._key != null && value._key.StartsWith(ValueKeys.TablePrefix)) entries.Add(ValueKeys.GetTableKey(value._key));
                 }
 
                 // Add Count Value
-                returnValues.RemoveAll(o => o._key == ValueKeys.Count);
-                returnValues.Add(new ObservationValue(ValueKeys.Count, count));
+                SetValue(returnValues, new ObservationValue(ValueKeys.Count, entries.Count));
 
                 // Sort by Key Asc (needed for processing later on, and maybe better performance when searching)
-                return returnValues.OrderBy(o => o._key).ToArray();
+                return BufferObservation.SortValues(returnValues);
             }
 
             return values;

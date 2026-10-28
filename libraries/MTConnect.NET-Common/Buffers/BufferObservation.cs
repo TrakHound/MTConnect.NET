@@ -3,6 +3,7 @@
 
 using MTConnect.Devices;
 using MTConnect.Observations;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -94,17 +95,9 @@ namespace MTConnect.Buffers
         /// </summary>
         public DataItemRepresentation Representation
         {
-            get
-            {
-                switch (_representation)
-                {
-                    case 1: return DataItemRepresentation.DATA_SET;
-                    case 2: return DataItemRepresentation.DISCRETE;
-                    case 3: return DataItemRepresentation.TIME_SERIES;
-                    case 4: return DataItemRepresentation.TABLE;
-                    default: return DataItemRepresentation.VALUE;
-                }
-            }
+            // The byte holds the enum value written by the setter / constructors (the previous fixed
+            // table assumed a different enum order, so DATA_SET and TABLE were read back as VALUE)
+            get => (DataItemRepresentation)_representation;
             set
             {
                 _representation = (byte)value;
@@ -180,7 +173,7 @@ namespace MTConnect.Buffers
             // Sort by Key Asc (needed for processing later on, and maybe better performance when searching)
             if (observation.Values != null)
             {
-                _values = observation.Values.OrderBy(o => o._key).ToArray();
+                _values = SortValues(observation.Values);
             }
             else _values = null;
         }
@@ -205,7 +198,7 @@ namespace MTConnect.Buffers
             // Sort by Key Asc (needed for processing later on, and maybe better performance when searching)
             if (observation.Values != null)
             {
-                _values = observation.Values.OrderBy(o => o._key).ToArray();
+                _values = SortValues(observation.Values);
             }
             else _values = null;
         }
@@ -246,11 +239,47 @@ namespace MTConnect.Buffers
             // Sort by Key Asc (needed for processing later on, and maybe better performance when searching)
             if (values != null)
             {
-                _values = values.OrderBy(o => o._key).ToArray();
+                _values = SortValues(values);
             }
             else _values = null;
         }
 
+
+
+        // Same ordering as OrderBy(o => o._key) (default string comparer), without LINQ and skipping
+        // the sort when the values are already ordered (the common case)
+        internal static ObservationValue[] SortValues(IEnumerable<ObservationValue> values)
+        {
+            ObservationValue[] array;
+            if (values is ObservationValue[] source)
+            {
+                array = new ObservationValue[source.Length];
+                Array.Copy(source, array, source.Length);
+            }
+            else
+            {
+                array = new List<ObservationValue>(values).ToArray();
+            }
+
+            var comparer = Comparer<string>.Default;
+            for (var i = 1; i < array.Length; i++)
+            {
+                if (comparer.Compare(array[i - 1]._key, array[i]._key) > 0)
+                {
+                    // Stable sort (matches OrderBy for duplicate keys)
+                    var keys = new KeyValuePair<string, int>[array.Length];
+                    for (var j = 0; j < array.Length; j++) keys[j] = new KeyValuePair<string, int>(array[j]._key, j);
+                    Array.Sort(keys, array, Comparer<KeyValuePair<string, int>>.Create((a, b) =>
+                    {
+                        var c = comparer.Compare(a.Key, b.Key);
+                        return c != 0 ? c : a.Value.CompareTo(b.Value);
+                    }));
+                    break;
+                }
+            }
+
+            return array;
+        }
 
         /// <summary>
         /// Computes a stable hash combining this observation's key and sequence, used to deduplicate and index entries.
