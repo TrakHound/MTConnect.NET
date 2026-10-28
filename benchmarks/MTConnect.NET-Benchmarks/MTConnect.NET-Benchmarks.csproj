@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<!-- Throughput harness for the agent hot paths. Not part of the solution; run it with:
+	     dotnet run -c Release (project benchmarks/MTConnect.NET-Benchmarks) -->
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>disable</Nullable>
+		<IsPackable>false</IsPackable>
+		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<GenerateDocumentationFile>false</GenerateDocumentationFile>
+		<ServerGarbageCollection>false</ServerGarbageCollection>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\libraries\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
+		<ProjectReference Include="..\..\libraries\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
+		<ProjectReference Include="..\..\libraries\MTConnect.NET-JSON-cppagent\MTConnect.NET-JSON-cppagent.csproj" />
+		<ProjectReference Include="..\..\libraries\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
+	</ItemGroup>
+
+</Project>

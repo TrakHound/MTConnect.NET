@@ -272,24 +272,57 @@ namespace MTConnect.Streams.Xml
                 }
                 else
                 {
-                    var type = observation.Type;
-                    type = RemoveNamespacePrefix(type);
-
-                    var elementName = XmlObservation.GetDataItemType(type);
-
-                    // Add Suffix based on Representation
-                    switch (observation.Representation)
+                    // Element names depend only on the Type and Representation, so they are built once
+                    var representation = observation.Representation;
+                    var index = (int)representation;
+                    if (index >= 0 && index < _elementNames.Length)
                     {
-                        case DataItemRepresentation.DATA_SET: elementName += XmlObservation.DataSetSuffix; break;
-                        case DataItemRepresentation.TABLE: elementName += XmlObservation.TableSuffix; break;
-                        case DataItemRepresentation.TIME_SERIES: elementName += XmlObservation.TimeSeriesSuffix; break;
+                        var names = _elementNames[index];
+                        if (!names.TryGetValue(observation.Type, out var cached))
+                        {
+                            cached = CreateElementName(observation.Type, representation);
+                            if (cached != null) names.TryAdd(observation.Type, cached);
+                        }
+                        return cached;
                     }
 
-                    return elementName;
+                    return CreateElementName(observation.Type, representation);
                 }
             }
 
             return null;
+        }
+
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, string>[] _elementNames = CreateElementNameCaches();
+
+        private static System.Collections.Concurrent.ConcurrentDictionary<string, string>[] CreateElementNameCaches()
+        {
+            var max = 0;
+            foreach (var value in System.Enum.GetValues(typeof(DataItemRepresentation)))
+            {
+                if ((int)value > max) max = (int)value;
+            }
+
+            var caches = new System.Collections.Concurrent.ConcurrentDictionary<string, string>[max + 1];
+            for (var i = 0; i < caches.Length; i++) caches[i] = new System.Collections.Concurrent.ConcurrentDictionary<string, string>();
+            return caches;
+        }
+
+        private static string CreateElementName(string observationType, DataItemRepresentation representation)
+        {
+            var type = RemoveNamespacePrefix(observationType);
+
+            var elementName = XmlObservation.GetDataItemType(type);
+
+            // Add Suffix based on Representation
+            switch (representation)
+            {
+                case DataItemRepresentation.DATA_SET: elementName += XmlObservation.DataSetSuffix; break;
+                case DataItemRepresentation.TABLE: elementName += XmlObservation.TableSuffix; break;
+                case DataItemRepresentation.TIME_SERIES: elementName += XmlObservation.TimeSeriesSuffix; break;
+            }
+
+            return elementName;
         }
 
         private static string GetNamespacePrefix(string type)

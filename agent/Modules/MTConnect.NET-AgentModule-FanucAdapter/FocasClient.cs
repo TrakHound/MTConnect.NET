@@ -480,6 +480,25 @@ namespace MTConnect.Fanuc
         }
 
 
+        /// <summary>
+        /// Runs <paramref name="action"/> on the FOCAS thread (directly when already on it) and waits for it to finish.
+        /// FOCAS calls made inside it run without a thread hand-off each.
+        /// </summary>
+        public void RunOnFocasThread(Action action)
+        {
+            if (action == null) return;
+
+            Exception error = null;
+            Invoke(() =>
+            {
+                try { action(); }
+                catch (Exception ex) { error = ex; }
+                return FocasReturnCodes.EW_OK;
+            });
+
+            if (error != null) System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(error).Throw();
+        }
+
         private short Invoke(Func<short> function)
         {
             if (Thread.CurrentThread == _thread) return Execute(function);

@@ -6,6 +6,7 @@ using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -38,7 +39,9 @@ namespace MTConnect
         private readonly IMTConnectMqttDocumentServerConfiguration _configuration;
         private CancellationTokenSource _stop;
         private ulong _lastSequence;
-        private bool _sampleStarted = false;
+
+        // Last published sequence per Device (Key = DeviceUuid)
+        private readonly ConcurrentDictionary<string, ulong> _deviceSequences = new ConcurrentDictionary<string, ulong>();
 
 
         /// <summary>Raised whenever the server prepares a Probe document for a device; subscribers serialise and publish the document to the broker.</summary>
@@ -95,7 +98,8 @@ namespace MTConnect
                 }
             }
 
-            _ = Task.Run(CurrentWorker, _stop.Token);
+            var stopToken = _stop.Token;
+            _ = Task.Run(() => CurrentWorker(stopToken), stopToken);
         }
 
         /// <summary>Cancels the worker tasks. The agent's event subscriptions remain wired; call this before disposing the server.</summary>
@@ -105,8 +109,10 @@ namespace MTConnect
         }
 
 
-        private async Task CurrentWorker()
+        private async Task CurrentWorker(CancellationToken stopToken)
         {
+            var sampleStarted = false;
+
             do
             {
                 try
@@ -127,51 +133,50 @@ namespace MTConnect
                     }
 
 
-                    _ = Task.Run(SampleWorker, _stop.Token);
+                    // Start the Sample loop once per Start() (after the initial sequence is set)
+                    if (!sampleStarted)
+                    {
+                        sampleStarted = true;
+                        _ = Task.Run(() => SampleWorker(stopToken), stopToken);
+                    }
 
-                    await Task.Delay(_configuration.CurrentInterval, _stop.Token);
+                    await Task.Delay(_configuration.CurrentInterval, stopToken);
                 }
                 catch (TaskCanceledException) { }
                 catch (Exception) { }
 
-            } while (!_stop.Token.IsCancellationRequested);
+            } while (!stopToken.IsCancellationRequested);
         }
 
-        private async Task SampleWorker()
+        private async Task SampleWorker(CancellationToken stopToken)
         {
-            if (!_sampleStarted)
+            do
             {
-                _sampleStarted = true;
-
-                do
+                try
                 {
-                    try
+                    var devices = _mtconnectAgent.GetDevices();
+                    if (!devices.IsNullOrEmpty())
                     {
-                        var devices = _mtconnectAgent.GetDevices();
-                        if (!devices.IsNullOrEmpty())
+                        foreach (var device in devices)
                         {
-                            var lastSequence = _lastSequence;
+                            // Track the sequence per Device so one Device's progress doesn't skip another's observations
+                            if (!_deviceSequences.TryGetValue(device.Uuid, out var lastSequence)) lastSequence = _lastSequence;
 
-                            foreach (var device in devices)
+                            var response = _mtconnectAgent.GetDeviceStreamsResponseDocument(device.Uuid, lastSequence + 1, 0, 1000); // COUNT = 1000 ??
+                            if (response != null && response.ObservationCount > 0)
                             {
-                                var response = _mtconnectAgent.GetDeviceStreamsResponseDocument(device.Uuid, lastSequence + 1, 0, 1000); // COUNT = 1000 ??
-                                if (response != null && response.ObservationCount > 0)
-                                {
-                                    if (SampleReceived != null) SampleReceived.Invoke(device, response);
-                                    if (response.LastObservationSequence >= lastSequence) lastSequence = response.LastObservationSequence;
-                                }
+                                if (SampleReceived != null) SampleReceived.Invoke(device, response);
+                                if (response.LastObservationSequence >= lastSequence) _deviceSequences[device.Uuid] = response.LastObservationSequence;
                             }
-
-                            _lastSequence = lastSequence;
                         }
-
-                        await Task.Delay(_configuration.SampleInterval, _stop.Token);
                     }
-                    catch (TaskCanceledException) { }
-                    catch (Exception) { }
 
-                } while (!_stop.Token.IsCancellationRequested);
-            }
+                    await Task.Delay(_configuration.SampleInterval, stopToken);
+                }
+                catch (TaskCanceledException) { }
+                catch (Exception) { }
+
+            } while (!stopToken.IsCancellationRequested);
         }
 
 

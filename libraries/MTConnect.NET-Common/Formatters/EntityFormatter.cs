@@ -19,8 +19,9 @@ namespace MTConnect.Formatters
     /// </summary>
     public static class EntityFormatter
     {
-        private static readonly ConcurrentDictionary<string, IEntityFormatter> _formatters = new ConcurrentDictionary<string, IEntityFormatter>();
-        private static bool _firstRead = true;
+        private static readonly ConcurrentDictionary<string, IEntityFormatter> _formatters = new ConcurrentDictionary<string, IEntityFormatter>(StringComparer.OrdinalIgnoreCase);
+        private static readonly object _loadLock = new object();
+        private static volatile bool _firstRead = true;
 
 
         /// <summary>
@@ -243,14 +244,19 @@ namespace MTConnect.Formatters
             {
                 if (_firstRead)
                 {
-                    AddFormatters();
-                    _firstRead = false;
+                    // Only one caller scans the assemblies; the rest wait for it
+                    lock (_loadLock)
+                    {
+                        if (_firstRead)
+                        {
+                            AddFormatters();
+                            _firstRead = false;
+                        }
+                    }
                 }
 
-                // Normalize the FormatterId
-                var formatterId = id.ToLower();
-
-                _formatters.TryGetValue(formatterId, out var formatter);
+                // Lookup is case-insensitive (no per-call ToLower allocation)
+                _formatters.TryGetValue(id, out var formatter);
                 return formatter;
             }
 

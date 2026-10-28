@@ -60,7 +60,7 @@ namespace MTConnect.Streams.Json
                     foreach (var stream in deviceStream.ComponentStreams)
                     {
                         var jsonStream = new JsonComponentStream(stream);
-                        if (jsonStream != null && !jsonStream.Observations.IsNullOrEmpty()) jsonComponentStreams.Add(jsonStream);
+                        if (jsonStream != null && jsonStream.HasObservations) jsonComponentStreams.Add(jsonStream);
                     }
                 }
 

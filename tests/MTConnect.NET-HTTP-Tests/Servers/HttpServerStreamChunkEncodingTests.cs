@@ -142,7 +142,13 @@ namespace MTConnect.Tests.Http.Servers
 
             var headers = Encoding.ASCII.GetString(bytes, 0, headerEnd);
             Assert.That(headers, Does.Contain("Content-encoding: gzip"));
-            Assert.That(headers, Does.Contain("Content-length: " + (compressedLength + 3)));
+            Assert.That(headers, Does.EndWith("Content-length: " + compressedLength));
+
+            // The part ends with CRLF after exactly Content-length bytes of body
+            var trailerStart = headerEnd + separator.Length + (int)compressedLength;
+            Assert.That(bytes.Length, Is.EqualTo(trailerStart + 2));
+            Assert.That(bytes[trailerStart], Is.EqualTo((byte)13));
+            Assert.That(bytes[trailerStart + 1], Is.EqualTo((byte)10));
 
             var partBody = new MemoryStream(bytes, headerEnd + separator.Length, (int)compressedLength);
             var decoded = Decode(HttpContentEncodings.Gzip, partBody);

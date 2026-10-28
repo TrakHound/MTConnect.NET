@@ -45,13 +45,13 @@ namespace MTConnect.Clients
         private const string _conditionsTopicPattern = "MTConnect\\/Devices\\/(.*)\\/Observations\\/.*\\/Conditions";
         private const string _assetTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)\\/Assets";
 
-        private static readonly Regex _agentRegex = new Regex(_defaultAgentTopicPattern);
-        private static readonly Regex _deviceUuidRegex = new Regex(_deviceUuidTopicPattern);
-        private static readonly Regex _deviceAgentUuidRegex = new Regex(_deviceAgentUuidTopicPattern);
-        private static readonly Regex _deviceRegex = new Regex(_deviceTopicPattern);
-        private static readonly Regex _observationsRegex = new Regex(_observationsTopicPattern);
-        private static readonly Regex _conditionsRegex = new Regex(_conditionsTopicPattern);
-        private static readonly Regex _assetRegex = new Regex(_assetTopicPattern);
+        private static readonly Regex _agentRegex = new Regex(_defaultAgentTopicPattern, RegexOptions.Compiled);
+        private static readonly Regex _deviceUuidRegex = new Regex(_deviceUuidTopicPattern, RegexOptions.Compiled);
+        private static readonly Regex _deviceAgentUuidRegex = new Regex(_deviceAgentUuidTopicPattern, RegexOptions.Compiled);
+        private static readonly Regex _deviceRegex = new Regex(_deviceTopicPattern, RegexOptions.Compiled);
+        private static readonly Regex _observationsRegex = new Regex(_observationsTopicPattern, RegexOptions.Compiled);
+        private static readonly Regex _conditionsRegex = new Regex(_conditionsTopicPattern, RegexOptions.Compiled);
+        private static readonly Regex _assetRegex = new Regex(_assetTopicPattern, RegexOptions.Compiled);
 
         private readonly MqttFactory _mqttFactory;
         private readonly IMqttClient _mqttClient;
@@ -337,17 +337,17 @@ namespace MTConnect.Clients
                         var clientOptions = clientOptionsBuilder.Build();
 
                         // Connect to the MQTT Client
-                        _mqttClient.ConnectAsync(clientOptions).Wait();
+                        await _mqttClient.ConnectAsync(clientOptions);
 
                         if (!string.IsNullOrEmpty(_deviceUuid))
                         {
                             // Start protocol for a single Device
-                            StartDeviceProtocol(_deviceUuid).Wait();
+                            await StartDeviceProtocol(_deviceUuid);
                         }
                         else
                         {
                             // Start protocol for all devices
-                            StartAllDevicesProtocol().Wait();
+                            await StartAllDevicesProtocol();
                         }
 
                         ClientStarted.Raise(this, EventArgs.Empty, InternalError);

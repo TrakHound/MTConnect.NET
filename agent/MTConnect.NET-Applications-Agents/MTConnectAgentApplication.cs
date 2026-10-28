@@ -216,8 +216,9 @@ namespace MTConnect.Applications
                         _verboseLogging = false;
                         StartAgent(configuration, _verboseLogging);
 
-                        if (isBlocking) while (true) Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
-                        else break;
+                        // Block without waking up (exit console by 'Ctrl + C')
+                        if (isBlocking) Thread.Sleep(Timeout.Infinite);
+                        break;
 
                     case "run-service":
 
@@ -243,8 +244,9 @@ namespace MTConnect.Applications
 
                         StartAgent(configuration, true);
 
-                        if (isBlocking) while (true) Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
-                        else break;
+                        // Block without waking up (exit console by 'Ctrl + C')
+                        if (isBlocking) Thread.Sleep(Timeout.Infinite);
+                        break;
 
                     case "trace":
 
@@ -259,8 +261,9 @@ namespace MTConnect.Applications
 
                         StartAgent(configuration, true);
 
-                        if (isBlocking) while (true) Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
-                        else break;
+                        // Block without waking up (exit console by 'Ctrl + C')
+                        if (isBlocking) Thread.Sleep(Timeout.Infinite);
+                        break;
 
                     case "install":
 
@@ -423,10 +426,9 @@ namespace MTConnect.Applications
         {
             if (!_started && configuration != null)
             {
-                GarbageCollector.Initialize();
-
                 _deviceConfigurationWatchers.Clear();
                 var initializeDataItems = true;
+                var resetInstance = false;
 
                 // Read Agent Information File
                 var existingAgentInformation = MTConnectAgentInformation.Read();
@@ -468,6 +470,7 @@ namespace MTConnect.Applications
                     observationBuffer.BufferLoadStarted += ObservationBufferStarted;
                     observationBuffer.BufferLoadCompleted += ObservationBufferCompleted;
                     observationBuffer.BufferRetentionCompleted += ObservationBufferRetentionCompleted;
+                    observationBuffer.ObservationWriteDropped += ObservationBufferWriteDropped;
 
                     // Create Asset File Buffer
                     _assetBuffer = new MTConnectAssetFileBuffer(configuration, configuration.DurableBufferPath);
@@ -477,6 +480,14 @@ namespace MTConnect.Applications
 
                     // Read Buffer Observations
                     initializeDataItems = !observationBuffer.Load();
+
+                    // Observations issued before the last shutdown are missing (crash, or they could not be written),
+                    // so sequence numbers could repeat: start a new instance so clients reset
+                    if (!initializeDataItems && !observationBuffer.LoadIsComplete)
+                    {
+                        resetInstance = true;
+                        _applicationLogger?.Warn("Durable buffer was not shut down cleanly or is incomplete: starting a new instanceId");
+                    }
 
                     // Read Buffer Assets
                     _assetBuffer.Load();
@@ -488,7 +499,7 @@ namespace MTConnect.Applications
                     _observationBuffer = new MTConnectObservationBuffer(configuration);
                 }
 
-                if (!configuration.Durable || initializeDataItems)
+                if (!configuration.Durable || initializeDataItems || resetInstance)
                 {
                     // Reset InstanceId with strict-monotonic guarantee. The Max() floor
                     // makes the counter time-meaningful while the +1 defeats same-second
@@ -514,6 +525,7 @@ namespace MTConnect.Applications
                 _modules = new MTConnectAgentModules(configuration, _mtconnectAgent);
                 _modules.ModuleLoaded += ModuleLoaded;
                 _modules.LogReceived += ModuleLogReceived;
+                MTConnectAgentModule.LogLevelEnabled = IsModuleLogEnabled;
                 _modules.Load();
 
                 // Read Indexes for Buffer
@@ -888,37 +900,53 @@ namespace MTConnect.Applications
             if (!string.IsNullOrEmpty(message))
             {
                 var module = (IMTConnectAgentModule)sender;
-
-                var loggerId = logId;
-                if (string.IsNullOrEmpty(loggerId)) loggerId = module.Id;
-                loggerId = $"modules.{loggerId.Replace(' ', '-')}".ToLower();
-
-                Logger logger;
-                lock (_lock)
-                {
-                    _loggers.TryGetValue(loggerId, out logger);
-                    if (logger == null)
-                    {
-                        logger = LogManager.GetLogger(loggerId);
-                        _loggers.Add(loggerId, logger);
-                    }
-                }
+                var logger = GetModuleLogger(module, logId);
 
                 var logEvent = new LogEventInfo();
-                logEvent.LoggerName = loggerId;
+                logEvent.LoggerName = logger.Name;
                 logEvent.Message = message;
-
-                switch (logLevel)
-                {
-                    case MTConnectLogLevel.Fatal: logEvent.Level = LogLevel.Fatal; break;
-                    case MTConnectLogLevel.Error: logEvent.Level = LogLevel.Error; break;
-                    case MTConnectLogLevel.Warning: logEvent.Level = LogLevel.Warn; break;
-                    case MTConnectLogLevel.Information: logEvent.Level = LogLevel.Info; break;
-                    case MTConnectLogLevel.Debug: logEvent.Level = LogLevel.Debug; break;
-                    case MTConnectLogLevel.Trace: logEvent.Level = LogLevel.Trace; break;
-                }
+                logEvent.Level = ToNLogLevel(logLevel);
 
                 logger.Log(logEvent);
+            }
+        }
+
+        private Logger GetModuleLogger(IMTConnectAgentModule module, string logId)
+        {
+            var loggerId = logId;
+            if (string.IsNullOrEmpty(loggerId)) loggerId = module.Id;
+            loggerId = $"modules.{loggerId.Replace(' ', '-')}".ToLower();
+
+            Logger logger;
+            lock (_lock)
+            {
+                _loggers.TryGetValue(loggerId, out logger);
+                if (logger == null)
+                {
+                    logger = LogManager.GetLogger(loggerId);
+                    _loggers.Add(loggerId, logger);
+                }
+            }
+
+            return logger;
+        }
+
+        private bool IsModuleLogEnabled(IMTConnectAgentModule module, MTConnectLogLevel logLevel, string logId)
+        {
+            if (module == null) return true;
+            return GetModuleLogger(module, logId).IsEnabled(ToNLogLevel(logLevel));
+        }
+
+        private static LogLevel ToNLogLevel(MTConnectLogLevel logLevel)
+        {
+            switch (logLevel)
+            {
+                case MTConnectLogLevel.Fatal: return LogLevel.Fatal;
+                case MTConnectLogLevel.Error: return LogLevel.Error;
+                case MTConnectLogLevel.Warning: return LogLevel.Warn;
+                case MTConnectLogLevel.Information: return LogLevel.Info;
+                case MTConnectLogLevel.Debug: return LogLevel.Debug;
+                default: return LogLevel.Trace;
             }
         }
 
@@ -1044,6 +1072,11 @@ namespace MTConnect.Applications
         private void ObservationBufferCompleted(object sender, ObservationBufferLoadArgs args)
         {
             _agentLogger.Info($"{args.Count} Observations Loaded from File Buffer in ({TimeSpan.FromMilliseconds(args.Duration).TotalSeconds}s)");
+        }
+
+        private void ObservationBufferWriteDropped(object sender, ulong sequence)
+        {
+            _agentLogger.Warn($"Observations File Buffer : Write queue is full; observations from Sequence {sequence} are not being saved to disk");
         }
 
         private void ObservationBufferRetentionCompleted(object sender, ObservationBufferRetentionArgs args)

@@ -16,6 +16,8 @@ namespace MTConnect.Buffers
     sealed class CircularBuffer
     {
         private readonly BufferObservation[] _buffer;
+        private readonly int[] _keys; // BufferKey of each physical slot (lets readers copy keys without the observations)
+        private long _evicted; // Number of observations overwritten so far
         private int _start; // Physical slot of the oldest observation
         private int _size;
 
@@ -43,6 +45,7 @@ namespace MTConnect.Buffers
             }
 
             _buffer = new BufferObservation[capacity];
+            _keys = new int[capacity];
         }
 
 
@@ -67,6 +70,53 @@ namespace MTConnect.Buffers
         }
 
         /// <summary>
+        /// Number of observations overwritten so far. The logical index of an entry decreases by one for each eviction.
+        /// </summary>
+        public long Evicted => _evicted;
+
+        /// <summary>
+        /// Copies the BufferKeys of <paramref name="count"/> entries starting at logical <paramref name="index"/>.
+        /// </summary>
+        public void CopyKeys(int index, int[] destination, int count)
+        {
+            if (index < 0 || count < 0 || index + count > _size) throw new ArgumentOutOfRangeException(nameof(index));
+
+            var physical = _start + index;
+            if (physical >= _buffer.Length) physical -= _buffer.Length;
+
+            var first = Math.Min(count, _buffer.Length - physical);
+            Array.Copy(_keys, physical, destination, 0, first);
+            if (count > first) Array.Copy(_keys, 0, destination, first, count - first);
+        }
+
+        /// <summary>
+        /// Returns the logical index of the first observation whose sequence is at least <paramref name="sequence"/>,
+        /// or <see cref="Size"/> when there is none. Sequences increase with the logical index but can have gaps
+        /// (e.g. after a durable buffer is reloaded), so the index is found by binary search.
+        /// </summary>
+        public int FirstIndexAtOrAfter(ulong sequence)
+        {
+            int low = 0, high = _size;
+            while (low < high)
+            {
+                var mid = low + ((high - low) >> 1);
+                if (this[mid]._sequence < sequence) low = mid + 1;
+                else high = mid;
+            }
+            return low;
+        }
+
+        /// <summary>
+        /// Returns the logical index of the last observation whose sequence is at most <paramref name="sequence"/>,
+        /// or -1 when there is none.
+        /// </summary>
+        public int LastIndexAtOrBefore(ulong sequence)
+        {
+            if (sequence == ulong.MaxValue) return _size - 1;
+            return FirstIndexAtOrAfter(sequence + 1) - 1;
+        }
+
+        /// <summary>
         /// Appends an observation, overwriting the oldest one when the buffer is full.
         /// </summary>
         public void Add(ref BufferObservation observation)
@@ -75,9 +125,12 @@ namespace MTConnect.Buffers
             if (end >= _buffer.Length) end -= _buffer.Length;
 
             _buffer[end] = observation;
+            _keys[end] = observation._key;
 
             if (_size == _buffer.Length)
             {
+                _evicted++;
+
                 // Full: the slot just written held the oldest entry, so the oldest moves forward
                 if (++_start == _buffer.Length) _start = 0;
             }

@@ -39,7 +39,7 @@ namespace MTConnect.Buffers
         {
             lock (_lock)
             {
-                var items = _items.Take(count);
+                var items = _items.Take(count).ToList(); // Copied before removing: removing while enumerating throws on .NET Framework
                 if (!items.IsNullOrEmpty())
                 {
                     var x = new List<BufferObservation>();

@@ -14,6 +14,7 @@ using MTConnect.Observations;
 using MTConnect.Observations.Events;
 using MTConnect.Observations.Output;
 using MTConnect.Streams.Output;
+using MTConnect.Mqtt;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -71,6 +72,25 @@ namespace MTConnect
         private static readonly TimeSpan HandlerDrainTimeout = TimeSpan.FromMilliseconds(500);
         private static readonly TimeSpan HandlerDrainPollInterval = TimeSpan.FromMilliseconds(10);
         private const string DirectoryBuffer = "buffer";
+
+        // Entity-mode publishing: observation events only enqueue; a single consumer publishes
+        // with a bounded number of publishes in flight and records the last-sent sequence in order
+        private const int PublishQueueCapacity = 100000;
+        private const int PublishMaxInFlight = 64;
+        private const int PublishBatchSize = 1000;
+        private const int CatchUpPageSize = 1000;
+        private readonly MqttPublishQueue<RelayItem> _publishQueue = new MqttPublishQueue<RelayItem>(PublishQueueCapacity, PublishMaxInFlight);
+        // Durable delivery state (open gap / sequences already delivered by catch-up)
+        private readonly RelaySequenceTracker _sequenceTracker = new RelaySequenceTracker();
+        private int _overflowLogged = 0;
+
+        private sealed class RelayItem
+        {
+            public IObservation Observation;
+            public List<IObservation> Conditions;
+            public ulong Sequence;
+            public bool Skipped;
+        }
         private const string LastSentSequenceFileName = "mqttrelay_last_sent.seq";
 
         /// <summary>
@@ -144,6 +164,12 @@ namespace MTConnect
                     LastSentFlushInterval);
             }
 
+            if (_entityServer != null)
+            {
+                var stopToken = _stop.Token;
+                _ = Task.Run(() => _publishQueue.RunAsync(PublishRelayItem, OnRelayItemPublished, OnPublishQueueIdle, PublishBatchSize, stopToken), stopToken);
+            }
+
             _ = Task.Run(Worker, _stop.Token);
         }
 
@@ -182,7 +208,7 @@ namespace MTConnect
             // progress: a handler hung on a broker call cannot block
             // the agent from terminating.
             var drainDeadline = DateTime.UtcNow + HandlerDrainTimeout;
-            while (Interlocked.CompareExchange(ref _handlerActiveCount, 0, 0) > 0
+            while ((Interlocked.CompareExchange(ref _handlerActiveCount, 0, 0) > 0 || (_mqttClient.IsConnected && _publishQueue.Count > 0))
                 && DateTime.UtcNow < drainDeadline)
             {
                 System.Threading.Thread.Sleep(HandlerDrainPollInterval);
@@ -349,17 +375,23 @@ namespace MTConnect
                         {
                             if (_configuration.DurableRelay)
                             {
-                                await RelayBufferedObservations();
+                                // Pause live publishing while the backlog is relayed
+                                await _publishQueue.Gate.WaitAsync(_stop.Token);
+                                try
+                                {
+                                    await RelayBufferedObservations();
+                                }
+                                finally
+                                {
+                                    _publishQueue.Gate.Release();
+                                }
                             }
                             await PublishDevices();
                             await PublishCurrentObservations();
                             await PublishAssets();
                         }
 
-                        while (!_stop.Token.IsCancellationRequested && _mqttClient.IsConnected)
-                        {
-                            await Task.Delay(100);
-                        }
+                        await WaitForDisconnect(_mqttClient, _stop.Token);
                     }
                     catch (Exception exception)
                     {
@@ -396,6 +428,31 @@ namespace MTConnect
                 }
 
             } while (!_stop.Token.IsCancellationRequested);
+        }
+
+        // Completes when the client disconnects or the token is cancelled (no polling)
+        private static async Task WaitForDisconnect(IMqttClient client, CancellationToken cancellationToken)
+        {
+            var done = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            Func<MqttClientDisconnectedEventArgs, Task> onDisconnected = args =>
+            {
+                done.TrySetResult(true);
+                return Task.CompletedTask;
+            };
+
+            client.DisconnectedAsync += onDisconnected;
+            try
+            {
+                using (cancellationToken.Register(() => done.TrySetResult(false)))
+                {
+                    // Subscribed before checking, so a disconnect in between is not missed
+                    if (client.IsConnected && !cancellationToken.IsCancellationRequested) await done.Task.ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                client.DisconnectedAsync -= onDisconnected;
+            }
         }
 
         private static IEnumerable<IObservationOutput> GetAllObservations(IStreamsResponseOutputDocument doc)
@@ -442,35 +499,41 @@ namespace MTConnect
 
                 if (from <= to)
                 {
-                    var doc = broker.GetDeviceStreamsResponseDocument(from, to);
-                    var observations = GetAllObservations(doc)
-                        .OrderBy(o => o.Sequence)
-                        .ToList();
+                    Log(MTConnectLogLevel.Information, $"[MQTT Relay] Relaying buffered observations from Sequence {from} to {to}");
 
-                    Log(MTConnectLogLevel.Information, $"[MQTT Relay] Relaying buffered observations: {observations.Count} from Sequence {from} to {to}");
+                    // Everything after this point is resent below, so a previous gap is covered
+                    _sequenceTracker.ClearGap();
 
-                    foreach (var obs in observations)
+                    // Page through the backlog instead of loading it all at once, publishing each
+                    // page with a bounded number of publishes in flight
+                    var sentCount = 0;
+                    var pageFrom = from;
+                    while (pageFrom <= to && !_stop.IsCancellationRequested)
                     {
-                        var x = new Observation();
-                        x.DeviceUuid = obs.DeviceUuid;
-                        x.DataItemId = obs.DataItemId;
-                        x.DataItem = obs.DataItem;
-                        x.Name = obs.Name;
-                        x.Category = obs.Category;
-                        x.Type = obs.Type;
-                        x.SubType = obs.SubType;
-                        x.Representation = obs.Representation;
-                        x.CompositionId = obs.CompositionId;
-                        x.InstanceId = obs.InstanceId;
-                        x.Sequence = obs.Sequence;
-                        x.Timestamp = obs.Timestamp;
-                        x.AddValues(obs.Values);
+                        var pageTo = Math.Min(to, pageFrom + CatchUpPageSize - 1);
 
-                        var result = await _entityServer.PublishObservation(_mqttClient, x);
-                        if (result != null && result.IsSuccess)
+                        var doc = broker.GetDeviceStreamsResponseDocument(pageFrom, pageTo);
+                        var items = new List<RelayItem>();
+                        foreach (var obs in GetAllObservations(doc).OrderBy(o => o.Sequence))
                         {
-                            RecordLastSentSequence(x.Sequence);
+                            items.Add(new RelayItem { Observation = CloneAsObservation(obs), Sequence = obs.Sequence });
                         }
+
+                        var success = await _publishQueue.PublishInOrderAsync(items, PublishRelayItem, OnRelayItemPublished);
+                        if (!success)
+                        {
+                            _sequenceTracker.MarkGap();
+                            Log(MTConnectLogLevel.Warning, $"[MQTT Relay] Buffered observation relay stopped at Sequence {pageFrom}; it will resume on the next attempt.");
+                            break;
+                        }
+
+                        sentCount += items.Count;
+                        _sequenceTracker.SetCatchUpThrough(pageTo);
+
+                        // Advance past the page even when it held no observations
+                        RecordLastSentSequence(pageTo);
+
+                        pageFrom = pageTo + 1;
                     }
 
                     // Batch boundary: the buffered relay just ran a
@@ -479,7 +542,7 @@ namespace MTConnect
                     // tick does not lose this batch's progress.
                     FlushLastSentSequence();
 
-                    Log(MTConnectLogLevel.Information, $"[MQTT Relay] Buffered observation relay complete. {observations.Count} missed observations sent.");
+                    Log(MTConnectLogLevel.Information, $"[MQTT Relay] Buffered observation relay complete. {sentCount} missed observations sent.");
                     var lastSentSnapshot = _lastSentSequencePersister.Read();
                     var unsent = broker.LastSequence > lastSentSnapshot ? broker.LastSequence - lastSentSnapshot : 0;
                     if (unsent > 0)
@@ -487,6 +550,9 @@ namespace MTConnect
                 }
                 else
                 {
+                    // Nothing after the last-sent sequence, so there is no gap left to cover
+                    _sequenceTracker.ClearGap();
+
                     Log(MTConnectLogLevel.Information, "[MQTT Relay] No buffered observations to relay.");
                 }
             }
@@ -928,82 +994,102 @@ namespace MTConnect
                 ex => Log(MTConnectLogLevel.Warning, $"AgentDeviceAdded handler error : {ex.Message}"));
         }
 
-        private async void AgentObservationAdded(object sender, IObservation observation)
+        private void AgentObservationAdded(object sender, IObservation observation)
         {
-            // Increment the in-flight handler counter so OnStop's drain
-            // window observes this body before the final
-            // last-sent-sequence flush runs; the decrement at the end of
-            // the body is unconditional (try / finally) so a throw still
-            // releases the count.
-            Interlocked.Increment(ref _handlerActiveCount);
+            // Event handlers only enqueue: formatting and publishing happen on the publish worker so
+            // the agent's AddObservation path is never blocked by MQTT and publishes stay ordered
             try
             {
-                // async void handlers must not throw; route any fault to
-                // the log instead of the synchronization context.
-                await AsyncVoidGuard.Run(
-                    async () =>
+                if (_entityServer == null || observation == null) return;
+                if (_stop != null && _stop.IsCancellationRequested) return;
+
+                if (_configuration.DurableRelay) Interlocked.Increment(ref _totalIncomingObservations);
+
+                var item = new RelayItem { Sequence = observation.Sequence };
+
+                if (observation.Category == DataItemCategory.CONDITION)
+                {
+                    // Snapshot the active condition set now (it reflects this observation)
+                    var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
+                    if (conditionObservations.IsNullOrEmpty()) return;
+
+                    item.Conditions = new List<IObservation>();
+                    foreach (var conditionObservation in conditionObservations)
                     {
-                        if (_configuration.DurableRelay)
-                        {
-                            Interlocked.Increment(ref _totalIncomingObservations);
+                        item.Conditions.Add(CloneAsObservation(conditionObservation));
+                        if (conditionObservation.Sequence > item.Sequence) item.Sequence = conditionObservation.Sequence;
+                    }
+                }
+                else
+                {
+                    item.Observation = observation;
+                }
 
-                            // No disk read on the hot path: the persister
-                            // is seeded from disk at OnStartAfterLoad and
-                            // updated in-memory by RecordLastSentSequence
-                            // below, so observation events do not stall
-                            // on File.ReadAllText.
+                if (_publishQueue.TryEnqueue(item))
+                {
+                    Interlocked.Exchange(ref _overflowLogged, 0);
+                }
+                else
+                {
+                    // Under DurableRelay the gap is resent from the agent buffer by the next catch-up
+                    if (_configuration.DurableRelay) _sequenceTracker.MarkGap();
 
-                            if (_entityServer != null)
-                            {
-                                if (observation.Category == DataItemCategory.CONDITION)
-                                {
-                                    var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
-                                    if (!conditionObservations.IsNullOrEmpty())
-                                    {
-                                        var multipleObservations = new List<IObservation>(conditionObservations.Count());
-                                        foreach (var conditionObservation in conditionObservations)
-                                        {
-                                            multipleObservations.Add(CloneAsObservation(conditionObservation));
-                                        }
-
-                                        var result = await _entityServer.PublishObservations(_mqttClient, multipleObservations);
-                                        if (result != null && result.IsSuccess)
-                                        {
-                                            RecordLastSentSequence(conditionObservations.Max(o => o.Sequence));
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    var result = await _entityServer.PublishObservation(_mqttClient, observation);
-                                    if (result != null && result.IsSuccess)
-                                    {
-                                        RecordLastSentSequence(observation.Sequence);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (_entityServer != null)
-                            {
-                                if (observation.Category == DataItemCategory.CONDITION)
-                                {
-                                    var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
-                                    await PublishObservations(conditionObservations);
-                                }
-                                else
-                                {
-                                    await _entityServer.PublishObservation(_mqttClient, observation);
-                                }
-                            }
-                        }
-                    },
-                    ex => Log(MTConnectLogLevel.Warning, $"AgentObservationAdded handler error : {ex.Message}"));
+                    if (Interlocked.Exchange(ref _overflowLogged, 1) == 0)
+                    {
+                        Log(MTConnectLogLevel.Warning, $"[MQTT Relay] Publish queue is full ({PublishQueueCapacity}); observations are being dropped" + (_configuration.DurableRelay ? " and will be resent from the buffer." : "."));
+                    }
+                }
             }
-            finally
+            catch (Exception ex)
             {
-                Interlocked.Decrement(ref _handlerActiveCount);
+                Log(MTConnectLogLevel.Warning, $"AgentObservationAdded handler error : {ex.Message}");
+            }
+        }
+
+        private async Task<bool> PublishRelayItem(RelayItem item)
+        {
+            Interlocked.Increment(ref _handlerActiveCount);
+
+            // Already delivered by this session's catch-up
+            if (_configuration.DurableRelay && _sequenceTracker.IsDelivered(item.Sequence))
+            {
+                item.Skipped = true;
+                return true;
+            }
+
+            MqttClientPublishResult result;
+            if (item.Conditions != null) result = await _entityServer.PublishObservations(_mqttClient, item.Conditions);
+            else result = await _entityServer.PublishObservation(_mqttClient, item.Observation);
+
+            return result != null && result.IsSuccess;
+        }
+
+        // Called in enqueue order for every published item
+        private void OnRelayItemPublished(RelayItem item, bool success)
+        {
+            Interlocked.Decrement(ref _handlerActiveCount);
+
+            if (!_configuration.DurableRelay) return;
+
+            if (_sequenceTracker.Completed(success, item.Skipped))
+            {
+                RecordLastSentSequence(item.Sequence);
+            }
+        }
+
+        // Runs (holding the publish gate) whenever the publish queue is drained
+        private async Task OnPublishQueueIdle()
+        {
+            if (_configuration.DurableRelay && _mqttClient.IsConnected && _sequenceTracker.HasGap)
+            {
+                try
+                {
+                    await RelayBufferedObservations();
+                }
+                catch (Exception ex)
+                {
+                    Log(MTConnectLogLevel.Warning, $"[MQTT Relay] Buffered observation relay error : {ex.Message}");
+                }
             }
         }
 

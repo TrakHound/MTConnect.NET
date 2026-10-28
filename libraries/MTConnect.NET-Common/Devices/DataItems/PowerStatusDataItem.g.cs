@@ -96,13 +96,9 @@ namespace MTConnect.Devices.DataItems
                 if (result != null)
                 {
                     // Check Valid values in Enum
-                    var validValues = Enum.GetValues(typeof(PowerStatus));
-                    foreach (var validValue in validValues)
+                    if (EnumValues<PowerStatus>.Contains(result))
                     {
-                        if (result == validValue.ToString())
-                        {
-                            return new ValidationResult(true);
-                        }
+                        return new ValidationResult(true);
                     }
 
                     return new ValidationResult(false, "'" + result + "' is not a valid value for POWER_STATUS");
@@ -131,13 +127,9 @@ namespace MTConnect.Devices.DataItems
                 if (result != null)
                 {
                     // Check Valid values in Enum
-                    var validValues = Enum.GetValues(typeof(PowerStatus));
-                    foreach (var validValue in validValues)
+                    if (EnumValues<PowerStatus>.Contains(result))
                     {
-                        if (result == validValue.ToString())
-                        {
-                            return new ValidationResult(true);
-                        }
+                        return new ValidationResult(true);
                     }
 
                     return new ValidationResult(false, "'" + result + "' is not a valid value for POWER_STATUS");

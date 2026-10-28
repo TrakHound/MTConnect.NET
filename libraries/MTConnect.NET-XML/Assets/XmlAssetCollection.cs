@@ -90,35 +90,45 @@ namespace MTConnect.Assets.Xml
         {
             try
             {
-                // Read Child Elements
+                // Read Child Elements: each asset element is deserialized directly from the reader
+                // (its element name selects the asset type and matches that type's root element)
                 using (var inner = reader.ReadSubtree())
                 {
-                    while (inner.Read())
+                    if (inner.Read() && inner.NodeType == XmlNodeType.Element && !inner.IsEmptyElement)
                     {
-                        if (inner.NodeType == XmlNodeType.Element)
+                        var depth = inner.Depth + 1;
+                        inner.Read();
+
+                        while (!inner.EOF)
                         {
-                            // Create a copy of each Child Node so we can change the name to "Asset" and deserialize it
-                            // (Seems like a dirty way to do this but until an XmlAttribute can be found to ignore the Node's name/type
-                            // and to always deserialize as a Asset)
-                            var doc = new XmlDocument();
-                            var node = doc.ReadNode(inner);
-
-                            foreach (XmlNode child in node.ChildNodes)
+                            if (inner.NodeType == XmlNodeType.Element && inner.Depth == depth)
                             {
-                                if (child.NodeType == XmlNodeType.Element)
+                                var name = inner.Name;
+                                var t = Asset.GetAssetType(name);
+                                if (t != null)
                                 {
-                                    var t = Asset.GetAssetType(child.Name);
-                                    if (t != null)
+                                    IAsset asset;
+                                    using (var assetReader = inner.ReadSubtree())
                                     {
-                                        // Create new XmlSerializer using the Type defined above
-                                        var serializer = new XmlSerializer(t);
+                                        asset = (IAsset)XmlAsset.GetSerializer(t).Deserialize(assetReader);
+                                    }
 
-                                        // Create new Asset
-                                        var asset = (IAsset)serializer.Deserialize(new XmlNodeReader(child));
-                                        asset.Type = child.Name;
+                                    if (asset != null)
+                                    {
+                                        asset.Type = name;
                                         Assets.Add(asset);
                                     }
+
+                                    inner.Read(); // Past the asset's end element
                                 }
+                                else
+                                {
+                                    inner.Skip();
+                                }
+                            }
+                            else
+                            {
+                                inner.Read();
                             }
                         }
                     }

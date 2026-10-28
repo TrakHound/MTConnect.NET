@@ -16,6 +16,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace MTConnect.Agents
 {
@@ -373,6 +374,9 @@ namespace MTConnect.Agents
         // Caller must hold _lock.
         private void RebuildDataItemLookups()
         {
+            // Invalidate buffer keys cached on DataItems
+            Interlocked.Increment(ref _indexVersion);
+
             _bufferKeyDataItemIds.Clear();
             _lastDeviceDataItemIndexes.Clear();
             _dataItemIds.Clear();
@@ -471,6 +475,39 @@ namespace MTConnect.Agents
             }
 
             return Enumerable.Empty<int>();
+        }
+
+        // Buffer keys cached per DataItem instance so the write path doesn't take the broker lock and build
+        // lookup strings for every observation. Entries are invalidated when the index tables are rebuilt.
+        private sealed class BufferKeyEntry
+        {
+            public string DeviceUuid;
+            public string DataItemId;
+            public int Version;
+            public int Key;
+        }
+
+        private readonly System.Runtime.CompilerServices.ConditionalWeakTable<IDataItem, BufferKeyEntry> _bufferKeys = new System.Runtime.CompilerServices.ConditionalWeakTable<IDataItem, BufferKeyEntry>();
+        private int _indexVersion;
+
+        private int GetBufferKey(string deviceUuid, IDataItem dataItem)
+        {
+            var version = Volatile.Read(ref _indexVersion);
+            if (_bufferKeys.TryGetValue(dataItem, out var entry) && entry.Version == version && entry.DeviceUuid == deviceUuid && entry.DataItemId == dataItem.Id)
+            {
+                return entry.Key;
+            }
+
+            var key = GenerateBufferKey(deviceUuid, dataItem.Id);
+
+            _bufferKeys.Remove(dataItem);
+            try
+            {
+                _bufferKeys.Add(dataItem, new BufferKeyEntry { DeviceUuid = deviceUuid, DataItemId = dataItem.Id, Version = version, Key = key });
+            }
+            catch (ArgumentException) { } // Added concurrently
+
+            return key;
         }
 
         // Write path: assigns Device / DataItem indexes when they do not exist yet
@@ -1751,7 +1788,7 @@ namespace MTConnect.Agents
                     foreach (var dataItem in dataItems)
                     {
                         // Lookup Buffer Key
-                        var bufferKey = GenerateBufferKey(device.Uuid, dataItem.Id);
+                        var bufferKey = GetBufferKey(device.Uuid, dataItem);
 
                         // If no observation exists, then add an Unavailable observation
                         if (!existingKeys.Contains(bufferKey))
@@ -1777,13 +1814,13 @@ namespace MTConnect.Agents
                                 case DataItemRepresentation.TIME_SERIES: observation.AddValue(ValueKeys.SampleCount, 0); break;
                             }
 
-                            // Temporarily Set Sequence to a value for validation
-                            observation.Sequence = 1;
-                            var validationResult = dataItem.Validate(MTConnectVersion, observation);
-                            observation.Sequence = 0;
-
                             if (Configuration.EnableValidation)
                             {
+                                // Validate only when the result is used (temporarily set a Sequence for validation)
+                                observation.Sequence = 1;
+                                var validationResult = dataItem.Validate(MTConnectVersion, observation);
+                                observation.Sequence = 0;
+
                                 // Set Quality using Validation
                                 if (validationResult.IsValid) observation.Quality = Quality.VALID;
                                 else observation.Quality = Quality.INVALID;
@@ -1816,28 +1853,35 @@ namespace MTConnect.Agents
         /// <inheritdoc />
         protected override ulong OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput)
         {
+            return OnAddObservation(deviceUuid, dataItem, observationInput, null);
+        }
+
+        /// <inheritdoc />
+        protected override ulong OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput, ValidationResult? validationResult)
+        {
             if (_observationBuffer != null && dataItem != null && observationInput != null)
             {
-                var validationResult = dataItem.Validate(MTConnectVersion, observationInput);
-
                 var quality = Quality.UNVERIFIABLE;
                 var deprecated = false;
                 var extended = false;
 
                 if (Configuration.EnableValidation)
                 {
+                    // Reuse the caller's validation when available
+                    var result = validationResult ?? dataItem.Validate(MTConnectVersion, observationInput);
+
                     // Set Quality
-                    if (validationResult.IsValid) quality = Quality.VALID;
+                    if (result.IsValid) quality = Quality.VALID;
                     else quality = Quality.INVALID;
 
                     // Set Deprecated / Extended flags
                     deprecated = dataItem.MaximumVersion != null && dataItem.MaximumVersion < MTConnectVersion;
-                    extended = !validationResult.IsValid;
+                    extended = !result.IsValid;
                 }
 
 
                 // Get the BufferKey to use for the ObservationBuffer
-                var bufferKey = GenerateBufferKey(deviceUuid, dataItem.Id);
+                var bufferKey = GetBufferKey(deviceUuid, dataItem);
                 var bufferObservation = new BufferObservation(
                     bufferKey,
                     dataItem.Category,

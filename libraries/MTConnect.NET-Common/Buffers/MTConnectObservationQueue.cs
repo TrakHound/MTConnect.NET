@@ -2,13 +2,13 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
-using System.Linq;
 
 namespace MTConnect.Buffers
 {
     internal class MTConnectObservationQueue
     {
-        private readonly Dictionary<ulong, BufferObservation> _items = new Dictionary<ulong, BufferObservation>();
+        // First in, first out, so observations are taken in the order they were added (sequence order)
+        private readonly Queue<BufferObservation> _items = new Queue<BufferObservation>();
         private readonly object _lock = new object();
         private readonly int _limit;
 
@@ -32,25 +32,16 @@ namespace MTConnect.Buffers
 
 
         /// <summary>
-        /// Take (n) number of StoredObservations and remove from the Queue
+        /// Take (n) number of StoredObservations, oldest first, and remove them from the Queue
         /// </summary>
         public IEnumerable<BufferObservation> Take(int count = 1)
         {
             lock (_lock)
             {
-                var items = _items.Take(count);
-                if (!items.IsNullOrEmpty())
+                if (_items.Count > 0 && count > 0)
                 {
-                    var x = new List<BufferObservation>();
-
-                    foreach (var item in items)
-                    {
-                        x.Add(item.Value);
-                    }
-
-                    // Remove Items from Queue
-                    foreach (var item in items) _items.Remove(item.Key);
-
+                    var x = new List<BufferObservation>(System.Math.Min(count, _items.Count));
+                    while (x.Count < count && _items.Count > 0) x.Add(_items.Dequeue());
                     return x;
                 }
             }
@@ -62,23 +53,12 @@ namespace MTConnect.Buffers
         {
             if (observation.IsValid)
             {
-                var hash = observation.CreateHash();
-
                 lock (_lock)
                 {
-                    if (_items.Count > _limit) return false;
+                    if (_items.Count >= _limit) return false;
 
-                    if (_items.TryGetValue(hash, out var _))
-                    {
-                        _items.Remove(hash);
-                        _items.Add(hash, observation);
-                        return true;
-                    }
-                    else
-                    {
-                        _items.Add(hash, observation);
-                        return true;
-                    }
+                    _items.Enqueue(observation);
+                    return true;
                 }
             }
 

@@ -18,6 +18,37 @@ namespace MTConnect
     /// </summary>
     public static class JsonFunctions
     {
+        // Shared option instances. JsonSerializerOptions caches type metadata per instance,
+        // so reusing them avoids rebuilding that metadata on every serialization.
+        // These must never be modified after creation.
+        internal static readonly JsonSerializerOptions SharedDefaultOptions = CreateOptions(false);
+        internal static readonly JsonSerializerOptions SharedIndentOptions = CreateOptions(true);
+
+
+        private static JsonSerializerOptions CreateOptions(bool indented)
+        {
+            return new JsonSerializerOptions
+            {
+                WriteIndented = indented,
+#if NET5_0_OR_GREATER
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+                NumberHandling = JsonNumberHandling.AllowReadingFromString,
+#endif
+                PropertyNameCaseInsensitive = true,
+                MaxDepth = 1000
+            };
+        }
+
+        private static JsonSerializerOptions GetOptions(JsonConverter converter, bool indented)
+        {
+            if (converter == null) return indented ? SharedIndentOptions : SharedDefaultOptions;
+
+            // A custom converter needs its own (uncached) options instance
+            var options = CreateOptions(indented);
+            options.Converters.Add(converter);
+            return options;
+        }
+
         /// <summary>
         /// Default serializer options used when no <c>indentOutput</c>
         /// option is requested. Produces compact JSON, omits properties
@@ -76,18 +107,7 @@ namespace MTConnect
             {
                 try
                 {
-                    var options = new JsonSerializerOptions
-                    {
-                        WriteIndented = indented,
-#if NET5_0_OR_GREATER
-                        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
-                        NumberHandling = JsonNumberHandling.AllowReadingFromString,
-#endif
-                        PropertyNameCaseInsensitive = true,
-                        MaxDepth = 1000
-                    };
-
-                    if (converter != null) options.Converters.Add(converter);
+                    var options = GetOptions(converter, indented);
 
                     return JsonSerializer.Serialize(obj, options);
                 }
@@ -109,18 +129,7 @@ namespace MTConnect
             {
                 try
                 {
-                    var options = new JsonSerializerOptions
-                    {
-                        WriteIndented = indented,
-#if NET5_0_OR_GREATER
-                        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
-                        NumberHandling = JsonNumberHandling.AllowReadingFromString,
-#endif
-                        PropertyNameCaseInsensitive = true,
-                        MaxDepth = 1000
-                    };
-
-                    if (converter != null) options.Converters.Add(converter);
+                    var options = GetOptions(converter, indented);
 
                     return JsonSerializer.SerializeToUtf8Bytes(obj, options);
                 }
@@ -143,18 +152,7 @@ namespace MTConnect
             {
                 try
                 {
-                    var options = new JsonSerializerOptions
-                    {
-                        WriteIndented = indented,
-#if NET5_0_OR_GREATER
-                        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
-                        NumberHandling = JsonNumberHandling.AllowReadingFromString,
-#endif
-                        PropertyNameCaseInsensitive = true,
-                        MaxDepth = 1000
-                    };
-
-                    if (converter != null) options.Converters.Add(converter);
+                    var options = GetOptions(converter, indented);
 
                     var outputStream = new MemoryStream();
                     JsonSerializer.Serialize(outputStream, obj, options);

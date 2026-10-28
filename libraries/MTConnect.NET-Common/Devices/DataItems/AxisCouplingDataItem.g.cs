@@ -91,13 +91,9 @@ namespace MTConnect.Devices.DataItems
                 if (result != null)
                 {
                     // Check Valid values in Enum
-                    var validValues = Enum.GetValues(typeof(AxisCoupling));
-                    foreach (var validValue in validValues)
+                    if (EnumValues<AxisCoupling>.Contains(result))
                     {
-                        if (result == validValue.ToString())
-                        {
-                            return new ValidationResult(true);
-                        }
+                        return new ValidationResult(true);
                     }
 
                     return new ValidationResult(false, "'" + result + "' is not a valid value for AXIS_COUPLING");
@@ -126,13 +122,9 @@ namespace MTConnect.Devices.DataItems
                 if (result != null)
                 {
                     // Check Valid values in Enum
-                    var validValues = Enum.GetValues(typeof(AxisCoupling));
-                    foreach (var validValue in validValues)
+                    if (EnumValues<AxisCoupling>.Contains(result))
                     {
-                        if (result == validValue.ToString())
-                        {
-                            return new ValidationResult(true);
-                        }
+                        return new ValidationResult(true);
                     }
 
                     return new ValidationResult(false, "'" + result + "' is not a valid value for AXIS_COUPLING");

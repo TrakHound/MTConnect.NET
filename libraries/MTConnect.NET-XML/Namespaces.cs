@@ -17,19 +17,53 @@ namespace MTConnect
 
         private static Regex _streamRemoveNamespaceRegex = new Regex(@"\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""", RegexOptions.Compiled);
         private static Regex _streamNamespaceRegex = new Regex("<MTConnectStreams", RegexOptions.Compiled);
+        private static readonly Regex _clearNamespaceRegex = new Regex(@"xmlns(:\w+)?=""([^""]*)""", RegexOptions.Compiled);
+        private static readonly Regex _clearSchemaLocationRegex = new Regex(@"xsi:schemaLocation=""([^""]*)""", RegexOptions.Compiled);
 
 
         public static string Get(string xml)
         {
-            var doc = new XmlDocument();
-            doc.LoadXml(xml);
-            if (doc != null && doc.DocumentElement != null)
+            // Only the root element is read (no DOM of the whole document)
+            using (var textReader = new StringReader(xml.TrimStart()))
+            using (var xmlReader = XmlReader.Create(textReader, _rootSettings))
             {
-                return doc.DocumentElement.NamespaceURI;
+                return xmlReader.MoveToContent() == XmlNodeType.Element ? xmlReader.NamespaceURI : null;
             }
-
-            return null;
         }
+
+        /// <summary>
+        /// Returns the namespace of the root element, reading only up to it. A UTF-8 byte-order mark and
+        /// leading whitespace are skipped. Returns null when the root element can't be read.
+        /// </summary>
+        public static string GetRootNamespace(byte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0) return null;
+
+            var offset = 0;
+            if (bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF) offset = 3;
+            while (offset < bytes.Length && (bytes[offset] == 0x20 || bytes[offset] == 0x09 || bytes[offset] == 0x0A || bytes[offset] == 0x0D)) offset++;
+
+            try
+            {
+                using (var stream = new MemoryStream(bytes, offset, bytes.Length - offset, false))
+                using (var xmlReader = XmlReader.Create(stream, _rootSettings))
+                {
+                    return xmlReader.MoveToContent() == XmlNodeType.Element ? xmlReader.NamespaceURI : null;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static readonly XmlReaderSettings _rootSettings = new XmlReaderSettings
+        {
+            DtdProcessing = DtdProcessing.Prohibit,
+            XmlResolver = null,
+            IgnoreComments = true,
+            IgnoreProcessingInstructions = true
+        };
 
         public static string Get(string rootNode, string prefix, byte[] bytes)
         {
@@ -273,11 +307,8 @@ namespace MTConnect
         {
             var output = xml;
 
-            string regex = @"xmlns(:\w+)?=""([^""]*)""";
-            output = Regex.Replace(output, regex, "");
-
-            regex = @"xsi:schemaLocation=""([^""]*)""";
-            output = Regex.Replace(output, regex, "");
+            output = _clearNamespaceRegex.Replace(output, "");
+            output = _clearSchemaLocationRegex.Replace(output, "");
 
             return output;
         }

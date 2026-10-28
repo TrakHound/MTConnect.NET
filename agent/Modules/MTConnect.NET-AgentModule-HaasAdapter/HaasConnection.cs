@@ -57,6 +57,11 @@ namespace MTConnect.Haas
 
         private Stream _stream;
 
+        // Receive buffer: replies are read in blocks rather than one byte (one socket / serial read) at a time
+        private readonly byte[] _rx = new byte[4096];
+        private int _rxPos;
+        private int _rxLen;
+
         /// <summary>
         /// Opens the connection if it is not already open.
         /// </summary>
@@ -127,6 +132,7 @@ namespace MTConnect.Haas
                     try
                     {
                         DiscardInput(stream);
+                        _rxPos = _rxLen = 0; // Buffered bytes are stale input too
 
                         var data = Encoding.ASCII.GetBytes(command + "\r\n");
                         stream.Write(data, 0, data.Length);
@@ -162,6 +168,23 @@ namespace MTConnect.Haas
             }
         }
 
+        private int ReadByteBuffered(Stream stream)
+        {
+            if (_rxPos >= _rxLen)
+            {
+                // Returns as soon as any bytes are available (throws when ResponseTimeout expires)
+                _rxLen = stream.Read(_rx, 0, _rx.Length);
+                _rxPos = 0;
+                if (_rxLen <= 0)
+                {
+                    _rxLen = 0;
+                    return -1;
+                }
+            }
+
+            return _rx[_rxPos++];
+        }
+
         private string ReadLine(Stream stream, Stopwatch timer)
         {
             var buffer = new MemoryStream();
@@ -172,7 +195,7 @@ namespace MTConnect.Haas
                 if (timer.ElapsedMilliseconds > ResponseTimeout) throw new TimeoutException("Timed out waiting for reply");
 
                 // Throws IOException / TimeoutException when ResponseTimeout expires
-                var b = stream.ReadByte();
+                var b = ReadByteBuffered(stream);
                 if (b < 0) throw new IOException("Connection closed by remote host");
 
                 if (b == Stx) continue;
@@ -210,6 +233,7 @@ namespace MTConnect.Haas
             catch { }
 
             _stream = null;
+            _rxPos = _rxLen = 0;
 
             try
             {

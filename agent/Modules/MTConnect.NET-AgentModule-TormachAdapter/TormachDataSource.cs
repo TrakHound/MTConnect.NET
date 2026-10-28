@@ -92,6 +92,9 @@ namespace MTConnect.Tormach
         public TormachDataSource(TormachConfiguration configuration)
         {
             _configuration = configuration ?? new TormachConfiguration();
+
+            // Every value is read each poll; only changes need to go through the agent pipeline
+            SuppressUnchangedObservations = true;
         }
 
 

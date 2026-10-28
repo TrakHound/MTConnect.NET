@@ -212,7 +212,7 @@ namespace MTConnect.Assets.Xml
             return asset != null;
         }
 
-        private static XmlSerializer GetSerializer(Type type)
+        internal static XmlSerializer GetSerializer(Type type)
         {
             lock (_lock)
             {

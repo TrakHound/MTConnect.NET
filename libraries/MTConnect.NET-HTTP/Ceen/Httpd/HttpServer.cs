@@ -877,6 +877,28 @@ namespace Ceen.Httpd
         }
 
         /// <summary>
+        /// Returns true when the client asked for a persistent connection: HTTP/1.1 connections are persistent unless
+        /// the client sends "Connection: close", HTTP/1.0 connections only when it sends "Connection: keep-alive"
+        /// </summary>
+        /// <param name="httpVersion">The HTTP version of the request</param>
+        /// <param name="connection">The value of the request's Connection header, if any</param>
+        /// <returns><c>true</c> if the connection should be kept open after the response</returns>
+        internal static bool ClientWantsKeepAlive(string httpVersion, string connection)
+        {
+            if (!string.IsNullOrEmpty(connection))
+            {
+                foreach (var token in connection.Split(','))
+                {
+                    var value = token.Trim();
+                    if (value.Equals("close", StringComparison.OrdinalIgnoreCase)) return false;
+                    if (value.Equals("keep-alive", StringComparison.OrdinalIgnoreCase)) return true;
+                }
+            }
+
+            return httpVersion != HttpRequest.HTTP_VERSION_1_0;
+        }
+
+        /// <summary>
         /// Runs a client, using a socket handle from DuplicateAndClose
         /// </summary>
         /// <param name="socketinfo">The socket handle.</param>
@@ -1019,10 +1041,12 @@ namespace Ceen.Httpd
                         config.DebugLogHandler?.Invoke("Parsing headers", logtaskid, endpoint);
                         try
                         {
-                            var ct = new CancellationTokenSource();
-                            ct.CancelAfter(TimeSpan.FromSeconds(keepingalive ? config.KeepAliveTimeoutSeconds : config.RequestIdleTimeoutSeconds));
-                            using (ct.Token.Register(() => timeoutcontroltask.TrySetCanceled(), useSynchronizationContext: false))
-                                await cur.Parse(bs, config, idletime, timeoutcontroltask.Task, controller.StopTask);
+                            using (var ct = new CancellationTokenSource())
+                            {
+                                ct.CancelAfter(TimeSpan.FromSeconds(keepingalive ? config.KeepAliveTimeoutSeconds : config.RequestIdleTimeoutSeconds));
+                                using (ct.Token.Register(() => timeoutcontroltask.TrySetCanceled(), useSynchronizationContext: false))
+                                    await cur.Parse(bs, config, idletime, timeoutcontroltask.Task, controller.StopTask);
+                            }
                         }
                         catch (EmptyStreamClosedException)
                         {
@@ -1055,7 +1079,7 @@ namespace Ceen.Httpd
 
                         string keepalive;
                         cur.Headers.TryGetValue("Connection", out keepalive);
-                        if (("keep-alive".Equals(keepalive, StringComparison.OrdinalIgnoreCase) || keepingalive) && requests > 1)
+                        if ((ClientWantsKeepAlive(cur.HttpVersion, keepalive) || keepingalive) && requests > 1)
                         {
                             resp.KeepAlive = true;
                             if (!keepingalive)
@@ -1188,6 +1212,7 @@ namespace Ceen.Httpd
                 }
                 finally
                 {
+                    cur?.Dispose();
                     controller.RegisterStopped(logtaskid);
                     config.DebugLogHandler?.Invoke("Terminating handler", logtaskid, cur);
                 }

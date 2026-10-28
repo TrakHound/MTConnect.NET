@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Logging;
+using System;
 
 namespace MTConnect.Agents
 {
@@ -99,6 +100,26 @@ namespace MTConnect.Agents
         protected void Log(MTConnectLogLevel logLevel, string message, string logId = null)
         {
             if (LogReceived != null) LogReceived.Invoke(this, logLevel, message, logId);
+        }
+
+        /// <summary>
+        /// Optional check, set by the host application, that reports whether a log level is enabled for a module
+        /// (and optional log identifier). When not set, every level is treated as enabled.
+        /// </summary>
+        public static Func<IMTConnectAgentModule, MTConnectLogLevel, string, bool> LogLevelEnabled { get; set; }
+
+        /// <summary>
+        /// Returns <c>true</c> when a log entry at <paramref name="logLevel"/> would be recorded, so callers can skip
+        /// building expensive messages (for example per-message Trace output) that would be discarded.
+        /// </summary>
+        /// <param name="logLevel">The severity of the log entry.</param>
+        /// <param name="logId">An optional identifier used to correlate related log entries.</param>
+        protected bool IsLogEnabled(MTConnectLogLevel logLevel, string logId = null)
+        {
+            if (LogReceived == null) return false;
+
+            var check = LogLevelEnabled;
+            return check == null || check(this, logLevel, logId);
         }
     }
 }

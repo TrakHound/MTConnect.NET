@@ -84,7 +84,20 @@ namespace Ceen.Httpd
         /// <param name="stoptask">Awaitable task for stopping the request.</param>
         public async Task ReadHeaders(int maxlinesize, int maxheadersize, TimeSpan idletimeout, Action<string> linehandler, Task timeouttask, Task stoptask)
         {
-            var buf = new byte[maxlinesize];
+            // The line buffer is pooled (one per request otherwise); leftover bytes are copied out before it is returned
+            var buf = System.Buffers.ArrayPool<byte>.Shared.Rent(maxlinesize);
+            try
+            {
+                await ReadHeaders(buf, maxlinesize, maxheadersize, idletimeout, linehandler, timeouttask, stoptask);
+            }
+            finally
+            {
+                System.Buffers.ArrayPool<byte>.Shared.Return(buf);
+            }
+        }
+
+        private async Task ReadHeaders(byte[] buf, int maxlinesize, int maxheadersize, TimeSpan idletimeout, Action<string> linehandler, Task timeouttask, Task stoptask)
+        {
             var bufoffset = 0;
             var bufsize = 0;
             var totalread = 0;
@@ -101,7 +114,7 @@ namespace Ceen.Httpd
 
                 using (var cs = new CancellationTokenSource(idletimeout))
                 {
-                    rtask = ReadAsync(buf, bufsize, Math.Min(buf.Length - bufsize, maxheadersize - totalread), cs.Token);
+                    rtask = ReadAsync(buf, bufsize, Math.Min(maxlinesize - bufsize, maxheadersize - totalread), cs.Token);
                     rt = await Task.WhenAny(stoptask, timeouttask, rtask);
                 }
 

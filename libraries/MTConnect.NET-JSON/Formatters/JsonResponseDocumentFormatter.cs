@@ -24,6 +24,10 @@ namespace MTConnect.Formatters
     /// </summary>
     public class JsonResponseDocumentFormatter : IResponseDocumentFormatter
     {
+        // Size of the last Streams document written; the next output buffer starts at that size so it is
+        // not repeatedly grown and copied while the document is written
+        private static int _lastStreamsLength = 4096;
+
         /// <summary>
         /// The identifier of this formatter, <c>JSON</c>.
         /// </summary>
@@ -44,7 +48,7 @@ namespace MTConnect.Formatters
         {
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
-            var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
+            var jsonOptions = indentOutput ? JsonFunctions.SharedIndentOptions : JsonFunctions.SharedDefaultOptions;
 
             var outputStream = new MemoryStream();
             JsonSerializer.Serialize(outputStream, new JsonDevicesDocument(document), jsonOptions);
@@ -64,10 +68,11 @@ namespace MTConnect.Formatters
         {
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
-            var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
+            var jsonOptions = indentOutput ? JsonFunctions.SharedIndentOptions : JsonFunctions.SharedDefaultOptions;
 
-            var outputStream = new MemoryStream();
+            var outputStream = new MemoryStream(System.Threading.Volatile.Read(ref _lastStreamsLength));
             JsonSerializer.Serialize(outputStream, new JsonStreamsDocument(document), jsonOptions);
+            System.Threading.Volatile.Write(ref _lastStreamsLength, (int)System.Math.Min(64 * 1024 * 1024, System.Math.Max(4096, outputStream.Length)));
             if (outputStream != null && outputStream.Length > 0)
             {
                 return FormatWriteResult.Successful(outputStream, ContentType);
@@ -84,7 +89,7 @@ namespace MTConnect.Formatters
         {
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
-            var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
+            var jsonOptions = indentOutput ? JsonFunctions.SharedIndentOptions : JsonFunctions.SharedDefaultOptions;
 
             var outputStream = new MemoryStream();
             JsonSerializer.Serialize(outputStream, new JsonAssetsDocument(document), jsonOptions);
@@ -104,7 +109,7 @@ namespace MTConnect.Formatters
         {
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
-            var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
+            var jsonOptions = indentOutput ? JsonFunctions.SharedIndentOptions : JsonFunctions.SharedDefaultOptions;
 
             var outputStream = new MemoryStream();
             JsonSerializer.Serialize(outputStream, document, jsonOptions);

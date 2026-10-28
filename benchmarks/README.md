@@ -1,0 +1,142 @@
+# MTConnect.NET Benchmarks
+
+`MTConnect.NET-Benchmarks` is a small throughput harness for the agent hot paths:
+
+- observation ingest
+- `/sample` and `/current` queries
+- XML and cppagent-JSON formatting
+- SHDR line parsing
+
+It uses only public APIs, so the same `Program.cs` can be copied into an older checkout and run against those libraries for a before/after comparison.
+
+The project is not part of the solution. Run it with:
+
+```bash
+dotnet run -c Release --project benchmarks/MTConnect.NET-Benchmarks
+```
+
+Add `-- quick` for a run with one tenth of the iterations.
+
+### Profiling
+
+`-- profile <scenario> [seconds]` runs one scenario continuously so a profiler can attach. The scenarios are `ingest`, `sample-xml` and `sample-json`. For example, with [dotnet-trace](https://learn.microsoft.com/dotnet/core/diagnostics/dotnet-trace):
+
+```bash
+dotnet-trace collect --profile dotnet-sampled-thread-time -o ingest.nettrace -- benchmarks/MTConnect.NET-Benchmarks/bin/Release/net8.0/MTConnect.NET-Benchmarks.exe profile ingest 20
+```
+
+The run also prints garbage-collection counts and the total GC pause time.
+
+## Scenarios
+
+The agent has one Device with 150 EVENT, 150 SAMPLE and 20 CONDITION DataItems, a 131,072-observation buffer, and validation enabled.
+
+| Scenario | What runs |
+|---|---|
+| Ingest: AddObservation (changing values) | `AddObservation` with values that change, so every call is stored |
+| Ingest: AddObservation (unchanged values) | `AddObservation` with the current value, so every call is processed, then discarded as unchanged |
+| Ingest: condition updates | Condition fault states that alternate between WARNING and NORMAL with different native codes |
+| Query: sample (1000 observations) | `GetDeviceStreamsResponseDocument(from, 0, 1000)` |
+| Query: current | `GetDeviceStreamsResponseDocument()` |
+| Format: … | `ResponseDocumentFormatter.Format` for `xml` / `json-cppagent` |
+| SHDR: parse multi-key line | `ShdrDataItem.FromString` on a line with 7 key/value pairs |
+
+## Results
+
+These were measured on 2026-10-28 on one machine: 16 logical cores, Windows 11, .NET 8.0.17 x64, Release build. The "before" column is `origin/master` (`53dd8f43`) and the "after" column is `perf/agent-hot-paths`. Each value is the mean of two runs.
+
+| Scenario | Before (ops/s) | After (ops/s) | Change | Allocated before → after (KB/op) |
+|---|---:|---:|---:|---:|
+| Ingest: AddObservation (changing values) | 232,000 | 332,000 | 1.4× | 3.38 → 1.87 |
+| Ingest: AddObservation (unchanged values) | 1,398,000 | 4,038,000 | 2.9× | 2.07 → 0.89 |
+| Ingest: condition updates | 196,000 | 365,000 | 1.9× | 8.80 → 4.03 |
+| Query: sample (1000 observations) | 739 | 6,976 | 9.4× | 1,566 → 282 |
+| Query: current | 9,337 | 12,256 | 1.3× | 210 → 210 |
+| Format: current as XML | 2,997 | 3,967 | 1.3× | 154 → 108 |
+| Format: current as JSON (cppagent) | 546 | 1,980 | 3.6× | 518 → 133 |
+| Format: sample (1000) as XML | 1,188 | 1,319 | 1.1× | 551 → 313 |
+| Format: sample (1000) as JSON (cppagent) | 716 | 1,477 | 2.1× | 1,182 → 384 |
+| SHDR: parse multi-key line | 243,000 | 452,000 | 1.9× | 2.58 → 2.58 |
+
+Repeated runs on the same machine varied by up to about ±20%, so treat differences under about 1.3× as uncertain.
+
+These numbers are single-threaded, in-process timings. They don't cover the following, which also changed:
+
+- removing the forced garbage collections, which paused every thread;
+- `/sample` scans no longer holding the ingest lock;
+- event-driven HTTP streams and MQTT disconnect handling;
+- the MQTT publish queues;
+- network I/O.
+
+## Garbage collection and ingest
+
+When values change on every observation, ingest is limited by garbage collection rather than by the agent's own code. Each buffered observation keeps its values alive until the ring buffer overwrites it, so a steady stream of objects reaches the oldest generation.
+
+With the default GC settings (workstation, concurrent), a 10-second `profile ingest` run spent about 25% of its time in GC pauses, with around 100 gen2 collections. The same run under other GC settings gave:
+
+| GC setting | Ingest throughput | GC pause share | Peak working set |
+|---|---:|---:|---:|
+| Workstation, concurrent (default) | 1.0× | ~25% | 86 MB |
+| Server | 1.2× | ~13% | 325 MB |
+| Server with dynamic adaptation (`GCDynamicAdaptationMode=1`) | 1.1× | ~22% | 143 MB |
+
+The GC mode is a deployment setting, so the agent doesn't change it. It can be set with `<ServerGarbageCollection>` and `<GarbageCollectionAdaptationMode>` in the project file, or with the `DOTNET_gcServer` and `DOTNET_GCDynamicAdaptationMode` environment variables.
+
+## Forced collections
+
+The agent used to request full, blocking collections through a `GarbageCollector` helper class: after every `/sample` query, and after loading the file buffer at startup. Forcing collections no longer reduced memory once the query path stopped making large intermediate copies, so the helper has been removed.
+
+`profile large-sample` runs 10,000-observation `/sample` queries formatted as XML while ingest continues. `profile large-sample-forced-gc` does the same and forces a full collection after each query, at most every 500 ms, as the helper did. Mean of two 20-second runs:
+
+| Variant | Queries | GC pause time | Peak working set | Peak GC heap |
+|---|---:|---:|---:|---:|
+| No forced collections | 3,135 | 2.6 s | 122 MB | 55 MB |
+| Forced collection after each query | 3,032 | 3.8 s | 128 MB | 67 MB |
+
+Forced collections added GC pause time without lowering peak memory.
+
+## HTTP load test
+
+`MTConnect.NET-LoadTest` runs the agent and `MTConnectHttpServer` in a child process and opens many `/sample` streams and `/current` pollers against it from the parent process, so the server's threads and memory are measured on their own. Each observation value carries the time it was added, so every streamed part gives an add-to-receive latency.
+
+```
+dotnet run -c Release --project benchmarks/MTConnect.NET-LoadTest -- run [streams] [pollers] [observations/s] [seconds] [interval ms]
+```
+
+Results on one machine (16 cores, loopback, client and server on the same host), 1,000 observations/s across 100 DataItems, `/sample?interval=100`, 15-second windows. "Before" is origin/master `53dd8f43`.
+
+| Scenario | Before | After |
+|---|---|---|
+| 250 streams | 104 connected, 141 refused | 250 connected |
+| 1,000 streams | 103 connected, 892 refused | 1,000 connected, p99 latency 16 ms, 304 MB peak |
+| 16 `/current` pollers | 376 requests/s, 12,329 errors (client ports exhausted) | 21,282 requests/s, 0 errors |
+| 250 streams + 16 pollers | 100 streams connected, every poll refused | all connected, 15,897 polls/s |
+
+Fixes found by this test:
+
+- **Connection bursts were refused.** The listen backlog was Ceen's default of 5, so more than a handful of simultaneous connects were refused. It is now 512.
+- **Connections were never kept alive.** A request without a body was given a body of unknown length, so the server could never drain it and closed the connection after every response, even when the client asked for keep-alive. HTTP/1.1 clients that don't send a `Connection` header (most of them) also got `Connection: close`. Each request therefore used a new TCP connection, and a client polling quickly ran out of local ports within a couple of minutes.
+- **Every request stayed in memory for 60 seconds.** Its processing-timeout timer wasn't cancelled when the request finished, and the timer referenced the request. At 16 pollers, live memory reached 2.35 GB after 40 seconds; it now stays near 10 MB.
+
+## Filling a running agent's buffer
+
+`MTConnect.NET-BufferFill` fills a running agent's observation buffer so its memory use can be viewed (for example in Task Manager) with a full buffer. It acts as the SHDR adapter that the agent's `shdr-adapter` module connects to, and sends a changing value for every SAMPLE DataItem in the device file until the requested number of observations has been sent. It then keeps the connection open, answering heartbeats, until you press Ctrl+C.
+
+The agent must have an `shdr-adapter` module for the device, for example:
+
+```yaml
+modules:
+- shdr-adapter:
+    deviceKey: Okuma
+    port: 7878
+```
+
+Start the agent, then run:
+
+```
+dotnet run -c Release --project benchmarks/MTConnect.NET-BufferFill
+```
+
+Options: `--device <path>` (default `agent/MTConnect.NET-Agent/devices/okuma.xml`), `--port <n>` (default 7878), `--count <n>` (default 150000, the default buffer size), `--rate <n>` observations per second (default 20000; 0 for no limit), `--agent <url>` to report the buffer state (default `http://localhost:5000`), and `--exit` to exit once sent.
+
+With the default configuration (150,000-observation buffer, Okuma device), a Release agent used 39 MB of private memory before filling and 57 MB with a full buffer, about 115 bytes per buffered observation.

@@ -15,19 +15,19 @@ Routes are registered inside `MTConnectHttpServer.ConfigureServer` and dispatche
 
 | Method | Path | Handler | Source |
 | --- | --- | --- | --- |
-| `GET` | `(any)` | `probeHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:345` |
-| `GET` | `/` | `probeHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:331` |
-| `GET` | `/*/assets` | `assetsHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:339` |
-| `GET` | `/*/current` | `currentHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:335` |
-| `GET` | `/*/probe` | `probeHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:333` |
-| `GET` | `/*/sample` | `sampleHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:337` |
-| `GET` | `/asset/*` | `assetHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:340` |
-| `GET` | `/assets` | `assetsHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:338` |
-| `GET` | `/current` | `currentHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:334` |
-| `GET` | `/probe` | `probeHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:332` |
-| `GET` | `/sample` | `sampleHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:336` |
-| `POST` | `(any)` | `postHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:327` |
-| `PUT` | `(any)` | `putHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:323` |
+| `GET` | `(any)` | `probeHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:354` |
+| `GET` | `/` | `probeHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:340` |
+| `GET` | `/*/assets` | `assetsHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:348` |
+| `GET` | `/*/current` | `currentHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:344` |
+| `GET` | `/*/probe` | `probeHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:342` |
+| `GET` | `/*/sample` | `sampleHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:346` |
+| `GET` | `/asset/*` | `assetHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:349` |
+| `GET` | `/assets` | `assetsHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:347` |
+| `GET` | `/current` | `currentHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:343` |
+| `GET` | `/probe` | `probeHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:341` |
+| `GET` | `/sample` | `sampleHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:345` |
+| `POST` | `(any)` | `postHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:336` |
+| `PUT` | `(any)` | `putHandler` | `libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:332` |
 
 ## Per-endpoint detail
 
@@ -35,7 +35,7 @@ Routes are registered inside `MTConnectHttpServer.ConfigureServer` and dispatche
 
 - **Handler**: `probeHandler`
 - **Surface**: Agent
-- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:345`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L345)
+- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:354`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L354)
 
 Method-gated dispatcher; routes the request to the handler matching the request method.
 
@@ -43,7 +43,7 @@ Method-gated dispatcher; routes the request to the handler matching the request 
 
 - **Handler**: `probeHandler`
 - **Surface**: Agent
-- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:331`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L331)
+- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:340`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L340)
 - **Response status codes**: 200, 400, 404, 406, 500
 
 Ceen request handler for the MTConnect Probe endpoint (GET /probe and GET /{deviceKey}/probe, plus the bare GET / alias). Returns an MTConnectDevices Response Document describing the device metadata visible to the agent. The optional leading path segment selects a single device by name or UUID. The response document format is negotiated via the documentFormat query parameter (xml | json | json-cppagent) and defaults to XML; deviceType, version, validationLevel, indentOutput, and outputComments further shape the payload.
@@ -63,7 +63,7 @@ Ceen request handler for the MTConnect Probe endpoint (GET /probe and GET /{devi
 
 - **Handler**: `assetsHandler`
 - **Surface**: Agent
-- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:339`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L339)
+- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:348`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L348)
 - **Response status codes**: 200, 400, 404, 406, 500
 
 Ceen request handler for the MTConnect Assets endpoint (GET /assets and GET /{deviceKey}/assets). Returns an MTConnectAssets Response Document containing the asset records known to the agent. The optional leading path segment scopes the response to assets owned by a specific device; the type, removed, and count query parameters filter the asset set; documentFormat (xml | json | json-cppagent, default XML) and indentOutput negotiate the rendered representation.
@@ -82,7 +82,7 @@ Ceen request handler for the MTConnect Assets endpoint (GET /assets and GET /{de
 
 - **Handler**: `currentHandler`
 - **Surface**: Agent
-- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:335`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L335)
+- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:344`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L344)
 - **Response status codes**: 200, 400, 404, 406, 500
 
 Ceen request handler for the MTConnect Current endpoint (GET /current and GET /{deviceKey}/current). Returns an MTConnectStreams Response Document containing the current observation snapshot for every data item visible to the agent, optionally filtered by an XPath in the path query parameter and anchored to a sequence number via at. When interval is supplied, the handler upgrades the response to a multipart x-mixed-replace stream and emits a fresh snapshot every interval milliseconds, interleaved with heartbeats. The response document format is negotiated via documentFormat (xml | json | json-cppagent), defaulting to XML; deviceType, version, indentOutput, and outputComments further shape the payload.
@@ -105,7 +105,7 @@ Ceen request handler for the MTConnect Current endpoint (GET /current and GET /{
 
 - **Handler**: `probeHandler`
 - **Surface**: Agent
-- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:333`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L333)
+- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:342`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L342)
 - **Response status codes**: 200, 400, 404, 406, 500
 
 Ceen request handler for the MTConnect Probe endpoint (GET /probe and GET /{deviceKey}/probe, plus the bare GET / alias). Returns an MTConnectDevices Response Document describing the device metadata visible to the agent. The optional leading path segment selects a single device by name or UUID. The response document format is negotiated via the documentFormat query parameter (xml | json | json-cppagent) and defaults to XML; deviceType, version, validationLevel, indentOutput, and outputComments further shape the payload.
@@ -125,7 +125,7 @@ Ceen request handler for the MTConnect Probe endpoint (GET /probe and GET /{devi
 
 - **Handler**: `sampleHandler`
 - **Surface**: Agent
-- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:337`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L337)
+- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:346`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L346)
 - **Response status codes**: 200, 400, 404, 406, 500
 
 Ceen request handler for the MTConnect Sample endpoint (GET /sample and GET /{deviceKey}/sample). Returns an MTConnectStreams Response Document containing a slice of historical observations bounded by the from / to / count query parameters, optionally filtered by an XPath in path. When interval is supplied, the handler upgrades the response to a multipart x-mixed-replace stream and emits successive sample windows every interval milliseconds, interleaved with heartbeats. The response document format is negotiated via documentFormat (xml | json | json-cppagent), defaulting to XML; deviceType, version, indentOutput, and outputComments further shape the payload.
@@ -150,7 +150,7 @@ Ceen request handler for the MTConnect Sample endpoint (GET /sample and GET /{de
 
 - **Handler**: `assetHandler`
 - **Surface**: Agent
-- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:340`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L340)
+- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:349`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L349)
 - **Response status codes**: 200, 400, 404, 406, 500
 
 Ceen request handler for the single-asset MTConnect endpoint (GET /asset/{assetId}). Returns an MTConnectAssets Response Document containing the asset identified by the trailing path segment, or an MTConnectError document with status 404 when no such asset exists. The response document format is negotiated via the documentFormat query parameter (xml | json | json-cppagent) and defaults to XML.
@@ -166,7 +166,7 @@ Ceen request handler for the single-asset MTConnect endpoint (GET /asset/{assetI
 
 - **Handler**: `assetsHandler`
 - **Surface**: Agent
-- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:338`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L338)
+- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:347`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L347)
 - **Response status codes**: 200, 400, 404, 406, 500
 
 Ceen request handler for the MTConnect Assets endpoint (GET /assets and GET /{deviceKey}/assets). Returns an MTConnectAssets Response Document containing the asset records known to the agent. The optional leading path segment scopes the response to assets owned by a specific device; the type, removed, and count query parameters filter the asset set; documentFormat (xml | json | json-cppagent, default XML) and indentOutput negotiate the rendered representation.
@@ -185,7 +185,7 @@ Ceen request handler for the MTConnect Assets endpoint (GET /assets and GET /{de
 
 - **Handler**: `currentHandler`
 - **Surface**: Agent
-- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:334`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L334)
+- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:343`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L343)
 - **Response status codes**: 200, 400, 404, 406, 500
 
 Ceen request handler for the MTConnect Current endpoint (GET /current and GET /{deviceKey}/current). Returns an MTConnectStreams Response Document containing the current observation snapshot for every data item visible to the agent, optionally filtered by an XPath in the path query parameter and anchored to a sequence number via at. When interval is supplied, the handler upgrades the response to a multipart x-mixed-replace stream and emits a fresh snapshot every interval milliseconds, interleaved with heartbeats. The response document format is negotiated via documentFormat (xml | json | json-cppagent), defaulting to XML; deviceType, version, indentOutput, and outputComments further shape the payload.
@@ -208,7 +208,7 @@ Ceen request handler for the MTConnect Current endpoint (GET /current and GET /{
 
 - **Handler**: `probeHandler`
 - **Surface**: Agent
-- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:332`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L332)
+- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:341`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L341)
 - **Response status codes**: 200, 400, 404, 406, 500
 
 Ceen request handler for the MTConnect Probe endpoint (GET /probe and GET /{deviceKey}/probe, plus the bare GET / alias). Returns an MTConnectDevices Response Document describing the device metadata visible to the agent. The optional leading path segment selects a single device by name or UUID. The response document format is negotiated via the documentFormat query parameter (xml | json | json-cppagent) and defaults to XML; deviceType, version, validationLevel, indentOutput, and outputComments further shape the payload.
@@ -228,7 +228,7 @@ Ceen request handler for the MTConnect Probe endpoint (GET /probe and GET /{devi
 
 - **Handler**: `sampleHandler`
 - **Surface**: Agent
-- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:336`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L336)
+- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:345`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L345)
 - **Response status codes**: 200, 400, 404, 406, 500
 
 Ceen request handler for the MTConnect Sample endpoint (GET /sample and GET /{deviceKey}/sample). Returns an MTConnectStreams Response Document containing a slice of historical observations bounded by the from / to / count query parameters, optionally filtered by an XPath in path. When interval is supplied, the handler upgrades the response to a multipart x-mixed-replace stream and emits successive sample windows every interval milliseconds, interleaved with heartbeats. The response document format is negotiated via documentFormat (xml | json | json-cppagent), defaulting to XML; deviceType, version, indentOutput, and outputComments further shape the payload.
@@ -253,7 +253,7 @@ Ceen request handler for the MTConnect Sample endpoint (GET /sample and GET /{de
 
 - **Handler**: `postHandler`
 - **Surface**: Agent
-- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:327`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L327)
+- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:336`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L336)
 
 Method-gated dispatcher; routes the request to the handler matching the request method.
 
@@ -261,7 +261,7 @@ Method-gated dispatcher; routes the request to the handler matching the request 
 
 - **Handler**: `putHandler`
 - **Surface**: Agent
-- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:323`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L323)
+- **Source**: [`libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs:332`](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Servers/MTConnectHttpServer.cs#L332)
 
 Method-gated dispatcher; routes the request to the handler matching the request method.
 

@@ -160,6 +160,9 @@ namespace MTConnect.Haas
         {
             _connection = connection;
             _configuration = configuration ?? new HaasConfiguration();
+
+            // Every value is read each poll; only changes need to go through the agent pipeline
+            SuppressUnchangedObservations = true;
             _axes = _configuration.GetAxes().ToArray();
             _connection.ResponseTimeout = _configuration.ResponseTimeout;
             _connection.LogReceived += (s, level, message, id) => Log(level, message);
@@ -296,7 +299,7 @@ namespace MTConnect.Haas
             if (_unsupportedCommands.Contains(command)) return null;
 
             var reply = _connection.SendCommand(command, attempts);
-            Log(MTConnectLogLevel.Trace, $"{command} : {reply}");
+            if (IsLogEnabled(MTConnectLogLevel.Trace)) Log(MTConnectLogLevel.Trace, $"{command} : {reply}");
 
             if (HaasResponse.IsUnsupported(reply))
             {

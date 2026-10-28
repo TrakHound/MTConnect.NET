@@ -52,6 +52,9 @@ namespace MTConnect.Fanuc
         {
             _client = client;
             _configuration = configuration ?? new FanucConfiguration();
+
+            // Every value is read each poll; only changes need to go through the agent pipeline
+            SuppressUnchangedObservations = true;
         }
 
 
@@ -64,6 +67,14 @@ namespace MTConnect.Fanuc
 
         /// <inheritdoc/>
         protected override void OnRead()
+        {
+            // Run the whole poll on the FOCAS thread: each FOCAS call then executes directly instead of
+            // being handed to that thread (and waited on) one call at a time
+            if (_client is FocasClient focasClient) focasClient.RunOnFocasThread(ReadAll);
+            else ReadAll();
+        }
+
+        private void ReadAll()
         {
             try
             {

@@ -5,8 +5,10 @@ using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Extensions;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
 namespace MTConnect.Observations
@@ -43,6 +45,10 @@ namespace MTConnect.Observations
         /// Synchronization object guarding lazy initialization of the shared type caches.
         /// </summary>
         protected static readonly object _typeLock = new object();
+
+        // Constructor delegates for the type-specific Observation classes, cached per Representation (index) and Type (key)
+        private static readonly ConcurrentDictionary<string, Func<Observation>>[] _factories = CreateFactoryCaches();
+        private static readonly Func<Observation> _noFactory = () => null;
 
         /// <summary>
         /// Synchronization object guarding mutation of this Observation's value collection.
@@ -476,6 +482,73 @@ namespace MTConnect.Observations
             return default;
         }
 
+
+        /// <summary>
+        /// Returns a cached constructor delegate for the Observation class matching the given DataItem Type and
+        /// Representation, or <c>null</c> when no type-specific class exists.
+        /// </summary>
+        /// <param name="type">The DataItem Type identifier.</param>
+        /// <param name="representation">The DataItem representation.</param>
+        protected static Func<Observation> GetFactory(string type, DataItemRepresentation representation)
+        {
+            if (string.IsNullOrEmpty(type)) return null;
+
+            var index = (int)representation;
+            if (index < 0 || index >= _factories.Length) return null;
+
+            var cache = _factories[index];
+            if (!cache.TryGetValue(type, out var factory))
+            {
+                factory = cache.GetOrAdd(type, t => CreateFactory(t, representation) ?? _noFactory);
+            }
+
+            return factory != _noFactory ? factory : null;
+        }
+
+        private static ConcurrentDictionary<string, Func<Observation>>[] CreateFactoryCaches()
+        {
+            var max = 0;
+            foreach (var value in Enum.GetValues(typeof(DataItemRepresentation)))
+            {
+                if ((int)value > max) max = (int)value;
+            }
+
+            var caches = new ConcurrentDictionary<string, Func<Observation>>[max + 1];
+            for (var i = 0; i < caches.Length; i++) caches[i] = new ConcurrentDictionary<string, Func<Observation>>();
+            return caches;
+        }
+
+        private static Func<Observation> CreateFactory(string type, DataItemRepresentation representation)
+        {
+            System.Type observationType = null;
+            lock (_typeLock)
+            {
+                // Initialize Type List
+                if (_types == null) _types = GetAllTypes();
+
+                // _types is keyed by the class-name-minus-Observation suffix (e.g. "MessageValue" for MessageValueObservation)
+                var typeId = $"{type.ToPascalCase()}{representation.ToString().ToPascalCase()}";
+                if (!_types.IsNullOrEmpty()) _types.TryGetValue(typeId, out observationType);
+            }
+
+            if (observationType != null && typeof(Observation).IsAssignableFrom(observationType))
+            {
+                var constructor = observationType.GetConstructor(System.Type.EmptyTypes);
+                if (constructor != null)
+                {
+                    try
+                    {
+                        return Expression.Lambda<Func<Observation>>(Expression.Convert(Expression.New(constructor), typeof(Observation))).Compile();
+                    }
+                    catch
+                    {
+                        return () => (Observation)Activator.CreateInstance(observationType);
+                    }
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// Discovers every concrete Observation type across the loaded assemblies, keyed by Observation type identifier.

@@ -3270,6 +3270,12 @@ namespace MTConnect.Streams.Json
         public JsonSamples() { }
 
         /// <summary>
+        /// True when this container was built from observations and holds at least one (not serialized).
+        /// </summary>
+        [JsonIgnore]
+        internal bool HasObservations { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance from a flat sequence of <paramref name="observations"/>,
         /// routing each one into the typed collection matching its MTConnect type and
         /// representation.
@@ -3280,9 +3286,10 @@ namespace MTConnect.Streams.Json
             {
                 if (!observations.IsNullOrEmpty())
                 {
+                    var observationLookup = new JsonObservationLookup(observations);
                     IEnumerable<IObservationOutput> typeObservations;
                     // Add Acceleration
-                    typeObservations = observations.Where(o => o.Type == AccelerationDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(AccelerationDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3294,7 +3301,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AccelerationDataSet
-                    typeObservations = observations.Where(o => o.Type == AccelerationDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(AccelerationDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -3306,7 +3313,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AccelerationTable
-                    typeObservations = observations.Where(o => o.Type == AccelerationDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(AccelerationDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -3318,7 +3325,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AccelerationTimeSeries
-                    typeObservations = observations.Where(o => o.Type == AccelerationDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(AccelerationDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -3331,7 +3338,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add AccumulatedTime
-                    typeObservations = observations.Where(o => o.Type == AccumulatedTimeDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(AccumulatedTimeDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3343,7 +3350,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AccumulatedTimeDataSet
-                    typeObservations = observations.Where(o => o.Type == AccumulatedTimeDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(AccumulatedTimeDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -3355,7 +3362,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AccumulatedTimeTable
-                    typeObservations = observations.Where(o => o.Type == AccumulatedTimeDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(AccumulatedTimeDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -3367,7 +3374,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AccumulatedTimeTimeSeries
-                    typeObservations = observations.Where(o => o.Type == AccumulatedTimeDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(AccumulatedTimeDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -3380,7 +3387,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Amperage
-                    typeObservations = observations.Where(o => o.Type == AmperageDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(AmperageDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3392,7 +3399,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AmperageDataSet
-                    typeObservations = observations.Where(o => o.Type == AmperageDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(AmperageDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -3404,7 +3411,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AmperageTable
-                    typeObservations = observations.Where(o => o.Type == AmperageDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(AmperageDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -3416,7 +3423,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AmperageTimeSeries
-                    typeObservations = observations.Where(o => o.Type == AmperageDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(AmperageDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -3429,7 +3436,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add AmperageAC
-                    typeObservations = observations.Where(o => o.Type == AmperageACDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(AmperageACDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3441,7 +3448,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AmperageACDataSet
-                    typeObservations = observations.Where(o => o.Type == AmperageACDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(AmperageACDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -3453,7 +3460,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AmperageACTable
-                    typeObservations = observations.Where(o => o.Type == AmperageACDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(AmperageACDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -3465,7 +3472,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AmperageACTimeSeries
-                    typeObservations = observations.Where(o => o.Type == AmperageACDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(AmperageACDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -3478,7 +3485,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add AmperageDC
-                    typeObservations = observations.Where(o => o.Type == AmperageDCDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(AmperageDCDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3490,7 +3497,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AmperageDCDataSet
-                    typeObservations = observations.Where(o => o.Type == AmperageDCDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(AmperageDCDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -3502,7 +3509,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AmperageDCTable
-                    typeObservations = observations.Where(o => o.Type == AmperageDCDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(AmperageDCDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -3514,7 +3521,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AmperageDCTimeSeries
-                    typeObservations = observations.Where(o => o.Type == AmperageDCDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(AmperageDCDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -3527,7 +3534,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Angle
-                    typeObservations = observations.Where(o => o.Type == AngleDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(AngleDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3539,7 +3546,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AngleDataSet
-                    typeObservations = observations.Where(o => o.Type == AngleDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(AngleDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -3551,7 +3558,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AngleTable
-                    typeObservations = observations.Where(o => o.Type == AngleDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(AngleDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -3563,7 +3570,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AngleTimeSeries
-                    typeObservations = observations.Where(o => o.Type == AngleDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(AngleDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -3576,7 +3583,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add AngularAcceleration
-                    typeObservations = observations.Where(o => o.Type == AngularAccelerationDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(AngularAccelerationDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3588,7 +3595,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AngularAccelerationDataSet
-                    typeObservations = observations.Where(o => o.Type == AngularAccelerationDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(AngularAccelerationDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -3600,7 +3607,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AngularAccelerationTable
-                    typeObservations = observations.Where(o => o.Type == AngularAccelerationDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(AngularAccelerationDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -3612,7 +3619,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AngularAccelerationTimeSeries
-                    typeObservations = observations.Where(o => o.Type == AngularAccelerationDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(AngularAccelerationDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -3625,7 +3632,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add AngularDeceleration
-                    typeObservations = observations.Where(o => o.Type == AngularDecelerationDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(AngularDecelerationDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3637,7 +3644,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AngularDecelerationDataSet
-                    typeObservations = observations.Where(o => o.Type == AngularDecelerationDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(AngularDecelerationDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -3649,7 +3656,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AngularDecelerationTable
-                    typeObservations = observations.Where(o => o.Type == AngularDecelerationDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(AngularDecelerationDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -3661,7 +3668,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AngularDecelerationTimeSeries
-                    typeObservations = observations.Where(o => o.Type == AngularDecelerationDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(AngularDecelerationDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -3674,7 +3681,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add AngularVelocity
-                    typeObservations = observations.Where(o => o.Type == AngularVelocityDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(AngularVelocityDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3686,7 +3693,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AngularVelocityDataSet
-                    typeObservations = observations.Where(o => o.Type == AngularVelocityDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(AngularVelocityDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -3698,7 +3705,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AngularVelocityTable
-                    typeObservations = observations.Where(o => o.Type == AngularVelocityDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(AngularVelocityDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -3710,7 +3717,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AngularVelocityTimeSeries
-                    typeObservations = observations.Where(o => o.Type == AngularVelocityDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(AngularVelocityDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -3723,7 +3730,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add AssetUpdateRate
-                    typeObservations = observations.Where(o => o.Type == AssetUpdateRateDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(AssetUpdateRateDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3735,7 +3742,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AssetUpdateRateDataSet
-                    typeObservations = observations.Where(o => o.Type == AssetUpdateRateDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(AssetUpdateRateDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -3747,7 +3754,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AssetUpdateRateTable
-                    typeObservations = observations.Where(o => o.Type == AssetUpdateRateDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(AssetUpdateRateDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -3759,7 +3766,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AssetUpdateRateTimeSeries
-                    typeObservations = observations.Where(o => o.Type == AssetUpdateRateDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(AssetUpdateRateDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -3772,7 +3779,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add AxisFeedrate
-                    typeObservations = observations.Where(o => o.Type == AxisFeedrateDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(AxisFeedrateDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3784,7 +3791,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AxisFeedrateDataSet
-                    typeObservations = observations.Where(o => o.Type == AxisFeedrateDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(AxisFeedrateDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -3796,7 +3803,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AxisFeedrateTable
-                    typeObservations = observations.Where(o => o.Type == AxisFeedrateDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(AxisFeedrateDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -3808,7 +3815,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add AxisFeedrateTimeSeries
-                    typeObservations = observations.Where(o => o.Type == AxisFeedrateDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(AxisFeedrateDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -3821,7 +3828,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add BatteryCapacity
-                    typeObservations = observations.Where(o => o.Type == BatteryCapacityDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(BatteryCapacityDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3833,7 +3840,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add BatteryCapacityDataSet
-                    typeObservations = observations.Where(o => o.Type == BatteryCapacityDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(BatteryCapacityDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -3845,7 +3852,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add BatteryCapacityTable
-                    typeObservations = observations.Where(o => o.Type == BatteryCapacityDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(BatteryCapacityDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -3857,7 +3864,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add BatteryCapacityTimeSeries
-                    typeObservations = observations.Where(o => o.Type == BatteryCapacityDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(BatteryCapacityDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -3870,7 +3877,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add BatteryCharge
-                    typeObservations = observations.Where(o => o.Type == BatteryChargeDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(BatteryChargeDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3882,7 +3889,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add BatteryChargeDataSet
-                    typeObservations = observations.Where(o => o.Type == BatteryChargeDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(BatteryChargeDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -3894,7 +3901,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add BatteryChargeTable
-                    typeObservations = observations.Where(o => o.Type == BatteryChargeDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(BatteryChargeDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -3906,7 +3913,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add BatteryChargeTimeSeries
-                    typeObservations = observations.Where(o => o.Type == BatteryChargeDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(BatteryChargeDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -3919,7 +3926,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add CapacityFluid
-                    typeObservations = observations.Where(o => o.Type == CapacityFluidDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(CapacityFluidDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3931,7 +3938,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add CapacityFluidDataSet
-                    typeObservations = observations.Where(o => o.Type == CapacityFluidDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(CapacityFluidDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -3943,7 +3950,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add CapacityFluidTable
-                    typeObservations = observations.Where(o => o.Type == CapacityFluidDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(CapacityFluidDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -3955,7 +3962,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add CapacityFluidTimeSeries
-                    typeObservations = observations.Where(o => o.Type == CapacityFluidDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(CapacityFluidDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -3968,7 +3975,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add CapacitySpatial
-                    typeObservations = observations.Where(o => o.Type == CapacitySpatialDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(CapacitySpatialDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3980,7 +3987,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add CapacitySpatialDataSet
-                    typeObservations = observations.Where(o => o.Type == CapacitySpatialDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(CapacitySpatialDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -3992,7 +3999,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add CapacitySpatialTable
-                    typeObservations = observations.Where(o => o.Type == CapacitySpatialDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(CapacitySpatialDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4004,7 +4011,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add CapacitySpatialTimeSeries
-                    typeObservations = observations.Where(o => o.Type == CapacitySpatialDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(CapacitySpatialDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4017,7 +4024,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add ChargeRate
-                    typeObservations = observations.Where(o => o.Type == ChargeRateDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(ChargeRateDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4029,7 +4036,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ChargeRateDataSet
-                    typeObservations = observations.Where(o => o.Type == ChargeRateDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(ChargeRateDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4041,7 +4048,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ChargeRateTable
-                    typeObservations = observations.Where(o => o.Type == ChargeRateDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(ChargeRateDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4053,7 +4060,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ChargeRateTimeSeries
-                    typeObservations = observations.Where(o => o.Type == ChargeRateDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(ChargeRateDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4066,7 +4073,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Concentration
-                    typeObservations = observations.Where(o => o.Type == ConcentrationDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(ConcentrationDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4078,7 +4085,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ConcentrationDataSet
-                    typeObservations = observations.Where(o => o.Type == ConcentrationDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(ConcentrationDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4090,7 +4097,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ConcentrationTable
-                    typeObservations = observations.Where(o => o.Type == ConcentrationDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(ConcentrationDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4102,7 +4109,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ConcentrationTimeSeries
-                    typeObservations = observations.Where(o => o.Type == ConcentrationDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(ConcentrationDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4115,7 +4122,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Conductivity
-                    typeObservations = observations.Where(o => o.Type == ConductivityDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(ConductivityDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4127,7 +4134,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ConductivityDataSet
-                    typeObservations = observations.Where(o => o.Type == ConductivityDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(ConductivityDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4139,7 +4146,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ConductivityTable
-                    typeObservations = observations.Where(o => o.Type == ConductivityDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(ConductivityDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4151,7 +4158,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ConductivityTimeSeries
-                    typeObservations = observations.Where(o => o.Type == ConductivityDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(ConductivityDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4164,7 +4171,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add CuttingSpeed
-                    typeObservations = observations.Where(o => o.Type == CuttingSpeedDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(CuttingSpeedDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4176,7 +4183,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add CuttingSpeedDataSet
-                    typeObservations = observations.Where(o => o.Type == CuttingSpeedDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(CuttingSpeedDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4188,7 +4195,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add CuttingSpeedTable
-                    typeObservations = observations.Where(o => o.Type == CuttingSpeedDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(CuttingSpeedDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4200,7 +4207,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add CuttingSpeedTimeSeries
-                    typeObservations = observations.Where(o => o.Type == CuttingSpeedDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(CuttingSpeedDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4213,7 +4220,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Deceleration
-                    typeObservations = observations.Where(o => o.Type == DecelerationDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(DecelerationDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4225,7 +4232,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DecelerationDataSet
-                    typeObservations = observations.Where(o => o.Type == DecelerationDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(DecelerationDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4237,7 +4244,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DecelerationTable
-                    typeObservations = observations.Where(o => o.Type == DecelerationDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(DecelerationDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4249,7 +4256,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DecelerationTimeSeries
-                    typeObservations = observations.Where(o => o.Type == DecelerationDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(DecelerationDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4262,7 +4269,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Density
-                    typeObservations = observations.Where(o => o.Type == DensityDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(DensityDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4274,7 +4281,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DensityDataSet
-                    typeObservations = observations.Where(o => o.Type == DensityDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(DensityDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4286,7 +4293,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DensityTable
-                    typeObservations = observations.Where(o => o.Type == DensityDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(DensityDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4298,7 +4305,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DensityTimeSeries
-                    typeObservations = observations.Where(o => o.Type == DensityDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(DensityDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4311,7 +4318,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add DepositionAccelerationVolumetric
-                    typeObservations = observations.Where(o => o.Type == DepositionAccelerationVolumetricDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(DepositionAccelerationVolumetricDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4323,7 +4330,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DepositionAccelerationVolumetricDataSet
-                    typeObservations = observations.Where(o => o.Type == DepositionAccelerationVolumetricDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(DepositionAccelerationVolumetricDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4335,7 +4342,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DepositionAccelerationVolumetricTable
-                    typeObservations = observations.Where(o => o.Type == DepositionAccelerationVolumetricDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(DepositionAccelerationVolumetricDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4347,7 +4354,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DepositionAccelerationVolumetricTimeSeries
-                    typeObservations = observations.Where(o => o.Type == DepositionAccelerationVolumetricDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(DepositionAccelerationVolumetricDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4360,7 +4367,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add DepositionDensity
-                    typeObservations = observations.Where(o => o.Type == DepositionDensityDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(DepositionDensityDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4372,7 +4379,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DepositionDensityDataSet
-                    typeObservations = observations.Where(o => o.Type == DepositionDensityDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(DepositionDensityDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4384,7 +4391,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DepositionDensityTable
-                    typeObservations = observations.Where(o => o.Type == DepositionDensityDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(DepositionDensityDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4396,7 +4403,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DepositionDensityTimeSeries
-                    typeObservations = observations.Where(o => o.Type == DepositionDensityDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(DepositionDensityDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4409,7 +4416,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add DepositionMass
-                    typeObservations = observations.Where(o => o.Type == DepositionMassDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(DepositionMassDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4421,7 +4428,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DepositionMassDataSet
-                    typeObservations = observations.Where(o => o.Type == DepositionMassDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(DepositionMassDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4433,7 +4440,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DepositionMassTable
-                    typeObservations = observations.Where(o => o.Type == DepositionMassDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(DepositionMassDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4445,7 +4452,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DepositionMassTimeSeries
-                    typeObservations = observations.Where(o => o.Type == DepositionMassDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(DepositionMassDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4458,7 +4465,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add DepositionRateVolumetric
-                    typeObservations = observations.Where(o => o.Type == DepositionRateVolumetricDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(DepositionRateVolumetricDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4470,7 +4477,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DepositionRateVolumetricDataSet
-                    typeObservations = observations.Where(o => o.Type == DepositionRateVolumetricDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(DepositionRateVolumetricDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4482,7 +4489,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DepositionRateVolumetricTable
-                    typeObservations = observations.Where(o => o.Type == DepositionRateVolumetricDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(DepositionRateVolumetricDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4494,7 +4501,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DepositionRateVolumetricTimeSeries
-                    typeObservations = observations.Where(o => o.Type == DepositionRateVolumetricDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(DepositionRateVolumetricDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4507,7 +4514,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add DepositionVolume
-                    typeObservations = observations.Where(o => o.Type == DepositionVolumeDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(DepositionVolumeDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4519,7 +4526,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DepositionVolumeDataSet
-                    typeObservations = observations.Where(o => o.Type == DepositionVolumeDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(DepositionVolumeDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4531,7 +4538,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DepositionVolumeTable
-                    typeObservations = observations.Where(o => o.Type == DepositionVolumeDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(DepositionVolumeDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4543,7 +4550,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DepositionVolumeTimeSeries
-                    typeObservations = observations.Where(o => o.Type == DepositionVolumeDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(DepositionVolumeDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4556,7 +4563,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add DewPoint
-                    typeObservations = observations.Where(o => o.Type == DewPointDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(DewPointDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4568,7 +4575,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DewPointDataSet
-                    typeObservations = observations.Where(o => o.Type == DewPointDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(DewPointDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4580,7 +4587,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DewPointTable
-                    typeObservations = observations.Where(o => o.Type == DewPointDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(DewPointDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4592,7 +4599,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DewPointTimeSeries
-                    typeObservations = observations.Where(o => o.Type == DewPointDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(DewPointDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4605,7 +4612,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Diameter
-                    typeObservations = observations.Where(o => o.Type == DiameterDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(DiameterDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4617,7 +4624,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DiameterDataSet
-                    typeObservations = observations.Where(o => o.Type == DiameterDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(DiameterDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4629,7 +4636,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DiameterTable
-                    typeObservations = observations.Where(o => o.Type == DiameterDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(DiameterDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4641,7 +4648,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DiameterTimeSeries
-                    typeObservations = observations.Where(o => o.Type == DiameterDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(DiameterDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4654,7 +4661,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add DischargeRate
-                    typeObservations = observations.Where(o => o.Type == DischargeRateDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(DischargeRateDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4666,7 +4673,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DischargeRateDataSet
-                    typeObservations = observations.Where(o => o.Type == DischargeRateDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(DischargeRateDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4678,7 +4685,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DischargeRateTable
-                    typeObservations = observations.Where(o => o.Type == DischargeRateDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(DischargeRateDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4690,7 +4697,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DischargeRateTimeSeries
-                    typeObservations = observations.Where(o => o.Type == DischargeRateDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(DischargeRateDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4703,7 +4710,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Displacement
-                    typeObservations = observations.Where(o => o.Type == DisplacementDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(DisplacementDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4715,7 +4722,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DisplacementDataSet
-                    typeObservations = observations.Where(o => o.Type == DisplacementDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(DisplacementDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4727,7 +4734,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DisplacementTable
-                    typeObservations = observations.Where(o => o.Type == DisplacementDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(DisplacementDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4739,7 +4746,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DisplacementTimeSeries
-                    typeObservations = observations.Where(o => o.Type == DisplacementDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(DisplacementDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4752,7 +4759,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add DisplacementAngular
-                    typeObservations = observations.Where(o => o.Type == DisplacementAngularDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(DisplacementAngularDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4764,7 +4771,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DisplacementAngularDataSet
-                    typeObservations = observations.Where(o => o.Type == DisplacementAngularDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(DisplacementAngularDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4776,7 +4783,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DisplacementAngularTable
-                    typeObservations = observations.Where(o => o.Type == DisplacementAngularDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(DisplacementAngularDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4788,7 +4795,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DisplacementAngularTimeSeries
-                    typeObservations = observations.Where(o => o.Type == DisplacementAngularDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(DisplacementAngularDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4801,7 +4808,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add DisplacementLinear
-                    typeObservations = observations.Where(o => o.Type == DisplacementLinearDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(DisplacementLinearDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4813,7 +4820,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DisplacementLinearDataSet
-                    typeObservations = observations.Where(o => o.Type == DisplacementLinearDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(DisplacementLinearDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4825,7 +4832,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DisplacementLinearTable
-                    typeObservations = observations.Where(o => o.Type == DisplacementLinearDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(DisplacementLinearDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4837,7 +4844,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add DisplacementLinearTimeSeries
-                    typeObservations = observations.Where(o => o.Type == DisplacementLinearDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(DisplacementLinearDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4850,7 +4857,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add ElectricalEnergy
-                    typeObservations = observations.Where(o => o.Type == ElectricalEnergyDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(ElectricalEnergyDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4862,7 +4869,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ElectricalEnergyDataSet
-                    typeObservations = observations.Where(o => o.Type == ElectricalEnergyDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(ElectricalEnergyDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4874,7 +4881,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ElectricalEnergyTable
-                    typeObservations = observations.Where(o => o.Type == ElectricalEnergyDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(ElectricalEnergyDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4886,7 +4893,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ElectricalEnergyTimeSeries
-                    typeObservations = observations.Where(o => o.Type == ElectricalEnergyDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(ElectricalEnergyDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4899,7 +4906,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add EquipmentTimer
-                    typeObservations = observations.Where(o => o.Type == EquipmentTimerDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(EquipmentTimerDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4911,7 +4918,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add EquipmentTimerDataSet
-                    typeObservations = observations.Where(o => o.Type == EquipmentTimerDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(EquipmentTimerDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4923,7 +4930,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add EquipmentTimerTable
-                    typeObservations = observations.Where(o => o.Type == EquipmentTimerDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(EquipmentTimerDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4935,7 +4942,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add EquipmentTimerTimeSeries
-                    typeObservations = observations.Where(o => o.Type == EquipmentTimerDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(EquipmentTimerDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4948,7 +4955,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add FillHeight
-                    typeObservations = observations.Where(o => o.Type == FillHeightDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(FillHeightDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4960,7 +4967,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FillHeightDataSet
-                    typeObservations = observations.Where(o => o.Type == FillHeightDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(FillHeightDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -4972,7 +4979,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FillHeightTable
-                    typeObservations = observations.Where(o => o.Type == FillHeightDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(FillHeightDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -4984,7 +4991,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FillHeightTimeSeries
-                    typeObservations = observations.Where(o => o.Type == FillHeightDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(FillHeightDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -4997,7 +5004,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add FillLevel
-                    typeObservations = observations.Where(o => o.Type == FillLevelDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(FillLevelDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5009,7 +5016,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FillLevelDataSet
-                    typeObservations = observations.Where(o => o.Type == FillLevelDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(FillLevelDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5021,7 +5028,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FillLevelTable
-                    typeObservations = observations.Where(o => o.Type == FillLevelDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(FillLevelDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5033,7 +5040,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FillLevelTimeSeries
-                    typeObservations = observations.Where(o => o.Type == FillLevelDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(FillLevelDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5046,7 +5053,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Flow
-                    typeObservations = observations.Where(o => o.Type == FlowDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(FlowDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5058,7 +5065,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FlowDataSet
-                    typeObservations = observations.Where(o => o.Type == FlowDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(FlowDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5070,7 +5077,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FlowTable
-                    typeObservations = observations.Where(o => o.Type == FlowDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(FlowDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5082,7 +5089,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FlowTimeSeries
-                    typeObservations = observations.Where(o => o.Type == FlowDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(FlowDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5095,7 +5102,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add FollowingError
-                    typeObservations = observations.Where(o => o.Type == FollowingErrorDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(FollowingErrorDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5107,7 +5114,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FollowingErrorDataSet
-                    typeObservations = observations.Where(o => o.Type == FollowingErrorDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(FollowingErrorDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5119,7 +5126,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FollowingErrorTable
-                    typeObservations = observations.Where(o => o.Type == FollowingErrorDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(FollowingErrorDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5131,7 +5138,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FollowingErrorTimeSeries
-                    typeObservations = observations.Where(o => o.Type == FollowingErrorDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(FollowingErrorDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5144,7 +5151,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add FollowingErrorAngular
-                    typeObservations = observations.Where(o => o.Type == FollowingErrorAngularDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(FollowingErrorAngularDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5156,7 +5163,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FollowingErrorAngularDataSet
-                    typeObservations = observations.Where(o => o.Type == FollowingErrorAngularDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(FollowingErrorAngularDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5168,7 +5175,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FollowingErrorAngularTable
-                    typeObservations = observations.Where(o => o.Type == FollowingErrorAngularDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(FollowingErrorAngularDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5180,7 +5187,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FollowingErrorAngularTimeSeries
-                    typeObservations = observations.Where(o => o.Type == FollowingErrorAngularDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(FollowingErrorAngularDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5193,7 +5200,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add FollowingErrorLinear
-                    typeObservations = observations.Where(o => o.Type == FollowingErrorLinearDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(FollowingErrorLinearDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5205,7 +5212,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FollowingErrorLinearDataSet
-                    typeObservations = observations.Where(o => o.Type == FollowingErrorLinearDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(FollowingErrorLinearDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5217,7 +5224,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FollowingErrorLinearTable
-                    typeObservations = observations.Where(o => o.Type == FollowingErrorLinearDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(FollowingErrorLinearDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5229,7 +5236,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FollowingErrorLinearTimeSeries
-                    typeObservations = observations.Where(o => o.Type == FollowingErrorLinearDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(FollowingErrorLinearDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5242,7 +5249,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Frequency
-                    typeObservations = observations.Where(o => o.Type == FrequencyDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(FrequencyDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5254,7 +5261,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FrequencyDataSet
-                    typeObservations = observations.Where(o => o.Type == FrequencyDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(FrequencyDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5266,7 +5273,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FrequencyTable
-                    typeObservations = observations.Where(o => o.Type == FrequencyDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(FrequencyDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5278,7 +5285,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add FrequencyTimeSeries
-                    typeObservations = observations.Where(o => o.Type == FrequencyDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(FrequencyDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5291,7 +5298,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add GlobalPosition
-                    typeObservations = observations.Where(o => o.Type == GlobalPositionDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(GlobalPositionDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5303,7 +5310,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add GlobalPositionDataSet
-                    typeObservations = observations.Where(o => o.Type == GlobalPositionDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(GlobalPositionDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5315,7 +5322,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add GlobalPositionTable
-                    typeObservations = observations.Where(o => o.Type == GlobalPositionDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(GlobalPositionDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5327,7 +5334,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add GlobalPositionTimeSeries
-                    typeObservations = observations.Where(o => o.Type == GlobalPositionDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(GlobalPositionDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5340,7 +5347,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add GravitationalAcceleration
-                    typeObservations = observations.Where(o => o.Type == GravitationalAccelerationDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(GravitationalAccelerationDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5352,7 +5359,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add GravitationalAccelerationDataSet
-                    typeObservations = observations.Where(o => o.Type == GravitationalAccelerationDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(GravitationalAccelerationDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5364,7 +5371,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add GravitationalAccelerationTable
-                    typeObservations = observations.Where(o => o.Type == GravitationalAccelerationDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(GravitationalAccelerationDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5376,7 +5383,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add GravitationalAccelerationTimeSeries
-                    typeObservations = observations.Where(o => o.Type == GravitationalAccelerationDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(GravitationalAccelerationDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5389,7 +5396,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add GravitationalForce
-                    typeObservations = observations.Where(o => o.Type == GravitationalForceDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(GravitationalForceDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5401,7 +5408,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add GravitationalForceDataSet
-                    typeObservations = observations.Where(o => o.Type == GravitationalForceDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(GravitationalForceDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5413,7 +5420,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add GravitationalForceTable
-                    typeObservations = observations.Where(o => o.Type == GravitationalForceDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(GravitationalForceDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5425,7 +5432,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add GravitationalForceTimeSeries
-                    typeObservations = observations.Where(o => o.Type == GravitationalForceDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(GravitationalForceDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5438,7 +5445,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add HumidityAbsolute
-                    typeObservations = observations.Where(o => o.Type == HumidityAbsoluteDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(HumidityAbsoluteDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5450,7 +5457,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add HumidityAbsoluteDataSet
-                    typeObservations = observations.Where(o => o.Type == HumidityAbsoluteDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(HumidityAbsoluteDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5462,7 +5469,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add HumidityAbsoluteTable
-                    typeObservations = observations.Where(o => o.Type == HumidityAbsoluteDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(HumidityAbsoluteDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5474,7 +5481,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add HumidityAbsoluteTimeSeries
-                    typeObservations = observations.Where(o => o.Type == HumidityAbsoluteDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(HumidityAbsoluteDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5487,7 +5494,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add HumidityRelative
-                    typeObservations = observations.Where(o => o.Type == HumidityRelativeDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(HumidityRelativeDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5499,7 +5506,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add HumidityRelativeDataSet
-                    typeObservations = observations.Where(o => o.Type == HumidityRelativeDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(HumidityRelativeDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5511,7 +5518,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add HumidityRelativeTable
-                    typeObservations = observations.Where(o => o.Type == HumidityRelativeDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(HumidityRelativeDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5523,7 +5530,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add HumidityRelativeTimeSeries
-                    typeObservations = observations.Where(o => o.Type == HumidityRelativeDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(HumidityRelativeDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5536,7 +5543,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add HumiditySpecific
-                    typeObservations = observations.Where(o => o.Type == HumiditySpecificDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(HumiditySpecificDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5548,7 +5555,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add HumiditySpecificDataSet
-                    typeObservations = observations.Where(o => o.Type == HumiditySpecificDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(HumiditySpecificDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5560,7 +5567,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add HumiditySpecificTable
-                    typeObservations = observations.Where(o => o.Type == HumiditySpecificDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(HumiditySpecificDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5572,7 +5579,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add HumiditySpecificTimeSeries
-                    typeObservations = observations.Where(o => o.Type == HumiditySpecificDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(HumiditySpecificDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5585,7 +5592,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Length
-                    typeObservations = observations.Where(o => o.Type == LengthDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(LengthDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5597,7 +5604,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add LengthDataSet
-                    typeObservations = observations.Where(o => o.Type == LengthDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(LengthDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5609,7 +5616,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add LengthTable
-                    typeObservations = observations.Where(o => o.Type == LengthDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(LengthDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5621,7 +5628,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add LengthTimeSeries
-                    typeObservations = observations.Where(o => o.Type == LengthDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(LengthDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5634,7 +5641,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Level
-                    typeObservations = observations.Where(o => o.Type == LevelDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(LevelDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5646,7 +5653,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add LevelDataSet
-                    typeObservations = observations.Where(o => o.Type == LevelDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(LevelDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5658,7 +5665,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add LevelTable
-                    typeObservations = observations.Where(o => o.Type == LevelDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(LevelDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5670,7 +5677,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add LevelTimeSeries
-                    typeObservations = observations.Where(o => o.Type == LevelDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(LevelDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5683,7 +5690,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add LinearForce
-                    typeObservations = observations.Where(o => o.Type == LinearForceDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(LinearForceDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5695,7 +5702,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add LinearForceDataSet
-                    typeObservations = observations.Where(o => o.Type == LinearForceDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(LinearForceDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5707,7 +5714,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add LinearForceTable
-                    typeObservations = observations.Where(o => o.Type == LinearForceDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(LinearForceDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5719,7 +5726,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add LinearForceTimeSeries
-                    typeObservations = observations.Where(o => o.Type == LinearForceDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(LinearForceDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5732,7 +5739,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Load
-                    typeObservations = observations.Where(o => o.Type == LoadDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(LoadDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5744,7 +5751,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add LoadDataSet
-                    typeObservations = observations.Where(o => o.Type == LoadDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(LoadDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5756,7 +5763,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add LoadTable
-                    typeObservations = observations.Where(o => o.Type == LoadDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(LoadDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5768,7 +5775,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add LoadTimeSeries
-                    typeObservations = observations.Where(o => o.Type == LoadDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(LoadDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5781,7 +5788,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Mass
-                    typeObservations = observations.Where(o => o.Type == MassDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(MassDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5793,7 +5800,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add MassDataSet
-                    typeObservations = observations.Where(o => o.Type == MassDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(MassDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5805,7 +5812,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add MassTable
-                    typeObservations = observations.Where(o => o.Type == MassDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(MassDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5817,7 +5824,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add MassTimeSeries
-                    typeObservations = observations.Where(o => o.Type == MassDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(MassDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5830,7 +5837,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add ObservationUpdateRate
-                    typeObservations = observations.Where(o => o.Type == ObservationUpdateRateDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(ObservationUpdateRateDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5842,7 +5849,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ObservationUpdateRateDataSet
-                    typeObservations = observations.Where(o => o.Type == ObservationUpdateRateDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(ObservationUpdateRateDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5854,7 +5861,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ObservationUpdateRateTable
-                    typeObservations = observations.Where(o => o.Type == ObservationUpdateRateDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(ObservationUpdateRateDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5866,7 +5873,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ObservationUpdateRateTimeSeries
-                    typeObservations = observations.Where(o => o.Type == ObservationUpdateRateDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(ObservationUpdateRateDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5879,7 +5886,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Openness
-                    typeObservations = observations.Where(o => o.Type == OpennessDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(OpennessDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5891,7 +5898,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add OpennessDataSet
-                    typeObservations = observations.Where(o => o.Type == OpennessDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(OpennessDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5903,7 +5910,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add OpennessTable
-                    typeObservations = observations.Where(o => o.Type == OpennessDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(OpennessDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5915,7 +5922,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add OpennessTimeSeries
-                    typeObservations = observations.Where(o => o.Type == OpennessDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(OpennessDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5928,7 +5935,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Orientation
-                    typeObservations = observations.Where(o => o.Type == OrientationDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(OrientationDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5940,7 +5947,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add OrientationDataSet
-                    typeObservations = observations.Where(o => o.Type == OrientationDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(OrientationDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -5952,7 +5959,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add OrientationTable
-                    typeObservations = observations.Where(o => o.Type == OrientationDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(OrientationDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -5964,7 +5971,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add OrientationTimeSeries
-                    typeObservations = observations.Where(o => o.Type == OrientationDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(OrientationDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -5977,7 +5984,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add ParticleCount
-                    typeObservations = observations.Where(o => o.Type == ParticleCountDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(ParticleCountDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5989,7 +5996,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ParticleCountDataSet
-                    typeObservations = observations.Where(o => o.Type == ParticleCountDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(ParticleCountDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6001,7 +6008,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ParticleCountTable
-                    typeObservations = observations.Where(o => o.Type == ParticleCountDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(ParticleCountDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6013,7 +6020,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ParticleCountTimeSeries
-                    typeObservations = observations.Where(o => o.Type == ParticleCountDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(ParticleCountDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6026,7 +6033,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add ParticleSize
-                    typeObservations = observations.Where(o => o.Type == ParticleSizeDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(ParticleSizeDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6038,7 +6045,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ParticleSizeDataSet
-                    typeObservations = observations.Where(o => o.Type == ParticleSizeDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(ParticleSizeDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6050,7 +6057,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ParticleSizeTable
-                    typeObservations = observations.Where(o => o.Type == ParticleSizeDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(ParticleSizeDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6062,7 +6069,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ParticleSizeTimeSeries
-                    typeObservations = observations.Where(o => o.Type == ParticleSizeDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(ParticleSizeDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6075,7 +6082,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add PathFeedrate
-                    typeObservations = observations.Where(o => o.Type == PathFeedrateDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(PathFeedrateDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6087,7 +6094,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PathFeedrateDataSet
-                    typeObservations = observations.Where(o => o.Type == PathFeedrateDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(PathFeedrateDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6099,7 +6106,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PathFeedrateTable
-                    typeObservations = observations.Where(o => o.Type == PathFeedrateDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(PathFeedrateDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6111,7 +6118,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PathFeedrateTimeSeries
-                    typeObservations = observations.Where(o => o.Type == PathFeedrateDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(PathFeedrateDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6124,7 +6131,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add PathFeedratePerRevolution
-                    typeObservations = observations.Where(o => o.Type == PathFeedratePerRevolutionDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(PathFeedratePerRevolutionDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6136,7 +6143,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PathFeedratePerRevolutionDataSet
-                    typeObservations = observations.Where(o => o.Type == PathFeedratePerRevolutionDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(PathFeedratePerRevolutionDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6148,7 +6155,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PathFeedratePerRevolutionTable
-                    typeObservations = observations.Where(o => o.Type == PathFeedratePerRevolutionDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(PathFeedratePerRevolutionDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6160,7 +6167,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PathFeedratePerRevolutionTimeSeries
-                    typeObservations = observations.Where(o => o.Type == PathFeedratePerRevolutionDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(PathFeedratePerRevolutionDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6173,7 +6180,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add PathPosition
-                    typeObservations = observations.Where(o => o.Type == PathPositionDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(PathPositionDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6185,7 +6192,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PathPositionDataSet
-                    typeObservations = observations.Where(o => o.Type == PathPositionDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(PathPositionDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6197,7 +6204,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PathPositionTable
-                    typeObservations = observations.Where(o => o.Type == PathPositionDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(PathPositionDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6209,7 +6216,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PathPositionTimeSeries
-                    typeObservations = observations.Where(o => o.Type == PathPositionDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(PathPositionDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6222,7 +6229,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add PH
-                    typeObservations = observations.Where(o => o.Type == PHDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(PHDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6234,7 +6241,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PHDataSet
-                    typeObservations = observations.Where(o => o.Type == PHDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(PHDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6246,7 +6253,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PHTable
-                    typeObservations = observations.Where(o => o.Type == PHDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(PHDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6258,7 +6265,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PHTimeSeries
-                    typeObservations = observations.Where(o => o.Type == PHDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(PHDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6271,7 +6278,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Position
-                    typeObservations = observations.Where(o => o.Type == PositionDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(PositionDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6283,7 +6290,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PositionDataSet
-                    typeObservations = observations.Where(o => o.Type == PositionDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(PositionDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6295,7 +6302,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PositionTable
-                    typeObservations = observations.Where(o => o.Type == PositionDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(PositionDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6307,7 +6314,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PositionTimeSeries
-                    typeObservations = observations.Where(o => o.Type == PositionDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(PositionDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6320,7 +6327,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add PositionCartesian
-                    typeObservations = observations.Where(o => o.Type == PositionCartesianDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(PositionCartesianDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6332,7 +6339,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PositionCartesianDataSet
-                    typeObservations = observations.Where(o => o.Type == PositionCartesianDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(PositionCartesianDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6344,7 +6351,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PositionCartesianTable
-                    typeObservations = observations.Where(o => o.Type == PositionCartesianDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(PositionCartesianDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6356,7 +6363,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PositionCartesianTimeSeries
-                    typeObservations = observations.Where(o => o.Type == PositionCartesianDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(PositionCartesianDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6369,7 +6376,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add PowerFactor
-                    typeObservations = observations.Where(o => o.Type == PowerFactorDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(PowerFactorDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6381,7 +6388,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PowerFactorDataSet
-                    typeObservations = observations.Where(o => o.Type == PowerFactorDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(PowerFactorDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6393,7 +6400,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PowerFactorTable
-                    typeObservations = observations.Where(o => o.Type == PowerFactorDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(PowerFactorDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6405,7 +6412,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PowerFactorTimeSeries
-                    typeObservations = observations.Where(o => o.Type == PowerFactorDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(PowerFactorDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6418,7 +6425,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Pressure
-                    typeObservations = observations.Where(o => o.Type == PressureDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(PressureDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6430,7 +6437,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PressureDataSet
-                    typeObservations = observations.Where(o => o.Type == PressureDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(PressureDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6442,7 +6449,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PressureTable
-                    typeObservations = observations.Where(o => o.Type == PressureDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(PressureDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6454,7 +6461,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PressureTimeSeries
-                    typeObservations = observations.Where(o => o.Type == PressureDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(PressureDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6467,7 +6474,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add PressureAbsolute
-                    typeObservations = observations.Where(o => o.Type == PressureAbsoluteDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(PressureAbsoluteDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6479,7 +6486,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PressureAbsoluteDataSet
-                    typeObservations = observations.Where(o => o.Type == PressureAbsoluteDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(PressureAbsoluteDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6491,7 +6498,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PressureAbsoluteTable
-                    typeObservations = observations.Where(o => o.Type == PressureAbsoluteDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(PressureAbsoluteDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6503,7 +6510,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PressureAbsoluteTimeSeries
-                    typeObservations = observations.Where(o => o.Type == PressureAbsoluteDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(PressureAbsoluteDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6516,7 +6523,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add PressurizationRate
-                    typeObservations = observations.Where(o => o.Type == PressurizationRateDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(PressurizationRateDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6528,7 +6535,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PressurizationRateDataSet
-                    typeObservations = observations.Where(o => o.Type == PressurizationRateDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(PressurizationRateDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6540,7 +6547,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PressurizationRateTable
-                    typeObservations = observations.Where(o => o.Type == PressurizationRateDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(PressurizationRateDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6552,7 +6559,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add PressurizationRateTimeSeries
-                    typeObservations = observations.Where(o => o.Type == PressurizationRateDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(PressurizationRateDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6565,7 +6572,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add ProcessTimer
-                    typeObservations = observations.Where(o => o.Type == ProcessTimerDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(ProcessTimerDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6577,7 +6584,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ProcessTimerDataSet
-                    typeObservations = observations.Where(o => o.Type == ProcessTimerDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(ProcessTimerDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6589,7 +6596,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ProcessTimerTable
-                    typeObservations = observations.Where(o => o.Type == ProcessTimerDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(ProcessTimerDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6601,7 +6608,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ProcessTimerTimeSeries
-                    typeObservations = observations.Where(o => o.Type == ProcessTimerDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(ProcessTimerDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6614,7 +6621,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Resistance
-                    typeObservations = observations.Where(o => o.Type == ResistanceDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(ResistanceDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6626,7 +6633,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ResistanceDataSet
-                    typeObservations = observations.Where(o => o.Type == ResistanceDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(ResistanceDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6638,7 +6645,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ResistanceTable
-                    typeObservations = observations.Where(o => o.Type == ResistanceDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(ResistanceDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6650,7 +6657,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ResistanceTimeSeries
-                    typeObservations = observations.Where(o => o.Type == ResistanceDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(ResistanceDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6663,7 +6670,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Resistivity
-                    typeObservations = observations.Where(o => o.Type == ResistivityDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(ResistivityDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6675,7 +6682,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ResistivityDataSet
-                    typeObservations = observations.Where(o => o.Type == ResistivityDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(ResistivityDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6687,7 +6694,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ResistivityTable
-                    typeObservations = observations.Where(o => o.Type == ResistivityDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(ResistivityDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6699,7 +6706,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ResistivityTimeSeries
-                    typeObservations = observations.Where(o => o.Type == ResistivityDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(ResistivityDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6712,7 +6719,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add RotaryVelocity
-                    typeObservations = observations.Where(o => o.Type == RotaryVelocityDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(RotaryVelocityDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6724,7 +6731,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add RotaryVelocityDataSet
-                    typeObservations = observations.Where(o => o.Type == RotaryVelocityDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(RotaryVelocityDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6736,7 +6743,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add RotaryVelocityTable
-                    typeObservations = observations.Where(o => o.Type == RotaryVelocityDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(RotaryVelocityDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6748,7 +6755,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add RotaryVelocityTimeSeries
-                    typeObservations = observations.Where(o => o.Type == RotaryVelocityDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(RotaryVelocityDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6761,7 +6768,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add SettlingError
-                    typeObservations = observations.Where(o => o.Type == SettlingErrorDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(SettlingErrorDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6773,7 +6780,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add SettlingErrorDataSet
-                    typeObservations = observations.Where(o => o.Type == SettlingErrorDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(SettlingErrorDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6785,7 +6792,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add SettlingErrorTable
-                    typeObservations = observations.Where(o => o.Type == SettlingErrorDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(SettlingErrorDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6797,7 +6804,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add SettlingErrorTimeSeries
-                    typeObservations = observations.Where(o => o.Type == SettlingErrorDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(SettlingErrorDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6810,7 +6817,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add SettlingErrorAngular
-                    typeObservations = observations.Where(o => o.Type == SettlingErrorAngularDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(SettlingErrorAngularDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6822,7 +6829,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add SettlingErrorAngularDataSet
-                    typeObservations = observations.Where(o => o.Type == SettlingErrorAngularDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(SettlingErrorAngularDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6834,7 +6841,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add SettlingErrorAngularTable
-                    typeObservations = observations.Where(o => o.Type == SettlingErrorAngularDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(SettlingErrorAngularDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6846,7 +6853,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add SettlingErrorAngularTimeSeries
-                    typeObservations = observations.Where(o => o.Type == SettlingErrorAngularDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(SettlingErrorAngularDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6859,7 +6866,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add SettlingErrorLinear
-                    typeObservations = observations.Where(o => o.Type == SettlingErrorLinearDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(SettlingErrorLinearDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6871,7 +6878,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add SettlingErrorLinearDataSet
-                    typeObservations = observations.Where(o => o.Type == SettlingErrorLinearDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(SettlingErrorLinearDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6883,7 +6890,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add SettlingErrorLinearTable
-                    typeObservations = observations.Where(o => o.Type == SettlingErrorLinearDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(SettlingErrorLinearDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6895,7 +6902,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add SettlingErrorLinearTimeSeries
-                    typeObservations = observations.Where(o => o.Type == SettlingErrorLinearDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(SettlingErrorLinearDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6908,7 +6915,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add SoundLevel
-                    typeObservations = observations.Where(o => o.Type == SoundLevelDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(SoundLevelDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6920,7 +6927,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add SoundLevelDataSet
-                    typeObservations = observations.Where(o => o.Type == SoundLevelDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(SoundLevelDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6932,7 +6939,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add SoundLevelTable
-                    typeObservations = observations.Where(o => o.Type == SoundLevelDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(SoundLevelDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6944,7 +6951,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add SoundLevelTimeSeries
-                    typeObservations = observations.Where(o => o.Type == SoundLevelDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(SoundLevelDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -6957,7 +6964,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add SpindleSpeed
-                    typeObservations = observations.Where(o => o.Type == SpindleSpeedDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(SpindleSpeedDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6969,7 +6976,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add SpindleSpeedDataSet
-                    typeObservations = observations.Where(o => o.Type == SpindleSpeedDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(SpindleSpeedDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -6981,7 +6988,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add SpindleSpeedTable
-                    typeObservations = observations.Where(o => o.Type == SpindleSpeedDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(SpindleSpeedDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -6993,7 +7000,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add SpindleSpeedTimeSeries
-                    typeObservations = observations.Where(o => o.Type == SpindleSpeedDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(SpindleSpeedDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7006,7 +7013,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Strain
-                    typeObservations = observations.Where(o => o.Type == StrainDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(StrainDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7018,7 +7025,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add StrainDataSet
-                    typeObservations = observations.Where(o => o.Type == StrainDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(StrainDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7030,7 +7037,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add StrainTable
-                    typeObservations = observations.Where(o => o.Type == StrainDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(StrainDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7042,7 +7049,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add StrainTimeSeries
-                    typeObservations = observations.Where(o => o.Type == StrainDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(StrainDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7055,7 +7062,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Temperature
-                    typeObservations = observations.Where(o => o.Type == TemperatureDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(TemperatureDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7067,7 +7074,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add TemperatureDataSet
-                    typeObservations = observations.Where(o => o.Type == TemperatureDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(TemperatureDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7079,7 +7086,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add TemperatureTable
-                    typeObservations = observations.Where(o => o.Type == TemperatureDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(TemperatureDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7091,7 +7098,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add TemperatureTimeSeries
-                    typeObservations = observations.Where(o => o.Type == TemperatureDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(TemperatureDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7104,7 +7111,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Tension
-                    typeObservations = observations.Where(o => o.Type == TensionDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(TensionDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7116,7 +7123,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add TensionDataSet
-                    typeObservations = observations.Where(o => o.Type == TensionDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(TensionDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7128,7 +7135,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add TensionTable
-                    typeObservations = observations.Where(o => o.Type == TensionDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(TensionDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7140,7 +7147,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add TensionTimeSeries
-                    typeObservations = observations.Where(o => o.Type == TensionDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(TensionDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7153,7 +7160,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Tilt
-                    typeObservations = observations.Where(o => o.Type == TiltDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(TiltDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7165,7 +7172,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add TiltDataSet
-                    typeObservations = observations.Where(o => o.Type == TiltDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(TiltDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7177,7 +7184,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add TiltTable
-                    typeObservations = observations.Where(o => o.Type == TiltDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(TiltDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7189,7 +7196,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add TiltTimeSeries
-                    typeObservations = observations.Where(o => o.Type == TiltDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(TiltDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7202,7 +7209,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Torque
-                    typeObservations = observations.Where(o => o.Type == TorqueDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(TorqueDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7214,7 +7221,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add TorqueDataSet
-                    typeObservations = observations.Where(o => o.Type == TorqueDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(TorqueDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7226,7 +7233,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add TorqueTable
-                    typeObservations = observations.Where(o => o.Type == TorqueDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(TorqueDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7238,7 +7245,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add TorqueTimeSeries
-                    typeObservations = observations.Where(o => o.Type == TorqueDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(TorqueDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7251,7 +7258,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Velocity
-                    typeObservations = observations.Where(o => o.Type == VelocityDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(VelocityDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7263,7 +7270,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VelocityDataSet
-                    typeObservations = observations.Where(o => o.Type == VelocityDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(VelocityDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7275,7 +7282,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VelocityTable
-                    typeObservations = observations.Where(o => o.Type == VelocityDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(VelocityDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7287,7 +7294,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VelocityTimeSeries
-                    typeObservations = observations.Where(o => o.Type == VelocityDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(VelocityDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7300,7 +7307,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Viscosity
-                    typeObservations = observations.Where(o => o.Type == ViscosityDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(ViscosityDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7312,7 +7319,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ViscosityDataSet
-                    typeObservations = observations.Where(o => o.Type == ViscosityDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(ViscosityDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7324,7 +7331,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ViscosityTable
-                    typeObservations = observations.Where(o => o.Type == ViscosityDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(ViscosityDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7336,7 +7343,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ViscosityTimeSeries
-                    typeObservations = observations.Where(o => o.Type == ViscosityDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(ViscosityDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7349,7 +7356,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add VoltAmpere
-                    typeObservations = observations.Where(o => o.Type == VoltAmpereDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(VoltAmpereDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7361,7 +7368,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VoltAmpereDataSet
-                    typeObservations = observations.Where(o => o.Type == VoltAmpereDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(VoltAmpereDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7373,7 +7380,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VoltAmpereTable
-                    typeObservations = observations.Where(o => o.Type == VoltAmpereDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(VoltAmpereDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7385,7 +7392,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VoltAmpereTimeSeries
-                    typeObservations = observations.Where(o => o.Type == VoltAmpereDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(VoltAmpereDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7398,7 +7405,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add VoltAmpereReactive
-                    typeObservations = observations.Where(o => o.Type == VoltAmpereReactiveDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(VoltAmpereReactiveDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7410,7 +7417,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VoltAmpereReactiveDataSet
-                    typeObservations = observations.Where(o => o.Type == VoltAmpereReactiveDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(VoltAmpereReactiveDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7422,7 +7429,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VoltAmpereReactiveTable
-                    typeObservations = observations.Where(o => o.Type == VoltAmpereReactiveDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(VoltAmpereReactiveDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7434,7 +7441,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VoltAmpereReactiveTimeSeries
-                    typeObservations = observations.Where(o => o.Type == VoltAmpereReactiveDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(VoltAmpereReactiveDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7447,7 +7454,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Voltage
-                    typeObservations = observations.Where(o => o.Type == VoltageDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(VoltageDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7459,7 +7466,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VoltageDataSet
-                    typeObservations = observations.Where(o => o.Type == VoltageDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(VoltageDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7471,7 +7478,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VoltageTable
-                    typeObservations = observations.Where(o => o.Type == VoltageDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(VoltageDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7483,7 +7490,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VoltageTimeSeries
-                    typeObservations = observations.Where(o => o.Type == VoltageDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(VoltageDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7496,7 +7503,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add VoltageAC
-                    typeObservations = observations.Where(o => o.Type == VoltageACDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(VoltageACDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7508,7 +7515,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VoltageACDataSet
-                    typeObservations = observations.Where(o => o.Type == VoltageACDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(VoltageACDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7520,7 +7527,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VoltageACTable
-                    typeObservations = observations.Where(o => o.Type == VoltageACDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(VoltageACDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7532,7 +7539,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VoltageACTimeSeries
-                    typeObservations = observations.Where(o => o.Type == VoltageACDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(VoltageACDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7545,7 +7552,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add VoltageDC
-                    typeObservations = observations.Where(o => o.Type == VoltageDCDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(VoltageDCDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7557,7 +7564,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VoltageDCDataSet
-                    typeObservations = observations.Where(o => o.Type == VoltageDCDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(VoltageDCDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7569,7 +7576,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VoltageDCTable
-                    typeObservations = observations.Where(o => o.Type == VoltageDCDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(VoltageDCDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7581,7 +7588,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VoltageDCTimeSeries
-                    typeObservations = observations.Where(o => o.Type == VoltageDCDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(VoltageDCDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7594,7 +7601,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add VolumeFluid
-                    typeObservations = observations.Where(o => o.Type == VolumeFluidDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(VolumeFluidDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7606,7 +7613,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VolumeFluidDataSet
-                    typeObservations = observations.Where(o => o.Type == VolumeFluidDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(VolumeFluidDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7618,7 +7625,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VolumeFluidTable
-                    typeObservations = observations.Where(o => o.Type == VolumeFluidDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(VolumeFluidDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7630,7 +7637,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VolumeFluidTimeSeries
-                    typeObservations = observations.Where(o => o.Type == VolumeFluidDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(VolumeFluidDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7643,7 +7650,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add VolumeSpatial
-                    typeObservations = observations.Where(o => o.Type == VolumeSpatialDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(VolumeSpatialDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7655,7 +7662,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VolumeSpatialDataSet
-                    typeObservations = observations.Where(o => o.Type == VolumeSpatialDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(VolumeSpatialDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7667,7 +7674,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VolumeSpatialTable
-                    typeObservations = observations.Where(o => o.Type == VolumeSpatialDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(VolumeSpatialDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7679,7 +7686,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add VolumeSpatialTimeSeries
-                    typeObservations = observations.Where(o => o.Type == VolumeSpatialDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(VolumeSpatialDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7692,7 +7699,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add WaterHardness
-                    typeObservations = observations.Where(o => o.Type == WaterHardnessDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(WaterHardnessDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7704,7 +7711,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add WaterHardnessDataSet
-                    typeObservations = observations.Where(o => o.Type == WaterHardnessDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(WaterHardnessDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7716,7 +7723,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add WaterHardnessTable
-                    typeObservations = observations.Where(o => o.Type == WaterHardnessDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(WaterHardnessDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7728,7 +7735,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add WaterHardnessTimeSeries
-                    typeObservations = observations.Where(o => o.Type == WaterHardnessDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(WaterHardnessDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7741,7 +7748,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Wattage
-                    typeObservations = observations.Where(o => o.Type == WattageDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(WattageDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7753,7 +7760,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add WattageDataSet
-                    typeObservations = observations.Where(o => o.Type == WattageDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(WattageDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7765,7 +7772,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add WattageTable
-                    typeObservations = observations.Where(o => o.Type == WattageDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(WattageDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7777,7 +7784,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add WattageTimeSeries
-                    typeObservations = observations.Where(o => o.Type == WattageDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(WattageDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7790,7 +7797,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add XDimension
-                    typeObservations = observations.Where(o => o.Type == XDimensionDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(XDimensionDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7802,7 +7809,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add XDimensionDataSet
-                    typeObservations = observations.Where(o => o.Type == XDimensionDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(XDimensionDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7814,7 +7821,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add XDimensionTable
-                    typeObservations = observations.Where(o => o.Type == XDimensionDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(XDimensionDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7826,7 +7833,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add XDimensionTimeSeries
-                    typeObservations = observations.Where(o => o.Type == XDimensionDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(XDimensionDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7839,7 +7846,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add YDimension
-                    typeObservations = observations.Where(o => o.Type == YDimensionDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(YDimensionDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7851,7 +7858,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add YDimensionDataSet
-                    typeObservations = observations.Where(o => o.Type == YDimensionDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(YDimensionDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7863,7 +7870,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add YDimensionTable
-                    typeObservations = observations.Where(o => o.Type == YDimensionDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(YDimensionDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7875,7 +7882,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add YDimensionTimeSeries
-                    typeObservations = observations.Where(o => o.Type == YDimensionDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(YDimensionDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7888,7 +7895,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add ZDimension
-                    typeObservations = observations.Where(o => o.Type == ZDimensionDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get(ZDimensionDataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -7900,7 +7907,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ZDimensionDataSet
-                    typeObservations = observations.Where(o => o.Type == ZDimensionDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get(ZDimensionDataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleDataSet>();
@@ -7912,7 +7919,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ZDimensionTable
-                    typeObservations = observations.Where(o => o.Type == ZDimensionDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get(ZDimensionDataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTable>();
@@ -7924,7 +7931,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add ZDimensionTimeSeries
-                    typeObservations = observations.Where(o => o.Type == ZDimensionDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    typeObservations = observationLookup.Get(ZDimensionDataItem.TypeId, DataItemRepresentation.TIME_SERIES);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleTimeSeries>();
@@ -7936,6 +7943,8 @@ namespace MTConnect.Streams.Json
                     }
 
 
+
+                    HasObservations = observationLookup.HasReturned;
                 }
             }
         }

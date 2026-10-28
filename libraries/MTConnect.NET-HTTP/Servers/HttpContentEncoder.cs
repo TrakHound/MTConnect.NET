@@ -60,10 +60,12 @@ namespace MTConnect.Servers.Http
 
             var outputStream = new MemoryStream();
 
+            // Fastest: responses are compressed per request (and per streaming part), where the CPU cost of
+            // Optimal outweighs its slightly smaller output
             switch (contentEncoding)
             {
                 case HttpContentEncodings.Gzip:
-                    using (var zip = new GZipStream(outputStream, CompressionMode.Compress, true))
+                    using (var zip = new GZipStream(outputStream, CompressionLevel.Fastest, true))
                     {
                         content.CopyTo(zip);
                     }
@@ -71,7 +73,7 @@ namespace MTConnect.Servers.Http
 
 #if NET5_0_OR_GREATER
                 case HttpContentEncodings.Brotli:
-                    using (var zip = new BrotliStream(outputStream, CompressionMode.Compress, true))
+                    using (var zip = new BrotliStream(outputStream, CompressionLevel.Fastest, true))
                     {
                         content.CopyTo(zip);
                     }
@@ -79,7 +81,7 @@ namespace MTConnect.Servers.Http
 #endif
 
                 case HttpContentEncodings.Deflate:
-                    using (var zip = new DeflateStream(outputStream, CompressionMode.Compress, true))
+                    using (var zip = new DeflateStream(outputStream, CompressionLevel.Fastest, true))
                     {
                         content.CopyTo(zip);
                     }

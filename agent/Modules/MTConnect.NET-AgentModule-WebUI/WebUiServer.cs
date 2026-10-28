@@ -245,7 +245,7 @@ namespace MTConnect.Modules.WebUI
                 inputValidationLevel = configuration?.InputValidationLevel.ToString(),
                 deviceValidationLevel = configuration?.DeviceValidationLevel.ToString(),
                 observationCounts = _observationCounts.ToDictionary(o => o.Key, o => o.Value),
-                mtconnectServer = GetMTConnectServer(applicationConfiguration)
+                mtconnectServer = GetCachedMTConnectServer(applicationConfiguration)
             };
         }
 
@@ -258,6 +258,26 @@ namespace MTConnect.Modules.WebUI
             public int Port { get; set; } = 5000;
             public string Server { get; set; }
             public object Tls { get; set; }
+        }
+
+        // GetModules round-trips each module entry through YAML (building a serializer and deserializer), so the
+        // result is cached until the Agent's configuration instance changes
+        private object _mtconnectServer;
+        private IAgentApplicationConfiguration _mtconnectServerConfiguration;
+        private readonly object _mtconnectServerLock = new object();
+
+        private object GetCachedMTConnectServer(IAgentApplicationConfiguration configuration)
+        {
+            lock (_mtconnectServerLock)
+            {
+                if (_mtconnectServerConfiguration == null || !ReferenceEquals(_mtconnectServerConfiguration, configuration))
+                {
+                    _mtconnectServer = GetMTConnectServer(configuration);
+                    _mtconnectServerConfiguration = configuration;
+                }
+
+                return _mtconnectServer;
+            }
         }
 
         private static object GetMTConnectServer(IAgentApplicationConfiguration configuration)
@@ -389,10 +409,22 @@ namespace MTConnect.Modules.WebUI
                 deprecated = observation.Deprecated,
                 extended = observation.Extended,
                 problem = ToProblemSummary(problems, observation),
-                values = observation.Values != null
-                    ? observation.Values.Where(v => v.Key != null).GroupBy(v => v.Key).ToDictionary(g => g.Key, g => g.First().Value)
-                    : new Dictionary<string, string>()
+                values = ToValueDictionary(observation.Values)
             }).ToList();
+        }
+
+        // First value per key (same result as GroupBy + First), in one pass
+        private static Dictionary<string, string> ToValueDictionary(IEnumerable<ObservationValue> values)
+        {
+            var dictionary = new Dictionary<string, string>();
+            if (values != null)
+            {
+                foreach (var value in values)
+                {
+                    if (value.Key != null && !dictionary.ContainsKey(value.Key)) dictionary.Add(value.Key, value.Value);
+                }
+            }
+            return dictionary;
         }
 
         private static object ToProblemSummary(Dictionary<string, ValidationProblem> problems, IObservationOutput observation)
@@ -408,11 +440,28 @@ namespace MTConnect.Modules.WebUI
             var problems = _validation.GetProblems(deviceUuid);
             var agentDevices = (_agent.GetDevices() ?? Enumerable.Empty<IDevice>()).ToList();
 
+            var deviceNames = new Dictionary<string, string>();
+            foreach (var device in agentDevices)
+            {
+                if (device.Uuid != null && !deviceNames.ContainsKey(device.Uuid)) deviceNames.Add(device.Uuid, device.Name);
+            }
+
             // Device-model problems are reported while Devices are still loading, before their names can be
             // looked up, so fill in any missing names now
+            var problemsByDevice = new Dictionary<string, List<ValidationProblem>>();
             foreach (var problem in problems)
             {
-                if (problem.DeviceName == null) problem.DeviceName = agentDevices.FirstOrDefault(d => d.Uuid == problem.DeviceUuid)?.Name;
+                if (problem.DeviceName == null && problem.DeviceUuid != null && deviceNames.TryGetValue(problem.DeviceUuid, out var deviceName)) problem.DeviceName = deviceName;
+
+                if (problem.DeviceUuid != null)
+                {
+                    if (!problemsByDevice.TryGetValue(problem.DeviceUuid, out var list))
+                    {
+                        list = new List<ValidationProblem>();
+                        problemsByDevice.Add(problem.DeviceUuid, list);
+                    }
+                    list.Add(problem);
+                }
             }
 
             // One row per known Device (zero counts included), plus any Device UUIDs that only appear in problems
@@ -424,7 +473,7 @@ namespace MTConnect.Modules.WebUI
                 .Where(d => string.IsNullOrEmpty(deviceUuid) || d.uuid == deviceUuid)
                 .Select(d =>
                 {
-                    var forDevice = problems.Where(p => p.DeviceUuid == d.uuid).ToList();
+                    var forDevice = d.uuid != null && problemsByDevice.TryGetValue(d.uuid, out var list) ? list : new List<ValidationProblem>();
                     return new
                     {
                         d.uuid,
@@ -578,7 +627,7 @@ namespace MTConnect.Modules.WebUI
             ConfigurationFormRequest formRequest;
             try
             {
-                formRequest = JsonSerializer.Deserialize<ConfigurationFormRequest>(ReadBody(request), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                formRequest = JsonSerializer.Deserialize<ConfigurationFormRequest>(ReadBody(request), _requestOptions);
             }
             catch (JsonException ex)
             {
@@ -866,7 +915,13 @@ namespace MTConnect.Modules.WebUI
 
         private static void WriteJson(HttpListenerResponse response, object value, int statusCode = 200)
         {
-            WriteText(response, JsonSerializer.Serialize(value, _jsonOptions), "application/json; charset=utf-8", statusCode);
+            // Serialize straight to UTF-8 (no intermediate string)
+            var bytes = JsonSerializer.SerializeToUtf8Bytes(value, _jsonOptions);
+            response.StatusCode = statusCode;
+            response.ContentType = "application/json; charset=utf-8";
+            response.Headers["Cache-Control"] = "no-store";
+            response.ContentLength64 = bytes.Length;
+            response.OutputStream.Write(bytes, 0, bytes.Length);
         }
 
         private static void WriteText(HttpListenerResponse response, string text, string contentType, int statusCode = 200)

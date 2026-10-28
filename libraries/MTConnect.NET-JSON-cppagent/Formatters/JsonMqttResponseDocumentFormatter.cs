@@ -46,7 +46,7 @@ namespace MTConnect.Formatters
         {
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
-            var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
+            var jsonOptions = indentOutput ? JsonFunctions.SharedIndentOptions : JsonFunctions.SharedDefaultOptions;
 
             // Serialize through the full JsonDevicesResponseDocument envelope so
             // MTConnectDevices.Devices is emitted as the cppagent JSON v2 keyed
@@ -73,7 +73,7 @@ namespace MTConnect.Formatters
         {
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
-            var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
+            var jsonOptions = indentOutput ? JsonFunctions.SharedIndentOptions : JsonFunctions.SharedDefaultOptions;
 
             var outputStream = new MemoryStream();
             JsonSerializer.Serialize(outputStream, new JsonAssetsResponseDocument(document), jsonOptions);

@@ -45,6 +45,7 @@ namespace MTConnect.Servers.Http
         private readonly IEnumerable<KeyValuePair<string, string>> _formatOptions;
 
         private CancellationTokenSource _stop;
+        private readonly SemaphoreSlim _dataSignal = new SemaphoreSlim(0, 1);
         private bool _isConnected;
         private bool _currentOnly;
 
@@ -246,6 +247,10 @@ namespace MTConnect.Servers.Http
                 // Set Content Encoding
                 var contentEncoding = HttpContentEncoder.Select(_configuration, _acceptEncodings);
 
+                // Wake the stream when the agent adds an observation
+                EventHandler<Observations.IObservation> observationAdded = (s, o) => SignalData();
+                _mtconnectAgent.ObservationAdded += observationAdded;
+
                 try
                 {
                     var stpw = new System.Diagnostics.Stopwatch();
@@ -259,8 +264,14 @@ namespace MTConnect.Servers.Http
                     {
                         stpw.Restart();
 
+                        // Skip querying/formatting when the agent has nothing new and no heartbeat is due
+                        var skip = !_currentOnly &&
+                            nextSequence > 0 &&
+                            _mtconnectAgent.LastSequence < nextSequence &&
+                            (UnixDateTime.Now - lastHeartbeatSent) <= _heartbeat;
+
                         // Read the MTConnectStreams document from the IMTConnectAgent
-                        var document = GetDocument(nextSequence);
+                        var document = skip ? null : GetDocument(nextSequence);
                         if (document != null)
                         {
                             now = UnixDateTime.Now;
@@ -300,10 +311,21 @@ namespace MTConnect.Servers.Http
                             }
                         }
 
-                        // Pause the stream for the specified Interval
+                        // Pause the stream for the specified Interval (the minimum time between parts)
                         try
                         {
                             await Task.Delay(_interval, cancellationToken);
+
+                            // Then, when there is nothing new, sleep until an observation is added or the
+                            // heartbeat is due instead of waking every interval
+                            if (!_currentOnly && nextSequence > 0 && _mtconnectAgent.LastSequence < nextSequence)
+                            {
+                                var untilHeartbeat = (_heartbeat - (UnixDateTime.Now - lastHeartbeatSent)) / TimeSpan.TicksPerMillisecond;
+                                if (untilHeartbeat > 0)
+                                {
+                                    await _dataSignal.WaitAsync((int)Math.Min(untilHeartbeat, int.MaxValue), cancellationToken);
+                                }
+                            }
                         }
                         catch (OperationCanceledException)
                         {
@@ -318,10 +340,20 @@ namespace MTConnect.Servers.Http
                 }
                 finally
                 {
+                    _mtconnectAgent.ObservationAdded -= observationAdded;
                     _isConnected = false;
                 }
 
                 StreamStopped.Raise(this, _id, StreamException);
+            }
+        }
+
+        private void SignalData()
+        {
+            // At most one pending signal
+            if (_dataSignal.CurrentCount == 0)
+            {
+                try { _dataSignal.Release(); } catch (SemaphoreFullException) { }
             }
         }
 
@@ -379,7 +411,8 @@ namespace MTConnect.Servers.Http
 
         private static Stream CreateMultipartChunk(ref Stream body, string boundary, string contentType, string contentEncoding)
         {
-            var outputStream = new MemoryStream();
+            // Sized for the part headers + body + CRLF so the buffer is not regrown while copying the body
+            var outputStream = new MemoryStream((int)Math.Min(int.MaxValue, body.Length + 256));
             using (var writer = new StreamWriter(outputStream, _headerEncoding, 1024, leaveOpen: true))
             {
                 writer.NewLine = "\r\n";
@@ -405,7 +438,7 @@ namespace MTConnect.Servers.Http
 
                 // Add Content Length Line
                 writer.Write("Content-length: ");
-                writer.Write(body.Length + 3); // Set Content-length to body.Length + 3 (newline)
+                writer.Write(body.Length); // The CRLF after the body ends the part and is not part of its content
                 writer.WriteLine();
                 writer.WriteLine();
                 writer.Flush();
@@ -414,8 +447,7 @@ namespace MTConnect.Servers.Http
                 if (body.Position > 0) body.Seek(0, SeekOrigin.Begin);
                 body.CopyTo(outputStream);
 
-                // Add NewLine
-                outputStream.WriteByte(10);
+                // End the part with CRLF
                 outputStream.WriteByte(13);
                 outputStream.WriteByte(10);
             }
