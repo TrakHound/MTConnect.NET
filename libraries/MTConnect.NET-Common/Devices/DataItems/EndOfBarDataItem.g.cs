@@ -148,13 +148,9 @@ namespace MTConnect.Devices.DataItems
                 if (result != null)
                 {
                     // Check Valid values in Enum
-                    var validValues = Enum.GetValues(typeof(EndOfBar));
-                    foreach (var validValue in validValues)
+                    if (EnumValues<EndOfBar>.Contains(result))
                     {
-                        if (result == validValue.ToString())
-                        {
-                            return new ValidationResult(true);
-                        }
+                        return new ValidationResult(true);
                     }
 
                     return new ValidationResult(false, "'" + result + "' is not a valid value for END_OF_BAR");
@@ -183,13 +179,9 @@ namespace MTConnect.Devices.DataItems
                 if (result != null)
                 {
                     // Check Valid values in Enum
-                    var validValues = Enum.GetValues(typeof(EndOfBar));
-                    foreach (var validValue in validValues)
+                    if (EnumValues<EndOfBar>.Contains(result))
                     {
-                        if (result == validValue.ToString())
-                        {
-                            return new ValidationResult(true);
-                        }
+                        return new ValidationResult(true);
                     }
 
                     return new ValidationResult(false, "'" + result + "' is not a valid value for END_OF_BAR");

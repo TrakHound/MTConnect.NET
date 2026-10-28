@@ -514,6 +514,7 @@ namespace MTConnect.Applications
                 _modules = new MTConnectAgentModules(configuration, _mtconnectAgent);
                 _modules.ModuleLoaded += ModuleLoaded;
                 _modules.LogReceived += ModuleLogReceived;
+                MTConnectAgentModule.LogLevelEnabled = IsModuleLogEnabled;
                 _modules.Load();
 
                 // Read Indexes for Buffer
@@ -888,37 +889,53 @@ namespace MTConnect.Applications
             if (!string.IsNullOrEmpty(message))
             {
                 var module = (IMTConnectAgentModule)sender;
-
-                var loggerId = logId;
-                if (string.IsNullOrEmpty(loggerId)) loggerId = module.Id;
-                loggerId = $"modules.{loggerId.Replace(' ', '-')}".ToLower();
-
-                Logger logger;
-                lock (_lock)
-                {
-                    _loggers.TryGetValue(loggerId, out logger);
-                    if (logger == null)
-                    {
-                        logger = LogManager.GetLogger(loggerId);
-                        _loggers.Add(loggerId, logger);
-                    }
-                }
+                var logger = GetModuleLogger(module, logId);
 
                 var logEvent = new LogEventInfo();
-                logEvent.LoggerName = loggerId;
+                logEvent.LoggerName = logger.Name;
                 logEvent.Message = message;
-
-                switch (logLevel)
-                {
-                    case MTConnectLogLevel.Fatal: logEvent.Level = LogLevel.Fatal; break;
-                    case MTConnectLogLevel.Error: logEvent.Level = LogLevel.Error; break;
-                    case MTConnectLogLevel.Warning: logEvent.Level = LogLevel.Warn; break;
-                    case MTConnectLogLevel.Information: logEvent.Level = LogLevel.Info; break;
-                    case MTConnectLogLevel.Debug: logEvent.Level = LogLevel.Debug; break;
-                    case MTConnectLogLevel.Trace: logEvent.Level = LogLevel.Trace; break;
-                }
+                logEvent.Level = ToNLogLevel(logLevel);
 
                 logger.Log(logEvent);
+            }
+        }
+
+        private Logger GetModuleLogger(IMTConnectAgentModule module, string logId)
+        {
+            var loggerId = logId;
+            if (string.IsNullOrEmpty(loggerId)) loggerId = module.Id;
+            loggerId = $"modules.{loggerId.Replace(' ', '-')}".ToLower();
+
+            Logger logger;
+            lock (_lock)
+            {
+                _loggers.TryGetValue(loggerId, out logger);
+                if (logger == null)
+                {
+                    logger = LogManager.GetLogger(loggerId);
+                    _loggers.Add(loggerId, logger);
+                }
+            }
+
+            return logger;
+        }
+
+        private bool IsModuleLogEnabled(IMTConnectAgentModule module, MTConnectLogLevel logLevel, string logId)
+        {
+            if (module == null) return true;
+            return GetModuleLogger(module, logId).IsEnabled(ToNLogLevel(logLevel));
+        }
+
+        private static LogLevel ToNLogLevel(MTConnectLogLevel logLevel)
+        {
+            switch (logLevel)
+            {
+                case MTConnectLogLevel.Fatal: return LogLevel.Fatal;
+                case MTConnectLogLevel.Error: return LogLevel.Error;
+                case MTConnectLogLevel.Warning: return LogLevel.Warn;
+                case MTConnectLogLevel.Information: return LogLevel.Info;
+                case MTConnectLogLevel.Debug: return LogLevel.Debug;
+                default: return LogLevel.Trace;
             }
         }
 

@@ -17,6 +17,8 @@ namespace MTConnect
 
         private static Regex _streamRemoveNamespaceRegex = new Regex(@"\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""", RegexOptions.Compiled);
         private static Regex _streamNamespaceRegex = new Regex("<MTConnectStreams", RegexOptions.Compiled);
+        private static readonly Regex _clearNamespaceRegex = new Regex(@"xmlns(:\w+)?=""([^""]*)""", RegexOptions.Compiled);
+        private static readonly Regex _clearSchemaLocationRegex = new Regex(@"xsi:schemaLocation=""([^""]*)""", RegexOptions.Compiled);
 
 
         public static string Get(string xml)
@@ -273,11 +275,8 @@ namespace MTConnect
         {
             var output = xml;
 
-            string regex = @"xmlns(:\w+)?=""([^""]*)""";
-            output = Regex.Replace(output, regex, "");
-
-            regex = @"xsi:schemaLocation=""([^""]*)""";
-            output = Regex.Replace(output, regex, "");
+            output = _clearNamespaceRegex.Replace(output, "");
+            output = _clearSchemaLocationRegex.Replace(output, "");
 
             return output;
         }

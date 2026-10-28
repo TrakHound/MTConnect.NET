@@ -82,11 +82,12 @@ namespace MTConnect.Streams.Json
             {
                 if (!observations.IsNullOrEmpty())
                 {
+                    var observationLookup = new JsonObservationLookup(observations);
                     IEnumerable<IObservationOutput> typeObservations;
 
 {{- for type in types }}
                     // Add {{type.name}}
-                    typeObservations = observations.Where(o => o.Type == {{type.name}}DataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    typeObservations = observationLookup.Get({{type.name}}DataItem.TypeId, DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonEventValue>();
@@ -98,7 +99,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add {{type.name}}DataSet
-                    typeObservations = observations.Where(o => o.Type == {{type.name}}DataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    typeObservations = observationLookup.Get({{type.name}}DataItem.TypeId, DataItemRepresentation.DATA_SET);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonEventDataSet>();
@@ -110,7 +111,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add {{type.name}}Table
-                    typeObservations = observations.Where(o => o.Type == {{type.name}}DataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    typeObservations = observationLookup.Get({{type.name}}DataItem.TypeId, DataItemRepresentation.TABLE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonEventTable>();

@@ -36,6 +36,9 @@ namespace MTConnect.Processors
 
         private readonly Microsoft.Scripting.Hosting.ScriptEngine _pythonEngine;
         private readonly Dictionary<string, Func<ProcessObservation, ProcessObservation>> _functions = new Dictionary<string, Func<ProcessObservation, ProcessObservation>>();
+
+        // Immutable snapshot of _functions read by OnProcess without locking (replaced whenever _functions changes)
+        private volatile KeyValuePair<string, Func<ProcessObservation, ProcessObservation>>[] _functionSnapshot = new KeyValuePair<string, Func<ProcessObservation, ProcessObservation>>[0];
         private readonly ProcessorConfiguration _configuration;
         private readonly object _lock = new object();
 
@@ -74,7 +77,8 @@ namespace MTConnect.Processors
         /// </summary>
         public override void Load()
         {
-            lock (_lock) _functions.Clear();
+            // Compile into a separate set so the previous functions keep processing until the swap
+            var functions = new Dictionary<string, Func<ProcessObservation, ProcessObservation>>();
 
             var dir = GetDirectory();
             if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
@@ -85,13 +89,21 @@ namespace MTConnect.Processors
                 {
                     foreach (var file in files)
                     {
-                        LoadEngine(file);
+                        var process = LoadEngine(file);
+                        if (process != null) functions[file] = process;
                     }
                 }
             }
+
+            lock (_lock)
+            {
+                _functions.Clear();
+                foreach (var function in functions) _functions.Add(function.Key, function.Value);
+                UpdateFunctionSnapshot();
+            }
         }
 
-        private void LoadEngine(string file)
+        private Func<ProcessObservation, ProcessObservation> LoadEngine(string file)
         {
             try
             {
@@ -105,13 +117,15 @@ namespace MTConnect.Processors
                 {
                     Log(Logging.MTConnectLogLevel.Debug, $"Python Script Loaded : {file}");
 
-                    AddFunction(file, process);
+                    return process;
                 }
             }
             catch (Exception ex)
             {
                 Log(Logging.MTConnectLogLevel.Error, $"Error Loading Python Script : {file} : {ex.Message}");
             }
+
+            return null;
         }
 
 
@@ -134,30 +148,19 @@ namespace MTConnect.Processors
 
             try
             {
-                IEnumerable<string> functionKeys;
-                lock (_lock) functionKeys = _functions.Keys;
-
-                if (!functionKeys.IsNullOrEmpty())
+                var functions = _functionSnapshot;
+                foreach (var function in functions)
                 {
-                    foreach (var functionKey in functionKeys)
+                    if (outputObservation == null) break;
+
+                    try
                     {
-                        Func<ProcessObservation, ProcessObservation> function;
-                        lock (_lock) function = GetFunction(functionKey);
-
-                        if (function != null)
-                        {
-                            try
-                            {
-                                outputObservation = function(outputObservation);
-                            }
-                            catch (Exception ex)
-                            {
-                                Log(Logging.MTConnectLogLevel.Error, $"Process Error : {functionKey} : {ex.Message}");
-                            }
-                        }
+                        outputObservation = function.Value(outputObservation);
                     }
-
-
+                    catch (Exception ex)
+                    {
+                        Log(Logging.MTConnectLogLevel.Error, $"Process Error : {function.Key} : {ex.Message}");
+                    }
                 }
             }
             catch (Exception ex)
@@ -168,10 +171,11 @@ namespace MTConnect.Processors
             if (outputObservation != null)
             {
                 var resultObservation = new ObservationInput();
-                resultObservation.DeviceKey = observation.DataItem?.Device?.Uuid;
-                resultObservation.DataItemKey = observation.DataItem?.Id;
-                resultObservation.Values = observation.Values;
-                resultObservation.Timestamp = observation.Timestamp.ToUnixTime();
+                var dataItem = outputObservation.DataItem ?? observation.DataItem;
+                resultObservation.DeviceKey = dataItem?.Device?.Uuid;
+                resultObservation.DataItemKey = dataItem?.Id;
+                resultObservation.Values = outputObservation.Values;
+                resultObservation.Timestamp = outputObservation.Timestamp.ToUnixTime();
                 return resultObservation;
             }
             else
@@ -189,24 +193,9 @@ namespace MTConnect.Processors
                 {
                     _functions.Remove(filePath);
                     _functions.Add(filePath, function);
+                    UpdateFunctionSnapshot();
                 }
             }
-        }
-
-        private Func<ProcessObservation, ProcessObservation> GetFunction(string filePath)
-        {
-            if (filePath != null)
-            {
-                lock (_lock)
-                {
-                    if (_functions.ContainsKey(filePath))
-                    {
-                        return _functions[filePath];
-                    }
-                }
-            }
-
-            return null;
         }
 
         private void RemoveFunction(string key)
@@ -216,8 +205,18 @@ namespace MTConnect.Processors
                 lock (_lock)
                 {
                     _functions.Remove(key);
+                    UpdateFunctionSnapshot();
                 }
             }
+        }
+
+        // Must be called while holding _lock
+        private void UpdateFunctionSnapshot()
+        {
+            var snapshot = new KeyValuePair<string, Func<ProcessObservation, ProcessObservation>>[_functions.Count];
+            var i = 0;
+            foreach (var function in _functions) snapshot[i++] = function;
+            _functionSnapshot = snapshot;
         }
 
 

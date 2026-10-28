@@ -737,12 +737,10 @@ namespace MTConnect.Buffers
                     // Get the Observations Directory
                     var dir = GetDirectory();
 
-                    var files = observations.Select(o => GetSequenceTop(o.Sequence, PageSize)).Distinct();
-                    foreach (var file in files)
+                    // Group by Page File in a single pass
+                    foreach (var fileObservations in observations.GroupBy(o => GetSequenceTop(o.Sequence, PageSize)))
                     {
-                        var bottom = GetSequenceBottom(file, PageSize);
-
-                        var fileObservations = observations.Where(o => o.Sequence >= bottom && o.Sequence < file);
+                        var file = fileObservations.Key;
                         var oObservations = fileObservations.OrderBy(o => o.Sequence);
 
                         var path = Path.Combine(dir, file.ToString());
@@ -768,21 +766,29 @@ namespace MTConnect.Buffers
             {
                 var dir = GetCurrentDirectory();
 
-                var deviceIndexes = observations.Select(o => o.DeviceIndex).Distinct();
-                foreach (var deviceIndex in deviceIndexes)
+                foreach (var deviceObservations in observations.GroupBy(o => o.DeviceIndex))
                 {
-                    var filename = $"{deviceIndex}_observations";
+                    var filename = $"{deviceObservations.Key}_observations";
                     var path = Path.Combine(dir, filename);
 
-                    // Get List of Observations for Device UUID
-                    var deviceObservations = observations.Where(o => o.DeviceIndex == deviceIndex);
-
-                    var currentObservations = new List<BufferObservation>();
-                    var dataItemIds = deviceObservations.Select(o => o.DataItemIndex).Distinct();
-                    foreach (var dataItemId in dataItemIds)
+                    // Keep the most recent Observation for each DataItem (single pass)
+                    var latest = new Dictionary<int, BufferObservation>();
+                    var order = new List<int>();
+                    foreach (var observation in deviceObservations)
                     {
-                        currentObservations.Add(deviceObservations.Where(o => o.DataItemIndex == dataItemId).OrderByDescending(o => o.Sequence).FirstOrDefault());
+                        if (latest.TryGetValue(observation.DataItemIndex, out var existing))
+                        {
+                            if (observation.Sequence > existing.Sequence) latest[observation.DataItemIndex] = observation;
+                        }
+                        else
+                        {
+                            latest.Add(observation.DataItemIndex, observation);
+                            order.Add(observation.DataItemIndex);
+                        }
                     }
+
+                    var currentObservations = new List<BufferObservation>(order.Count);
+                    foreach (var dataItemIndex in order) currentObservations.Add(latest[dataItemIndex]);
 
                     // Write the Observations to the Page File
                     await WriteToCurrentFile(path, currentObservations, false);
@@ -803,20 +809,16 @@ namespace MTConnect.Buffers
             {
                 var dir = GetCurrentDirectory();
 
-                var deviceIndexes = observations.Select(o => o.DeviceIndex).Distinct();
-                foreach (var deviceIndex in deviceIndexes)
+                foreach (var deviceObservations in observations.GroupBy(o => o.DeviceIndex))
                 {
-                    var filename = $"{deviceIndex}_conditions";
+                    var filename = $"{deviceObservations.Key}_conditions";
                     var path = Path.Combine(dir, filename);
 
-                    // Get List of Observations for Device UUID
-                    var deviceObservations = observations.Where(o => o.DeviceIndex == deviceIndex);
-
+                    // Group by DataItem (single pass), newest first within each DataItem
                     var currentObservations = new List<BufferObservation>();
-                    var dataItemIds = deviceObservations.Select(o => o.DataItemIndex).Distinct();
-                    foreach (var dataItemId in dataItemIds)
+                    foreach (var dataItemObservations in deviceObservations.GroupBy(o => o.DataItemIndex))
                     {
-                        currentObservations.AddRange(deviceObservations.Where(o => o.DataItemIndex == dataItemId).OrderByDescending(o => o.Sequence));
+                        currentObservations.AddRange(dataItemObservations.OrderByDescending(o => o.Sequence));
                     }
 
                     // Write the Observations to the Page File
@@ -834,7 +836,10 @@ namespace MTConnect.Buffers
                 var fileObservations = new List<FileObservation>();
                 var sb = new StringBuilder();
 
-                if (append)
+                // Uncompressed Page Files can be appended to directly instead of read and rewritten
+                var appendToFile = append && !UseCompression && File.Exists(path);
+
+                if (append && !appendToFile)
                 {
                     // Read File Contents
                     var fileLines = ReadFileLines(path);
@@ -888,6 +893,10 @@ namespace MTConnect.Buffers
                             var fileBytes = stream.ToArray();
                             File.WriteAllBytes(path, fileBytes);
                         }
+                    }
+                    else if (appendToFile)
+                    {
+                        File.AppendAllText(path, sb.ToString());
                     }
                     else
                     {

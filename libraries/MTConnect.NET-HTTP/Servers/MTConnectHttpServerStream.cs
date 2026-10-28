@@ -259,8 +259,14 @@ namespace MTConnect.Servers.Http
                     {
                         stpw.Restart();
 
+                        // Skip querying/formatting when the agent has nothing new and no heartbeat is due
+                        var skip = !_currentOnly &&
+                            nextSequence > 0 &&
+                            _mtconnectAgent.LastSequence < nextSequence &&
+                            (UnixDateTime.Now - lastHeartbeatSent) <= _heartbeat;
+
                         // Read the MTConnectStreams document from the IMTConnectAgent
-                        var document = GetDocument(nextSequence);
+                        var document = skip ? null : GetDocument(nextSequence);
                         if (document != null)
                         {
                             now = UnixDateTime.Now;

@@ -248,6 +248,9 @@ namespace MTConnect.Modules
 
         private void AdapterProtocolReceived(object sender, string message)
         {
+            // Runs for every SHDR line: skip building the message when Trace is disabled
+            if (!IsLogEnabled(MTConnectLogLevel.Trace)) return;
+
             var adapterClient = (ShdrAdapterClient)sender;
             Log(MTConnectLogLevel.Trace, $"ID = " + adapterClient.Id + " : " + message);
         }

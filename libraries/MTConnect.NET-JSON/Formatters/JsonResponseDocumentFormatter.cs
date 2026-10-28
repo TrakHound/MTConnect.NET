@@ -44,7 +44,7 @@ namespace MTConnect.Formatters
         {
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
-            var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
+            var jsonOptions = indentOutput ? JsonFunctions.SharedIndentOptions : JsonFunctions.SharedDefaultOptions;
 
             var outputStream = new MemoryStream();
             JsonSerializer.Serialize(outputStream, new JsonDevicesDocument(document), jsonOptions);
@@ -64,7 +64,7 @@ namespace MTConnect.Formatters
         {
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
-            var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
+            var jsonOptions = indentOutput ? JsonFunctions.SharedIndentOptions : JsonFunctions.SharedDefaultOptions;
 
             var outputStream = new MemoryStream();
             JsonSerializer.Serialize(outputStream, new JsonStreamsDocument(document), jsonOptions);
@@ -84,7 +84,7 @@ namespace MTConnect.Formatters
         {
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
-            var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
+            var jsonOptions = indentOutput ? JsonFunctions.SharedIndentOptions : JsonFunctions.SharedDefaultOptions;
 
             var outputStream = new MemoryStream();
             JsonSerializer.Serialize(outputStream, new JsonAssetsDocument(document), jsonOptions);
@@ -104,7 +104,7 @@ namespace MTConnect.Formatters
         {
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
-            var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
+            var jsonOptions = indentOutput ? JsonFunctions.SharedIndentOptions : JsonFunctions.SharedDefaultOptions;
 
             var outputStream = new MemoryStream();
             JsonSerializer.Serialize(outputStream, document, jsonOptions);

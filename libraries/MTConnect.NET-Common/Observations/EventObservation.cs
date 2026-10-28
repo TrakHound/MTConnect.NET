@@ -98,46 +98,17 @@ namespace MTConnect.Observations
         {
             if (!string.IsNullOrEmpty(type))
             {
-                Type dataItemType = null;
-                lock (_typeLock)
-                {
-                    // Initialize Type List
-                    if (_types == null) _types = GetAllTypes();
-
-                    if (!_types.IsNullOrEmpty())
-                    {
-                        var key = string.Intern(type + ":" + (int)representation);
-
-                        // Lookup Type ID (Type as PascalCase). _types is
-                        // keyed by the class-name-minus-Observation suffix
-                        // (e.g. "MessageValue" for MessageValueObservation),
-                        // so the dictionary lookup must use the PascalCase
-                        // typeId — not the raw (type, representation) cache
-                        // key — or every typed-subclass route misses.
-                        _typeIds.TryGetValue(key, out string typeId);
-                        if (typeId == null)
-                        {
-                            typeId = $"{type.ToPascalCase()}{representation.ToString().ToPascalCase()}";
-                            _typeIds.Add(key, typeId);
-                        }
-
-                        _types.TryGetValue(typeId, out dataItemType);
-                    }
-                }
-
-                if (dataItemType != null)
+                // Cached constructor delegate for the type-specific Observation class (no locking or reflection per call)
+                var factory = GetFactory(type, representation);
+                if (factory != null)
                 {
                     try
                     {
-                        var constructor = dataItemType.GetConstructor(System.Type.EmptyTypes);
-                        if (constructor != null)
+                        switch (representation)
                         {
-                            switch (representation)
-                            {
-                                case DataItemRepresentation.VALUE: return (EventValueObservation)Activator.CreateInstance(dataItemType);
-                                case DataItemRepresentation.DATA_SET: return (EventDataSetObservation)Activator.CreateInstance(dataItemType);
-                                case DataItemRepresentation.TABLE: return (EventTableObservation)Activator.CreateInstance(dataItemType);
-                            }
+                            case DataItemRepresentation.VALUE: return (EventValueObservation)factory();
+                            case DataItemRepresentation.DATA_SET: return (EventDataSetObservation)factory();
+                            case DataItemRepresentation.TABLE: return (EventTableObservation)factory();
                         }
                     }
                     catch { }

@@ -80,6 +80,17 @@ namespace MTConnect.Agents
 
         private readonly ConcurrentDictionary<string, IObservation> _currentObservations = new ConcurrentDictionary<string, IObservation>();
         private readonly ConcurrentDictionary<string, IEnumerable<IObservation>> _currentConditions = new ConcurrentDictionary<string, IEnumerable<IObservation>>();
+
+        // Change-detection state kept alongside the current values so the ChangeId (MD5) of the stored
+        // value is computed once per stored value instead of once per incoming observation
+        private readonly ConcurrentDictionary<string, CurrentObservationState> _currentObservationStates = new ConcurrentDictionary<string, CurrentObservationState>();
+        private readonly ConcurrentDictionary<string, CurrentConditionState> _currentConditionStates = new ConcurrentDictionary<string, CurrentConditionState>();
+
+        private static readonly string _conditionUnavailable = ConditionLevel.UNAVAILABLE.ToString();
+
+        // DeviceUuid:DataItemKey lookups that found no DataItem, with the Device instance that was searched
+        private const int MaxMissingDataItemKeys = 10000;
+        private readonly ConcurrentDictionary<string, IDevice> _missingDataItemKeys = new ConcurrentDictionary<string, IDevice>();
         private MTConnectAgentMetrics _metrics;
         private readonly string _uuid;
         private readonly ulong _instanceId;
@@ -595,8 +606,21 @@ namespace MTConnect.Agents
                         _devices.TryGetValue(deviceKey, out var device);
                         if (device == null && deviceUuid == _uuid) device = _agent;
 
+                        // A key already known to be missing from this same Device instance is not searched again
+                        // (re-adding / updating the Device replaces the instance, which invalidates the entry)
+                        if (device != null && _missingDataItemKeys.TryGetValue(lookupKey, out var missingFromDevice) && ReferenceEquals(missingFromDevice, device))
+                        {
+                            return null;
+                        }
+
                         // Get DataItem from Device DataItemKey
                         var dataItem = GetDataItemFromKey(device, dataItemKey);
+                        if (dataItem == null && device != null)
+                        {
+                            if (_missingDataItemKeys.Count >= MaxMissingDataItemKeys) _missingDataItemKeys.Clear();
+                            _missingDataItemKeys[lookupKey] = device;
+                        }
+
                         if (dataItem != null)
                         {
                             // Update DataItem in cached list
@@ -922,13 +946,13 @@ namespace MTConnect.Agents
             {
                 var hash = $"{deviceUuid}:{dataItem.Id}";
 
-                _currentObservations.TryGetValue(hash, out var existingObservation);
-                if (observation != null && existingObservation != null)
+                _currentObservationStates.TryGetValue(hash, out var existingState);
+                if (observation != null && existingState != null)
                 {
                     var timestamp = observation.Timestamp;
-                    var existingTimestamp = existingObservation.Timestamp.ToUnixTime();
+                    var existingTimestamp = existingState.Input.Timestamp;
 
-                    var existingObservationInput = new ObservationInput(existingObservation);
+                    var existingObservationInput = existingState.Input;
 
                     // Check Filters
                     var update = FilterPeriod(dataItem, timestamp, existingTimestamp);
@@ -967,13 +991,8 @@ namespace MTConnect.Agents
                 // Get Existing Condition Observations for DataItem
                 var hash = $"{deviceUuid}:{dataItem.Id}";
 
-                _currentConditions.TryGetValue(hash, out var existingObservations);
-
-                var existingObsevationInputs = new List<IObservationInput>();
-                if (!existingObservations.IsNullOrEmpty())
-                {
-                    foreach (var existingObsevation in existingObservations) existingObsevationInputs.Add(new ObservationInput(existingObsevation));
-                }
+                _currentConditionStates.TryGetValue(hash, out var existingState);
+                var existingObsevationInputs = existingState?.Inputs;
 
                 if (existingObsevationInputs.IsNullOrEmpty() || !existingObsevationInputs.Any(o => ObjectExtensions.ByteArraysEqual(o.ChangeId, observation.ChangeId)))
                 {
@@ -987,7 +1006,7 @@ namespace MTConnect.Agents
                 byte[] existingHash = null;
                 if (!existingObsevationInputs.IsNullOrEmpty())
                 {
-                    existingHash = StringFunctions.ToMD5HashBytes(existingObsevationInputs.OrderBy(o => o.GetValue(ValueKeys.NativeCode)).Select(o => o.ChangeId).ToArray());
+                    existingHash = existingState.Hash;
 
                     var conditionLevelValue = observation.GetValue(ValueKeys.Level);
                     var conditionLevel = conditionLevelValue.ConvertEnum<ConditionLevel>();
@@ -1000,7 +1019,7 @@ namespace MTConnect.Agents
                             var existingLevel = existingObsevationInput.GetValue(ValueKeys.Level);
                             var existingNativeCode = existingObsevationInput.GetValue(ValueKeys.NativeCode);
 
-                            if (!string.IsNullOrEmpty(existingNativeCode) && existingNativeCode != nativeCode && existingLevel != ConditionLevel.UNAVAILABLE.ToString())
+                            if (!string.IsNullOrEmpty(existingNativeCode) && existingNativeCode != nativeCode && existingLevel != _conditionUnavailable)
                             {
                                 observations.Insert(i, existingObsevationInput);
                                 i++;
@@ -1020,7 +1039,7 @@ namespace MTConnect.Agents
                 if (!observations.IsNullOrEmpty())
                 {
                     // Compare Hashes. If different, then update current list
-                    byte[] newHash = StringFunctions.ToMD5HashBytes(observations.OrderBy(o => o.GetValue(ValueKeys.NativeCode)).Select(o => o.ChangeId).ToArray());
+                    byte[] newHash = CurrentConditionState.CreateHash(observations);
                     if (!ObjectExtensions.ByteArraysEqual(existingHash, newHash))
                     {
                         return true;
@@ -1044,6 +1063,8 @@ namespace MTConnect.Agents
             if (_currentObservations != null && observation != null && !string.IsNullOrEmpty(deviceUuid) && dataItem != null)
             {
                 var hash = $"{deviceUuid}:{dataItem.Id}";
+
+                _currentObservationStates[hash] = new CurrentObservationState(new ObservationInput(observation));
 
                 _currentObservations.TryRemove(hash, out var _);
                 return _currentObservations.TryAdd(hash, observation);
@@ -1070,57 +1091,44 @@ namespace MTConnect.Agents
                 // Get Existing Condition Observations for DataItem
                 var hash = $"{deviceUuid}:{dataItem.Id}";
 
-                _currentConditions.TryGetValue(hash, out var existingObservations);
+                _currentConditionStates.TryGetValue(hash, out var existingState);
 
                 var observationInput = new ObservationInput(observation);
+                var observationInputs = new List<IObservationInput>();
 
-                var dExistingObservations = existingObservations?.ToDictionary(o => GetConditionObservationKey(o.GetValue(ValueKeys.ConditionId)));
-
-                var existingObservationInputs = new List<IObservationInput>();
-                if (!existingObservations.IsNullOrEmpty())
-                {
-                    foreach (var existingObsevation in existingObservations) existingObservationInputs.Add(new ObservationInput(existingObsevation));
-                }
+                var existingObservations = existingState?.Observations;
+                var existingObservationInputs = existingState?.Inputs;
 
                 if (existingObservationInputs.IsNullOrEmpty() || !existingObservationInputs.Any(o => ObjectExtensions.ByteArraysEqual(o.ChangeId, observationInput.ChangeId)))
                 {
                     addedNew = true;
                     observations.Add(observation);
+                    observationInputs.Add(observationInput);
                     i++;
                 }
 
 
                 // Add previous Condition Observations (if new Condition is not NORMAL or UNAVAILABLE)
-                byte[] existingHash = null;
                 if (!existingObservationInputs.IsNullOrEmpty())
                 {
-                    existingHash = StringFunctions.ToMD5HashBytes(existingObservationInputs.OrderBy(o => o.GetValue(ValueKeys.NativeCode)).Select(o => o.ChangeId).ToArray());
-
                     var conditionLevelValue = observation.GetValue(ValueKeys.Level);
                     var conditionLevel = conditionLevelValue.ConvertEnum<ConditionLevel>();
                     var conditionId = observation.GetValue(ValueKeys.ConditionId);
 
                     if (!(conditionLevel == ConditionLevel.NORMAL && string.IsNullOrEmpty(conditionId)) && conditionLevel != ConditionLevel.UNAVAILABLE)
                     {
-                        foreach (var existingObservationInput in existingObservationInputs)
+                        // Inputs and Observations are stored as parallel lists (same order)
+                        for (var j = 0; j < existingObservationInputs.Count; j++)
                         {
+                            var existingObservationInput = existingObservationInputs[j];
                             var existingLevel = existingObservationInput.GetValue(ValueKeys.Level);
                             var existingConditionId = existingObservationInput.GetValue(ValueKeys.ConditionId);
 
-                            if (!string.IsNullOrEmpty(existingConditionId) && existingConditionId != conditionId && existingLevel != ConditionLevel.UNAVAILABLE.ToString())
+                            if ((!string.IsNullOrEmpty(existingConditionId) && existingConditionId != conditionId && existingLevel != _conditionUnavailable) || !addedNew)
                             {
-                                var existingObservation = dExistingObservations[GetConditionObservationKey(existingConditionId)];
-                                observations.Insert(i, existingObservation);
+                                observations.Insert(i, existingObservations[j]);
+                                observationInputs.Insert(i, existingObservationInput);
                                 i++;
-                            }
-                            else
-                            {
-                                if (!addedNew)
-                                {
-                                    var existingObservation = dExistingObservations[GetConditionObservationKey(existingConditionId)];
-                                    observations.Insert(i, existingObservation);
-                                    i++;
-                                }
                             }
                         }
                     }
@@ -1128,6 +1136,8 @@ namespace MTConnect.Agents
 
                 if (!observations.IsNullOrEmpty())
                 {
+                    _currentConditionStates[hash] = new CurrentConditionState(observations, observationInputs);
+
                     _currentConditions.TryRemove(hash, out var _);
                     return _currentConditions.TryAdd(hash, observations);
                 }
@@ -1136,10 +1146,32 @@ namespace MTConnect.Agents
             return false;
         }
 
-        private static string GetConditionObservationKey(string conditionId)
+        private sealed class CurrentObservationState
         {
-            if (conditionId != null) return conditionId;
-            else return string.Empty;
+            public readonly IObservationInput Input;
+
+            public CurrentObservationState(IObservationInput input) { Input = input; }
+        }
+
+        private sealed class CurrentConditionState
+        {
+            public readonly List<IObservation> Observations;
+            public readonly List<IObservationInput> Inputs;
+            private byte[] _hash;
+
+            public CurrentConditionState(List<IObservation> observations, List<IObservationInput> inputs)
+            {
+                Observations = observations;
+                Inputs = inputs;
+            }
+
+            // Computed once per stored state (benign race: concurrent callers compute the same value)
+            public byte[] Hash => _hash ?? (_hash = CreateHash(Inputs));
+
+            public static byte[] CreateHash(IEnumerable<IObservationInput> inputs)
+            {
+                return StringFunctions.ToMD5HashBytes(inputs.OrderBy(o => o.GetValue(ValueKeys.NativeCode)).Select(o => o.ChangeId).ToArray());
+            }
         }
 
 

@@ -15,8 +15,25 @@ namespace MTConnect.Formatters
     /// </summary>
     public static class PathFormatter
     {
+        private static IEnumerable<Type> GetLoadableTypes(System.Reflection.Assembly assembly)
+        {
+            try
+            {
+                return assembly.GetTypes();
+            }
+            catch (System.Reflection.ReflectionTypeLoadException ex)
+            {
+                return ex.Types.Where(t => t != null);
+            }
+            catch
+            {
+                return Enumerable.Empty<Type>();
+            }
+        }
+
         private static readonly ConcurrentDictionary<string, IPathFormatter> _formatters = new ConcurrentDictionary<string, IPathFormatter>();
-        private static bool _firstRead = true;
+        private static readonly object _loadLock = new object();
+        private static volatile bool _firstRead = true;
 
 
         /// <summary>
@@ -46,10 +63,24 @@ namespace MTConnect.Formatters
         {
             if (_firstRead)
             {
-                AddFormatters();
-                _firstRead = false;
+                // Only one caller scans the assemblies; the rest wait for it
+                lock (_loadLock)
+                {
+                    if (_firstRead)
+                    {
+                        try
+                        {
+                            AddFormatters();
+                        }
+                        finally
+                        {
+                            _firstRead = false;
+                        }
+                    }
+                }
             }
 
+            if (id == null) return null;
             _formatters.TryGetValue(id, out var formatter);
             return formatter;
         }
@@ -60,7 +91,8 @@ namespace MTConnect.Formatters
             var assemblies = Assemblies.Get();
             if (!assemblies.IsNullOrEmpty())
             {
-                var allTypes = assemblies.SelectMany(x => x.GetTypes());
+                // An assembly whose types can't all be loaded must not prevent the others from being scanned
+                var allTypes = assemblies.SelectMany(GetLoadableTypes);
 
                 // Get IResponseDocumentFormatter Types
                 var types = allTypes.Where(x => typeof(IPathFormatter).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);

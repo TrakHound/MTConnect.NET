@@ -125,23 +125,35 @@ namespace MTConnect.Streams.Json
 
                 if (!componentStream.Observations.IsNullOrEmpty())
                 {
+                    // Split by Category in a single pass
+                    var sampleObservations = new List<Observations.Output.IObservationOutput>();
+                    var eventObservations = new List<Observations.Output.IObservationOutput>();
+                    var conditionObservations = new List<Observations.Output.IObservationOutput>();
+                    foreach (var observation in componentStream.Observations)
+                    {
+                        if (observation == null) continue;
+                        switch (observation.Category)
+                        {
+                            case Devices.DataItemCategory.SAMPLE: sampleObservations.Add(observation); break;
+                            case Devices.DataItemCategory.EVENT: eventObservations.Add(observation); break;
+                            case Devices.DataItemCategory.CONDITION: conditionObservations.Add(observation); break;
+                        }
+                    }
+
                     // Add Samples
-                    var sampleObservations = componentStream.Observations.Where(o => o.Category == Devices.DataItemCategory.SAMPLE);
-                    if (!sampleObservations.IsNullOrEmpty())
+                    if (sampleObservations.Count > 0)
                     {
                         Samples = new JsonSamples(sampleObservations);
                     }
 
                     // Add Events
-                    var eventObservations = componentStream.Observations.Where(o => o.Category == Devices.DataItemCategory.EVENT);
-                    if (!eventObservations.IsNullOrEmpty())
+                    if (eventObservations.Count > 0)
                     {
                         Events = new JsonEvents(eventObservations);
                     }
 
                     // Add Conditions
-                    var conditionObservations = componentStream.Observations.Where(o => o.Category == Devices.DataItemCategory.CONDITION);
-                    if (!conditionObservations.IsNullOrEmpty())
+                    if (conditionObservations.Count > 0)
                     {
                         Conditions = new JsonConditions(conditionObservations);
                     }

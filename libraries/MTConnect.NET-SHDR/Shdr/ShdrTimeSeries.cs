@@ -16,7 +16,6 @@ namespace MTConnect.Shdr
     /// </summary>
     public class ShdrTimeSeries : TimeSeriesObservationInput
     {
-        private static readonly Regex _deviceKeyRegex = new Regex("(.*):(.*)");
 
 
         /// <summary>
@@ -157,11 +156,11 @@ namespace MTConnect.Shdr
                     var y = ShdrLine.GetNextSegment(input);
 
                     // Get Device Key (if specified). Example : Device01:avail
-                    var match = _deviceKeyRegex.Match(x);
-                    if (match.Success && match.Groups.Count > 2)
+                    var separator = x.LastIndexOf(':');
+                    if (separator >= 0)
                     {
-                        timeSeries.DeviceKey = match.Groups[1].Value;
-                        timeSeries.DataItemKey = match.Groups[2].Value;
+                        timeSeries.DeviceKey = x.Substring(0, separator);
+                        timeSeries.DataItemKey = x.Substring(separator + 1);
                     }
                     else
                     {

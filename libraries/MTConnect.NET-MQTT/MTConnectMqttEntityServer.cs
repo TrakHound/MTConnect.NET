@@ -10,6 +10,7 @@ using MTConnect.Devices;
 using MTConnect.Formatters;
 using MTConnect.Observations;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,6 +28,14 @@ namespace MTConnect.Clients
     public class MTConnectMqttEntityServer
     {
         private readonly IMTConnectMqttEntityServerConfiguration _configuration;
+
+        private static readonly KeyValuePair<string, string>[] _observationFormatOptions = new[]
+        {
+            new KeyValuePair<string, string>("categoryOutput", "true"),
+            new KeyValuePair<string, string>("instanceIdOutput", "true")
+        };
+
+        private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, string>> _observationTopics = new ConcurrentDictionary<string, ConcurrentDictionary<string, string>>();
 
         /// <summary>The MQTT topic prefix used for every publish (sourced from the configuration).</summary>
         public string TopicPrefix => _configuration.TopicPrefix;
@@ -244,6 +253,35 @@ namespace MTConnect.Clients
             }
         }
 
+        // Observation topics are cached per Device / DataItem instead of being rebuilt for every message
+        private string GetObservationTopic(string deviceUuid, string dataItemId)
+        {
+            var deviceTopics = _observationTopics.GetOrAdd(deviceUuid ?? string.Empty, _ => new ConcurrentDictionary<string, string>());
+
+            var key = dataItemId ?? string.Empty;
+            if (!deviceTopics.TryGetValue(key, out var topic))
+            {
+                topic = $"{_configuration.TopicPrefix}/Devices/{deviceUuid}/Observations/{dataItemId}";
+                deviceTopics.TryAdd(key, topic);
+            }
+
+            return topic;
+        }
+
+        // Uses the formatter's MemoryStream buffer directly when possible to avoid copying the payload
+        private static void SetPayload(MqttApplicationMessageBuilder messageBuilder, Stream content)
+        {
+            if (content is MemoryStream memoryStream && memoryStream.TryGetBuffer(out var buffer))
+            {
+                messageBuilder.WithPayloadSegment(buffer);
+            }
+            else
+            {
+                if (content.Position > 0) content.Seek(0, SeekOrigin.Begin);
+                messageBuilder.WithPayload(content);
+            }
+        }
+
         private MqttApplicationMessage CreateMessage(IObservation observation)
         {
             if (observation != null)
@@ -251,20 +289,14 @@ namespace MTConnect.Clients
                 var device = observation.DataItem?.Device;
                 if (device != null)
                 {
-                    var topic = $"{_configuration.TopicPrefix}/Devices/{device.Uuid}/Observations/{observation.DataItemId}";
+                    var topic = GetObservationTopic(device.Uuid, observation.DataItemId);
 
-                    var formatOptions = new Dictionary<string, string>();
-                    formatOptions.Add("categoryOutput", "true");
-                    formatOptions.Add("instanceIdOutput", "true");
-
-                    var formatResult = EntityFormatter.Format(_configuration.DocumentFormat, observation, formatOptions);
+                    var formatResult = EntityFormatter.Format(_configuration.DocumentFormat, observation, _observationFormatOptions);
                     if (formatResult.Success)
                     {
-                        if (formatResult.Content.Position > 0) formatResult.Content.Seek(0, SeekOrigin.Begin);
-
                         var messageBuilder = new MqttApplicationMessageBuilder();
                         messageBuilder.WithTopic(topic);
-                        messageBuilder.WithPayload(formatResult.Content);
+                        SetPayload(messageBuilder, formatResult.Content);
                         messageBuilder.WithRetainFlag(true);
                         messageBuilder.WithQualityOfServiceLevel(GetQualityOfService(_configuration.Qos));
                         return messageBuilder.Build();
@@ -283,20 +315,14 @@ namespace MTConnect.Clients
                 var device = observation.DataItem?.Device;
                 if (device != null)
                 {
-                    var topic = $"{_configuration.TopicPrefix}/Devices/{device.Uuid}/Observations/{observation.DataItemId}";
+                    var topic = GetObservationTopic(device.Uuid, observation.DataItemId);
 
-                    var formatOptions = new Dictionary<string, string>();
-                    formatOptions.Add("categoryOutput", "true");
-                    formatOptions.Add("instanceIdOutput", "true");
-
-                    var formatResult = EntityFormatter.Format(_configuration.DocumentFormat, observations, formatOptions);
+                    var formatResult = EntityFormatter.Format(_configuration.DocumentFormat, observations, _observationFormatOptions);
                     if (formatResult.Success)
                     {
-                        if (formatResult.Content.Position > 0) formatResult.Content.Seek(0, SeekOrigin.Begin);
-
                         var messageBuilder = new MqttApplicationMessageBuilder();
                         messageBuilder.WithTopic(topic);
-                        messageBuilder.WithPayload(formatResult.Content);
+                        SetPayload(messageBuilder, formatResult.Content);
                         messageBuilder.WithRetainFlag(true);
                         messageBuilder.WithQualityOfServiceLevel(GetQualityOfService(_configuration.Qos));
                         return messageBuilder.Build();

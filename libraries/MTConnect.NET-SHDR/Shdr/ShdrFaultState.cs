@@ -13,7 +13,6 @@ namespace MTConnect.Shdr
     /// </summary>
     public class ShdrFaultState : ObservationInput
     {
-        private static readonly Regex _deviceKeyRegex = new Regex("(.*):(.*)");
 
 
         /// <summary>
@@ -276,11 +275,11 @@ namespace MTConnect.Shdr
                     var y = ShdrLine.GetNextSegment(input);
 
                     // Get Device Key (if specified). Example : Device01:avail
-                    var match = _deviceKeyRegex.Match(x);
-                    if (match.Success && match.Groups.Count > 2)
+                    var separator = x.LastIndexOf(':');
+                    if (separator >= 0)
                     {
-                        condition.DeviceKey = match.Groups[1].Value;
-                        condition.DataItemKey = match.Groups[2].Value;
+                        condition.DeviceKey = x.Substring(0, separator);
+                        condition.DataItemKey = x.Substring(separator + 1);
                     }
                     else
                     {

@@ -30,6 +30,11 @@ namespace MTConnect.Modules
     /// </summary>
     public class Module : MTConnectAgentModule
     {
+        // Topic prefixes (built once from the configuration)
+        private string _observationTopicPrefix;
+        private string _assetTopicPrefix;
+        private string _deviceTopicPrefix;
+
         /// <summary>
         /// Token used in <c>agent.config.yaml</c> to bind this module
         /// (<c>type: mqtt-adapter</c>).
@@ -239,16 +244,18 @@ namespace MTConnect.Modules
 
         private Task MessageReceived(MqttApplicationMessageReceivedEventArgs args)
         {
-            if (args.ApplicationMessage.PayloadSegment != null && args.ApplicationMessage.PayloadSegment.Array != null && args.ApplicationMessage.PayloadSegment.Array.Length > 0)
+            // Only the bytes within the segment belong to this message (the backing array may be larger)
+            var payload = GetPayload(args.ApplicationMessage);
+            if (payload != null && payload.Length > 0)
             {
                 var topic = args.ApplicationMessage.Topic;
 
-                Log(MTConnectLogLevel.Debug, $"MQTT Message Received : Topic = {topic}");
-                Log(MTConnectLogLevel.Trace, $"MQTT Message Received : Topic = {topic} : {System.Text.Encoding.UTF8.GetString(args.ApplicationMessage.PayloadSegment.Array)}");
+                if (IsLogEnabled(MTConnectLogLevel.Debug)) Log(MTConnectLogLevel.Debug, $"MQTT Message Received : Topic = {topic}");
+                if (IsLogEnabled(MTConnectLogLevel.Trace)) Log(MTConnectLogLevel.Trace, $"MQTT Message Received : Topic = {topic} : {System.Text.Encoding.UTF8.GetString(payload)}");
 
                 if (IsObservationTopic(topic))
                 {
-                    var observations = ProcessObservationPayload(args.ApplicationMessage.PayloadSegment.Array);
+                    var observations = ProcessObservationPayload(payload);
                     if (!observations.IsNullOrEmpty())
                     {
                         _mtconnectAgent.AddObservations(_configuration.DeviceKey, observations);
@@ -256,7 +263,7 @@ namespace MTConnect.Modules
                 }
                 else if (IsAssetTopic(topic))
                 {
-                    var assets = ProcessAssetPayload(args.ApplicationMessage.PayloadSegment.Array);
+                    var assets = ProcessAssetPayload(payload);
                     if (!assets.IsNullOrEmpty())
                     {
                         _mtconnectAgent.AddAssets(_configuration.DeviceKey, assets);
@@ -264,7 +271,7 @@ namespace MTConnect.Modules
                 }
                 else if (IsDeviceTopic(topic))
                 {
-                    var device = ProcessDevicePayload(args.ApplicationMessage.PayloadSegment.Array);
+                    var device = ProcessDevicePayload(payload);
                     if (device != null && !string.IsNullOrEmpty(device.Uuid) && !string.IsNullOrEmpty(device.Name))
                     {
                         if (!string.IsNullOrEmpty(_configuration.DeviceKey))
@@ -286,12 +293,23 @@ namespace MTConnect.Modules
             return Task.CompletedTask;
         }
 
+        private static byte[] GetPayload(MqttApplicationMessage message)
+        {
+            var segment = message.PayloadSegment;
+            if (segment.Array == null || segment.Count == 0) return null;
+            if (segment.Offset == 0 && segment.Count == segment.Array.Length) return segment.Array;
+
+            var payload = new byte[segment.Count];
+            Buffer.BlockCopy(segment.Array, segment.Offset, payload, 0, segment.Count);
+            return payload;
+        }
+
         private bool IsObservationTopic(string topic)
         {
             if (topic != null)
             {
-                var prefix = $"{_configuration.TopicPrefix}/{ObservationTopic}";
-                return topic.StartsWith(prefix);
+                if (_observationTopicPrefix == null) _observationTopicPrefix = $"{_configuration.TopicPrefix}/{ObservationTopic}";
+                return topic.StartsWith(_observationTopicPrefix, StringComparison.Ordinal);
             }
 
             return false;
@@ -301,8 +319,8 @@ namespace MTConnect.Modules
         {
             if (topic != null)
             {
-                var prefix = $"{_configuration.TopicPrefix}/{AssetTopic}";
-                return topic.StartsWith(prefix);
+                if (_assetTopicPrefix == null) _assetTopicPrefix = $"{_configuration.TopicPrefix}/{AssetTopic}";
+                return topic.StartsWith(_assetTopicPrefix, StringComparison.Ordinal);
             }
 
             return false;
@@ -312,8 +330,8 @@ namespace MTConnect.Modules
         {
             if (topic != null)
             {
-                var prefix = $"{_configuration.TopicPrefix}/{DeviceTopic}";
-                return topic.StartsWith(prefix);
+                if (_deviceTopicPrefix == null) _deviceTopicPrefix = $"{_configuration.TopicPrefix}/{DeviceTopic}";
+                return topic.StartsWith(_deviceTopicPrefix, StringComparison.Ordinal);
             }
 
             return false;

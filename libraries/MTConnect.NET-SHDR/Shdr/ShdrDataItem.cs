@@ -15,7 +15,6 @@ namespace MTConnect.Shdr
     /// </summary>
     public class ShdrDataItem : ObservationInput
     {
-        private static readonly Regex _deviceKeyRegex = new Regex("(.*):(.*)");
 
 
         /// <summary>
@@ -346,11 +345,11 @@ namespace MTConnect.Shdr
 
                         // Get Device Key (if specified). Example : Device01:avail
                         var key = fields[i];
-                        var match = _deviceKeyRegex.Match(key);
-                        if (match.Success && match.Groups.Count > 2)
+                        var separator = key.LastIndexOf(':');
+                        if (separator >= 0)
                         {
-                            dataItem.DeviceKey = match.Groups[1].Value;
-                            dataItem.DataItemKey = match.Groups[2].Value;
+                            dataItem.DeviceKey = key.Substring(0, separator);
+                            dataItem.DataItemKey = key.Substring(separator + 1);
                         }
                         else
                         {

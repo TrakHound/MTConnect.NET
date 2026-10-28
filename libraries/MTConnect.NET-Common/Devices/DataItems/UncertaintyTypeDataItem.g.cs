@@ -91,13 +91,9 @@ namespace MTConnect.Devices.DataItems
                 if (result != null)
                 {
                     // Check Valid values in Enum
-                    var validValues = Enum.GetValues(typeof(UncertaintyType));
-                    foreach (var validValue in validValues)
+                    if (EnumValues<UncertaintyType>.Contains(result))
                     {
-                        if (result == validValue.ToString())
-                        {
-                            return new ValidationResult(true);
-                        }
+                        return new ValidationResult(true);
                     }
 
                     return new ValidationResult(false, "'" + result + "' is not a valid value for UNCERTAINTY_TYPE");
@@ -126,13 +122,9 @@ namespace MTConnect.Devices.DataItems
                 if (result != null)
                 {
                     // Check Valid values in Enum
-                    var validValues = Enum.GetValues(typeof(UncertaintyType));
-                    foreach (var validValue in validValues)
+                    if (EnumValues<UncertaintyType>.Contains(result))
                     {
-                        if (result == validValue.ToString())
-                        {
-                            return new ValidationResult(true);
-                        }
+                        return new ValidationResult(true);
                     }
 
                     return new ValidationResult(false, "'" + result + "' is not a valid value for UNCERTAINTY_TYPE");

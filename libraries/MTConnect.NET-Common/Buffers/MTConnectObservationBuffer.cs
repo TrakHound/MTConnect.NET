@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Configurations;
@@ -17,11 +17,20 @@ namespace MTConnect.Buffers
     public class MTConnectObservationBuffer : IMTConnectObservationBuffer
     {
         /// <summary>
-        /// The minimum number of observations a single request must ask for before a high-priority garbage collection is forced after serving it.
+        /// No longer used. Requests no longer force garbage collections; kept for API compatibility.
         /// </summary>
         public const int HighPriorityGC = 5000; // Minimum number of Observations requested that will trigger a High Priority Garbage Collection
 
         private readonly string _id = Guid.NewGuid().ToString();
+
+        private static readonly string _levelNormal = ConditionLevel.NORMAL.ToString();
+        private static readonly string _levelWarning = ConditionLevel.WARNING.ToString();
+        private static readonly string _levelFault = ConditionLevel.FAULT.ToString();
+        private static readonly string _levelUnavailable = ConditionLevel.UNAVAILABLE.ToString();
+
+        // True only when a derived class overrides OnCurrentConditionChange, so the full
+        // current-condition copy passed to it is not built for every condition observation otherwise
+        private bool? _hasConditionChangeOverride;
         private readonly object _lock = new object();
         private ulong _sequence = 1;
 
@@ -142,6 +151,17 @@ namespace MTConnect.Buffers
         /// <param name="observations">The new active condition set.</param>
         protected virtual void OnCurrentConditionChange(IEnumerable<BufferObservation> observations) { }
 
+        private bool HasConditionChangeOverride()
+        {
+            if (_hasConditionChangeOverride == null)
+            {
+                var method = GetType().GetMethod(nameof(OnCurrentConditionChange), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                _hasConditionChangeOverride = method != null && method.DeclaringType != typeof(MTConnectObservationBuffer);
+            }
+
+            return _hasConditionChangeOverride.Value;
+        }
+
         /// <summary>
         /// Extension point invoked after the current observation for a key is updated; overridden by durable buffers to persist the change. The base implementation does nothing.
         /// </summary>
@@ -205,7 +225,8 @@ namespace MTConnect.Buffers
         /// </summary>
         protected IEnumerable<BufferObservation> GetCurrentObservations()
         {
-            return new List<BufferObservation>(_currentObservations.Values);
+            // Snapshot under the buffer lock so a concurrent AddObservation can't tear the read
+            lock (_lock) return new List<BufferObservation>(_currentObservations.Values);
         }
 
         /// <summary>
@@ -215,10 +236,14 @@ namespace MTConnect.Buffers
         {
             var x = new List<BufferObservation>();
 
-            var conditions = _currentConditions.Values;
-            if (!conditions.IsNullOrEmpty())
+            // Snapshot under the buffer lock so a concurrent AddObservation can't tear the read
+            lock (_lock)
             {
-                foreach (var condition in conditions) x.AddRange(condition);
+                var conditions = _currentConditions.Values;
+                if (!conditions.IsNullOrEmpty())
+                {
+                    foreach (var condition in conditions) x.AddRange(condition);
+                }
             }
 
             return x;
@@ -228,89 +253,50 @@ namespace MTConnect.Buffers
         {
             if (observations != null && observations.Size > 0 && keys != null && keys.Length > 0)
             {
-                uint totalCount = 0; // Total number of Observations that were matched
                 int oi = Math.Max(fromIndex, 0); // Observations Iterator
                 var oil = Math.Min(toIndex, observations.Size - 1);
                 if (oi > oil) return null;
 
-                // A key can never match more observations than the scanned range holds,
-                // so size the per-key arrays to the range rather than the whole buffer capacity
                 uint max = (uint)(oil - oi + 1); // Max Observations length
-                if (count > 0) max = Math.Min(count, max); // Ensure max length doesn't exceed array length
+                if (count > 0) max = Math.Min(count, max); // Ensure max length doesn't exceed 'count' parameter
 
-                int bki; // BufferKey Iterator
-                int bkmax = keys.Length; // Max BufferKey length
+                // Map each BufferKey to its position in 'keys' (first occurrence wins)
+                var keyLookup = CreateKeyLookup(keys);
 
-                // Create two-dimensional array to hold the indexes of each matched observation for each BufferKey
-                var keyIndexes = new int[keys.Length, max];
+                // Single pass over the range: record the key position and buffer index of each match
+                var matchKeys = new List<int>();
+                var matchIndexes = new List<int>();
+                var keyCounts = new int[keys.Length];
 
-                // Create two-dimensional array to hold the positions that were written in the keyIndexes array
-                var keyPositions = new int[keys.Length, 1];
-
-
-                // Loop through observations[]
-                while (oi <= oil)
+                while (oi <= oil && (uint)matchIndexes.Count < max)
                 {
-                    // Reset BufferKey iterator
-                    bki = 0;
-
-                    // Loop through BufferKeys
-                    while (bki < bkmax)
+                    if (keyLookup.TryGetValue(observations[oi]._key, out var k))
                     {
-                        // Match BufferKey
-                        if (observations[oi]._key == keys[bki])
-                        {
-                            // Get the Key position (last position in keyIndexes that was written)
-                            var p = keyPositions[bki, 0];
-
-                            // Write the Index to the keyIndexes array
-                            keyIndexes[bki, p] = oi;
-
-                            // Update the Key position
-                            keyPositions[bki, 0] = p + 1;
-
-                            totalCount++; // Increment the total found count
-                            break; // Don't continue to loop through BufferKeys if already found
-                        }
-
-                        if (totalCount >= max) break; // Break if total found exceeds 'count' parameter
-                        bki++; // Increment BufferKey iterator
+                        matchKeys.Add(k);
+                        matchIndexes.Add(oi);
+                        keyCounts[k]++;
                     }
 
-                    if (totalCount >= max) break; // Break if total found exceeds 'count' parameter
-                    oi++; // Increment observation iterator
+                    oi++;
                 }
 
                 // If any Observations were Matched
-                if (totalCount > 0)
+                if (matchIndexes.Count > 0)
                 {
-                    // Single dimensional array to return containing the indexes of matched observations in the array passed as a parameter
-                    var indexes = new int[totalCount];
-                    var i = 0; // indexes iterator
-                    bki = 0; // Reset BufferKey iterator
-
-                    int p; // iterator for keyIndexes position
-                    int pl; // max length of keyIndexes to iterate over
-
-                    // Loop through the BufferKeys
-                    // BufferKeys are ordered in ascending order.
-                    // This order is maintained in the returned array so that additional sorting should never be required
-                    while (bki < bkmax)
+                    // Group the matches by key position (the order of 'keys'), keeping buffer order within each key.
+                    // BufferKeys are ordered in ascending order, so additional sorting should never be required
+                    var offsets = new int[keys.Length];
+                    var offset = 0;
+                    for (var k = 0; k < keys.Length; k++)
                     {
-                        p = 0; // Reset position iterator
-                        pl = keyPositions[bki, 0]; // Set max position length (number of observations found for that BufferKey
+                        offsets[k] = offset;
+                        offset += keyCounts[k];
+                    }
 
-                        // Loop through found observations for this BufferKey
-                        while (p < pl)
-                        {
-                            // Write the index of the observation to the return array
-                            indexes[i] = keyIndexes[bki, p];
-
-                            p++; // increment the position iterator
-                            i++; // increment the indexes iterator
-                        }
-
-                        bki++; // Increment BufferKey iterator
+                    var indexes = new int[matchIndexes.Count];
+                    for (var m = 0; m < matchIndexes.Count; m++)
+                    {
+                        indexes[offsets[matchKeys[m]]++] = matchIndexes[m];
                     }
 
                     return indexes;
@@ -320,28 +306,56 @@ namespace MTConnect.Buffers
             return null;
         }
 
-        private static int GetLatestIndex(CircularBuffer observations, int key, int atIndex)
+        /// <summary>
+        /// Returns, for each key, the index of the most recent observation at or before <paramref name="atIndex"/>
+        /// (or -1 when none), using a single reverse scan of the buffer.
+        /// </summary>
+        private static int[] GetLatestIndexes(CircularBuffer observations, int[] keys, int atIndex)
         {
-            var index = -1;
+            var indexes = new int[keys.Length];
+            for (var i = 0; i < indexes.Length; i++) indexes[i] = -1;
 
             // Bound by Size, not Capacity: slots past Size have not been written yet
-            if (observations != null && observations.Size > 0 && atIndex < observations.Size)
+            if (observations != null && observations.Size > 0 && atIndex < observations.Size && keys.Length > 0)
             {
-                // Loop through the observations in reverse order (sequence desc)
-                // This find the most recent observation in the buffer
-                for (var i = atIndex; i >= 0; i--)
+                // Positions of each key in 'keys' (a key can appear more than once)
+                var keyLookup = new Dictionary<int, List<int>>(keys.Length);
+                for (var k = 0; k < keys.Length; k++)
                 {
-                    // Find the matching Buffer Key
-                    if (observations[i]._key == key)
+                    if (!keyLookup.TryGetValue(keys[k], out var positions))
                     {
-                        // If found, set the index and break from the loop
-                        index = i;
-                        break;
+                        positions = new List<int>(1);
+                        keyLookup.Add(keys[k], positions);
+                    }
+                    positions.Add(k);
+                }
+
+                var remaining = keyLookup.Count;
+
+                // Loop through the observations in reverse order (sequence desc) to find the most recent for each key
+                for (var i = atIndex; i >= 0 && remaining > 0; i--)
+                {
+                    var key = observations[i]._key;
+                    if (keyLookup.TryGetValue(key, out var positions))
+                    {
+                        foreach (var k in positions) indexes[k] = i;
+                        keyLookup.Remove(key);
+                        remaining--;
                     }
                 }
             }
 
-            return index;
+            return indexes;
+        }
+
+        private static Dictionary<int, int> CreateKeyLookup(int[] keys)
+        {
+            var keyLookup = new Dictionary<int, int>(keys.Length);
+            for (var k = 0; k < keys.Length; k++)
+            {
+                if (!keyLookup.ContainsKey(keys[k])) keyLookup.Add(keys[k], k);
+            }
+            return keyLookup;
         }
 
         #endregion
@@ -440,12 +454,8 @@ namespace MTConnect.Buffers
 
                     if (_archiveObservations.Size > 0)
                     {
-                        var indexes = new int[oBufferKeys.Length];
-                        for (var i = 0; i < oBufferKeys.Length; i++)
-                        {
-                            // Get the latest observation based on the "at" parameter
-                            indexes[i] = GetLatestIndex(_archiveObservations, oBufferKeys[i], atIndex);
-                        }
+                        // Get the latest observation for each key based on the "at" parameter
+                        var indexes = GetLatestIndexes(_archiveObservations, oBufferKeys, atIndex);
 
                         for (var i = 0; i < oBufferKeys.Length; i++)
                         {
@@ -575,10 +585,6 @@ namespace MTConnect.Buffers
                     }
                 }
 
-                // Trigger Garbage Collector to Collect()
-                if (observationCount > HighPriorityGC) GarbageCollector.HighPriorityCollect();
-                else GarbageCollector.LowPriorityCollect();
-
                 // Return a StreamingResults struct containing the observations found
                 // as well as the sequences that were active when the observations were read
                 return new ObservationBufferResults
@@ -699,8 +705,8 @@ namespace MTConnect.Buffers
                     var conditionLevel = observation.GetValue(ValueKeys.Level);
                     var nativeCode = observation.GetValue(ValueKeys.NativeCode);
 
-                    if (!(conditionLevel == ConditionLevel.NORMAL.ToString() && string.IsNullOrEmpty(nativeCode)) &&
-                        conditionLevel != ConditionLevel.UNAVAILABLE.ToString())
+                    if (!(conditionLevel == _levelNormal && string.IsNullOrEmpty(nativeCode)) &&
+                        conditionLevel != _levelUnavailable)
                     {
                         foreach (var existingObservation in existingObservations)
                         {
@@ -708,7 +714,7 @@ namespace MTConnect.Buffers
                             var existingNativeCode = existingObservation.GetValue(ValueKeys.NativeCode);
 
                             if (existingNativeCode != nativeCode &&
-                                existingLevel != ConditionLevel.UNAVAILABLE.ToString() &&
+                                existingLevel != _levelUnavailable &&
                                 existingObservation.Sequence != observation.Sequence)
                             {
                                 bufferObservations.Add(existingObservation);
@@ -723,11 +729,12 @@ namespace MTConnect.Buffers
                 // If any WARNING or FAULT states present, then remove any NORMAL states
                 // Current should only show the active states
                 if (bufferObservations.Any(o =>
-                        o.GetValue(ValueKeys.Level) == ConditionLevel.WARNING.ToString() ||
-                        o.GetValue(ValueKeys.Level) == ConditionLevel.FAULT.ToString()))
+                        {
+                            var level = o.GetValue(ValueKeys.Level);
+                            return level == _levelWarning || level == _levelFault;
+                        }))
                 {
-                    bufferObservations.RemoveAll(o =>
-                        o.GetValue(ValueKeys.Level) == ConditionLevel.NORMAL.ToString());
+                    bufferObservations.RemoveAll(o => o.GetValue(ValueKeys.Level) == _levelNormal);
                 }
 
                 IEnumerable<BufferObservation> iBufferObservations = bufferObservations;
@@ -735,8 +742,8 @@ namespace MTConnect.Buffers
                 // Add to stored List
                 _currentConditions.Add(observation._key, iBufferObservations);
 
-                // Call Overridable Method
-                OnCurrentConditionChange(GetCurrentConditions());
+                // Call Overridable Method (only build the full copy when a derived class uses it)
+                if (HasConditionChangeOverride()) OnCurrentConditionChange(GetCurrentConditions());
                 OnCurrentConditionAdd(ref iBufferObservations);
             }
         }
