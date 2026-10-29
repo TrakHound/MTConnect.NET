@@ -1,51 +1,95 @@
+# MTConnect.NET Builder Configuration Template
+#
+# Copy this file to config.[ID].yaml (ex. config.default.yaml or config.production.yaml) on each build server and
+# set the local values. The Builder reads config.[ID].yaml from its project directory (--configurationId, 'default' if not set).
+# config.*.yaml files are git-ignored (except this template) so each build server keeps its own paths and keys.
+#
+# Relative paths are resolved against the Builder directory (build/MTConnect.NET.Builder), so the defaults below
+# build the repository this Builder is in.
+
 publisher: TrakHound Inc.
 
-input: D:\TrakHound\Source-Code\MTConnect.NET
-output: D:\TrakHound\Source-Code\MTConnect.NET\build\output\default
+# Root directory of the MTConnect.NET repository
+input: ..\..
+# Directory to write the build output to (a [version] directory is created for each build)
+output: ..\output\default
 
-versionInfoPath: D:\TrakHound\Source-Code\MTConnect.NET\Directory.build.props
-innoSetupPath: c:\\Program Files (x86)\\Inno Setup 6\\iscc
+# File the version is read from (defaults to [input]\Directory.Build.props). Package versions are
+# [VersionPrefix].[Revision], where the Revision is the number of commits since the VersionPrefix last changed
+# versionInfoPath: ..\..\Directory.Build.props
+
+innoSetupPath: C:\Program Files (x86)\Inno Setup 6\ISCC.exe
+
+# Remove the version suffix (ex. -prerelease) from the built versions
+# removeVersionSuffix: true
+
+# Code Signing with Azure Artifact Signing (disabled when not set). Signs the MTConnect.NET files in the Installer,
+# the Installer and its Uninstaller. Requires the Microsoft.Azure.ArtifactSigningClientTools (winget), the Windows SDK
+# signtool and an Azure CLI login (az login) with the Artifact Signing Certificate Profile Signer role
+# signing:
+#   signToolPath: C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe
+#   dlibPath: C:\Users\[USER]\AppData\Local\Microsoft\MicrosoftArtifactSigningClientTools\Azure.CodeSigning.Dlib.dll
+#   # Artifact Signing account and Certificate Profile (Endpoint, CodeSigningAccountName, CertificateProfileName),
+#   # relative to the Builder directory
+#   metadataPath: metadata.json
+#   # Published files to sign (defaults to the MTConnect*.dll files and the agent exe / dll)
+#   # files:
+#   #   - MTConnect*.dll
+#   #   - agent.exe
+#   #   - agent.dll
+
+# GitHub Release publishing (the release is created as a draft on the built Commit)
+# gitHubRepo: MTConnect.NET
+# gitHubUser: TrakHound
+# gitHubToken: [GITHUB_TOKEN]
 
 agent:
 
-  styles: D:\TrakHound\Source-Code\MTConnect.NET\build\styles
-  schemas: D:\TrakHound\Source-Code\MTConnect.NET\build\schemas
+  styles: ..\styles
+  schemas: ..\schemas
 
+  # One installer with a Setup Type for each Runtime and Framework (the first Framework on x64 is the default)
   installer:
     projectPath: agent\MTConnect.NET-Agent
     applicationName: MTConnect.NET Agent
     filename: mtconnect.net-agent
     runtimes:
-      - win-x86 
       - win-x64
+      - win-x86
     frameworks:
+      - net10.0
       - net9.0
       - net8.0
       - net7.0
       - net6.0
       - net48
       - net461
-  
-  
+
+  # One image per platform, published as [imageName]:[version]-[tag] and combined into the multi-platform
+  # [imageName]:[version] and [imageName]:latest tags. baseImage may be a tag of mcr.microsoft.com/dotnet/runtime
+  # (defaults to the Framework's version, ex. 8.0). Alpine Base Images need a linux-musl-* Runtime
   docker:
     projectPath: agent\MTConnect.NET-Agent
     imageName: trakhound/mtconnect.net-agent
     images:
-      - baseImage: 8.0.0-alpine3.18-amd64
-        runtime: linux-x64
+      - baseImage: 8.0-alpine
+        tag: amd64
+        runtime: linux-musl-x64
         framework: net8.0
-      - baseImage: 8.0.0-alpine3.18-arm64v8
-        tag: -arm
-        runtime: linux-arm64
+      # 'arm' keeps the [version]-arm and latest-arm tags published by earlier Builders
+      - baseImage: 8.0-alpine
+        tag: arm
+        runtime: linux-musl-arm64
         framework: net8.0
 
 
 libraries:
 
  - name: Libraries
-   nugetServer: 
+   nugetServer: https://nuget.trakhound.com/nuget
+   # nugetApiKey: [NUGET_API_KEY]
    projectConfiguration: Package
-   authors: 
+   authors: TrakHound
    repositoryUrl: https://github.com/TrakHound/MTConnect.NET
    repositoryBranch: v{VERSION}
    packageTags: mtconnect;iiot;iot;cnc;
@@ -79,9 +123,10 @@ libraries:
      projectPath: libraries/MTConnect.NET
 
  - name: Adapter
-   nugetServer: 
+   nugetServer: https://nuget.trakhound.com/nuget
+   # nugetApiKey: [NUGET_API_KEY]
    projectConfiguration: Package
-   authors: 
+   authors: TrakHound
    repositoryUrl: https://github.com/TrakHound/MTConnect.NET
    repositoryBranch: v{VERSION}
    packageTags: mtconnect;iiot;iot;cnc;
@@ -97,9 +142,10 @@ libraries:
      projectPath: adapter/Modules/MTConnect.NET-AdapterModule-SHDR
 
  - name: Agent
-   nugetServer: 
+   nugetServer: https://nuget.trakhound.com/nuget
+   # nugetApiKey: [NUGET_API_KEY]
    projectConfiguration: Package
-   authors: 
+   authors: TrakHound
    repositoryUrl: https://github.com/TrakHound/MTConnect.NET
    repositoryBranch: v{VERSION}
    packageTags: mtconnect;iiot;iot;cnc;

@@ -1,4 +1,5 @@
 ﻿using Octokit;
+using System.Text.Json;
 
 namespace TrakHound.Builder.GitHub
 {
@@ -25,20 +26,23 @@ namespace TrakHound.Builder.GitHub
             {
                 var githubClient = new GitHubClient(new ProductHeaderValue("mtconnect-net-builder"));
 
-                // Check the installer exists before creating the draft, so a missing
-                // build doesn't leave an empty draft release on GitHub
-                var installerPath = GetInstallerPath(config);
-                if (!File.Exists(installerPath))
-                {
-                    Console.WriteLine($"ERROR : Installer Not Found : {installerPath}");
-                    Environment.Exit(1);
-                }
-
                 var tokenAuth = new Credentials(config.GitHubToken);
                 githubClient.Credentials = tokenAuth;
 
-                var releaseId = await CreateReleaseDraft(config, githubClient);
-                await UploadReleaseFiles(config, githubClient, releaseId);
+                // Verify all files exist before creating the draft so a missing file doesn't leave an empty release
+                var releaseFiles = GetReleaseFiles(config);
+                var missingFiles = releaseFiles.Where(o => !File.Exists(o)).ToArray();
+                if (missingFiles.Length > 0)
+                {
+                    foreach (var missingFile in missingFiles) Console.WriteLine($"ERROR : Release File Not Found : {missingFile}");
+                    Environment.Exit(1);
+                }
+
+                // The release is tagged on the Commit the files were built from (not the default branch's latest Commit)
+                var commit = GetBuildCommit(config);
+
+                var releaseId = await CreateReleaseDraft(config, githubClient, commit);
+                await UploadReleaseFiles(config, githubClient, releaseId, releaseFiles);
 
                 Console.Write("DONE");
                 Console.WriteLine();
@@ -49,48 +53,87 @@ namespace TrakHound.Builder.GitHub
             }
         }
 
-        static async Task<long> CreateReleaseDraft(Configuration configuration, GitHubClient client)
+        static async Task<long> CreateReleaseDraft(Configuration configuration, GitHubClient client, string commit)
         {
             var version = AppVersion.GetVersion(configuration.Id);
+            var versionSuffix = AppVersion.GetVersionSuffix(configuration.Id);
 
             var newRelease = new NewRelease($"v{version}");
             newRelease.Name = $"MTConnect.NET {version}";
             newRelease.Body = $"This is the v{version} Release of MTConnect.NET";
+            newRelease.TargetCommitish = commit;
             newRelease.Draft = true;
-            newRelease.Prerelease = false;
+            newRelease.Prerelease = !string.IsNullOrEmpty(versionSuffix) && !configuration.RemoveVersionSuffix;
 
             var result = await client.Repository.Release.Create(configuration.GitHubUser, configuration.GitHubRepo, newRelease);
-            Console.WriteLine("Created release draft id {0}", result.Id);
+            Console.WriteLine($"Created release draft id {result.Id} (v{version} on {commit})");
 
             return result.Id;
         }
 
-        static string GetInstallerPath(Configuration configuration)
+        static async Task UploadReleaseFiles(Configuration configuration, GitHubClient client, long releaseId, string[] filePaths)
+        {
+            var release = await client.Repository.Release.Get(configuration.GitHubUser, configuration.GitHubRepo, releaseId);
+
+            foreach (var filePath in filePaths)
+            {
+                using (var fileStream = File.OpenRead(filePath))
+                {
+                    var assetUpload = new ReleaseAssetUpload()
+                    {
+                        FileName = Path.GetFileName(filePath),
+                        ContentType = GetContentType(filePath),
+                        RawData = fileStream
+                    };
+                    await client.Repository.Release.UploadAsset(release, assetUpload);
+                }
+                Console.WriteLine($"{Path.GetFileName(filePath)} Uploaded");
+            }
+        }
+
+        static string[] GetReleaseFiles(Configuration configuration)
         {
             var version = AppVersion.GetVersion(configuration.Id);
             var versionSuffix = AppVersion.GetVersionSuffix(configuration.Id);
-            var outputPath = Path.Combine(Environment.CurrentDirectory, configuration.Output, version);
+            var outputPath = Path.Combine(configuration.Output, version);
 
-            return Path.Combine(outputPath, $"{Instance.Installer.GetOutputFilename(configuration, version, versionSuffix)}.exe");
+            return new[]
+            {
+                Path.Combine(outputPath, $"{Instance.Installer.GetOutputFilename(configuration, version, versionSuffix)}.exe")
+            };
         }
 
-        static async Task UploadReleaseFiles(Configuration configuration, GitHubClient client, long releaseId)
+        /// <summary>
+        /// The Commit recorded in [output]/[version]/build.json by the Agent build. Exits the Builder if it's missing or
+        /// was built with uncommitted changes
+        /// </summary>
+        static string GetBuildCommit(Configuration configuration)
         {
-            // Upload Instance Installer Executable
-            var installerPath = GetInstallerPath(configuration);
-            var installerFilename = Path.GetFileName(installerPath);
-            using (var installerExe = File.OpenRead(installerPath))
+            var buildInfoPath = Path.Combine(configuration.Output, AppVersion.GetVersion(configuration.Id), Instance.AgentPublish.BuildInfoFilename);
+            if (!File.Exists(buildInfoPath))
             {
-                var assetUpload = new ReleaseAssetUpload()
-                {
-                    FileName = installerFilename,
-                    ContentType = "application/vnd.microsoft.portable-executable",
-                    RawData = installerExe
-                };
-                var release = await client.Repository.Release.Get(configuration.GitHubUser, configuration.GitHubRepo, releaseId);
-                var asset = await client.Repository.Release.UploadAsset(release, assetUpload);
+                Console.WriteLine($"ERROR : {buildInfoPath} not found (build the Agent Installer first)");
+                Environment.Exit(1);
             }
-            Console.WriteLine("Instance Installer Uploaded");
+
+            using var buildInfo = JsonDocument.Parse(File.ReadAllText(buildInfoPath));
+            if (buildInfo.RootElement.GetProperty("dirty").GetBoolean())
+            {
+                Console.WriteLine($"ERROR : The Agent was built with uncommitted changes ({buildInfoPath}) : commit them and rebuild");
+                Environment.Exit(1);
+            }
+
+            return buildInfo.RootElement.GetProperty("commit").GetString();
+        }
+
+        static string GetContentType(string filePath)
+        {
+            switch (Path.GetExtension(filePath).ToLower())
+            {
+                case ".exe": return "application/vnd.microsoft.portable-executable";
+                case ".zip": return "application/zip";
+                default: return "application/octet-stream";
+            }
         }
     }
 }

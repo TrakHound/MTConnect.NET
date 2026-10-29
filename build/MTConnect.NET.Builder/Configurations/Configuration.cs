@@ -7,6 +7,9 @@ namespace TrakHound.Builder
     {
         public const string DefaultId = "default";
 
+        private static readonly Dictionary<string, Configuration> _configurations = new();
+        private static readonly object _lock = new();
+
 
         public string Id { get; set; }
 
@@ -22,6 +25,8 @@ namespace TrakHound.Builder
 
         public string InnoSetupPath { get; set; }
 
+        public SigningConfiguration Signing { get; set; }
+
         public string GitHubToken { get; set; }
 
         public string GitHubUser { get; set; }
@@ -33,31 +38,62 @@ namespace TrakHound.Builder
         public LibrariesConfiguration[] Libraries { get; set; }
 
 
+        /// <summary>
+        /// Read config.[ID].yaml from the Builder directory. Relative paths in the file (input, output, versionInfoPath,
+        /// agent styles and schemas) are resolved against the Builder directory. Exits the Builder if the file can't be read
+        /// </summary>
         public static Configuration Read(string id)
         {
-            var configurationPath = Path.Combine(Environment.CurrentDirectory, $"config.{id}.yaml");
+            if (string.IsNullOrEmpty(id)) id = DefaultId;
 
-            try
+            lock (_lock)
             {
-                var text = File.ReadAllText(configurationPath);
-                if (!string.IsNullOrEmpty(text))
+                if (_configurations.TryGetValue(id, out var cached)) return cached;
+
+                var configurationPath = BuilderPaths.GetPath($"config.{id}.yaml");
+                if (!File.Exists(configurationPath))
+                {
+                    Exit($"Configuration File not Found : {configurationPath} (copy config.template.yaml to config.{id}.yaml)");
+                }
+
+                Configuration configuration = null;
+                try
                 {
                     var deserializer = new DeserializerBuilder()
                         .WithNamingConvention(CamelCaseNamingConvention.Instance)
                         .IgnoreUnmatchedProperties()
                         .Build();
 
-                    var configuration = deserializer.Deserialize<Configuration>(text);
-                    if (configuration != null)
-                    {
-                        configuration.Id = id;
-                        return configuration;
-                    }
+                    configuration = deserializer.Deserialize<Configuration>(File.ReadAllText(configurationPath));
                 }
-            }
-            catch { }
+                catch (Exception ex)
+                {
+                    Exit($"Error reading Configuration File ({configurationPath}) : {ex.Message}");
+                }
 
-            return null;
+                if (configuration == null) Exit($"Configuration File is empty : {configurationPath}");
+                if (string.IsNullOrEmpty(configuration.Input)) Exit($"'input' not set in {configurationPath}");
+                if (string.IsNullOrEmpty(configuration.Output)) Exit($"'output' not set in {configurationPath}");
+
+                configuration.Id = id;
+                configuration.Input = BuilderPaths.Resolve(configuration.Input);
+                configuration.Output = BuilderPaths.Resolve(configuration.Output);
+                configuration.VersionInfoPath = !string.IsNullOrEmpty(configuration.VersionInfoPath) ? BuilderPaths.Resolve(configuration.VersionInfoPath) : Path.Combine(configuration.Input, "Directory.Build.props");
+                if (configuration.Agent != null)
+                {
+                    if (!string.IsNullOrEmpty(configuration.Agent.Styles)) configuration.Agent.Styles = BuilderPaths.Resolve(configuration.Agent.Styles);
+                    if (!string.IsNullOrEmpty(configuration.Agent.Schemas)) configuration.Agent.Schemas = BuilderPaths.Resolve(configuration.Agent.Schemas);
+                }
+
+                _configurations[id] = configuration;
+                return configuration;
+            }
+        }
+
+        private static void Exit(string message)
+        {
+            Console.WriteLine($"ERROR : {message}");
+            Environment.Exit(1);
         }
     }
 }
