@@ -28,7 +28,10 @@ bld/
 build/output
 build/schemas
 build/styles
-build/MTConnect.NET.Builder/config.production.yaml
+# Builder Configurations are per build server (copy config.template.yaml)
+build/MTConnect.NET.Builder/config.*.yaml
+!build/MTConnect.NET.Builder/config.template.yaml
+build/MTConnect.NET.Builder/metadata.json
 
 [Nn]ode_modules/
 

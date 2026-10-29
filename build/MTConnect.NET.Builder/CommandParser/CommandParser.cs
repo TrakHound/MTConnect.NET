@@ -38,7 +38,7 @@ namespace TrakHound.Builder
                     }
                 }
 
-                bool success;
+                var success = false;
 
                 // Get all type from the current Assembly
                 var types = Assembly.GetExecutingAssembly().GetTypes();
@@ -55,16 +55,36 @@ namespace TrakHound.Builder
 
                     if (success) break;
                 }
+
+                if (!success)
+                {
+                    Console.WriteLine($"ERROR : Unknown Command : {string.Join(' ', args)}");
+                    Console.WriteLine("Use 'help <command group>' or '<command> /?' to list the available commands");
+                    Environment.ExitCode = 1;
+                }
             }
         }
 
+        /// <summary>
+        /// Runs the command method on <paramref name="type"/> that matches <paramref name="args"/>.
+        /// Returns true when a command matched (even if its arguments were invalid), so the
+        /// caller stops searching other types.
+        /// </summary>
         public static async Task<bool> Run(Type type, string[] args)
         {
             var match = CommandMethodMatch.Match(type, args);
             if (match != null)
             {
                 // Read Command Parameters & Options
-                var commandParameters = GetCommandParameters(match.Method, match.ArgIndex, args);
+                var commandParameters = GetCommandParameters(match.Method, match.ArgIndex, args, out var error);
+                if (commandParameters == null)
+                {
+                    Console.WriteLine($"ERROR : {error}");
+                    Console.WriteLine();
+                    PrintHelp(match.Method);
+                    Environment.ExitCode = 1;
+                    return true;
+                }
 
                 // Run Method
                 if (match.Method.ReturnType == typeof(Task))
@@ -75,9 +95,11 @@ namespace TrakHound.Builder
                 {
                     match.Method.Invoke(null, commandParameters.Values.ToArray());
                 }
+
+                return true;
             }
 
-            return false; // Need Error here
+            return false;
         }
 
         public static bool Help(Type type, string[] args)
@@ -107,83 +129,96 @@ namespace TrakHound.Builder
         }
 
 
-        private static Dictionary<string, object> GetCommandParameters(MethodInfo method, int argumentIndex, string[] args)
+        private static Dictionary<string, object> GetCommandParameters(MethodInfo method, int argumentIndex, string[] args, out string error)
         {
+            error = null;
             var argIndex = argumentIndex;
 
+            // Values keyed by parameter name, in method parameter order (passed to Invoke)
             var commandParameters = new Dictionary<string, object>();
+            var isSet = new HashSet<string>();
 
-            var parameters = method.GetParameters();
-            if (parameters != null)
+            var parameters = method.GetParameters() ?? Array.Empty<ParameterInfo>();
+            foreach (var parameter in parameters)
             {
-                foreach (var parameter in parameters)
+                commandParameters.Add(parameter.Name, parameter.DefaultValue != DBNull.Value ? parameter.DefaultValue : null);
+            }
+
+            // Process Parameters (positional, in declaration order, before any options)
+            foreach (var parameter in parameters)
+            {
+                if (parameter.GetCustomAttribute<CommandParameterAttribute>() == null) continue;
+                if (argIndex >= args.Length || args[argIndex].StartsWith("--")) break;
+
+                if (!TryConvert(args[argIndex], parameter, out var parameterValue, out error)) return null;
+
+                commandParameters[parameter.Name] = parameterValue;
+                isSet.Add(parameter.Name);
+                argIndex++;
+            }
+
+            // Process Options ('--' prefix, in any order)
+            while (argIndex < args.Length)
+            {
+                var arg = args[argIndex];
+                var parameter = parameters.FirstOrDefault(o => o.GetCustomAttribute<CommandOptionAttribute>() != null && arg == $"--{o.Name.ToCamelCase()}");
+                if (parameter == null)
                 {
-                    var isOptional = parameter.DefaultValue != DBNull.Value;
-                    var isSet = false;
+                    error = $"Unrecognized Argument : {arg}";
+                    return null;
+                }
 
-                    commandParameters.Remove(parameter.Name);
-                    commandParameters.Add(parameter.Name, parameter.DefaultValue);
+                argIndex++;
 
-                    // Process Parameters
-                    var parameterAttribute = parameter.GetCustomAttribute<CommandParameterAttribute>();
-                    if (parameterAttribute != null)
+                if (parameter.ParameterType == typeof(bool))
+                {
+                    commandParameters[parameter.Name] = true;
+                }
+                else
+                {
+                    if (argIndex >= args.Length || args[argIndex].StartsWith("--"))
                     {
-                        if (argIndex < args.Length)
-                        {
-                            var argValue = args[argIndex];
-                            if (argValue != null && !argValue.StartsWith("--"))
-                            {
-                                var parameterValue = Convert.ChangeType(argValue, parameter.ParameterType);
-
-                                commandParameters.Remove(parameter.Name);
-                                commandParameters.Add(parameter.Name, parameterValue);
-
-                                isSet = true;
-                                argIndex++;
-                            }
-                        }
+                        error = $"Missing Value for Option : {arg}";
+                        return null;
                     }
 
-                    // Process Options ('--' prefix)
-                    var optionAttribute = parameter.GetCustomAttribute<CommandOptionAttribute>();
-                    if (optionAttribute != null)
-                    {
-                        if (argIndex < args.Length)
-                        {
-                            var parameterName = parameter.Name;
+                    if (!TryConvert(args[argIndex], parameter, out var parameterValue, out error)) return null;
 
-                            if (args[argIndex] == $"--{parameter.Name.ToCamelCase()}")
-                            {
-                                argIndex++;
+                    commandParameters[parameter.Name] = parameterValue;
+                    argIndex++;
+                }
 
-                                if (parameter.ParameterType == typeof(bool))
-                                {
-                                    commandParameters.Remove(parameter.Name);
-                                    commandParameters.Add(parameter.Name, true);
-                                    isSet = true;
-                                }
-                                else
-                                {
-                                    if (argIndex < args.Length)
-                                    {
-                                        var parameterValue = Convert.ChangeType(args[argIndex], parameter.ParameterType);
+                isSet.Add(parameter.Name);
+            }
 
-                                        commandParameters.Remove(parameter.Name);
-                                        commandParameters.Add(parameter.Name, parameterValue);
-
-                                        isSet = true;
-                                        argIndex++;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (!isSet && !isOptional) return null; // need error here
+            // Check Required
+            foreach (var parameter in parameters)
+            {
+                if (parameter.DefaultValue == DBNull.Value && !isSet.Contains(parameter.Name))
+                {
+                    var isOption = parameter.GetCustomAttribute<CommandOptionAttribute>() != null;
+                    error = $"Missing Required {(isOption ? "Option" : "Parameter")} : {(isOption ? $"--{parameter.Name.ToCamelCase()}" : parameter.Name)}";
+                    return null;
                 }
             }
 
             return commandParameters;
+        }
+
+        private static bool TryConvert(string value, ParameterInfo parameter, out object result, out string error)
+        {
+            try
+            {
+                result = Convert.ChangeType(value, parameter.ParameterType);
+                error = null;
+                return true;
+            }
+            catch (Exception ex) when (ex is FormatException || ex is InvalidCastException || ex is OverflowException)
+            {
+                result = null;
+                error = $"Invalid Value for {parameter.Name} : {value}";
+                return false;
+            }
         }
 
 
