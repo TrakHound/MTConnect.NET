@@ -89,7 +89,7 @@ When `signing.dlibPath` is set, the builder signs the published `MTConnect*.dll`
 
 ## Updating the manifest
 
-When a new library project lands in the repository, add a corresponding entry under `libraries[].packages[]` in `config.template.yaml` (and the build servers' configurations). When a new runtime or framework lands in the support matrix, extend the relevant `runtimes` / `frameworks` lists; the installer's setup types are generated from them.
+Projects are only packed when they opt in with `<IsPackable>true</IsPackable>`; the shared package metadata (authors, license, icon, project URL) is in the root `Directory.Build.props`, so `dotnet pack MTConnect.NET.sln -c Package` builds every published package from source. When a new library project lands in the repository, set `IsPackable` in its project, raise `EXPECTED_PACKAGES` in the `release-pack` CI job, and add a corresponding entry under `libraries[].packages[]` in `config.template.yaml` (and the build servers' configurations). When a new runtime or framework lands in the support matrix, extend the relevant `runtimes` / `frameworks` lists; the installer's setup types are generated from them.
 
 ## See also
 
