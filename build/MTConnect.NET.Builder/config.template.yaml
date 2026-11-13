@@ -93,7 +93,7 @@ libraries:
    repositoryUrl: https://github.com/TrakHound/MTConnect.NET
    repositoryBranch: v{VERSION}
    packageTags: mtconnect;iiot;iot;cnc;
-   packageProjectUrl: www.TrakHound.com
+   packageProjectUrl: https://www.TrakHound.com
    packageLicenseExpression: MIT
    packageIconUrl: https://www.trakhound.com/static/mtconnect-net-nuget.png
    packages:
@@ -130,7 +130,7 @@ libraries:
    repositoryUrl: https://github.com/TrakHound/MTConnect.NET
    repositoryBranch: v{VERSION}
    packageTags: mtconnect;iiot;iot;cnc;
-   packageProjectUrl: www.TrakHound.com
+   packageProjectUrl: https://www.TrakHound.com
    packageLicenseExpression: MIT
    packageIconUrl: https://www.trakhound.com/static/mtconnect-net-nuget.png
    packages:
@@ -149,7 +149,7 @@ libraries:
    repositoryUrl: https://github.com/TrakHound/MTConnect.NET
    repositoryBranch: v{VERSION}
    packageTags: mtconnect;iiot;iot;cnc;
-   packageProjectUrl: www.TrakHound.com
+   packageProjectUrl: https://www.TrakHound.com
    packageLicenseExpression: MIT
    packageIconUrl: https://www.trakhound.com/static/mtconnect-net-nuget.png
    packages:
@@ -173,5 +173,7 @@ libraries:
      projectPath: agent/Modules/MTConnect.NET-AgentModule-ShdrAdapter
    - name: MTConnect.NET-AgentModule-TormachAdapter
      projectPath: agent/Modules/MTConnect.NET-AgentModule-TormachAdapter
+   - name: MTConnect.NET-AgentModule-WebUI
+     projectPath: agent/Modules/MTConnect.NET-AgentModule-WebUI
    - name: MTConnect.NET-AgentProcessor-Python
      projectPath: agent/Processors/MTConnect.NET-AgentProcessor-Python

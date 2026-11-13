@@ -1,0 +1,12 @@
+# Keep the build context to the source the Agent needs
+.git
+.github
+.vs
+**/bin
+**/obj
+**/node_modules
+build/output
+docs
+tests
+benchmarks
+*.user

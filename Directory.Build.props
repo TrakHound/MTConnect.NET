@@ -45,6 +45,29 @@
 	</PropertyGroup>
 
 	<!--
+	  NuGet package metadata shared by every published package, so a plain
+	  `dotnet pack MTConnect.NET.sln -c Package` from source produces the
+	  same packages as a release (the release build only adds the version
+	  and the repository branch).
+
+	  Projects are not packable unless they opt in with
+	  <IsPackable>true</IsPackable>, so a new test, example or tool project
+	  is never published by accident.
+	-->
+	<PropertyGroup>
+		<IsPackable>false</IsPackable>
+		<Authors>TrakHound</Authors>
+		<PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageIcon>package-icon.png</PackageIcon>
+		<RepositoryType>git</RepositoryType>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="$(MSBuildThisFileDirectory)img/package-icon.png" Pack="true" PackagePath="\" Visible="false" />
+	</ItemGroup>
+
+	<!--
 	  Suppress SourceLink git-repository discovery when the build/sysml-model
 	  submodule has not been initialized.  Microsoft.Build.Tasks.Git walks the
 	  gitmodules list from the repo root and emits a "could not find .git"

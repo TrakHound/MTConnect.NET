@@ -534,8 +534,14 @@ jobs:
   # `#if NET5_0_OR_GREATER` branches that go unreachable on net4x), and
   # some only on net9.0 (SYSLIB0057 X509Certificate2 ctor obsoletion).
   # The May-22 regression slipped through CI precisely because Debug
-  # never built net4x; this job runs `dotnet pack -c Release` across
+  # never built net4x; this job runs `dotnet pack -c Package` across
   # the full TFM matrix to catch the next regression class at PR time.
+  #
+  # Package is the configuration releases are packed with, so this also
+  # checks the published package set: only projects that opt in with
+  # <IsPackable>true</IsPackable> are packed (see Directory.Build.props),
+  # and the job fails when the number of packages changes. Update
+  # EXPECTED_PACKAGES when a package is deliberately added or removed.
   #
   # Single-process (no shard), no docs dependency, same draft-skip
   # gate as build-and-test. The pack output is written to a workflow-
@@ -561,14 +567,27 @@ jobs:
       - name: Restore solution
         run: dotnet restore MTConnect.NET.sln
 
-      - name: Pack -c Release across multi-TFM
+      - name: Pack -c Package across multi-TFM
         run: |
           rm -rf dist
           mkdir -p dist
-          dotnet pack MTConnect.NET.sln -c Release \
+          dotnet pack MTConnect.NET.sln -c Package \
             -p:VersionSuffix=ci-check \
             -p:ContinuousIntegrationBuild=true \
             -o dist 2>&1 | tee pack.log
+        shell: bash
+
+      - name: Check the published package set
+        env:
+          EXPECTED_PACKAGES: 27
+        run: |
+          actual=$(find dist -maxdepth 1 -name '*.nupkg' | wc -l)
+          if [ "$actual" -ne "$EXPECTED_PACKAGES" ]; then
+            echo "::error::Packed $actual packages, expected $EXPECTED_PACKAGES. Set <IsPackable>true</IsPackable> on a new package (or false on a project that shouldn't be published) and update EXPECTED_PACKAGES."
+            find dist -maxdepth 1 -name '*.nupkg' -printf '%f\n' | sort
+            exit 1
+          fi
+          echo "Packed $actual packages"
         shell: bash
 
       # Surface a compact summary of every error / warning that

@@ -19,6 +19,7 @@
 		<Configurations>Debug;Release;Package</Configurations>
 
 		<Description>MTConnect.NET-AdapterModule-MQTT implements an adapter to send input data to an MQTT Broker to be read by an MTConnect Agent for Adapter Applications. Supports MTConnect versions up to 2.7. Supports .NET Framework 4.6.1 up to .NET 10</Description>
+		<IsPackable>true</IsPackable>
 		<PackageReadmeFile>README-Nuget.md</PackageReadmeFile>
 
 		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
@@ -49,10 +50,6 @@
 
 	<ItemGroup>
 		<None Include="README-Nuget.md">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-		<None Include="../../../img/package-icon.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
