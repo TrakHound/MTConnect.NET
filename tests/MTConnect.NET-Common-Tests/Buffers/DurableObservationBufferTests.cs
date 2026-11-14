@@ -26,12 +26,14 @@ namespace MTConnect.Tests.Common.Buffers
 
         private string _dir = string.Empty;
 
+        /// <summary>Creates a fresh temporary buffer directory for each test.</summary>
         [SetUp]
         public void SetUp()
         {
             _dir = Path.Combine(Path.GetTempPath(), "mtconnect-durable-" + Guid.NewGuid().ToString("N"));
         }
 
+        /// <summary>Deletes the temporary buffer directory.</summary>
         [TearDown]
         public void TearDown()
         {

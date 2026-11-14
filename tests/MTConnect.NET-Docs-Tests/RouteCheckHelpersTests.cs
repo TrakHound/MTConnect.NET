@@ -318,6 +318,101 @@ public class RouteCheckHelpersTests
         Assert.That(opts.AttributesToSkip.HasFlag(FileAttributes.ReparsePoint), Is.True, "symlink loop containment requires ReparsePoint in the skip mask");
     }
 
+    // ─── SampleApiRoutes + ReadApiNamespaces + ReadFullApiWalk ───────────────
+
+    /// <summary>
+    /// Narrative routes and the API overview survive; each namespace keeps
+    /// its own page plus its first type page, and a type belongs to the
+    /// longest namespace that prefixes it.
+    /// </summary>
+    [Test]
+    public void SampleApiRoutes_keeps_namespace_pages_and_one_type_per_namespace()
+    {
+        var routes = new[]
+        {
+            "/", "/guide/start", "/api/",
+            "/api/MTConnect.Devices", "/api/MTConnect.Devices.Device", "/api/MTConnect.Devices.Component",
+            "/api/MTConnect.Devices.DataItems", "/api/MTConnect.Devices.DataItems.SampleDataItem",
+            "/api/MTConnect.Devices.DataItems.EventDataItem",
+            "/api/Unlisted.Type",
+        };
+        var namespaces = new[] { "MTConnect.Devices", "MTConnect.Devices.DataItems" };
+
+        var actual = RouteCheckHelpers.SampleApiRoutes(routes, namespaces);
+
+        var expected = new[]
+        {
+            "/", "/api/",
+            "/api/MTConnect.Devices", "/api/MTConnect.Devices.Component",
+            "/api/MTConnect.Devices.DataItems", "/api/MTConnect.Devices.DataItems.EventDataItem",
+            "/api/Unlisted.Type", "/guide/start",
+        };
+        Assert.That(actual, Is.EqualTo(expected));
+    }
+
+    /// <summary>
+    /// With no generated API reference (no namespaces) every route is kept.
+    /// </summary>
+    [Test]
+    public void SampleApiRoutes_keeps_every_route_when_there_are_no_namespaces()
+    {
+        var routes = new[] { "/", "/api/", "/api/A.B" };
+
+        var actual = RouteCheckHelpers.SampleApiRoutes(routes, Array.Empty<string>());
+
+        Assert.That(actual, Is.EqualTo(routes));
+    }
+
+    /// <summary>
+    /// The namespace list is read from the top-level <c>- name:</c> entries
+    /// of <c>api/toc.yml</c>, ignoring the indented type entries; a missing
+    /// file yields an empty list.
+    /// </summary>
+    [Test]
+    public void ReadApiNamespaces_reads_top_level_toc_entries()
+    {
+        using var fixture = new TempDirectory();
+        Assert.That(RouteCheckHelpers.ReadApiNamespaces(fixture.Path), Is.Empty);
+
+        var apiDir = Path.Combine(fixture.Path, "api");
+        Directory.CreateDirectory(apiDir);
+        File.WriteAllText(Path.Combine(apiDir, "toc.yml"), string.Join("\n",
+            "### YamlMime:TableOfContent",
+            "- name: MTConnect",
+            "  href: MTConnect.md",
+            "  items:",
+            "  - name: Classes",
+            "  - name: Agent",
+            "    href: MTConnect.Agent.md",
+            "- name: MTConnect.Devices",
+            "  href: MTConnect.Devices.md"));
+
+        var actual = RouteCheckHelpers.ReadApiNamespaces(fixture.Path);
+
+        Assert.That(actual, Is.EqualTo(new[] { "MTConnect", "MTConnect.Devices" }));
+    }
+
+    /// <summary>
+    /// <c>ROUTE_CHECK_ALL_API</c> accepts the usual truthy spellings and
+    /// defaults to sampling.
+    /// </summary>
+    [TestCase(null, false)]
+    [TestCase("", false)]
+    [TestCase("false", false)]
+    [TestCase("0", false)]
+    [TestCase("true", true)]
+    [TestCase("TRUE", true)]
+    [TestCase("1", true)]
+    [TestCase("yes", true)]
+    [TestCase(" on ", true)]
+    public void ReadFullApiWalk_parses_the_environment_variable(string? value, bool expected)
+    {
+        var actual = RouteCheckHelpers.ReadFullApiWalk(
+            name => name == RouteCheckHelpers.FullApiWalkEnvVar ? value : null);
+
+        Assert.That(actual, Is.EqualTo(expected));
+    }
+
     // ─── ExtractBannerPort ───────────────────────────────────────────────────
 
     /// <summary>

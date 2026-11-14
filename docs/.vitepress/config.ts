@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitepress';
 import { withMermaid } from 'vitepress-plugin-mermaid';
-import { apiSidebar, referenceSidebar } from './sidebar';
+import { apiSidebars, referenceSidebar } from './sidebar';
 
 // Absolute base URL for the deployed site. Social-card crawlers (LinkedIn,
 // Slack unfurl, the classic X crawler) require absolute `https://…` URLs in
@@ -49,6 +49,11 @@ export default withMermaid(
     base: process.env.DOCS_BASE ?? '/',
 
     cleanUrls: true,
+
+    // Write the site data (theme config, including every sidebar) to one
+    // shared JS chunk instead of inlining it into each of the ~2450 HTML
+    // pages. Inlined, it added ~0.4 MB to every page.
+    metaChunk: true,
 
     // Some narrative pages cross-link to the generated API reference, which
     // is produced by docfx in CI (`docs/.docfx/docfx.json`) before VitePress
@@ -167,10 +172,11 @@ export default withMermaid(
             ],
           },
         ],
-        // Auto-derived from docfx's toc.yml under docs/api/. Hierarchical
-        // by namespace dots, collapsed by default so the 1800-odd type
-        // pages do not flood the viewport.
-        '/api/': apiSidebar(),
+        // Auto-derived from docfx's toc.yml under docs/api/: one key per
+        // namespace (`/api/<Namespace>.`) plus the `/api/` fallback, so an
+        // API page renders only its own namespace's entries. See
+        // apiSidebars() in ./sidebar.ts.
+        ...apiSidebars(),
         // Auto-derived from the .md files under docs/reference/. Flat
         // alphabetical list so a future page emitted by DocsGen surfaces
         // without a config-side edit.
