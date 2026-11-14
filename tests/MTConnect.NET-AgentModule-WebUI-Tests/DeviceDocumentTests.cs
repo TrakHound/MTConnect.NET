@@ -54,7 +54,10 @@ namespace MTConnect.Tests.AgentModule.WebUI
 
         private static DeviceOperation AddDataItem(string parent, string id, string type, string category = "EVENT") => new DeviceOperation
         {
-            Op = "add", Target = parent, Kind = "dataItem", Attributes = A("category", category, "id", id, "type", type)
+            Op = "add",
+            Target = parent,
+            Kind = "dataItem",
+            Attributes = A("category", category, "id", id, "type", type)
         };
 
 
@@ -316,7 +319,9 @@ namespace MTConnect.Tests.AgentModule.WebUI
         {
             var result = Apply(Sample, new DeviceOperation
             {
-                Op = "addConfigItem", Target = "y", Block = "Specifications",
+                Op = "addConfigItem",
+                Target = "y",
+                Block = "Specifications",
                 Attributes = A("type", "POSITION", "units", "MILLIMETER"),
                 Children = A("Maximum", "500", "Minimum", "0")
             });
@@ -341,7 +346,10 @@ namespace MTConnect.Tests.AgentModule.WebUI
 
             var result = Apply(text, new DeviceOperation
             {
-                Op = "setConfigItem", Target = "y", Block = "Specifications", Index = 0,
+                Op = "setConfigItem",
+                Target = "y",
+                Block = "Specifications",
+                Index = 0,
                 Attributes = A("units", "MILLIMETER"),
                 Children = A("Nominal", "250", "Minimum", "")
             });
