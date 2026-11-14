@@ -23,6 +23,17 @@
       in place so that any future TestHelpers/ / TestDoubles/ tree is
       excluded automatically.
     - obj/ + bin/ are excluded via Coverlet's built-in defaults.
+    - Exception to the *.g.cs rule: MTConnect.NET-JSON-cppagent's
+      Streams/JsonEvents.g.cs and Streams/JsonSamples.g.cs. Each holds a
+      single ~5,000-line constructor and a getter with hundreds of
+      branches; Coverlet's branch analysis is super-linear in method
+      size and spent ~9.5 minutes instrumenting that one assembly in
+      EVERY test project that loads it (JSON-cppagent, Common via
+      Applications-Agents, Compliance, Integration) — the bulk of CI
+      wall-clock time. Excluding the two files drops instrumentation to
+      a few seconds. The behaviour is still exercised by the
+      JSON-cppagent round-trip tests; it is only not measured.
+      Keep this list in sync with tests/coverlet.integration.runsettings.
 -->
 <RunSettings>
     <DataCollectionRunSettings>
@@ -32,7 +43,7 @@
                     <Format>cobertura</Format>
                     <Include>[MTConnect.NET-*]*</Include>
                     <Exclude>[MTConnect.NET-*-Tests]*,[MTConnect.NET-*-Tests.*]*</Exclude>
-                    <ExcludeByFile>**/*.g.cs.bak,**/TestHelpers/**/*.cs,**/TestDoubles/**/*.cs</ExcludeByFile>
+                    <ExcludeByFile>**/*.g.cs.bak,**/TestHelpers/**/*.cs,**/TestDoubles/**/*.cs,**/MTConnect.NET-JSON-cppagent/Streams/JsonEvents.g.cs,**/MTConnect.NET-JSON-cppagent/Streams/JsonSamples.g.cs</ExcludeByFile>
                     <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
                     <SingleHit>false</SingleHit>
                     <UseSourceLink>true</UseSourceLink>

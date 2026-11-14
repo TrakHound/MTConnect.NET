@@ -8,6 +8,14 @@ name: build-test-coverage
 permissions:
   contents: read
 
+# One run per PR / branch: a new push to a PR cancels the superseded run
+# instead of letting both occupy runners for the full duration. Pushes
+# to master are never cancelled, so every merge commit gets a complete
+# run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 on:
   push:
     branches:
@@ -114,10 +122,17 @@ jobs:
     # so CI fires the moment a draft is flipped to ready.
     if: github.event_name == 'push' || github.event.pull_request.draft == false
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
+        # Coverage is collected on ubuntu-latest only. Both legs execute
+        # the same managed code, so a second Cobertura set from Windows
+        # adds no information while paying the full instrumentation
+        # cost again; the Windows leg's job is to catch platform
+        # differences (paths, sockets, line endings), which plain test
+        # execution covers.
         include:
           # ubuntu-latest runs every non-E2E category: Docker is pre-
           # installed on GitHub-hosted Linux runners and Testcontainers
@@ -127,6 +142,7 @@ jobs:
           # prerequisite. The shared filter excludes E2E only.
           - os: ubuntu-latest
             testFilter: "Category!=E2E"
+            coverage: true
           # windows-latest GitHub-hosted runners do NOT pre-install
           # Docker for Linux containers (only Windows containers via
           # Hyper-V), so the RequiresDocker suites that boot Linux
@@ -136,6 +152,7 @@ jobs:
           # still runs.
           - os: windows-latest
             testFilter: "Category!=RequiresDocker&Category!=E2E"
+            coverage: false
 
     steps:
       - name: Checkout
@@ -148,7 +165,16 @@ jobs:
             8.0.x
             9.0.x
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/Directory.Build.props', '**/Directory.Packages.props', '.config/dotnet-tools.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
       - name: Restore dotnet tools (ReportGenerator)
+        if: matrix.coverage
         run: dotnet tool restore
 
       - name: Restore solution
@@ -166,45 +192,33 @@ jobs:
       # the project as its own step is the only way to give it
       # different coverage scoping. See the integration .csproj
       # comment.
-      - name: Run unit tests with coverage
+      # Each test project writes its own TRX: the logger uses
+      # LogFilePrefix rather than LogFileName, because a fixed
+      # LogFileName is shared by every project in a solution-wide run
+      # and each project overwrote the previous one's results.
+      - name: Run unit tests
         env:
           TEST_FILTER: ${{ matrix.testFilter }}
-          TRX_NAME: test-results-${{ matrix.os }}.trx
+          COVERAGE: ${{ matrix.coverage }}
         run: |
+          settings=()
+          if [ "$COVERAGE" = "true" ]; then
+            settings=(--settings tests/coverlet.runsettings)
+          fi
           dotnet test MTConnect.NET.sln \
             --configuration Debug \
             --no-build \
-            --settings tests/coverlet.runsettings \
-            --results-directory TestResults \
-            --logger "trx;LogFileName=${TRX_NAME}" \
+            "${settings[@]}" \
+            --results-directory TestResults/unit \
+            --logger "trx;LogFilePrefix=unit" \
             --filter "$TEST_FILTER"
         shell: bash
 
-      # Same zero-test false-green guard as the integration step, on
-      # the solution-wide unit run. A broken adapter wiring or an
-      # over-eager filter that discovers nothing must hard-fail rather
-      # than exit 0.
+      # Zero-test false-green guard, per project. A broken adapter
+      # wiring or an over-eager filter that discovers nothing must
+      # hard-fail rather than exit 0.
       - name: Guard — unit step executed > 0 tests
-        env:
-          TRX_NAME: test-results-${{ matrix.os }}.trx
-        run: |
-          set -euo pipefail
-          trx="TestResults/${TRX_NAME}"
-          if [ ! -f "$trx" ]; then
-            echo "::error::Unit TRX not found at $trx — the test step did not produce results."
-            exit 1
-          fi
-          total="$(grep -o '<Counters[^>]*total="[0-9]*"' "$trx" \
-            | grep -o 'total="[0-9]*"' | grep -o '[0-9]*' | head -n1)"
-          if [ -z "${total:-}" ]; then
-            echo "::error::Could not parse <Counters total=...> from $trx — refusing to false-green."
-            exit 1
-          fi
-          echo "Unit tests executed: $total"
-          if [ "$total" -eq 0 ]; then
-            echo "::error::Unit step executed 0 tests — discovery is broken (zero-test false-green guard)."
-            exit 1
-          fi
+        run: bash tools/ci/check-trx.sh "Unit" "TestResults/unit/*.trx"
         shell: bash
 
       # Integration suite with its own coverlet settings: the shared
@@ -218,7 +232,7 @@ jobs:
       # MTConnect.NET-Common-Tests / MTConnect.NET-HTTP-Tests. The
       # latter (with its AgentRunner support project
       # MTConnect.NET-Tests-Agents) is a member of MTConnect.NET.sln,
-      # so the "Run unit tests with coverage" step above already
+      # so the "Run unit tests" step above already
       # discovers and runs it under the shared runsettings; it starts
       # a real MTConnectAgentBroker + MTConnectHttpServer and streams
       # Probe/Current/Sample through the HTTP clients, exercising the
@@ -243,18 +257,22 @@ jobs:
             -p:IntegrationCoverage=true
         shell: bash
 
-      - name: Run integration tests with coverage
+      - name: Run integration tests
         env:
           TEST_FILTER: ${{ matrix.testFilter }}
-          TRX_NAME: test-results-integration-${{ matrix.os }}.trx
+          COVERAGE: ${{ matrix.coverage }}
         run: |
+          settings=()
+          if [ "$COVERAGE" = "true" ]; then
+            settings=(--settings tests/coverlet.integration.runsettings)
+          fi
           dotnet test tests/MTConnect.NET-Integration-Tests/MTConnect.NET-Integration-Tests.csproj \
             --configuration Debug \
             --no-build \
             -p:IntegrationCoverage=true \
-            --settings tests/coverlet.integration.runsettings \
-            --results-directory TestResults \
-            --logger "trx;LogFileName=${TRX_NAME}" \
+            "${settings[@]}" \
+            --results-directory TestResults/integration \
+            --logger "trx;LogFilePrefix=integration" \
             --filter "$TEST_FILTER"
         shell: bash
 
@@ -265,30 +283,11 @@ jobs:
       # Parse the TRX <Counters .../> total and fail when it is 0 or
       # the element is missing.
       - name: Guard — integration step executed > 0 tests
-        env:
-          TRX_NAME: test-results-integration-${{ matrix.os }}.trx
-        run: |
-          set -euo pipefail
-          trx="TestResults/${TRX_NAME}"
-          if [ ! -f "$trx" ]; then
-            echo "::error::Integration TRX not found at $trx — the test step did not produce results."
-            exit 1
-          fi
-          total="$(grep -o '<Counters[^>]*total="[0-9]*"' "$trx" \
-            | grep -o 'total="[0-9]*"' | grep -o '[0-9]*' | head -n1)"
-          if [ -z "${total:-}" ]; then
-            echo "::error::Could not parse <Counters total=...> from $trx — refusing to false-green."
-            exit 1
-          fi
-          echo "Integration tests executed: $total"
-          if [ "$total" -eq 0 ]; then
-            echo "::error::Integration step executed 0 tests — discovery is broken (zero-test false-green guard)."
-            exit 1
-          fi
+        run: bash tools/ci/check-trx.sh "Integration" "TestResults/integration/*.trx"
         shell: bash
 
       - name: Generate coverage HTML + summary
-        if: always()
+        if: always() && matrix.coverage
         run: |
           dotnet reportgenerator \
             -reports:"TestResults/**/coverage.cobertura.xml" \
@@ -309,7 +308,7 @@ jobs:
           retention-days: 14
 
       - name: Surface coverage summary in job log
-        if: always()
+        if: always() && matrix.coverage
         env:
           JOB_LABEL: ${{ matrix.os }}
         run: |
@@ -422,14 +421,19 @@ jobs:
           cache: npm
           cache-dependency-path: docs/package-lock.json
 
-      - name: Restore dotnet tools (ReportGenerator)
-        run: dotnet tool restore
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/Directory.Build.props', '**/Directory.Packages.props', '.config/dotnet-tools.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
-      - name: Restore solution
-        run: dotnet restore MTConnect.NET.sln
-
-      - name: Build (Debug)
-        run: dotnet build MTConnect.NET.sln --configuration Debug --no-restore
+      # Only the Docs-Tests project (and its project references) is
+      # needed to run the route walk; building the whole solution in
+      # each of the four shards was pure overhead.
+      - name: Build Docs-Tests (Debug)
+        run: dotnet build tests/MTConnect.NET-Docs-Tests/MTConnect.NET-Docs-Tests.csproj --configuration Debug
 
       # Populate docs/node_modules/ so `npx vitepress preview` resolves
       # the local vitepress binary the test fixture spawns. The npm
@@ -480,48 +484,29 @@ jobs:
           # github.event.* untrusted input.
           ROUTE_SHARD_INDEX: ${{ matrix.shard }}
           ROUTE_SHARD_TOTAL: ${{ matrix.shardTotal }}
-          TRX_NAME: test-results-e2e-shard${{ matrix.shard }}of${{ matrix.shardTotal }}.trx
+        # No coverage here: the shards exercise the docs site, not
+        # library code, and their Cobertura was never merged into the
+        # coverage report (only build-and-test runs ReportGenerator).
         run: |
           dotnet test tests/MTConnect.NET-Docs-Tests/MTConnect.NET-Docs-Tests.csproj \
             --configuration Debug \
             --no-build \
-            --settings tests/coverlet.runsettings \
-            --results-directory TestResults \
-            --logger "trx;LogFileName=${TRX_NAME}" \
+            --results-directory TestResults/e2e \
+            --logger "trx;LogFilePrefix=e2e-shard${ROUTE_SHARD_INDEX}of${ROUTE_SHARD_TOTAL}" \
             --filter "Category=E2E"
         shell: bash
 
       - name: Guard — E2E shard executed > 0 tests
-        env:
-          TRX_NAME: test-results-e2e-shard${{ matrix.shard }}of${{ matrix.shardTotal }}.trx
-        run: |
-          set -euo pipefail
-          trx="TestResults/${TRX_NAME}"
-          if [ ! -f "$trx" ]; then
-            echo "::error::E2E TRX not found at $trx — the test step did not produce results."
-            exit 1
-          fi
-          total="$(grep -o '<Counters[^>]*total="[0-9]*"' "$trx" \
-            | grep -o 'total="[0-9]*"' | grep -o '[0-9]*' | head -n1)"
-          if [ -z "${total:-}" ]; then
-            echo "::error::Could not parse <Counters total=...> from $trx — refusing to false-green."
-            exit 1
-          fi
-          echo "E2E tests executed: $total"
-          if [ "$total" -eq 0 ]; then
-            echo "::error::E2E shard executed 0 tests — discovery is broken (zero-test false-green guard)."
-            exit 1
-          fi
+        run: bash tools/ci/check-trx.sh "E2E" "TestResults/e2e/*.trx"
         shell: bash
 
-      - name: Upload E2E TRX + coverage artifacts
+      - name: Upload E2E TRX artifacts
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: test-results-e2e-shard${{ matrix.shard }}of${{ matrix.shardTotal }}
           path: |
             TestResults/**/*.trx
-            TestResults/**/coverage.cobertura.xml
           if-no-files-found: warn
           retention-days: 14
 
