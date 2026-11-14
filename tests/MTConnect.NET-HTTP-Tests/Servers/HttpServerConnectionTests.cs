@@ -66,6 +66,12 @@ namespace MTConnect.Tests.Http.Servers
         }
 
         /// <summary>Pins the behaviour expressed by the test name: a burst of connections is queued, not refused.</summary>
+        /// <remarks>
+        /// The requests use async socket I/O. The server runs in this process and shares its thread pool, and on
+        /// Linux its socket completions run on pool worker threads, so 200 clients blocked in synchronous reads
+        /// starved the server until its 60 s idle timeout reset the connections (Windows completes socket I/O on
+        /// separate I/O threads, which hid this).
+        /// </remarks>
         [Test]
         public async Task Burst_of_simultaneous_connections_is_accepted()
         {
@@ -80,8 +86,9 @@ namespace MTConnect.Tests.Http.Servers
 
             try
             {
-                var responses = await Task.WhenAll(clients.Select(c => Task.Run(() =>
-                    SendRequest(c.GetStream(), "GET /probe HTTP/1.1\r\nHost: localhost\r\n\r\n").StatusLine)));
+                var responses = await Task.WhenAll(clients.Select(async c =>
+                    (await SendRequestAsync(c.GetStream(), "GET /probe HTTP/1.1\r\nHost: localhost\r\n\r\n")).StatusLine))
+                    .WaitAsync(TimeSpan.FromSeconds(30));
 
                 Assert.That(responses, Has.All.Contain(" 200 "));
             }
@@ -127,15 +134,18 @@ namespace MTConnect.Tests.Http.Servers
             public string? Connection;
         }
 
-        private static Response SendRequest(Stream stream, string request)
+        private static Response SendRequest(Stream stream, string request) =>
+            SendRequestAsync(stream, request).GetAwaiter().GetResult();
+
+        private static async Task<Response> SendRequestAsync(Stream stream, string request)
         {
             var bytes = Encoding.ASCII.GetBytes(request);
-            stream.Write(bytes, 0, bytes.Length);
+            await stream.WriteAsync(bytes, 0, bytes.Length);
 
-            var response = new Response { StatusLine = ReadLine(stream) };
+            var response = new Response { StatusLine = await ReadLineAsync(stream) };
             var length = 0;
             string line;
-            while ((line = ReadLine(stream)).Length > 0)
+            while ((line = await ReadLineAsync(stream)).Length > 0)
             {
                 var separator = line.IndexOf(':');
                 if (separator < 0) continue;
@@ -149,7 +159,7 @@ namespace MTConnect.Tests.Http.Servers
             var offset = 0;
             while (offset < length)
             {
-                var read = stream.Read(body, offset, length - offset);
+                var read = await stream.ReadAsync(body, offset, length - offset);
                 if (read == 0) throw new EndOfStreamException("Connection closed before the response body was read");
                 offset += read;
             }
@@ -157,11 +167,16 @@ namespace MTConnect.Tests.Http.Servers
             return response;
         }
 
-        private static string ReadLine(Stream stream)
+        private static async Task<string> ReadLineAsync(Stream stream)
         {
             var line = new StringBuilder();
-            int b;
-            while ((b = stream.ReadByte()) >= 0 && b != '\n') line.Append((char)b);
+            var one = new byte[1];
+            int b = -1;
+            while (await stream.ReadAsync(one, 0, 1) == 1 && (b = one[0]) != '\n')
+            {
+                line.Append((char)b);
+                b = -1;
+            }
             if (b < 0 && line.Length == 0) throw new EndOfStreamException("Connection closed");
             return line.ToString().TrimEnd('\r');
         }
