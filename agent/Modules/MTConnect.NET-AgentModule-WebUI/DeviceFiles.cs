@@ -136,8 +136,12 @@ namespace MTConnect.Modules.WebUI
             if (!fileName.EndsWith(".xml", StringComparison.OrdinalIgnoreCase)) fileName += ".xml";
             if (!_fileNameRegex.IsMatch(fileName)) throw new ConfigurationEditException("The file name may only contain letters, digits, spaces, '.', '-' and '_'");
 
+            // Device files are matched by name case-insensitively (see Resolve), so 'Okuma.xml' next to an
+            // existing 'okuma.xml' counts as a duplicate even on a case-sensitive file system, where
+            // File.Exists alone would let both exist and Resolve could no longer tell them apart.
             var path = Path.Combine(_path, fileName);
-            if (File.Exists(path)) throw new ConfigurationEditException($"A file named '{fileName}' already exists");
+            var existing = File.Exists(path) ? path : Resolve(fileName);
+            if (existing != null) throw new ConfigurationEditException($"A file named '{Path.GetFileName(existing)}' already exists");
 
             var id = Regex.Replace(name.Trim(), @"[^A-Za-z0-9_.\-]", "_");
             if (!Regex.IsMatch(id, "^[A-Za-z_]")) id = "d_" + id;
