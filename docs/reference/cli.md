@@ -2,7 +2,7 @@
 
 # CLI reference
 
-Every command-line tool the repository exposes — including the shipped `mtconnect.net-agent` + `mtconnect.net-adapter` binaries and the contributor scripts under `tools/` plus the .NET tools under `build/`. The list is built by walking the source tree at docs-build time, so a new flag added to any tool surfaces here on the next regeneration.
+Every command-line tool the repository exposes — including the shipped `mtconnect.net-agent` + `mtconnect.net-adapter` binaries and the contributor scripts under `tools/` plus the .NET tools under `build/`. The list is built by walking the source tree, so a new flag added to any tool surfaces here on the next regeneration.
 
 ## Shipped CLIs
 
@@ -64,7 +64,7 @@ Standalone HTTP agent host. Loads `agent.config.yaml` (or `agent.config.json`), 
 
 - **Source**: [`build/MTConnect.NET-DocsGen/Program.cs`](https://github.com/TrakHound/MTConnect.NET/blob/master/build/MTConnect.NET-DocsGen/Program.cs)
 
-Walks the repository source tree with Roslyn and emits the auto-generated VitePress reference pages under `docs/reference/`. The same inventory routines are exposed as public static methods so the validation test can re-run them independently.
+Walks the repository source tree with Roslyn and emits the auto-generated reference pages under `docs/reference/`. The same inventory routines are exposed as public static methods so the validation test can re-run them independently.
 
 **Flags**
 

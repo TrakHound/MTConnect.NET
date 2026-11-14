@@ -126,4 +126,4 @@ The script runs under `set -euo pipefail`. Any failing `dotnet test` invocation 
 - [`tools/dotnet.sh`](dotnet-sh.md) — the `dotnet` wrapper this script uses for every invocation.
 - [Compliance → Test harness](../compliance/test-harness.md) — how to interpret the Compliance-tier output specifically.
 - [SysML importer](sysml-import.md) — runs `tools/test.sh` after every regeneration to verify the regenerated `*.g.cs` files compile and the suite stays green.
-- [API reference](https://trakhound.github.io/MTConnect.NET/api/) — the public surface that the tests under `tests/` exercise.
+- [Libraries](../../libraries/) — the public surface that the tests under `tests/` exercise.

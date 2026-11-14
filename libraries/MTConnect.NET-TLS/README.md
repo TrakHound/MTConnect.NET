@@ -3,7 +3,7 @@
 # MTConnect.NET-TLS
 MTConnect.NET-TLS is an extension library to MTConnect.NET that provides TLS certificate loading and configuration for use with the HTTP and MQTT transport layers.
 
-For TLS configuration within the HTTP server module or the MQTT relay module, see [docs/modules](../../docs/modules/).
+For TLS configuration within the HTTP server module or the MQTT relay module, see [Modules](https://www.trakhound.com/docs/mtconnect-net/modules).
 
 ## Nuget
 <table>

@@ -3,16 +3,9 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <!-- Always: the docs build's API reference reads this project's XML doc file, and its
-         generate-api-ref.sh step skips rebuilding this project when this test runs it -->
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Playwright" Version="1.64.1" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\build\MTConnect.NET-DocsGen\MTConnect.NET-DocsGen.csproj" />

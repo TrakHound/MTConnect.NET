@@ -1,6 +1,6 @@
 # Contributor documentation
 
-Documentation for working on `MTConnect.NET` itself: how the tests, tooling, compliance checks and documentation site work. User documentation (installing, configuring and using the libraries and the agent) lives in [`docs/`](../docs/) and is published as the documentation site.
+Documentation for working on `MTConnect.NET` itself: how the tests, tooling and compliance checks work. User documentation (installing, configuring and using the libraries and the agent) is published as the [MTConnect.NET Docs](https://www.trakhound.com/docs/mtconnect-net) on www.trakhound.com.
 
 Start with [`CONTRIBUTING.md`](../CONTRIBUTING.md) for the checks to run before opening a pull request and the conventions for writing tests.
 
@@ -19,7 +19,6 @@ Start with [`CONTRIBUTING.md`](../CONTRIBUTING.md) for the checks to run before 
 - [SysML importer](tools/sysml-import.md)
 - [Release builder](builder.md)
 
-## Documentation site
+## Documentation
 
-- [Documentation site](docs-site.md): local builds, the base path, and the route check
-- [House style](house-style.md)
+- [Documentation](docs-site.md): where the documentation lives, the generated reference pages, and the redirects from the old documentation site

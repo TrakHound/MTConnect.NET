@@ -2,7 +2,7 @@
 
 # Auto-generated reference
 
-Every page in this section is produced by `build/MTConnect.NET-DocsGen` at docs-build time by inspecting the source tree with Roslyn. Editing these files by hand will be overwritten on the next regeneration; instead, edit the source and re-run:
+Every page in this section is produced by `build/MTConnect.NET-DocsGen` by inspecting the source tree with Roslyn. Editing these files by hand will be overwritten on the next regeneration; instead, edit the source and re-run:
 
 ```bash
 dotnet run --project build/MTConnect.NET-DocsGen -- --repo .

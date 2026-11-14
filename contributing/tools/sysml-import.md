@@ -95,10 +95,10 @@ A regeneration is considered clean when (a) the test suite is green at every pre
 
 ## See also
 
-- [Configure & Use → Run](../../docs/configure/run.md) — running the agent against the regenerated library to verify end-to-end behavior.
-- [Compliance](../../docs/compliance/index.md) — the per-version compliance matrix that the regenerator advances.
-- [API reference → `MTConnect.SysML.MTConnectModel`](https://trakhound.github.io/MTConnect.NET/api/MTConnect.SysML.MTConnectModel) — the in-memory model the XMI parser produces and the renderers walk.
-- [API reference → `MTConnect.SysML.ModelHelper`](https://trakhound.github.io/MTConnect.NET/api/MTConnect.SysML.ModelHelper) — the helper surface the per-language renderers call into.
-- [API reference → `MTConnect.SysML` namespace](https://trakhound.github.io/MTConnect.NET/api/MTConnect.SysML) — the SysML model + per-renderer entry points.
+- [Configure & Use → Run](https://www.trakhound.com/docs/mtconnect-net/configure/run) — running the agent against the regenerated library to verify end-to-end behavior.
+- [Compliance](https://www.trakhound.com/docs/mtconnect-net#compliance) — the per-version compliance matrix that the regenerator advances.
+- [`MTConnect.SysML.MTConnectModel`](../../libraries/MTConnect.NET-SysML/MTConnectModel.cs) — the in-memory model the XMI parser produces and the renderers walk.
+- [`MTConnect.SysML.ModelHelper`](../../libraries/MTConnect.NET-SysML/ModelHelper.cs) — the helper surface the per-language renderers call into.
+- [`MTConnect.NET-SysML`](../../libraries/MTConnect.NET-SysML/) — the SysML model + per-renderer entry points.
 - [`tools/test.sh`](test-sh.md) — runs after a regeneration to verify the suite stays green.
 - [`tools/dotnet.sh`](dotnet-sh.md) — wraps the `dotnet run` invocation if the regeneration is being done inside a containerized SDK.

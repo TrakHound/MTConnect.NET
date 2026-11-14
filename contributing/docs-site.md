@@ -1,116 +1,50 @@
-# Documentation site
+# Documentation
 
-The documentation site you are reading is built with [VitePress](https://vitepress.dev/) from the `docs/` directory in the repository. This page covers how to build it locally and how the production deploy resolves its public base path.
+The user documentation for MTConnect.NET is published as the [MTConnect.NET Docs](https://www.trakhound.com/docs/mtconnect-net) on www.trakhound.com. The pages are Razor pages in the TrakHound.Site repository, alongside the other TrakHound documentation, so they are edited and reviewed there.
 
-## Local development
+Three things about the documentation stay in this repository: the generated reference pages, the redirects from the old documentation site, and this contributor documentation.
 
-```
-cd docs
-npm ci
-npm run dev
-```
+## Generated reference pages
 
-The dev server hot-reloads markdown edits, theme tweaks, and config changes. It serves from `http://localhost:5173/` with no path prefix.
+`docs/reference/` holds four pages generated from the source by [`build/MTConnect.NET-DocsGen`](../build/MTConnect.NET-DocsGen/):
 
-## Production build
-
-```
-cd docs
-npm run build
-```
-
-The build emits a static site under `docs/.vitepress/dist/`. Preview it with `npm run preview`, which serves the built artifact at the same `localhost:5173` origin.
-
-## Base path—`DOCS_BASE`
-
-VitePress emits asset URLs (CSS, JavaScript, fonts, images) at build time using its `base` configuration. The shipped config reads `base` from the `DOCS_BASE` environment variable and defaults to `/` when unset:
-
-```ts
-// docs/.vitepress/config.ts
-base: process.env.DOCS_BASE ?? '/',
-```
-
-Why it matters: when the built site is served from a sub-path—for example GitHub Pages at `https://trakhound.github.io/MTConnect.NET/`—the asset URLs must include the `/MTConnect.NET/` prefix or the browser fetches `https://trakhound.github.io/assets/…` and 404s every asset, leaving an unstyled raw-HTML render. The base must match the public deploy URL at the time `vitepress build` runs; rewriting it post-build is not supported by VitePress.
-
-| Environment | `DOCS_BASE` value | Resolved asset URL |
-| --- | --- | --- |
-| Local dev (`npm run dev` / `npm run preview`) | unset (defaults to `/`) | `http://localhost:5173/assets/…` |
-| GitHub Pages production build | `/MTConnect.NET/` | `https://trakhound.github.io/MTConnect.NET/assets/…` |
-| Custom deploy target at `https://docs.example.com/mtconnect/` | `/mtconnect/` | `https://docs.example.com/mtconnect/assets/…` |
-| Custom deploy target at a root domain like `https://docs.example.com/` | unset or `/` | `https://docs.example.com/assets/…` |
-
-The variable is read by Node at the moment `vitepress build` starts, so any deployment pipeline can override it by exporting the variable in the build step.
-
-## How CI sets the base
-
-`.github/workflows/docs.yml` builds the site on every push and pull request, and deploys the artifact to GitHub Pages on merges to `master`. The build step passes `DOCS_BASE: /MTConnect.NET/` explicitly:
-
-```yaml
-- name: Build site
-  working-directory: docs
-  run: npm run build
-  env:
-    DOCS_BASE: /MTConnect.NET/
-```
-
-A fork or third-party deploy that hosts the same documentation under a different URL—for example a vendor preview hosted at `/preview/`—sets `DOCS_BASE: /preview/` on its own build step. No code changes are needed.
-
-## Diagnosing a styling break on a live deploy
-
-The classic symptom of a base mismatch is a deployed page that renders as raw HTML: title and tagline run together without spacing, the `Search` button reads `SearchK` because the keyboard-shortcut hint sits adjacent to the label without CSS spacing, and the nav links concatenate without separators. Check the page's HTML source for `<link rel="stylesheet">` and `<script type="module">` tags; if their `href` / `src` attributes do not include the deploy URL's path prefix, the build was produced with the wrong `DOCS_BASE`.
-
-## End-to-end route check
-
-`tests/MTConnect.NET-Docs-Tests/RouteCheckTests.cs` is a Playwright e2e fixture that builds the docs site, spawns `vitepress preview` against the built `dist/` tree, walks the routes the markdown source tree implies in a headless Chromium browser, and asserts no client-side 404s. CI runs it on the `ubuntu-latest` matrix leg of `.github/workflows/dotnet.yml` (the `windows-latest` leg filters `Category=E2E` out — hosted Windows runners do not carry Linux-image Docker, and the test fixture's `npm ci && npm run build` bootstrap is the easier target to keep Linux-only).
-
-Run locally from the repo root:
-
-```
-dotnet test tests/MTConnect.NET-Docs-Tests --filter Category=E2E
-```
-
-On the first run the fixture installs the chromium binary the Playwright .NET binding drives (~150 MB; cached on subsequent runs) and — if `docs/.vitepress/dist/` is missing — invokes `npm ci && npm run build` from `docs/` to produce a preview-able site. Subsequent runs reuse both, so a warm working tree completes in a couple of minutes; a cold checkout takes longer because the build artefact is rebuilt from scratch.
-
-Failure output names every route that surfaced as a 404 along with which of the two signals fired—the `.NotFound` element rendered by the VitePress default theme's NotFound component, or `document.title` starting with `404` (the static `404.html` emits `<title>404 | MTConnect.NET</title>`, so a prefix match catches it regardless of the trailing site-title suffix). Typical fixes:
-
-| Symptom | Probable cause | Fix |
-| --- | --- | --- |
-| "vitepress preview did not bind to 127.0.0.1:NNNN within 60s" | Stale `dist/` tree from a prior aborted build, or `node_modules/` mismatch after a vitepress bump. | `rm -rf docs/.vitepress/dist docs/node_modules && cd docs && npm ci && npm run build`. |
-| "/some-route — .NotFound element present" | Sidebar entry points at a markdown file that no longer exists, or a vitepress route was added without the matching `.md`. | Remove the sidebar entry or add the page; re-run the test. |
-| "playwright install chromium exited NNN" | The chromium download was blocked or interrupted. | Re-run; if the install fails again, run `dotnet tool restore && npx playwright install chromium` manually and re-try. |
-| "port NNNN already in use" hang | Another process grabbed the free port between selection and bind (rare; mitigated by the banner-parse fallback). | Re-run the test — the next free port avoids the contended one. |
-
-The negative companion test (`A_Synthetic_Unmapped_Route_Surfaces_As_A_404`) pins the detector itself: a future Playwright or VitePress upgrade that breaks one of the two 404 signals would still see every real route render fine, but the negative test would go red and surface the regression before a real 404 slipped past.
-
-### API reference sampling
-
-The generated API reference is about 2,400 pages from one docfx template, so the walk samples it instead of visiting every page: it keeps every route outside `/api/`, the `/api/` overview, every namespace page, and the first type page in each namespace (about 300 API pages in all). A page that renders proves its siblings from the same template and namespace sidebar render too, so the sample catches the same failures in a fraction of the time. Namespaces come from `docs/api/toc.yml`.
-
-To walk every API page, set `ROUTE_CHECK_ALL_API=true`:
-
-```
-ROUTE_CHECK_ALL_API=true dotnet test tests/MTConnect.NET-Docs-Tests --filter Category=E2E
-```
-
-### Sharded execution
-
-CI splits the route walk across four Ubuntu shards declared in the `route-check-e2e` job of `.github/workflows/dotnet.yml`. Each shard reads two environment variables and walks a disjoint subset of the collected routes:
-
-| Variable | Meaning |
+| Page | Built from |
 | --- | --- |
-| `ROUTE_SHARD_INDEX` | One-based index of this shard (1 to `ROUTE_SHARD_TOTAL`). |
-| `ROUTE_SHARD_TOTAL` | Total shard count. Unset, blank, unparseable, or `1` collapses to the no-sharding path — every route on a single shard. |
+| `http-api.md` | The HTTP routes the agent's HTTP server registers |
+| `environment-variables.md` | `Environment.GetEnvironmentVariable` reads, and `${MTCONNECT_…}` references in the contributor scripts |
+| `configuration.md` | The configuration option classes |
+| `cli.md` | The command-line tools in the repository |
 
-Routes are distributed round-robin by modulus: shard `i` of `N` walks every route whose zero-based position in the sorted collection satisfies `position % N == i - 1`. Distribution is therefore deterministic and stable across runs, and even shard sizes hold within ±1 for any route count.
+Regenerate them after changing any of those:
 
-Reproduce a specific shard locally:
-
+```bash
+bash docs/scripts/generate-reference.sh
 ```
-ROUTE_SHARD_INDEX=2 ROUTE_SHARD_TOTAL=4 dotnet test tests/MTConnect.NET-Docs-Tests --filter Category=E2E
+
+`DocsReferenceGenerationTests` in `tests/MTConnect.NET-Docs-Tests` re-runs the same inventories and fails when the committed pages are out of date, so a missing regeneration fails CI. `bash docs/scripts/generate-reference.sh --check` runs the same check locally.
+
+The MTConnect.NET Docs show these pages from a copy in TrakHound.Site. After they change here, run `tools/mtconnect-net-docs/refresh-reference.ps1` in TrakHound.Site to update the copy.
+
+## Redirects from the old documentation site
+
+The documentation used to be a VitePress site on GitHub Pages at `https://trakhound.github.io/MTConnect.NET/`. GitHub Pages now serves only redirect pages, so links from other sites, bookmarks and search results land on the new pages.
+
+- [`docs/redirects/redirects.json`](../docs/redirects/redirects.json) lists every route of the old site and its new path on www.trakhound.com, or a GitHub URL for the contributor pages that moved to `contributing/`. Sections of pages that were merged into another page have their own entries under `anchors`.
+- [`docs/redirects/build.mjs`](../docs/redirects/build.mjs) writes one page per route, plus a `404.html` for anything else. A redirect keeps the `#anchor` of the old URL, because the new pages keep the old heading anchors. Every route under `/api/` (the old generated API reference) goes to the TrakHound profile on nuget.org, and any other unknown route goes to the docs overview.
+- `.github/workflows/docs.yml` builds the pages for pull requests that change them, and deploys them to GitHub Pages on merges to `master` (or when run by hand).
+
+Build and look at the pages locally (Node.js 18 or later, no packages):
+
+```bash
+node docs/redirects/build.mjs
 ```
 
-Leaving the variables unset is the no-sharding default — every route on one walk — which is how `dotnet test … --filter Category=E2E` runs without extra ceremony. Sharding was introduced when the walk covered every API page (around 24 minutes unsharded); with API sampling the whole walk is a few hundred pages, so the shards are now mostly a hedge. The docs build itself runs exactly once in the `docs-prepare` job and the resulting `docs/.vitepress/dist/` artifact is downloaded by every shard so the bootstrap is paid once across the whole workflow.
+The pages are written to `docs/redirects/_site/`.
+
+## Images
+
+`docs/img/` holds images that READMEs (ex. the agent README) link to with `raw.githubusercontent.com` URLs. Keep the paths stable, since copies of those READMEs on other sites link to them.
 
 ## See also
 
-- [Release builder](builder.md)—the in-tree tool that assembles binary release artifacts (NuGet packages, installers, Docker images). Distinct from the documentation site build covered above.
+- [Release builder](builder.md): the in-tree tool that assembles the release artifacts (NuGet packages, installers, Docker images).

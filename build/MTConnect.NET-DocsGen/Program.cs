@@ -4,8 +4,8 @@
 using MTConnect.NET_DocsGen;
 
 // DocsGen entry point. Walks the repository source tree (Roslyn-only,
-// no compiled assemblies) and emits the auto-generated VitePress
-// reference pages:
+// no compiled assemblies) and emits the auto-generated reference
+// pages (published in the MTConnect.NET Docs on www.trakhound.com):
 //
 //   docs/reference/http-api.md
 //   docs/reference/environment-variables.md

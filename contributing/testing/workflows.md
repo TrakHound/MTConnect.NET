@@ -59,7 +59,7 @@ Verifies the whole tree is byte-identical to `dotnet format`'s
 whitespace / C# formatting output, so indentation, brace placement,
 and trailing-whitespace drift cannot silently reaccumulate into the
 baseline. Runs on `ubuntu-latest`, installs both .NET 8.0.x and
-9.0.x (the same pair the build / test / docs / e2e jobs use), and
+9.0.x (the same pair the build / test jobs use), and
 does not depend on any other job — a formatting-only fix therefore
 gets fast feedback without waiting on the unit + integration matrix.
 
@@ -96,7 +96,7 @@ code. Freezing the ruleset with a committed `.editorconfig` +
 `global.json` SDK pin is a tracked follow-up (see the format-baseline
 PR description).
 
-### Jobs 1–4 — build, test, docs, route-check
+### Job 1 — build and test
 
 **Steps:**
 

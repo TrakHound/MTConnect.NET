@@ -118,5 +118,5 @@ fi
 ## See also
 
 - [`tools/test.sh`](test-sh.md) — the test entry point that invokes this wrapper for every `dotnet test` run.
-- [Configure & Use → Run](../../docs/configure/run.md) — running the shipped agent and adapter (where end users do not need this wrapper).
+- [Configure & Use → Run](https://www.trakhound.com/docs/mtconnect-net/configure/run) — running the shipped agent and adapter (where end users do not need this wrapper).
 - [Compliance → Test harness](../compliance/test-harness.md) — running the per-spec-version conformance suite (uses `tools/test.sh --compliance`, which routes through this wrapper).

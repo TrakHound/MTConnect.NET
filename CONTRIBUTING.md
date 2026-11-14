@@ -1,6 +1,6 @@
 # Contributing to MTConnect.NET
 
-Thank you for taking the time to contribute — issues, discussions, and pull requests are all welcome. This file collects the mechanical checks a contributor is expected to run locally before pushing; the substantive discussion of what to work on lives on the [MTConnect.NET issue tracker](https://github.com/TrakHound/MTConnect.NET/issues) and on the [Documentation site](https://trakhound.github.io/MTConnect.NET/).
+Thank you for taking the time to contribute — issues, discussions, and pull requests are all welcome. This file collects the mechanical checks a contributor is expected to run locally before pushing; the substantive discussion of what to work on lives on the [MTConnect.NET issue tracker](https://github.com/TrakHound/MTConnect.NET/issues) and on the [MTConnect.NET Docs](https://www.trakhound.com/docs/mtconnect-net).
 
 ## Running the formatting gate locally
 

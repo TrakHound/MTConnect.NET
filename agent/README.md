@@ -1,6 +1,6 @@
 # Standalone MTConnect Agent
 
-For the full agent CLI reference, configuration guide, and module catalogue, see the docs site under [`docs/cli/agent`](../docs/cli/agent.md), [`docs/configure/agent-config`](../docs/configure/agent-config.md), and [`docs/modules/`](../docs/modules/).
+For the full agent CLI reference, configuration guide, and module catalogue, see the MTConnect.NET Docs: [Agent CLI](https://www.trakhound.com/docs/mtconnect-net/cli/agent), [Agent configuration](https://www.trakhound.com/docs/mtconnect-net/configure/agent-config), and [Modules](https://www.trakhound.com/docs/mtconnect-net/modules).
 
 <table>
     <thead>

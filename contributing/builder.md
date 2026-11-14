@@ -8,7 +8,7 @@
 
 `MTConnect.NET.Builder` is the in-tree tool that assembles release artefacts from the repository: NuGet packages, the Windows agent installer (Inno Setup), the agent Docker images, and the GitHub release that carries the installer. It captures the cross-cutting metadata (publisher, version, repository URL, package tags, icon URLs) in one configuration file rather than scattered across thirty-odd `.csproj` files.
 
-The tool is not part of the public library surface — it does not ship as a NuGet package, the docs site does not link it from the user-facing nav, and it is excluded from the auto-generated API reference. It is documented here so contributors who need to cut a release can find it.
+The tool is not part of the public library surface — it does not ship as a NuGet package and the user documentation does not cover it. It is documented here so contributors who need to cut a release can find it.
 
 ## When to run it
 

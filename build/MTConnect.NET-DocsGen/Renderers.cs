@@ -29,7 +29,7 @@ public static class IndexRenderer
         sb.AppendLine();
         sb.AppendLine("# Auto-generated reference");
         sb.AppendLine();
-        sb.AppendLine("Every page in this section is produced by `build/MTConnect.NET-DocsGen` at docs-build time by inspecting the source tree with Roslyn. Editing these files by hand will be overwritten on the next regeneration; instead, edit the source and re-run:");
+        sb.AppendLine("Every page in this section is produced by `build/MTConnect.NET-DocsGen` by inspecting the source tree with Roslyn. Editing these files by hand will be overwritten on the next regeneration; instead, edit the source and re-run:");
         sb.AppendLine();
         sb.AppendLine("```bash");
         sb.AppendLine("dotnet run --project build/MTConnect.NET-DocsGen -- --repo .");
@@ -230,7 +230,7 @@ public static class CliRenderer
         sb.AppendLine();
         sb.AppendLine("# CLI reference");
         sb.AppendLine();
-        sb.AppendLine("Every command-line tool the repository exposes — including the shipped `mtconnect.net-agent` + `mtconnect.net-adapter` binaries and the contributor scripts under `tools/` plus the .NET tools under `build/`. The list is built by walking the source tree at docs-build time, so a new flag added to any tool surfaces here on the next regeneration.");
+        sb.AppendLine("Every command-line tool the repository exposes — including the shipped `mtconnect.net-agent` + `mtconnect.net-adapter` binaries and the contributor scripts under `tools/` plus the .NET tools under `build/`. The list is built by walking the source tree, so a new flag added to any tool surfaces here on the next regeneration.");
         sb.AppendLine();
 
         var shipped = tools.Where(t => t.Category == "shipped").ToList();
@@ -313,8 +313,8 @@ public static class CliRenderer
 
     // CLI descriptions are plain prose that may include placeholder
     // tokens like `<repo>` or `<LibraryName>`. Markdown leaves those
-    // tokens untouched, and VitePress's Vue compiler then treats them
-    // as opening HTML tags that need closing — which breaks the build.
+    // tokens untouched, and the page renderer then treats them as
+    // opening HTML tags that need closing.
     // Escape the angle brackets here so the rendered markdown is
     // unambiguous; the `<value>` argument-shape tokens emitted into
     // the Argument column are kept inside backticks elsewhere and stay
