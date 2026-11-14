@@ -6,7 +6,7 @@ using MTConnect.NET_JSON_cppagent.Streams;
 using MTConnect.Streams.Json;
 using NUnit.Framework;
 
-namespace MTConnect.NET_JSON_cppagent_Tests.Streams
+namespace MTConnect.Tests.JsonCppagent.Streams
 {
     /// <summary>
     /// Pins the converter's edge-case branches:

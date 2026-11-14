@@ -9,7 +9,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace MTConnect.NET_Docs_Tests;
+namespace MTConnect.Tests.Docs;
 
 /// <summary>
 /// Pure helpers shared with <see cref="RouteCheckTests"/>. Extracted so

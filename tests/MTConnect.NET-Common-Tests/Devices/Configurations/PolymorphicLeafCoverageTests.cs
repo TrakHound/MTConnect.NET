@@ -8,7 +8,7 @@ using System.Reflection;
 using MTConnect.Devices.Configurations;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Common_Tests.Devices.Configurations
+namespace MTConnect.Tests.Common.Devices.Configurations
 {
     /// <summary>
     /// Parametric reflection guard for the Configuration polymorphic-leaf

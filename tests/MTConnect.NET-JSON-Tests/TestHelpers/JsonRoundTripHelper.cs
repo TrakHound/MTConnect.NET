@@ -3,7 +3,7 @@
 
 using System.Text.Json;
 
-namespace MTConnect.NET_JSON_Tests.TestHelpers
+namespace MTConnect.Tests.Json.TestHelpers
 {
     /// <summary>
     /// Small JSON round-trip primitives. Each leaf class exposes

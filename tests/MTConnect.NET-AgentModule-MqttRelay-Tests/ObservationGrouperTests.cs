@@ -9,7 +9,7 @@ using MTConnect.Observations;
 using MTConnect.Observations.Output;
 using NUnit.Framework;
 
-namespace MTConnect.AgentModule.MqttRelay.Tests
+namespace MTConnect.Tests.AgentModule.MqttRelay
 {
     /// <summary>
     /// Pins the MqttRelay PublishObservations grouping policy. The

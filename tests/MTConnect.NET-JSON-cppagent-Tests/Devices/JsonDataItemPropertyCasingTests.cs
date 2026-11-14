@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
-namespace MTConnect.NET_JSON_cppagent_Tests.Devices
+namespace MTConnect.Tests.JsonCppagent.Devices
 {
     /// <summary>
     /// Pins the cppagent JSON wire-shape casing convention for

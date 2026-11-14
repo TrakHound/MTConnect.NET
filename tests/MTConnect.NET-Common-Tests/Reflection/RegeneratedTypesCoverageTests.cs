@@ -9,7 +9,7 @@ using System.Reflection;
 using MTConnect.Devices;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Common_Tests.Reflection
+namespace MTConnect.Tests.Common.Reflection
 {
     // Reflection-driven parametric coverage over every public type in the
     // regenerated namespaces of MTConnect.NET-Common (Devices, Assets,

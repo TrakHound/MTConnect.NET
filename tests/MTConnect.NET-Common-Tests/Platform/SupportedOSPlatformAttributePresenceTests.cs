@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Runtime.Versioning;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Common_Tests.Platform
+namespace MTConnect.Tests.Common.Platform
 {
     // Pins the [SupportedOSPlatform("windows")] decoration on every type or
     // method that was annotated by commit dd2eb424 (2026-05-22) to silence

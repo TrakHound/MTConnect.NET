@@ -8,7 +8,7 @@ using System.Reflection;
 using MTConnect.Assets;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Common_Tests.Reflection
+namespace MTConnect.Tests.Common.Reflection
 {
     // Per-category parametric coverage for the regenerated Asset
     // subtypes under MTConnect.Assets and its sub-namespaces. The broad

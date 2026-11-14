@@ -3,10 +3,10 @@
 
 using System.IO;
 using System.Text.RegularExpressions;
-using MTConnect.NET_JSON_cppagent_Tests.TestHelpers;
+using MTConnect.Tests.JsonCppagent.TestHelpers;
 using NUnit.Framework;
 
-namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
+namespace MTConnect.Tests.JsonCppagent.Regressions
 {
     /// <summary>
     /// Catches a copy-paste regression of

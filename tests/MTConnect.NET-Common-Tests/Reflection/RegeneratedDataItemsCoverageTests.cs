@@ -9,7 +9,7 @@ using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Common_Tests.Reflection
+namespace MTConnect.Tests.Common.Reflection
 {
     // Per-category parametric coverage focused on the regenerated DataItem
     // types under MTConnect.Devices.DataItems. The broad

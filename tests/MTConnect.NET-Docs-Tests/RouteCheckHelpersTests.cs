@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Docs_Tests;
+namespace MTConnect.Tests.Docs;
 
 /// <summary>
 /// Unit-tier coverage for <see cref="RouteCheckHelpers"/>. Exercises the

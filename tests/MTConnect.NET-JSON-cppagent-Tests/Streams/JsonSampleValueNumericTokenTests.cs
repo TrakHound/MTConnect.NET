@@ -7,7 +7,7 @@ using MTConnect.Observations;
 using MTConnect.Streams.Json;
 using NUnit.Framework;
 
-namespace MTConnect.NET_JSON_cppagent_Tests.Streams
+namespace MTConnect.Tests.JsonCppagent.Streams
 {
     /// <summary>
     /// Pins the cppagent-JSON Sample-value token kind:

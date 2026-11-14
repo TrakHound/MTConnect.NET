@@ -3,10 +3,10 @@
 
 using MTConnect.Devices.Configurations;
 using MTConnect.Devices.Json;
-using MTConnect.NET_JSON_cppagent_Tests.TestHelpers;
+using MTConnect.Tests.JsonCppagent.TestHelpers;
 using NUnit.Framework;
 
-namespace MTConnect.NET_JSON_cppagent_Tests.Devices.Configurations
+namespace MTConnect.Tests.JsonCppagent.Devices.Configurations
 {
     /// <summary>
     /// Pins the Origin polymorphism on <c>Motion</c> and

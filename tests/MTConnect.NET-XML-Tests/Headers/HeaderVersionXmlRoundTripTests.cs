@@ -26,7 +26,7 @@ using MTConnect.Devices;
 using MTConnect.Devices.Xml;
 using NUnit.Framework;
 
-namespace MTConnect.Tests.Xml.Headers
+namespace MTConnect.Tests.XML.Headers
 {
     /// <summary>Pins the behaviour expressed by the test name: header version xml round trip tests.</summary>
     [TestFixture]

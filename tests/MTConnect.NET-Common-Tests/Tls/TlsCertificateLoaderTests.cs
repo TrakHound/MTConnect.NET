@@ -8,7 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 using MTConnect.Tls;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Common_Tests.Tls
+namespace MTConnect.Tests.Common.Tls
 {
     // Pins the SYSLIB0057 → X509CertificateLoader migration in
     // libraries/MTConnect.NET-TLS/TlsConfiguration.cs.

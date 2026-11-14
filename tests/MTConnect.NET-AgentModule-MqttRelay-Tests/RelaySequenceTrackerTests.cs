@@ -3,7 +3,7 @@
 
 using NUnit.Framework;
 
-namespace MTConnect.AgentModule.MqttRelay.Tests
+namespace MTConnect.Tests.AgentModule.MqttRelay
 {
     /// <summary>
     /// Pins the durable-relay rule that the last-sent sequence only advances over delivered

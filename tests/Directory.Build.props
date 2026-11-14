@@ -1,0 +1,54 @@
+<Project>
+	<!--
+	  Shared settings for every project under tests/.
+
+	  MSBuild stops at the first Directory.Build.props it finds walking up
+	  from a project, so this file imports the repository-root one
+	  explicitly; everything there (versioning, TreatWarningsAsErrors,
+	  IsPackable=false, ...) still applies.
+
+	  Conventions are documented in CONTRIBUTING.md ("Writing tests").
+	-->
+	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+	<PropertyGroup>
+		<!-- A test project is any project whose name ends in "-Tests".
+		     Support libraries (e.g. MTConnect.NET-Tests-Agents) get only the
+		     root namespace default below, not the test packages. -->
+		<MTConnectIsTestProject Condition="$(MSBuildProjectName.EndsWith('-Tests'))">true</MTConnectIsTestProject>
+
+		<!-- NUnit is the default. A project that uses another framework sets
+		     <TestFramework> in its own .csproj (only Integration-Tests does). -->
+		<TestFramework Condition="'$(TestFramework)' == ''">NUnit</TestFramework>
+
+		<!-- Default root namespace: MTConnect.Tests.<Area>, where <Area> is the
+		     project name minus the "MTConnect.NET-" prefix and "-Tests" suffix
+		     (MTConnect.NET-Foo-Bar-Tests => MTConnect.Tests.Foo.Bar). Projects
+		     whose established casing differs (Http, Json, JsonCppagent, Shdr)
+		     set <RootNamespace> explicitly. -->
+		<_MTConnectTestArea>$(MSBuildProjectName.Replace('MTConnect.NET-', '').Replace('MTConnect-', ''))</_MTConnectTestArea>
+		<_MTConnectTestArea Condition="$(_MTConnectTestArea.EndsWith('-Tests'))">$(_MTConnectTestArea.Substring(0, $([MSBuild]::Subtract($(_MTConnectTestArea.Length), 6))))</_MTConnectTestArea>
+		<RootNamespace>MTConnect.Tests.$(_MTConnectTestArea.Replace('-', '.'))</RootNamespace>
+
+		<!-- Package versions shared by every test project. Bump them here. -->
+		<MicrosoftNetTestSdkVersion>17.14.1</MicrosoftNetTestSdkVersion>
+		<NUnitVersion>3.14.0</NUnitVersion>
+		<NUnit3TestAdapterVersion>4.6.0</NUnit3TestAdapterVersion>
+		<CoverletCollectorVersion>6.0.4</CoverletCollectorVersion>
+	</PropertyGroup>
+
+	<!-- Item conditions are evaluated after all properties, including those
+	     set in the project file, so <TestFramework> in a .csproj is honored. -->
+	<ItemGroup Condition="'$(MTConnectIsTestProject)' == 'true'">
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkVersion)" />
+		<PackageReference Include="coverlet.collector" Version="$(CoverletCollectorVersion)">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(MTConnectIsTestProject)' == 'true' AND '$(TestFramework)' == 'NUnit'">
+		<PackageReference Include="NUnit" Version="$(NUnitVersion)" />
+		<PackageReference Include="NUnit3TestAdapter" Version="$(NUnit3TestAdapterVersion)" />
+	</ItemGroup>
+</Project>

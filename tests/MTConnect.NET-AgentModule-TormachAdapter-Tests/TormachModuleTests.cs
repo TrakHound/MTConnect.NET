@@ -13,7 +13,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace MTConnect.AgentModule.TormachAdapter.Tests
+namespace MTConnect.Tests.AgentModule.TormachAdapter
 {
     /// <summary>
     /// Runs the module against a fake PathPilot status server, and against the real status

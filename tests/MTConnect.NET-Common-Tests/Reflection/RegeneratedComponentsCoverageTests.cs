@@ -9,7 +9,7 @@ using MTConnect.Devices;
 using MTConnect.Devices.Components;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Common_Tests.Reflection
+namespace MTConnect.Tests.Common.Reflection
 {
     // Per-category parametric coverage for the regenerated Component
     // subtypes under MTConnect.Devices.Components. The broad

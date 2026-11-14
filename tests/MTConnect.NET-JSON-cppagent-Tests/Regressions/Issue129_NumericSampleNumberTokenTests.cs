@@ -7,7 +7,7 @@ using MTConnect.Observations;
 using MTConnect.Streams.Json;
 using NUnit.Framework;
 
-namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
+namespace MTConnect.Tests.JsonCppagent.Regressions
 {
     /// <summary>
     /// Regression pin for

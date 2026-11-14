@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Common_Tests.Http
+namespace MTConnect.Tests.Common.Http
 {
     /// <summary>
     /// Permanent regression guard for the F-CR-001 TrimEnd-on-fixed-buffer class of bug in

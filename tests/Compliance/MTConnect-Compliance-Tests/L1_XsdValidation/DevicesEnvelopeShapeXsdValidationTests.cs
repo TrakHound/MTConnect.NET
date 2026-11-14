@@ -10,7 +10,7 @@ using MTConnect.Devices.Xml;
 using MTConnect.Headers;
 using NUnit.Framework;
 
-namespace MTConnect.Compliance.Tests.L1_XsdValidation
+namespace MTConnect.Tests.Compliance.L1_XsdValidation
 {
     // Compliance gate — multi-device Probe envelope MUST place <Agent>
     // and <Device> as named child elements of <Devices> per the v2.7 XSD

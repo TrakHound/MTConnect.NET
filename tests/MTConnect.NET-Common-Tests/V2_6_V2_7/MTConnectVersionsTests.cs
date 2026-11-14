@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Common_Tests.V2_6_V2_7
+namespace MTConnect.Tests.Common.V2_6_V2_7
 {
     // Constants-level pins on `MTConnectVersions` for v2.6 and v2.7.
     //

@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 using Microsoft.Playwright;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Docs_Tests;
+namespace MTConnect.Tests.Docs;
 
 /// <summary>
 /// End-to-end route walk against the built VitePress site. Spawns

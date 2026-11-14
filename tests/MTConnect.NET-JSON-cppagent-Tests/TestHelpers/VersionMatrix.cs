@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace MTConnect.NET_JSON_cppagent_Tests.TestHelpers
+namespace MTConnect.Tests.JsonCppagent.TestHelpers
 {
     /// <summary>
     /// Reflects every <c>public static readonly Version</c> field on

@@ -3,7 +3,7 @@
 
 using System.Text.Json;
 
-namespace MTConnect.NET_JSON_cppagent_Tests.TestHelpers
+namespace MTConnect.Tests.JsonCppagent.TestHelpers
 {
     /// <summary>
     /// JSON round-trip primitives for the cppagent v2 dialect tests. The

@@ -4,7 +4,7 @@
 using MTConnect.Tests.Shared;
 using NUnit.Framework;
 
-namespace MTConnect.Compliance.Tests.L2_CrossImpl
+namespace MTConnect.Tests.Compliance.L2_CrossImpl
 {
     /// <summary>
     /// Pins <see cref="DockerAvailability"/> (behind <see cref="DockerGate"/>): a RequiresDocker fixture runs when Docker is reachable, is

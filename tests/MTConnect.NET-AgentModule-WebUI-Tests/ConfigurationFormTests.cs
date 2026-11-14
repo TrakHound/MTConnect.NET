@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using YamlDotNet.Serialization;
 
-namespace MTConnect.AgentModule.WebUI.Tests
+namespace MTConnect.Tests.AgentModule.WebUI
 {
     /// <summary>A sample module settings class.</summary>
     public class TestModuleConfiguration

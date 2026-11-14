@@ -1,12 +1,12 @@
 // Copyright (c) 2026 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.NET_JSON_cppagent_Tests.TestHelpers;
+using MTConnect.Tests.JsonCppagent.TestHelpers;
 using NUnit.Framework;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
+namespace MTConnect.Tests.JsonCppagent.Regressions
 {
     /// <summary>
     /// Guard test that walks the JSON-cppagent library source tree and

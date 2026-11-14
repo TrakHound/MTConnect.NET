@@ -3,7 +3,7 @@
 
 using NUnit.Framework;
 
-namespace MTConnect.AgentModule.MqttRelay.Tests
+namespace MTConnect.Tests.AgentModule.MqttRelay
 {
     /// <summary>
     /// Pins the relay-buffer "missed observations" diagnostic

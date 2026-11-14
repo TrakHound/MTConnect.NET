@@ -3,10 +3,10 @@
 
 using MTConnect.Devices.Configurations;
 using MTConnect.Devices.Json;
-using MTConnect.NET_JSON_Tests.TestHelpers;
+using MTConnect.Tests.Json.TestHelpers;
 using NUnit.Framework;
 
-namespace MTConnect.NET_JSON_Tests.Devices.Configurations
+namespace MTConnect.Tests.Json.Devices.Configurations
 {
     /// <summary>
     /// Pins the Scale polymorphism on <c>SolidModel</c> in the standard JSON

@@ -17,7 +17,7 @@ using MTConnect.Devices;
 using MTConnect.Servers.Http;
 using NUnit.Framework;
 
-namespace MTConnect.Compliance.Tests.L2_CrossImpl
+namespace MTConnect.Tests.Compliance.L2_CrossImpl
 {
     // Workflow W07 — cppagent JSON v2 parity. Boots a docker-spun
     // mtconnect/agent (the reference C++ implementation) and an

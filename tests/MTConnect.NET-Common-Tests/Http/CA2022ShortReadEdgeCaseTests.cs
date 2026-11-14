@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Common_Tests.Http
+namespace MTConnect.Tests.Common.Http
 {
     /// <summary>
     /// Boundary and failure-path coverage FLOOR (CONVENTIONS §1.0d-trigies-novodecies)

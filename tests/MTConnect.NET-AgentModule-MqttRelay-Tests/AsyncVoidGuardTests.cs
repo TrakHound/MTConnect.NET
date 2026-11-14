@@ -5,7 +5,7 @@ using System;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
-namespace MTConnect.AgentModule.MqttRelay.Tests
+namespace MTConnect.Tests.AgentModule.MqttRelay
 {
     /// <summary>
     /// Pins the MqttRelay async-void event-handler safety policy. The

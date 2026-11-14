@@ -1,7 +1,7 @@
 using MTConnect.Devices.Configurations;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Common_Tests.V2_6_V2_7
+namespace MTConnect.Tests.Common.V2_6_V2_7
 {
     // Pins the v2.7 Configuration sub-element family: new geometric primitives
     // (Axis, Origin, Rotation, Scale, Translation) and their data-set

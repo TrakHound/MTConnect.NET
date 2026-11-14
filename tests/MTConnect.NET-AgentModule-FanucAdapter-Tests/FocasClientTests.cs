@@ -7,7 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace MTConnect.AgentModule.FanucAdapter.Tests
+namespace MTConnect.Tests.AgentModule.FanucAdapter
 {
     /// <summary>
     /// Tests the decoding helpers of <see cref="FocasClient"/>, and the native FOCAS library

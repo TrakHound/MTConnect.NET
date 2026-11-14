@@ -1,7 +1,7 @@
 using MTConnect.Devices.Components;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Common_Tests.V2_6_V2_7
+namespace MTConnect.Tests.Common.V2_6_V2_7
 {
     // Pins the v2.7 Component subclasses (PinTool, ToolHolder).
     //

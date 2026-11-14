@@ -3,7 +3,7 @@
 
 using NUnit.Framework;
 
-namespace MTConnect.AgentModule.MqttRelay.Tests
+namespace MTConnect.Tests.AgentModule.MqttRelay
 {
     /// <summary>
     /// Pins the MqttRelay last-sent-sequence persistence policy under

@@ -6,7 +6,7 @@ using MTConnect.Tormach;
 using NUnit.Framework;
 using System.Linq;
 
-namespace MTConnect.AgentModule.TormachAdapter.Tests
+namespace MTConnect.Tests.AgentModule.TormachAdapter
 {
     /// <summary>
     /// Pins the parsing of status server messages and the conversion of LinuxCNC values to MTConnect values.

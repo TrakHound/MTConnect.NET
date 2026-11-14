@@ -5,7 +5,7 @@ using MTConnect.Fanuc;
 using MTConnect.Observations.Events;
 using NUnit.Framework;
 
-namespace MTConnect.AgentModule.FanucAdapter.Tests
+namespace MTConnect.Tests.AgentModule.FanucAdapter
 {
     /// <summary>
     /// Pins the conversion of FOCAS values to MTConnect values.
