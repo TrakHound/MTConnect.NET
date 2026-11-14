@@ -35,5 +35,5 @@ The list above is a maintainer decision, not a contributor preference. Before op
 
 ## See also
 
-- [Documentation site](/development/docs-site) — how the site is built and how `DOCS_BASE` works.
+- [Documentation site](docs-site.md) — how the site is built and how `DOCS_BASE` works.
 - [Discussion #184](https://github.com/TrakHound/MTConnect.NET/discussions/184) — the source-of-record thread for the current answers.

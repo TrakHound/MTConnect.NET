@@ -54,19 +54,18 @@ The agent's modular architecture means the same agent process can speak any comb
 
 ## Integrations
 
-Step-by-step guides for the most-requested deployment shapes:
+The [Integrations](/configure/integrations/) page has step-by-step setups for the most-requested deployment shapes:
 
-- **[InfluxDB](./integrations/influxdb)** — pipe MTConnect observations into InfluxDB for time-series storage and Grafana dashboards.
-- **[MQTT — Protocol overview](./integrations/mqtt-protocol)** — the MTConnect-over-MQTT topic tree, payload formats, and broker-side considerations.
-- **[MQTT — AWS Greengrass (Moquette)](./integrations/mqtt-aws-greengrass-moquette)** — running the agent against the Moquette broker on Greengrass.
-- **[MQTT — AWS Greengrass (Mqtt-Bridge)](./integrations/mqtt-aws-greengrass-mqtt-bridge)** — bridging local-broker traffic out through Greengrass.
-- **[MQTT — AWS IoT](./integrations/mqtt-aws-iot)** — publishing directly to AWS IoT Core.
-- **[MQTT — HiveMQ](./integrations/mqtt-hivemq)** — running against HiveMQ as the external broker.
-- **[OpenSSL setup](./integrations/openssl)** — generating and configuring TLS certificates for HTTPS and MQTTS endpoints.
+- **[InfluxDB](/configure/integrations/#influxdb)** — pipe MTConnect observations into InfluxDB for time-series storage and Grafana dashboards.
+- **[MQTT — AWS Greengrass (Moquette)](/configure/integrations/#aws-greengrass-moquette-broker)** — running the agent against the Moquette broker on Greengrass.
+- **[MQTT — AWS Greengrass (Mqtt-Bridge)](/configure/integrations/#aws-greengrass-mqtt-bridge)** — bridging local-broker traffic out through Greengrass.
+- **[MQTT — AWS IoT](/configure/integrations/#mqtt-to-aws-iot)** — publishing directly to AWS IoT Core.
+- **[MQTT — HiveMQ](/configure/integrations/#mqtt-to-hivemq)** — running against HiveMQ as the external broker.
+- **[OpenSSL setup](/configure/integrations/#create-a-self-signed-certificate)** — generating and configuring TLS certificates for HTTPS and MQTTS endpoints.
 
 ## See also
 
 - [Getting started](/getting-started) — the three-step quickstart, if you haven't installed the agent yet.
-- [Wire formats](/wire-formats/) — what the agent emits on the wire, by codec.
+- [Wire formats](/wire-formats/) — what the agent emits on the wire, by codec, including the [MQTT topic protocol](/wire-formats/mqtt).
 - [Cookbook](/cookbook/) — recipes for the common deployment patterns.
 - [Troubleshooting](/troubleshooting/) — what to do when something goes wrong.

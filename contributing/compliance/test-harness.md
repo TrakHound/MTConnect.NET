@@ -53,9 +53,9 @@ The combined coverage report at `coverage-report/Summary.txt` shows line, branch
 
 When a compliance test fails, the failure category is encoded in the test class name and the assertion message:
 
-- **`XsdValidationTests_<envelope>_<version>`** — output failed XSD validation. The assertion message includes the XSD line number that rejected the output. Resolution: fix the codec; the XSD is the wire-shape authority. See [Troubleshooting: XSD validation failures](/troubleshooting/xsd-validation-failures) for the diagnostic flow.
+- **`XsdValidationTests_<envelope>_<version>`** — output failed XSD validation. The assertion message includes the XSD line number that rejected the output. Resolution: fix the codec; the XSD is the wire-shape authority. See [Troubleshooting: XSD validation failures](../../docs/troubleshooting/xsd-validation-failures.md) for the diagnostic flow.
 - **`SysMLParityTests_<class>`** — a class's `MinimumVersion` or property set drifted from the SysML model. Resolution: re-run the source generator against the latest XMI; the `.g.cs` files should regenerate to match.
-- **`CppAgentParityTests_<format>`** — JSON output diverged from cppagent's reference. Resolution: inspect the byte diff; either fix the codec (if the divergence is unintentional) or update the captured golden file and document the divergence at [Known divergences](/compliance/known-divergences).
+- **`CppAgentParityTests_<format>`** — JSON output diverged from cppagent's reference. Resolution: inspect the byte diff; either fix the codec (if the divergence is unintentional) or update the captured golden file and document the divergence at [Known divergences](../../docs/compliance/known-divergences.md).
 - **`ShdrConformanceTests`** — SHDR parser or writer failed a `Part_5.0` example. Resolution: fix the SHDR codec; the spec prose is the authority.
 
 ## Interpreting a typical run
@@ -110,7 +110,7 @@ The repo's CI workflow runs the unit + integration tier on every PR and the full
 
 ## Where to next
 
-- [Per-version matrix](/compliance/per-version-matrix) — which spec versions the tier exercises.
-- [Wire-format compliance](/compliance/wire-format) — what each format's compliance claim level means.
-- [Spec cross-references](/compliance/spec-cross-references) — the citation pattern every test fixture follows.
-- [Troubleshooting: XSD validation failures](/troubleshooting/xsd-validation-failures) — when the XSD validator rejects a model.
+- [Per-version matrix](../../docs/compliance/per-version-matrix.md) — which spec versions the tier exercises.
+- [Wire-format compliance](../../docs/compliance/per-version-matrix.md#wire-formats) — what each format's compliance claim level means.
+- [Spec cross-references](spec-cross-references.md) — the citation pattern every test fixture follows.
+- [Troubleshooting: XSD validation failures](../../docs/troubleshooting/xsd-validation-failures.md) — when the XSD validator rejects a model.

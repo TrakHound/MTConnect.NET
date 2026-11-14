@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress';
 import { withMermaid } from 'vitepress-plugin-mermaid';
 import { apiSidebars, referenceSidebar } from './sidebar';
+import { writeRedirects } from './redirects';
 
 // Absolute base URL for the deployed site. Social-card crawlers (LinkedIn,
 // Slack unfurl, the classic X crawler) require absolute `https://…` URLs in
@@ -122,11 +123,8 @@ export default withMermaid(
             text: 'MTConnect Standard compliance',
             items: [
               { text: 'Overview', link: '/compliance/' },
-              { text: 'Per-version compliance matrix', link: '/compliance/per-version-matrix' },
-              { text: 'Wire-format compliance', link: '/compliance/wire-format' },
-              { text: 'Spec-source-vs-implementation cross-references', link: '/compliance/spec-cross-references' },
+              { text: 'Compliance by version and wire format', link: '/compliance/per-version-matrix' },
               { text: 'Known divergences from the Standard', link: '/compliance/known-divergences' },
-              { text: 'Compliance test harness', link: '/compliance/test-harness' },
             ],
           },
         ],
@@ -142,18 +140,7 @@ export default withMermaid(
               { text: 'Run', link: '/configure/run' },
               { text: 'Connect a consumer', link: '/configure/consumer' },
               { text: 'Operate', link: '/configure/operate' },
-            ],
-          },
-          {
-            text: 'Integrations',
-            items: [
-              { text: 'InfluxDB', link: '/configure/integrations/influxdb' },
-              { text: 'MQTT — Protocol overview', link: '/configure/integrations/mqtt-protocol' },
-              { text: 'MQTT — AWS Greengrass (Moquette)', link: '/configure/integrations/mqtt-aws-greengrass-moquette' },
-              { text: 'MQTT — AWS Greengrass (Mqtt-Bridge)', link: '/configure/integrations/mqtt-aws-greengrass-mqtt-bridge' },
-              { text: 'MQTT — AWS IoT', link: '/configure/integrations/mqtt-aws-iot' },
-              { text: 'MQTT — HiveMQ', link: '/configure/integrations/mqtt-hivemq' },
-              { text: 'OpenSSL setup', link: '/configure/integrations/openssl' },
+              { text: 'Integrations', link: '/configure/integrations/' },
             ],
           },
         ],
@@ -162,10 +149,8 @@ export default withMermaid(
             text: 'Concepts',
             items: [
               { text: 'Overview', link: '/concepts/' },
-              { text: 'Devices', link: '/concepts/devices' },
-              { text: 'Components', link: '/concepts/components' },
-              { text: 'Data items', link: '/concepts/data-items' },
-              { text: 'Observations', link: '/concepts/observations' },
+              { text: 'Devices and components', link: '/concepts/devices' },
+              { text: 'Data items and observations', link: '/concepts/data-items' },
               { text: 'Assets', link: '/concepts/assets' },
               { text: 'Relationships', link: '/concepts/relationships' },
               { text: 'Agent validation events', link: '/concepts/agent-validation-events' },
@@ -187,9 +172,9 @@ export default withMermaid(
             items: [
               { text: 'Overview', link: '/wire-formats/' },
               { text: 'XML', link: '/wire-formats/xml' },
-              { text: 'JSON v1', link: '/wire-formats/json-v1' },
               { text: 'JSON-CPPAGENT (v2)', link: '/wire-formats/json-v2-cppagent' },
               { text: 'JSON-CPPAGENT-MQTT', link: '/wire-formats/json-v2-cppagent-mqtt' },
+              { text: 'MQTT topic protocol', link: '/wire-formats/mqtt' },
               { text: 'SHDR', link: '/wire-formats/shdr' },
             ],
           },
@@ -243,35 +228,14 @@ export default withMermaid(
               { text: 'Adapter', link: '/cli/adapter' },
             ],
           },
-          {
-            text: 'Contributor CLIs',
-            items: [
-              { text: 'tools/dotnet.sh', link: '/cli/dotnet-sh' },
-              { text: 'tools/test.sh', link: '/cli/test-sh' },
-              { text: 'SysML importer', link: '/cli/sysml-import' },
-              { text: 'Release builder', link: '/development/builder' },
-            ],
-          },
         ],
         '/examples/': [
           {
             text: 'Examples',
             items: [
               { text: 'Overview', link: '/examples/' },
-              { text: 'Embedded agent', link: '/examples/agent-embedded' },
               { text: 'HTTP client', link: '/examples/client-http' },
-              { text: 'MQTT client', link: '/examples/client-mqtt' },
               { text: 'SHDR client', link: '/examples/client-shdr' },
-            ],
-          },
-        ],
-        '/development/': [
-          {
-            text: 'Repository development',
-            items: [
-              { text: 'Documentation site', link: '/development/docs-site' },
-              { text: 'Docs-site house style', link: '/development/house-style' },
-              { text: 'Release builder', link: '/development/builder' },
             ],
           },
         ],
@@ -332,6 +296,12 @@ export default withMermaid(
     },
     mermaidPlugin: {
       class: 'mermaid my-mermaid',
+    },
+
+    // Old URLs of removed or merged pages redirect to their new location
+    // (see ./redirects.ts).
+    buildEnd(siteConfig) {
+      writeRedirects(siteConfig.outDir, siteConfig.site.base);
     },
   })
 );

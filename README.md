@@ -256,7 +256,7 @@ dotnet format MTConnect.NET.sln --verify-no-changes --verbosity diagnostic   # s
 ./tools/test.sh                                                              # or ./tools/test.ps1
 ```
 
-The full CI gate description, the `--severity warn` rationale, and the tracked follow-ups (root `.editorconfig` + `global.json` SDK pin) are documented on [`docs/testing/workflows.md`](docs/testing/workflows.md#job-0--format).
+The full CI gate description, the `--severity warn` rationale, and the tracked follow-ups (root `.editorconfig` + `global.json` SDK pin) are documented on [`contributing/testing/workflows.md`](contributing/testing/workflows.md#job-0--format).
 
 Thanks for your interest in using these libraries and applications and feel free to contribute or give feedback.
 

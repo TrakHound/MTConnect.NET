@@ -1,6 +1,6 @@
 # `tools/test.sh`
 
-`tools/test.sh` is the local test entry point for `MTConnect.NET`. It iterates every `tests/**/*.csproj` (so new test projects are picked up automatically without script edits), optionally adds the Compliance and Docker-gated E2E tiers, runs them through [`tools/dotnet.sh`](./dotnet-sh) so the same script works against the host `dotnet` or a containerized SDK, and produces a unified coverage report under `coverage-report/`.
+`tools/test.sh` is the local test entry point for `MTConnect.NET`. It iterates every `tests/**/*.csproj` (so new test projects are picked up automatically without script edits), optionally adds the Compliance and Docker-gated E2E tiers, runs them through [`tools/dotnet.sh`](dotnet-sh.md) so the same script works against the host `dotnet` or a containerized SDK, and produces a unified coverage report under `coverage-report/`.
 
 This is a **contributor** tool. End users running the shipped agent or adapter binaries do not need it.
 
@@ -29,7 +29,7 @@ tools/test.sh [--docker] [--compliance] [--e2e] [--only <pattern>] [--help]
 | `MTCONNECT_DOTNET_USE_DOCKER` | unset | When set to `1`, behaves as if `--docker` were passed. |
 | `MTCONNECT_E2E_DOCKER` | unset (treated as `false`) | When set to `true` / `yes` / `on` / `1`, drops the default `Category!=RequiresDocker` filter so Docker-gated tests run. `--e2e` sets this for you. |
 
-The script also forwards every variable that [`tools/dotnet.sh`](./dotnet-sh) honors (`MTCONNECT_DOTNET_SDK_TAG`, `MTCONNECT_DOTNET_IMAGE`, `MTCONNECT_NUGET_VOLUME`, `MTCONNECT_DOTNET_TOOLS_VOLUME`, `MTCONNECT_DOTNET_E2E_DIND`) to the underlying `dotnet` invocations.
+The script also forwards every variable that [`tools/dotnet.sh`](dotnet-sh.md) honors (`MTCONNECT_DOTNET_SDK_TAG`, `MTCONNECT_DOTNET_IMAGE`, `MTCONNECT_NUGET_VOLUME`, `MTCONNECT_DOTNET_TOOLS_VOLUME`, `MTCONNECT_DOTNET_E2E_DIND`) to the underlying `dotnet` invocations.
 
 ## Tier semantics
 
@@ -123,7 +123,7 @@ The script runs under `set -euo pipefail`. Any failing `dotnet test` invocation 
 
 ## See also
 
-- [`tools/dotnet.sh`](./dotnet-sh) — the `dotnet` wrapper this script uses for every invocation.
-- [Compliance → Test harness](/compliance/test-harness) — how to interpret the Compliance-tier output specifically.
-- [SysML importer](./sysml-import) — runs `tools/test.sh` after every regeneration to verify the regenerated `*.g.cs` files compile and the suite stays green.
-- [API reference](/api/) — the public surface that the tests under `tests/` exercise.
+- [`tools/dotnet.sh`](dotnet-sh.md) — the `dotnet` wrapper this script uses for every invocation.
+- [Compliance → Test harness](../compliance/test-harness.md) — how to interpret the Compliance-tier output specifically.
+- [SysML importer](sysml-import.md) — runs `tools/test.sh` after every regeneration to verify the regenerated `*.g.cs` files compile and the suite stays green.
+- [API reference](https://trakhound.github.io/MTConnect.NET/api/) — the public surface that the tests under `tests/` exercise.

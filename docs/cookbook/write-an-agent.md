@@ -39,16 +39,19 @@ var device = new Device
 };
 
 // Attach an AVAILABILITY data item on the Device itself.
-device.AddDataItem(new AvailabilityDataItem(device.Id));
+var availability = new AvailabilityDataItem(device.Id);   // id "mill-01_availability"
+device.AddDataItem(availability);
 
 // Attach a Controller with CONTROLLER_MODE and EXECUTION data items.
 var controller = new ControllerComponent { Id = "ctrl" };
-controller.AddDataItem(new ControllerModeDataItem(controller.Id));
-controller.AddDataItem(new ExecutionDataItem(controller.Id));
+var mode = new ControllerModeDataItem(controller.Id);      // id "ctrl_mode"
+var execution = new ExecutionDataItem(controller.Id);      // id "ctrl_exec"
+controller.AddDataItem(mode);
+controller.AddDataItem(execution);
 device.AddComponent(controller);
 ```
 
-`AddComponent` and `AddDataItem` set the parent-pointers and the ID-format templates automatically — you do not need to populate `Container` or `Parent` by hand.
+`AddComponent` and `AddDataItem` set the parent-pointers automatically — you do not need to populate `Container` or `Parent` by hand. The `(parentId)` constructors build each DataItem ID as `<parentId>_<name>`.
 
 ## 3. Create the agent
 
@@ -73,50 +76,32 @@ The `initializeAgentDevice: true` argument auto-registers the self-describing Ag
 A single observation lifecycle:
 
 ```csharp
-using MTConnect.Observations;
-
-agent.AddObservation(device.Uuid, new EventValueObservation
-{
-    DataItemId = "mill-01-avail",
-    Timestamp = DateTime.UtcNow,
-    CDATA = "AVAILABLE",
-});
-
-agent.AddObservation(device.Uuid, new EventValueObservation
-{
-    DataItemId = "ctrl-mode",
-    Timestamp = DateTime.UtcNow,
-    CDATA = "AUTOMATIC",
-});
-
-agent.AddObservation(device.Uuid, new EventValueObservation
-{
-    DataItemId = "ctrl-exec",
-    Timestamp = DateTime.UtcNow,
-    CDATA = "ACTIVE",
-});
+agent.AddObservation(device.Uuid, availability.Id, "AVAILABLE", DateTime.UtcNow);
+agent.AddObservation(device.Uuid, mode.Id, "AUTOMATIC", DateTime.UtcNow);
+agent.AddObservation(device.Uuid, execution.Id, "ACTIVE", DateTime.UtcNow);
 ```
+
+The second argument is a DataItem key: the DataItem's `id`, `name`, or `source` all resolve. Omit the timestamp to stamp the observation with the current time.
 
 The agent assigns a monotonically increasing `Sequence` to each observation as it enters the buffer.
 
 ## 5. Start the HTTP server
 
-The HTTP server module hosts the MTConnect endpoints. Add a reference to `MTConnect.NET-AgentModule-HttpServer` (already transitive through `MTConnect.NET`) and start it:
+[`MTConnectHttpServer`](/api/MTConnect.Servers.Http.MTConnectHttpServer) from `MTConnect.NET-HTTP` (already transitive through `MTConnect.NET`) hosts the MTConnect endpoints for an agent broker:
 
 ```csharp
 using MTConnect.Configurations;
-using MTConnect.Agents.Modules;
+using MTConnect.Servers.Http;
 
-var httpConfig = new HttpServerModuleConfiguration
+var httpConfig = new HttpServerConfiguration
 {
-    Hostname = "0.0.0.0",
-    Port = 5000,
+    Port = 5000,          // leave Server unset to listen on every interface
     IndentOutput = true,
     DocumentFormat = "xml",
 };
 
-var httpModule = new HttpServerModule(agent, httpConfig);
-await httpModule.StartAsync();
+var httpServer = new MTConnectHttpServer(httpConfig, agent);
+httpServer.Start();
 
 Console.WriteLine("Agent running at http://localhost:5000/probe");
 Console.WriteLine("Press Ctrl-C to exit.");
@@ -145,24 +130,22 @@ A `/probe` response looks like:
   <Devices>
     <Device id="mill-01" uuid="1234-5678-9abc-def0" name="Mill #1">
       <DataItems>
-        <DataItem category="EVENT" id="mill-01-avail" type="AVAILABILITY"/>
+        <DataItem category="EVENT" id="mill-01_availability" name="availability" type="AVAILABILITY"/>
       </DataItems>
       <Components>
-        <Controllers id="ctrl-org">
-          <Controller id="ctrl">
-            <DataItems>
-              <DataItem category="EVENT" id="ctrl-mode" type="CONTROLLER_MODE"/>
-              <DataItem category="EVENT" id="ctrl-exec" type="EXECUTION"/>
-            </DataItems>
-          </Controller>
-        </Controllers>
+        <Controller id="ctrl">
+          <DataItems>
+            <DataItem category="EVENT" id="ctrl_mode" name="mode" type="CONTROLLER_MODE"/>
+            <DataItem category="EVENT" id="ctrl_exec" name="exec" type="EXECUTION"/>
+          </DataItems>
+        </Controller>
       </Components>
     </Device>
   </Devices>
 </MTConnectDevices>
 ```
 
-Note that the `Controllers` Organizer wrapped the Controller automatically — `Device.AddComponent` walks [`MTConnect.Devices.Organizers`](/api/MTConnect.Devices.Organizers) on insert and creates the Organizer where one is required.
+`Device.AddComponent` consults [`MTConnect.Devices.Organizers`](/api/MTConnect.Devices.Organizers) on insert and creates the Organizer a Component type requires (for example `Axes` around a `Linear`). `Controller` is the exception: it is added directly under `Components`, without a `Controllers` wrapper.
 
 ## 7. Test it
 
@@ -184,10 +167,135 @@ The HTTP client returns the same XML envelope the agent serves to curl.
 - Observations entering the buffer with monotonic sequence numbers.
 - The four MTConnect endpoints (`/probe`, `/current`, `/sample`, `/asset`) served over HTTP.
 
+## Embedded agent
+
+Steps 2–5 wire the broker and the HTTP server by hand. The alternative is to host the full agent application inside your process and plug your data source in as an agent module. The agent then reads `agent.config.yaml`, loads the `http-server` module (and any others) from it, and your module writes observations into the agent directly — no separate SHDR adapter and no TCP hop between adapter and agent. Pick this shape when the data source is .NET code you control (a PLC poller, a database tail) and you want the standalone agent's configuration, logging, and module set without writing them yourself.
+
+The runnable version lives in `examples/MTConnect.NET-Agent-Embedded/`:
+
+```sh
+dotnet run --project examples/MTConnect.NET-Agent-Embedded
+```
+
+In your own project, reference the agent host package:
+
+```sh
+dotnet add package MTConnect.NET-Applications-Agents
+```
+
+### Entry point
+
+```csharp
+using MTConnect.Applications;
+
+var app = new MTConnectAgentApplication();
+app.Run(args, true);
+```
+
+`MTConnectAgentApplication` is the same host the standalone agent uses. `Run(args, true)` reads `agent.config.yaml` from the working directory, loads the modules listed in it — including module classes in your own assembly — and blocks until shutdown.
+
+### The data-source module
+
+```csharp
+using MTConnect.Agents;
+using MTConnect.Configurations;
+using MTConnect.Devices;
+using MTConnect.Devices.Components;
+using MTConnect.Devices.DataItems;
+using MTConnect.Observations.Events;
+
+public class ModuleConfiguration
+{
+    public string DeviceUuid { get; set; }
+    public string DeviceName { get; set; }
+    public string SerialNumber { get; set; }
+}
+
+public class Module : MTConnectInputAgentModule
+{
+    public const string ConfigurationTypeId = "datasource"; // matches the key in agent.config.yaml
+    private readonly ModuleConfiguration _configuration;
+
+    public Module(IMTConnectAgentBroker agent, object configuration) : base(agent)
+    {
+        Id = "DataSource Module"; // used for logging
+        _configuration = AgentApplicationConfiguration.GetConfiguration<ModuleConfiguration>(configuration);
+    }
+
+    // Called once at start-up: return the Device to register with the agent.
+    protected override IDevice OnAddDevice()
+    {
+        var device = new Device();
+        device.Uuid = _configuration.DeviceUuid;
+        device.Id = _configuration.DeviceName;
+        device.Name = _configuration.DeviceName;
+        device.AddDataItem<AvailabilityDataItem>();
+
+        var controller = new ControllerComponent { Name = ControllerComponent.NameId };
+        controller.AddDataItem<EmergencyStopDataItem>();
+
+        var path = new PathComponent { Name = PathComponent.NameId };
+        path.AddDataItem<ExecutionDataItem>();
+        path.AddDataItem<SystemDataItem>();
+        controller.AddComponent(path);
+        device.AddComponent(controller);
+
+        var axes = new AxesComponent { Name = AxesComponent.NameId };
+        foreach (var name in new[] { "X", "Y", "Z" })
+        {
+            var axis = new LinearComponent { Name = name };
+            axis.AddDataItem<PositionDataItem>(PositionDataItem.SubTypes.ACTUAL);
+            axis.AddDataItem<LoadDataItem>();
+            axes.AddComponent(axis);
+        }
+        device.AddComponent(axes);
+
+        return device;
+    }
+
+    // Called every readInterval milliseconds: read the data source and emit observations.
+    protected override void OnRead()
+    {
+        AddValueObservation<AvailabilityDataItem>(Availability.AVAILABLE);
+        AddValueObservation<ControllerComponent, EmergencyStopDataItem>(EmergencyStop.ARMED);
+        AddValueObservation<LinearComponent, PositionDataItem>(0.0002, "X", PositionDataItem.SubTypes.ACTUAL);
+        AddValueObservation<LinearComponent, LoadDataItem>(2, "X");
+        AddConditionObservation<PathComponent, SystemDataItem>(
+            MTConnect.Observations.ConditionLevel.WARNING, "404", "This is an Alarm");
+    }
+}
+```
+
+[`MTConnectInputAgentModule`](/api/MTConnect.Agents.MTConnectInputAgentModule) is the base class for modules that produce observations. It has two hooks:
+
+- `OnAddDevice()` — runs once at start-up; the returned `IDevice` is added to the agent and appears in `/probe`. Building the model in code (rather than loading a static `devices.xml`) suits devices whose shape depends on what the data source reports — variable axis counts, optional sensors, serial numbers read at boot.
+- `OnRead()` — runs every `readInterval` milliseconds. `AddValueObservation<TComponent, TDataItem>(value, componentName, subType)` finds the DataItem by Component type, Component name, and DataItem type, so the three axes share one call shape and differ only in the axis name. `AddConditionObservation` does the same for CONDITION DataItems.
+
+`AgentApplicationConfiguration.GetConfiguration<T>` deserializes the module's YAML section into your configuration class.
+
+### The configuration file
+
+```yaml
+modules:
+
+- datasource:
+    deviceUuid: 7E647B2D-C6A3-40BF-9CE9-FB09834850C9
+    deviceName: dev-001
+    serialNumber: 123456
+    readInterval: 1000
+
+- http-server:
+    port: 5000
+```
+
+The `datasource` key matches `ConfigurationTypeId`; the fields under it map onto `ModuleConfiguration`, plus the inherited `readInterval`. Copy the file to the build output (`<None Update="agent.config.yaml"><CopyToOutputDirectory>Always</CopyToOutputDirectory></None>` in the `*.csproj`) so the agent finds it at run time, then check the result with `curl http://localhost:5000/probe` and `curl http://localhost:5000/current`.
+
+To publish to MQTT as well, add an `mqtt-relay` section (see [Cookbook: Configure MQTT relay](/cookbook/configure-mqtt-relay)). To package a module as a reusable NuGet package, see [Cookbook: Write a module](/cookbook/write-a-module).
+
 ## Where to next
 
 - **Add an adapter**: see [Cookbook: Write an adapter](/cookbook/write-an-adapter) for the ingestion side.
 - **Switch to JSON output**: set `documentFormat: "json-cppAgent"` in the HTTP config and `Accept: application/mtconnect+json` on the request. See [Wire formats: JSON-CPPAGENT](/wire-formats/json-v2-cppagent).
-- **Persist the buffer**: pass an [`IAgentConfiguration`](/api/MTConnect.Configurations.IAgentConfiguration) with `Durable = true` to enable on-disk durability.
+- **Persist the buffer**: set `durable: true` in `agent.config.yaml` (the [`IAgentApplicationConfiguration.Durable`](/api/MTConnect.Configurations.IAgentApplicationConfiguration) setting) when the agent runs under `MTConnectAgentApplication`, as in [Embedded agent](#embedded-agent).
 - **Run it via YAML**: see [Configure an agent](/configure/agent-config) for the configuration-driven path that skips writing C# entirely.
 - **Add an MQTT relay**: see [Cookbook: Configure MQTT relay](/cookbook/configure-mqtt-relay).

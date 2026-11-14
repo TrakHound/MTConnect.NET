@@ -2,12 +2,13 @@
 
 `MTConnect.NET` ships codecs for every wire format the MTConnect Standard recognizes, plus the SHDR adapter protocol that feeds the agent from upstream. This section is the codec-level reference — sample envelopes, codec class names, spec-version compatibility, and Mermaid sequence diagrams for the wire-flow handshakes.
 
-## The five formats
+## The formats
 
 - **[XML](./xml)** — the canonical wire format defined by the per-version XSDs (`MTConnectStreams_<ver>.xsd`, `MTConnectDevices_<ver>.xsd`, `MTConnectAssets_<ver>.xsd`, `MTConnectError_<ver>.xsd`). Codec lives in `MTConnect.NET-XML`. Validated at write-time against the corresponding XSD.
-- **[JSON v1](./json-v1)** — the legacy JSON codec, object-keyed everywhere. Pre-dates the formal cppagent JSON v2 codec; shipped for compatibility with consumers built against early MTConnect.NET releases. Codec lives in `MTConnect.NET-JSON`.
+- **JSON v1** — the legacy MTConnect.NET JSON codec (document format `JSON`), object-keyed everywhere and mirroring the XML structure one-to-one. Pre-dates the MTConnect Standard's JSON format and the cppagent JSON v2 codec; shipped for compatibility with consumers built against early MTConnect.NET releases. New consumers should use JSON-CPPAGENT v2. Codec lives in `MTConnect.NET-JSON`.
 - **[JSON-CPPAGENT (v2)](./json-v2-cppagent)** — the cppagent reference's current JSON codec. Array-of-wrappers where order matters; object-keyed where it doesn't. Byte-for-byte cppagent parity is the library's compliance target. Codec lives in `MTConnect.NET-JSON-cppagent`.
 - **[JSON-CPPAGENT-MQTT](./json-v2-cppagent-mqtt)** — JSON-CPPAGENT v2 envelopes published over MQTT topics with a documented topic tree. Codec lives in `MTConnect.NET-JSON-cppagent` plus the `MTConnect.NET-MQTT` transport layer.
+- **[MQTT topic protocol](./mqtt)** — the MTConnect.NET topic structure for accessing agents, devices, observations and assets over MQTT. Lives in `MTConnect.NET-MQTT`.
 - **[SHDR](./shdr)** — the Simple Hierarchical Data Representation; the line-oriented adapter protocol that ships values from a PLC reader into the agent. Codec lives in `MTConnect.NET-SHDR`.
 
 ## Picking a format

@@ -27,7 +27,7 @@ flowchart TD
 
 Per the MTConnect maintainer working group's published guidance, **XMI is the normative artifact** for the type system. When XMI and the XSD disagree on a type's structure, XMI wins; the XSD is regenerated from XMI in the next spec release. When XMI and the prose disagree on a semantic intent, XMI wins for the type-system shape and prose wins for the runtime semantic — but only where the prose explicitly states a MUST that the XMI cannot encode (e.g. `Result MUST be UNAVAILABLE when no valid value is determined`).
 
-When cppagent and XMI disagree, **cppagent is the reference but is non-normative**. The library defers to XMI for the type system and uses cppagent only as the byte-shape reference for the JSON-CPPAGENT codec where the XSD has no opinion. The known cases where cppagent contradicts XMI are cataloged at [Known divergences](/compliance/known-divergences).
+When cppagent and XMI disagree, **cppagent is the reference but is non-normative**. The library defers to XMI for the type system and uses cppagent only as the byte-shape reference for the JSON-CPPAGENT codec where the XSD has no opinion. The known cases where cppagent contradicts XMI are cataloged at [Known divergences](../../docs/compliance/known-divergences.md).
 
 | Question | Wins |
 |---|---|
@@ -74,7 +74,7 @@ A consumer who reads "`MTConnect.NET` claims X about the spec" can audit it by:
 2. Following the cited URL to the authoritative artifact.
 3. Verifying the cited element / class / section actually says what the citation claims.
 
-The compliance test harness (see [Test harness](/compliance/test-harness)) automates step 3 for a battery of pinned assertions: each test cites its source in a fixture comment, runs the assertion, and fails if the assertion drifts from the source's current value.
+The compliance test harness (see [Test harness](test-harness.md)) automates step 3 for a battery of pinned assertions: each test cites its source in a fixture comment, runs the assertion, and fails if the assertion drifts from the source's current value.
 
 ## Per-version XMI cite pattern
 
@@ -88,7 +88,7 @@ The introduction-version metadata is harvested into the generated `.g.cs` files;
 
 ## Where to next
 
-- [Per-version matrix](/compliance/per-version-matrix) — the per-version envelope and type coverage.
-- [Wire-format compliance](/compliance/wire-format) — XSD validation and cppagent parity testing.
-- [Known divergences](/compliance/known-divergences) — the documented cases where the artifacts disagree.
-- [Test harness](/compliance/test-harness) — running the compliance tier locally.
+- [Per-version matrix](../../docs/compliance/per-version-matrix.md) — the per-version envelope and type coverage.
+- [Wire-format compliance](../../docs/compliance/per-version-matrix.md#wire-formats) — XSD validation and cppagent parity testing.
+- [Known divergences](../../docs/compliance/known-divergences.md) — the documented cases where the artifacts disagree.
+- [Test harness](test-harness.md) — running the compliance tier locally.

@@ -4,9 +4,9 @@ Runnable, self-contained sample applications in the `examples/` directory of the
 
 ## Available examples
 
-- **[Embedded agent](/examples/agent-embedded)** — a console application that hosts an MTConnect agent inside its own process and writes observations into it directly, without an external SHDR adapter or TCP hop.
+- **Embedded agent** (`examples/MTConnect.NET-Agent-Embedded`) — a console application that hosts an MTConnect agent inside its own process and writes observations into it directly, without an external SHDR adapter or TCP hop. Walked through in [Cookbook: Write an agent](/cookbook/write-an-agent#embedded-agent).
 - **[HTTP client](/examples/client-http)** — a console application that connects to a running MTConnect agent over HTTP, polls `/probe` and `/current`, and prints each observation as it arrives.
-- **[MQTT client](/examples/client-mqtt)** — a console application that subscribes to an MQTT broker carrying MTConnect-formatted messages (typically published by the `mqtt-relay` or `mqtt-broker` agent modules) and prints each device and observation it receives.
+- **MQTT client** (`examples/MTConnect.NET-Client-MQTT`) — a console application that subscribes to an MQTT broker carrying MTConnect-formatted messages (typically published by the `mqtt-relay` or `mqtt-broker` agent modules) and prints each device and observation it receives. Walked through in [Cookbook: Write a JSON-MQTT consumer](/cookbook/write-a-json-mqtt-consumer#use-the-built-in-mqtt-client).
 - **[SHDR client](/examples/client-shdr)** — a console application that connects to a raw SHDR endpoint and prints each protocol line as it arrives. Useful when debugging an adapter or building a custom consumer of the SHDR stream.
 
 ## How to run an example

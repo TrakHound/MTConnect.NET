@@ -125,6 +125,6 @@ Relationship types are version-gated like DataItem types:
 ## Where to next
 
 - [Devices](/concepts/devices) — the containment tree Relationships layer over.
-- [Components](/concepts/components) — the Components that author Configuration.
+- [Components](/concepts/devices#components) — the Components that author Configuration.
 - [DataItems](/concepts/data-items) — the DataItems that emit Relationships.
 - [`DataItemRelationship` API reference](/api/MTConnect.Devices.DataItemRelationship).

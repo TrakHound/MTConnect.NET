@@ -134,5 +134,5 @@ Reads (ingress) run via the [MqttAdapter agent module](/modules/mqtt-adapter): t
 - [JSON-CPPAGENT v2](./json-v2-cppagent) — the same envelope shape over HTTP.
 - [MqttBroker module](/modules/mqtt-broker) — agent-side configuration that drives the publish topic tree.
 - [MqttAdapter module](/modules/mqtt-adapter) — agent-side ingress that consumes the published topic tree.
-- [MQTT-Protocol guide](/configure/integrations/mqtt-protocol) — operator-side topic tree and prefix configuration.
+- [MQTT-Protocol guide](/wire-formats/mqtt) — operator-side topic tree and prefix configuration.
 - [Compliance](/compliance/) — JSON-CPPAGENT vs cppagent reference parity matrix and divergence ledger.

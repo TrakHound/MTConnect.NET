@@ -10,7 +10,7 @@ Demonstrates the consumer side of the MTConnect HTTP protocol: connect to a runn
 
 ## Build and run
 
-Start an agent (the [embedded-agent example](/examples/agent-embedded) is the shortest path), then in a second shell:
+Start an agent (the [embedded-agent example](/cookbook/write-an-agent#embedded-agent) is the shortest path), then in a second shell:
 
 ```
 dotnet run --project examples/MTConnect.NET-Client-HTTP
@@ -99,10 +99,10 @@ Choose `MTConnectHttpClient` when you want:
 - automatic long-polling so the consumer reacts to new data without burning a poll loop,
 - a single event-driven API surface that mirrors the REST shape one-to-one.
 
-Choose `MTConnectMqttClient` (see the [MQTT client example](/examples/client-mqtt)) instead when the agent publishes through `mqtt-relay` or `mqtt-broker` and you want push delivery without the long-polling overhead.
+Choose `MTConnectMqttClient` (see the [MQTT client example](/cookbook/write-a-json-mqtt-consumer#use-the-built-in-mqtt-client)) instead when the agent publishes through `mqtt-relay` or `mqtt-broker` and you want push delivery without the long-polling overhead.
 
 ## See also
 
 - [HTTP server module](/modules/http-server) — the server side of this conversation.
-- [Wire formats — XML](/wire-formats/xml) and [JSON v1](/wire-formats/json-v1) / [JSON-CPPAGENT v2](/wire-formats/json-v2-cppagent) — what the envelopes look like on the wire.
+- [Wire formats — XML](/wire-formats/xml) and [JSON v1](/wire-formats/#the-formats) / [JSON-CPPAGENT v2](/wire-formats/json-v2-cppagent) — what the envelopes look like on the wire.
 - [API reference: `MTConnectHttpClient`](/api/) — every event and property the client exposes.

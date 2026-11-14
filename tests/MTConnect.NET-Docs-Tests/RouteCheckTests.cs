@@ -256,7 +256,7 @@ public class RouteCheckTests
 
     /// <summary>
     /// Pins the docs-site house-style surfaces the maintainer signed off
-    /// on in Discussion #184 (see <c>docs/development/house-style.md</c>):
+    /// on in Discussion #184 (see <c>contributing/house-style.md</c>):
     /// the brand logo wired through <c>themeConfig.logo</c>, the favicon
     /// link, the Open Graph + Twitter Card meta block, the
     /// <c>theme-color</c> meta, and the 'Download latest release' hero

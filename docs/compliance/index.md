@@ -4,11 +4,10 @@
 
 ## What this section covers
 
-- **[Per-version compliance matrix](./per-version-matrix)** — which spec versions are supported, with a per-envelope (Streams / Devices / Assets / Error) status per version.
-- **[Wire-format compliance](./wire-format)** — which on-the-wire codecs are byte-for-byte cppagent-parity (XML, JSON-CPPAGENT v2 array-of-wrappers, JSON-CPPAGENT-MQTT) and which deviate, with the deviations documented and justified.
-- **[Spec-source-vs-implementation cross-references](./spec-cross-references)** — for every code path that implements a normative spec rule, the citation that grounds it (SysML XMI element, XSD type, prose paragraph).
+- **[Compliance by version and wire format](./per-version-matrix)** — which spec versions are supported, with a per-envelope (Streams / Devices / Assets / Error) status per version, and which on-the-wire codecs are XSD-validated or byte-for-byte cppagent-parity (XML, JSON-CPPAGENT v2 array-of-wrappers, JSON-CPPAGENT-MQTT) and which deviate, with the deviations documented and justified.
+- **[Spec-source-vs-implementation cross-references](https://github.com/TrakHound/MTConnect.NET/blob/master/contributing/compliance/spec-cross-references.md)** — for every code path that implements a normative spec rule, the citation that grounds it (SysML XMI element, XSD type, prose paragraph).
 - **[Known divergences from the Standard](./known-divergences)** — places where the Standard contradicts itself, with the artifact `MTConnect.NET` follows named explicitly and the upstream maintainer report linked.
-- **[Compliance test harness](./test-harness)** — how to run the compliance tier of the test suite against any deployment, with sample output and how to interpret the failure categories.
+- **[Compliance test harness](https://github.com/TrakHound/MTConnect.NET/blob/master/contributing/compliance/test-harness.md)** — how to run the compliance tier of the test suite against any deployment, with sample output and how to interpret the failure categories.
 
 ## How compliance is verified in `MTConnect.NET`
 

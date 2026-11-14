@@ -137,7 +137,7 @@ Reads run the same pipeline in reverse via [`JsonHttpResponseDocumentFormatter.C
 
 - [`MTConnect.NET-JSON-cppagent` library README](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-JSON-cppagent/README.md) — package install + per-version notes.
 - [JSON-CPPAGENT-MQTT](./json-v2-cppagent-mqtt) — the same envelope shape published over MQTT topics.
-- [JSON v1](./json-v1) — the legacy JSON codec.
+- [JSON v1](/wire-formats/#the-formats) — the legacy JSON codec.
 - [XML](./xml) — the canonical, XSD-pinned wire format.
 - [cppagent `JsonPrinter` source](https://github.com/mtconnect/cppagent/blob/main/src/mtconnect/printer/JsonPrinter.cpp) — the reference implementation this codec mirrors.
 - [Compliance](/compliance/) — JSON-CPPAGENT vs cppagent reference parity matrix and divergence ledger.

@@ -93,5 +93,5 @@ Projects are only packed when they opt in with `<IsPackable>true</IsPackable>`; 
 
 ## See also
 
-- [tools/dotnet.sh](/cli/dotnet-sh) and [tools/test.sh](/cli/test-sh) — the day-to-day contributor CLIs (these do not invoke the builder).
-- [SysML importer](/cli/sysml-import) — the other in-tree code-generation tool; runs at codebase-edit time, not at release time.
+- [tools/dotnet.sh](tools/dotnet-sh.md) and [tools/test.sh](tools/test-sh.md) — the day-to-day contributor CLIs (these do not invoke the builder).
+- [SysML importer](tools/sysml-import.md) — the other in-tree code-generation tool; runs at codebase-edit time, not at release time.

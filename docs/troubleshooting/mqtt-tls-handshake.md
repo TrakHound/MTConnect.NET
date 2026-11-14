@@ -84,7 +84,7 @@ or
     port: 8883
 ```
 
-For development against a self-signed certificate that you trust, the [OpenSSL](/configure/integrations/openssl) integration page walks through re-issuing the certificate with the right SAN entries.
+For development against a self-signed certificate that you trust, the [OpenSSL](/configure/integrations/#create-a-self-signed-certificate) integration page walks through re-issuing the certificate with the right SAN entries.
 
 ## Category 3: private key file missing or unreadable
 
@@ -196,5 +196,5 @@ A successful run prints the broker's certificate chain and the negotiated cipher
 
 - [Configure modules: MQTT relay](/configure/module-config#mqtt-relay) — the full TLS config-key reference.
 - [Cookbook: Configure MQTT relay](/cookbook/configure-mqtt-relay) — the TLS-enabled relay walk-through.
-- [Configure & Use: OpenSSL setup](/configure/integrations/openssl) — generating certificates for development.
+- [Configure & Use: OpenSSL setup](/configure/integrations/#create-a-self-signed-certificate) — generating certificates for development.
 - [Troubleshooting: Common error modes](/troubleshooting/common-error-modes) — for non-TLS connection failures.

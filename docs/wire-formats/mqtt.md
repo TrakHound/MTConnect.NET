@@ -181,7 +181,7 @@ Example Payload:
     
     ...
 ```
-> More information about the JSON representation can be found (https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-JSON)
+> More information about the JSON representation can be found in [MTConnect.NET-JSON](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-JSON)
 
 #### Observations
 The Observations topic(s) contain the MTConnect Observation data typically returned from either an HTTP Current or Sample request.
@@ -190,7 +190,7 @@ These topics map directly to the "observationIntervals" in the MTConnect/Agents/
 
 If an Interval of 0 is specified, the topic does not contain the "[xxxx]" suffix and is updated as fast as the Agent is receiving new data. This should be used when a client needs to collect All changes and mimics the functionality of the MTConnect HTTP protocol's Sample request using the "Interval = 0" query parameter.
 
-> More information about the topic structure of Observations can be found at (https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-MQTT)
+> More information about the topic structure of Observations can be found in [MTConnect.NET-MQTT](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-MQTT)
 
 Topic Format:
 ```
@@ -269,5 +269,5 @@ Example Payload:
 }
 ```
 
-> More information about the JSON representation can be found (https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-JSON)
+> More information about the JSON representation can be found in [MTConnect.NET-JSON](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-JSON)
 

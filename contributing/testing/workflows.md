@@ -1,9 +1,9 @@
 # Testing — workflow catalog
 
 User-observable end-to-end paths through MTConnect.NET, plus the CI / local
-test entry points that exercise them. Pairs with [`docs/testing.md`](../testing.md)
+test entry points that exercise them. Pairs with [`contributing/testing.md`](../testing.md)
 (top-level testing topic) and the per-version matrices under
-[`docs/testing/`](.).
+[`contributing/testing.md`](../testing.md).
 
 ## End-to-end workflow catalog
 

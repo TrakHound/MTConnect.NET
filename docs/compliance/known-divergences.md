@@ -75,7 +75,7 @@ Every divergence flows through the same pipeline:
 1. **Discovery** — a test, a code review, or a consumer report surfaces a spec inconsistency.
 2. **Verification** — the divergence is reproduced against every published version of the affected artifact.
 3. **Source citation** — the exact line numbers / element IDs / prose sections are recorded for every artifact involved.
-4. **Library posture decision** — the library follows the artifact that wins under the [source-of-truth hierarchy](/compliance/spec-cross-references#source-of-truth-hierarchy).
+4. **Library posture decision** — the library follows the artifact that wins under the [source-of-truth hierarchy](https://github.com/TrakHound/MTConnect.NET/blob/master/contributing/compliance/spec-cross-references.md#source-of-truth-hierarchy).
 5. **Upstream filing** — a Redmine ticket is filed against the standard body.
 6. **Audit trail** — the ticket URL is referenced from this page and from the test fixtures that pin the library's posture.
 
@@ -83,7 +83,6 @@ When the standard body resolves a ticket (either accepting the library's posture
 
 ## Where to next
 
-- [Per-version matrix](/compliance/per-version-matrix) — version-by-version envelope coverage.
-- [Wire-format compliance](/compliance/wire-format) — XML / JSON / SHDR posture.
-- [Spec cross-references](/compliance/spec-cross-references) — the source-of-truth hierarchy that drives every posture decision above.
-- [Test harness](/compliance/test-harness) — how the divergence-pinning tests run locally.
+- [Compliance by version and wire format](/compliance/per-version-matrix) — version-by-version envelope coverage, and the XML / JSON / SHDR posture.
+- [Spec cross-references](https://github.com/TrakHound/MTConnect.NET/blob/master/contributing/compliance/spec-cross-references.md) — the source-of-truth hierarchy that drives every posture decision above.
+- [Test harness](https://github.com/TrakHound/MTConnect.NET/blob/master/contributing/compliance/test-harness.md) — how the divergence-pinning tests run locally.

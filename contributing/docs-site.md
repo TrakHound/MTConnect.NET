@@ -113,4 +113,4 @@ Leaving the variables unset is the no-sharding default — every route on one wa
 
 ## See also
 
-- [Release builder](/development/builder)—the in-tree tool that assembles binary release artifacts (NuGet packages, installers, Docker images). Distinct from the documentation site build covered above.
+- [Release builder](builder.md)—the in-tree tool that assembles binary release artifacts (NuGet packages, installers, Docker images). Distinct from the documentation site build covered above.

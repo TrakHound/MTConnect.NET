@@ -122,7 +122,7 @@ Reads run the same pipeline in reverse: the agent (or an `XmlAdapter` peer) read
 ## See also
 
 - [`MTConnect.NET-XML` library README](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-XML/README.md) — package install + per-version notes.
-- [JSON v1](./json-v1) — the legacy JSON codec that pre-dates the cppagent JSON shape.
+- [JSON v1](/wire-formats/#the-formats) — the legacy JSON codec that pre-dates the cppagent JSON shape.
 - [JSON-CPPAGENT v2](./json-v2-cppagent) — the modern JSON wire format with cppagent parity.
 - [SHDR](./shdr) — the adapter-side line protocol that feeds the agent.
 - [Compliance](/compliance/) — the per-envelope, per-version conformance matrix.

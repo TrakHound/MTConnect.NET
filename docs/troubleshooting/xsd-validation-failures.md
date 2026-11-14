@@ -167,6 +167,6 @@ If a CI test validates against one toolchain and a local check uses another, exp
 ## Where to next
 
 - [Per-version compliance matrix](/compliance/per-version-matrix) — confirm which version introduces an element.
-- [Compliance: Wire-format compliance](/compliance/wire-format) — the validation tier in the compliance harness.
+- [Compliance: Wire-format compliance](/compliance/per-version-matrix#wire-formats) — the validation tier in the compliance harness.
 - [Troubleshooting: Schema version mismatches](/troubleshooting/schema-version-mismatches) — when the validation issue is a version mis-pin rather than a content error.
 - [Concepts: Devices](/concepts/devices) — the model-authoring fundamentals.
