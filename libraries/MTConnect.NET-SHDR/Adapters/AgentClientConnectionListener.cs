@@ -76,14 +76,30 @@ namespace MTConnect.Adapters
         }
 
 
-        /// <summary>Starts the listener on a background task. The supplied <paramref name="cancel"/> token also triggers <see cref="Stop"/> when cancelled.</summary>
+        /// <summary>
+        /// Binds the listening socket and accepts connections on a background task. The port is bound before this
+        /// method returns, so an Agent can connect as soon as it does (connections wait in the listen backlog until
+        /// the background task accepts them). If the port cannot be bound, <see cref="ListenerErrorReceived"/> is
+        /// raised and the background task keeps retrying. The supplied <paramref name="cancel"/> token also
+        /// triggers <see cref="Stop"/> when cancelled.
+        /// </summary>
         public void Start(CancellationToken cancel)
         {
             var stop = CancellationTokenSource.CreateLinkedTokenSource(cancel);
             var previous = Interlocked.Exchange(ref _stop, stop);
-            previous?.Cancel();
+            previous?.Cancel(); // Synchronously releases the previous listener's port (see ClientListener)
 
-            _ = Task.Run(() => ClientListener(stop.Token));
+            TcpListener listener = null;
+            try
+            {
+                listener = BindListener();
+            }
+            catch (Exception ex)
+            {
+                if (ListenerErrorReceived != null) ListenerErrorReceived.Invoke(ex);
+            }
+
+            _ = Task.Run(() => ClientListener(listener, stop.Token));
         }
 
         /// <summary>Stops the listener, closes every connected agent socket, and clears the connection table.</summary>
@@ -91,7 +107,7 @@ namespace MTConnect.Adapters
         {
             if (_stop != null) _stop.Cancel();
 
-            StopListener();
+            StopListener(Volatile.Read(ref _listener));
 
             if (!_clientConnections.IsNullOrEmpty())
             {
@@ -105,39 +121,47 @@ namespace MTConnect.Adapters
             }
         }
 
-        private void StopListener()
+        private TcpListener BindListener()
         {
-            var listener = Interlocked.Exchange(ref _listener, null);
-            if (listener != null)
+            var listener = new TcpListener(IPAddress.Any, Port);
+            listener.Start();
+            Volatile.Write(ref _listener, listener);
+            return listener;
+        }
+
+        // Stops the given listener. _listener is only cleared when it still refers to this listener, so a loop
+        // that is shutting down after a restart cannot stop the listener the new Start() just bound.
+        private void StopListener(TcpListener listener)
+        {
+            if (listener == null) return;
+
+            Interlocked.CompareExchange(ref _listener, null, listener);
+            try
             {
-                try
-                {
-                    listener.Stop();
-                }
-                catch (SocketException ex)
-                {
-                    if (ListenerErrorReceived != null) ListenerErrorReceived.Invoke(ex);
-                }
+                listener.Stop();
+            }
+            catch (SocketException ex)
+            {
+                if (ListenerErrorReceived != null) ListenerErrorReceived.Invoke(ex);
             }
         }
 
 
-        private async Task ClientListener(CancellationToken cancel)
+        // Accepts connections on the listener bound by Start(). If that bind failed, or accepting fails later,
+        // the port is released and bound again after a delay until the listener is stopped.
+        private async Task ClientListener(TcpListener listener, CancellationToken cancel)
         {
-            // Stop() closes the listening socket, which ends a pending accept
-            using (cancel.Register(StopListener))
+            // Stop() / cancellation closes the listening socket, which ends a pending accept
+            using (cancel.Register(() => StopListener(Volatile.Read(ref listener))))
             {
                 do
                 {
                     try
                     {
-                        // Release the previous socket before binding the port again (a failed accept loop used to
-                        // retry against its own still-bound listener forever)
-                        StopListener();
+                        if (listener == null) Volatile.Write(ref listener, BindListener());
 
-                        var listener = new TcpListener(IPAddress.Any, Port);
-                        listener.Start();
-                        _listener = listener;
+                        // Cancelled while binding: the registration above may have run before the bind
+                        if (cancel.IsCancellationRequested) break;
 
                         // Enter the listening loop.
                         while (!cancel.IsCancellationRequested)
@@ -163,6 +187,11 @@ namespace MTConnect.Adapters
                     }
                     catch (Exception) { /* Stopped */ }
 
+                    // Release the socket before binding the port again (a failed accept loop used to retry against
+                    // its own still-bound listener forever)
+                    StopListener(Volatile.Read(ref listener));
+                    Volatile.Write(ref listener, null);
+
                     if (!cancel.IsCancellationRequested)
                     {
                         try
@@ -175,7 +204,7 @@ namespace MTConnect.Adapters
                 } while (!cancel.IsCancellationRequested);
             }
 
-            StopListener();
+            StopListener(Volatile.Read(ref listener));
         }
 
         private async Task HandleConnection(string clientId, TcpClient client, CancellationToken cancel)
@@ -211,40 +240,40 @@ namespace MTConnect.Adapters
 
                 // Stop() / cancellation closes the client, which ends a pending read on every target framework
                 using (cancel.Register(() => { try { client.Close(); } catch { } }))
-                while (!cancel.IsCancellationRequested && client.Connected)
-                {
-                    var count = await stream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
-                    if (count <= 0) break; // The Agent closed the connection
-
-                    pending.Append(Encoding.ASCII.GetString(buffer, 0, count));
-
-                    // Answer each complete PING line (other commands are ignored)
-                    var text = pending.ToString();
-                    var lastNewLine = text.LastIndexOf('\n');
-                    if (lastNewLine < 0)
+                    while (!cancel.IsCancellationRequested && client.Connected)
                     {
-                        if (pending.Length > buffer.Length) pending.Clear();
-                        continue;
-                    }
+                        var count = await stream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+                        if (count <= 0) break; // The Agent closed the connection
 
-                    pending.Remove(0, lastNewLine + 1);
+                        pending.Append(Encoding.ASCII.GetString(buffer, 0, count));
 
-                    foreach (var line in text.Substring(0, lastNewLine).Split('\n'))
-                    {
-                        if (line.Trim().StartsWith("* PING", StringComparison.OrdinalIgnoreCase))
+                        // Answer each complete PING line (other commands are ignored)
+                        var text = pending.ToString();
+                        var lastNewLine = text.LastIndexOf('\n');
+                        if (lastNewLine < 0)
                         {
-                            if (ClientPingReceived != null) ClientPingReceived.Invoke(clientId);
+                            if (pending.Length > buffer.Length) pending.Clear();
+                            continue;
+                        }
 
-                            // Write the PONG Message back to the stream (serialized with the Adapter's data writes)
-                            lock (AgentClient.GetWriteLock(client))
+                        pending.Remove(0, lastNewLine + 1);
+
+                        foreach (var line in text.Substring(0, lastNewLine).Split('\n'))
+                        {
+                            if (line.Trim().StartsWith("* PING", StringComparison.OrdinalIgnoreCase))
                             {
-                                stream.Write(messageBytes, 0, messageBytes.Length);
-                            }
+                                if (ClientPingReceived != null) ClientPingReceived.Invoke(clientId);
 
-                            if (ClientPongSent != null) ClientPongSent.Invoke(clientId);
+                                // Write the PONG Message back to the stream (serialized with the Adapter's data writes)
+                                lock (AgentClient.GetWriteLock(client))
+                                {
+                                    stream.Write(messageBytes, 0, messageBytes.Length);
+                                }
+
+                                if (ClientPongSent != null) ClientPongSent.Invoke(clientId);
+                            }
                         }
                     }
-                }
             }
             catch (Exception ex) when (!cancel.IsCancellationRequested)
             {
