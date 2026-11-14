@@ -146,7 +146,7 @@ jobs:
           # windows-latest GitHub-hosted runners do NOT pre-install
           # Docker for Linux containers (only Windows containers via
           # Hyper-V), so the RequiresDocker suites that boot Linux
-          # images (eclipse-mosquitto:2.0.22, mtconnect/agent:latest)
+          # images (eclipse-mosquitto:2.0.22, mtconnect/agent 2.7.0.7 by digest)
           # cannot run there. E2E is already excluded for every leg of
           # this job. XsdLoadStrict has no platform dependency and
           # still runs.
