@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MTConnect.AgentModule.FanucAdapter.Tests
+namespace MTConnect.Tests.AgentModule.FanucAdapter
 {
     /// <summary>
     /// A simulated Fanuc CNC implementing <see cref="IFocasClient"/>.

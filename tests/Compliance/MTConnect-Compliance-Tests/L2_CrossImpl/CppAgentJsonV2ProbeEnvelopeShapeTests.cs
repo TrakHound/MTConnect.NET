@@ -12,7 +12,7 @@ using MTConnect.Formatters;
 using MTConnect.Headers;
 using NUnit.Framework;
 
-namespace MTConnect.Compliance.Tests.L2_CrossImpl
+namespace MTConnect.Tests.Compliance.L2_CrossImpl
 {
     // Compliance gate — cppagent JSON v2 Probe envelope shape, the
     // structural contract MTConnect.NET must honour to be wire-compatible

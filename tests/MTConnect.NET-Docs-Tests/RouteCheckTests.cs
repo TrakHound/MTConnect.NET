@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 using Microsoft.Playwright;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Docs_Tests;
+namespace MTConnect.Tests.Docs;
 
 /// <summary>
 /// End-to-end route walk against the built VitePress site. Spawns
@@ -33,6 +33,8 @@ namespace MTConnect.NET_Docs_Tests;
 /// Prerequisites:
 ///   - Node.js (the setup invokes `npm ci` + `npm run build` if the
 ///     docs/.vitepress/dist/ artifact is missing).
+///   - docfx (`dotnet tool install -g docfx`), which `npm run build`
+///     uses to regenerate the API reference when dist/ is missing.
 ///   - The Microsoft.Playwright package's chromium browser binary
 ///     (installed automatically by the fixture's one-time setup).
 /// </summary>
@@ -77,6 +79,7 @@ public class RouteCheckTests
     private Task? _previewStderrDrain;
     private static DateTime _fixtureStartTime;
     private static string _distDir = string.Empty;
+    private static bool _distBuiltByFixture;
 
     // Walk-up bound is intentionally large (32) rather than fitting the
     // current `bin/Debug/netN.N/` suffix exactly. A deeper container path,
@@ -138,7 +141,8 @@ public class RouteCheckTests
             // docs/.vitepress/dist/ (or running on a clean clone) still
             // triggers a full build.
             var distIndex = Path.Combine(distDir, "index.html");
-            if (!File.Exists(distIndex))
+            _distBuiltByFixture = !File.Exists(distIndex);
+            if (_distBuiltByFixture)
             {
                 stage = "npm run build";
 
@@ -483,8 +487,9 @@ public class RouteCheckTests
     /// (<c>scripts/generate-api-ref.sh</c> → <c>docfx metadata</c>). In
     /// that mode the upstream job is the producer and this fixture is a
     /// pure consumer, so the mtime invariant does not apply and the test
-    /// is inconclusive. Local invocations and the unsharded leg still
-    /// enforce it.
+    /// is inconclusive. The same applies to a local run that found an
+    /// existing dist/ and reused it (OneTimeSetUp only builds when
+    /// dist/index.html is missing). A run that did build enforces it.
     /// </remarks>
     [Test]
     [Category("E2E")]
@@ -496,6 +501,12 @@ public class RouteCheckTests
             Assert.Inconclusive(
                 $"Skipping rebuild-mtime invariant under shard mode (ROUTE_SHARD_TOTAL={shardTotal}); " +
                 "the docs-prepare CI job is the dist producer and this shard is a consumer.");
+        }
+        if (!_distBuiltByFixture)
+        {
+            Assert.Inconclusive(
+                "docs/.vitepress/dist/ already existed, so OneTimeSetUp reused it instead of building; " +
+                "delete it to exercise the rebuild.");
         }
 
         // Pin the contract for the producer-mode path: the fixture's
@@ -511,8 +522,10 @@ public class RouteCheckTests
     }
 
     /// <summary>
-    /// Walks every markdown-backed route the docs/ tree implies and
-    /// asserts none rendered a 404. Failures are collected across all
+    /// Walks every markdown-backed route the docs/ tree implies (with the
+    /// generated API reference sampled, see
+    /// <see cref="RouteCheckHelpers.SampleApiRoutes"/>) and asserts none
+    /// rendered a 404. Failures are collected across all
     /// workers and reported in a single ordered summary so the diff
     /// is reviewable in one assertion message.
     /// </summary>
@@ -522,7 +535,8 @@ public class RouteCheckTests
     /// across N legs. Unset env vars collapse to the no-sharding
     /// identity path (<c>1 of 1</c> — every route on a single shard);
     /// local <c>dotnet test</c> runs therefore exercise the full route
-    /// set without any extra ceremony.
+    /// set without any extra ceremony. Set <c>ROUTE_CHECK_ALL_API=true</c>
+    /// to walk every API type page as well.
     /// </remarks>
     [Test]
     public async Task Every_Markdown_Backed_Route_Resolves_Without_A_404()
@@ -531,6 +545,17 @@ public class RouteCheckTests
 
         var allRoutes = RouteCheckHelpers.CollectRoutes(_docsRoot);
         Assert.That(allRoutes.Count, Is.GreaterThan(0), "expected at least one markdown-backed route");
+
+        // The generated API reference is ~2,400 pages from one docfx
+        // template; walk a sample of it unless a full walk is asked for.
+        if (!RouteCheckHelpers.ReadFullApiWalk())
+        {
+            var sampled = RouteCheckHelpers.SampleApiRoutes(allRoutes, RouteCheckHelpers.ReadApiNamespaces(_docsRoot));
+            TestContext.Out.WriteLine(
+                $"API sampling: walking {sampled.Count} of {allRoutes.Count} route(s); " +
+                $"set {RouteCheckHelpers.FullApiWalkEnvVar}=true to walk all of them");
+            allRoutes = sampled;
+        }
 
         // CI matrix dimension `shard: [1, 2, 3, 4]` injects the two env
         // vars below; local runs leave them unset and walk every route.
@@ -679,12 +704,16 @@ public class RouteCheckTests
 
     private static (Process Process, Task StdoutDrain, Task StderrDrain) StartPreviewServer(int port, string distDir, string docsRoot, System.Text.StringBuilder log)
     {
-        // Use `npx vitepress preview` so the local node_modules copy
-        // is invoked without needing a global install. On Windows the
-        // `npx` shim is npx.cmd; ProcessStartInfo doesn't auto-resolve
-        // the extension, so name it explicitly.
+        // Run the local vitepress CLI with node directly (the same way
+        // docs/package.json runs the build) rather than through `npx`.
+        // On Windows npx.cmd starts cmd -> npx -> vitepress, and the
+        // vitepress node process outlives its parents, so
+        // Kill(entireProcessTree) in StopPreviewServer could no longer
+        // reach it and every run leaked a preview server. Started this
+        // way, the process we hold is the server itself.
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        var fileName = RouteCheckHelpers.ResolveExecutable(isWindows ? "npx.cmd" : "npx");
+        var fileName = RouteCheckHelpers.ResolveExecutable(isWindows ? "node.exe" : "node");
+        var vitepressCli = Path.Combine(docsRoot, "node_modules", "vitepress", "bin", "vitepress.js");
 
         var psi = new ProcessStartInfo
         {
@@ -695,7 +724,7 @@ public class RouteCheckTests
             RedirectStandardError = true,
             CreateNoWindow = true,
         };
-        psi.ArgumentList.Add("vitepress");
+        psi.ArgumentList.Add(vitepressCli);
         psi.ArgumentList.Add("preview");
         psi.ArgumentList.Add("--port");
         psi.ArgumentList.Add(port.ToString(System.Globalization.CultureInfo.InvariantCulture));
@@ -779,9 +808,9 @@ public class RouteCheckTests
         {
             if (!proc.HasExited)
             {
-                // Kill the whole process tree — `npx` spawns
-                // `vitepress`, which spawns the node preview server;
-                // killing only npx leaves the actual server orphaned.
+                // The process is the node preview server itself (see
+                // StartPreviewServer); still kill the tree in case it
+                // has spawned workers.
                 proc.Kill(entireProcessTree: true);
                 proc.WaitForExit(5_000);
             }

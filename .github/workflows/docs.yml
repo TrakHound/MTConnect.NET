@@ -20,11 +20,14 @@ on:
 permissions:
   contents: read
 
-# Only one deploy can run at a time. In-progress deploys are not canceled
-# so that a started Pages publish gets to finish.
+# Workflow-level: one run per PR / branch; a new push to a PR cancels
+# the superseded run. (Previously every run — PRs included — shared the
+# single `pages` group, so PR docs builds queued behind each other and a
+# third pending run silently cancelled the second.) The Pages-deploy
+# serialization now lives on the deploy job itself, below.
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   NODE_VERSION: '20'
@@ -192,6 +195,11 @@ jobs:
     name: Deploy to GitHub Pages
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    # Only one deploy can run at a time. In-progress deploys are not
+    # canceled so that a started Pages publish gets to finish.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     permissions:
       pages: write

@@ -7,7 +7,7 @@ using System.Xml.Schema;
 using MTConnect;
 using NUnit.Framework;
 
-namespace MTConnect.Compliance.Tests.L1_XsdValidation
+namespace MTConnect.Tests.Compliance.L1_XsdValidation
 {
     // Loads every MTConnect XSD shipped under Schemas/v*/ and reports any
     // schema-load errors. This is the most basic compliance gate — if a
@@ -47,7 +47,7 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
     [TestFixture]
     public class SchemaLoadTests
     {
-        private const string ResourcePrefix = "MTConnect.Compliance.Tests.Schemas.";
+        private const string ResourcePrefix = "MTConnect.Tests.Compliance.Schemas.";
         private const string XlinkResourceName = ResourcePrefix + "w3c.xlink.xsd";
         private const string XmlResourceName = ResourcePrefix + "w3c.xml.xsd";
         private const string W3cPrefix = "w3c/";
@@ -142,7 +142,7 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
         }
 
         // Reverse-map a manifest name like
-        //   MTConnect.Compliance.Tests.Schemas.v2_7.MTConnectStreams_2.7.xsd
+        //   MTConnect.Tests.Compliance.Schemas.v2_7.MTConnectStreams_2.7.xsd
         // to a display path like
         //   v2_7/MTConnectStreams_2.7.xsd
         // The mapping relies on the on-disk convention that version

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Xml.Linq;
 using NUnit.Framework;
 
-namespace MTConnect.Compliance.Tests.L1_XsdValidation
+namespace MTConnect.Tests.Compliance.L1_XsdValidation
 {
     /// <summary>
     /// Parses each XSD on the <see cref="SchemaLoadTests.Xsd11BlockedSchemas"/>
@@ -50,7 +50,7 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
     public class Xsd11FeaturePresenceTests
     {
         private const string XsdNamespace = "http://www.w3.org/2001/XMLSchema";
-        private const string ResourcePrefix = "MTConnect.Compliance.Tests.Schemas.";
+        private const string ResourcePrefix = "MTConnect.Tests.Compliance.Schemas.";
 
         /// <summary>Runs the xsd11 blocked display paths operation.</summary>
         /// <returns>The result of the operation.</returns>

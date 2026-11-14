@@ -3,7 +3,7 @@ using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Common_Tests.V2_6_V2_7
+namespace MTConnect.Tests.Common.V2_6_V2_7
 {
     // Pins every DataItem type the v2.6 SysML XMI introduces.
     //

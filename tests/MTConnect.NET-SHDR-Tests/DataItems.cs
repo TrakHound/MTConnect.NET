@@ -53,17 +53,10 @@ namespace MTConnect.Tests.Shdr
         {
             var dataItem = new ShdrDataItem("avail", Availability.AVAILABLE);
 
-            var input = dataItem.ToString();
-            var output = CheckSingleFormatOutput;
+            var actual = dataItem.ToString();
+            var expected = CheckSingleFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: format check single timestamp.</summary>
@@ -72,17 +65,10 @@ namespace MTConnect.Tests.Shdr
         {
             var dataItem = new ShdrDataItem("avail", Availability.AVAILABLE, BeforeY2KUnix);
 
-            var input = dataItem.ToString();
-            var output = CheckSingleTimestampFormatOutput;
+            var actual = dataItem.ToString();
+            var expected = CheckSingleTimestampFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
 
@@ -92,17 +78,10 @@ namespace MTConnect.Tests.Shdr
         {
             var dataItem = new ShdrDataItem("programComment", "The subprogram \'404\' is not found");
 
-            var input = dataItem.ToString();
-            var output = CheckSingleQuotesFormatOutput;
+            var actual = dataItem.ToString();
+            var expected = CheckSingleQuotesFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: format check single double quotes.</summary>
@@ -111,17 +90,10 @@ namespace MTConnect.Tests.Shdr
         {
             var dataItem = new ShdrDataItem("programComment", "The subprogram \"404\" is not found");
 
-            var input = dataItem.ToString();
-            var output = CheckSingleDoubleQuotesFormatOutput;
+            var actual = dataItem.ToString();
+            var expected = CheckSingleDoubleQuotesFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: format check single pipe.</summary>
@@ -130,17 +102,10 @@ namespace MTConnect.Tests.Shdr
         {
             var dataItem = new ShdrDataItem("programHeader", "Program Author | Patrick");
 
-            var input = dataItem.ToString();
-            var output = CheckSinglePipeFormatOutput;
+            var actual = dataItem.ToString();
+            var expected = CheckSinglePipeFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: format check single null.</summary>
@@ -149,17 +114,10 @@ namespace MTConnect.Tests.Shdr
         {
             var dataItem = new ShdrDataItem("program", null);
 
-            var input = dataItem.ToString();
-            var output = CheckSingleEmptyFormatOutput;
+            var actual = dataItem.ToString();
+            var expected = CheckSingleEmptyFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: format check single empty.</summary>
@@ -168,17 +126,10 @@ namespace MTConnect.Tests.Shdr
         {
             var dataItem = new ShdrDataItem("program", "");
 
-            var input = dataItem.ToString();
-            var output = CheckSingleEmptyFormatOutput;
+            var actual = dataItem.ToString();
+            var expected = CheckSingleEmptyFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: format check single whitespace.</summary>
@@ -187,17 +138,10 @@ namespace MTConnect.Tests.Shdr
         {
             var dataItem = new ShdrDataItem("program", "      ");
 
-            var input = dataItem.ToString();
-            var output = CheckSingleEmptyFormatOutput;
+            var actual = dataItem.ToString();
+            var expected = CheckSingleEmptyFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: format check single leading whitespace.</summary>
@@ -206,17 +150,10 @@ namespace MTConnect.Tests.Shdr
         {
             var dataItem = new ShdrDataItem("program", "   TEST.NC");
 
-            var input = dataItem.ToString();
-            var output = CheckSingleTrimFormatOutput;
+            var actual = dataItem.ToString();
+            var expected = CheckSingleTrimFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: format check single trailing whitespace.</summary>
@@ -225,17 +162,10 @@ namespace MTConnect.Tests.Shdr
         {
             var dataItem = new ShdrDataItem("program", "TEST.NC     ");
 
-            var input = dataItem.ToString();
-            var output = CheckSingleTrimFormatOutput;
+            var actual = dataItem.ToString();
+            var expected = CheckSingleTrimFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
 
@@ -246,17 +176,10 @@ namespace MTConnect.Tests.Shdr
             var dataItem = new ShdrDataItem("pcount", 0.12345);
             dataItem.Duration = 100;
 
-            var input = dataItem.ToString();
-            var output = CheckSingleDurationFormatOutput;
+            var actual = dataItem.ToString();
+            var expected = CheckSingleDurationFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: format check single duration timestamp.</summary>
@@ -266,17 +189,10 @@ namespace MTConnect.Tests.Shdr
             var dataItem = new ShdrDataItem("pcount", 0.12345, BeforeY2KUnix);
             dataItem.Duration = 100;
 
-            var input = dataItem.ToString();
-            var output = CheckSingleDurationTimestampFormatOutput;
+            var actual = dataItem.ToString();
+            var expected = CheckSingleDurationTimestampFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
 
@@ -287,17 +203,10 @@ namespace MTConnect.Tests.Shdr
             var dataItem = new ShdrDataItem("pcount", 0.12345);
             dataItem.ResetTriggered = Observations.ResetTriggered.DAY;
 
-            var input = dataItem.ToString();
-            var output = CheckSingleResetTriggeredFormatOutput;
+            var actual = dataItem.ToString();
+            var expected = CheckSingleResetTriggeredFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: format check single reset triggered timestamp.</summary>
@@ -307,17 +216,10 @@ namespace MTConnect.Tests.Shdr
             var dataItem = new ShdrDataItem("pcount", 0.12345, BeforeY2KUnix);
             dataItem.ResetTriggered = Observations.ResetTriggered.DAY;
 
-            var input = dataItem.ToString();
-            var output = CheckSingleResetTriggeredTimestampFormatOutput;
+            var actual = dataItem.ToString();
+            var expected = CheckSingleResetTriggeredTimestampFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
 
@@ -329,17 +231,10 @@ namespace MTConnect.Tests.Shdr
             dataItem.Duration = 100;
             dataItem.ResetTriggered = Observations.ResetTriggered.DAY;
 
-            var input = dataItem.ToString();
-            var output = CheckSingleResetTriggeredDurationFormatOutput;
+            var actual = dataItem.ToString();
+            var expected = CheckSingleResetTriggeredDurationFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: format check single reset triggered duration timestamp.</summary>
@@ -350,17 +245,10 @@ namespace MTConnect.Tests.Shdr
             dataItem.Duration = 100;
             dataItem.ResetTriggered = Observations.ResetTriggered.DAY;
 
-            var input = dataItem.ToString();
-            var output = CheckSingleResetTriggeredDurationTimestampFormatOutput;
+            var actual = dataItem.ToString();
+            var expected = CheckSingleResetTriggeredDurationTimestampFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         #endregion
@@ -377,17 +265,10 @@ namespace MTConnect.Tests.Shdr
             dataItems.Add(new ShdrDataItem("execution", Execution.READY));
             dataItems.Add(new ShdrDataItem("position", 0.1267498));
 
-            var input = ShdrDataItem.ToString(dataItems);
-            var output = CheckMultipleFormatOutput;
+            var actual = ShdrDataItem.ToString(dataItems);
+            var expected = CheckMultipleFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: format check multiple timestamps.</summary>
@@ -400,17 +281,10 @@ namespace MTConnect.Tests.Shdr
             dataItems.Add(new ShdrDataItem("execution", Execution.READY, BeforeY2KUnix));
             dataItems.Add(new ShdrDataItem("position", 0.1267498, BeforeY2KUnix));
 
-            var input = ShdrDataItem.ToString(dataItems);
-            var output = CheckMultipleTimestampFormatOutput;
+            var actual = ShdrDataItem.ToString(dataItems);
+            var expected = CheckMultipleTimestampFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: format check multiple different timestamps.</summary>
@@ -423,17 +297,10 @@ namespace MTConnect.Tests.Shdr
             dataItems.Add(new ShdrDataItem("execution", Execution.READY, AfterY2KUnix));
             dataItems.Add(new ShdrDataItem("position", 0.1267498, AfterY2KUnix));
 
-            var input = ShdrDataItem.ToString(dataItems);
-            var output = CheckMultipleTimestampDifferentFormatOutput;
+            var actual = ShdrDataItem.ToString(dataItems);
+            var expected = CheckMultipleTimestampDifferentFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
 
@@ -447,17 +314,10 @@ namespace MTConnect.Tests.Shdr
             dataItems.Add(new ShdrDataItem("programComment", "The subprogram \'404\' is not found"));
             dataItems.Add(new ShdrDataItem("position", 0.1267498));
 
-            var input = ShdrDataItem.ToString(dataItems);
-            var output = CheckMultipleQuotesFormatOutput;
+            var actual = ShdrDataItem.ToString(dataItems);
+            var expected = CheckMultipleQuotesFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: format check multiple double quotes.</summary>
@@ -470,17 +330,10 @@ namespace MTConnect.Tests.Shdr
             dataItems.Add(new ShdrDataItem("programComment", "The subprogram \"404\" is not found"));
             dataItems.Add(new ShdrDataItem("position", 0.1267498));
 
-            var input = ShdrDataItem.ToString(dataItems);
-            var output = CheckMultipleDoubleQuotesFormatOutput;
+            var actual = ShdrDataItem.ToString(dataItems);
+            var expected = CheckMultipleDoubleQuotesFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: format check multiple pipe.</summary>
@@ -493,17 +346,10 @@ namespace MTConnect.Tests.Shdr
             dataItems.Add(new ShdrDataItem("programHeader", "Program Author | Patrick"));
             dataItems.Add(new ShdrDataItem("position", 0.1267498));
 
-            var input = ShdrDataItem.ToString(dataItems);
-            var output = CheckMultiplePipeFormatOutput;
+            var actual = ShdrDataItem.ToString(dataItems);
+            var expected = CheckMultiplePipeFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
 
@@ -517,17 +363,10 @@ namespace MTConnect.Tests.Shdr
             dataItems.Add(new ShdrDataItem("execution", Execution.READY));
             dataItems.Add(new ShdrDataItem("position", 0.1267498));
 
-            var input = ShdrDataItem.ToString(dataItems);
-            var output = CheckMultipleEmptyFormatOutput;
+            var actual = ShdrDataItem.ToString(dataItems);
+            var expected = CheckMultipleEmptyFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: format check multiple empty.</summary>
@@ -540,17 +379,10 @@ namespace MTConnect.Tests.Shdr
             dataItems.Add(new ShdrDataItem("execution", Execution.READY));
             dataItems.Add(new ShdrDataItem("position", 0.1267498));
 
-            var input = ShdrDataItem.ToString(dataItems);
-            var output = CheckMultipleEmptyFormatOutput;
+            var actual = ShdrDataItem.ToString(dataItems);
+            var expected = CheckMultipleEmptyFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
 
@@ -564,17 +396,10 @@ namespace MTConnect.Tests.Shdr
             dataItems.Add(new ShdrDataItem("execution", null));
             dataItems.Add(new ShdrDataItem("position", null));
 
-            var input = ShdrDataItem.ToString(dataItems);
-            var output = CheckMultipleAllEmptyFormatOutput;
+            var actual = ShdrDataItem.ToString(dataItems);
+            var expected = CheckMultipleAllEmptyFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         /// <summary>Pins the behaviour expressed by the test name: format check multiple empty all.</summary>
@@ -587,17 +412,10 @@ namespace MTConnect.Tests.Shdr
             dataItems.Add(new ShdrDataItem("execution", ""));
             dataItems.Add(new ShdrDataItem("position", ""));
 
-            var input = ShdrDataItem.ToString(dataItems);
-            var output = CheckMultipleAllEmptyFormatOutput;
+            var actual = ShdrDataItem.ToString(dataItems);
+            var expected = CheckMultipleAllEmptyFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
 
@@ -611,17 +429,10 @@ namespace MTConnect.Tests.Shdr
             dataItems.Add(new ShdrDataItem("pcount", 0.12345) { ResetTriggered = Observations.ResetTriggered.DAY });
             dataItems.Add(new ShdrDataItem("position", 0.1267498));
 
-            var input = ShdrDataItem.ToString(dataItems);
-            var output = CheckMultipleResetTriggeredFormatOutput;
+            var actual = ShdrDataItem.ToString(dataItems);
+            var expected = CheckMultipleResetTriggeredFormatOutput;
 
-            if (input == output)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail($"\"{input}\" is NOT EQUAL to \"{output}\"");
-            }
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         #endregion

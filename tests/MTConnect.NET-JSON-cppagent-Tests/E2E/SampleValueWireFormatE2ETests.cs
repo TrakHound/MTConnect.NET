@@ -6,7 +6,7 @@ using MTConnect.Observations;
 using MTConnect.Streams.Json;
 using NUnit.Framework;
 
-namespace MTConnect.NET_JSON_cppagent_Tests.E2E
+namespace MTConnect.Tests.JsonCppagent.E2E
 {
     /// <summary>
     /// Wire-format end-to-end tests that exercise the full

@@ -4,7 +4,7 @@
 using System.IO;
 using NUnit.Framework;
 
-namespace MTConnect.NET_JSON_cppagent_Tests.TestHelpers
+namespace MTConnect.Tests.JsonCppagent.TestHelpers
 {
     /// <summary>
     /// Pins the contract for the shared

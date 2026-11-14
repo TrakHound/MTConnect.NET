@@ -5,11 +5,11 @@ using System.IO;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using MTConnect.Devices.Json;
-using MTConnect.NET_JSON_cppagent_Tests.TestHelpers;
+using MTConnect.Tests.JsonCppagent.TestHelpers;
 using MTConnect.Streams.Json;
 using NUnit.Framework;
 
-namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
+namespace MTConnect.Tests.JsonCppagent.Regressions
 {
     /// <summary>
     /// Pins the envelope-vs-Header schemaVersion contract for the

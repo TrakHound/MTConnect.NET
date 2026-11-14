@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MTConnect.AgentModule.HaasAdapter.Tests
+namespace MTConnect.Tests.AgentModule.HaasAdapter
 {
     /// <summary>
     /// A TCP server that answers Haas Q-commands the way an NGC control does

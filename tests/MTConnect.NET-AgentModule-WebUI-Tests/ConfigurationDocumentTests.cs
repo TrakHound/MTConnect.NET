@@ -7,7 +7,7 @@ using System;
 using System.IO;
 using System.Linq;
 
-namespace MTConnect.AgentModule.WebUI.Tests
+namespace MTConnect.Tests.AgentModule.WebUI
 {
     /// <summary>
     /// Tests for the comment-preserving, key-by-key editing of agent.config.yaml.

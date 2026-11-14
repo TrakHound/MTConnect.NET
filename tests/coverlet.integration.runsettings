@@ -92,7 +92,7 @@
                     <Format>cobertura</Format>
                     <Include>[MTConnect.NET-*]*</Include>
                     <Exclude>[MTConnect.NET-*-Tests]*,[MTConnect.NET-*-Tests.*]*,[MTConnect.NET-Common]*,[MTConnect.NET-HTTP]*</Exclude>
-                    <ExcludeByFile>**/*.g.cs.bak,**/TestHelpers/**/*.cs,**/TestDoubles/**/*.cs</ExcludeByFile>
+                    <ExcludeByFile>**/*.g.cs.bak,**/TestHelpers/**/*.cs,**/TestDoubles/**/*.cs,**/MTConnect.NET-JSON-cppagent/Streams/JsonEvents.g.cs,**/MTConnect.NET-JSON-cppagent/Streams/JsonSamples.g.cs</ExcludeByFile>
                     <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
                     <SingleHit>false</SingleHit>
                     <UseSourceLink>true</UseSourceLink>

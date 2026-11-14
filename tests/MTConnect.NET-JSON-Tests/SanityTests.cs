@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace MTConnect.NET_JSON_Tests
+namespace MTConnect.Tests.Json
 {
     /// <summary>Pins the behaviour expressed by the test name: sanity tests.</summary>
     [TestFixture]

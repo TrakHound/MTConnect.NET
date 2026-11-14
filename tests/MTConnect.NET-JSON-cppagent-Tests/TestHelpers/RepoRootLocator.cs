@@ -4,7 +4,7 @@
 using System;
 using System.IO;
 
-namespace MTConnect.NET_JSON_cppagent_Tests.TestHelpers
+namespace MTConnect.Tests.JsonCppagent.TestHelpers
 {
     /// <summary>
     /// Locates the repository root directory by walking up from the test

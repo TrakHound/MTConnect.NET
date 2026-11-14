@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Common_Tests.Http
+namespace MTConnect.Tests.Common.Http
 {
     // Pins the CA2022 short-read fixes in
     //   - libraries/MTConnect.NET-HTTP/Ceen/Httpd/LimitedBodyStream.cs

@@ -3,7 +3,7 @@ using MTConnect.Devices.Components;
 using MTConnect.Devices.Configurations;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Common_Tests.V2_6_V2_7
+namespace MTConnect.Tests.Common.V2_6_V2_7
 {
     // Pins the non-DataItem v2.6 surface: new Component subclasses + the
     // MediaType enum's QIF_MBD addition.

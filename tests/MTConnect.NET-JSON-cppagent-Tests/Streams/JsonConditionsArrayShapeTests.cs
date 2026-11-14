@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace MTConnect.NET_JSON_cppagent_Tests.Streams
+namespace MTConnect.Tests.JsonCppagent.Streams
 {
     // Pins the cppagent JSON v2 array-of-wrappers wire shape for
     // ConditionListType. The XSD declares ConditionListType as

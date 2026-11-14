@@ -8,7 +8,7 @@ using MTConnect.Streams.Json;
 using MTConnect.Streams.Output;
 using System;
 
-namespace MTConnect.NET_JSON_cppagent_Tests.TestHelpers
+namespace MTConnect.Tests.JsonCppagent.TestHelpers
 {
     /// <summary>
     /// Builds minimal Streams / Devices response documents tagged with

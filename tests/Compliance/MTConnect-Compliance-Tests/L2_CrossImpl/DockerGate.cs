@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using MTConnect.Tests.Shared;
 using NUnit.Framework;
 
-namespace MTConnect.Compliance.Tests.L2_CrossImpl
+namespace MTConnect.Tests.Compliance.L2_CrossImpl
 {
     /// <summary>
     /// NUnit gate for the Testcontainers-backed fixtures, on <see cref="DockerAvailability"/>. Called

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MTConnect.AgentModule.FanucAdapter.Tests
+namespace MTConnect.Tests.AgentModule.FanucAdapter
 {
     /// <summary>
     /// Runs the module against a simulated Fanuc CNC and checks the observations

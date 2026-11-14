@@ -20,7 +20,7 @@ using MTConnect.Configurations;
 using MTConnect.Devices;
 using NUnit.Framework;
 
-namespace MTConnect.Compliance.Tests.L2_CrossImpl
+namespace MTConnect.Tests.Compliance.L2_CrossImpl
 {
     // E2E parity gate — the full publish-and-subscribe round trip across
     // a real Mosquitto broker, exercising the multi-device + mixed-case

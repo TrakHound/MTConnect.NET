@@ -3,7 +3,7 @@
 
 using System.IO;
 using System.Text.RegularExpressions;
-using MTConnect.NET_JSON_cppagent_Tests.TestHelpers;
+using MTConnect.Tests.JsonCppagent.TestHelpers;
 using NUnit.Framework;
 
 namespace MTConnect.Tests.JsonCppagent.Devices

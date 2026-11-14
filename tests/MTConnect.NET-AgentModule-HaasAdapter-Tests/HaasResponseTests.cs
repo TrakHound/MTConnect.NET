@@ -5,7 +5,7 @@ using MTConnect.Haas;
 using MTConnect.Observations.Events;
 using NUnit.Framework;
 
-namespace MTConnect.AgentModule.HaasAdapter.Tests
+namespace MTConnect.Tests.AgentModule.HaasAdapter
 {
     /// <summary>
     /// Pins the parsing of Haas Q-command replies, including both framing

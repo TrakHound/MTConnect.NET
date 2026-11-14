@@ -9,7 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 
-namespace MTConnect.AgentModule.WebUI.Tests
+namespace MTConnect.Tests.AgentModule.WebUI
 {
     /// <summary>
     /// Tests for the in-place editing of device XML files.

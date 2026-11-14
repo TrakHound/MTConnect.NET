@@ -9,7 +9,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace MTConnect.NET_Docs_Tests;
+namespace MTConnect.Tests.Docs;
 
 /// <summary>
 /// Pure helpers shared with <see cref="RouteCheckTests"/>. Extracted so
@@ -143,6 +143,101 @@ internal static class RouteCheckHelpers
             .Distinct(StringComparer.Ordinal)
             .OrderBy(r => r, StringComparer.Ordinal)
             .ToList();
+    }
+
+    /// <summary>
+    /// Environment variable that turns off <see cref="SampleApiRoutes"/>
+    /// so the route check walks every API page. Any of <c>true</c>,
+    /// <c>1</c>, <c>yes</c> or <c>on</c> (case-insensitive) enables it.
+    /// </summary>
+    public const string FullApiWalkEnvVar = "ROUTE_CHECK_ALL_API";
+
+    /// <summary>
+    /// Whether <see cref="FullApiWalkEnvVar"/> asks for a walk of every API page.
+    /// </summary>
+    /// <param name="environment">
+    /// Optional environment-variable accessor; defaults to
+    /// <see cref="Environment.GetEnvironmentVariable(string)"/>.
+    /// </param>
+    public static bool ReadFullApiWalk(Func<string, string?>? environment = null)
+    {
+        environment ??= Environment.GetEnvironmentVariable;
+        var value = environment(FullApiWalkEnvVar)?.Trim();
+        return value is not null
+            && (value.Equals("true", StringComparison.OrdinalIgnoreCase)
+                || value == "1"
+                || value.Equals("yes", StringComparison.OrdinalIgnoreCase)
+                || value.Equals("on", StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// The namespaces listed in docfx's <c>docs/api/toc.yml</c> (its
+    /// top-level <c>- name:</c> entries), or an empty list when the API
+    /// reference has not been generated.
+    /// </summary>
+    public static List<string> ReadApiNamespaces(string docsRoot)
+    {
+        if (docsRoot is null) throw new ArgumentNullException(nameof(docsRoot));
+
+        var tocPath = Path.Combine(docsRoot, "api", "toc.yml");
+        if (!File.Exists(tocPath)) return new List<string>();
+
+        const string prefix = "- name: ";
+        return File.ReadLines(tocPath)
+            .Where(line => line.StartsWith(prefix, StringComparison.Ordinal))
+            .Select(line => line.Substring(prefix.Length).Trim())
+            .Where(name => name.Length > 0)
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+    }
+
+    /// <summary>
+    /// Thins the docfx-generated <c>/api/</c> routes down to a sample: the
+    /// <c>/api/</c> overview, every namespace page, and the first type page
+    /// (ordinal order) in each namespace. Every route outside <c>/api/</c>
+    /// is kept.
+    /// </summary>
+    /// <remarks>
+    /// The ~2,400 type pages all come from the same docfx template and share
+    /// one sidebar per namespace, so a page that renders proves its siblings
+    /// render too; walking all of them made the route check minutes slower
+    /// without catching anything the sample misses. A type page belongs to
+    /// the longest namespace that prefixes it, so a type in
+    /// <c>MTConnect.Devices.DataItems</c> samples that namespace rather than
+    /// <c>MTConnect.Devices</c>. API routes that match no namespace are kept.
+    /// Set <see cref="FullApiWalkEnvVar"/> to walk every page instead.
+    /// </remarks>
+    /// <param name="routes">Every route, as returned by <see cref="CollectRoutes"/>.</param>
+    /// <param name="namespaces">The API namespaces, as returned by <see cref="ReadApiNamespaces"/>.</param>
+    /// <returns>The sampled routes, ordinally sorted.</returns>
+    public static List<string> SampleApiRoutes(IReadOnlyList<string> routes, IReadOnlyCollection<string> namespaces)
+    {
+        if (routes is null) throw new ArgumentNullException(nameof(routes));
+        if (namespaces is null) throw new ArgumentNullException(nameof(namespaces));
+
+        const string apiRoot = "/api/";
+        var longestFirst = namespaces.OrderByDescending(n => n.Length).ToList();
+        var namespaceRoutes = new HashSet<string>(namespaces.Select(n => apiRoot + n), StringComparer.Ordinal);
+        var sampledNamespaces = new HashSet<string>(StringComparer.Ordinal);
+        var result = new List<string>();
+
+        foreach (var route in routes.OrderBy(r => r, StringComparer.Ordinal))
+        {
+            if (!route.StartsWith(apiRoot, StringComparison.Ordinal)
+                || route == apiRoot
+                || namespaceRoutes.Contains(route))
+            {
+                result.Add(route);
+                continue;
+            }
+
+            var owner = longestFirst.FirstOrDefault(n => route.StartsWith(apiRoot + n + ".", StringComparison.Ordinal));
+            if (owner is null || sampledNamespaces.Add(owner))
+            {
+                result.Add(route);
+            }
+        }
+        return result;
     }
 
     /// <summary>

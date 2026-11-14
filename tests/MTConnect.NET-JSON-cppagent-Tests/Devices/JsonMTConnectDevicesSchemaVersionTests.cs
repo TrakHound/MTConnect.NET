@@ -1,11 +1,11 @@
 // Copyright (c) 2026 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.NET_JSON_cppagent_Tests.TestHelpers;
+using MTConnect.Tests.JsonCppagent.TestHelpers;
 using NUnit.Framework;
 using System;
 
-namespace MTConnect.NET_JSON_cppagent_Tests.Devices
+namespace MTConnect.Tests.JsonCppagent.Devices
 {
     /// <summary>
     /// Asserts that the cppagent JSON-MQTT Devices envelope emits the

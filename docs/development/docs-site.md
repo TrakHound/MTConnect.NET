@@ -61,7 +61,7 @@ The classic symptom of a base mismatch is a deployed page that renders as raw HT
 
 ## End-to-end route check
 
-`tests/MTConnect.NET-Docs-Tests/RouteCheckTests.cs` is a Playwright e2e fixture that builds the docs site, spawns `vitepress preview` against the built `dist/` tree, walks every route the markdown source tree implies in a headless Chromium browser, and asserts no client-side 404s. CI runs it on the `ubuntu-latest` matrix leg of `.github/workflows/dotnet.yml` (the `windows-latest` leg filters `Category=E2E` out — hosted Windows runners do not carry Linux-image Docker, and the test fixture's `npm ci && npm run build` bootstrap is the easier target to keep Linux-only).
+`tests/MTConnect.NET-Docs-Tests/RouteCheckTests.cs` is a Playwright e2e fixture that builds the docs site, spawns `vitepress preview` against the built `dist/` tree, walks the routes the markdown source tree implies in a headless Chromium browser, and asserts no client-side 404s. CI runs it on the `ubuntu-latest` matrix leg of `.github/workflows/dotnet.yml` (the `windows-latest` leg filters `Category=E2E` out — hosted Windows runners do not carry Linux-image Docker, and the test fixture's `npm ci && npm run build` bootstrap is the easier target to keep Linux-only).
 
 Run locally from the repo root:
 
@@ -82,9 +82,19 @@ Failure output names every route that surfaced as a 404 along with which of the 
 
 The negative companion test (`A_Synthetic_Unmapped_Route_Surfaces_As_A_404`) pins the detector itself: a future Playwright or VitePress upgrade that breaks one of the two 404 signals would still see every real route render fine, but the negative test would go red and surface the regression before a real 404 slipped past.
 
+### API reference sampling
+
+The generated API reference is about 2,400 pages from one docfx template, so the walk samples it instead of visiting every page: it keeps every route outside `/api/`, the `/api/` overview, every namespace page, and the first type page in each namespace (about 300 API pages in all). A page that renders proves its siblings from the same template and namespace sidebar render too, so the sample catches the same failures in a fraction of the time. Namespaces come from `docs/api/toc.yml`.
+
+To walk every API page, set `ROUTE_CHECK_ALL_API=true`:
+
+```
+ROUTE_CHECK_ALL_API=true dotnet test tests/MTConnect.NET-Docs-Tests --filter Category=E2E
+```
+
 ### Sharded execution
 
-CI parallelises the route walk across four Ubuntu shards declared in the `route-check-e2e` job of `.github/workflows/dotnet.yml`. Each shard reads two environment variables and walks a disjoint subset of the collected routes:
+CI splits the route walk across four Ubuntu shards declared in the `route-check-e2e` job of `.github/workflows/dotnet.yml`. Each shard reads two environment variables and walks a disjoint subset of the collected routes:
 
 | Variable | Meaning |
 | --- | --- |
@@ -99,7 +109,7 @@ Reproduce a specific shard locally:
 ROUTE_SHARD_INDEX=2 ROUTE_SHARD_TOTAL=4 dotnet test tests/MTConnect.NET-Docs-Tests --filter Category=E2E
 ```
 
-Leaving the variables unset is the no-sharding default — every route on one walk — which is how `dotnet test … --filter Category=E2E` runs without extra ceremony. The CI shape reduces wall-clock for the route walk from around 24 minutes (the unsharded full walk) to around 6 minutes (the longest single shard), while the docs build itself runs exactly once in the `docs-prepare` job and the resulting `docs/.vitepress/dist/` artifact is downloaded by every shard so the bootstrap is paid once across the whole workflow.
+Leaving the variables unset is the no-sharding default — every route on one walk — which is how `dotnet test … --filter Category=E2E` runs without extra ceremony. Sharding was introduced when the walk covered every API page (around 24 minutes unsharded); with API sampling the whole walk is a few hundred pages, so the shards are now mostly a hedge. The docs build itself runs exactly once in the `docs-prepare` job and the resulting `docs/.vitepress/dist/` artifact is downloaded by every shard so the bootstrap is paid once across the whole workflow.
 
 ## See also
 

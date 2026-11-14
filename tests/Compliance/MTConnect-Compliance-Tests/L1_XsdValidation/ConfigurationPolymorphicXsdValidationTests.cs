@@ -6,7 +6,7 @@ using System.Linq;
 using System.Xml;
 using NUnit.Framework;
 
-namespace MTConnect.Compliance.Tests.L1_XsdValidation
+namespace MTConnect.Tests.Compliance.L1_XsdValidation
 {
     /// <summary>
     /// Pins the wire-shape contract for every Configuration polymorphism combination

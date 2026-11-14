@@ -8,12 +8,15 @@ import { fileURLToPath } from 'node:url';
  * Two trees feed this module:
  *
  * - `docs/api/` — docfx-generated reference for the public surface of
- *   every shipped MTConnect.NET library. ~1800 type pages keyed by
+ *   every shipped MTConnect.NET library. ~2400 type pages keyed by
  *   `MTConnect.<Namespace>.<Type>.md`, plus a docfx-produced `toc.yml`
  *   that lists each namespace and the types under it. We parse `toc.yml`
- *   and build a hierarchical sidebar where namespace dots fold into
- *   nested collapsible groups — so `MTConnect.Devices.DataItems.SampleDataItem`
- *   lives at `MTConnect > Devices > DataItems > SampleDataItem`.
+ *   and build one small sidebar per namespace (its parent namespaces,
+ *   its child namespaces and its own types) rather than one sidebar
+ *   holding every type: VitePress renders the whole sidebar into every
+ *   page that uses it, so a single ~2500-entry API sidebar made each of
+ *   the ~2400 API pages ~1.4 MB of HTML (3.2 GB in total) and dominated
+ *   the site build time.
  *
  * - `docs/reference/` — Roslyn-generated narrative reference (CLI flags,
  *   environment variables, configuration schema, HTTP API). A flat
@@ -44,20 +47,6 @@ const here = dirname(fileURLToPath(import.meta.url));
 const docsRoot = resolve(here, '..');
 
 // ─── /api/ — docfx hierarchy ────────────────────────────────────────────────
-
-// Internal tree node used while building the namespace hierarchy.
-// Each node represents one dot-segment in a namespace path. `types`
-// holds the leaf entries (sidebar items pointing at type pages);
-// `overview` is the namespace landing page link if one exists.
-type ApiNode = {
-  children: Map<string, ApiNode>;
-  types: SidebarItem[];
-  overview?: string;
-};
-
-/** Allocate an empty namespace-tree node — `children` empty, `types` empty,
- *  no overview link yet. */
-const makeNode = (): ApiNode => ({ children: new Map(), types: [] });
 
 /** Strip the `.md` extension and any leading `/` so the result is a clean
  *  VitePress route, e.g. `MTConnect.Adapters.AgentClient.md` →
@@ -143,87 +132,48 @@ const parseToc = (content: string) => {
   return namespaces;
 };
 
-/** Build the nested namespace tree by walking each namespace's
- *  dot-separated path. Each segment becomes a child node; the final
- *  segment receives the namespace's overview href and the type list.
- *  Returns the synthetic root whose children are the top-level segments
- *  (`MTConnect`, …). */
-const buildApiTree = (
-  namespaces: ReturnType<typeof parseToc>,
-): ApiNode => {
-  const root = makeNode();
-  for (const ns of namespaces) {
-    const segments = ns.name.split('.');
-    let node = root;
-    for (const segment of segments) {
-      let child = node.children.get(segment);
-      if (!child) {
-        child = makeNode();
-        node.children.set(segment, child);
-      }
-      node = child;
-    }
-    if (ns.href) node.overview = hrefToRoute(ns.href);
-    for (const t of ns.types) {
-      node.types.push({ text: t.name, link: hrefToRoute(t.href) });
-    }
-  }
-  return root;
-};
-
 /** Case-insensitive locale comparator so groups and types sort predictably
  *  regardless of underlying string ordering quirks (e.g. uppercase ASCII
  *  grouping ahead of lowercase). Stable on equal-keyed inputs. */
 const byTextCI = (a: SidebarItem, b: SidebarItem) =>
   a.text.localeCompare(b.text, 'en', { sensitivity: 'base' });
 
-/** Recursively project the tree into VitePress sidebar items. A node with
- *  children becomes a collapsible group; types are sorted into the group
- *  alongside any nested child groups. The namespace overview (if present)
- *  leads the group as an "Overview" entry. Input: the path segment whose
- *  node we are projecting + the node itself; output: one SidebarItem. */
-const projectNode = (segment: string, node: ApiNode): SidebarItem => {
-  const items: SidebarItem[] = [];
-  if (node.overview) {
-    items.push({ text: 'Overview', link: node.overview });
-  }
-  const typeItems = [...node.types].sort(byTextCI);
-  const childItems = [...node.children.entries()]
-    .map(([s, n]) => projectNode(s, n))
-    .sort(byTextCI);
-  // Children (sub-namespaces) listed before types so the hierarchy
-  // reads top-down: nested namespaces first, then the types declared
-  // directly in this namespace.
-  items.push(...childItems, ...typeItems);
-  return {
-    text: segment,
-    collapsed: true,
-    items,
-  };
-};
+type SidebarMap = Record<string, SidebarItem[]>;
 
 // Module-level cache keyed on toc.yml mtime. VitePress hot-reloads the
 // config on any edit to config.ts; without the cache, each hot-reload
-// re-reads + re-parses the ~1800-namespace toc.yml. The mtime check
-// keeps the cache correct when `npm run regen` rewrites toc.yml in the
-// same Node process.
-let apiSidebarCache: { mtimeMs: number; sidebar: SidebarItem[] } | undefined;
+// re-reads + re-parses toc.yml. The mtime check keeps the cache correct
+// when `npm run regen` rewrites toc.yml in the same Node process.
+let apiSidebarCache: { mtimeMs: number; sidebars: SidebarMap } | undefined;
 
 /**
- * Build the `/api/` sidebar from docfx's `toc.yml`. Returns a single
- * top-level "API reference" group whose items are the nested namespace
- * tree. Falls back to a one-entry "Overview" sidebar when the docfx
- * output is missing (e.g. a tree without `npm run regen` first).
+ * Build the `/api/` sidebars from docfx's `toc.yml`, as a map to spread
+ * into the VitePress `sidebar` config.
+ *
+ * Every namespace `N` gets its own key, `/api/N.`. VitePress matches a
+ * key against the page's source path (`api/N.md`, `api/N.Type.md`), so
+ * the key covers the namespace page and the type pages under it. All
+ * keys have the same number of `/` segments, which is what VitePress
+ * sorts by, so ties fall back to insertion order: keys are inserted
+ * longest first, so `MTConnect.Devices.DataItems.` wins over
+ * `MTConnect.Devices.` for a DataItems type. `/api/` comes last and
+ * catches `/api/` itself plus anything outside a namespace.
+ *
+ * A namespace sidebar lists the API overview and the parent namespaces,
+ * then the namespace itself: its overview, its child namespaces and its
+ * own types. The `/api/` sidebar lists every namespace. Falls back to a
+ * one-entry "Overview" sidebar when the docfx output is missing (e.g. a
+ * tree without `npm run regen` first).
  */
-export const apiSidebar = (): SidebarItem[] => {
+export const apiSidebars = (): SidebarMap => {
   const tocPath = resolve(docsRoot, 'api', 'toc.yml');
   const overview: SidebarItem = { text: 'Overview', link: '/api/' };
   if (!existsSync(tocPath)) {
-    return [{ text: 'API reference', items: [overview] }];
+    return { '/api/': [{ text: 'API reference', items: [overview] }] };
   }
   const mtimeMs = statSync(tocPath).mtimeMs;
   if (apiSidebarCache && apiSidebarCache.mtimeMs === mtimeMs) {
-    return apiSidebarCache.sidebar;
+    return apiSidebarCache.sidebars;
   }
   const tocBody = readFileSync(tocPath, 'utf8');
   const namespaces = parseToc(tocBody);
@@ -241,18 +191,56 @@ export const apiSidebar = (): SidebarItem[] => {
     );
   }
 
-  const tree = buildApiTree(namespaces);
-  const topLevel = [...tree.children.entries()]
-    .map(([s, n]) => projectNode(s, n))
-    .sort(byTextCI);
-  const sidebar: SidebarItem[] = [
-    {
-      text: 'API reference',
-      items: [overview, ...topLevel],
-    },
+  type Namespace = (typeof namespaces)[number];
+  const byName = new Map<string, Namespace>(namespaces.map((ns) => [ns.name, ns]));
+  const link = (ns: Namespace): SidebarItem =>
+    ns.href ? { text: ns.name, link: hrefToRoute(ns.href) } : { text: ns.name };
+
+  // Nearest namespace that encloses `name` (`MTConnect.Devices` for
+  // `MTConnect.Devices.DataItems`), skipping segments that are not
+  // namespaces in their own right.
+  const parentOf = (name: string): Namespace | undefined => {
+    for (let i = name.lastIndexOf('.'); i > 0; i = name.lastIndexOf('.', i - 1)) {
+      const parent = byName.get(name.slice(0, i));
+      if (parent) return parent;
+    }
+    return undefined;
+  };
+  const children = new Map<string, Namespace[]>();
+  for (const ns of namespaces) {
+    const parent = parentOf(ns.name);
+    if (parent) children.set(parent.name, [...(children.get(parent.name) ?? []), ns]);
+  }
+
+  const sidebars: SidebarMap = {};
+  const longestFirst = [...namespaces].sort((a, b) => b.name.length - a.name.length);
+  for (const ns of longestFirst) {
+    const ancestors: Namespace[] = [];
+    for (let p = parentOf(ns.name); p; p = parentOf(p.name)) ancestors.unshift(p);
+
+    const items: SidebarItem[] = [];
+    if (ns.href) items.push({ text: 'Overview', link: hrefToRoute(ns.href) });
+    const childLinks = (children.get(ns.name) ?? []).map(link).sort(byTextCI);
+    if (childLinks.length > 0) {
+      items.push({ text: 'Namespaces', collapsed: false, items: childLinks });
+    }
+    items.push(
+      ...ns.types.map((t) => ({ text: t.name, link: hrefToRoute(t.href) })).sort(byTextCI),
+    );
+
+    const key = `/api/${(ns.href || ns.name).replace(/\.md$/, '')}.`;
+    sidebars[key] = [
+      { text: 'API reference', items: [overview, ...ancestors.map(link)] },
+      { text: ns.name, items },
+    ];
+  }
+  sidebars['/api/'] = [
+    { text: 'API reference', items: [overview] },
+    { text: 'Namespaces', items: namespaces.map(link).sort(byTextCI) },
   ];
-  apiSidebarCache = { mtimeMs, sidebar };
-  return sidebar;
+
+  apiSidebarCache = { mtimeMs, sidebars };
+  return sidebars;
 };
 
 // ─── /reference/ — Roslyn-generated narrative ─────────────────────────────

@@ -3,7 +3,7 @@ using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Common_Tests.V2_6_V2_7
+namespace MTConnect.Tests.Common.V2_6_V2_7
 {
     // Sample envelope coverage for the v2.7 SAMPLE-category DataItems introduced
     // by [#133](https://github.com/TrakHound/MTConnect.NET/issues/133).

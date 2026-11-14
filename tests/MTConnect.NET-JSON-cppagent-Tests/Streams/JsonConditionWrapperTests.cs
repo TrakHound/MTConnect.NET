@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace MTConnect.NET_JSON_cppagent_Tests.Streams
+namespace MTConnect.Tests.JsonCppagent.Streams
 {
     /// <summary>
     /// Unit coverage for <see cref="JsonConditionWrapper"/> — the

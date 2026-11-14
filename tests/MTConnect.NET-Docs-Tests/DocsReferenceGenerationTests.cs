@@ -7,7 +7,7 @@ using System.Linq;
 using MTConnect.NET_DocsGen;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Docs_Tests;
+namespace MTConnect.Tests.Docs;
 
 /// <summary>
 /// Validates that the auto-generated reference pages under

@@ -81,7 +81,7 @@ When the library asserts a new spec behavior — a type added in a newer spec ve
 ```csharp
 using NUnit.Framework;
 
-namespace MTConnect.Compliance.Tests;
+namespace MTConnect.Tests.Compliance;
 
 [TestFixture]
 public class MyNewSpecAssertion

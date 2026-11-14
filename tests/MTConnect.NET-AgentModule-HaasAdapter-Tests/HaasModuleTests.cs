@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MTConnect.AgentModule.HaasAdapter.Tests
+namespace MTConnect.Tests.AgentModule.HaasAdapter
 {
     /// <summary>
     /// Runs the module against a fake Haas control (a TCP server answering

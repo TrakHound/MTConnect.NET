@@ -8,7 +8,7 @@ using System.Reflection;
 using MTConnect.Devices;
 using NUnit.Framework;
 
-namespace MTConnect.NET_Common_Tests.Reflection
+namespace MTConnect.Tests.Common.Reflection
 {
     // Per-category parametric coverage for the regenerated Configuration
     // value-object subtypes under MTConnect.Devices.Configurations.

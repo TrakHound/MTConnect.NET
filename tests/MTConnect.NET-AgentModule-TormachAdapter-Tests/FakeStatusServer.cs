@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MTConnect.AgentModule.TormachAdapter.Tests
+namespace MTConnect.Tests.AgentModule.TormachAdapter
 {
     /// <summary>
     /// A TCP server that sends PathPilot status server messages (one JSON object per line).

@@ -17,7 +17,7 @@ using MTConnect.Devices;
 using MTConnect.Servers.Http;
 using NUnit.Framework;
 
-namespace MTConnect.Compliance.Tests.L2_CrossImpl
+namespace MTConnect.Tests.Compliance.L2_CrossImpl
 {
     // Workflow W07 — cppagent JSON v2 parity. Boots a docker-spun
     // mtconnect/agent (the reference C++ implementation) and an
@@ -27,12 +27,12 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
     // byte-identical modulo the whitelist.
     //
     // Container pin:
-    //   mtconnect/agent:latest at digest
+    //   mtconnect/agent pinned by digest
     //   sha256:8c7fb19c55fd588d7bda94710890a00a0d2c485caca147744dc27d445a11eb07
-    //   resolves to MTConnect Agent 2.7.0.7. The :latest
-    //   tag is acceptable here because the tag is verified at fixture
-    //   start-up via the version probe; a tag drift is surfaced as a
-    //   parity-diff failure rather than a silent skew.
+    //   (tag 2.7.0.7). The fixture used to run :latest, which moved to
+    //   2.8.x and broke the version probe below. Re-pin deliberately:
+    //   update the digest, the expected version prefix and the
+    //   whitelist together.
     //
     // Source authority:
     //   - https://github.com/mtconnect/cppagent — the reference C++
@@ -46,7 +46,7 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
     [Category("E2E")]
     public class CppAgentParityWorkflowTests
     {
-        private const string CppAgentImage = "mtconnect/agent:latest";
+        private const string CppAgentImage = "mtconnect/agent@sha256:8c7fb19c55fd588d7bda94710890a00a0d2c485caca147744dc27d445a11eb07";
         private const int CppAgentPort = 5000;
         private const string FixtureDirEnv = "MTCONNECT_PARITY_FIXTURE_DIR";
 
