@@ -15,7 +15,7 @@ dotnet run --project build/MTConnect.NET-DocsGen -- --repo .
 - [Configuration schema](./configuration)
 - [CLI reference](./cli)
 
-## Validation
+## Checking for drift
 
-`MTConnect.NET-Docs-Tests` includes a `DocsReferenceGenerationTests` fixture that re-runs the same Roslyn / shell inventories and asserts the on-disk markdown is in sync. Adding an HTTP route, a `Environment.GetEnvironmentVariable("…")` read, a `${MTCONNECT_…}` reference in a contributor script, or a configuration property without regenerating the reference therefore fails CI.
+Regenerate the pages after adding an HTTP route, an `Environment.GetEnvironmentVariable("…")` read, a `${MTCONNECT_…}` reference in a contributor script, or a configuration property. `bash docs/scripts/generate-reference.sh --check` reports any page that is out of date with the source.
 

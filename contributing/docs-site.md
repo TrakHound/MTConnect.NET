@@ -21,7 +21,7 @@ Regenerate them after changing any of those:
 bash docs/scripts/generate-reference.sh
 ```
 
-`DocsReferenceGenerationTests` in `tests/MTConnect.NET-Docs-Tests` re-runs the same inventories and fails when the committed pages are out of date, so a missing regeneration fails CI. `bash docs/scripts/generate-reference.sh --check` runs the same check locally.
+`bash docs/scripts/generate-reference.sh --check` reports any page that is out of date with the source, without writing files.
 
 The MTConnect.NET Docs show these pages from a copy in TrakHound.Site. After they change here, run `tools/mtconnect-net-docs/refresh-reference.ps1` in TrakHound.Site to update the copy.
 

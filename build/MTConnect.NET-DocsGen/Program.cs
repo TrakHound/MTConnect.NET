@@ -21,12 +21,6 @@ using MTConnect.NET_DocsGen;
 //   --out  <path>  Docs root. Defaults to "<repo>/docs".
 //   --check        Run the inventory but do NOT write files; exits 0
 //                  iff the inventory matches what is already on disk.
-//
-// The same inventory routines are exposed as public static methods on
-// `RouteInventory`, `EnvVarInventory`, `ConfigInventory`, and
-// `CliInventory` so the validation test in `tests/` can re-run them
-// independently and assert the on-disk markdown is in lock-step with
-// the source tree.
 
 string? repoRoot = null;
 string? docsRoot = null;

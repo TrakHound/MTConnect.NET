@@ -11,7 +11,7 @@
 #
 # Usage:
 #   bash docs/scripts/generate-reference.sh           # regenerate
-#   bash docs/scripts/generate-reference.sh --check   # CI gate; non-zero on drift
+#   bash docs/scripts/generate-reference.sh --check   # non-zero on drift
 #
 # Requirements:
 #   - dotnet 8 SDK
@@ -19,8 +19,7 @@
 # `--check` exits non-zero when the committed docs/reference/ pages do
 # not match what DocsGen would emit from the current source tree, and
 # names the stale page and the diff. Re-run the script without
-# `--check` and commit the regenerated files. In CI the same check runs
-# as DocsReferenceGenerationTests in tests/MTConnect.NET-Docs-Tests.
+# `--check` and commit the regenerated files.
 #
 # The MTConnect.NET Docs on www.trakhound.com show these pages; after
 # they change, refresh the copies in the TrakHound.Site repository with

@@ -64,7 +64,7 @@ Standalone HTTP agent host. Loads `agent.config.yaml` (or `agent.config.json`), 
 
 - **Source**: [`build/MTConnect.NET-DocsGen/Program.cs`](https://github.com/TrakHound/MTConnect.NET/blob/master/build/MTConnect.NET-DocsGen/Program.cs)
 
-Walks the repository source tree with Roslyn and emits the auto-generated reference pages under `docs/reference/`. The same inventory routines are exposed as public static methods so the validation test can re-run them independently.
+Walks the repository source tree with Roslyn and emits the auto-generated reference pages under `docs/reference/`.
 
 **Flags**
 
