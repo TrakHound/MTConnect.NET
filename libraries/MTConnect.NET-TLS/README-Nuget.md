@@ -3,7 +3,7 @@
 # MTConnect.NET-TLS
 MTConnect.NET-TLS is an extension library to MTConnect.NET that provides TLS certificate loading and configuration for use with the HTTP and MQTT transport layers.
 
-For TLS configuration within the HTTP server module or the MQTT relay module, see [docs/modules](../../docs/modules/).
+For TLS configuration within the HTTP server module or the MQTT relay module, see [Modules](https://www.trakhound.com/docs/mtconnect-net/modules).
 
 ## Overview
 This library defines the `TlsConfiguration` class and its companion types (`PfxCertificateConfiguration`, `PemCertificateConfiguration`, `CertificateLoadResult`) that are consumed by the HTTP server module and the MQTT relay/broker modules to set up TLS-secured connections. Both PFX (PKCS#12) and PEM certificate formats are supported.

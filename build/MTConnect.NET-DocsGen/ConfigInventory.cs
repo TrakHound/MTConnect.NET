@@ -35,8 +35,8 @@ public sealed record ConfigPropertyInfo(
 /// Builds the configuration inventory. Limited deliberately to the
 /// agent / adapter / module configuration surface — wire-format
 /// "configurations" (sensor configuration, namespace configuration,
-/// etc.) are already documented in DocFX-rendered API reference
-/// pages and would only add noise here.
+/// etc.) are already documented in the XML doc comments of their
+/// classes and would only add noise here.
 /// </summary>
 public static class ConfigInventory
 {

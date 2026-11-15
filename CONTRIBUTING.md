@@ -1,6 +1,6 @@
 # Contributing to MTConnect.NET
 
-Thank you for taking the time to contribute — issues, discussions, and pull requests are all welcome. This file collects the mechanical checks a contributor is expected to run locally before pushing; the substantive discussion of what to work on lives on the [MTConnect.NET issue tracker](https://github.com/TrakHound/MTConnect.NET/issues) and on the [Documentation site](https://trakhound.github.io/MTConnect.NET/).
+Thank you for taking the time to contribute — issues, discussions, and pull requests are all welcome. This file collects the mechanical checks a contributor is expected to run locally before pushing; the substantive discussion of what to work on lives on the [MTConnect.NET issue tracker](https://github.com/TrakHound/MTConnect.NET/issues) and on the [MTConnect.NET Docs](https://www.trakhound.com/docs/mtconnect-net).
 
 ## Running the formatting gate locally
 
@@ -21,7 +21,7 @@ dotnet format templates/mtconnect.net-agent/MTConnect-NET-Agent-Template.csproj 
 dotnet format templates/mtconnect.net-agent/content/MTConnect.NET-Embedded-Agent/Agent.csproj --verify-no-changes --verbosity diagnostic
 ```
 
-See [`docs/testing/workflows.md`](docs/testing/workflows.md#job-0--format) for the complete gate description, the `--severity warn` rationale, and the tracked follow-ups (root `.editorconfig` + `global.json` SDK pin).
+See [`contributing/testing/workflows.md`](contributing/testing/workflows.md#job-0--format) for the complete gate description, the `--severity warn` rationale, and the tracked follow-ups (root `.editorconfig` + `global.json` SDK pin).
 
 ## Running the test suite locally
 
@@ -32,7 +32,7 @@ The default sweep runs unit and light-integration tests across the whole solutio
 ./tools/test.ps1         # PowerShell, all platforms
 ```
 
-Add `--e2e` / `-E2E` (Docker required) to also run the `Category=E2E` and `Category=RequiresDocker` workflow fixtures. `./tools/test.sh --help` (or `./tools/test.ps1 -?`) prints the full flag listing. The CI matrix and per-category filter rationale are documented on [`docs/testing/workflows.md`](docs/testing/workflows.md).
+Add `--e2e` / `-E2E` (Docker required) to also run the `Category=E2E` and `Category=RequiresDocker` workflow fixtures. `./tools/test.sh --help` (or `./tools/test.ps1 -?`) prints the full flag listing. The CI matrix and per-category filter rationale are documented on [`contributing/testing/workflows.md`](contributing/testing/workflows.md).
 
 ## Writing tests
 
@@ -65,7 +65,7 @@ New and edited tests follow these conventions. Existing tests that predate them 
 - Use `[TestCase]` / `[TestCaseSource]` for data variations instead of copy-pasted tests, and use `Assert.Multiple` when one test checks several related properties.
 - Don't sleep to wait for asynchronous work. Poll the condition with a deadline (or `Is.True.After(...)`), and connect to a listener only after it signals it is listening; fixed sleeps are the main source of flaky failures on shared CI runners.
 - Bind network tests to port `0` (let the OS choose) and read the bound port back, rather than picking a "free" port and hoping it stays free.
-- Tag slow or environment-dependent tests with the categories described in [`docs/testing/workflows.md`](docs/testing/workflows.md) (`E2E`, `RequiresDocker`), so CI can filter them.
+- Tag slow or environment-dependent tests with the categories described in [`contributing/testing/workflows.md`](contributing/testing/workflows.md) (`E2E`, `RequiresDocker`), so CI can filter them.
 
 ## Opening a pull request
 

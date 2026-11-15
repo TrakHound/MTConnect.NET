@@ -34,7 +34,7 @@ namespace MTConnect.Tests.Shared
     internal static class DockerAvailability
     {
         /// <summary>
-        /// The environment variable that asks for the Docker-gated suites (see docs/cli/test-sh.md).
+        /// The environment variable that asks for the Docker-gated suites (see contributing/tools/test-sh.md).
         /// </summary>
         public const string EnvironmentVariable = "MTCONNECT_E2E_DOCKER";
 

@@ -3,7 +3,7 @@
 # MTConnect.NET-Common
 This libary project contains the basic classes for implementing MTConnect.
 
-For end-to-end narrative documentation, concept pages, and the generated API reference, see [docs/](../../docs/).
+For end-to-end documentation and concept pages, see the [MTConnect.NET Docs](https://www.trakhound.com/docs/mtconnect-net).
 
 ## Nuget
 <table>

@@ -11,4 +11,4 @@ Layout:
 - `L5_Regressions/` — pins that keep prior-version behavior from silently regressing.
 - `Schemas/` — XSD tree, one subdir per version (`v2_6/`, `v2_7/`, …). Schemas copy to test output at build time.
 
-Per-version compliance matrices live under `docs/testing/v2-N.md`. Each row names the exact pinned test that validates that row. A new parser / generator symbol without a corresponding row trips CI.
+Per-version compliance matrices live under `contributing/testing/v2-N.md`. Each row names the exact pinned test that validates that row. A new parser / generator symbol without a corresponding row trips CI.

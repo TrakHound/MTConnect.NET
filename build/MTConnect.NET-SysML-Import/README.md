@@ -159,7 +159,7 @@ sed -i 's|Supports MTConnect Versions up to v2\.7|Supports MTConnect Versions up
 
 ### 6. Per-version compliance doc
 
-Author `docs/testing/v2-8.md` modelled on `docs/testing/v2-6.md` and `docs/testing/v2-7.md`. List every (DataItem / Component / enum value / Configuration) delta from the previous version with a pinned-test column.
+Author `contributing/testing/v2-8.md` modelled on `contributing/testing/v2-6.md` and `contributing/testing/v2-7.md`. List every (DataItem / Component / enum value / Configuration) delta from the previous version with a pinned-test column.
 
 ## Generator architecture
 
@@ -214,6 +214,6 @@ When upgrading Scriban or editing templates, **always** run a v2.5 / v2.6 / v2.7
 Every regen commit on the upstream repo records:
 - `mtconnect/mtconnect_sysml_model` SHA in the commit body.
 - The version tag (`v2.X`).
-- (Optional) a `docs/testing/v2-X/regen-provenance.md` block documenting the SHA + the importer commit at the time of the run.
+- (Optional) a `contributing/testing/v2-X/regen-provenance.md` block documenting the SHA + the importer commit at the time of the run.
 
 A reviewer can re-run the importer against the same SHA and confirm zero diff against the PR's `.g.cs` changes.

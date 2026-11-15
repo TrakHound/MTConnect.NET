@@ -124,7 +124,7 @@ public static class CliInventory
                 name: "MTConnect.NET-DocsGen",
                 file: docsGenMain,
                 repoRoot: repoRoot,
-                summary: "Walks the repository source tree with Roslyn and emits the auto-generated VitePress reference pages under `docs/reference/`. The same inventory routines are exposed as public static methods so the validation test can re-run them independently."));
+                summary: "Walks the repository source tree with Roslyn and emits the auto-generated reference pages under `docs/reference/`."));
         }
 
         return results
