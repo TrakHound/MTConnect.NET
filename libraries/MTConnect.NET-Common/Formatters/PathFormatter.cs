@@ -37,6 +37,19 @@ namespace MTConnect.Formatters
 
 
         /// <summary>
+        /// Registers a formatter explicitly, replacing any formatter with the same Id. Formatters are otherwise found by scanning the DLLs in the application directory; registering them explicitly also works where that scan finds nothing (single-file, trimmed or AOT publishing). A registered formatter takes precedence over one found by the scan.
+        /// </summary>
+        /// <param name="formatter">The formatter to register.</param>
+        public static void Register(IPathFormatter formatter)
+        {
+            if (formatter == null) throw new ArgumentNullException(nameof(formatter));
+            if (string.IsNullOrEmpty(formatter.Id)) throw new ArgumentException("Formatter Id is required", nameof(formatter));
+
+            _formatters[formatter.Id] = formatter;
+        }
+
+
+        /// <summary>
         /// Resolves a path expression to matching DataItem IDs using the path formatter registered for the given document format; returns null when the path is empty or no matching formatter exists.
         /// </summary>
         /// <param name="documentFormatterId">The identifier of the document format whose path formatter should be used.</param>

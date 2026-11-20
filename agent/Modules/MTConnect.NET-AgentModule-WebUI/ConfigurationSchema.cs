@@ -134,12 +134,12 @@ namespace MTConnect.Modules.WebUI
         /// The module types loaded by the Agent, with the fields of their linked settings class
         /// (<c>public static readonly Type ConfigurationType</c> on the module class).
         /// </summary>
-        public static List<ConfigurationEntryType> GetModuleTypes() => GetEntryTypes(typeof(IMTConnectAgentModule));
+        public static List<ConfigurationEntryType> GetModuleTypes() => GetEntryTypes(typeof(IMTConnectAgentModule), MTConnectAgentModules.RegisteredTypes);
 
         /// <summary>
         /// The processor types loaded by the Agent, with the fields of their linked settings class.
         /// </summary>
-        public static List<ConfigurationEntryType> GetProcessorTypes() => GetEntryTypes(typeof(IMTConnectAgentProcessor));
+        public static List<ConfigurationEntryType> GetProcessorTypes() => GetEntryTypes(typeof(IMTConnectAgentProcessor), MTConnectAgentProcessors.RegisteredTypes);
 
         /// <summary>
         /// Fields for a settings class (most basic options first), cached per type.
@@ -150,9 +150,16 @@ namespace MTConnect.Modules.WebUI
         }
 
 
-        private static List<ConfigurationEntryType> GetEntryTypes(Type interfaceType)
+        private static List<ConfigurationEntryType> GetEntryTypes(Type interfaceType, IEnumerable<Type> registeredTypes)
         {
             var result = new Dictionary<string, ConfigurationEntryType>();
+
+            // Types registered explicitly (see MTConnectAgentModules.Register) come first,
+            // then anything the scan of the application directory finds.
+            foreach (var type in registeredTypes ?? Enumerable.Empty<Type>())
+            {
+                AddEntryType(result, interfaceType, type);
+            }
 
             foreach (var assembly in Assemblies.Get() ?? Enumerable.Empty<Assembly>())
             {
@@ -163,24 +170,29 @@ namespace MTConnect.Modules.WebUI
 
                 foreach (var type in types)
                 {
-                    if (type.IsAbstract || !interfaceType.IsAssignableFrom(type)) continue;
-
-                    var typeId = type.GetField("ConfigurationTypeId", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) as string;
-                    if (string.IsNullOrEmpty(typeId) || result.ContainsKey(typeId)) continue;
-
-                    var configurationType = type.GetField("ConfigurationType", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) as Type;
-
-                    List<ConfigurationField> fields = null;
-                    if (configurationType != null)
-                    {
-                        try { fields = GetFields(configurationType); } catch { }
-                    }
-
-                    result[typeId] = new ConfigurationEntryType { TypeId = typeId, SettingsType = fields != null ? configurationType : null, Fields = fields };
+                    AddEntryType(result, interfaceType, type);
                 }
             }
 
             return result.Values.OrderBy(o => o.TypeId).ToList();
+        }
+
+        private static void AddEntryType(Dictionary<string, ConfigurationEntryType> result, Type interfaceType, Type type)
+        {
+            if (type == null || type.IsAbstract || !interfaceType.IsAssignableFrom(type)) return;
+
+            var typeId = type.GetField("ConfigurationTypeId", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) as string;
+            if (string.IsNullOrEmpty(typeId) || result.ContainsKey(typeId)) return;
+
+            var configurationType = type.GetField("ConfigurationType", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) as Type;
+
+            List<ConfigurationField> fields = null;
+            if (configurationType != null)
+            {
+                try { fields = GetFields(configurationType); } catch { }
+            }
+
+            result[typeId] = new ConfigurationEntryType { TypeId = typeId, SettingsType = fields != null ? configurationType : null, Fields = fields };
         }
 
         private static List<ConfigurationField> BuildFields(Type configurationType)

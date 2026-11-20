@@ -37,6 +37,9 @@ namespace MTConnect.Applications
             // Print an application header to the console
             PrintConsoleHeader();
 
+            // Register the built-in modules, processors and formatters by type
+            BuiltInRegistrations.Register();
+
             // Create a new MTConnect Agent Application
             // This handles all MTConnect Agent functionality along with
             // an HTTP server, SHDR Adapters, Command line arguments, Device management, Buffer management, Logging, Windows Service, and Configuration File management

@@ -17,7 +17,7 @@ Start with [`CONTRIBUTING.md`](../CONTRIBUTING.md) for the checks to run before 
 - [`tools/test.sh`](tools/test-sh.md)
 - [`tools/dotnet.sh`](tools/dotnet-sh.md)
 - [SysML importer](tools/sysml-import.md)
-- [Release builder](builder.md)
+- [Releases](releases.md)
 
 ## Documentation
 

@@ -19,7 +19,21 @@ namespace MTConnect.Formatters
     public static class InputFormatter
     {
         private static readonly ConcurrentDictionary<string, IInputFormatter> _formatters = new ConcurrentDictionary<string, IInputFormatter>();
-        private static bool _firstRead = true;
+        private static readonly object _loadLock = new object();
+        private static volatile bool _firstRead = true;
+
+
+        /// <summary>
+        /// Registers a formatter explicitly, replacing any formatter with the same Id. Formatters are otherwise found by scanning the DLLs in the application directory; registering them explicitly also works where that scan finds nothing (single-file, trimmed or AOT publishing). A registered formatter takes precedence over one found by the scan.
+        /// </summary>
+        /// <param name="formatter">The formatter to register.</param>
+        public static void Register(IInputFormatter formatter)
+        {
+            if (formatter == null) throw new ArgumentNullException(nameof(formatter));
+            if (string.IsNullOrEmpty(formatter.Id)) throw new ArgumentException("Formatter Id is required", nameof(formatter));
+
+            _formatters[formatter.Id.ToLower()] = formatter;
+        }
 
 
         /// <summary>
@@ -179,8 +193,15 @@ namespace MTConnect.Formatters
             {
                 if (_firstRead)
                 {
-                    AddFormatters();
-                    _firstRead = false;
+                    // Only one caller scans the assemblies; the rest wait for it
+                    lock (_loadLock)
+                    {
+                        if (_firstRead)
+                        {
+                            AddFormatters();
+                            _firstRead = false;
+                        }
+                    }
                 }
 
                 // Normalize the FormatterId

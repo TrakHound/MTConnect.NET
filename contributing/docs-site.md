@@ -47,4 +47,4 @@ The pages are written to `docs/redirects/_site/`.
 
 ## See also
 
-- [Release builder](builder.md): the in-tree tool that assembles the release artifacts (NuGet packages, installers, Docker images).
+- [Releases](releases.md): what in this repository decides the contents of a release (published projects, package metadata, the CI package count).

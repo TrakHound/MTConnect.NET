@@ -29,26 +29,20 @@
 		<_MTConnectTestArea>$(MSBuildProjectName.Replace('MTConnect.NET-', '').Replace('MTConnect-', ''))</_MTConnectTestArea>
 		<_MTConnectTestArea Condition="$(_MTConnectTestArea.EndsWith('-Tests'))">$(_MTConnectTestArea.Substring(0, $([MSBuild]::Subtract($(_MTConnectTestArea.Length), 6))))</_MTConnectTestArea>
 		<RootNamespace>MTConnect.Tests.$(_MTConnectTestArea.Replace('-', '.'))</RootNamespace>
-
-		<!-- Package versions shared by every test project. Bump them here. -->
-		<MicrosoftNetTestSdkVersion>17.14.1</MicrosoftNetTestSdkVersion>
-		<NUnitVersion>3.14.0</NUnitVersion>
-		<NUnit3TestAdapterVersion>4.6.0</NUnit3TestAdapterVersion>
-		<CoverletCollectorVersion>6.0.4</CoverletCollectorVersion>
 	</PropertyGroup>
 
 	<!-- Item conditions are evaluated after all properties, including those
 	     set in the project file, so <TestFramework> in a .csproj is honored. -->
 	<ItemGroup Condition="'$(MTConnectIsTestProject)' == 'true'">
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkVersion)" />
-		<PackageReference Include="coverlet.collector" Version="$(CoverletCollectorVersion)">
+		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+		<PackageReference Include="coverlet.collector">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(MTConnectIsTestProject)' == 'true' AND '$(TestFramework)' == 'NUnit'">
-		<PackageReference Include="NUnit" Version="$(NUnitVersion)" />
-		<PackageReference Include="NUnit3TestAdapter" Version="$(NUnit3TestAdapterVersion)" />
+		<PackageReference Include="NUnit" />
+		<PackageReference Include="NUnit3TestAdapter" />
 	</ItemGroup>
 </Project>

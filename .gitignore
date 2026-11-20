@@ -28,10 +28,10 @@ bld/
 build/output
 build/schemas
 build/styles
-# Builder Configurations are per build server (copy config.template.yaml)
-build/MTConnect.NET.Builder/config.*.yaml
-!build/MTConnect.NET.Builder/config.template.yaml
-build/MTConnect.NET.Builder/metadata.json
+# The release builder is no longer in this repository. Older checkouts may still
+# hold its per-build-server configs (which can contain API keys and tokens) in
+# the old location, so keep that directory ignored.
+build/MTConnect.NET.Builder/
 
 [Nn]ode_modules/
 

@@ -9,7 +9,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Scriban" Version="7.2.2" />
+		<PackageReference Include="Scriban" />
 	</ItemGroup>
 
 	<!--
@@ -48,7 +48,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Protobuf\" />
 	</ItemGroup>
 
 </Project>

@@ -44,6 +44,24 @@
 	  <ProjectReference Include="..\MTConnect.NET-Applications-Agents\MTConnect.NET-Applications-Agents.csproj" />
 	</ItemGroup>
 
+	<!--
+	  The built-in modules, referenced directly so BuiltInRegistrations.cs can
+	  register them by type. Most of them are named MTConnect.Modules.Module,
+	  so each gets an extern alias to tell them apart.
+	-->
+	<ItemGroup>
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-FanucAdapter\MTConnect.NET-AgentModule-FanucAdapter.csproj" Aliases="FanucAdapter" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-HaasAdapter\MTConnect.NET-AgentModule-HaasAdapter.csproj" Aliases="HaasAdapter" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-HttpAdapter\MTConnect.NET-AgentModule-HttpAdapter.csproj" Aliases="HttpAdapter" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-HttpServer\MTConnect.NET-AgentModule-HttpServer.csproj" Aliases="HttpServer" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttAdapter\MTConnect.NET-AgentModule-MqttAdapter.csproj" Aliases="MqttAdapter" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttBroker\MTConnect.NET-AgentModule-MqttBroker.csproj" Aliases="MqttBroker" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttRelay\MTConnect.NET-AgentModule-MqttRelay.csproj" Aliases="MqttRelay" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-ShdrAdapter\MTConnect.NET-AgentModule-ShdrAdapter.csproj" Aliases="ShdrAdapter" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-TormachAdapter\MTConnect.NET-AgentModule-TormachAdapter.csproj" Aliases="TormachAdapter" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-WebUI\MTConnect.NET-AgentModule-WebUI.csproj" Aliases="WebUI" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<None Update="agent.config.yaml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>

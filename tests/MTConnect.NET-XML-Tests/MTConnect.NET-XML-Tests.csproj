@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DeepEqual" Version="4.2.1" />
+    <PackageReference Include="DeepEqual" />
   </ItemGroup>
 
   <ItemGroup>

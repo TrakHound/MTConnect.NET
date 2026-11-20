@@ -25,6 +25,19 @@ namespace MTConnect.Formatters
 
 
         /// <summary>
+        /// Registers a formatter explicitly, replacing any formatter with the same Id. Formatters are otherwise found by scanning the DLLs in the application directory; registering them explicitly also works where that scan finds nothing (single-file, trimmed or AOT publishing). A registered formatter takes precedence over one found by the scan.
+        /// </summary>
+        /// <param name="formatter">The formatter to register.</param>
+        public static void Register(IEntityFormatter formatter)
+        {
+            if (formatter == null) throw new ArgumentNullException(nameof(formatter));
+            if (string.IsNullOrEmpty(formatter.Id)) throw new ArgumentException("Formatter Id is required", nameof(formatter));
+
+            _formatters[formatter.Id.ToLower()] = formatter;
+        }
+
+
+        /// <summary>
         /// Returns the MIME content type produced by the entity formatter registered for the given format, or null when no such formatter exists.
         /// </summary>
         /// <param name="documentFormatterId">The identifier of the document format.</param>
