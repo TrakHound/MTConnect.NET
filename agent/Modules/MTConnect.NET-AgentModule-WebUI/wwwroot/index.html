@@ -964,6 +964,10 @@
     return api('/api/agent').then(function (a) {
       state.agent = a;
       $('header-version').textContent = a.version ? 'v' + a.version : '–';
+      // Name the Agent in the tab title (its sender and MTConnect HTTP port), first so it stays visible when the tab is narrow
+      var name = a.sender || '';
+      if (name && a.mtconnectServer && a.mtconnectServer.port) name += ':' + a.mtconnectServer.port;
+      document.title = (name ? name + ' – ' : '') + 'MTConnect.NET Agent';
       return a;
     });
   }
