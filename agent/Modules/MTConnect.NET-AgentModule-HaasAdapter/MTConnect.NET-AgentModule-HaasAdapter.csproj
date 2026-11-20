@@ -43,7 +43,7 @@
 
 	<!-- System.IO.Ports is part of .NET Framework (System.dll); other targets need the package -->
 	<ItemGroup Condition="!$(TargetFramework.StartsWith('net4'))">
-		<PackageReference Include="System.IO.Ports" Version="8.0.0" />
+		<PackageReference Include="System.IO.Ports" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -41,7 +41,8 @@ New and edited tests follow these conventions. Existing tests that predate them 
 ### Projects
 
 - One test project per production project, named `MTConnect.NET-<Area>-Tests` and placed directly under `tests/` (for example `MTConnect.NET-SHDR-Tests` tests `libraries/MTConnect.NET-SHDR`).
-- [`tests/Directory.Build.props`](tests/Directory.Build.props) applies to every project under `tests/`. Do **not** add version-pinned `PackageReference`s for `Microsoft.NET.Test.Sdk`, `NUnit`, `NUnit3TestAdapter` or `coverlet.collector` to a test `.csproj`; the props file adds them to every project whose name ends in `-Tests`, at one shared version. Bump the versions there.
+- [`tests/Directory.Build.props`](tests/Directory.Build.props) applies to every project under `tests/`. Do **not** add version-pinned `PackageReference`s for `Microsoft.NET.Test.Sdk`, `NUnit`, `NUnit3TestAdapter` or `coverlet.collector` to a test `.csproj`; the props file adds them to every project whose name ends in `-Tests`, at one shared version.
+- Package versions for the whole repository live in [`Directory.Packages.props`](Directory.Packages.props) (NuGet central package management). A `PackageReference` in a `.csproj` has no `Version`; add a `PackageVersion` for a new package there, and bump versions there. Use `VersionOverride` only when one project genuinely needs a different version.
 - NUnit is the test framework. `MTConnect.NET-Integration-Tests` is the one xunit project (it sets `<TestFramework>xunit</TestFramework>`); do not add new xunit projects.
 - Shared helpers used by more than one test project go in [`tests/Shared/`](tests/Shared) (namespace `MTConnect.Tests.Shared`), not in a copy per project.
 

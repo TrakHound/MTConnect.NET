@@ -38,10 +38,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="IronPython" Version="3.4.2">
+		<PackageReference Include="IronPython">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="NLog" Version="5.2.7" />
+		<PackageReference Include="NLog" />
 		<!--
 		  IronPython's DynamicLanguageRuntime transitive (Microsoft.Scripting.dll)
 		  carries a strong-named reference to System.Configuration.ConfigurationManager
@@ -52,7 +52,7 @@
 		  InvalidAssemblyReference. Pinning it on the project that uses IronPython
 		  lands the assembly in the output directory.
 		-->
-		<PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+		<PackageReference Include="System.Configuration.ConfigurationManager" />
 	</ItemGroup>
 
 	<ItemGroup>
