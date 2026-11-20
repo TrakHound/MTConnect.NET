@@ -65,6 +65,8 @@ namespace MTConnect.Tests.Common.Reflection
             MTConnectAgentModules.Register<RegistrationTestModule>();
             MTConnectAgentModules.Register<RegistrationTestModule>();
 
+            Assert.That(MTConnectAgentModules.RegisteredTypes, Has.Exactly(1).EqualTo(typeof(RegistrationTestModule)));
+
             var configuration = new AgentApplicationConfiguration
             {
                 Modules = new List<object>

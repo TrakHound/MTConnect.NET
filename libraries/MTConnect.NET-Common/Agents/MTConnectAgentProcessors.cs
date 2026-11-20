@@ -22,6 +22,15 @@ namespace MTConnect.Agents
 
 
         /// <summary>
+        /// The processor types registered with <see cref="Register{T}"/>, in registration order (a snapshot; types found only by the DLL scan are not included).
+        /// </summary>
+        public static IReadOnlyList<Type> RegisteredTypes
+        {
+            get { lock (_lock) return _registeredTypes.ToArray(); }
+        }
+
+
+        /// <summary>
         /// Registers an agent processor type explicitly. Agent processor types are otherwise found by scanning the DLLs in the application directory; registering a type explicitly also works where that scan finds nothing (single-file, trimmed or AOT publishing, or a type defined in the host application's own assembly loaded from elsewhere). A registered type is only instantiated when it is enabled in the configuration, the same as a scanned one, and a type that is both registered and found by the scan is loaded once.
         /// </summary>
         /// <typeparam name="T">The processor type to register.</typeparam>
