@@ -235,6 +235,12 @@
   .validation-note { margin: -4px 0 10px; font-size: 12px; }
   .validation-note a { color: var(--accent); }
 
+  /* Links to TrakHound MTConnectServer, shown where this UI's scope ends */
+  .product-note { margin: 10px 0 0; font-size: 12px; }
+  .product-note a { color: var(--accent); text-decoration: none; white-space: nowrap; }
+  .product-note a:hover, .product-note a:focus-visible { text-decoration: underline; }
+  .product-note a::after { content: ' ↗'; font-size: 11px; }
+
   /* Validation problems */
   .count-pill {
     display: inline-block;
@@ -577,6 +583,10 @@
         <thead><tr><th>Name</th><th>UUID</th><th>Type</th><th>Data Items</th><th title="Observations added since the Agent started">Observations</th><th class="hide-sm">MTConnect Data</th></tr></thead>
         <tbody id="device-summary"></tbody>
       </table>
+      <p class="product-note muted">
+        This page shows the Devices of this Agent. To serve the Devices of every Agent from a single endpoint, see
+        <a href="https://www.trakhound.com/mtconnect-server" target="_blank" rel="noopener noreferrer">TrakHound MTConnectServer</a>
+      </p>
     </div>
     <div class="panel">
       <div class="toolbar">
@@ -631,6 +641,10 @@
               <tbody id="history-rows"><tr><td colspan="3" class="empty">Select an observation to view its recent history</td></tr></tbody>
             </table>
           </div>
+          <p class="product-note muted">
+            History is read from the Agent's buffer, so older Observations are lost as new ones arrive. To store every Observation in SQL Server or publish it to MQTT, see
+            <a href="https://www.trakhound.com/mtconnect-server" target="_blank" rel="noopener noreferrer">TrakHound MTConnectServer</a>
+          </p>
         </div>
       </div>
     </div>
