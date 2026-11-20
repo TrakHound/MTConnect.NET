@@ -33,7 +33,8 @@ namespace MTConnect.Modules.WebUI
     /// <list type="bullet">
     /// <item><c>GET /</c> – the UI page</item>
     /// <item><c>GET /fonts/{name}.woff2</c> – the embedded Roboto / Roboto Mono fonts</item>
-    /// <item><c>GET /img/{name}.svg</c> – the embedded images (TrakHound logo)</item>
+    /// <item><c>GET /img/{name}.svg</c> – the embedded images (TrakHound logo and icon)</item>
+    /// <item><c>GET /favicon.ico</c> – the embedded TrakHound icon, for browsers that don't use the SVG</item>
     /// <item><c>GET /api/agent</c> – Agent information and buffer state</item>
     /// <item><c>GET /api/devices</c> – Device / Component / DataItem tree</item>
     /// <item><c>GET /api/current?device=</c> – current Observations for a Device</item>
@@ -53,6 +54,7 @@ namespace MTConnect.Modules.WebUI
         private const string IndexResourceName = "MTConnect.WebUI.index.html";
         private const string FontResourcePrefix = "MTConnect.WebUI.fonts.";
         private const string ImageResourcePrefix = "MTConnect.WebUI.img.";
+        private const string RootResourcePrefix = "MTConnect.WebUI.";
         private const int MaxSampleCount = 1000;
 
         private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
@@ -187,6 +189,7 @@ namespace MTConnect.Modules.WebUI
                 }
                 else if (method == "GET" && path.StartsWith("/fonts/")) WriteResource(response, FontResourcePrefix, path.Substring("/fonts/".Length), ".woff2", "font/woff2");
                 else if (method == "GET" && path.StartsWith("/img/")) WriteResource(response, ImageResourcePrefix, path.Substring("/img/".Length), ".svg", "image/svg+xml");
+                else if (method == "GET" && path == "/favicon.ico") WriteResource(response, RootResourcePrefix, "favicon.ico", ".ico", "image/x-icon");
                 else if (method == "GET" && path == "/api/agent") WriteJson(response, GetAgentInfo());
                 else if (method == "GET" && path == "/api/devices") WriteJson(response, GetDevices());
                 else if (method == "GET" && path == "/api/current") WriteJson(response, GetCurrent(request.QueryString["device"]));
