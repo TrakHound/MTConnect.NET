@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MTConnect.NET Agent</title>
+<!-- The TrakHound icon: SVG where the browser supports it, the ICO otherwise -->
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="img/trakhound-icon.svg" type="image/svg+xml">
 <style>
   /* Roboto / Roboto Mono variable fonts, embedded in the module DLL and served by the Agent (SIL OFL 1.1) */
   @font-face {
@@ -39,61 +42,75 @@
     unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
   }
 
+  /* Colours, sizes and corners follow the TrakHound theme (the same as TrakHound MTConnectServer) */
   :root {
     color-scheme: light;  /* native controls and scrollbars follow the theme */
-    --bg: #f5f6f8;
+    --bg: #f1f4f8;
     --panel: #ffffff;
-    --border: #dfe3e8;
-    --text: #1f2933;
-    --muted: #6b7785;
-    --help-text: #4f5a66;   /* descriptions: quieter than text, easier to read than muted */
+    --border: #d9e0e8;
+    --border-strong: #c5cfdc; /* table headers and button outlines */
+    --text: #1e293b;
+    --muted: #64748b;
+    --help-text: #475569;   /* descriptions: quieter than text, easier to read than muted */
     --input-bg: #ffffff;
-    --input-border: #aeb7c2; /* stronger than --border so fields stand apart from the row dividers */
-    --input-border-hover: #87929f;
-    --accent: #1f6feb;
-    --accent-soft: #e7f0fe;
-    --ok: #1a7f37;
-    --warn: #b35900;
+    --input-border: #94a3b8; /* stronger than --border so fields stand apart from the row dividers */
+    --input-border-hover: #64748b;
+    --accent: #2870bd;       /* fills: primary button, selection tint */
+    --accent-light: #428ad7; /* hover and focus */
+    --link: #2870bd;         /* the accent as text */
+    --on-accent: #ffffff;    /* text on an accent or state fill */
+    --hover: color-mix(in srgb, var(--accent) 8%, transparent);
+    --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+    --ok: #1f7a3d;
+    --warn: #a85f00;
     --err: #c62828;
-    --code-bg: #f0f2f5;
-    --scrollbar: #c3c9d1;
-    --scrollbar-hover: #a3abb6;
-    --err-soft: #fdeeee;
-    --header-bg: linear-gradient(180deg, #2c6bb7 0%, #1f5597 100%);
-    --header-border: #17457d;
+    --err-soft: color-mix(in srgb, var(--err) 9%, transparent);
+    --code-bg: #f1f4f8;
+    --scrollbar: #c5cfdc;
+    --scrollbar-hover: #94a3b8;
+    /* Header (always navy, in both themes) */
+    --header-bg: linear-gradient(180deg, #2b4160 0%, #1d2e47 100%);
+    --header-border: #142135;
     --header-text: #ffffff;
-    --header-muted: rgba(255, 255, 255, .8);
-    --header-divider: rgba(255, 255, 255, .16);
-    --header-hover: rgba(255, 255, 255, .1);
-    --header-active: rgba(255, 255, 255, .2);
+    --header-muted: #cce6ff;
+    --header-hover: #38557a;
+    --header-active: rgba(255, 255, 255, .16);
     --font: Roboto, "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
     --font-mono: "Roboto Mono", ui-monospace, Consolas, monospace;
-    --radius: 3px;      /* panels */
-    --radius-sm: 2px;   /* controls, badges, tree nodes */
+    /* Type scale */
+    --fs-xs: 11px;      /* badges, uppercase labels */
+    --fs-sm: 12px;      /* notes, help, table headers */
+    --fs-md: 13px;      /* controls, tables, forms */
+    --fs-base: 14px;    /* body, panel titles */
+    --radius: 6px;      /* panels, dialogs */
+    --radius-sm: 3px;   /* controls, badges, tree nodes */
+    --control-height: 34px;
+    --control-height-sm: 26px;
+    --disabled-opacity: .55;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       color-scheme: dark;
-      --bg: #111418;
-      --panel: #1a1f25;
-      --border: #2d343c;
-      --text: #e3e7eb;
-      --muted: #8b96a3;
-      --help-text: #a9b3be;
-      --input-bg: #12161b;
-      --input-border: #4a5562;
-      --input-border-hover: #66727f;
-      --accent: #4c8dff;
-      --accent-soft: #1d2b44;
-      --ok: #3fb950;
+      --bg: #131a22;
+      --panel: #1b2431;
+      --border: #253041;
+      --border-strong: #374862;
+      --text: #d0d9e6;
+      --muted: #7f94b3;
+      --help-text: #93a6c2;
+      --input-bg: #0e141b;
+      --input-border: #4a5f80;
+      --input-border-hover: #6079a0;
+      --link: #5aa2e8;
+      --hover: color-mix(in srgb, var(--accent-light) 12%, transparent);
+      --accent-soft: color-mix(in srgb, var(--accent-light) 22%, transparent);
+      --ok: #4cc272;
       --warn: #e3a008;
-      --err: #f26b6b;
-      --code-bg: #14181d;
-      --scrollbar: #3a424c;
-      --scrollbar-hover: #4f5965;
-      --err-soft: #2e1c20;
-      --header-bg: linear-gradient(180deg, #1f4f8a 0%, #183f70 100%);
-      --header-border: #0f2a4c;
+      --err: #f27878;
+      --err-soft: color-mix(in srgb, var(--err) 12%, transparent);
+      --code-bg: #131a22;
+      --scrollbar: #374862;
+      --scrollbar-hover: #496083;
     }
   }
   * { box-sizing: border-box; }
@@ -110,19 +127,19 @@
   html, body { height: 100%; }
   body {
     margin: 0;
-    font: 14px/1.45 var(--font);
+    font: var(--fs-base)/1.45 var(--font);
     background: var(--bg);
     color: var(--text);
     display: flex;
     flex-direction: column;
   }
-  /* Header: TrakHound blue bar with white logo and text (same in both themes, slightly deeper in dark) */
+  /* Header: the TrakHound navy bar with white logo and text (the same in both themes) */
   header {
     display: flex;
     align-items: center;
-    gap: 24px;
-    padding: 0 20px 0 0;
-    height: 52px;
+    gap: 20px;
+    padding: 0 12px 0 0;
+    height: 51px;
     background: var(--header-bg);
     border-bottom: 1px solid var(--header-border);
     color: var(--header-text);
@@ -133,56 +150,64 @@
     display: flex;
     align-items: center;
     align-self: stretch;
-    padding: 0 16px;
-    border-right: 1px solid var(--header-divider);
+    padding: 0 15px;
+    border-right: 1px solid var(--header-border);
   }
-  .brand .logo img { height: 22px; width: auto; display: block; }
-  header h1 { font-size: 20px; font-weight: 500; margin: 0 0 0 16px; white-space: nowrap; letter-spacing: -.2px; }
-  header h1 span { font-weight: 300; }
+  .brand .logo img { height: 26px; width: auto; display: block; }
+  header h1 { font-size: 22px; font-weight: 500; margin: 0 0 0 15px; white-space: nowrap; }
+  header h1 span { font-weight: 200; }
   .header-info {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-self: stretch;
     padding: 0 20px;
-    border-left: 1px solid var(--header-divider);
-    border-right: 1px solid var(--header-divider);
-    font-size: 11px;
-    line-height: 1.3;
+    border-left: 1px solid var(--header-border);
+    border-right: 1px solid var(--header-border);
+    font-size: var(--fs-xs);
+    line-height: 14px;
     white-space: nowrap;
   }
-  .header-info .label { font-weight: 500; }
+  .header-info .label { font-weight: 700; color: var(--header-muted); }
   .header-info .value { color: var(--header-muted); }
-  nav { display: flex; gap: 4px; overflow-x: auto; }
+  nav { display: flex; align-items: center; gap: 4px; overflow-x: auto; }
   nav button {
     border: 0;
     background: none;
     color: var(--header-muted);
     font: inherit;
-    padding: 8px 12px;
+    font-size: var(--fs-md);
+    height: var(--control-height);
+    padding: 0 12px;
     border-radius: var(--radius-sm);
     cursor: pointer;
     white-space: nowrap;
   }
   nav button:hover { color: var(--header-text); background: var(--header-hover); }
-  nav button.active { background: var(--header-active); color: var(--header-text); font-weight: 500; }
-  .raw-links { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; font-size: 13px; }
+  nav button.active { background: var(--header-active); color: var(--header-text); font-weight: 600; }
+  /* Links: the accent as text, underlined on hover, with an arrow when they open a new tab */
+  main a, .modal a { color: var(--link); text-decoration: none; }
+  main a:hover, .modal a:hover { text-decoration: underline; }
+  main a[target=_blank] { white-space: nowrap; }
+  main a[target=_blank]::after { content: ' ↗'; font-size: var(--fs-xs); }
+  .raw-links { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; font-size: var(--fs-md); }
   .raw-links .label { color: var(--muted); }
-  .raw-links a { color: var(--accent); text-decoration: none; white-space: nowrap; }
-  .raw-links a:hover, .raw-links a:focus-visible { text-decoration: underline; }
-  .raw-links a::after { content: ' ↗'; font-size: 11px; }
   .header-links { margin-left: auto; display: flex; gap: 4px; flex-shrink: 0; }
   .header-links a {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 10px;
+    height: var(--control-height);
+    padding: 0 10px;
     border-radius: var(--radius-sm);
+    font-size: var(--fs-md);
     color: var(--header-muted);
     text-decoration: none;
     white-space: nowrap;
   }
   .header-links a:hover, .header-links a:focus-visible { color: var(--header-text); background: var(--header-hover); }
+  /* Keyboard focus is always visible */
+  :is(a, button, th[data-sort], .node, .tree-splitter):focus-visible { outline: 2px solid var(--accent-light); outline-offset: 1px; }
   header :focus-visible { outline: 2px solid var(--header-text); outline-offset: -2px; }
   .header-links svg { width: 16px; height: 16px; fill: currentColor; flex-shrink: 0; }
   main { flex: 1; min-height: 0; overflow: auto; padding: 20px; }
@@ -195,32 +220,37 @@
     padding: 16px;
     margin-bottom: 16px;
   }
-  .panel h2 { font-size: 14px; margin: 0 0 12px; }
+  /* Titles: a panel's title (h2, or the strong that starts its toolbar) and the section headings inside a panel */
+  .panel h2, .toolbar > strong, .modal h2 { font-size: var(--fs-base); font-weight: 600; line-height: 20px; color: var(--text); }
+  .panel h2 { margin: 0 0 12px; }
+  .device-form h3, .config-section-title, .config-card-head, .summary-title { font-size: var(--fs-md); font-weight: 600; color: var(--text); }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-  .stat .label { color: var(--muted); font-size: 12px; }
-  .stat .value { font-size: 15px; font-weight: 500; word-break: break-all; }
-  table { width: 100%; border-collapse: collapse; }
-  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
-  th { color: var(--muted); font-weight: 500; font-size: 12px; position: sticky; top: 0; background: var(--panel); }
+  .stat .label { color: var(--muted); font-size: var(--fs-sm); }
+  .stat .value { font-size: var(--fs-base); font-weight: 500; overflow-wrap: anywhere; }
+  table { width: 100%; border-collapse: collapse; font-size: var(--fs-md); }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--help-text); font-weight: 600; font-size: var(--fs-sm); white-space: nowrap; position: sticky; top: 0; z-index: 1; background: var(--panel); border-bottom: 0; box-shadow: inset 0 -1px 0 var(--border-strong); }
   th[data-sort] { cursor: pointer; user-select: none; white-space: nowrap; }
   th[data-sort]:hover, th[data-sort]:focus-visible { color: var(--text); }
   th[data-sort]::after { content: ''; display: inline-block; width: 1em; margin-left: 2px; }
-  th[aria-sort=ascending] { color: var(--accent); }
+  th[aria-sort=ascending] { color: var(--link); }
   th[aria-sort=ascending]::after { content: '▲'; font-size: 9px; }
-  th[aria-sort=descending] { color: var(--accent); }
+  th[aria-sort=descending] { color: var(--link); }
   th[aria-sort=descending]::after { content: '▼'; font-size: 9px; }
-  tbody tr:hover { background: var(--accent-soft); cursor: pointer; }
-  tbody tr.selected { background: var(--accent-soft); }
+  /* Rows highlight on hover; only the rows that open something show a pointer */
+  tbody tr:hover { background: var(--hover); }
+  :is(#device-summary, #current-rows, #asset-rows, #problem-rows) tr:not(.static) { cursor: pointer; }
+  tbody tr.selected, tbody tr.selected:hover { background: var(--accent-soft); }
   td.value { font-family: var(--font-mono); overflow-wrap: anywhere; min-width: 140px; }
   td.nowrap { white-space: nowrap; }
   .muted { color: var(--muted); }
   .mono { font-family: var(--font-mono); }
-  .badge { display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: var(--radius-sm); background: var(--code-bg); color: var(--muted); }
-  .badge.SAMPLE { color: var(--accent); }
+  .badge { display: inline-block; font-size: var(--fs-xs); font-weight: 500; line-height: 16px; padding: 0 6px; border-radius: var(--radius-sm); background: var(--code-bg); border: 1px solid var(--border); color: var(--muted); }
+  .badge.SAMPLE { color: var(--link); }
   .badge.EVENT { color: var(--ok); }
   .badge.CONDITION { color: var(--warn); }
-  .level-FAULT { color: var(--err); font-weight: 500; }
-  .level-WARNING { color: var(--warn); font-weight: 500; }
+  .level-FAULT { color: var(--err); font-weight: 600; }
+  .level-WARNING { color: var(--warn); font-weight: 600; }
   .level-NORMAL { color: var(--ok); }
   .unavailable { color: var(--muted); font-style: italic; }
 
@@ -231,15 +261,13 @@
   .vflag.deprecated { color: var(--warn); }
   .badge.ext { margin-left: 6px; cursor: help; }
   tbody tr.invalid { background: var(--err-soft); }
-  tbody tr.invalid:hover, tbody tr.invalid.selected { background: var(--accent-soft); }
-  .validation-note { margin: -4px 0 10px; font-size: 12px; }
-  .validation-note a { color: var(--accent); }
+  tbody tr.invalid:hover { background: var(--hover); }
+  tbody tr.invalid.selected { background: var(--accent-soft); }
+  /* Notes: a description under a panel's toolbar (.validation-note) or after its content (.product-note) */
+  .validation-note { margin: -4px 0 10px; font-size: var(--fs-sm); }
 
   /* Links to TrakHound MTConnectServer, shown where this UI's scope ends */
-  .product-note { margin: 10px 0 0; font-size: 12px; }
-  .product-note a { color: var(--accent); text-decoration: none; white-space: nowrap; }
-  .product-note a:hover, .product-note a:focus-visible { text-decoration: underline; }
-  .product-note a::after { content: ' ↗'; font-size: 11px; }
+  .product-note { margin: 10px 0 0; font-size: var(--fs-sm); }
 
   /* Validation problems */
   .count-pill {
@@ -249,20 +277,17 @@
     margin-left: 4px;
     border-radius: 9px;
     background: var(--err);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 500;
+    color: var(--on-accent);
+    font-size: var(--fs-xs);
+    font-weight: 600;
     line-height: 18px;
     text-align: center;
   }
-  a.link { color: var(--accent); text-decoration: none; font-size: 13px; }
-  a.link:hover, a.link:focus-visible { text-decoration: underline; }
+  a.link { font-size: var(--fs-md); }
   .validation-devices { margin-top: 12px; }
-  .validation-devices tbody tr, .validation-devices tbody tr:hover { cursor: default; background: none; }
-  .validation-devices td.has-problems { color: var(--err); font-weight: 500; }
+  .validation-devices td.has-problems { color: var(--err); font-weight: 600; }
   .validation-devices td.zero { color: var(--muted); }
   .problems { max-height: calc(100vh - 230px); }
-  #problem-rows tr.static, #problem-rows tr.static:hover { cursor: default; }
   #problem-rows td.message { overflow-wrap: anywhere; min-width: 200px; }
   #problem-rows td.item { overflow-wrap: anywhere; max-width: 260px; }
   .badge.unknown { color: var(--err); margin-left: 6px; }
@@ -270,41 +295,67 @@
   .stat .value.off { color: var(--warn); }
   .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
   .toolbar .spacer { flex: 1; }
-  input[type=text], input[type=number], input[type=password], select, .device-form textarea.values, textarea.entry-yaml, textarea#config {
+  .toolbar.toolbar-after { margin: 8px 0 0; }  /* buttons under the content they act on */
+  /* Controls: one height, font size, border and corner for every input, select and button */
+  input[type=text], input[type=number], input[type=password], select, textarea {
     font: inherit;
+    font-size: var(--fs-md);
     color: var(--text);
-    background: var(--input-bg);
+    background-color: var(--input-bg);
     border: 1px solid var(--input-border);
     border-radius: var(--radius-sm);
-    padding: 5px 8px;
   }
+  input[type=text], input[type=number], input[type=password], select { height: var(--control-height); padding: 0 10px; }
+  textarea { padding: 7px 10px; line-height: 18px; resize: vertical; }
+  /* Selects are drawn here (the same chevron in every browser and theme) */
+  select {
+    appearance: none;
+    padding-right: 28px;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m4 6 4 4 4-4'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 9px center;
+    background-size: 12px 12px;
+  }
+  ::placeholder { color: var(--muted); opacity: 1; }
+  input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; margin: 0; }
   :is(input[type=text], input[type=number], input[type=password], select, textarea):hover:not(:disabled) { border-color: var(--input-border-hover); }
-  :is(input[type=text], input[type=number], input[type=password], select, textarea):focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
-  :is(input[type=text], input[type=number], input[type=password], select, textarea):disabled { opacity: .65; cursor: not-allowed; }
-  button.btn {
+  :is(input[type=text], input[type=number], input[type=password], select, textarea):focus { outline: none; border-color: var(--accent-light); box-shadow: 0 0 0 2px var(--accent-soft); }
+  :is(input, select, textarea, button):disabled { opacity: var(--disabled-opacity); cursor: not-allowed; }
+  button.btn, button.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font: inherit;
-    border: 1px solid var(--input-border);
+    font-size: var(--fs-md);
+    line-height: 1;
+    height: var(--control-height);
+    padding: 0 12px;
+    border: 1px solid var(--border-strong);
     background: var(--panel);
     color: var(--text);
     border-radius: var(--radius-sm);
-    padding: 5px 12px;
     cursor: pointer;
+    white-space: nowrap;
   }
-  button.btn:hover:not(:disabled) { border-color: var(--accent); }
-  button.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  button.btn:disabled { opacity: .5; cursor: default; }
-  label.check { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+  :is(button.btn, button.icon-btn):hover:not(:disabled) { border-color: var(--accent-light); background: var(--hover); }
+  button.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  button.btn.primary:hover:not(:disabled) { background: var(--accent-light); border-color: var(--accent-light); }
+  /* A small secondary button beside a field or in a tree's tools */
+  button.icon-btn { height: var(--control-height-sm); padding: 0 9px; font-size: var(--fs-sm); }
+  label.check { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-md); color: var(--help-text); white-space: nowrap; }
+  .toolbar label.muted { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-md); }
+  #history-count { width: 80px; }
 
   /* Data browser layout */
-  /* Slightly smaller type on the Data page to fit more rows and columns */
-  #view-data { font-size: 13px; }
-  #view-data th { font-size: 11px; }
-  #view-data .badge { font-size: 10px; }
-  #view-data .raw-links { font-size: 12px; }
+  /* Tighter cells on the Data page to fit more rows and columns */
+  #view-data th, #view-data td { padding: 6px 8px; }
+  #view-data .raw-links { font-size: var(--fs-sm); }
   .browser { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 16px; align-items: start; }
   /* Data page: the tree keeps the width the user chose, limited so the tables always have room */
   .browser.data-browser { grid-template-columns: clamp(200px, var(--data-tree-width, 280px), calc(100% - 376px)) 12px minmax(0, 1fr); gap: 0 4px; }
-  .tree { max-height: calc(100vh - 150px); overflow: auto; padding: 8px; }
+  .tree { max-height: calc(100vh - 150px); overflow: auto; padding: 8px; font-size: var(--fs-md); }
   .tree ul { list-style: none; margin: 0; padding-left: 14px; }
   .tree > ul { padding-left: 0; }
   .tree .node {
@@ -316,21 +367,21 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .tree .node:hover { background: var(--accent-soft); }
-  .tree .node.selected { background: var(--accent); color: #fff; }
-  .tree .node.selected .muted { color: #dde8ff; }
+  /* Selection is the same everywhere (trees, the Configuration list, table rows): an accent tint with accent text */
+  .tree .node:hover { background: var(--hover); }
+  .tree .node.selected { background: var(--accent-soft); color: var(--link); font-weight: 600; }
+  .tree .node.selected .muted { font-weight: 400; }
   .tree .toggle { display: inline-block; width: 14px; color: var(--muted); }
-  .tree .device > .node { font-weight: 500; }
+  .tree .device > .node { font-weight: 600; }
   .table-wrap { max-height: calc(100vh - 380px); min-height: 200px; overflow: auto; }
   .table-wrap table { min-width: 600px; }
   #current-rows td:nth-child(1) { min-width: 140px; max-width: 220px; overflow-wrap: anywhere; }
   .history .table-wrap { max-height: 260px; min-height: 0; }
 
-  /* Config editor */
-  /* Configuration form */
+  /* Configuration: the list of sections and the settings form */
   .config-layout { grid-template-columns: 240px minmax(0, 1fr); }
-  .config-nav { padding: 8px; max-height: calc(100vh - 150px); overflow: auto; }
-  .config-nav .group { margin: 10px 6px 4px; font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+  .config-nav { padding: 8px; max-height: calc(100vh - 150px); overflow: auto; font-size: var(--fs-md); }
+  .config-nav .group { margin: 12px 8px 4px; font-size: var(--fs-xs); font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
   .config-nav .group:first-child { margin-top: 2px; }
   .config-nav button {
     display: flex;
@@ -342,37 +393,26 @@
     color: var(--text);
     font: inherit;
     text-align: left;
-    padding: 5px 8px;
+    min-height: 28px;
+    padding: 3px 8px;
     border-radius: var(--radius-sm);
     cursor: pointer;
   }
-  .config-nav button:hover { background: var(--accent-soft); }
-  .config-nav button.selected { background: var(--accent); color: #fff; }
+  .config-nav button:hover { background: var(--hover); }
+  .config-nav button.selected { background: var(--accent-soft); color: var(--link); font-weight: 600; }
   .config-nav button .detail { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .config-nav button.selected .detail { color: #dde8ff; }
+  .config-nav button .detail { font-weight: 400; }
   .config-nav .dirty-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); margin-left: auto; flex-shrink: 0; }
   .config-fields { display: grid; grid-template-columns: minmax(140px, min(270px, 34%)) minmax(0, 1fr); gap: 2px 20px; align-items: start; }
-  .config-fields .field-label { padding: 7px 0 0; font-family: var(--font-mono); font-size: 13px; line-height: 1.35; overflow-wrap: break-word; min-width: 0; }
+  .config-fields .field-label { padding: 11px 0 0; font-family: var(--font-mono); font-size: var(--fs-md); line-height: 1.35; overflow-wrap: break-word; min-width: 0; }
   .config-fields .field-control { display: flex; flex-direction: column; gap: 2px; padding: 3px 0 10px; border-bottom: 1px solid var(--border); }
   .config-fields .field-label { border-bottom: 1px solid var(--border); align-self: stretch; padding-bottom: 10px; }
   .config-fields .field-row { display: flex; gap: 6px; align-items: center; }
   .config-fields .field-row input, .config-fields .field-row select { flex: 1; min-width: 0; max-width: 420px; }
-  .config-fields .help { font-size: 12.5px; line-height: 1.45; color: var(--help-text); max-width: 72ch; margin-top: 3px; }
+  .config-fields .help { font-size: var(--fs-sm); line-height: 1.45; color: var(--help-text); max-width: 72ch; margin-top: 3px; }
   .config-fields .changed .field-row input, .config-fields .changed .field-row select { border-color: var(--warn); box-shadow: inset 3px 0 0 var(--warn); }
-  .config-fields .set-marker { font-size: 11px; color: var(--accent); }
-  button.icon-btn {
-    border: 1px solid var(--input-border);
-    background: var(--panel);
-    color: var(--muted);
-    border-radius: var(--radius-sm);
-    font: inherit;
-    font-size: 12px;
-    padding: 4px 8px;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  button.icon-btn:hover { color: var(--text); border-color: var(--accent); }
-  .config-section-title { font-size: 13px; font-weight: 500; margin: 18px 0 6px; }
+  .config-fields .set-marker { font-size: var(--fs-xs); color: var(--link); }
+  .config-section-title { margin: 18px 0 6px; }
   /* Structured settings: lists, maps and nested objects */
   .s-editor { display: flex; flex-direction: column; gap: 6px; max-width: 560px; }
   .s-rows { display: flex; flex-direction: column; gap: 6px; }
@@ -387,7 +427,7 @@
   /* Nested settings stack each label above its control so any depth stays readable */
   .s-fields { display: flex; flex-direction: column; gap: 10px; }
   .s-field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-  .s-label { font-family: var(--font-mono); font-size: 12px; line-height: 1.35; overflow-wrap: break-word; }
+  .s-label { font-family: var(--font-mono); font-size: var(--fs-sm); line-height: 1.35; overflow-wrap: break-word; }
   .s-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .s-body > input, .s-body > select { max-width: 100%; }
   .field-control.changed > .s-editor { border-left: 3px solid var(--warn); padding-left: 8px; }
@@ -395,16 +435,16 @@
   /* Change summary dialog */
   .modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, .45); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 100; }
   .modal { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); width: min(560px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; padding: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, .3); }
-  .modal h2 { font-size: 15px; margin: 0 0 10px; }
+  .modal h2 { margin: 0 0 10px; }
+  .modal .toolbar { margin: 12px 0 0; }
   .modal-body { overflow: auto; }
   .summary-group { margin-bottom: 10px; }
-  .summary-title { font-weight: 500; font-size: 13px; }
-  .summary-group ul { margin: 4px 0 0; padding-left: 18px; font-size: 13px; font-family: var(--font-mono); }
+  .summary-group ul { margin: 4px 0 0; padding-left: 18px; font-size: var(--fs-md); font-family: var(--font-mono); }
   .summary-group li { overflow-wrap: anywhere; }
   .add-module { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
   .add-module select { min-width: 240px; }
   .config-complex { display: grid; grid-template-columns: minmax(160px, 220px) minmax(0, 1fr); gap: 6px 16px; }
-  .config-complex pre { margin: 0; padding: 6px 8px; background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; overflow: auto; max-height: 160px; }
+  .config-complex pre { margin: 0; padding: 6px 8px; background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: var(--fs-sm); overflow: auto; max-height: 160px; }
   /* Device editor */
   /* The tree keeps the width the user chose, limited so the form always has room */
   .device-editor { display: grid; grid-template-columns: clamp(200px, var(--device-tree-width, 420px), calc(100% - 296px)) 12px minmax(0, 1fr); gap: 0 4px; align-items: stretch; }
@@ -416,14 +456,13 @@
   body.resizing { cursor: col-resize; user-select: none; }
   .device-tree-panel { border: 1px solid var(--border); border-radius: var(--radius-sm); }
   .device-tree-tools { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; border-bottom: 1px solid var(--border); }
-  .device-tree-tools button:disabled { opacity: .45; cursor: default; }
-  .device-tree { max-height: calc(100vh - 260px); overflow: auto; padding: 6px; font-size: 13px; }
+  .device-tree { max-height: calc(100vh - 260px); overflow: auto; padding: 6px; font-size: var(--fs-md); }
   .device-tree ul { list-style: none; margin: 0; padding-left: 14px; }
   .device-tree > ul { padding-left: 0; }
   .device-tree .node { display: flex; align-items: center; gap: 6px; padding: 3px 6px; border-radius: var(--radius-sm); cursor: pointer; white-space: nowrap; }
-  .device-tree .node:hover { background: var(--accent-soft); }
-  .device-tree .node.selected { background: var(--accent); color: #fff; }
-  .device-tree .node.selected .muted, .device-tree .node.selected .badge { color: #dde8ff; }
+  .device-tree .node:hover { background: var(--hover); }
+  .device-tree .node.selected { background: var(--accent-soft); color: var(--link); font-weight: 600; }
+  .device-tree .node.selected .muted { font-weight: 400; }
   .device-tree .node .label { overflow: hidden; text-overflow: ellipsis; }
   .device-tree .node.new .label::after { content: ' •'; color: var(--warn); }
   /* Drag and drop: line before/after a row, or highlight when dropping into it */
@@ -434,18 +473,18 @@
   .device-tree .node.drop-into { outline: 1px dashed var(--accent); outline-offset: -1px; background: var(--accent-soft); }
   /* Configuration items (Specifications, Coordinate Systems, Motion) */
   .config-card { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 10px; }
-  .config-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 13px; font-weight: 500; }
+  .config-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
   .config-card-head .spacer { flex: 1; }
   .limits-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px 10px; margin-top: 6px; }
-  .limits-grid label { display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+  .limits-grid label { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-sm); color: var(--muted); font-family: var(--font-mono); }
   .limits-grid input { min-width: 0; }
-  .rename-note { border-left: 3px solid var(--warn); padding: 6px 10px; margin: 0 0 12px; font-size: 12px; background: var(--code-bg); }
+  .rename-note { border-left: 3px solid var(--warn); padding: 6px 10px; margin: 0 0 12px; font-size: var(--fs-sm); background: var(--code-bg); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
   .rename-note label { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
   .device-tree .toggle { width: 12px; color: var(--muted); flex-shrink: 0; }
-  .device-tree .badge { font-size: 9px; padding: 0 4px; }
-  .device-form h3 { font-size: 13px; font-weight: 500; margin: 0 0 8px; }
+  .device-tree .badge { font-size: 10px; line-height: 14px; padding: 0 4px; }
+  .device-form h3 { margin: 0 0 8px; }
   .device-form .config-fields { margin-bottom: 14px; }
-  .device-form textarea.values { width: 100%; max-width: 420px; min-height: 80px; font: 13px/1.4 var(--font-mono); color: var(--text); background: var(--input-bg); border: 1px solid var(--input-border); border-radius: var(--radius-sm); padding: 5px 8px; }
+  .device-form textarea.values { width: 100%; max-width: 420px; min-height: 80px; font-family: var(--font-mono); }
   .device-add { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px; background: var(--code-bg); }
   /* The editor adapts to its own width (the side list and window size both affect it) */
   #config-device-panel { container-type: inline-size; }
@@ -459,32 +498,17 @@
     .device-form .config-fields .field-label { border-bottom: 0; padding-bottom: 0; }
   }
 
-  textarea.entry-yaml {
+  /* Code editors: an entry's YAML and the whole configuration file */
+  textarea.entry-yaml, textarea#config {
     width: 100%;
-    min-height: 240px;
-    font: 13px/1.5 var(--font-mono);
-    color: var(--text);
-    background: var(--code-bg);
-    border: 1px solid var(--input-border);
-    border-radius: var(--radius-sm);
+    font: var(--fs-md)/1.5 var(--font-mono);
+    background-color: var(--code-bg);
     padding: 12px;
-    resize: vertical;
     tab-size: 2;
   }
+  textarea.entry-yaml { min-height: 240px; }
   textarea.entry-yaml.changed { border-color: var(--warn); }
-
-  textarea#config {
-    width: 100%;
-    min-height: calc(100vh - 260px);
-    font: 13px/1.5 var(--font-mono);
-    color: var(--text);
-    background: var(--code-bg);
-    border: 1px solid var(--input-border);
-    border-radius: var(--radius-sm);
-    padding: 12px;
-    resize: vertical;
-    tab-size: 2;
-  }
+  textarea#config { min-height: calc(100vh - 260px); }
   pre.xml {
     background: var(--code-bg);
     border: 1px solid var(--border);
@@ -493,20 +517,24 @@
     margin: 0;
     max-height: 60vh;
     overflow: auto;
-    font-size: 12px;
+    font-size: var(--fs-sm);
   }
-  .status { font-size: 13px; }
+  .status { font-size: var(--fs-md); }
   .status.ok { color: var(--ok); }
   .status.err { color: var(--err); }
   .status.warn { color: var(--warn); }
-  .empty { padding: 24px; text-align: center; color: var(--muted); }
+  td.empty, .empty { padding: 24px; text-align: center; color: var(--muted); font-size: var(--fs-md); }
 
+  @media (max-width: 1200px) {
+    /* The header links keep their icons (each has a title) */
+    .header-links a { width: var(--control-height); padding: 0; justify-content: center; }
+    .header-links a span { display: none; }
+  }
   @media (max-width: 800px) {
-    header { gap: 12px; padding: 0 12px 0 0; }
+    header { gap: 12px; padding: 0 8px 0 0; }
     header h1 { font-size: 18px; margin-left: 12px; }
     .brand .logo { padding: 0 12px; }
-    .header-links a { padding: 6px; }
-    .header-links a span { display: none; }
+    .brand .logo img { height: 22px; }
     main { padding: 12px; }
     .browser, .browser.data-browser { grid-template-columns: minmax(0, 1fr); gap: 16px; }
     .tree { max-height: 240px; }
@@ -524,8 +552,8 @@
     header { flex-wrap: wrap; height: auto; row-gap: 0; }
     .brand { height: 48px; }
     header h1 span { display: none; }
-    nav { order: 1; flex-basis: 100%; flex-wrap: wrap; overflow-x: visible; padding: 6px 0 8px 8px; border-top: 1px solid var(--header-divider); }
-    nav button { padding: 6px 10px; }
+    nav { order: 1; flex-basis: 100%; flex-wrap: wrap; overflow-x: visible; padding: 6px 0 8px 8px; border-top: 1px solid var(--header-border); }
+    nav button { height: 30px; padding: 0 10px; }
   }
 </style>
 </head>
@@ -632,7 +660,7 @@
           <div class="toolbar">
             <strong id="history-title">History</strong>
             <span class="spacer"></span>
-            <label class="muted">Count <input type="number" id="history-count" value="50" min="1" max="1000" style="width:80px"></label>
+            <label class="muted">Count <input type="number" id="history-count" value="50" min="1" max="1000"></label>
             <button class="btn" id="history-refresh">Load</button>
           </div>
           <div class="table-wrap">
@@ -674,7 +702,7 @@
     </div>
   </section>
 
-  <!-- Configuration -->
+  <!-- Validation -->
   <section id="view-validation" class="view">
     <div class="panel">
       <div class="toolbar">
@@ -706,6 +734,7 @@
     </div>
   </section>
 
+  <!-- Configuration -->
   <section id="view-config" class="view">
     <div class="browser config-layout">
       <div class="panel config-nav" id="config-nav" role="navigation" aria-label="Configuration sections"></div>
@@ -749,7 +778,7 @@
             <button class="btn primary" id="config-save">Save</button>
           </div>
           <textarea id="config" spellcheck="false"></textarea>
-          <p class="muted" id="config-note"></p>
+          <p class="product-note muted" id="config-note"></p>
         </div>
       </div>
     </div>
@@ -935,6 +964,10 @@
     return api('/api/agent').then(function (a) {
       state.agent = a;
       $('header-version').textContent = a.version ? 'v' + a.version : '–';
+      // Name the Agent in the tab title (its sender and MTConnect HTTP port), first so it stays visible when the tab is narrow
+      var name = a.sender || '';
+      if (name && a.mtconnectServer && a.mtconnectServer.port) name += ':' + a.mtconnectServer.port;
+      document.title = (name ? name + ' – ' : '') + 'MTConnect.NET Agent';
       return a;
     });
   }
@@ -2558,7 +2591,7 @@
         (deviceHasChanges()
           ? '<p class="validation-note muted">Save or discard your changes before editing the XML.</p>'
           : '<textarea class="entry-yaml" data-node-xml spellcheck="false">' + esc(n.xml) + '</textarea>' +
-            '<div class="toolbar" style="margin-top:8px"><span class="spacer"></span><button type="button" class="btn primary" data-save-xml>Save XML</button></div>') +
+            '<div class="toolbar toolbar-after"><span class="spacer"></span><button type="button" class="btn primary" data-save-xml>Save XML</button></div>') +
         '</details>';
     }
     return html;
