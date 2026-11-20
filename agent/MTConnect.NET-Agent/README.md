@@ -65,8 +65,6 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 ## Installation
 Follow the steps below to install the MTConnect Agent HTTP application.
 
-*Note: Installer (Innosetup) source code is available and will be added to repo this in a future version*
-
 ### Step #1
 Read through the license agreement (MIT License) and click **"I accept the agreement"** if you agree with the terms.
 Then click **"Next"** to proceed to the next page.

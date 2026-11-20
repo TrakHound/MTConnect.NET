@@ -48,7 +48,7 @@
     "/cookbook/write-a-module": "/docs/mtconnect-net/cookbook/write-a-module",
     "/cookbook/write-an-adapter": "/docs/mtconnect-net/cookbook/write-an-adapter",
     "/cookbook/write-an-agent": "/docs/mtconnect-net/cookbook/write-an-agent",
-    "/development/builder": "https://github.com/TrakHound/MTConnect.NET/blob/master/contributing/builder.md",
+    "/development/builder": "https://github.com/TrakHound/MTConnect.NET/blob/master/contributing/releases.md",
     "/development/docs-site": "https://github.com/TrakHound/MTConnect.NET/blob/master/contributing/docs-site.md",
     "/development/house-style": "https://github.com/TrakHound/MTConnect.NET/blob/master/contributing/docs-site.md",
     "/examples/": "/docs/mtconnect-net#examples",
