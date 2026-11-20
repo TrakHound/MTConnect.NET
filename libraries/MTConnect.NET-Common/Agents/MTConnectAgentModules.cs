@@ -16,6 +16,32 @@ namespace MTConnect.Agents
         private static readonly List<Type> _moduleTypes = new List<Type>();
         private static readonly Dictionary<string, IMTConnectAgentModule> _modules = new Dictionary<string, IMTConnectAgentModule>();
         private static readonly object _lock = new object();
+        private static readonly List<Type> _registeredTypes = new List<Type>();
+
+
+        /// <summary>
+        /// Registers an agent module type explicitly. Agent module types are otherwise found by scanning the DLLs in the application directory; registering a type explicitly also works where that scan finds nothing (single-file, trimmed or AOT publishing, or a type defined in the host application's own assembly loaded from elsewhere). A registered type is only instantiated when it is enabled in the configuration, the same as a scanned one, and a type that is both registered and found by the scan is loaded once.
+        /// </summary>
+        /// <typeparam name="T">The module type to register.</typeparam>
+        public static void Register<T>() where T : IMTConnectAgentModule => Register(typeof(T));
+
+        /// <summary>
+        /// Registers an agent module type explicitly. See <see cref="Register{T}"/>.
+        /// </summary>
+        /// <param name="moduleType">The module type to register; it must implement <see cref="IMTConnectAgentModule"/> and be a concrete class.</param>
+        public static void Register(Type moduleType)
+        {
+            if (moduleType == null) throw new ArgumentNullException(nameof(moduleType));
+            if (!typeof(IMTConnectAgentModule).IsAssignableFrom(moduleType) || moduleType.IsInterface || moduleType.IsAbstract)
+            {
+                throw new ArgumentException($"{moduleType.FullName} is not a concrete IMTConnectAgentModule", nameof(moduleType));
+            }
+
+            lock (_lock)
+            {
+                if (!_registeredTypes.Contains(moduleType)) _registeredTypes.Add(moduleType);
+            }
+        }
 
         private readonly IAgentApplicationConfiguration _configuration;
         private readonly IMTConnectAgentBroker _mtconnectAgent;
@@ -165,7 +191,11 @@ namespace MTConnect.Agents
 
         private static void InitializeModules()
         {
-            lock (_lock) _moduleTypes.Clear();
+            lock (_lock)
+            {
+                _moduleTypes.Clear();
+                _moduleTypes.AddRange(_registeredTypes);
+            }
 
             var assemblies = Assemblies.Get();
             if (!assemblies.IsNullOrEmpty())
@@ -181,7 +211,7 @@ namespace MTConnect.Agents
                             {
                                 if (typeof(IMTConnectAgentModule).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
                                 {
-                                    lock (_lock) _moduleTypes.Add(type);
+                                    lock (_lock) { if (!_moduleTypes.Contains(type)) _moduleTypes.Add(type); }
                                 }
                             }
                         }

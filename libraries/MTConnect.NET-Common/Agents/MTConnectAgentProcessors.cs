@@ -18,6 +18,32 @@ namespace MTConnect.Agents
         private static readonly List<Type> _processorTypes = new List<Type>();
         private static readonly Dictionary<string, IMTConnectAgentProcessor> _processors = new Dictionary<string, IMTConnectAgentProcessor>();
         private static readonly object _lock = new object();
+        private static readonly List<Type> _registeredTypes = new List<Type>();
+
+
+        /// <summary>
+        /// Registers an agent processor type explicitly. Agent processor types are otherwise found by scanning the DLLs in the application directory; registering a type explicitly also works where that scan finds nothing (single-file, trimmed or AOT publishing, or a type defined in the host application's own assembly loaded from elsewhere). A registered type is only instantiated when it is enabled in the configuration, the same as a scanned one, and a type that is both registered and found by the scan is loaded once.
+        /// </summary>
+        /// <typeparam name="T">The processor type to register.</typeparam>
+        public static void Register<T>() where T : IMTConnectAgentProcessor => Register(typeof(T));
+
+        /// <summary>
+        /// Registers an agent processor type explicitly. See <see cref="Register{T}"/>.
+        /// </summary>
+        /// <param name="processorType">The processor type to register; it must implement <see cref="IMTConnectAgentProcessor"/> and be a concrete class.</param>
+        public static void Register(Type processorType)
+        {
+            if (processorType == null) throw new ArgumentNullException(nameof(processorType));
+            if (!typeof(IMTConnectAgentProcessor).IsAssignableFrom(processorType) || processorType.IsInterface || processorType.IsAbstract)
+            {
+                throw new ArgumentException($"{processorType.FullName} is not a concrete IMTConnectAgentProcessor", nameof(processorType));
+            }
+
+            lock (_lock)
+            {
+                if (!_registeredTypes.Contains(processorType)) _registeredTypes.Add(processorType);
+            }
+        }
 
 
         private readonly IAgentApplicationConfiguration _configuration;
@@ -154,7 +180,11 @@ namespace MTConnect.Agents
 
         private static void InitializeProcessors()
         {
-            lock (_lock) _processorTypes.Clear();
+            lock (_lock)
+            {
+                _processorTypes.Clear();
+                _processorTypes.AddRange(_registeredTypes);
+            }
 
             var assemblies = Assemblies.Get();
             if (!assemblies.IsNullOrEmpty())
@@ -170,7 +200,7 @@ namespace MTConnect.Agents
                             {
                                 if (typeof(IMTConnectAgentProcessor).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
                                 {
-                                    lock (_lock) _processorTypes.Add(type);
+                                    lock (_lock) { if (!_processorTypes.Contains(type)) _processorTypes.Add(type); }
                                 }
                             }
                         }
