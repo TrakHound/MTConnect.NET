@@ -5,14 +5,16 @@
       "commandName": "Project",
       "commandLineArgs": "--xmi \"%MTCONNECT_XMI_PATH%\" --output \"%MTCONNECT_NET_REPO%\""
     },
-    "Import (sibling clone of mtconnect_sysml_model)": {
+    "Import (sysml-model submodule)": {
       "commandName": "Project",
-      "commandLineArgs": "--xmi ../../../../mtconnect_sysml_model/MTConnectSysMLModel.xml --output ../../..",
-      "comment": "Assumes mtconnect/mtconnect_sysml_model is cloned as a sibling of this repo. Switch standard version with `git -C ../mtconnect_sysml_model checkout v2.7` (or v2.6 / v2.5)."
+      "commandLineArgs": "--xmi ../sysml-model/MTConnectSysMLModel.xml --output ../..",
+      "workingDirectory": "$(ProjectDir)",
+      "comment": "Uses the mtconnect/mtconnect_sysml_model submodule at build/sysml-model. Switch standard version with `git -C build/sysml-model checkout v2.7` (or v2.6 / v2.5) from the repo root."
     },
-    "Import (json-dump enabled, sibling clone)": {
+    "Import (json-dump enabled, sysml-model submodule)": {
       "commandName": "Project",
-      "commandLineArgs": "--xmi ../../../../mtconnect_sysml_model/MTConnectSysMLModel.xml --output ../../.. --json-dump ../../../.cache/mtconnect-model.json"
+      "commandLineArgs": "--xmi ../sysml-model/MTConnectSysMLModel.xml --output ../.. --json-dump ../../.cache/mtconnect-model.json",
+      "workingDirectory": "$(ProjectDir)"
     }
   }
 }

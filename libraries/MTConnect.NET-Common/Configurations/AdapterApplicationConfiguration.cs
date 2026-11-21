@@ -309,12 +309,18 @@ namespace MTConnect.Configurations
 
 
         /// <summary>
-        /// Loads a derived configuration, preferring the conventional JSON file in the base directory and falling back to YAML.
+        /// Loads a derived configuration from the given path or, when no path is given, from the conventional JSON file in the base directory, falling back to YAML.
         /// </summary>
         /// <typeparam name="T">The concrete configuration type to deserialize.</typeparam>
-        /// <param name="path">Reserved; resolution always uses the conventional file names in the base directory.</param>
+        /// <param name="path">An explicit JSON or YAML path (resolved relative to the base directory when not rooted), or null to use the conventional files.</param>
         public static T Read<T>(string path = null) where T : AdapterApplicationConfiguration
         {
+            if (!string.IsNullOrEmpty(path))
+            {
+                if (IsJsonPath(path)) return ReadJson<T>(path);
+                else return ReadYaml<T>(path);
+            }
+
             var jsonPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, JsonFilename);
 
             // Test for JSON Configuration File
@@ -327,13 +333,24 @@ namespace MTConnect.Configurations
             }
         }
 
+        private static bool IsJsonPath(string path)
+        {
+            return string.Equals(System.IO.Path.GetExtension(path), ".json", StringComparison.OrdinalIgnoreCase);
+        }
+
         /// <summary>
-        /// Loads a configuration of the given runtime type, preferring the conventional JSON file in the base directory and falling back to YAML.
+        /// Loads a configuration of the given runtime type from the given path or, when no path is given, from the conventional JSON file in the base directory, falling back to YAML.
         /// </summary>
         /// <param name="type">The concrete configuration type to deserialize into.</param>
-        /// <param name="path">Reserved; resolution always uses the conventional file names in the base directory.</param>
+        /// <param name="path">An explicit JSON or YAML path (resolved relative to the base directory when not rooted), or null to use the conventional files.</param>
         public static AdapterApplicationConfiguration Read(Type type, string path = null)
         {
+            if (!string.IsNullOrEmpty(path))
+            {
+                if (IsJsonPath(path)) return ReadJson(type, path);
+                else return ReadYaml(type, path);
+            }
+
             var jsonPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, JsonFilename);
 
             // Test for JSON Configuration File

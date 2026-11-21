@@ -12,155 +12,54 @@ Component Types are defined in the [Components](Components) directory. Each clas
 ## Composition
 The [Composition](Composition.cs) class is used to implement Composition elements described in **Part 2.0 : Section 6 of the MTConnect Standard**
 
-Composition Types are defined in the [Compositions](Compositions) directory. Each class represents a Composition of the specified Type. The class contains the Type string and a default Name.
+Composition Types are defined in the [Compositions](Compositions) directory. Each class represents a Composition of the specified Type. The class fixes the Type string and exposes a `NameId` constant the caller can copy from when setting `Name` explicitly.
 
 ## DataItem
-The [DataItem](DataItem.cs) class is used to implement DataItem elements described in **Part 2.0 : Section of 7 the MTConnect Standard**
+The [DataItem](DataItem.cs) class is used to implement DataItem elements described in **Part 2.0 : Section 7 of the MTConnect Standard**
 
-DataItem Types are defined in the [Samples](Samples), [Events](Events), and [Conditions](Conditions) directories. Each class represents a DataItem of the specified Type. The class contains the Type string and a default Name as well as SubTypes and default attributes such as REPRESENTATION and UNITS.
+DataItem Types (Samples, Events, and Conditions) are all defined in the [DataItems](DataItems) directory. Each class represents a DataItem of the specified Type. The class contains the Type string and a default Name as well as SubTypes and default attributes such as REPRESENTATION and UNITS.
 
-#### Version Compatiblity
-MTConnect Version compatiblity is performed through the DataItem base class and it's 'MaximumVersion' and 'MinimumVersion' properties. These are then set for each derived class (representing each DataItem type) to set the appropriate MTConnect Version that the DataItem is compatible with.
-DataItems (or DataItem Attributes) are then filtered out in the 'Process' method which is called by the MTConnectAgent class before data is output.
+#### Version Compatibility
+MTConnect Version compatibility is performed through the DataItem base class and its 'MinimumVersion' and 'MaximumVersion' properties. These are read-only and are overridden in each derived class (representing each DataItem type) to return the MTConnect Version that the DataItem was introduced in.
+DataItems (or DataItem Attributes) are then filtered out in the 'Process' method which is called (through 'Device.Process') by the MTConnectAgent class before data is output.
+
+> The 'Process' method for DataItems only checks 'MinimumVersion'. 'MaximumVersion' is declared on DataItem (and is overridden by some Component types) but a DataItem is not removed based on it.
 
 ##### Properties
 ```c#
-public Version MaximumVersion { get; set; }
-public Version MinimumVersion { get; set; }
+public virtual Version MaximumVersion => DefaultMaximumVersion; // null
+public virtual Version MinimumVersion => DefaultMinimumVersion; // MTConnectVersions.Version10
+```
+
+Example of a derived class ([AccumulatedTimeDataItem](DataItems/AccumulatedTimeDataItem.g.cs)):
+```c#
+public override System.Version MinimumVersion => MTConnectVersions.Version12;
 ```
 
 ##### Process Method
 ```c#
-public static IDataItem Process(IDataItem dataItem, Version mtconnectVersion)
-{
-    if (dataItem != null)
-    {
-        // Check Version Compatibilty
-        if (mtconnectVersion < dataItem.MinimumVersion || mtconnectVersion > dataItem.MaximumVersion) return null;
-
-        // Don't return if Condition and Version < 1.1
-        if (dataItem.Category == DataItemCategory.CONDITION && mtconnectVersion < MTConnectVersions.Version11) return null;
-
-        // Don't return if TimeSeries and Version < 1.2
-        if (dataItem.Representation == DataItemRepresentation.TIME_SERIES && mtconnectVersion < MTConnectVersions.Version12) return null;
-
-        // Don't return if Discrete and Version < 1.3 OR Version >= 1.5
-        if (dataItem.Representation == DataItemRepresentation.DISCRETE && (mtconnectVersion < MTConnectVersions.Version13 || mtconnectVersion >= MTConnectVersions.Version15)) return null;
-
-        // Don't return if DataSet and Version < 1.3
-        if (dataItem.Representation == DataItemRepresentation.DATA_SET && mtconnectVersion < MTConnectVersions.Version13) return null;
-
-        // Don't return if Table and Version < 1.6
-        if (dataItem.Representation == DataItemRepresentation.TABLE && mtconnectVersion < MTConnectVersions.Version16) return null;
-
-        // Create a new Instance of the DataItem that will instantiate a new Derived class (if found)
-        var obj = Create(dataItem);
-        if (obj != null)
-        {
-            obj.Category = dataItem.Category;
-            obj.Id = dataItem.Id;
-            obj.Name = dataItem.Name;
-            obj.Type = dataItem.Type;
-            obj.SubType = dataItem.SubType;
-            obj.NativeUnits = dataItem.NativeUnits;
-            obj.NativeScale = dataItem.NativeScale;
-            obj.Units = dataItem.Units;
-            obj.SignificantDigits = dataItem.SignificantDigits;
-
-            // Check SampleRate
-            if (mtconnectVersion >= MTConnectVersions.Version12) obj.SampleRate = dataItem.SampleRate;
-
-            // Check Source
-            if (dataItem.Source != null && mtconnectVersion >= MTConnectVersions.Version12)
-            {
-                var source = new Source();
-                source.ComponentId = dataItem.Source.ComponentId;
-                if (mtconnectVersion >= MTConnectVersions.Version14) source.CompositionId = dataItem.Source.CompositionId;
-                source.DataItemId = dataItem.Source.DataItemId;
-                obj.Source = source;
-            }
-
-            // Check Relationships
-            obj.Relationships = dataItem.Relationships;
-            if (dataItem.Relationships != null && mtconnectVersion >= MTConnectVersions.Version15)
-            {
-                var relationships = new List<IRelationship>();
-                foreach (var relationship in dataItem.Relationships)
-                {
-                    // Component Relationship
-                    if (relationship.GetType() == typeof(ComponentRelationship))
-                    {
-                        relationships.Add(relationship);
-                    }
-
-                    // DataItem Relationship
-                    if (relationship.GetType() == typeof(DataItemRelationship))
-                    {
-                        if (mtconnectVersion >= MTConnectVersions.Version17) relationships.Add(relationship);
-                    }
-
-                    // Device Relationship
-                    if (relationship.GetType() == typeof(DeviceRelationship))
-                    {
-                        relationships.Add(relationship);
-                    }
-
-                    // Specification Relationship
-                    if (relationship.GetType() == typeof(SpecificationRelationship))
-                    {
-                        if (mtconnectVersion >= MTConnectVersions.Version17) relationships.Add(relationship);
-                    }
-                }
-
-                obj.Relationships = relationships;
-            }
-
-            // Check Representation
-            if (mtconnectVersion >= MTConnectVersions.Version12) obj.Representation = dataItem.Representation;
-
-            // Check ResetTrigger
-            if (mtconnectVersion >= MTConnectVersions.Version14) obj.ResetTrigger = dataItem.ResetTrigger;
-
-            // Check CoordinateSystem
-            if (mtconnectVersion < MTConnectVersions.Version20) obj.CoordinateSystem = dataItem.CoordinateSystem;
-
-            // Check CoordinateSystemIdRef
-            if (mtconnectVersion >= MTConnectVersions.Version15) obj.CoordinateSystemIdRef = dataItem.CoordinateSystemIdRef;
-
-            // Check CompositionId
-            if (mtconnectVersion >= MTConnectVersions.Version14)
-            {                       
-                obj.CompositionId = dataItem.CompositionId;
-            }
-            else if (!string.IsNullOrEmpty(dataItem.CompositionId))
-            {
-                // Don't return if Composition not compatible with Version as this could cause duplicate Types within the same Component
-                return null;
-            }
-
-            // Check Constraints
-            if (mtconnectVersion >= MTConnectVersions.Version11) obj.Constraints = dataItem.Constraints;
-
-            // Check Definition
-            if (mtconnectVersion >= MTConnectVersions.Version16) obj.Definition = dataItem.Definition;
-
-            // Check Statistic
-            if (mtconnectVersion >= MTConnectVersions.Version12) obj.Statistic = dataItem.Statistic;
-
-            // Check Filters
-            if (mtconnectVersion >= MTConnectVersions.Version13) obj.Filters = dataItem.Filters;
-
-            // Check InitialValue
-            if (mtconnectVersion >= MTConnectVersions.Version14) obj.InitialValue = dataItem.InitialValue;
-
-            // Check Discrete
-            if (mtconnectVersion >= MTConnectVersions.Version15) obj.Discrete = dataItem.Discrete;
-        }
-
-        // Call overridable method (used to process based on Type)
-        return obj.OnProcess(obj, mtconnectVersion);
-    }
-
-    return null;
-}
+public static DataItem Process(IDataItem dataItem, Version mtconnectVersion = null)
 ```
+The full source is in [DataItem.cs](DataItem.cs). If 'mtconnectVersion' is null then the latest version (MTConnectVersions.Max) is used. The method returns null (the DataItem is removed from the output) when:
+- The requested version is less than the DataItem's 'MinimumVersion'
+- The Category is CONDITION and the version is less than 1.1
+- The Representation is TIME_SERIES and the version is less than 1.2
+- The Representation is DISCRETE and the version is less than 1.3 or is 1.5 or greater
+- The Representation is DATA_SET and the version is less than 1.3
+- The Representation is TABLE and the version is less than 1.6
+- A CompositionId is set and the version is less than 1.4
+
+Otherwise a new instance of the derived class for the DataItem's Type is created and the properties are copied to it. The following properties are only copied when the requested version supports them:
+
+| Property | Copied when version is |
+|----------|------------------------|
+| Constraints | 1.1 or greater |
+| SampleRate, Source, Representation, Statistic | 1.2 or greater |
+| Filters | 1.3 or greater |
+| Source.CompositionId, ResetTrigger, CompositionId, InitialValue | 1.4 or greater |
+| Relationships (ComponentRelationship, DeviceRelationship), CoordinateSystemIdRef, Discrete | 1.5 or greater |
+| Definition | 1.6 or greater |
+| Relationships (DataItemRelationship, SpecificationRelationship) | 1.7 or greater |
+| CoordinateSystem | less than 2.0 |
+
+Finally, the overridable 'OnProcess' method is called so that a derived class can apply changes that are specific to its Type.

@@ -26,7 +26,7 @@ This library makes it straightforward to create a production-quality MTConnect A
 
 - **Command-line interface** — `run`, `debug`, `install`, `install-start`, `start`, `stop`, `remove`, and `run-service` commands identical to the MTConnect Agent CLI.
 - **Windows Service** — installs and runs as a background service on Windows; degrades gracefully on Linux.
-- **Configuration management** — reads `adapter.config.yaml` on startup; optional file-system monitoring restarts the adapter automatically when the configuration file changes.
+- **Configuration management** — reads `adapter.config.json` or `adapter.config.yaml` on startup; file-system monitoring (enabled by default) restarts the adapter automatically when the configuration file changes.
 - **Module loading** — discovers and starts all configured output modules (SHDR, MQTT, etc.) and wires each module's outbound queue to a dedicated `MTConnectAdapter` instance.
 - **Data source lifecycle** — starts and stops the user-supplied `IMTConnectDataSource` implementation in sync with the adapter modules.
 - **Logging** — structured NLog logging with separate log targets for application and per-module output.
@@ -57,22 +57,23 @@ public class MyDataSource : MTConnectDataSource
     {
         // Called on the configured interval; add observations here
         AddObservation("L2estop", "ARMED");
-        AddObservation("L2p1execution", "AUTOMATIC");
+        AddObservation("L2p1execution", "ACTIVE");
     }
 }
 ```
 
 ## Configuration
-The adapter reads `adapter.config.yaml` from its working directory. The full set of supported properties is documented in [MTConnect.NET-Common/Configurations](../../libraries/MTConnect.NET-Common/). Key top-level properties:
+The adapter reads its configuration from the directory that contains the application: `adapter.config.json` if it exists, otherwise `adapter.config.yaml`. The full set of supported properties is documented in [MTConnect.NET-Common/Configurations](../../libraries/MTConnect.NET-Common/). Key top-level properties:
 
-* `id` - A unique identifier for this adapter instance.
+* `id` - A unique identifier for this adapter instance. Default is a random 6 character string.
 * `deviceKey` - The Name or UUID of the Device this adapter reports for.
-* `writeInterval` - The interval (in milliseconds) at which buffered observations are flushed to the output modules.
-* `enableBuffer` - Whether to buffer observations between write intervals.
-* `monitorConfigurationFiles` - Whether to watch the configuration file for changes and automatically restart on update.
-* `configurationFileRestartInterval` - Minimum time (in seconds) between restarts triggered by configuration file changes.
-* `serviceName` - Windows Service name (used when installing or removing the service).
-* `serviceAutoStart` - When `true`, the Windows Service starts automatically at boot.
+* `readInterval` - The interval (in milliseconds) at which the data source is read (`OnRead` is called). Default is `100`.
+* `writeInterval` - The interval (in milliseconds) at which buffered observations are flushed to the output modules. Default is `100`.
+* `enableBuffer` - Whether to buffer observations between write intervals. Default is `false`.
+* `monitorConfigurationFiles` - Whether to watch the configuration file for changes and automatically restart on update. Default is `true`.
+* `configurationFileRestartInterval` - Minimum time (in seconds) between restarts triggered by configuration file changes. Default is `2`.
+* `serviceName` - The display name of the Windows Service. The name used to install, start, stop and remove the service is set in code using the `ServiceName` property of `MTConnectAdapterApplication` (default `MTConnect.NET-Adapter`).
+* `serviceAutoStart` - When `true` (default), the Windows Service starts automatically at boot.
 * `modules` - List of output module configurations (SHDR, MQTT, etc.).
 
 ## Output Modules

@@ -6,20 +6,20 @@ Classes to handle the SHDR Agent Adapter Protocol associated with the MTConnect 
 ## Overview
 The ShdrAdapter classes handle the TCP connection to the Agent:
 
-- [ShdrAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/ShdrAdapter.cs) : Sends the most recent values On-Demand using the SendChanged() method. This is used when full control of the communication is needed.
-- [ShdrIntervalAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/ShdrIntervalAdapter.cs) : Sends the most recent values at the specified Interval. This is used when a set interval is adequate and the most recent value is all that is needed
-- [ShdrQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/ShdrQueueAdapter.cs) : Queues all values that are sent from the PLC and sends them all on demand using the SendBuffer() method. This is used when all values are needed and full control of the communication is needed.
-- [ShdrIntervalQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/ShdrIntervalQueueAdapter.cs) : Queues all values that are sent from the PLC and sends any queued values at the specified Interval. This is used when all values are needed but an interval is adequate.
+- [ShdrAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-SHDR/Adapters/ShdrAdapter.cs) : Sends the most recent values On-Demand using the SendChanged() method. This is used when full control of the communication is needed.
+- [ShdrIntervalAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-SHDR/Adapters/ShdrIntervalAdapter.cs) : Sends the most recent values at the specified Interval. This is used when a set interval is adequate and the most recent value is all that is needed
+- [ShdrQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-SHDR/Adapters/ShdrQueueAdapter.cs) : Queues all values that are sent from the PLC and sends them all on demand using the SendBuffer() method. This is used when all values are needed and full control of the communication is needed.
+- [ShdrIntervalQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-SHDR/Adapters/ShdrIntervalQueueAdapter.cs) : Queues all values that are sent from the PLC and sends any queued values at the specified Interval. This is used when all values are needed but an interval is adequate.
 
 SHDR conversion is handled in each individual class:
-- [ShdrDataItem](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Shdr/ShdrDataItem.cs) : Handles converting Events and/or Samples with a Representation of VALUE to the appropriate SHDR format.
-- [ShdrCondition](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Shdr/ShdrCondition.cs) : Handles converting Conditions to the appropriate SHDR format 
-- [ShdrTimeSeries](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Shdr/ShdrTimeSeries.cs) : Handles converting Samples with a Representation of TIME_SERIES to the appropriate SHDR format
-- [ShdrDataSet](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Shdr/ShdrDataSet.cs) : Handles converting Events and/or Samples with a Representation of DATA_SET to the appropriate SHDR format
-- [ShdrTable](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Shdr/ShdrTable.cs) : Handles converting Events and/or Samples with a Representation of TABLE to the appropriate SHDR format
-- [ShdrAsset](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Shdr/ShdrAsset.cs) : Handles converting Assets to the appropriate SHDR format
+- [ShdrDataItem](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-SHDR/Shdr/ShdrDataItem.cs) : Handles converting Events and/or Samples with a Representation of VALUE to the appropriate SHDR format.
+- [ShdrCondition](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-SHDR/Shdr/ShdrCondition.cs) : Handles converting Conditions to the appropriate SHDR format 
+- [ShdrTimeSeries](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-SHDR/Shdr/ShdrTimeSeries.cs) : Handles converting Samples with a Representation of TIME_SERIES to the appropriate SHDR format
+- [ShdrDataSet](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-SHDR/Shdr/ShdrDataSet.cs) : Handles converting Events and/or Samples with a Representation of DATA_SET to the appropriate SHDR format
+- [ShdrTable](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-SHDR/Shdr/ShdrTable.cs) : Handles converting Events and/or Samples with a Representation of TABLE to the appropriate SHDR format
+- [ShdrAsset](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-SHDR/Shdr/ShdrAsset.cs) : Handles converting Assets to the appropriate SHDR format
 
-The [ShdrAdapterClient](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/ShdrAdapterClient.cs) class handles the TCP connection to read from the Adapter and add data to an IMTConnectAgent class.
+The [ShdrAdapterClient](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-SHDR/Adapters/ShdrAdapterClient.cs) class handles the TCP connection to read from the Adapter and add data to an IMTConnectAgent class.
 
 ## Usage
 There are several different ways to setup and add data to the ShdrAdapter
@@ -28,7 +28,7 @@ There are several different ways to setup and add data to the ShdrAdapter
 The example below creates a new ShdrAdapter.
 The added DataItem will be sent using the "adapter.SendChanged()" method
 ```c#
-using MTConnect.Adapters.Shdr;
+using MTConnect.Adapters;
 
 ShdrAdapter adapter = new ShdrAdapter();
 adapter.Start();
@@ -44,18 +44,18 @@ adapter.SendChanged();
 ### ShdrAdapter (specific Port)
 The example below creates a new ShdrAdapter on the 7980 TCP Port.
 ```c#
-using MTConnect.Adapters.Shdr;
+using MTConnect.Adapters;
 
 ShdrAdapter adapter = new ShdrAdapter(7980);
 ```
 
 ### ShdrAdapter (specific Device)
-The example below creates a new ShdrAdapter for the "OKUMA-Lathe" device.
+The example below creates a new ShdrAdapter for the "OKUMA-Lathe" device. The device key is stored in the "DeviceKey" property of the adapter. The SHDR lines are written without a device prefix.
 The added DataItem will be sent using the "adapter.SendChanged()" method
 ```c#
-using MTConnect.Adapters.Shdr;
+using MTConnect.Adapters;
 
-ShdrAdapter adapter = new ShdrAdapter("OKUMA-Lathe", 7980);
+ShdrAdapter adapter = new ShdrAdapter("OKUMA-Lathe");
 adapter.Start();
 
 adapter.AddDataItem("L2estop", "ARMED");
@@ -63,13 +63,13 @@ adapter.SendChanged();
 ```
 #### SHDR Output
 ```
-2023-01-26T20:54:34.1694626Z|OKUMA-Lathe:L2estop|ARMED
+2023-01-26T20:54:34.1694626Z|L2estop|ARMED
 ```
 
 ### ShdrAdapter (specific Device and Port)
 The example below creates a new ShdrAdapter for the "OKUMA-Lathe" device on the 7980 TCP Port.
 ```c#
-using MTConnect.Adapters.Shdr;
+using MTConnect.Adapters;
 
 ShdrAdapter adapter = new ShdrAdapter("OKUMA-Lathe", 7980);
 ```
@@ -78,7 +78,7 @@ ShdrAdapter adapter = new ShdrAdapter("OKUMA-Lathe", 7980);
 The example below creates a new ShdrIntervalAdapter and sets the Interval to 500ms.
 Only the most recent DataItem with the ID = "L2estop" will be sent after 500ms has elapsed.
 ```c#
-using MTConnect.Adapters.Shdr;
+using MTConnect.Adapters;
 
 ShdrIntervalAdapter adapter = new ShdrIntervalAdapter(interval: 500);
 adapter.Start();
@@ -97,7 +97,7 @@ adapter.AddDataItem("L2estop", "TRIGGERED");
 The example below creates a new ShdrQueueAdapter.
 All of the added DataItems will be sent using the "adapter.SendBuffer()" method
 ```c#
-using MTConnect.Adapters.Shdr;
+using MTConnect.Adapters;
 
 ShdrQueueAdapter adapter = new ShdrQueueAdapter();
 adapter.Start();
@@ -120,7 +120,7 @@ adapter.SendBuffer();
 The example below creates a new ShdrIntervalQueueAdapter and sets the Interval to 500ms.
 All of the added DataItems will be sent after 500ms has elapsed.
 ```c#
-using MTConnect.Adapters.Shdr;
+using MTConnect.Adapters;
 
 ShdrIntervalQueueAdapter adapter = new ShdrIntervalQueueAdapter(interval: 500);
 adapter.Start();
@@ -140,21 +140,17 @@ adapter.AddDataItem("L2estop", "TRIGGERED");
 
 ## Configuration
 
-* `Id` - Get a unique identifier for the Adapter
-
 * `DeviceKey` - The Name or UUID of the Device to create a connection for
 
 * `Port` - The TCP Port used for communication
 
 * `Heartbeat` - The heartbeat used to maintain a connection between the Adapter and the Agent
 
-* `ConnectionTimeout` - The amount of time (in milliseconds) to allow for a connection attempt to the Agent
+* `Timeout` - The send timeout (in milliseconds) applied to each Agent connection
  
-* `ReconnectInterval` - The amount of time (in milliseconds) between adapter reconnection attempts
-
 * `MultilineAssets` - Use multiline Assets
 
-* `MultilineDevices` - Sets the default for Converting Units when adding Observations
+* `MultilineDevices` - Use multiline Devices
 
 * `FilterDuplicates` - Determines whether to filter out duplicate data
 
@@ -163,11 +159,11 @@ adapter.AddDataItem("L2estop", "TRIGGERED");
 ### OutputTimestamps
 Timestamps may be output in the SHDR protocol in order to pass the timestamp from the Adapter instead of allowing the Agent to apply a timestamp.
 
-**OutputTimestamp** = true
+**OutputTimestamps** = true
 ```
 2023-01-27T03:47:53.4477372Z|L2estop|ARMED
 ```
-**OutputTimestamp** = false
+**OutputTimestamps** = false
 ```
 L2estop|ARMED
 ```
@@ -188,7 +184,7 @@ adapter.AddDataItem(new ShdrDataItem("L2estop", "ARMED"));
 // DataItemId, CDATA, and Timestamp as ShdrDataItem
 adapter.AddDataItem(new ShdrDataItem("L2estop", "ARMED", DateTime.UtcNow));
 ```
-> If no timestamp is given then the timestamp will be set when the DataItem is sent to the Agent. To insure that all dataitems have the same timestamp, it can be set explicitly.
+> If no timestamp is given then the timestamp is set when the DataItem is added to the Adapter. To ensure that all dataitems have the same timestamp, it can be set explicitly.
 
 ### Add List of DataItems
 ```c#
@@ -226,7 +222,7 @@ adapter.AddDataItem(feedrateActualDataItem);
 ```
 
 ### Send DataItem Manually
-DataItems can be added to the Adapter and immediately send to the Agent using the "SendDataItem()" method
+DataItems can be added to the Adapter and immediately sent to the Agent using the "SendDataItem()" method
 ```c#
 adapter.SendDataItem("L2estop", "ARMED");
 ```
@@ -291,7 +287,7 @@ ShdrCondition condition = new ShdrCondition("L2p1system");
 ShdrFaultState faultState = new ShdrFaultState();
 faultState.NativeCode = "404";
 faultState.NativeSeverity = "100";
-faultState.Qualifier = "LOW";
+faultState.Qualifier = ConditionQualifier.LOW;
 faultState.Message = "Testing from new adapter";
 
 condition.AddFaultState(faultState);
@@ -299,7 +295,7 @@ adapter.AddCondition(condition);
 ```
 
 ### Send Condition Manually
-Conditions can be added to the Adapter and immediately send to the Agent using the "SendCondition()" method
+Conditions can be added to the Adapter and immediately sent to the Agent using the "SendCondition()" method. Only the first FaultState of the Condition is sent by this method.
 ```c#
 adapter.SendCondition(condition);
 ```
@@ -324,7 +320,7 @@ adapter.AddTimeSeries(timeSeries);
 ```
 
 ### Send TimeSeries Manually
-TimeSeries can be added to the Adapter and immediately send to the Agent using the "SendTimeSeries()" method
+TimeSeries can be added to the Adapter and immediately sent to the Agent using the "SendTimeSeries()" method
 ```c#
 adapter.SendTimeSeries(timeSeries);
 ```
@@ -345,9 +341,9 @@ adapter.AddDataSet(dataSet);
 ```
 
 ### Send DataSets Manually
-DataSets can be added to the Adapter and immediately send to the Agent using the "SendDataSets()" method
+DataSets can be added to the Adapter and immediately sent to the Agent using the "SendDataSet()" method
 ```c#
-adapter.SendDataSets(dataSet);
+adapter.SendDataSet(dataSet);
 ```
 
 ## Tables
@@ -381,13 +377,13 @@ adapter.AddTable(table);
 ```
 ### Output
 ```
-2023-01-26T20:40:55.8702675Z|L2p1ToolTable|T1={LENGTH=7.123 DIAMETER=0.494 TOOL_LIFE=0.35} T2={LENGTH=10.456 DIAMETER=0.125 TOOL_LIFE=1} T3={LENGTH=6.251 DIAMETER=1.249 TOOL_LIFE=0.93}
+2023-01-26T20:40:55.8702675Z|L2p1ToolTable|T1={LENGTH=7.123 DIAMETER=0.494 REMAINING_LIFE=35} T2={LENGTH=10.456 DIAMETER=0.125 REMAINING_LIFE=100} T3={LENGTH=6.251 DIAMETER=1.249 REMAINING_LIFE=93}
 ```
 
 ### Send Tables Manually
-Tables can be added to the Adapter and immediately send to the Agent using the "SendTables()" method
+Tables can be added to the Adapter and immediately sent to the Agent using the "SendTable()" method
 ```c#
-adapter.SendTables(table);
+adapter.SendTable(table);
 ```
 
 ## Assets
@@ -405,19 +401,28 @@ tool.CuttingToolLifeCycle = new CuttingToolLifeCycle
 {
     Location = new Location { Type = LocationType.SPINDLE },
     ProgramToolNumber = "12",
-    ProgramToolGroup = "5"
+    ProgramToolGroup = "5",
+    Measurements = new List<IToolingMeasurement>
+    {
+        new FunctionalLengthMeasurement(7.6543),
+        new CuttingDiameterMaxMeasurement(0.375)
+    },
+    CuttingItems = new List<ICuttingItem>
+    {
+        new CuttingItem
+        {
+            ItemId = "12.1",
+            Locus = "FLUTE"
+        }
+    },
+    CutterStatus = new List<CutterStatusType>
+    {
+        CutterStatusType.AVAILABLE,
+        CutterStatusType.NEW,
+        CutterStatusType.MEASURED
+    }
 };
-tool.CuttingToolLifeCycle.Measurements.Add(new FunctionalLengthMeasurement(7.6543));
-tool.CuttingToolLifeCycle.Measurements.Add(new CuttingDiameterMaxMeasurement(0.375));
-tool.CuttingToolLifeCycle.CuttingItems.Add(new CuttingItem
-{
-    ItemId = "12.1",
-    Locus = CuttingItemLocas.FLUTE.ToString()
-});
-tool.CuttingToolLifeCycle.CutterStatus.Add(CutterStatus.AVAILABLE);
-tool.CuttingToolLifeCycle.CutterStatus.Add(CutterStatus.NEW);
-tool.CuttingToolLifeCycle.CutterStatus.Add(CutterStatus.MEASURED);
-tool.DateTime = DateTime.Now;
+tool.Timestamp = DateTime.Now;
 
 adapter.AddAsset(tool);
 ```
@@ -453,7 +458,7 @@ adapter.AddAsset(tool);
 using MTConnect.Assets.Files;
 
 var file = new FileAsset();
-file.DateTime = DateTime.UtcNow;
+file.Timestamp = DateTime.UtcNow;
 file.AssetId = "file.test";
 file.Size = 12346;
 file.VersionId = "test-v1";
@@ -462,7 +467,7 @@ file.Name = "file-123.txt";
 file.MediaType = "text/plain";
 file.ApplicationCategory = ApplicationCategory.DEVICE;
 file.ApplicationType = ApplicationType.DATA;
-file.FileLocation = new FileLocation(@"C:\temp\file-123.txt");
+file.Location = new FileLocation { Href = @"C:\temp\file-123.txt" };
 file.CreationTime = DateTime.Now;
 
 adapter.AddAsset(file);
@@ -479,6 +484,7 @@ adapter.AddAsset(file);
 
 ### Add Multiple Assets
 ```c#
+using MTConnect.Assets;
 using MTConnect.Assets.CuttingTools;
 using MTConnect.Assets.CuttingTools.Measurements;
 using MTConnect.Assets.Files;
@@ -494,26 +500,35 @@ tool.CuttingToolLifeCycle = new CuttingToolLifeCycle
 {
     Location = new Location { Type = LocationType.SPINDLE },
     ProgramToolNumber = "12",
-    ProgramToolGroup = "5"
+    ProgramToolGroup = "5",
+    Measurements = new List<IToolingMeasurement>
+    {
+        new FunctionalLengthMeasurement(7.6543),
+        new CuttingDiameterMaxMeasurement(0.375)
+    },
+    CuttingItems = new List<ICuttingItem>
+    {
+        new CuttingItem
+        {
+            ItemId = "12.1",
+            Locus = "FLUTE"
+        }
+    },
+    CutterStatus = new List<CutterStatusType>
+    {
+        CutterStatusType.AVAILABLE,
+        CutterStatusType.NEW,
+        CutterStatusType.MEASURED
+    }
 };
-tool.CuttingToolLifeCycle.Measurements.Add(new FunctionalLengthMeasurement(7.6543));
-tool.CuttingToolLifeCycle.Measurements.Add(new CuttingDiameterMaxMeasurement(0.375));
-tool.CuttingToolLifeCycle.CuttingItems.Add(new CuttingItem
-{
-    ItemId = "12.1",
-    Locus = CuttingItemLocas.FLUTE.ToString()
-});
-tool.CuttingToolLifeCycle.CutterStatus.Add(CutterStatus.AVAILABLE);
-tool.CuttingToolLifeCycle.CutterStatus.Add(CutterStatus.NEW);
-tool.CuttingToolLifeCycle.CutterStatus.Add(CutterStatus.MEASURED);
-tool.DateTime = DateTime.Now;
+tool.Timestamp = DateTime.Now;
 
 assets.Add(tool);
 
 
 // Add the File Asset to the "assets" list variable
 var file = new FileAsset();
-file.DateTime = DateTime.UtcNow;
+file.Timestamp = DateTime.UtcNow;
 file.AssetId = "file.test";
 file.Size = 12346;
 file.VersionId = "test-v1";
@@ -522,7 +537,7 @@ file.Name = "file-123.txt";
 file.MediaType = "text/plain";
 file.ApplicationCategory = ApplicationCategory.DEVICE;
 file.ApplicationType = ApplicationType.DATA;
-file.FileLocation = new FileLocation(@"C:\temp\file-123.txt");
+file.Location = new FileLocation { Href = @"C:\temp\file-123.txt" };
 file.CreationTime = DateTime.Now;
 
 assets.Add(file);
@@ -531,7 +546,7 @@ adapter.AddAssets(assets);
 ```
 
 ### Send Asset Manually
-Assets can be added to the Adapter and immediately send to the Agent using the "SendAsset()" method
+The "SendAsset()" method adds the Asset to the Adapter in the same way as "AddAsset()". The Asset is written to the Agent the next time the Adapter sends changed data (for example using "SendChanged()").
 ```c#
 using MTConnect.Assets.Files;
 
@@ -562,7 +577,7 @@ adapter.RemoveAllAssets("File");
 ```
 
 ## SHDR Conversion
-Conversion to and from an SHDR message is done through methods in the ShdrDataItem, ShdrCondition, ShdrTimeSeries, ShdrDataSet, and ShdrTable classes. Each class overrides the base "ToString()" method and also contains a "FromString()" method. The "ToString()" method creates an SHDR compatible string from the object and the "FromString()" creates an object from an SHDR string.
+Conversion to and from an SHDR message is done through methods in the ShdrDataItem, ShdrCondition, ShdrTimeSeries, ShdrDataSet, and ShdrTable classes. Each class overrides the base "ToString()" method, which creates an SHDR compatible string from the object. The ShdrDataItem, ShdrTimeSeries, ShdrDataSet, and ShdrTable classes also contain a static "FromString()" method that creates an object from an SHDR string (ShdrDataItem.FromString() returns a list of ShdrDataItem objects). A Condition is read from an SHDR string using ShdrFaultState.FromString().
 
 ### ShdrDataItem.ToString()
 ```c#
@@ -573,11 +588,8 @@ Console.WriteLine(availableDataItem);
 
 ### ShdrCondition.ToString()
 ```c#
-ShdrCondition condition = new ShdrCondition("L2p1system", ConditionLevel.FAULT, DateTime.UtcNow);
-condition.NativeCode = "404";
-condition.NativeSeverity = "100";
-condition.Qualifier = "LOW";
-condition.Message = "Testing from new adapter";
+ShdrCondition condition = new ShdrCondition("L2p1system");
+condition.Fault(DateTime.UtcNow, "Testing from new adapter", "404", "100", ConditionQualifier.LOW);
 Console.WriteLine(condition);
 ```
 > 2022-02-01T13:55:11.8460000Z|L2p1system|FAULT|404|100|LOW|Testing from new adapter

@@ -15,12 +15,12 @@ The above document format ID can be used to specify a ResponseDocumentFormatter 
 MTConnectDevicesResponse documents are formatted as shown below.
 
 ### Examples
-- [Devices](Devices/Examples/Devices.json)
-- [DataItem](Devices/Examples/DataItem.json)
-- [Configuration](Devices/Examples/Configuration.json)
-- [DataItemDefinition](Devices/Examples/DataItemDefinition.json)
-- [Filter](Devices/Examples/Filter.json)
-- [Constraints](Devices/Examples/Constraints.json)
+- [Devices](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-JSON/Devices/Examples/Devices.json)
+- [DataItem](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-JSON/Devices/Examples/DataItem.json)
+- [Configuration](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-JSON/Devices/Examples/Configuration.json)
+- [DataItemDefinition](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-JSON/Devices/Examples/DataItemDefinition.json)
+- [Filter](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-JSON/Devices/Examples/Filter.json)
+- [Constraints](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-JSON/Devices/Examples/Constraints.json)
 
 ### Example
 ```json
@@ -94,26 +94,26 @@ MTConnectDevicesResponse documents are formatted as shown below.
 MTConnectStreamsResponse documents are formatted as shown below.
 
 ### Examples
-- [Streams](Streams/Examples/Streams.json)
-- [ValueObservation](Streams/Examples/ValueObservation.json)
-- [ConditionObservation](Streams/Examples/ConditionObservation.json)
-- [DataSetObservation](Streams/Examples/DataSetObservation.json)
-- [TableObservation](Streams/Examples/TableObservation.json)
-- [TimeSeriesObservation](Streams/Examples/TimeSeriesObservation.json)
+- [Streams](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-JSON/Streams/Examples/Streams.json)
+- [ValueObservation](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-JSON/Streams/Examples/ValueObservation.json)
+- [ConditionObservation](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-JSON/Streams/Examples/ConditionObservation.json)
+- [DataSetObservation](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-JSON/Streams/Examples/DataSetObservation.json)
+- [TableObservation](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-JSON/Streams/Examples/TableObservation.json)
+- [TimeSeriesObservation](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-JSON/Streams/Examples/TimeSeriesObservation.json)
 
 ### Example
 ```json
 {
   "header": {
-    "InstanceId": 1675796631,
-    "Version": "5.0.0.0",
-    "Sender": "DESKTOP-HV74M4N",
-    "BufferSize": 150000,
-    "FirstSequence": 1,
-    "LastSequence": 138,
-    "NextSequence": 139,
-    "DeviceModelChangeTime": "2023-02-07T19:03:51.4276271Z",
-    "CreationTime": "2023-02-07T20:54:26.7903092Z"
+    "instanceId": 1675796631,
+    "version": "5.0.0.0",
+    "sender": "DESKTOP-HV74M4N",
+    "bufferSize": 150000,
+    "firstSequence": 1,
+    "lastSequence": 138,
+    "nextSequence": 139,
+    "deviceModelChangeTime": "2023-02-07T19:03:51.4276271Z",
+    "creationTime": "2023-02-07T20:54:26.7903092Z"
   },
   "streams": [
     {
@@ -133,7 +133,7 @@ MTConnectStreamsResponse documents are formatted as shown below.
               "timestamp": "2023-02-07T19:03:51.4064826Z",
               "sequence": 38,
               "result": "UNAVAILABLE"
-            },
+            }
           ],
           "events": [
             {
@@ -163,7 +163,7 @@ MTConnectStreamsResponse documents are formatted as shown below.
               "type": "SYSTEM",
               "timestamp": "2023-02-07T20:30:38.9662297Z",
               "sequence": 138,
-              "result": "Interval Error",
+              "result": "Internal Error",
               "nativeCode": "500"
             }
           ]
@@ -171,27 +171,27 @@ MTConnectStreamsResponse documents are formatted as shown below.
       ]
     }
   ]
-{
+}
 ```
 
 ## Assets
 MTConnectAssetsResponse documents are formatted as shown below.
 
 ### Examples
-- [CuttingTool](Assets/Examples/CuttingTool.json)
-- [File](Assets/Examples/File.json)
+- [CuttingTool](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-JSON/Assets/Examples/CuttingTool.json)
+- [File](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-JSON/Assets/Examples/File.json)
 
 ### Example
 ```json
 {
   "header": {
-    "InstanceId": 1675796631,
-    "Version": "5.0.0.0",
-    "Sender": "DESKTOP-HV74M4N",
-    "AssetBufferSize": 1000,
-    "AssetCount": 2,
-    "DeviceModelChangeTime": "2023-02-07T19:03:51.4276271Z",
-    "CreationTime": "2023-02-07T21:07:46.4658671Z"
+    "instanceId": 1675796631,
+    "version": "5.0.0.0",
+    "sender": "DESKTOP-HV74M4N",
+    "assetBufferSize": 1000,
+    "assetCount": 2,
+    "deviceModelChangeTime": "2023-02-07T19:03:51.4276271Z",
+    "creationTime": "2023-02-07T21:07:46.4658671Z"
   },
   "assets": [
     {
@@ -201,16 +201,21 @@ MTConnectAssetsResponse documents are formatted as shown below.
       "deviceUuid": "OKUMA.Lathe.123456",
       "serialNumber": "1",
       "toolId": "KSSP300R4SD43L240",
-      "manufacturers": "KMT,Parlec",
+      "manufacturers": [
+        "KMT",
+        "Parlec"
+      ],
       "cuttingToolLifeCycle": {
         "cutterStatus": [
           "NEW"
         ],
-        "toolLife": {
-          "type": "PART_COUNT",
-          "countDirection": "UP",
-          "limit": 10
-        },
+        "toolLife": [
+          {
+            "type": "PART_COUNT",
+            "countDirection": "UP",
+            "limit": 10
+          }
+        ],
         "programToolNumber": "1",
         "connectionCodeMachineSide": "CV50",
         "measurements": [

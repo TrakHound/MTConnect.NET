@@ -24,7 +24,7 @@ namespace MTConnect.Adapters.Simulator
         static void Main(string[] args)
         {
             var port = GetArgument(args, "--port", 7878);
-            var rate = GetArgument(args, "--rate", 500);
+            var rate = GetArgument(args, "--rate", 10);
             var verbose = args.Contains("--verbose");
 
             // ShdrAdapter (without an interval) only sends when SendChanged() is called. Calling it after each scan
@@ -67,7 +67,7 @@ namespace MTConnect.Adapters.Simulator
             var path1 = new PathSimulator(1, new[] { "O1001", "O1002", "O2050" }, seed: 1);
             var path2 = new PathSimulator(2, new[] { "O5001", "O5002" }, seed: 2);
 
-            var period = rate > 0 ? TimeSpan.FromSeconds(1 / rate) : TimeSpan.Zero;
+            var period = rate > 0 ? TimeSpan.FromSeconds(1.0 / rate) : TimeSpan.Zero;
             var clock = System.Diagnostics.Stopwatch.StartNew();
             var lastScan = clock.Elapsed;
             var nextScan = clock.Elapsed;

@@ -1,4 +1,4 @@
-![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-net-03-md.png) 
+![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/logo.png) 
 
 # MTConnect Http REST Clients
 These client classes use the Http REST Api that is described in the [MTConnect Standard](https://model.mtconnect.org/#Package__8082e379-d82e-4b0e-abad-83cdf92f7fe6).
@@ -7,15 +7,15 @@ These client classes use the Http REST Api that is described in the [MTConnect S
 The [MTConnectHttpClient](MTConnectHttpClient.cs) class is the primary class to use when wanting to implement the full MTConnect REST protocol. This class handles an initial Probe request to gather capabilities of the Agent, a Current request to read the initial values, and a Sample request (at the specified Interval) to read successive values.
 
 ### Class Initialization
-Class initialization is straightforward in that specifiying the BaseUrl (the URL of the Agent) is all that is required. Then call the **Start()** method to start the request sequence.
+Class initialization is straightforward in that specifying the Authority (the hostname and port, or the URL, of the Agent) is all that is required. Then call the **Start()** method to start the request sequence.
 
 #### No Device Name (Get All Devices)
 ```c#
 using MTConnect.Clients;
 
-var baseUrl = "localhost:5000";
+var authority = "localhost:5000";
 
-var client = new MTConnectHttpClient(baseUrl);
+var client = new MTConnectHttpClient(authority);
 client.Interval = 500;
 client.Start();
 ```
@@ -24,15 +24,15 @@ client.Start();
 ```c#
 using MTConnect.Clients;
 
-var baseUrl = "localhost:5000";
+var authority = "localhost:5000";
 var deviceName = "OKUMA-Lathe";
 
-var client = new MTConnectHttpClient(baseUrl, deviceName);
+var client = new MTConnectHttpClient(authority, deviceName);
 client.Interval = 500;
 client.Start();
 ```
 
-#### Specfiy Hostname and Port
+#### Specify Hostname and Port
 ```c#
 using MTConnect.Clients;
 
@@ -44,13 +44,13 @@ client.Interval = 500;
 client.Start();
 ```
 
-#### Specfiy Hostname, Port, and Device
+#### Specify Hostname, Port, and Device
 ```c#
 using MTConnect.Clients;
 
 var hostname = "localhost";
 var port = 5000;
-var deviceName = "OKUMA.Lathe";
+var deviceName = "OKUMA-Lathe";
 
 var client = new MTConnectHttpClient(hostname, port, deviceName);
 client.Interval = 500;
@@ -59,7 +59,7 @@ client.Start();
 
 ### Properties
 
-* `Id` - A unique Identifier used to indentify this instance of the MTConnectClient class
+* `Id` - A unique Identifier used to identify this instance of the MTConnectHttpClient class
 
 * `Authority` - The authority portion consists of the DNS name or IP address associated with an Agent
 
@@ -73,7 +73,7 @@ client.Start();
 
 * `Heartbeat` - Gets or Sets the MTConnect Agent Heartbeat for the request
 
-* `RetryInterval` - Gets or Sets the Interval in Milliseconds that the Client will attempt to reconnect if the connection fails
+* `ReconnectionInterval` - Gets or Sets the Interval in Milliseconds that the Client will attempt to reconnect if the connection fails
 
 * `MaximumSampleCount` - Gets or Sets the Maximum Number of Samples returned per interval from the Sample Stream
 
@@ -89,14 +89,16 @@ client.Start();
 
 * `CurrentOnly` - Gets or Sets whether the stream requests a Current (true) or a Sample (false)
 
+* `UseStreaming` - Gets or Sets whether the client should use Streaming (true) or Polling (false). The default is true
+
 ### Handle Probe Received Event
 ###### (MTConnectDevices Response Document received from a Probe Request)
 ```c#
-var baseUrl = "localhost:5000";
+var authority = "localhost:5000";
 var deviceName = "OKUMA-Lathe";
 
-var client = new MTConnectHttpClient(baseUrl, deviceName);
-client.OnProbeReceived += (sender, document) =>
+var client = new MTConnectHttpClient(authority, deviceName);
+client.ProbeReceived += (sender, document) =>
 {
     foreach (var device in document.Devices)
     {
@@ -128,11 +130,11 @@ client.Start();
 ### Handle Current Received Event
 ###### (MTConnectStreams Response Document received from a Current Request)
 ```c#
-var baseUrl = "localhost:5000";
+var authority = "localhost:5000";
 var deviceName = "OKUMA-Lathe";
 
-var client = new MTConnectHttpClient(baseUrl, deviceName);
-client.OnCurrentReceived += (sender, document) =>
+var client = new MTConnectHttpClient(authority, deviceName);
+client.CurrentReceived += (sender, document) =>
 {
     foreach (var deviceStream in document.Streams)
     {
@@ -158,12 +160,12 @@ client.Start();
 ### Handle Samples Received Event
 ###### (MTConnectStreams Response Document received from a Sample Stream)
 ```c#
-var baseUrl = "localhost:5000";
+var authority = "localhost:5000";
 var deviceName = "OKUMA-Lathe";
 
-var client = new MTConnectHttpClient(baseUrl, deviceName);
+var client = new MTConnectHttpClient(authority, deviceName);
 client.Interval = 500;
-client.OnSampleReceived += (sender, document) =>
+client.SampleReceived += (sender, document) =>
 {
     foreach (var deviceStream in document.Streams)
     {
@@ -189,12 +191,11 @@ client.Start();
 ### Handle Assets Received Event
 ###### (MTConnectAssets Response Document received from an Asset Request)
 ```c#
-var baseUrl = "localhost:5000";
+var authority = "localhost:5000";
 var deviceName = "OKUMA-Lathe";
 
-var client = new MTConnectHttpClient(baseUrl, deviceName);
-client.Interval = 500;
-client.OnAssetsReceived += (sender, document) =>
+var client = new MTConnectHttpClient(authority, deviceName);
+client.AssetsReceived += (sender, document) =>
 {
     foreach (var asset in document.Assets)
     {
@@ -209,10 +210,10 @@ client.Start();
 ## MTConnectHttpProbeClient
 The [MTConnectHttpProbeClient](MTConnectHttpProbeClient.cs) class is used to send a Probe request and return an MTConnectDevices Response Document.
 ```c#
-var baseUrl = "localhost:5000";
-var deviceName = "OKUMA.Lathe";
+var authority = "localhost:5000";
+var deviceName = "OKUMA-Lathe";
 
-var client = new MTConnectHttpProbeClient(baseUrl, deviceName);
+var client = new MTConnectHttpProbeClient(authority, deviceName);
 var document = client.Get();
 foreach (var device in document.Devices)
 {
@@ -242,10 +243,10 @@ foreach (var device in document.Devices)
 ## MTConnectHttpCurrentClient
 The [MTConnectHttpCurrentClient](MTConnectHttpCurrentClient.cs) class is used to send a Current request and return an MTConnectStreams Response Document.
 ```c#
-var baseUrl = "localhost:5000";
-var deviceName = "OKUMA.Lathe";
+var authority = "localhost:5000";
+var deviceName = "OKUMA-Lathe";
 
-var client = new MTConnectHttpCurrentClient(baseUrl, deviceName);
+var client = new MTConnectHttpCurrentClient(authority, deviceName);
 var document = client.Get();
 foreach (var deviceStream in document.Streams)
 {
@@ -269,12 +270,12 @@ foreach (var deviceStream in document.Streams)
 ## MTConnectHttpSampleClient
 The [MTConnectHttpSampleClient](MTConnectHttpSampleClient.cs) class is used to send a Sample request and return an MTConnectStreams Response Document.
 ```c#
-var baseUrl = "localhost:5000";
-var deviceName = "OKUMA.Lathe";
+var authority = "localhost:5000";
+var deviceName = "OKUMA-Lathe";
 var fromSequence = 150;
 var toSequence = 250;
 
-var client = new MTConnectHttpSampleClient(baseUrl, deviceName, null, fromSequence, toSequence);
+var client = new MTConnectHttpSampleClient(authority, deviceName, null, fromSequence, toSequence);
 var document = client.Get();
 foreach (var deviceStream in document.Streams)
 {
@@ -298,11 +299,11 @@ foreach (var deviceStream in document.Streams)
 ## MTConnectHttpAssetClient
 The [MTConnectHttpAssetClient](MTConnectHttpAssetClient.cs) class is used to send an Assets request and return an MTConnectAssets Response Document.
 ```c#
-var baseUrl = "localhost:5000";
-var deviceName = "OKUMA.Lathe";
+var authority = "localhost:5000";
+var deviceName = "OKUMA-Lathe";
 var count = 5;
 
-var client = new MTConnectHttpAssetClient(baseUrl, count, null, deviceName);
+var client = new MTConnectHttpAssetClient(authority, count, null, deviceName);
 var document = client.Get();
 foreach (var asset in document.Assets)
 {

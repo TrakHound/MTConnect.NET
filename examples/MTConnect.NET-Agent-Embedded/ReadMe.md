@@ -4,9 +4,9 @@ This is an example of an application that has an embedded MTConnect Agent. This 
 ## Create .NET Project
 Create a .NET Console project:
 
-![Visual-Studio-Create-Project](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/vs-create-console-project.png)
+![Visual-Studio-Create-Project](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/docs/img/vs-create-console-project.png)
 
-## Install Nuget Pacakge
+## Install Nuget Package
 Install the [MTConnect.NET-Applications-Agents](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents) Nuget package:
 ```
 dotnet add package MTConnect.NET-Applications-Agents
@@ -17,6 +17,16 @@ For this example, all user code is in the Program.cs file. For more advanced/com
 
 The user code will be written as an Agent Module which allows us to use the **MTConnectInputAgentModule** base class that provides access to the underlying Agent, Configuration File, etc.
 
+The code below uses these namespaces:
+```c#
+using MTConnect.Agents;
+using MTConnect.Applications;
+using MTConnect.Configurations;
+using MTConnect.Devices;
+using MTConnect.Devices.Components;
+using MTConnect.Devices.DataItems;
+using MTConnect.Observations.Events;
+```
 
 ### Create Instance of MTConnectAgentApplication
 ```c#
@@ -33,7 +43,22 @@ public class ModuleConfiguration
 {
     public string DeviceUuid { get; set; }
     public string DeviceName { get; set; }
+    public string SerialNumber { get; set; }
 }
+```
+
+The module is configured in the `modules` section of **agent.config.yaml**. The section name (`datasource`) must match the `ConfigurationTypeId` of the module class below:
+```yaml
+modules:
+
+- datasource:
+    deviceUuid: 7E647B2D-C6A3-40BF-9CE9-FB09834850C9
+    deviceName: dev-001
+    serialNumber: 123456
+    readInterval: 1000
+
+- http-server:
+    port: 5000
 ```
 
 ### Add User Code
@@ -42,8 +67,8 @@ The user code is where you read from a data source (ex. PLC, Database, other MTC
 ```c#
 public class Module : MTConnectInputAgentModule
 {
-    public const string ConfigurationTypeId = "demo"; // This must match the module section in the 'agent.config.yaml' file
-    public const string DefaultId = "Demo Module"; // The ID is mainly just used for logging.
+    public const string ConfigurationTypeId = "datasource"; // This must match the module section in the 'agent.config.yaml' file
+    public const string DefaultId = "DataSource Module"; // The ID is mainly just used for logging.
     private readonly ModuleConfiguration _configuration;
 
 
@@ -57,7 +82,7 @@ public class Module : MTConnectInputAgentModule
 ```
 
 #### Create Device
-Using the **Device** class, you can build the Device model programatically instead of reading from a static file (ex. devices.xml). This allows for dynamically adjusting the Device model based on the information read from the PLC. Examples of this could be the number of Axes, number of Paths, available Alarms, serial numbers for components such as Motors, Encoders, etc.
+Using the **Device** class, you can build the Device model programmatically instead of reading from a static file (ex. devices.xml). This allows for dynamically adjusting the Device model based on the information read from the PLC. Examples of this could be the number of Axes, number of Paths, available Alarms, serial numbers for components such as Motors, Encoders, etc.
 
 Component and DataItem IDs can be automatically generated or they can be manually set.
 
@@ -67,13 +92,14 @@ Below is a simple example of how a Device Model can be built.
 protected override IDevice OnAddDevice()
 {
     var device = new Device();
-    device.Uuid = "7E647B2D-C6A3-40BF-9CE9-FB09834850C9";
-    device.Id = "dev-001";
-    device.Name = "dev-001";
+    device.Uuid = _configuration.DeviceUuid;
+    device.Id = _configuration.DeviceName;
+    device.Name = _configuration.DeviceName;
     device.Description = new Description()
     {
         Manufacturer = "ACME",
-        Model = "dm-500"
+        Model = "dm-500",
+        SerialNumber = _configuration.SerialNumber
     };
 
     // Add an Availability DataItem to the Device
@@ -140,7 +166,7 @@ private void AddLinearAxis(AxesComponent axesComponent, string name)
 ```
 
 #### Read from Data Source
-The **OnRead()** method is called at an interval set in the configuration file using the "readInterval" parameter and is intended to be the method to use for reading from the Data Source.
+The **OnRead()** method is called at an interval set in the configuration file using the module's "readInterval" parameter (milliseconds) and is intended to be the method to use for reading from the Data Source.
 
 Observations can be added based on the DataItem Type/SubType or by the DataItemId.
 
@@ -155,7 +181,7 @@ protected override void OnRead()
     AddValueObservation<AvailabilityDataItem>(Availability.AVAILABLE);
     AddValueObservation<ControllerComponent, EmergencyStopDataItem>(EmergencyStop.ARMED);
     AddValueObservation<PathComponent, ProgramDataItem>("BRACKET.NC");
-    AddValueObservation<PathComponent, DateCodeDataItem>(DateTime.Now);
+    AddValueObservation<PathComponent, DateCodeDataItem>(DateTime.Now.ToString("o"));
     AddConditionObservation<PathComponent, SystemDataItem>(MTConnect.Observations.ConditionLevel.WARNING, "404", "This is an Alarm");
 
 

@@ -19,7 +19,7 @@ Add `-- quick` for a run with one tenth of the iterations.
 
 ### Profiling
 
-`-- profile <scenario> [seconds]` runs one scenario continuously so a profiler can attach. The scenarios are `ingest`, `sample-xml` and `sample-json`. For example, with [dotnet-trace](https://learn.microsoft.com/dotnet/core/diagnostics/dotnet-trace):
+`-- profile <scenario> [seconds]` runs one scenario continuously so a profiler can attach. The scenarios are `ingest`, `sample-xml`, `sample-json`, `large-sample` and `large-sample-forced-gc` (the last two are described under [Forced collections](#forced-collections)). For example, with [dotnet-trace](https://learn.microsoft.com/dotnet/core/diagnostics/dotnet-trace):
 
 ```bash
 dotnet-trace collect --profile dotnet-sampled-thread-time -o ingest.nettrace -- benchmarks/MTConnect.NET-Benchmarks/bin/Release/net8.0/MTConnect.NET-Benchmarks.exe profile ingest 20
@@ -43,7 +43,7 @@ The agent has one Device with 150 EVENT, 150 SAMPLE and 20 CONDITION DataItems, 
 
 ## Results
 
-These were measured on 2026-10-28 on one machine: 16 logical cores, Windows 11, .NET 8.0.17 x64, Release build. The "before" column is `origin/master` (`53dd8f43`) and the "after" column is `perf/agent-hot-paths`. Each value is the mean of two runs.
+These were measured on 2026-10-28 on one machine: 16 logical cores, Windows 11, .NET 8.0.17 x64, Release build. The "before" column is `origin/master` (`53dd8f43`) and the "after" column is the `perf/agent-hot-paths` work, merged in `c4566cba`. Each value is the mean of two runs.
 
 | Scenario | Before (ops/s) | After (ops/s) | Change | Allocated before → after (KB/op) |
 |---|---:|---:|---:|---:|
@@ -137,6 +137,6 @@ Start the agent, then run:
 dotnet run -c Release --project benchmarks/MTConnect.NET-BufferFill
 ```
 
-Options: `--device <path>` (default `agent/MTConnect.NET-Agent/devices/okuma.xml`), `--port <n>` (default 7878), `--count <n>` (default 150000, the default buffer size), `--rate <n>` observations per second (default 20000; 0 for no limit), `--agent <url>` to report the buffer state (default `http://localhost:5000`), and `--exit` to exit once sent.
+Options: `--device <path>` (default `agent/MTConnect.NET-Agent/devices/okuma.xml`), `--port <n>` (default 7878), `--count <n>` (default 150000, the `observationBufferSize` set in `agent/MTConnect.NET-Agent/agent.config.yaml`; the library default is 131072), `--rate <n>` observations per second (default 20000; 0 for no limit), `--agent <url>` to report the buffer state (default `http://localhost:5000`), and `--exit` to exit once sent.
 
-With the default configuration (150,000-observation buffer, Okuma device), a Release agent used 39 MB of private memory before filling and 57 MB with a full buffer, about 115 bytes per buffered observation.
+With the `agent/MTConnect.NET-Agent` project's `agent.config.yaml` (150,000-observation buffer, Okuma device), a Release agent used 39 MB of private memory before filling and 57 MB with a full buffer, about 115 bytes per buffered observation.

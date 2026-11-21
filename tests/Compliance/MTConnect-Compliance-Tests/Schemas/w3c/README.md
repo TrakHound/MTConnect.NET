@@ -8,7 +8,7 @@ MTConnect schemas at load time:
 | `xlink.xsd` | https://www.w3.org/1999/xlink.xsd   |
 | `xml.xsd`   | https://www.w3.org/2001/xml.xsd     |
 
-MTConnect XSDs from v1.3 onwards reference `xlink:hrefType` and
+MTConnect XSDs from v1.5 onwards reference `xlink:hrefType` and
 `xlink:type` and declare an `<xs:import namespace='http://www.w3.org/1999/xlink'
 schemaLocation='xlink.xsd'/>` directive that points at a sibling file the
 TrakHound source tree has never shipped. With the compliance harness's

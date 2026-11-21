@@ -9,17 +9,17 @@ modules:
   - mqtt-relay:
       server: localhost
       port: 1883
-      topic: enterprise/site/area/line/cell/MTConnect
+      topicPrefix: enterprise/site/area/line/cell/MTConnect
       topicStructure: Document
 ```
 
-* `server` - The MQTT broker hostname
+* `server` - The MQTT broker hostname. Default is `localhost`
 
-* `port` - The MQTT broker port number
+* `port` - The MQTT broker port number. Default is `1883`
 
-* `timeout` - The UUID or Name of the Device to read data for
+* `timeout` - The timeout (in milliseconds) to use for connection and read/write. Default is `5000`
 
-* `reconnectInterval` - The UUID or Name of the Device to read data for
+* `reconnectInterval` - The interval (in milliseconds) to delay between disconnections. Default is `10000`
 
 * `username` - Sets the Username to use for authentication
  
@@ -27,19 +27,23 @@ modules:
  
 * `clientId` - Sets the Client ID to use for the connection
 
-* `qos` - Sets the Quality Of Service (Qos) to use. 0 = At Most Once, 1 = At least Once, 2 = Exactly Once
+* `qos` - Sets the Quality Of Service (Qos) to use. 0 = At Most Once, 1 = At least Once, 2 = Exactly Once. Only applies when `topicStructure` is `Entity`. When `topicStructure` is `Document`, messages are published with QoS 1 (At least Once)
 
 * `useTls` - Sets whether to use TLS or not (true or false)
 
-* `topicPrefix` - The prefix to add to the MQTT topics that are published
+* `topicPrefix` - The prefix to add to the MQTT topics that are published. Default is `MTConnect`
  
-* `topicStructure` - (Document or Entity) Sets how MQTT topics and messages are stuctured
+* `topicStructure` - (Document or Entity) Sets how MQTT topics and messages are structured. Default is `Document`
 
-* `currentInterval` - Sets the Interval (in milliseconds) to send Current messages at
+* `currentInterval` - Sets the Interval (in milliseconds) to send Current messages at. Default is `5000`
 
-* `sampleInterval` - Sets the Interval (in milliseconds) to send Sample messages at
+* `sampleInterval` - Sets the Interval (in milliseconds) to send Sample messages at. Default is `500`
 
-* `documentFormat` - The Document Format ID to use to format the payload
+* `documentFormat` - The Document Format ID to use to format the payload. Default is `json-cppagent`
+
+* `indentOutput` - Sets whether to indent the output in each payload. Default is `false`
+
+* `durableRelay` - Enables durable relay mode. When set to `true`, the module saves the sequence number of the last observation it sent to disk and, after a network reconnect or agent restart, relays the observations it missed from the Agent's observation buffer. Observations that are no longer in the Agent's buffer cannot be relayed. Default is `false`.
 
 * `tls` - Sets the TLS settings
 
@@ -53,22 +57,25 @@ modules:
         * `privateKeyPassword` - The certificate password
         * `certificateAuthority` - The path to the (.pem) file containing the Certificate Authority
 
-    * `verifyClientCertificate` - Toggles whether Client Certificate chains are verified ("true" or "false")
+    * `verifyClientCertificate` - Sets whether the MQTT broker's certificate must be trusted ("true" or "false"). When `false` (default), untrusted certificates are accepted
+
+    * `omitCAValidation` - When `true`, the Certificate Authority is not included in the certificates sent to the MQTT broker ("true" or "false"). Default is `false`
 
 ### AWS IoT Configuration Example
 ```yaml
-- mqtt-relay:
-    server: akljadkfjdlsf-ats.iot.us-east-1.amazonaws.com
-    port: 8883
-    tls:
-      pem:
-        certificateAuthority: certs/AmazonRootCA1.pem
-        certificatePath: certs/asfdslkafjdslkfjdklsdjf-certificate.pem.crt
-        privateKeyPath: certs/sdlkajlksdajfldskjfdldlskfjdslkaj-private.pem.key
-    documentFormat: json-cppagent
-    currentInterval: 5000
-    sampleInterval: 500
-    topicPrefix: enterprise/site/area/line/cell/MTConnect
+modules:
+  - mqtt-relay:
+      server: akljadkfjdlsf-ats.iot.us-east-1.amazonaws.com
+      port: 8883
+      tls:
+        pem:
+          certificateAuthority: certs/AmazonRootCA1.pem
+          certificatePath: certs/asfdslkafjdslkfjdklsdjf-certificate.pem.crt
+          privateKeyPath: certs/sdlkajlksdajfldskjfdldlskfjdslkaj-private.pem.key
+      documentFormat: json-cppagent
+      currentInterval: 5000
+      sampleInterval: 500
+      topicPrefix: enterprise/site/area/line/cell/MTConnect
 ```
 
 ### AWS Greengrass Moquette Configuration Example
@@ -103,6 +110,17 @@ modules:
       currentInterval: 5000
       sampleInterval: 500
       topicPrefix: enterprise/site/area/line/cell/MTConnect
+```
+
+## Topics
+When `topicStructure` is `Document`, the following topics are published. Probe, Asset and Agent Available messages are retained; Current and Sample messages are not.
+
+```
+[TOPIC_PREFIX]/Probe/[DEVICE_UUID]
+[TOPIC_PREFIX]/Current/[DEVICE_UUID]
+[TOPIC_PREFIX]/Sample/[DEVICE_UUID]
+[TOPIC_PREFIX]/Asset/[DEVICE_UUID]/[ASSET_ID]
+[TOPIC_PREFIX]/Agent/[AGENT_UUID]/Available
 ```
 
 ## Migration: Availability Topic Moved Out of `Probe/#`
@@ -148,4 +166,4 @@ now pure-JSON for any subscriber.
 - For any other questions or feedback, please contact TrakHound directly at **info@trakhound.com**.
 
 ## License
-This application and it's source code is licensed under the [MIT License](https://choosealicense.com/licenses/mit/) and is free to use.
+This application and its source code is licensed under the [MIT License](https://choosealicense.com/licenses/mit/) and is free to use.

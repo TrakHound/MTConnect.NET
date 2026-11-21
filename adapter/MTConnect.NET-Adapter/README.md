@@ -63,7 +63,9 @@ adapter install-start adapter-production.yaml
 ```
 
 ## Configuration
-The default configuration file (`adapter.config.yaml`) is shown below:
+When no `configuration_file` argument is given, the configuration file is read from the directory that contains the adapter executable. `adapter.config.json` is used if it exists, otherwise `adapter.config.yaml`. If `adapter.config.yaml` does not exist, it is created from `adapter.config.default.yaml` when the adapter starts. A `configuration_file` argument can be a JSON or YAML file; a relative path is resolved against the directory that contains the adapter executable.
+
+The default configuration file (`adapter.config.default.yaml`) is shown below:
 
 ```yaml
 id: PatrickAdapter
@@ -84,6 +86,8 @@ modules:
 * `deviceKey` - The Name or UUID of the Device this adapter reports for.
 
 * `modules` - Output module configurations. Each entry specifies the protocol used to forward observations to an MTConnect Agent.
+
+The `mqtt` module has no default `topic`, so add a `topic` to the `mqtt` entry before using it.
 
 For the full set of configuration properties supported by each module, see:
 - [MTConnect.NET-AdapterModule-SHDR](../Modules/MTConnect.NET-AdapterModule-SHDR/) — SHDR output module

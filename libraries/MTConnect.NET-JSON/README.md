@@ -123,15 +123,15 @@ MTConnectStreamsResponse documents are formatted as shown below.
 ```json
 {
   "header": {
-    "InstanceId": 1675796631,
-    "Version": "5.0.0.0",
-    "Sender": "DESKTOP-HV74M4N",
-    "BufferSize": 150000,
-    "FirstSequence": 1,
-    "LastSequence": 138,
-    "NextSequence": 139,
-    "DeviceModelChangeTime": "2023-02-07T19:03:51.4276271Z",
-    "CreationTime": "2023-02-07T20:54:26.7903092Z"
+    "instanceId": 1675796631,
+    "version": "5.0.0.0",
+    "sender": "DESKTOP-HV74M4N",
+    "bufferSize": 150000,
+    "firstSequence": 1,
+    "lastSequence": 138,
+    "nextSequence": 139,
+    "deviceModelChangeTime": "2023-02-07T19:03:51.4276271Z",
+    "creationTime": "2023-02-07T20:54:26.7903092Z"
   },
   "streams": [
     {
@@ -151,7 +151,7 @@ MTConnectStreamsResponse documents are formatted as shown below.
               "timestamp": "2023-02-07T19:03:51.4064826Z",
               "sequence": 38,
               "result": "UNAVAILABLE"
-            },
+            }
           ],
           "events": [
             {
@@ -181,7 +181,7 @@ MTConnectStreamsResponse documents are formatted as shown below.
               "type": "SYSTEM",
               "timestamp": "2023-02-07T20:30:38.9662297Z",
               "sequence": 138,
-              "result": "Interval Error",
+              "result": "Internal Error",
               "nativeCode": "500"
             }
           ]
@@ -189,7 +189,7 @@ MTConnectStreamsResponse documents are formatted as shown below.
       ]
     }
   ]
-{
+}
 ```
 
 ## Assets
@@ -203,13 +203,13 @@ MTConnectAssetsResponse documents are formatted as shown below.
 ```json
 {
   "header": {
-    "InstanceId": 1675796631,
-    "Version": "5.0.0.0",
-    "Sender": "DESKTOP-HV74M4N",
-    "AssetBufferSize": 1000,
-    "AssetCount": 2,
-    "DeviceModelChangeTime": "2023-02-07T19:03:51.4276271Z",
-    "CreationTime": "2023-02-07T21:07:46.4658671Z"
+    "instanceId": 1675796631,
+    "version": "5.0.0.0",
+    "sender": "DESKTOP-HV74M4N",
+    "assetBufferSize": 1000,
+    "assetCount": 2,
+    "deviceModelChangeTime": "2023-02-07T19:03:51.4276271Z",
+    "creationTime": "2023-02-07T21:07:46.4658671Z"
   },
   "assets": [
     {
@@ -219,16 +219,21 @@ MTConnectAssetsResponse documents are formatted as shown below.
       "deviceUuid": "OKUMA.Lathe.123456",
       "serialNumber": "1",
       "toolId": "KSSP300R4SD43L240",
-      "manufacturers": "KMT,Parlec",
+      "manufacturers": [
+        "KMT",
+        "Parlec"
+      ],
       "cuttingToolLifeCycle": {
         "cutterStatus": [
           "NEW"
         ],
-        "toolLife": {
-          "type": "PART_COUNT",
-          "countDirection": "UP",
-          "limit": 10
-        },
+        "toolLife": [
+          {
+            "type": "PART_COUNT",
+            "countDirection": "UP",
+            "limit": 10
+          }
+        ],
         "programToolNumber": "1",
         "connectionCodeMachineSide": "CV50",
         "measurements": [

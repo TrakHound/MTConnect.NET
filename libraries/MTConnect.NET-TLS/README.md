@@ -24,9 +24,16 @@ For TLS configuration within the HTTP server module or the MQTT relay module, se
 </table>
 
 ## Overview
-This library defines the `TlsConfiguration` class and its companion types (`PfxCertificateConfiguration`, `PemCertificateConfiguration`, `CertificateLoadResult`) that are consumed by the HTTP server module and the MQTT relay/broker modules to set up TLS-secured connections. Both PFX (PKCS#12) and PEM certificate formats are supported.
+This library defines the `TlsConfiguration` class and its companion types (`PfxCertificateConfiguration`, `PemCertificateConfiguration`, `CertificateLoadResult`) that are consumed by the HTTP server (`MTConnectHttpServer`), the MQTT client (`MTConnectMqttClient`), and the MQTT relay/broker Agent modules to set up TLS-secured connections. Both PFX (PKCS#12) and PEM certificate formats are supported.
 
-The `TlsConfiguration.GetCertificate()` method loads the certificate from the configured source and returns a `CertificateLoadResult` that carries either the loaded `X509Certificate2` or the exception that prevented loading.
+> Loading a PEM certificate requires .NET 5 or later. On .NET Framework and .NET Standard 2.0, a `pem` configuration does not load a certificate (an error result is returned), so use `pfx` on those frameworks.
+
+The `TlsConfiguration.GetCertificate()` method loads the certificate from the configured source and returns a `CertificateLoadResult`:
+- When the certificate was loaded, `Success` is `true` and `Certificate` contains the loaded `X509Certificate2`.
+- When loading failed, `Success` is `false` and `Exception` contains the exception that prevented loading.
+- When no certificate is configured (neither `pfx` nor `pem` is set, or the `certificatePath` is empty), `Success` is `false` and both `Certificate` and `Exception` are null.
+
+The `TlsConfiguration.GetCertificateAuthority()` method loads the certificate set in `pem.certificateAuthority` and returns a `CertificateLoadResult` in the same way.
 
 ## Configuration
 
@@ -55,14 +62,14 @@ tls:
     * `certificatePassword` - Password protecting the PFX file (omit if the file is not password-protected).
 
 * `pem` - PEM certificate settings, used when `pfx` is not configured.
-    * `certificateAuthority` - Path to the `.pem` or `.crt` file containing the trusted CA chain.
+    * `certificateAuthority` - Path to the `.pem` or `.crt` file containing the trusted CA certificate. Only read by the MQTT client and the MQTT relay module.
     * `certificatePath` - Path to the `.pem` or `.crt` file containing the server or client certificate.
     * `privateKeyPath` - Path to the `.key` file containing the private key.
     * `privateKeyPassword` - Password protecting the private key (omit if the key is unencrypted).
 
-* `verifyClientCertificate` - When `true`, the endpoint requires and validates a client certificate.
+* `verifyClientCertificate` - Only read by the MQTT client (`MTConnectMqttClient`) and the MQTT relay module. When `true`, an untrusted certificate presented by the MQTT broker is rejected. When `false` (the default), untrusted certificates are allowed. It is not read by the HTTP server or the MQTT broker module, so it does not make a server require a client certificate.
 
-* `omitCAValidation` - When `true`, certificate-authority chain validation is skipped (useful for self-signed certificates in development).
+* `omitCAValidation` - Only read by the MQTT client (`MTConnectMqttClient`) and the MQTT relay module. When `true`, the `certificateAuthority` certificate is not added to the list of client certificates that is sent to the MQTT broker. On .NET 5 or later, the certificate presented by the broker is still validated against the `certificateAuthority` certificate when one is configured.
 
 ## Generating a Self-Signed Certificate (PowerShell)
 ```powershell
@@ -70,8 +77,8 @@ New-SelfSignedCertificate -DnsName "localhost" -CertStoreLocation "cert:\LocalMa
 ```
 
 ## Related Libraries
-- [MTConnect.NET-HTTP](../MTConnect.NET-HTTP/) — HTTP client and server transport
-- [MTConnect.NET-MQTT](../MTConnect.NET-MQTT/) — MQTT broker and client transport
+- [MTConnect.NET-HTTP](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-HTTP) — HTTP client and server transport
+- [MTConnect.NET-MQTT](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-MQTT) — MQTT client transport
 
 ## Contribution / Feedback
 - Please use the [Issues](https://github.com/TrakHound/MTConnect.NET/issues) tab to create issues for specific problems that you may encounter 

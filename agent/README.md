@@ -30,6 +30,7 @@ A standalone preconfigured application ready to download is available and suppor
     - SHDR Adapter Module
     - MQTT Broker Module
     - MQTT Relay Module
+    - Web UI Module
     - etc.
 - Easy Windows Installer
 - Linux Compatible

@@ -1,7 +1,9 @@
 ![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/logo.png) 
 
 # MTConnect.NET-SysML
-Classes to handle the read and process the [MTConnect SysML Model](https://model.mtconnect.org/)
+Classes to read and process the [MTConnect SysML Model](https://model.mtconnect.org/). Supports parsing the v2.7 XMI; cross-package parent resolver via `MTConnectClassModel.ResolveDanglingParents`.
+
+This library targets .NET 6.0, 7.0, 8.0, 9.0, and 10.0 only (it does not target .NET Framework or .NET Standard like the other MTConnect.NET libraries).
 
 ## Nuget
 <table>

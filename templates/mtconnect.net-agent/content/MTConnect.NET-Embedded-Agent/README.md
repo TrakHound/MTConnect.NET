@@ -28,14 +28,9 @@ dotnet build -c:Debug
 dotnet run -c:Debug
 ```
 
-## Create Installer
-Use the **[dotnet CLI](https://learn.microsoft.com/en-us/dotnet/core/tools/)** to build the project using the *Release** configuration using the below command:
+#### Release Build
+Use the **[dotnet CLI](https://learn.microsoft.com/en-us/dotnet/core/tools/)** to build the project with the **Release** configuration using the below command:
 ```
 dotnet build -c:Release
 ```
-
-#### Install InnoSetup (if not already installed)
-information - https://jrsoftware.org/isinfo.php
-download - https://jrsoftware.org/isdl.php#stable
-
 

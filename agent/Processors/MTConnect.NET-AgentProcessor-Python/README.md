@@ -28,10 +28,10 @@ processors:
       directory: processors
 ```
 
-* `directory` - The directory to load and monitor for ".py" script files.
+* `directory` - The directory to load and monitor for ".py" script files. The path can be absolute or relative to the executable's directory, and the directory is created if it does not exist. Default is `processors`.
 
 ## Scripts
-Scripts are implemented using IronPython and supports Python v3. Both the MTConnect Entity to process and the MTConnect Agent are both accessible from the script.
+Scripts are implemented using IronPython and support Python v3. Both the MTConnect Entity to process and the MTConnect Agent are accessible from the script.
 
 ### Example 1
 Change the Result for a DataItem with a Type = "EMERGENCY_STOP"
@@ -112,4 +112,4 @@ A script whose `process` function raises an error 10 times in a row is disabled 
 - For any other questions or feedback, please contact TrakHound directly at **info@trakhound.com**.
 
 ## License
-This application and it's source code is licensed under the [MIT License](https://choosealicense.com/licenses/mit/) and is free to use.
+This application and its source code is licensed under the [MIT License](https://choosealicense.com/licenses/mit/) and is free to use.
