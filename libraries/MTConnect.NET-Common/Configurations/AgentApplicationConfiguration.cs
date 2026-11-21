@@ -45,7 +45,7 @@ namespace MTConnect.Configurations
         /// <summary>
         /// Changes the description of the service. This helps with identification when multiple agents on run as services on the same machine.
         /// </summary>
-        [JsonPropertyName("serviceDisplayName")]
+        [JsonPropertyName("serviceDescription")]
         public string ServiceDescription { get; set; }
 
         /// <summary>

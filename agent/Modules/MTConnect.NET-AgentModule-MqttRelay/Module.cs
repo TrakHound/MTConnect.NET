@@ -294,6 +294,7 @@ namespace MTConnect
                         }
 
                         // Set TLS Certificate
+                        var tlsConfigured = false;
                         if (_configuration.Tls != null)
                         {
                             var certificateResults = _configuration.Tls.GetCertificate();
@@ -340,24 +341,22 @@ namespace MTConnect
 #endif
 
                                 clientOptionsBuilder.WithTlsOptions(tlsOptionsBuilder.Build());
+                                tlsConfigured = true;
                             }
                         }
 
                         // Add Credentials
                         if (!string.IsNullOrEmpty(_configuration.Username) && !string.IsNullOrEmpty(_configuration.Password))
                         {
-                            if (_configuration.UseTls)
-                            {
-                                var tlsOptionsBuilder = new MqttClientTlsOptionsBuilder();
-                                tlsOptionsBuilder.WithSslProtocols(System.Security.Authentication.SslProtocols.Tls12);
-                                clientOptionsBuilder.WithTlsOptions(tlsOptionsBuilder.Build());
+                            clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password);
+                        }
 
-                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password);
-                            }
-                            else
-                            {
-                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password);
-                            }
+                        // Use TLS without a Client Certificate
+                        if (_configuration.UseTls && !tlsConfigured)
+                        {
+                            var tlsOptionsBuilder = new MqttClientTlsOptionsBuilder();
+                            tlsOptionsBuilder.WithSslProtocols(System.Security.Authentication.SslProtocols.Tls12);
+                            clientOptionsBuilder.WithTlsOptions(tlsOptionsBuilder.Build());
                         }
 
                         // Build MQTT Client Options

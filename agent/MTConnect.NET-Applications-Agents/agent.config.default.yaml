@@ -7,7 +7,7 @@ modules:
 #     allowConfigurationEdit: true
   
 - http-server: # - Add HTTP Server module
-    # hostname: localhost
+    # server: localhost
     port: 5000
     # allowPut: true
     indentOutput: true

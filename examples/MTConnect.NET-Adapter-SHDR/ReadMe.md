@@ -31,7 +31,7 @@ With `--verbose`, each SHDR line is also written, for example:
 ```
 
 ## Connect an Agent
-The [MTConnect.NET-Agent](../../agent/MTConnect.NET-Agent) project is already configured for this: its `agent.config.yaml` loads `devices/okuma.xml` and has an `shdr-adapter` module for the `Okuma` device on port 7878:
+The [MTConnect.NET-Agent](../../agent/MTConnect.NET-Agent) project is already configured for this: its `agent.config.yaml` loads the `devices` directory (which contains `okuma.xml`) and has an `shdr-adapter` module for the `Okuma` device on port 7878. The relevant entries are shown below (the file also configures other modules and more `http-server` options):
 ```yaml
 devices: devices
 
@@ -42,8 +42,10 @@ modules:
 
 - shdr-adapter:
     deviceKey: Okuma
-    hostname: localhost
     port: 7878
+    heartbeat: 1000
+    reconnectInterval: 1000
+    connectionTimeout: 1000
 ```
 
 Start the Agent and this adapter, then browse to http://localhost:5000/Okuma/current to see the simulated data.

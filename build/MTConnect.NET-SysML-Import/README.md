@@ -13,7 +13,7 @@ You need to run this tool when:
 ## Prerequisites
 
 - .NET 8.0 SDK or newer.
-- Local clone of [`mtconnect/mtconnect_sysml_model`](https://github.com/mtconnect/mtconnect_sysml_model) checked out to the version tag you want to import.
+- The [`mtconnect/mtconnect_sysml_model`](https://github.com/mtconnect/mtconnect_sysml_model) submodule at `build/sysml-model/`, initialized and checked out to the version tag you want to import (see step 1 below).
 - (Optional) `dotnet tool restore` executed in this repo if you want to use the pinned tooling (ReportGenerator, etc.).
 
 ## Quick start
@@ -93,8 +93,8 @@ Split the regen into per-target commits so reviewers can audit each layer indepe
 | Profile | When to use it |
 |---|---|
 | `Import (env vars)` | You set `MTCONNECT_XMI_PATH` and `MTCONNECT_NET_REPO` as system / user env vars before launching VS / Rider (or as profile-scoped variables you add yourself in the launch-profile dropdown). The profile passes whatever the env vars resolve to. Best for a "set once, never edit" setup. The launch profile does not pre-populate these variables — set them in your shell / system env first, otherwise the importer crashes with `error: XMI file not found`. |
-| `Import (sibling clone of mtconnect_sysml_model)` | You've cloned `mtconnect/mtconnect_sysml_model` as a sibling directory of this repo (so the path `../../../../mtconnect_sysml_model/MTConnectSysMLModel.xml` resolves from the importer project). Switch standard version with `git -C ../mtconnect_sysml_model checkout v2.7` (or any other tag) before pressing F5. |
-| `Import (json-dump enabled, sibling clone)` | Same as the previous profile but also writes the parsed `MTConnectModel` JSON dump to `.cache/mtconnect-model.json` in the repo root. Useful when debugging the parser. |
+| `Import (sysml-model submodule)` | You use the `build/sysml-model` submodule from the quick start. The profile sets the working directory to the importer project and passes `--xmi ../sysml-model/MTConnectSysMLModel.xml --output ../..`, which resolve to the submodule and this repo's root. Switch standard version by checking out another tag in the submodule (for example `git -C build/sysml-model checkout v2.7`) before pressing F5. |
+| `Import (json-dump enabled, sysml-model submodule)` | Same as the previous profile but also passes `--json-dump ../../.cache/mtconnect-model.json` to write the parsed `MTConnectModel` as JSON to `.cache/` in the repo root. Useful when debugging the parser. |
 
 Pick the profile from the run-target dropdown in Visual Studio (or `Run / Debug Configurations` in Rider). If you need a one-off variant, copy a profile and edit its `commandLineArgs`.
 
@@ -104,7 +104,7 @@ The renderer emits three layers, all into pre-existing library directories:
 
 | Renderer | Output root | What lands |
 |---|---|---|
-| `CSharpTemplateRenderer` | `libraries/MTConnect.NET-Common/` | DataItem subclasses, Component subclasses, Composition types, enum definitions, Configuration sub-elements, Asset hierarchy, Observation events. ~850 `.g.cs` files at v2.7. |
+| `CSharpTemplateRenderer` | `libraries/MTConnect.NET-Common/` | DataItem subclasses, Component subclasses, Composition types, enum definitions, Configuration sub-elements, Asset hierarchy, Observation events. ~890 `.g.cs` files at v2.7. |
 | `JsonCppAgentTemplateRenderer` | `libraries/MTConnect.NET-JSON-cppagent/` | `JsonComponents.g.cs`, `JsonEvents.g.cs`, `JsonSamples.g.cs`, `JsonMeasurements.g.cs` — flat catalog files that the cppagent JSON formatter reflects over. |
 | `XmlTemplateRenderer` | `libraries/MTConnect.NET-XML/` | `XmlMeasurements.g.cs`, `XmlCuttingItem.g.cs`, `XmlCuttingToolLifeCycle.g.cs` — XML formatter helpers. |
 
@@ -124,10 +124,10 @@ public static readonly Version Version28 = new Version(2, 8);   // add the const
 ### 2. Regenerate against the new XMI tag
 
 ```bash
-git -C /tmp/mtconnect-sysml fetch --tags
-git -C /tmp/mtconnect-sysml checkout v2.8
+git -C build/sysml-model fetch --tags
+git -C build/sysml-model checkout v2.8
 dotnet run --project build/MTConnect.NET-SysML-Import \
-    -- --xmi /tmp/mtconnect-sysml/MTConnectSysMLModel.xml \
+    -- --xmi build/sysml-model/MTConnectSysMLModel.xml \
        --output "$(pwd)"
 ```
 
@@ -153,9 +153,11 @@ done
 ### 5. Update the README + per-library NuGet descriptions
 
 ```bash
-sed -i 's|Supports MTConnect Versions up to v2\.7|Supports MTConnect Versions up to v2.8|g' \
-  README.md $(grep -rl 'Supports MTConnect Versions up to v2\.7' libraries agent adapter)
+sed -i 's|Supports MTConnect versions up to 2\.7|Supports MTConnect versions up to 2.8|g' \
+  README.md $(grep -rl --include='*.csproj' 'Supports MTConnect versions up to 2\.7' libraries agent adapter)
 ```
+
+The Features list in the root `README.md` also names the version ("Fully compatible up to the latest MTConnect 2.7"); update that line by hand.
 
 ### 6. Per-version compliance doc
 
@@ -204,10 +206,10 @@ When upgrading Scriban or editing templates, **always** run a v2.5 / v2.6 / v2.7
 
 | Symptom | Likely cause |
 |---|---|
-| Importer prints "Done." but no `.g.cs` files change | Scriban template tree missing or case-mismatched. Build output should contain `CSharp/Templates/`, `Json-cppagent/Templates/`, `Xml/Templates/` — case-correct. The `EnsureTemplateTreesExist` startup check now catches this before XMI parse. |
+| Importer prints "Done." but no `.g.cs` files change | Scriban template tree missing or case-mismatched. Build output should contain `CSharp/Templates/`, `Json-cppagent/Templates/`, `Xml/Templates/` — case-correct. |
 | `CS0246: type 'X' could not be found` after regen | A new XMI version introduced a cross-package parent that the resolver couldn't graft — typically because the parent lives in a sub-model whose `Classes` list isn't yet enumerated by `MTConnectModel.CollectClassLists`. Add it to that helper. |
 | `InvalidCastException` in `CSharpTemplateRenderer.Render` | A property's `Id` matches a suffix-based class selector. The `Result` selector now type-guards; new selectors should follow the same pattern (`typeof(MTConnectClassModel).IsAssignableFrom(type) && Id.EndsWith(...)`)|
-| Older NuGet vulnerability warnings on Scriban | Scriban now pinned at 7.2.0 — the 5.x advisories no longer apply. If a warning resurfaces on a fresh dependency, audit the resolved version with `dotnet list package --vulnerable --include-transitive`. |
+| Older NuGet vulnerability warnings on Scriban | Scriban now pinned at 7.2.2 (in `Directory.Packages.props`) — the 5.x advisories no longer apply. If a warning resurfaces on a fresh dependency, audit the resolved version with `dotnet list package --vulnerable --include-transitive`. |
 
 ## Reproducibility
 

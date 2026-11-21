@@ -15,39 +15,39 @@ modules:
       deviceKey: M12346
 ```
 
-* `server` - The MQTT broker hostname
+* `server` - The MQTT broker hostname. Default is `localhost`
 
-* `port` - The MQTT broker port number
+* `port` - The MQTT broker port number. Default is `1883`
 
-* `timeout` - The timeout (in milliseconds) to use for connection and read/write
+* `timeout` - The timeout (in milliseconds) to use for connection and read/write. Default is `5000`
 
-* `reconnectInterval` - The interval (in milliseconds) to delay between disconnections
+* `reconnectInterval` - The interval (in milliseconds) to delay between disconnections. Default is `10000`
 
 * `username` - Sets the Username to use for authentication
  
 * `password` - Sets the Password to use for authentication
  
-* `clientId` - Sets the Client ID to use for the connection
+* `clientId` - Sets the Client ID to use for the connection. If not set, a Client ID is generated from the Agent UUID and `deviceKey`
 
-* `cleanSession` - Sets the CleanSession flag (true or false)
+* `cleanSession` - Sets the CleanSession flag (true or false). Default is `true`
 
-* `qos` - Sets the Quality Of Service (Qos) to use. 0 = At Most Once, 1 = At least Once, 2 = Exactly Once
+* `qos` - Sets the Quality Of Service (Qos) to use. 0 = At Most Once, 1 = At least Once, 2 = Exactly Once. Default is `1`
 
-* `certificateAuthority` - The path to the Certificate Authority file
+* `certificateAuthority` - The path to the Certificate Authority file. Only used when `pemCertificate` and `pemPrivateKey` are both set
 
-* `pemCertificatePath` - The path to the PEM Certificate (.pem) file
+* `pemCertificate` - The path to the PEM Certificate (.pem) file
 
 * `pemPrivateKey` - The path to the PEM Private Key file
 
-* `allowUntrustedCertificates` - Sets whether to validate the certificate chain (true or false)
+* `allowUntrustedCertificates` - Sets whether untrusted certificates are accepted (true or false). When `true`, certificate chain and revocation errors are ignored. Only used when `pemCertificate` and `pemPrivateKey` are both set. Default is `false`
 
 * `useTls` - Sets whether to use TLS or not (true or false)
 
-* `topicPrefix` - The MQTT topic prefix to subscribe to
+* `topicPrefix` - The MQTT topic prefix to subscribe to (required). The module subscribes to `[TOPIC_PREFIX]/#`
 
 * `deviceKey` - The UUID or Name of the Device to read data for
 
-* `DocumentFormat` - The Document Format ID to use to format the input data
+* `documentFormat` - The Document Format ID used to read the input data. Default is `json`
 
 ## Input Topics
 
@@ -72,4 +72,4 @@ modules:
 - For any other questions or feedback, please contact TrakHound directly at **info@trakhound.com**.
 
 ## License
-This application and it's source code is licensed under the [MIT License](https://choosealicense.com/licenses/mit/) and is free to use.
+This application and its source code is licensed under the [MIT License](https://choosealicense.com/licenses/mit/) and is free to use.

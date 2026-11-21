@@ -171,18 +171,16 @@ namespace MTConnect.Modules
                             throw new Exception("PEM Certificates Not Supported in .NET Framework 4.8 or older");
 #endif
                         }
+                        else if (_configuration.UseTls)
+                        {
+                            // Use TLS without a Client Certificate
+                            clientOptionsBuilder.WithTlsOptions(b => { });
+                        }
 
                         // Add Credentials
                         if (!string.IsNullOrEmpty(_configuration.Username) && !string.IsNullOrEmpty(_configuration.Password))
                         {
-                            if (_configuration.UseTls)
-                            {
-                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password).WithTlsOptions(b => { });
-                            }
-                            else
-                            {
-                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password);
-                            }
+                            clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password);
                         }
 
                         // Build MQTT Client Options

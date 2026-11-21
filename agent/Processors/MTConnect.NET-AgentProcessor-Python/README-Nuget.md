@@ -10,10 +10,10 @@ processors:
       directory: processors
 ```
 
-* `directory` - The directory to load and monitor for ".py" script files.
+* `directory` - The directory to load and monitor for ".py" script files. The path can be absolute or relative to the executable's directory, and the directory is created if it does not exist. Default is `processors`.
 
 ## Scripts
-Scripts are implemented using IronPython and supports Python v3. Both the MTConnect Entity to process and the MTConnect Agent are both accessible from the script.
+Scripts are implemented using IronPython and support Python v3. Both the MTConnect Entity to process and the MTConnect Agent are accessible from the script.
 
 ### Example 1
 Change the Result for a DataItem with a Type = "EMERGENCY_STOP"
@@ -73,10 +73,25 @@ def process(observation):
     return observation
 ```
 
+### Limiting which DataItems a script receives
+`process` is called for every observation the Agent receives. A script that only handles some DataItems can declare them, and the processor then skips calling it for every other observation:
+
+```python
+# Only call process() for these DataItem Types and/or IDs (either list is optional)
+data_item_types = ['EMERGENCY_STOP', 'PATH_FEEDRATE_OVERRIDE']
+data_item_ids = ['L2p1Fact']
+
+def process(observation):
+    ...
+    return observation
+```
+
+A script whose `process` function raises an error 10 times in a row is disabled until the script file changes.
+
 ## Contribution / Feedback
 - Please use the [Issues](https://github.com/TrakHound/MTConnect.NET/issues) tab to create issues for specific problems that you may encounter 
 - Please feel free to use the [Pull Requests](https://github.com/TrakHound/MTConnect.NET/pulls) tab for any suggested improvements to the source code
 - For any other questions or feedback, please contact TrakHound directly at **info@trakhound.com**.
 
 ## License
-This application and it's source code is licensed under the [MIT License](https://choosealicense.com/licenses/mit/) and is free to use.
+This application and its source code is licensed under the [MIT License](https://choosealicense.com/licenses/mit/) and is free to use.

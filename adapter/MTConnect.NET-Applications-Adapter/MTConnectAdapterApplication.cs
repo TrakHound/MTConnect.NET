@@ -495,7 +495,7 @@ namespace MTConnect.Applications
 
         private void PrintHelp()
         {
-            var assembly = Assembly.GetExecutingAssembly();
+            var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
             var name = assembly.GetName().Name.ToLower();
 
             Console.WriteLine();
@@ -518,16 +518,16 @@ namespace MTConnect.Applications
             Console.WriteLine(string.Format("{0,15}  |  {1,5}", "start", "Start the Service"));
             Console.WriteLine(string.Format("{0,15}  |  {1,5}", "stop", "Stop the Service"));
             Console.WriteLine(string.Format("{0,15}  |  {1,5}", "remove", "Remove the Service"));
-            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "debug", "Runs the Agent in the terminal (with verbose logging)"));
-            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "run", "Runs the Agent in the terminal"));
-            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "run-service", "Runs the Agent as a Service"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "debug", "Runs the Adapter in the terminal (with verbose logging)"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "run", "Runs the Adapter in the terminal"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "run-service", "Runs the Adapter as a Service"));
             Console.WriteLine();
             OnPrintHelpOptions();
             Console.WriteLine("Arguments :");
             Console.WriteLine("--------------------");
             Console.WriteLine();
-            Console.WriteLine(string.Format("{0,20}  |  {1,5}", "configuration_file", "Specifies the Agent Configuration file to load"));
-            Console.WriteLine(string.Format("{0,20}     {1,5}", "", "Default : agent.config.json"));
+            Console.WriteLine(string.Format("{0,20}  |  {1,5}", "configuration_file", "Specifies the Adapter Configuration file to load"));
+            Console.WriteLine(string.Format("{0,20}     {1,5}", "", "Default : adapter.config.yaml"));
             Console.WriteLine();
             OnPrintHelpArguments();
         }

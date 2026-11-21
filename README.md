@@ -45,7 +45,7 @@ MTConnect.NET is a fully featured and fully Open Source **[.NET](https://dotnet.
 ### Features
 - Module based Agent & Adapter architecture
     - Supports running as Windows Service with easy to use command line arguments
-    - Presistent Agent Buffers that are backed up on the File System. Retains state after Agent is restarted
+    - Persistent Agent Buffers that are backed up on the File System. Retains state after Agent is restarted
 - Fully compatible up to the latest MTConnect 2.7
     - Kept up to date by utilizing the MTConnect SysML Model to generate source files
     - Supports multiple MTConnect Version output. Automatically removes data that is not compatible with the requested version
@@ -115,7 +115,7 @@ A standalone preconfigured [Application](https://github.com/TrakHound/MTConnect.
 
 #### Agent Classes
 - [MTConnectAgent](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-Common/Agents/MTConnectAgent.cs) : Handles MTConnect Entities (Device, Observation, Asset), Unit Conversion, Filtering, etc.
-- [MTConnectAgentBroker](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-Common/Agents/MTConnectAgent.cs) : Handles MTConnect Requests to respond with Response Documents (Probe, Current, Sample, Assets) specified in the MTConnect Standard, Buffers, etc.
+- [MTConnectAgentBroker](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-Common/Agents/MTConnectAgentBroker.cs) : Handles MTConnect Requests to respond with Response Documents (Probe, Current, Sample, Assets) specified in the MTConnect Standard, Buffers, etc.
 
 ## Adapters
 
@@ -130,7 +130,7 @@ A preconfigured [Application](https://github.com/TrakHound/MTConnect.NET/tree/ma
 - Updated through a Nuget package (no source code copy & paste required when updating to new versions)
 
 #### SHDR Adapter Classes
-- [ShdrAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-SHDR/Adapters/ShdrAdapter.cs) : Sends the most recent values On-Demand using the SendCurrent() method. This is used when full control of the communication is needed.
+- [ShdrAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-SHDR/Adapters/ShdrAdapter.cs) : Sends values On-Demand. The SendChanged() method sends the values that have changed since they were last sent and the SendLast() method resends the last sent values. This is used when full control of the communication is needed.
 - [ShdrIntervalAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-SHDR/Adapters/ShdrIntervalAdapter.cs) : Sends the most recent values at the specified Interval. This is used when a set interval is adequate and the most recent value is all that is needed
 - [ShdrQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-SHDR/Adapters/ShdrQueueAdapter.cs) : Queues all values that are sent from the PLC and sends them all on demand using the SendBuffer() method. This is used when all values are needed and full control of the communication is needed.
 - [ShdrIntervalQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-SHDR/Adapters/ShdrIntervalQueueAdapter.cs) : Queues all values that are sent from the PLC and sends any queued values at the specified Interval. This is used when all values are needed but an interval is adequate.
@@ -195,7 +195,7 @@ The Nuget packages for the libraries in this repo are listed below:
         <tr>
             <td>MTConnect.NET-JSON-cppagent</td>
             <td style="text-align: center;"><img src="https://img.shields.io/nuget/dt/MTConnect.NET-JSON-cppagent?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
-            <td><a href="https://www.nuget.org/packages/MTConnect.NET-JSON">https://www.nuget.org/packages/MTConnect.NET-JSON-cppagent</a></td>
+            <td><a href="https://www.nuget.org/packages/MTConnect.NET-JSON-cppagent">https://www.nuget.org/packages/MTConnect.NET-JSON-cppagent</a></td>
         </tr>
         <tr>
             <td>MTConnect.NET-TLS</td>
@@ -221,12 +221,11 @@ The Nuget packages for the libraries in this repo are listed below:
 </table>
 
 ## Supported Frameworks
+- .NET 10.0
 - .NET 9.0
 - .NET 8.0
 - .NET 7.0
 - .NET 6.0
-- .NET 5.0
-- .NET Core 3.1
 - .NET Standard 2.0
 - .NET Framework 4.8
 - .NET Framework 4.7.2
@@ -250,7 +249,7 @@ dotnet format MTConnect.NET.sln --verify-no-changes --verbosity diagnostic   # s
 ./tools/test.sh                                                              # or ./tools/test.ps1
 ```
 
-The full CI gate description, the `--severity warn` rationale, and the tracked follow-ups (root `.editorconfig` + `global.json` SDK pin) are documented on [`contributing/testing/workflows.md`](contributing/testing/workflows.md#job-0--format).
+The full CI gate description, the `--severity warn` rationale, and the tracked follow-ups (root `.editorconfig` + `global.json` SDK pin) are documented in [`contributing/testing/workflows.md`](contributing/testing/workflows.md#job-0--format).
 
 Thanks for your interest in using these libraries and applications and feel free to contribute or give feedback.
 

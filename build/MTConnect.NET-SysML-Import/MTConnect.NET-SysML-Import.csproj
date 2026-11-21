@@ -37,9 +37,7 @@
 	  slashes work on all platforms).
 
 	  Adding a new template = drop it under the matching renderer's
-	  `Templates/` directory. No csproj edit required. The fail-fast
-	  `EnsureTemplateTreesExist` startup check in `Program.cs` is the safety
-	  net for an empty or absent directory.
+	  `Templates/` directory. No csproj edit required.
 	-->
 	<ItemGroup>
 		<None Update="CSharp/Templates/**/*.scriban" CopyToOutputDirectory="Always" />

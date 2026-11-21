@@ -24,12 +24,12 @@ MTConnect.NET-Applications-Agents contains the base classes and infrastructure n
 ## Overview
 This library makes it straightforward to create a production-quality MTConnect Agent application. The central class is `MTConnectAgentApplication`, which handles:
 
-- **Command-line interface** — `run`, `debug`, `install`, `install-start`, `start`, `stop`, `remove`, and `run-service` commands (the same surface as the standalone MTConnect Agent binary).
+- **Command-line interface** — `help`, `run`, `debug`, `trace`, `install`, `install-start`, `start`, `stop`, `remove`, `run-service`, and `reset` commands (the same surface as the standalone MTConnect Agent binary). `trace` runs the agent in the terminal with trace level logging and `reset` clears the durable observation and asset buffers and their indexes.
 - **Windows Service** — installs and runs as a background service on Windows; degrades gracefully on Linux.
 - **Agent broker** — creates and manages the internal `MTConnectAgentBroker` that holds the observation and asset buffers.
 - **Device management** — loads device model files from the configured path (a single file or a directory of per-device files) and registers a file-system watcher for live reloads.
-- **Configuration management** — reads `agent.config.yaml` on startup; optional file-system monitoring restarts the agent automatically when the configuration file changes.
-- **Module loading** — discovers and starts all configured agent modules (HTTP server, MQTT relay/broker, SHDR adapter, MQTT adapter, HTTP adapter, etc.).
+- **Configuration management** — reads `agent.config.yaml` from the executable's directory on startup; optional file-system monitoring restarts the agent automatically when the configuration file changes.
+- **Module loading** — discovers and starts all configured agent modules (HTTP server, Web UI, MQTT relay/broker, SHDR adapter, MQTT adapter, HTTP adapter, Fanuc / Haas / Tormach adapters, etc.).
 - **Processor loading** — discovers and starts all configured agent processors (e.g., Python script transformation).
 - **Durable buffers** — optional file-backed observation and asset buffers that survive application restarts.
 - **Logging** — structured NLog logging with separate log targets for application, agent, validation, module, and processor output.
@@ -51,19 +51,20 @@ app.Run(args, isBlocking: true);
 ```csharp
 using MTConnect.Applications;
 using MTConnect.Configurations;
+using System.Collections.Generic;
 
 public class MyAgentApplication : MTConnectAgentApplication
 {
-    protected override void OnAgentStarted(IAgentApplicationConfiguration configuration)
+    protected override void OnStartAgentAfterLoad(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false)
     {
-        // Custom initialization after the agent broker and modules are running
+        // Custom initialization after the devices, modules, and processors have been added to the agent broker
         _applicationLogger.Info("Custom agent started successfully.");
     }
 }
 ```
 
 ## Configuration
-The agent reads `agent.config.yaml` from its working directory. The default configuration is shown below:
+The agent reads `agent.config.yaml` from the executable's directory (a relative configuration file path passed as a command-line argument is also resolved against the executable's directory). If a legacy `agent.config.json` file exists there, it is read and converted to `agent.config.yaml` on startup. The default configuration is shown below:
 
 ```yaml
 # - Modules -
@@ -95,16 +96,22 @@ defaultVersion: 2.2
 
 Key configuration properties:
 
-* `devices` - Path to the Device Information Model file(s) to load. May be a single file or a directory. Defaults to a `devices` subdirectory.
-* `observationBufferSize` - Maximum number of observations the agent holds in its ring buffer.
-* `assetBufferSize` - Maximum number of assets held in the asset buffer.
-* `durable` - When `true`, buffers are written to disk and survive application restarts.
-* `defaultVersion` - The MTConnect version used for response documents when the client does not specify one.
-* `monitorConfigurationFiles` - When `true`, configuration file changes trigger an automatic agent restart.
+* `devices` - Path to the Device Information Model file(s) to load. May be a single file or a directory, absolute or relative to the executable's directory. There is no default: when it is not set, no device files are loaded.
+* `observationBufferSize` - Maximum number of observations the agent holds in its ring buffer. Default is `131072`.
+* `assetBufferSize` - Maximum number of assets held in the asset buffer. Default is `1024`.
+* `durable` - When `true`, buffers are written to disk and survive application restarts. Default is `false`.
+* `durableBufferPath` - The base path to the directory the buffer files are written to when `durable` is `true`.
+* `defaultVersion` - The MTConnect version used for response documents when the client does not specify one. Default is the latest version supported (`2.7`).
+* `enableValidation` - When `true`, observations are validated against their DataItem when they are added and marked as valid or invalid in the output. Default is `false`.
+* `enableAgentDevice` - When `true`, the Agent Device is output. Default is `true`.
+* `monitorConfigurationFiles` - When `true`, configuration file changes trigger an automatic agent restart. Default is `true`.
+* `configurationFileRestartInterval` - Minimum time (in seconds) between agent restarts when `monitorConfigurationFiles` is enabled. Default is `2`.
 * `modules` - List of agent module configurations.
 * `processors` - List of agent processor configurations.
 * `serviceName` - Windows Service name used when installing or removing the service.
-* `serviceAutoStart` - When `true`, the Windows Service starts automatically at boot.
+* `serviceDisplayName` - Display name of the Windows Service.
+* `serviceDescription` - Description of the Windows Service.
+* `serviceAutoStart` - When `true`, the Windows Service starts automatically at boot. Default is `true`.
 
 ## Agent Modules
 Each entry in the `modules` list activates an agent module. The bundled modules are:
@@ -115,14 +122,21 @@ Each entry in the `modules` list activates an agent module. The bundled modules 
 - [MTConnect.NET-AgentModule-ShdrAdapter](../Modules/MTConnect.NET-AgentModule-ShdrAdapter/) — SHDR adapter input
 - [MTConnect.NET-AgentModule-MqttAdapter](../Modules/MTConnect.NET-AgentModule-MqttAdapter/) — MQTT adapter input
 - [MTConnect.NET-AgentModule-HttpAdapter](../Modules/MTConnect.NET-AgentModule-HttpAdapter/) — HTTP adapter input
+- [MTConnect.NET-AgentModule-WebUI](../Modules/MTConnect.NET-AgentModule-WebUI/) — browser user interface for the agent
+- [MTConnect.NET-AgentModule-FanucAdapter](../Modules/MTConnect.NET-AgentModule-FanucAdapter/) — reads a Fanuc CNC using FOCAS over Ethernet
+- [MTConnect.NET-AgentModule-HaasAdapter](../Modules/MTConnect.NET-AgentModule-HaasAdapter/) — reads a Haas CNC control over Ethernet or RS-232
+- [MTConnect.NET-AgentModule-TormachAdapter](../Modules/MTConnect.NET-AgentModule-TormachAdapter/) — reads a Tormach PathPilot controller
 
 ## Logging
-Logging uses [NLog](https://github.com/NLog/NLog). The default configuration file creates separate log files for:
+Logging uses [NLog](https://github.com/NLog/NLog). The application logs to the following loggers:
 - **(application-logger)** — application startup, shutdown, and configuration load
 - **(agent-logger)** — agent broker events (device add, observation enqueue)
-- **(agent-validation-logger)** — input validation errors and type mismatches
-- **(module-logger)** — per-module events
-- **(processor-logger)** — per-processor events
+- **(agent-metrics)** — agent metrics (logged at the Debug level)
+- **(agent-validation)** — input validation errors and type mismatches
+- **(modules.[id])** — per-module events, one logger for each module named using the module's ID in lowercase with spaces replaced by dashes (ex. `modules.http-server`)
+- **(processors.[id])** — per-processor events, named the same way (ex. `processors.python-scripts`)
+
+The default configuration file (`NLog.default.config`, copied to `NLog.config` if that file does not exist) writes `application-logger`, `agent-logger`, `agent-validation`, `modules.*`, and `processors.*` to separate log files.
 
 ## Related Libraries
 - [MTConnect.NET-Common](../../libraries/MTConnect.NET-Common/) — Core MTConnect entity model

@@ -28,10 +28,10 @@
 </table>
 
 ## Overview
-This project is a full implementation of an MTConnect Agent used to read data from industrial machine tools and devices. This MTConnect Agent application is fully compatible with the latest **Version 2.4 of the MTConnect Standard**.
+This project is a full implementation of an MTConnect Agent used to read data from industrial machine tools and devices. This MTConnect Agent application is fully compatible with the latest **Version 2.7 of the MTConnect Standard**.
 
 #### Features
-- Plugin architecture to support Http Server, Mqtt Server, SHDR Adapters, etc.
+- Plugin architecture to support Http Server, Mqtt Broker, Mqtt Relay, SHDR Adapters, Web UI, etc.
 - Processors for transforming input data using simple Python scripts
 - Easy setup with Windows Installers
 - Options to run as Windows Service or as a console application (typically for testing/debugging)
@@ -44,7 +44,7 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 
 ![Agent-Diagram](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/docs/img/agent-diagram.png)
 
-## Capabilites
+## Capabilities
 | Description                          | Supported          | Description                          | Supported          |
 | :----------------------------------- |:------------------:| :----------------------------------- |:------------------:|
 | MTConnect Probe                      | :white_check_mark: | HTTP Server                          | :white_check_mark: |
@@ -63,7 +63,7 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 
 
 ## Installation
-Follow the steps below to install the MTConnect Agent HTTP application.
+Follow the steps below to install the MTConnect Agent application.
 
 ### Step #1
 Read through the license agreement (MIT License) and click **"I accept the agreement"** if you agree with the terms.
@@ -88,8 +88,7 @@ Then click **"Next"** to proceed to the next page.
 ![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/docs/img/MTConnect-Agent/Installation/installer-components.png) 
 
 ### Step #4
-Review the list of components that will be installed and if correct then click **"Install"** to begin 
-Then click **"Next"** to proceed to the next page.
+Review the list of components that will be installed and if correct then click **"Install"** to begin the installation.
 
 
 ![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/docs/img/MTConnect-Agent/Installation/installer-review.png) 
@@ -116,7 +115,7 @@ View the Probe and Current requests in a Web Browser
 ## Usage
 The Agent can be run from a command line prompt or as a Windows Service using the format below:
 ```
-agent [help|install|install-start|start|stop|remove|debug|run|run-service] [configuration_file]
+agent [help|install|install-start|start|stop|remove|debug|trace|run|run-service|reset] [configuration_file]
 
 --------------------
 
@@ -129,25 +128,30 @@ Options :
            stop  |  Stop the Service
          remove  |  Remove the Service
           debug  |  Runs the Agent in the terminal (with verbose logging)
+          trace  |  Runs the Agent in the terminal (with trace level logging)
             run  |  Runs the Agent in the terminal
     run-service  |  Runs the Agent as a Service
+          reset  |  Clears the durable Observation and Asset buffers and their indexes
 
 Arguments :
 --------------------
 
   configuration_file  |  Specifies the Agent Configuration file to load
-                         Default : agent.config.json
+                         Default : agent.config.yaml
 ```
+
+If no command is given, `run` is used. A relative `configuration_file` path is resolved against the executable's directory. If no `configuration_file` is given and a legacy `agent.config.json` file exists in the executable's directory, it is read and converted to `agent.config.yaml` on startup.
+
 #### Example 1:
 Install the Agent as a Windows Service (Note: requires Administrator Privileges)
- ```
- agent install
- ```
+```
+agent install
+```
 
 #### Example 2:
-Install the Agent as a Windows Service using the configuration file "agent-config.json" and Starts the service (Note: requires Administrator Privileges)
+Install the Agent as a Windows Service using the configuration file "agent-config.yaml" and Starts the service (Note: requires Administrator Privileges)
 ```
-agent install-start agent-config.json
+agent install-start agent-config.yaml
 ```
 
 #### Example 3:
@@ -170,45 +174,131 @@ processors:
 
 # - Modules -
 modules:
-  
+
+- web-ui: # - Add Web UI module (browse data and edit this configuration at http://localhost:5080)
+    port: 5080
+
 - http-server: # - Add HTTP Server module
-    hostname: localhost
     port: 5000
-    allowPut: true
     indentOutput: true
     documentFormat: xml
+    accept:
+      text/xml: xml
+      application/json: json
     responseCompression:
     - gzip
     - br
     files:
     - path: schemas
-    location: schemas
+      location: schemas
     - path: styles
-    location: styles
+      location: styles
     - path: styles/favicon.ico
-    location: favicon.ico
+      location: favicon.ico
 
-- mqtt-relay: # - Add MQTT Relay module
+# - http-server: # - Add HTTP Server module
+#     port: 5001
+#     indentOutput: true
+#     documentFormat: xml
+#     accept:
+#       text/xml: xml
+#       application/json: json
+#     responseCompression:
+#     - gzip
+#     - br
+#     tls:
+#       # pfx:
+#       #   certificatePath: c:\test-cert\trakhound.pfx
+#       #   certificatePassword: trakhound
+#       pem:
+#         certificateAuthority: c:\test-cert\rootCA.crt
+#         certificatePath: c:\test-cert\trakhound.crt
+#         privateKeyPath: c:\test-cert\trakhound.key
+#         privateKeyPassword: trakhound
+#     files:
+#     - path: schemas
+#       location: schemas
+#     - path: styles
+#       location: styles
+#     - path: styles/favicon.ico
+#       location: favicon.ico
+
+# - mqtt-broker: # - Add MQTT Broker module (Document Structure)
+#     port: 1883
+#     currentInterval: 10000
+#     sampleInterval: 500
+#     documentFormat: JSON-CPPAGENT
+#     topicPrefix: MTConnect/Document
+#     topicStructure: Document
+
+# - mqtt-broker: # - Add MQTT Broker module (Entity Structure)
+#     port: 1883
+#     currentInterval: 10000
+#     sampleInterval: 500
+#     documentFormat: JSON
+#     topicPrefix: MTConnect/Entity
+#     topicStructure: Entity
+
+# - mqtt-broker: # - Add MQTT Broker module (TLS)
+#     port: 8883
+#     currentInterval: 10000
+#     sampleInterval: 500
+#     tls:
+#       pem:
+#         certificateAuthority: c:\test-cert\rootCA.crt
+#         certificatePath: c:\test-cert\trakhound.crt
+#         privateKeyPath: c:\test-cert\trakhound.key
+#         privateKeyPassword: trakhound
+
+- mqtt-relay: # - Add MQTT Relay module (Document Structure)
     server: localhost
     port: 1883
-    currentInterval: 5000
+    durableRelay: false
+    currentInterval: 10000
     sampleInterval: 500
+    documentFormat: JSON-CPPAGENT-MQTT
+    topicPrefix: MTConnect/Document
+    topicStructure: Document
 
-- shdr-adapter: # - Add SHDR Adapter module for Device = M12346 and Port = 7878
-    deviceKey: M12346
-    hostname: localhost
+# - mqtt-relay: # - Add MQTT Relay module (Entity Structure)
+#     server: localhost
+#     port: 1883
+#     durableRelay: true
+#     currentInterval: 10000
+#     sampleInterval: 500
+#     documentFormat: JSON
+#     topicPrefix: MTConnect/Entity
+#     topicStructure: Entity
+
+# - mqtt-relay: # - Add MQTT Relay module (TLS)
+#     server: localhost
+#     port: 8883
+#     durableRelay: true
+#     currentInterval: 10000
+#     sampleInterval: 500
+#     tls:
+#       pem:
+#         certificateAuthority: c:\test-cert\rootCA.crt
+#         certificatePath: c:\test-cert\trakhound.crt
+#         privateKeyPath: c:\test-cert\trakhound.key
+#         privateKeyPassword: trakhound
+
+
+- shdr-adapter: # - Add SHDR Adapter module for Device = Okuma and Port = 7878
+    deviceKey: Okuma
+    # hostname: localhost
     port: 7878
+    heartbeat: 1000
+    reconnectInterval: 1000
+    connectionTimeout: 1000
 
-- shdr-adapter: # - Add SHDR Adapter module for Device = OKUMA-Lathe and Port = 7879
-    deviceKey: OKUMA-Lathe
-    hostname: localhost
+- shdr-adapter: # - Add SHDR Adapter module for Device = Mazak and Port = 7879
+    deviceKey: Mazak
+    # hostname: localhost
     port: 7879
-
-- mqtt-adapter: # - Add MQTT Adapter module for Device = M12346 and Topic = cnc-01
-    deviceKey: M12346
-    server: localhost
-    port: 1883
-    topic: cnc-01
+    heartbeat: 1000
+    reconnectInterval: 1000
+    connectionTimeout: 1000
 
 
 # The maximum number of Observations the agent can hold in its buffer
@@ -218,15 +308,23 @@ observationBufferSize: 150000
 assetBufferSize: 1000
 
 # Sets whether the Agent buffers are durable and retain state after restart
-durable: false
+# durable: true
+# durableBufferPath: C:\mtconnect\agent\buffer
+
+# Disables the Agent Device
+# enableAgentDevice: false
 
 # Sets the default MTConnect version to output response documents for.
-defaultVersion: 2.3
+# defaultVersion: 2.3
 ```
 
 #### Device Configuration
 
-* `devices` - The Path to look for the file(s) that represent the Device Information Models to load into the Agent. The path can either be a single file or a directory. The path can be absolute or relative to the executable's directory
+* `devices` - The Path to look for the file(s) that represent the Device Information Models to load into the Agent. The path can either be a single file or a directory. The path can be absolute or relative to the executable's directory. There is no default: if `devices` is not set, no Device files are loaded.
+
+#### Processor Configuration
+
+* `processors` - Contains configurations for Agent Processors (ex. `python`). These configurations are specific to the individual processors.
 
 #### Module Configuration
 
@@ -234,49 +332,68 @@ defaultVersion: 2.3
 
 #### Agent Configuration
 
-* `observationBufferSize` - The maximum number of Observations the agent can hold in its buffer
+* `observationBufferSize` - The maximum number of Observations the agent can hold in its buffer. Default is `131072`.
 
-* `assetBufferSize` - The maximum number of assets the agent can hold in its buffer
+* `assetBufferSize` - The maximum number of assets the agent can hold in its buffer. Default is `1024`.
 
-* `durable` - Sets whether the Agent buffers are durable and retain state after restart
+* `durable` - Sets whether the Agent buffers are durable and retain state after restart. Default is `false`.
 
-* `useBufferCompression` - Sets whether the durable Agent buffers use Compression
+* `durableBufferPath` - The base path to the directory to write the buffer files to when `durable` is `true`
 
-* `ignoreTimestamps` - Overwrite timestamps with the agent time. This will correct clock drift but will not give as accurate relative time since it will not take into consideration network latencies. This can be overridden on a per adapter basis.
+* `useBufferCompression` - Sets whether the durable Agent buffers use Compression. Default is `false`.
 
-* `defaultVersion` - Sets the default MTConnect version to output response documents for.
+* `ignoreTimestamps` - Overwrite timestamps with the agent time. This will correct clock drift but will not give as accurate relative time since it will not take into consideration network latencies. This can be overridden on a per adapter basis. Default is `false`.
 
-* `convertUnits` - Sets the default for Converting Units when adding Observations
+* `defaultVersion` - Sets the default MTConnect version to output response documents for. Default is the latest version supported (`2.7`).
 
-* `ignoreObservationCase` - Sets the default for Ignoring the case of Observation values. Applicable values will be converted to uppercase
+* `sender` - Sets the `sender` attribute in the Header of response documents. Default is the host name of the machine the Agent is running on.
 
-* `inputValidationLevel` - Sets the default per-DataItem validation level applied when new Observations and Assets are added to the Agent. Governs `InvalidObservationAdded` and `InvalidAssetAdded`. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict
+* `timeZoneOutput` - Sets the TimeZone to use when timestamps are output from the Agent
 
-* `deviceValidationLevel` - Sets the default device-shape validation level applied while a Device is being added or normalised (Component, Composition, DataItem). Independent from `inputValidationLevel` — a common integrator profile is `inputValidationLevel: Strict` alongside `deviceValidationLevel: Warning`. Governs `InvalidComponentAdded`, `InvalidCompositionAdded`, `InvalidDataItemAdded`, and `InvalidDeviceAdded`. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict
+* `convertUnits` - Sets the default for Converting Units when adding Observations. Default is `true`.
+
+* `ignoreObservationCase` - Sets the default for Ignoring the case of Observation values. Applicable values will be converted to uppercase. Default is `false`.
+
+* `enableValidation` - Sets whether Observations are validated against their DataItem when they are added, and marked as valid or invalid in the output. Default is `false`.
+
+* `inputValidationLevel` - Sets the default per-DataItem validation level applied when new Observations and Assets are added to the Agent. Governs `InvalidObservationAdded` and `InvalidAssetAdded`. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict. Default is `Warning`.
+
+* `deviceValidationLevel` - Sets the default device-shape validation level applied while a Device is being added or normalised (Component, Composition, DataItem). Independent from `inputValidationLevel` — a common integrator profile is `inputValidationLevel: Strict` alongside `deviceValidationLevel: Warning`. Governs `InvalidComponentAdded`, `InvalidCompositionAdded`, `InvalidDataItemAdded`, and `InvalidDeviceAdded`. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict. Default is `Warning`.
 
 * `allowEmptyResultForEnumEvents` - When `true`, preserves an empty Result verbatim on VALUE-representation EVENT DataItems whose Type has a controlled vocabulary (`EXECUTION`, `CONTROLLER_MODE`, `AVAILABILITY`, etc.). Default `false` coerces the empty Result to `UNAVAILABLE`. Free-form String and Numeric-typed Events are unaffected.
 
-* `monitorConfigurationFiles` - Sets whether Configuration files are monitored. If enabled and a configuration file is changed, the Agent will restart
+* `enableAgentDevice` - Sets whether the Agent Device is output. Default is `true`.
 
-* `configurationFileRestartInterval` - Sets the minimum time (in seconds) between Agent restarts when MonitorConfigurationFiles is enabled
+* `agentUuid` - Sets a static UUID to assign to the Agent Device. If not set, a UUID is resolved automatically.
 
-* `enableMetrics` - Sets whether Agent Metrics are captured (ex. ObserationUpdateRate, AssetUpdateRate)
+* `monitorConfigurationFiles` - Sets whether Configuration files are monitored. If enabled and a configuration file is changed, the Agent will restart. Default is `true`.
+
+* `configurationFileRestartInterval` - Sets the minimum time (in seconds) between Agent restarts when MonitorConfigurationFiles is enabled. Default is `2`.
+
+* `enableMetrics` - Sets whether Agent Metrics are captured (ex. ObservationUpdateRate, AssetUpdateRate). Default is `true`.
 
 
 #### Windows Service Configuration
 
 * `serviceName` - Changes the service name when installing or removing the service. This allows multiple agents to run as services on the same machine.
 
-* `serviceAutoStart` - Sets the Service Start Type. True = Auto | False = Manual
+* `serviceDisplayName` - Changes the display name of the service. This helps with identification when multiple agents run as services on the same machine.
+
+* `serviceDescription` - Changes the description of the service.
+
+* `serviceAutoStart` - Sets the Service Start Type. True = Auto | False = Manual. Default is `true`.
 
 
 ## Logging
 Logging is done using [NLog](https://github.com/NLog/NLog) which allows for customized logging through the NLog.config file located in the application's install directory. The loggers are setup so that there is a separate logger for:
+- **(application-logger)** Application startup, shutdown, and configuration
 - **(agent-logger)** MTConnect Agent
-- **(agent-validation-logger)** MTConnect Data Validation Errors
-- **(module-logger)** Modules
+- **(agent-metrics)** Agent Metrics (logged at the Debug level)
+- **(agent-validation)** MTConnect Data Validation Errors
+- **(modules.[id])** Modules. There is a logger for each module, named using the module's ID in lowercase with spaces replaced by dashes (ex. `modules.http-server`)
+- **(processors.[id])** Processors. There is a logger for each processor, named the same way (ex. `processors.python-scripts`)
 
-The default [NLog Configuration File](https://github.com/TrakHound/MTConnect.NET/blob/master/agent/MTConnect.NET-Applications-Agents/NLog.config) is shown below:
+The default [NLog Configuration File](https://github.com/TrakHound/MTConnect.NET/blob/master/agent/MTConnect.NET-Agent/NLog.config) is shown below:
 
 ```xml
 <?xml version="1.0" encoding="utf-8" ?>
@@ -289,23 +406,23 @@ The default [NLog Configuration File](https://github.com/TrakHound/MTConnect.NET
 		<target name="logconsole" xsi:type="Console" />
 
 		<!--Application Log File-->
-		<target xsi:type="File" name="application-file" fileName="logs\application-${shortdate}.log"
+		<target xsi:type="File" name="application-file" fileName="logs\application-${shortdate}.log" maxArchiveFiles="90" archiveEvery="Day"
 			layout="${longdate}|${event-properties:item=EventId_Id:whenEmpty=0}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}" />
 		
 		<!--Agent Log File-->
-		<target xsi:type="File" name="agent-file" fileName="logs\agent-${shortdate}.log"
+		<target xsi:type="File" name="agent-file" fileName="logs\agent-${shortdate}.log" maxArchiveFiles="90" archiveEvery="Day"
 			layout="${longdate}|${event-properties:item=EventId_Id:whenEmpty=0}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}" />
 
 		<!--Agent Validation Log File-->
-		<target xsi:type="File" name="agent-validation-file" fileName="logs\agent-validation-${shortdate}.log"
+		<target xsi:type="File" name="agent-validation-file" fileName="logs\agent-validation-${shortdate}.log" maxArchiveFiles="90" archiveEvery="Day"
 			layout="${longdate}|${event-properties:item=EventId_Id:whenEmpty=0}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}" />
 
 		<!--Module Log File-->
-		<target xsi:type="File" name="module-file" fileName="logs\module-${shortdate}.log"
+		<target xsi:type="File" name="module-file" fileName="logs\${logger}-${shortdate}.log" maxArchiveFiles="90" archiveEvery="Day"
 			layout="${longdate}|${event-properties:item=EventId_Id:whenEmpty=0}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}" />
 
 		<!--Processor Log File-->
-		<target xsi:type="File" name="processor-file" fileName="logs\processor-${shortdate}.log"
+		<target xsi:type="File" name="processor-file" fileName="logs\${logger}-${shortdate}.log" maxArchiveFiles="90" archiveEvery="Day"
 			layout="${longdate}|${event-properties:item=EventId_Id:whenEmpty=0}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}" />
 
 	</targets>
@@ -314,26 +431,26 @@ The default [NLog Configuration File](https://github.com/TrakHound/MTConnect.NET
 	<rules>
 
 		<!--Write to Console-->
-		<logger name="*" minlevel="Debug" writeTo="logconsole" />
+		<logger name="*" minlevel="Info" writeTo="logconsole" />
 
 		<!--Application Logger-->
-		<logger name="application-logger" minlevel="Info" writeTo="application-file" final="true" />
+		<logger name="application-logger" minlevel="Warning" writeTo="application-file" final="true" />
 
 		<!--Agent Logger-->
-		<logger name="agent-logger" minlevel="Info" writeTo="agent-file" final="true" />
+		<logger name="agent-logger" minlevel="Warning" writeTo="agent-file" final="true" />
 		
 		<!--Agent Validation Logger (Used to log Data Validation Errors)-->
-		<logger name="agent-validation-logger" minlevel="Warning" writeTo="agent-validation-file" final="true" />
+		<logger name="agent-validation" minlevel="Warning" writeTo="agent-validation-file" final="true" />
 		
 		<!--Module Logger-->
-		<logger name="module-logger" minlevel="Info" writeTo="module-file" final="true" />
+		<logger name="modules.*" minlevel="Warning" writeTo="module-file" final="true" />
 
 		<!--Processor Logger-->
-		<logger name="processor-logger" minlevel="Info" writeTo="processor-file" final="true" />
+		<logger name="processors.*" minlevel="Warning" writeTo="processor-file" final="true" />
 
 		<!--Skip non-critical Microsoft logs and so log only own logs (BlackHole) -->
-		<logger name="Microsoft.*" maxlevel="Info" final="true" />
-		<logger name="System.Net.Http.*" maxlevel="Info" final="true" />
+		<logger name="Microsoft.*" maxlevel="Warning" final="true" />
+		<logger name="System.Net.Http.*" maxlevel="Warning" final="true" />
 
 	</rules>
 </nlog>
@@ -346,7 +463,7 @@ dotnet publish -c:Release -f:net8.0 -r:win-x64 -p:PublishSingleFile=true -p:Incl
 ```
 
 ## Source Code
-This project uses the MTConnect.NET-Applications-Agents library (available on [Nuget](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents)) to create an MTConnect Agent application. More information about this library can be found [Here](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-Applications-Agents). The MTConnect.NET-Applications-Agents library makes creating an MTConnect Agent application simple as well as makes it easy to keep updated using Nuget. A fully functionaly MTConnect Application can be created in just a few lines of code.
+This project uses the MTConnect.NET-Applications-Agents library (available on [Nuget](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents)) to create an MTConnect Agent application. More information about this library can be found [Here](https://github.com/TrakHound/MTConnect.NET/tree/master/agent/MTConnect.NET-Applications-Agents). The MTConnect.NET-Applications-Agents library makes creating an MTConnect Agent application simple as well as makes it easy to keep updated using Nuget. A fully functional MTConnect Application can be created in just a few lines of code.
 
 ## Contribution / Feedback
 - Please use the [Issues](https://github.com/TrakHound/MTConnect.NET/issues) tab to create issues for specific problems that you may encounter 
@@ -354,4 +471,4 @@ This project uses the MTConnect.NET-Applications-Agents library (available on [N
 - For any other questions or feedback, please contact TrakHound directly at **info@trakhound.com**.
 
 ## License
-This application and it's source code is licensed under the [MIT License](https://choosealicense.com/licenses/mit/) and is free to use and distribute.
+This application and its source code is licensed under the [MIT License](https://choosealicense.com/licenses/mit/) and is free to use and distribute.

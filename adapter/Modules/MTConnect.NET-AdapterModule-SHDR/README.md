@@ -23,14 +23,20 @@ This Adapter Module implements the SHDR Protocol to send data to an MTConnect Ag
 
 ## Configuration
 ```yaml
-- shdr:
-    port: 7878
-    deviceKey: M12346
+modules:
+  - shdr:
+      port: 7878
 ```
 
-* `port` - The port number to read from.
+* `port` - The TCP port that the adapter listens on for connections from an MTConnect Agent. Default is `7878`.
 
-* `deviceKey` - The UUID or Name of the Device to send data for.
+* `heartbeat` - The Heartbeat interval (in milliseconds) that is sent to the Agent in response to a PING request. Default is `10000`.
+
+* `connectionTimeout` - The timeout (in milliseconds) used when reading from or writing to an Agent connection. Default is `5000`.
+
+* `timeZoneOutput` - The time zone used for the timestamps that are output (ex. `ET`). Default is `Z` (UTC).
+
+The Device that data is sent for is set using the `deviceKey` property at the top level of the adapter configuration file, not in this module.
 
 
 ## Contribution / Feedback
@@ -39,4 +45,4 @@ This Adapter Module implements the SHDR Protocol to send data to an MTConnect Ag
 - For any other questions or feedback, please contact TrakHound directly at **info@trakhound.com**.
 
 ## License
-This application and it's source code is licensed under the [MIT License](https://choosealicense.com/licenses/mit/) and is free to use.
+This application and its source code is licensed under the [MIT License](https://choosealicense.com/licenses/mit/) and is free to use.

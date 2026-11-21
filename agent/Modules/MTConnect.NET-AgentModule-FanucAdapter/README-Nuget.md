@@ -96,3 +96,6 @@ The CNC model (ex. `30i-M`) from `cnc_sysinfo` is used for the Device Descriptio
 * FOCAS functions the CNC does not support (or that need an option that is not installed) are logged once and not read again until the CNC reconnects.
 * The tool number, work offset and overrides depend on the custom macro option and the standard CNC interface signals. Check the values against the CNC screens when setting up a new machine.
 
+## License
+This application and its source code is licensed under the [MIT License](https://choosealicense.com/licenses/mit/) and is free to use. The Fanuc FOCAS libraries are licensed separately by Fanuc.
+

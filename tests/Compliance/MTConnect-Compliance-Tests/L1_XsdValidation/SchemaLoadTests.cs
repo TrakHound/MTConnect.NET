@@ -22,7 +22,7 @@ namespace MTConnect.Tests.Compliance.L1_XsdValidation
     //
     // Two pre-load wrinkles are handled here:
     //
-    // 1. The MTConnect XSDs from v1.3 onwards reference xlink:hrefType /
+    // 1. The MTConnect XSDs from v1.5 onwards reference xlink:hrefType /
     //    xlink:type and declare an <xs:import namespace='…/xlink'
     //    schemaLocation='xlink.xsd'/> pointing at a sibling file the
     //    upstream source tree never shipped. With XmlResolver = null
