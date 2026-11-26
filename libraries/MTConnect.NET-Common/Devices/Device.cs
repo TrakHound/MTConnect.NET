@@ -1023,6 +1023,16 @@ namespace MTConnect.Devices
         /// <param name="dataItemId">The ID of the DataItem to remove</param>
         public void RemoveDataItem(string dataItemId)
         {
+            // DataItems directly on the Device
+            if (!DataItems.IsNullOrEmpty())
+            {
+                var dataItems = new List<IDataItem>();
+                dataItems.AddRange(DataItems);
+                dataItems.RemoveAll(o => o.Id == dataItemId);
+                DataItems = dataItems;
+            }
+
+            // DataItems on Components (any level)
             var components = GetComponents();
             if (!components.IsNullOrEmpty())
             {
@@ -1034,6 +1044,22 @@ namespace MTConnect.Devices
                         dataItems.AddRange(component.DataItems);
                         dataItems.RemoveAll(o => o.Id == dataItemId);
                         component.DataItems = dataItems;
+                    }
+                }
+            }
+
+            // DataItems on Compositions (any level)
+            var compositions = GetCompositions();
+            if (!compositions.IsNullOrEmpty())
+            {
+                foreach (var composition in compositions)
+                {
+                    if (!composition.DataItems.IsNullOrEmpty())
+                    {
+                        var dataItems = new List<IDataItem>();
+                        dataItems.AddRange(composition.DataItems);
+                        dataItems.RemoveAll(o => o.Id == dataItemId);
+                        composition.DataItems = dataItems;
                     }
                 }
             }

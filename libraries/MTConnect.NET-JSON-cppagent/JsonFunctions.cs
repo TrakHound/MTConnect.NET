@@ -156,6 +156,9 @@ namespace MTConnect
 
                     var outputStream = new MemoryStream();
                     JsonSerializer.Serialize(outputStream, obj, options);
+
+                    // Rewind so the caller reads the serialized content from the start
+                    outputStream.Position = 0;
                     return outputStream;
                 }
                 catch { }

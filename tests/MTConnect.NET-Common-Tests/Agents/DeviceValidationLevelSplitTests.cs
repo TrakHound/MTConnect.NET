@@ -328,9 +328,8 @@ namespace MTConnect.Tests.Common.Agents
                 Uuid = DeviceUuid,
             };
 
-            // Attach the generic DataItem to a valid child Component so NormalizeDevice's
-            // obj.RemoveDataItem(id) traversal (which walks child Components, not the Device's
-            // own DataItems collection) finds and drops it.
+            // Attach the generic DataItem to a valid child Component, so the removal is
+            // exercised through the Component traversal of obj.RemoveDataItem(id).
             var host = new MTConnect.Devices.Components.LinearComponent
             {
                 Id = "host-linear",

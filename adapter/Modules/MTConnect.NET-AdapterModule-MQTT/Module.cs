@@ -205,6 +205,8 @@ namespace MTConnect
                     var messageBuilder = new MqttApplicationMessageBuilder();
                     messageBuilder.WithTopic($"{_configuration.Topic}/observations");
                     messageBuilder.WithQualityOfServiceLevel((MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.Qos);
+                    // A formatter may return its stream positioned at the end, which would publish an empty payload
+                    if (formatResult.Content != null && formatResult.Content.CanSeek) formatResult.Content.Seek(0, SeekOrigin.Begin);
                     messageBuilder.WithPayload(formatResult.Content);
                     messageBuilder.WithRetainFlag(true);
 
@@ -236,6 +238,8 @@ namespace MTConnect
                     var messageBuilder = new MqttApplicationMessageBuilder();
                     messageBuilder.WithTopic($"{_configuration.Topic}/assets");
                     messageBuilder.WithQualityOfServiceLevel((MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.Qos);
+                    // A formatter may return its stream positioned at the end, which would publish an empty payload
+                    if (formatResult.Content != null && formatResult.Content.CanSeek) formatResult.Content.Seek(0, SeekOrigin.Begin);
                     messageBuilder.WithPayload(formatResult.Content);
                     messageBuilder.WithRetainFlag(true);
 
@@ -269,6 +273,8 @@ namespace MTConnect
                         var messageBuilder = new MqttApplicationMessageBuilder();
                         messageBuilder.WithTopic($"{_configuration.Topic}/device");
                         messageBuilder.WithQualityOfServiceLevel((MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.Qos);
+                        // A formatter may return its stream positioned at the end, which would publish an empty payload
+                        if (formatResult.Content != null && formatResult.Content.CanSeek) formatResult.Content.Seek(0, SeekOrigin.Begin);
                         messageBuilder.WithPayload(formatResult.Content);
                         messageBuilder.WithRetainFlag(true);
 
