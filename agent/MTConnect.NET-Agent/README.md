@@ -20,6 +20,11 @@
             <td><a href="https://github.com/TrakHound/MTConnect.NET/releases/latest">https://github.com/TrakHound/MTConnect.NET/releases/latest</a></td>
         </tr>
         <tr>
+            <td>Linux</td>
+            <td></td>
+            <td><a href="https://github.com/TrakHound/MTConnect.NET/releases/latest">https://github.com/TrakHound/MTConnect.NET/releases/latest</a> (<a href="#linux-installation">install steps</a>)</td>
+        </tr>
+        <tr>
             <td>Docker</td>
             <td><img src="https://img.shields.io/docker/pulls/trakhound/mtconnect.net-agent?style=for-the-badge&logo=docker&label=%20&color=%23333"/></td>
             <td><a href="https://hub.docker.com/repository/docker/trakhound/mtconnect.net-agent">https://hub.docker.com/repository/docker/trakhound/mtconnect.net-agent</a></td>
@@ -33,7 +38,7 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 #### Features
 - Plugin architecture to support Http Server, Mqtt Broker, Mqtt Relay, SHDR Adapters, Web UI, etc.
 - Processors for transforming input data using simple Python scripts
-- Easy setup with Windows Installers
+- Easy setup with Windows Installers, and Linux archives that install a systemd service
 - Options to run as Windows Service or as a console application (typically for testing/debugging)
 - Optional 'Durable' buffer used to retain the Agent data between application/machine restarts
 - High performance / Low resource usage
@@ -110,6 +115,24 @@ View the Probe and Current requests in a Web Browser
 
 #### Current Request
 ![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/docs/img/MTConnect-Agent/Browser/current-request-web-browser.png) 
+
+
+## Linux Installation
+Each release has an archive for 64-bit Linux : `mtconnect.net-agent-[version]-linux-x64.tar.gz` for x86_64, or `mtconnect.net-agent-[version]-linux-arm64.tar.gz` for aarch64 (ex. a Raspberry Pi with a 64-bit OS). It includes the .NET Runtime, so .NET doesn't need to be installed. Download it from the [latest release](https://github.com/TrakHound/MTConnect.NET/releases/latest), extract it and run `install.sh`, which installs the Agent as the systemd service `mtconnect.net-agent`:
+```
+tar -xzf mtconnect.net-agent-[version]-linux-x64.tar.gz
+sudo bash mtconnect.net-agent/install.sh
+```
+
+The Agent is installed to `/opt/trakhound/mtconnect.net-agent`, with its configuration (`agent.config.yaml`, `NLog.config` and the `devices` directory), logs and buffers. It runs as the `mtconnect` user, which owns that directory. .NET needs ICU, so install your distribution's `libicu` package if `install.sh` asks for it.
+
+- Change `agent.config.yaml` for your devices, then restart the service with `sudo systemctl restart mtconnect.net-agent`
+- View the Probe at [http://localhost:5000](http://localhost:5000/) and the Web UI at [http://localhost:5080](http://localhost:5080/) (open the ports in the firewall to reach them from other computers)
+- See the service's status with `systemctl status mtconnect.net-agent` and its output with `journalctl -u mtconnect.net-agent -f`
+- To upgrade, run the same commands with a newer archive. The configuration, devices, processors, logs and buffers are kept
+- To uninstall, run `sudo bash mtconnect.net-agent/install.sh --uninstall`, which removes the service and keeps `/opt/trakhound/mtconnect.net-agent`. Add `--purge` to also delete it and the `mtconnect` user
+
+The `install`, `start`, `stop` and `remove` commands below are for the Windows Service. On Linux, use `systemctl`.
 
 
 ## Usage
