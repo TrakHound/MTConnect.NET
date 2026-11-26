@@ -6,12 +6,13 @@
 # Released images (trakhound/mtconnect.net-agent on Docker Hub) are built by TrakHound's release builder;
 # this file builds an equivalent image from a checkout of this repository.
 #
-# FRAMEWORK selects the Agent's target framework, and RUNTIME_IMAGE the base image it runs on (they must match)
+# FRAMEWORK selects the Agent's target framework, and RUNTIME_IMAGE the base image it runs on (they must match, ex.
+#   docker build --build-arg FRAMEWORK=net8.0 --build-arg RUNTIME_IMAGE=mcr.microsoft.com/dotnet/runtime:8.0 .)
 
-ARG FRAMEWORK=net8.0
-ARG RUNTIME_IMAGE=mcr.microsoft.com/dotnet/runtime:8.0
+ARG FRAMEWORK=net10.0
+ARG RUNTIME_IMAGE=mcr.microsoft.com/dotnet/runtime:10.0
 
-# The libraries multi-target up to net10.0, so restoring them needs the .NET 10 SDK even when the Agent targets net8.0
+# The libraries multi-target up to net10.0, so restoring them needs the .NET 10 SDK even when the Agent targets an earlier framework
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG FRAMEWORK
 WORKDIR /src
