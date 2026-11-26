@@ -66,6 +66,23 @@
 		<ProjectReference Include="..\Processors\MTConnect.NET-AgentProcessor-Python\MTConnect.NET-AgentProcessor-Python.csproj" />
 	</ItemGroup>
 
+	<!--
+	  The default configuration files. MTConnectAgentApplication copies them to
+	  agent.config.yaml / NLog.config on first run when those do not exist, so
+	  they have to reach the output directory of whatever references this
+	  project or its NuGet package.
+	-->
+	<ItemGroup>
+		<None Remove="agent.config.default.yaml" />
+		<None Remove="NLog.default.config" />
+		<Content Include="agent.config.default.yaml;NLog.default.config">
+			<Pack>true</Pack>
+			<PackagePath>contentFiles/any/any;content</PackagePath>
+			<PackageCopyToOutput>true</PackageCopyToOutput>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
 	<ItemGroup>
 		<Compile Update="Service.cs" />
 	</ItemGroup>
