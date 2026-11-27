@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Configurations
     /// <summary>
     /// Technical information about an entity describing its physical layout, functional characteristics, and relationships with other entities.
     /// </summary>
-    public class Configuration : IConfiguration
+    public partial class Configuration : IConfiguration
     {
         /// <summary>
         /// The description of this type as defined by the MTConnect Standard.

@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Configurations
     /// <summary>
     /// Technical information about an entity describing its physical layout, functional characteristics, and relationships with other entities.
     /// </summary>
-    public interface IConfiguration
+    public partial interface IConfiguration
     {
         /// <summary>
         /// Reference system that associates a unique set of n parameters with each point in an n-dimensional space. ISO 10303-218:2004
