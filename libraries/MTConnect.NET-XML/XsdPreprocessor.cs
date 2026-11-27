@@ -42,6 +42,15 @@ namespace MTConnect
         private const string XsdNamespace = "http://www.w3.org/2001/XMLSchema";
 
         /// <summary>
+        /// Upper bound on the size of an XSD source the preprocessor accepts, in UTF-16 characters
+        /// (roughly bytes for ASCII XSDs). MTConnect XSDs ship well under 500 KB; the 10 MB gate
+        /// keeps a bounded ceiling on parser memory and short-circuits XML entity-expansion attacks
+        /// before the underlying reader allocates. Exposed as a constant so the pinning tests can
+        /// straddle the boundary without a magic number.
+        /// </summary>
+        public const int MaxSourceCharacters = 10_000_000;
+
+        /// <summary>
         /// Returns a copy of <paramref name="xsdSourceXml"/> with every XSD
         /// 1.1-only construct removed. Idempotent: re-running on the
         /// preprocessed output is a no-op.
@@ -51,23 +60,55 @@ namespace MTConnect
         /// <exception cref="ArgumentNullException">
         /// Thrown when <paramref name="xsdSourceXml"/> is null.
         /// </exception>
+        /// <exception cref="System.Xml.XmlException">
+        /// Thrown when <paramref name="xsdSourceXml"/> exceeds
+        /// <see cref="MaxSourceCharacters"/> — the guard rail against XML entity-expansion attacks.
+        /// </exception>
         public static string StripXsd11Constructs(string xsdSourceXml)
         {
             if (xsdSourceXml == null) throw new ArgumentNullException(nameof(xsdSourceXml));
             if (xsdSourceXml.Length == 0) return xsdSourceXml;
 
+            // Fail loud before parsing: a caller who lobbed a > 10 MB payload at the preprocessor
+            // has almost certainly hit an entity-expansion attack (billion-laughs / quadratic-
+            // blowup) or a runaway build-side generator. Silently returning the raw source would
+            // hand the payload down to XmlSchema.Read, which lacks a matching size cap.
+            if (xsdSourceXml.Length > MaxSourceCharacters)
+            {
+                throw new System.Xml.XmlException(
+                    $"XSD source exceeds the {MaxSourceCharacters:N0}-character preprocessor limit; " +
+                    "refusing to parse to avoid unbounded resource consumption.");
+            }
+
             XDocument doc;
             try
             {
-                using (var reader = new StringReader(xsdSourceXml))
+                // XDocument.Load(TextReader, LoadOptions) uses default XmlReaderSettings, which
+                // in .NET 4.0+ disables DTD processing by default but leaves DocumentDoS-shape
+                // limits at their permissive defaults (MaxCharactersInDocument = 0 → unbounded,
+                // MaxCharactersFromEntities = 0 → unbounded). Route through an explicitly-tightened
+                // XmlReader so the loader rejects DTDs, refuses to resolve external entities, and
+                // caps the document at 10 MB / entity expansion at 0 characters to shut down the
+                // classic billion-laughs and quadratic-blowup XML entity attacks. The XSD source
+                // is untrusted — an operator can point the preprocessor at any XSD URL — so the
+                // hardening runs at every entry.
+                var settings = new System.Xml.XmlReaderSettings
                 {
-                    doc = XDocument.Load(reader, LoadOptions.PreserveWhitespace);
+                    DtdProcessing = System.Xml.DtdProcessing.Prohibit,
+                    XmlResolver = null,
+                    MaxCharactersInDocument = 10_000_000,
+                    MaxCharactersFromEntities = 0,
+                };
+                using (var stringReader = new StringReader(xsdSourceXml))
+                using (var xmlReader = System.Xml.XmlReader.Create(stringReader, settings))
+                {
+                    doc = XDocument.Load(xmlReader, LoadOptions.PreserveWhitespace);
                 }
             }
             catch (System.Xml.XmlException)
             {
-                // Not well-formed XML — let the downstream BCL reader emit
-                // the parse error so the caller's error path stays
+                // Not well-formed XML, or exceeds the DTD/size guard rails above — let the
+                // downstream BCL reader emit the parse error so the caller's error path stays
                 // consistent.
                 return xsdSourceXml;
             }
